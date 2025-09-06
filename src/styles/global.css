@@ -1,4 +1,5 @@
-@import "tailwindcss";
+@import 'tailwindcss';
+@layer theme, base, mui, components, utilities;
 
 @font-face {
   font-family: 'Roboto';
@@ -16,13 +17,21 @@
   font-display: swap;
 }
 
-/* @tailwind base;
-@tailwind components;
-@tailwind utilities; */
-
-:root {
-  font-family: 'Roboto', sans-serif;
+@theme {
+  --primary-gradient: linear-gradient(150deg, #fcfbf5 55%, #ffd85f80 100%);
+  --color-dark: #303030;
+  --color-light: #fcfbf5;
+  --color-darkYellow: #ffd85f;
+  --color-lightYellow: #ffd85f80;
+  --color-lightGray: #e4e4e7;
+  --color-darkGray: #898989;
 }
+
+/* * {
+  color: var(--color-dark);
+} */
+
+/* @custom-variant dark (&:where(.dark, .dark *)); */
 
 /* :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;

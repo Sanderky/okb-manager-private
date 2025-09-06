@@ -9,9 +9,10 @@ const Dashboard: React.FC = () => {
   const handleLogout = async () => {
     try {
       await signOut(auth);
-      navigate('/');
+      console.log("✅ Wylogowano");
+      navigate("/"); // np. powrót na stronę logowania
     } catch (error: any) {
-      console.error('Logout failed:', error.message);
+      console.error("❌ Błąd wylogowania:", error.message);
     }
   };
 

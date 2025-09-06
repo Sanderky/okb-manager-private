@@ -1,5 +1,30 @@
 {
-  "test": {
-    "hej": "siema"
+  "login": {
+    "forgotPassword": {
+      "link": "Nie pamiętasz hasła?",
+      "title": "Zresetuj hasło",
+      "description": "Wprowadź swój adres e-mail poniżej, a my wyślemy Ci link do zresetowania hasła.",
+      "emailLabel": "Adres e-mail",
+      "cancelButton": "Anuluj",
+      "continueButton": "Kontynuuj",
+      "noUser": "Nie znaleziono użytkownika z tym adresem e-mail.",
+      "resetSuccess": "Link do resetowania hasła został wysłany na Twój adres e-mail.",
+      "invalidEmail": "Nieprawidłowy adres e-mail.",
+      "error": "Wystąpił błąd podczas próby zresetowania hasła."
+    },
+    "email": "Email",
+    "password": "Hasło",
+    "loginButton": "Zaloguj się",
+    "signIn": "Zaloguj się do swojego konta",
+    "invalidEmail": "Nieprawidłowy adres e-mail.",
+    "shortPassword": "Hasło musi mieć co najmniej 6 znaków.",
+    "loginError": "Wprowadzono niepoprawny email lub hasło.",
+    "formValidate": {
+      "emailRequired": "Email jest wymagany",
+      "emailInvalid": "Nieprawidłowy format email",
+      "emailMaxLength": "Email jest za długi",
+      "passwordRequired": "Hasło jest wymagane",
+      "passwordMinLength": "Hasło musi mieć co najmniej 6 znaków"
+    }
   }
 }
