@@ -26,5 +26,9 @@
       "passwordRequired": "Hasło jest wymagane",
       "passwordMinLength": "Hasło musi mieć co najmniej 6 znaków"
     }
+  },
+  "menu": {
+    "expand": "Rozszerz",
+    "collapse": "Zwiń"
   }
 }

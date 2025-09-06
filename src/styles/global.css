@@ -3,7 +3,7 @@
 
 @font-face {
   font-family: 'Roboto';
-  src: url('Roboto-VariableFont_wdth,wght') format('ttf');
+  src: url('/public/fonts/Roboto.ttf') format('truetype');
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
@@ -11,13 +11,14 @@
 
 @font-face {
   font-family: 'RobotoItalic';
-  src: url('Roboto-Italic-VariableFont_wdth,wght') format('ttf');
+  src: url('/public/fonts/RobotoItalic.ttf') format('truetype');
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
 }
 
 @theme {
+  --font-roboto: "Roboto", sans-serif;
   --primary-gradient: linear-gradient(150deg, #fcfbf5 55%, #ffd85f80 100%);
   --color-dark: #303030;
   --color-light: #fcfbf5;
@@ -25,6 +26,10 @@
   --color-lightYellow: #ffd85f80;
   --color-lightGray: #e4e4e7;
   --color-darkGray: #898989;
+}
+
+:root {
+  min-height: 100vh;
 }
 
 /* * {
