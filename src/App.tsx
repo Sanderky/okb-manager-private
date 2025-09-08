@@ -4,6 +4,10 @@ import DashboardLayout from './components/dashboard/DashboardLayout';
 import Login from './pages/Login/Login';
 import { AuthProvider } from './context/AuthContext';
 import PrivateRoute from './routing/PrivateRoute';
+import ConstructionsList from './pages/Dashboard/Constructions/ConstructionsList';
+import NotificationsProvider from './hooks/useNotifications/NotificationsProvider';
+import DialogsProvider from './hooks/useDialogs/DialogsProvider';
+import ConstructionCreate from './pages/Dashboard/Constructions/ConstructionCreate';
 
 // import AppTheme from './theme/AppTheme';
 // import {
@@ -26,14 +30,21 @@ export default function App() {
     <AuthProvider>
       {/* <AppTheme {...props} themeComponents={themeComponents}> */}
       <CssBaseline enableColorScheme />
-      <Router>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route element={<PrivateRoute />}>
-            <Route path="/" element={<DashboardLayout/>} />
-          </Route>
-        </Routes>
-      </Router>
+      <NotificationsProvider>
+        <DialogsProvider>
+          <Router>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route element={<PrivateRoute />}>
+                <Route path="/" element={<DashboardLayout/>} >
+                  <Route path="constructions" element={<ConstructionsList/>}/>
+                  <Route path="constructions/new" element={<ConstructionCreate/>}/>
+                </Route>
+              </Route>
+            </Routes>
+          </Router>
+        </DialogsProvider>
+      </NotificationsProvider>
       {/* </AppTheme> */}
     </AuthProvider>
   );

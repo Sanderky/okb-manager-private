@@ -27,8 +27,29 @@
       "passwordMinLength": "Hasło musi mieć co najmniej 6 znaków"
     }
   },
+  "form": {
+    "create": "Utwórz"
+  },
   "menu": {
     "expand": "Rozszerz",
-    "collapse": "Zwiń"
+    "collapse": "Zwiń",
+    "back": "Cofnij"
+  },
+  "constructions": {
+    "name": "Nazwa",
+    "location": "Adres",
+    "startDate": "Data rozpoczęcia",
+    "contractor": "Wykonawca",
+    "newConstruction": "Nowa budowa",
+    "new": "Nowa",
+    "constructions": "Budowy",
+    "createSuccess": "Budowa utworzona pomyślnie",
+    "createError": "Budowa nie została utworzona z powodu błędu.",
+    "nameReq": "Nazwa budowy jest wymagana",
+    "locationReq": "Adres budowy jest wymagany",
+    "startDateReq": "Data rozpoczęcia budowy jest wymagana",
+    "contractorReq": "Wykonawca budowy jest wymagany",
+    "constructionsList": "Lista budów",
+    "newConstructionCreation": "Tworzenie nowej budowy"
   }
 }

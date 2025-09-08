@@ -7,6 +7,7 @@ import List from '@mui/material/List';
 import Toolbar from '@mui/material/Toolbar';
 import type {} from '@mui/material/themeCssVarsAugmentation';
 import PersonIcon from '@mui/icons-material/Person';
+import ConstructionIcon from '@mui/icons-material/Construction';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import DescriptionIcon from '@mui/icons-material/Description';
 import LayersIcon from '@mui/icons-material/Layers';
@@ -132,6 +133,13 @@ export default function DashboardSidebar({
               width: mini ? MINI_DRAWER_WIDTH : 'auto',
             }}
           >
+            <DashboardSidebarPageItem
+              id="constructions"
+              title="Budowy"
+              icon={<ConstructionIcon />}
+              href="/constructions"
+              selected={!!matchPath('/constructions/*', pathname)}
+            />
             {/* <DashboardSidebarHeaderItem>Main items</DashboardSidebarHeaderItem>
             <DashboardSidebarPageItem
               id="employees"
