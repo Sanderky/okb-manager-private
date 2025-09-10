@@ -14,6 +14,7 @@ import dayjs, { Dayjs } from 'dayjs';
 import 'dayjs/locale/pl';
 import type { Construction } from '../../../types';
 import { useTranslation } from 'react-i18next';
+import { Typography } from '@mui/material';
 
 
 export interface ConstructionFormState {
@@ -134,10 +135,14 @@ export default function ConstructionForm(props: ConstructionFormProps) {
       onReset={handleReset}
       sx={{ width: '100%' }}
     >
+      <Typography sx={{
+        marginBottom: '1rem'
+      }}>Pola oznaczone gwiazdką (*) są obowiązkowe.</Typography>
       <FormGroup>
         <Grid container spacing={2} sx={{ mb: 2, width: '100%' }}>
           <Grid size={{ xs: 12, sm: 6 }} sx={{ display: 'flex' }}>
             <TextField
+              required
               value={formValues.name ?? ''}
               onChange={handleTextFieldChange}
               name="name"
@@ -149,6 +154,7 @@ export default function ConstructionForm(props: ConstructionFormProps) {
           </Grid>
           <Grid size={{ xs: 12, sm: 6 }} sx={{ display: 'flex' }}>
             <TextField
+              required
               value={formValues.location ?? ''}
               onChange={handleTextFieldChange}
               name="location"
@@ -160,6 +166,7 @@ export default function ConstructionForm(props: ConstructionFormProps) {
           </Grid>
           <Grid size={{ xs: 12, sm: 6 }} sx={{ display: 'flex' }}>
             <TextField
+              required
               value={formValues.contractor ?? ''}
               onChange={handleTextFieldChange}
               name="contractor"
@@ -175,7 +182,7 @@ export default function ConstructionForm(props: ConstructionFormProps) {
                 value={formValues.startDate ? dayjs(formValues.startDate) : null}
                 onChange={handleDateFieldChange('startDate')}
                 name="startDate"
-                label={t('constructions.startDate')}
+                label={`${t('constructions.startDate')} *`}
                 slotProps={{
                   textField: {
                     error: !!formErrors.startDate,
@@ -185,7 +192,21 @@ export default function ConstructionForm(props: ConstructionFormProps) {
                 }}
               />
             </LocalizationProvider>
-          </Grid>
+            </Grid>
+          {/* <Grid size={{ xs: 12, sm: 6 }} sx={{ display: 'flex' }}> */}
+            <TextField
+            multiline
+            minRows={10}
+            maxRows={10}
+              value={formValues.notes ?? ''}
+              onChange={handleTextFieldChange}
+              name="notes"
+              label={'Notatki'}
+              error={!!formErrors.notes}
+              helperText={formErrors.notes ?? ' '}
+              fullWidth
+            />
+          {/* </Grid> */}
         </Grid>
       </FormGroup>
       <Stack direction="row" spacing={2} justifyContent="space-between">

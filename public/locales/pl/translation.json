@@ -43,6 +43,7 @@
     "newConstruction": "Nowa budowa",
     "new": "Nowa",
     "constructions": "Budowy",
+    "construction": "Budowa",
     "createSuccess": "Budowa utworzona pomyślnie",
     "createError": "Budowa nie została utworzona z powodu błędu.",
     "nameReq": "Nazwa budowy jest wymagana",

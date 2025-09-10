@@ -1,5 +1,6 @@
 
 export interface Construction {
+    id: string,
     name: string,
     location: string,
     contractor: string,
