@@ -34,29 +34,27 @@ export default function DashboardLayout() {
       isOverMdViewport,
       setIsDesktopNavigationExpanded,
       setIsMobileNavigationExpanded,
-    ],
+    ]
   );
 
   const handleToggleHeaderMenu = React.useCallback(
     (isExpanded: boolean) => {
       setIsNavigationExpanded(isExpanded);
     },
-    [setIsNavigationExpanded],
+    [setIsNavigationExpanded]
   );
 
   const layoutRef = React.useRef<HTMLDivElement>(null);
 
   return (
     <Box
-      ref={layoutRef}
       sx={{
-        position: 'relative',
         display: 'flex',
+        flexDirection: 'column',
+        height: '100vh',
         overflow: 'hidden',
-        minHeight: '100vh',
-        height: '100%',
-        width: '100%',
       }}
+      className="bg-gray-50"
     >
       <DashboardHeader
         logo={<SitemarkIcon />}
@@ -64,30 +62,40 @@ export default function DashboardLayout() {
         menuOpen={isNavigationExpanded}
         onToggleMenu={handleToggleHeaderMenu}
       />
-      <DashboardSidebar
-        expanded={isNavigationExpanded}
-        setExpanded={setIsNavigationExpanded}
-        container={layoutRef?.current ?? undefined}
-      />
+
       <Box
         sx={{
           display: 'flex',
-          flexDirection: 'column',
-          flex: 1,
-          minWidth: 0,
+          flexGrow: 1,
+          overflow: 'hidden',
+          minHeight: 0,
         }}
       >
-        <Toolbar sx={{ displayPrint: 'none' }} />
+        <DashboardSidebar
+          expanded={isNavigationExpanded}
+          setExpanded={setIsNavigationExpanded}
+          container={layoutRef?.current ?? undefined}
+        />
+
         <Box
           component="main"
           sx={{
             display: 'flex',
             flexDirection: 'column',
-            flex: 1,
-            overflow: 'auto',
+            flexGrow: 1,
+            minWidth: 0,
           }}
         >
-          <Outlet />
+          <Toolbar sx={{ displayPrint: 'none', flexShrink: 0 }} />
+          <Box
+            sx={{
+              flexGrow: 1,
+              overflowY: 'auto',
+            }}
+            className="p-5"
+          >
+            <Outlet />
+          </Box>
         </Box>
       </Box>
     </Box>

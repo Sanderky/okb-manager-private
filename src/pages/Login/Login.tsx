@@ -19,7 +19,7 @@ type FormValues = {
 const Login = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { loading: authLoading } = useAuth();
+  const { loading: authLoading, user } = useAuth();
 
   const [values, setValues] = useState<FormValues>({ email: '', password: '' });
   const [errors, setErrors] = useState<
@@ -92,13 +92,6 @@ const Login = () => {
             </span>
             <span className="text-2xl underline">manager</span>
           </h1>
-          {/* <h1 className="text-dark flex flex-row items-end font-medium">
-            <LogoIcon className="text-4xl" />
-            <span className="text-darkYellow text-4xl text-shadow-sm/20">
-              OKB
-            </span>
-            <span className="text-2xl underline">manager</span>
-          </h1> */}
           <h2 className="text-dark mt-6 mb-8 text-xl">{t('login.signIn')}</h2>
 
           <form

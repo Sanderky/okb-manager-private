@@ -81,7 +81,7 @@ export default function DashboardSidebar({
     (newExpanded: boolean) => () => {
       setExpanded(newExpanded);
     },
-    [setExpanded],
+    [setExpanded]
   );
 
   const handlePageItemClick = React.useCallback(
@@ -90,15 +90,15 @@ export default function DashboardSidebar({
         setExpandedItemIds((previousValue) =>
           previousValue.includes(itemId)
             ? previousValue.filter(
-                (previousValueItemId) => previousValueItemId !== itemId,
+                (previousValueItemId) => previousValueItemId !== itemId
               )
-            : [...previousValue, itemId],
+            : [...previousValue, itemId]
         );
       } else if (!isOverSmViewport && !hasNestedNavigation) {
         setExpanded(false);
       }
     },
-    [mini, setExpanded, isOverSmViewport],
+    [mini, setExpanded, isOverSmViewport]
   );
 
   const hasDrawerTransitions =
@@ -139,6 +139,13 @@ export default function DashboardSidebar({
               icon={<ConstructionIcon />}
               href="/constructions"
               selected={!!matchPath('/constructions/*', pathname)}
+            />
+            <DashboardSidebarPageItem
+              id="employees"
+              title="Pracownicy"
+              icon={<PersonIcon />}
+              href="/employees"
+              selected={!!matchPath('/employees/*', pathname)}
             />
             {/* <DashboardSidebarHeaderItem>Main items</DashboardSidebarHeaderItem>
             <DashboardSidebarPageItem
@@ -196,7 +203,7 @@ export default function DashboardSidebar({
         </Box>
       </React.Fragment>
     ),
-    [mini, hasDrawerTransitions, isFullyExpanded, expandedItemIds, pathname],
+    [mini, hasDrawerTransitions, isFullyExpanded, expandedItemIds, pathname]
   );
 
   const getDrawerSharedSx = React.useCallback(
@@ -218,7 +225,7 @@ export default function DashboardSidebar({
         },
       };
     },
-    [expanded, mini],
+    [expanded, mini]
   );
 
   const sidebarContextValue = React.useMemo(() => {

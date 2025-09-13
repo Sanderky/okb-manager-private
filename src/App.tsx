@@ -4,11 +4,18 @@ import DashboardLayout from './components/dashboard/DashboardLayout';
 import Login from './pages/Login/Login';
 import { AuthProvider } from './context/AuthContext';
 import PrivateRoute from './routing/PrivateRoute';
+import EmployeeShow from './pages/Dashboard/Employees/EmployeeShow';
+// import EmployeeEdit from './pages/Dashboard/Employees/EmployeeEdit';
+
 import ConstructionsList from './pages/Dashboard/Constructions/ConstructionsList';
 import NotificationsProvider from './hooks/useNotifications/NotificationsProvider';
 import DialogsProvider from './hooks/useDialogs/DialogsProvider';
 import ConstructionCreate from './pages/Dashboard/Constructions/ConstructionCreate';
 import ConstructionShow from './pages/Dashboard/Constructions/ConstructionShow';
+import EmployeeList from './pages/Dashboard/Employees/EmployeeList';
+import EmployeeEdit from './pages/Dashboard/Employees/EmployeeEdit';
+import EmployeeCreate from './pages/Dashboard/Employees/EmployeeCreate';
+
 // import AppTheme from './theme/AppTheme';
 // import {
 //   dataGridCustomizations,
@@ -25,28 +32,42 @@ import ConstructionShow from './pages/Dashboard/Constructions/ConstructionShow';
 // };
 
 export default function App() {
-
   return (
     <AuthProvider>
-        {/* <AppTheme {...props} themeComponents={themeComponents}> */}
-        <CssBaseline enableColorScheme />
-        <NotificationsProvider>
-          <DialogsProvider>
-            <Router>
-              <Routes>
-                <Route path="/login" element={<Login />} />
-                <Route element={<PrivateRoute />}>
-                  <Route path="/" element={<DashboardLayout/>} >
-                    <Route path="constructions" element={<ConstructionsList/>}/>
-                      <Route path="constructions/new" element={<ConstructionCreate/>}/>
-                      <Route path="constructions/:constructionId" element={<ConstructionShow/>}/>
-                  </Route>
-                </Route>
-              </Routes>
-            </Router>
-          </DialogsProvider>
-        </NotificationsProvider>
-        {/* </AppTheme> */}
+      {/* <AppTheme {...props} themeComponents={themeComponents}> */}
+      <CssBaseline enableColorScheme />
+      <NotificationsProvider>
+        <DialogsProvider>
+          <Router>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/" element={<DashboardLayout />}>
+                <Route path="employees" element={<EmployeeList />} />
+                <Route
+                  path="employees/:employeeId"
+                  element={<EmployeeShow />}
+                />
+                <Route
+                  path="employees/:employeeId/edit"
+                  element={<EmployeeEdit />}
+                />
+                <Route path="employees/create" element={<EmployeeCreate />} />
+                <Route path="constructions" element={<ConstructionsList />} />
+                <Route
+                  path="constructions/new"
+                  element={<ConstructionCreate />}
+                />
+                <Route
+                  path="constructions/:constructionId"
+                  element={<ConstructionShow />}
+                />
+              </Route>
+              <Route element={<PrivateRoute />}></Route>
+            </Routes>
+          </Router>
+        </DialogsProvider>
+      </NotificationsProvider>
+      {/* </AppTheme> */}
     </AuthProvider>
   );
 }

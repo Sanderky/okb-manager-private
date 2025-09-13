@@ -46,9 +46,9 @@ export default function DashboardHeader({
   onToggleMenu,
 }: DashboardHeaderProps) {
   const theme = useTheme();
-  const auth = useAuth()
+  const auth = useAuth();
   const { t } = useTranslation();
-  
+
   const handleMenuOpen = React.useCallback(() => {
     onToggleMenu(!menuOpen);
   }, [menuOpen, onToggleMenu]);
@@ -75,7 +75,7 @@ export default function DashboardHeader({
         </Tooltip>
       );
     },
-    [handleMenuOpen],
+    [handleMenuOpen]
   );
 
   return (

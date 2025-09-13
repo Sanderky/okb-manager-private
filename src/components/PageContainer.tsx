@@ -51,7 +51,13 @@ export default function PageContainer(props: PageContainerProps) {
   const { children, breadcrumbs, title, actions = null } = props;
 
   return (
-    <Container sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+    <Container
+      sx={{
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
       <Stack sx={{ flex: 1, my: 2 }} spacing={2}>
         <Stack>
           <PageHeaderBreadcrumbs
@@ -81,8 +87,15 @@ export default function PageContainer(props: PageContainerProps) {
                 })
               : null}
           </PageHeaderBreadcrumbs>
-          <PageContentHeader>
-            {title ? <Typography variant="h4">{title}</Typography> : null}
+          <PageContentHeader sx={{ my: 1 }}>
+            {title ? (
+              <Typography
+                variant="h4"
+                className="text-2xl font-medium md:text-3xl"
+              >
+                {title}
+              </Typography>
+            ) : null}
             <PageHeaderToolbar>{actions}</PageHeaderToolbar>
           </PageContentHeader>
         </Stack>

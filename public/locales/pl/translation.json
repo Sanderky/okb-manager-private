@@ -32,6 +32,34 @@
   },
   "menu": {
     "expand": "Rozszerz",
+    "collapse": "Zwiń"
+  },
+  "employee": {
+    "sections": {
+      "personalInformation": {
+        "title": "Informacje osobiste",
+        "name": "Imię",
+        "phone": "Telefon",
+        "email": "Email",
+        "address": "Adres",
+        "note": "Notatka"
+      },
+      "jobDetails": {
+        "title": "Szczegóły zatrudnienia",
+        "status": "Status",
+        "hiredDate": "Data zatrudnienia",
+        "contractEndDate": "Data wygaśnięcia umowy",
+        "contractFile": "Umowa"
+      },
+      "files": {
+        "title": "Pliki",
+        "upload": "Prześlij plik",
+        "download": "Pobierz plik"
+      }
+    },
+    "loading": "Ładowanie danych pracownika...",
+    "errorLoading": "Błąd podczas ładowania danych pracownika.",
+    "notFound": "Pracownik nie znaleziony.",
     "collapse": "Zwiń",
     "back": "Cofnij"
   },
