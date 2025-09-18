@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import {
+  browserLocalPersistence,
+  setPersistence,
+  signInWithEmailAndPassword,
+} from 'firebase/auth';
 import { auth } from '../../firebase';
 import TextField from '@mui/material/TextField';
 import { Alert, CircularProgress } from '@mui/material';
-import { useTranslation } from 'react-i18next';
 import ForgotPassword from './ForgotPassword';
 import { getRules, validateField } from './validation';
 import { useAuth } from '../../context/AuthContext';
@@ -17,7 +20,6 @@ type FormValues = {
 };
 
 const Login = () => {
-  const { t } = useTranslation();
   const navigate = useNavigate();
   const { loading: authLoading, user } = useAuth();
 
@@ -29,6 +31,12 @@ const Login = () => {
   const [forgotOpen, setForgotOpen] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
 
+  useEffect(() => {
+    if (!authLoading && user) {
+      navigate('/');
+    }
+  }, [user, authLoading, navigate]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setValues({ ...values, [e.target.name]: e.target.value });
   };
@@ -37,7 +45,7 @@ const Login = () => {
     const newErrors: Partial<Record<keyof FormValues, string>> = {};
     Object.keys(values).forEach((key) => {
       const field = key as keyof FormValues;
-      const error = validateField(values[field], getRules(field, t));
+      const error = validateField(values[field], getRules(field));
       if (error) newErrors[field] = error;
     });
     setErrors(newErrors);
@@ -51,6 +59,7 @@ const Login = () => {
 
     setActionLoading(true);
     try {
+      await setPersistence(auth, browserLocalPersistence);
       const userCredential = await signInWithEmailAndPassword(
         auth,
         values.email,
@@ -71,12 +80,13 @@ const Login = () => {
     }
   };
 
-  if (authLoading)
+  if (authLoading || user) {
     return (
       <div className="flex h-screen items-center justify-center">
         <CircularProgress />
       </div>
     );
+  }
 
   return (
     <section className="relative bg-(image:--primary-gradient)">
@@ -92,7 +102,9 @@ const Login = () => {
             </span>
             <span className="text-2xl underline">manager</span>
           </h1>
-          <h2 className="text-dark mt-6 mb-8 text-xl">{t('login.signIn')}</h2>
+          <h2 className="text-dark mt-6 mb-8 text-xl">
+            Zaloguj się do swojego konta
+          </h2>
 
           <form
             className="space-y-4 md:space-y-6"
@@ -104,7 +116,7 @@ const Login = () => {
               required
               fullWidth
               id="email"
-              label={t('login.email')}
+              label="Email"
               name="email"
               autoFocus
               helperText={errors.email}
@@ -122,7 +134,7 @@ const Login = () => {
               required
               fullWidth
               name="password"
-              label={t('login.password')}
+              label="Hasło"
               type="password"
               id="password"
               helperText={errors.password}
@@ -137,7 +149,9 @@ const Login = () => {
             />
 
             {credentialError && (
-              <Alert severity="error">{t('login.loginError')}</Alert>
+              <Alert severity="error">
+                Wprowadzono niepoprawny email lub hasło.
+              </Alert>
             )}
 
             <div>
@@ -146,7 +160,7 @@ const Login = () => {
                 className="text-md font-semibold text-indigo-500 hover:underline"
                 onClick={() => setForgotOpen(true)}
               >
-                {t('login.forgotPassword.link')}
+                Nie pamiętasz hasła?
               </a>
             </div>
 
@@ -155,11 +169,7 @@ const Login = () => {
               className="hover:bg-darkYellow border-darkGray flex w-full cursor-pointer items-center justify-center rounded-lg border px-6 py-3"
               disabled={actionLoading}
             >
-              {actionLoading ? (
-                <CircularProgress size={24} />
-              ) : (
-                t('login.loginButton')
-              )}
+              {actionLoading ? <CircularProgress size={24} /> : 'Zaloguj się'}
             </button>
           </form>
 

@@ -6,7 +6,7 @@ import AddIcon from '@mui/icons-material/Add';
 import { useNavigate } from 'react-router';
 import PageContainer from '../../../components/PageContainer';
 import { useTranslation } from 'react-i18next';
-import { getEmployees } from '../../../api/employees';
+import { getEmployeeList } from '../../../api/employees';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo, useState } from 'react';
 import Alert from '@mui/material/Alert';
@@ -24,6 +24,9 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs, { type Dayjs } from 'dayjs';
 import { MRT_Localization_PL } from 'material-react-table/locales/pl';
+import { CircularProgress, IconButton, Typography } from '@mui/material';
+
+import VisibilityIcon from '@mui/icons-material/Visibility';
 
 const TABLE_STATE_PREFIX = 'mrt_employees_table';
 
@@ -174,7 +177,7 @@ export default function EmployeeList() {
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['employees'],
-    queryFn: getEmployees,
+    queryFn: getEmployeeList,
   });
 
   const handleCreateClick = React.useCallback(() => {
@@ -185,18 +188,13 @@ export default function EmployeeList() {
     () => [
       {
         accessorKey: 'name',
-        header: 'Imię i Nazwisko',
-        size: 250,
-      },
-      {
-        accessorKey: 'position',
-        header: 'Stanowisko',
-        size: 200,
+        header: 'Imię',
+        size: 150,
       },
       {
         accessorKey: 'email',
         header: 'E-mail',
-        size: 250,
+        size: 150,
       },
       {
         accessorKey: 'phone',
@@ -206,15 +204,45 @@ export default function EmployeeList() {
       {
         accessorKey: 'status',
         header: 'Status',
-        size: 150,
+        filterSelectOptions: [
+          { text: 'Zatrudniony', value: 'true' },
+          { text: 'Niezatrudniony', value: 'false' },
+        ],
+        Cell: ({ cell }) => (
+          <Box
+            component="span"
+            className={`rounded px-3 py-1 ${
+              cell.getValue<boolean>() ? 'bg-green-400/50' : 'bg-red-400/50'
+            }`}
+          >
+            {cell.getValue<boolean>() ? 'Zatrudniony' : 'Niezatrudniony'}
+          </Box>
+        ),
+        size: 125,
       },
       {
-        accessorKey: 'hireDate',
-        header: 'Data zatrudnienia',
+        accessorKey: 'contractStartDate',
+        header: 'Data rozpoczęcia umowy zatrudnienia',
         size: 200,
         filterVariant: 'date-range',
         accessorFn: (originalRow) => {
-          const value = originalRow.hireDate;
+          const value = originalRow.contractStartDate;
+          if (!value) return null;
+          return dayjs(value);
+        },
+        Cell: ({ cell }) => {
+          const value = cell.getValue<Dayjs | null>();
+          if (!value) return '-';
+          return value.format('DD.MM.YYYY');
+        },
+      },
+      {
+        accessorKey: 'a1StartDate',
+        header: 'Data rozpoczęcia umowy A1',
+        size: 200,
+        filterVariant: 'date-range',
+        accessorFn: (originalRow) => {
+          const value = originalRow.a1StartDate;
           if (!value) return null;
           return dayjs(value);
         },
@@ -229,6 +257,20 @@ export default function EmployeeList() {
   );
 
   const tableData = useMemo(() => data || [], [data]);
+
+  if (isLoading) {
+    return (
+      <PageContainer title={t('employees.employeesList')}>
+        <CircularProgress />
+        <Typography
+          variant="body2"
+          sx={{ mt: 2, ml: 2, color: 'text.secondary' }}
+        >
+          Trwa ładowanie listy pracowników...
+        </Typography>
+      </PageContainer>
+    );
+  }
 
   if (error) {
     return (
@@ -270,17 +312,39 @@ export default function EmployeeList() {
             columns={columns}
             data={tableData}
             enableColumnResizing={false}
-            enableRowNumbers
             rowNumberDisplayMode="static"
             renderBottomToolbarCustomActions={() => (
               <Button onClick={resetState}>Resetuj</Button>
             )}
             enableRowActions
             renderRowActions={({ row }) => (
-              <Button onClick={() => navigate(`/employees/${row.original.id}`)}>
-                Pokaż
-              </Button>
+              <IconButton
+                onClick={() => navigate(`/employees/${row.original.id}`)}
+              >
+                <VisibilityIcon />
+              </IconButton>
             )}
+            muiTablePaperProps={{
+              sx: {
+                boxShadow: 'none',
+                border: '1px solid #e0e0e0',
+                borderRadius: '10px',
+              },
+            }}
+            muiTableHeadCellProps={{
+              sx: {
+                borderTop: '1px solid #e0e0e0',
+                fontWeight: 'bold',
+                color: '#374151',
+              },
+            }}
+            muiTableBodyRowProps={{
+              sx: {
+                '&:hover': {
+                  background: 'white !important',
+                },
+              },
+            }}
           />
         </LocalizationProvider>
       </Box>

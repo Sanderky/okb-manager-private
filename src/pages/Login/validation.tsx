@@ -8,18 +8,18 @@ export interface ValidationRule {
 
 export type ValidationFields = 'email' | 'password';
 
-export const getRules = (
-  field: ValidationFields,
-  t: (key: string) => string
-): ValidationRule[] => {
+export const getRules = (field: ValidationFields): ValidationRule[] => {
   if (field === 'email') {
     return [
-      { required: true, errorMessage: t('login.formValidate.emailRequired') },
+      { required: true, errorMessage: 'Email jest wymagany' },
       {
         regex: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-        errorMessage: t('login.formValidate.emailInvalid'),
+        errorMessage: 'Niepoprawny format adresu email',
       },
-      { maxLength: 254, errorMessage: t('login.formValidate.emailMaxLength') },
+      {
+        maxLength: 254,
+        errorMessage: 'Maksymalna długość adresu email to 254 znaki',
+      },
     ];
   }
 
@@ -27,9 +27,9 @@ export const getRules = (
     return [
       {
         required: true,
-        errorMessage: t('login.formValidate.passwordRequired'),
+        errorMessage: 'Hasło jest wymagane',
       },
-      { minLength: 6, errorMessage: t('login.formValidate.passwordMinLength') },
+      { minLength: 6, errorMessage: 'Minimalna długość hasła to 6 znaków' },
     ];
   }
 

@@ -7,31 +7,57 @@ import EmployeeForm, {
 } from './EmployeeForm';
 import PageContainer from '../../../components/PageContainer';
 import type { Employee } from '../../../types';
-import { useTranslation } from 'react-i18next';
 import { createEmployee } from '../../../api/employees';
 import useNotifications from '../../../hooks/useNotifications/useNotifications';
-import { Box } from '@mui/material';
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Stack,
+  Typography,
+} from '@mui/material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { useCallback } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 export default function EmployeeCreate() {
   const navigate = useNavigate();
-  const { t } = useTranslation();
   const notifications = useNotifications();
+  const queryClient = useQueryClient();
 
   const [formState, setFormState] = React.useState<EmployeeFormState>({
-    values: {
-      status: true, // Domyślnie ustawiamy status na "Zatrudniony"
-    },
+    values: { status: true },
     errors: {},
   });
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const [submitError, setSubmitError] = React.useState<string | null>(null);
+
+  const createMutation = useMutation({
+    mutationFn: (newEmployee: Partial<Employee>) =>
+      createEmployee(newEmployee as Employee),
+    onSuccess: (newEmployeeId) => {
+      queryClient.invalidateQueries({ queryKey: ['employees'] });
+      notifications.show('Pomyślnie utworzono pracownika.', {
+        severity: 'success',
+        autoHideDuration: 3000,
+      });
+      navigate(`/employees/${newEmployeeId}`);
+    },
+    onError: (error: Error) => {
+      notifications.show(`Błąd: ${error.message}`, {
+        severity: 'error',
+        autoHideDuration: 3000,
+      });
+    },
+  });
 
   const handleFieldChange = React.useCallback(
-    (name: keyof EmployeeFormState['values'], value: FormFieldValue) => {
+    (
+      name: keyof EmployeeFormState['values'],
+      value: FormFieldValue | object | null
+    ) => {
       setFormState((prevState) => ({
         ...prevState,
         values: { ...prevState.values, [name]: value },
-        errors: { ...prevState.errors, [name]: undefined }, // Czyścimy błąd po zmianie
+        errors: { ...prevState.errors, [name]: undefined },
       }));
     },
     []
@@ -40,40 +66,44 @@ export default function EmployeeCreate() {
   const handleSubmit = React.useCallback(
     async (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
-      setSubmitError(null);
 
       const validationErrors = validate(formState.values);
       if (Object.keys(validationErrors).length > 0) {
         setFormState((prev) => ({ ...prev, errors: validationErrors }));
-        setSubmitError('Proszę poprawić błędy w formularzu.');
         return;
       }
 
-      setIsSubmitting(true);
-      try {
-        const employeeId = await createEmployee(formState.values as Employee);
-        notifications.show('Pomyślnie utworzono pracownika.', {
-          severity: 'success',
-          autoHideDuration: 3000,
-        });
-        navigate(`/employees/${employeeId}`);
-      } catch (createError) {
-        const errorMessage = (createError as Error).message;
-        setSubmitError(`Nie udało się utworzyć pracownika: ${errorMessage}`);
-        notifications.show(`Błąd: ${errorMessage}`, {
-          severity: 'error',
-          autoHideDuration: 5000,
-        });
-      } finally {
-        setIsSubmitting(false);
-      }
+      console.log('to sa data', formState.values);
+
+      createMutation.mutate(formState.values);
     },
-    [formState.values, navigate, notifications]
+    [formState.values, createMutation]
   );
 
-  const handleReset = React.useCallback(() => {
-    setFormState({ values: { status: true }, errors: {} });
-  }, []);
+  const handleBack = useCallback(() => {
+    navigate('/employees');
+  }, [navigate]);
+
+  if (createMutation.isPending) {
+    return (
+      <Box
+        sx={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: '100%',
+          m: 1,
+        }}
+      >
+        <CircularProgress />
+        <Typography variant="body2" sx={{ mt: 2, color: 'text.secondary' }}>
+          Trwa tworzenie nowego pracownika...
+        </Typography>
+      </Box>
+    );
+  }
 
   return (
     <PageContainer
@@ -82,18 +112,33 @@ export default function EmployeeCreate() {
         { title: 'Pracownicy', path: '/employees' },
         { title: 'Nowy' },
       ]}
+      actions={
+        <Stack direction="row" alignItems="center" spacing={3}>
+          <Button
+            variant="outlined"
+            onClick={handleBack}
+            startIcon={<ArrowBackIcon />}
+          >
+            Anuluj
+          </Button>
+        </Stack>
+      }
     >
       <Box
         sx={{ width: '100%', maxWidth: { sm: '100%', md: '1790px' } }}
-        className="border-lightGray rounded-lg border bg-white px-6 py-4"
+        className="border-lightGray rounded-lg border bg-white p-6"
       >
         <EmployeeForm
           formState={formState}
           onFieldChange={handleFieldChange}
           onSubmit={handleSubmit}
-          onReset={handleReset}
-          isSubmitting={isSubmitting}
-          submitError={submitError}
+          isSubmitting={createMutation.isPending}
+          submitError={
+            createMutation.isError
+              ? 'Wystąpił błąd podczas tworzenia pracownika.'
+              : null
+          }
+          isEditForm={false}
         />
       </Box>
     </PageContainer>

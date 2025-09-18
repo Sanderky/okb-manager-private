@@ -9,7 +9,7 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import { useNavigate } from 'react-router';
 import PageContainer from '../../../components/PageContainer';
 import { useTranslation } from 'react-i18next';
-import { getConstructions } from '../../../api/constructions';
+import { getConstructionList } from '../../../api/constructions';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo, useState } from 'react';
 import {
@@ -26,6 +26,8 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import { MRT_Localization_PL } from 'material-react-table/locales/pl';
+
+import VisibilityIcon from '@mui/icons-material/Visibility';
 
 const useTableState = () => {
   const safeParse = (key: string, defaultValue: any) => {
@@ -57,8 +59,8 @@ const useTableState = () => {
     () => safeParse('mrt_columnVisibility_table_1', {})
   );
 
-  const [density, setDensity] = useState<MRT_DensityState>(
-    () => safeParse('mrt_density_table_1', 'comfortable')
+  const [density, setDensity] = useState<MRT_DensityState>(() =>
+    safeParse('mrt_density_table_1', 'comfortable')
   );
 
   const [globalFilter, setGlobalFilter] = useState<string | undefined>(() => {
@@ -66,16 +68,16 @@ const useTableState = () => {
     return item || undefined;
   });
 
-  const [showGlobalFilter, setShowGlobalFilter] = useState<boolean>(
-    () => safeParse('mrt_showGlobalFilter_table_1', false)
+  const [showGlobalFilter, setShowGlobalFilter] = useState<boolean>(() =>
+    safeParse('mrt_showGlobalFilter_table_1', false)
   );
 
-  const [showColumnFilters, setShowColumnFilters] = useState<boolean>(
-    () => safeParse('mrt_showColumnFilters_table_1', false)
+  const [showColumnFilters, setShowColumnFilters] = useState<boolean>(() =>
+    safeParse('mrt_showColumnFilters_table_1', false)
   );
 
-  const [sorting, setSorting] = useState<MRT_SortingState>(
-    () => safeParse('mrt_sorting_table_1', [])
+  const [sorting, setSorting] = useState<MRT_SortingState>(() =>
+    safeParse('mrt_sorting_table_1', [])
   );
 
   // Zapisywanie stanu do sessionStorage
@@ -191,48 +193,49 @@ export default function ConstructionsList() {
     resetState,
   } = useTableState();
 
-  const { data, isLoading, error} = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ['constructions'],
-    queryFn: getConstructions,
+    queryFn: getConstructionList,
   });
 
   const handleCreateClick = React.useCallback(() => {
-    navigate('/constructions/new');
+    navigate('/constructions/create');
   }, [navigate]);
 
-
   const dateBetweenFilterFn = (row, columnId, filterValue) => {
-  if (!filterValue || !Array.isArray(filterValue)) {
+    if (!filterValue || !Array.isArray(filterValue)) {
+      return true;
+    }
+
+    const [start, end] = filterValue;
+    const rowValue = row.getValue(columnId);
+
+    if (!rowValue) {
+      return false;
+    }
+
+    const rowDate = dayjs.isDayjs(rowValue) ? rowValue : dayjs(rowValue);
+    if (!rowDate.isValid()) {
+      return false;
+    }
+
+    const startDate = start ? dayjs(start).startOf('day') : null;
+    const endDate = end ? dayjs(end).endOf('day') : null; // Używamy endOf dla daty końcowej
+
+    const rowTimestamp = rowDate.valueOf();
+
+    if (startDate && endDate) {
+      return (
+        rowTimestamp >= startDate.valueOf() && rowTimestamp <= endDate.valueOf()
+      );
+    } else if (startDate) {
+      return rowTimestamp >= startDate.valueOf();
+    } else if (endDate) {
+      return rowTimestamp <= endDate.valueOf();
+    }
+
     return true;
-  }
-
-  const [start, end] = filterValue;
-  const rowValue = row.getValue(columnId);
-
-  if (!rowValue) {
-    return false;
-  }
-
-  const rowDate = dayjs.isDayjs(rowValue) ? rowValue : dayjs(rowValue);
-  if (!rowDate.isValid()) {
-    return false;
-  }
-
-  const startDate = start ? dayjs(start).startOf('day') : null;
-  const endDate = end ? dayjs(end).endOf('day') : null; // Używamy endOf dla daty końcowej
-
-  const rowTimestamp = rowDate.valueOf();
-
-  if (startDate && endDate) {
-    return rowTimestamp >= startDate.valueOf() && rowTimestamp <= endDate.valueOf();
-  } else if (startDate) {
-    return rowTimestamp >= startDate.valueOf();
-  } else if (endDate) {
-    return rowTimestamp <= endDate.valueOf();
-  }
-
-  return true;
-};
+  };
 
   const columns = useMemo<MRT_ColumnDef<Construction>[]>(
     () => [
@@ -267,6 +270,25 @@ export default function ConstructionsList() {
           return dayjs(value).format('DD.MM.YYYY');
         },
         filterFn: dateBetweenFilterFn,
+      },
+      {
+        accessorKey: 'inProgress',
+        header: 'Status',
+        filterSelectOptions: [
+          { text: 'W trakcie', value: 'true' },
+          { text: 'Zakończona', value: 'false' },
+        ],
+        Cell: ({ cell }) => (
+          <Box
+            component="span"
+            className={`rounded px-3 py-1 ${
+              cell.getValue<boolean>() ? 'bg-blue-400/50' : 'bg-amber-400/50'
+            }`}
+          >
+            {cell.getValue<boolean>() ? 'W trakcie' : 'Zakończona'}
+          </Box>
+        ),
+        size: 125,
       },
     ],
     []
@@ -314,15 +336,41 @@ export default function ConstructionsList() {
             onShowGlobalFilterChange={setShowGlobalFilter}
             onSortingChange={setSorting}
             enableColumnResizing={false}
-            enableRowNumbers
-            rowNumberDisplayMode='static'
+            rowNumberDisplayMode="static"
             renderBottomToolbarCustomActions={() => (
-            <Button onClick={resetState}>Resetuj</Button>
-          )}
+              <Button onClick={resetState}>Resetuj</Button>
+            )}
             enableRowActions
             renderRowActions={(table) => (
-              <Button onClick={() => navigate(`/constructions/${table.row.original.id}`)}>Pokaż</Button>
+              <IconButton
+                onClick={() =>
+                  navigate(`/constructions/${table.row.original.id}`)
+                }
+              >
+                <VisibilityIcon />
+              </IconButton>
             )}
+            muiTablePaperProps={{
+              sx: {
+                boxShadow: 'none',
+                border: '1px solid #e0e0e0',
+                borderRadius: '10px',
+              },
+            }}
+            muiTableHeadCellProps={{
+              sx: {
+                borderTop: '1px solid #e0e0e0',
+                fontWeight: 'bold',
+                color: '#374151',
+              },
+            }}
+            muiTableBodyRowProps={{
+              sx: {
+                '&:hover': {
+                  background: 'white !important',
+                },
+              },
+            }}
           />
         </LocalizationProvider>
       </Box>

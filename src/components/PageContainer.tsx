@@ -63,6 +63,12 @@ export default function PageContainer(props: PageContainerProps) {
           <PageHeaderBreadcrumbs
             aria-label="breadcrumb"
             separator={<NavigateNextRoundedIcon fontSize="small" />}
+            sx={{
+              maxWidth: '100%',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            }}
           >
             {breadcrumbs
               ? breadcrumbs.map((breadcrumb, index) => {
@@ -73,13 +79,32 @@ export default function PageContainer(props: PageContainerProps) {
                       underline="hover"
                       color="inherit"
                       to={breadcrumb.path}
+                      sx={{
+                        maxWidth: 250,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                        display: 'inline-block',
+                        verticalAlign: 'middle',
+                      }}
+                      title={breadcrumb.title}
                     >
                       {breadcrumb.title}
                     </MuiLink>
                   ) : (
                     <Typography
                       key={index}
-                      sx={{ color: 'text.primary', fontWeight: 600 }}
+                      sx={{
+                        color: 'text.primary',
+                        fontWeight: 600,
+                        maxWidth: 250,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                        display: 'inline-block',
+                        verticalAlign: 'middle',
+                      }}
+                      title={breadcrumb.title}
                     >
                       {breadcrumb.title}
                     </Typography>
@@ -92,6 +117,13 @@ export default function PageContainer(props: PageContainerProps) {
               <Typography
                 variant="h4"
                 className="text-2xl font-medium md:text-3xl"
+                sx={{
+                  maxWidth: 'calc(100% - 200px)',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                }}
+                title={title}
               >
                 {title}
               </Typography>

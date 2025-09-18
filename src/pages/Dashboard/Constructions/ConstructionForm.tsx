@@ -8,14 +8,13 @@ import TextField from '@mui/material/TextField';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { useNavigate } from 'react-router';
-import dayjs, { Dayjs } from 'dayjs';
-import 'dayjs/locale/pl';
+import dayjs, { type Dayjs } from 'dayjs';
 import type { Construction } from '../../../types';
-import { useTranslation } from 'react-i18next';
-import { Typography } from '@mui/material';
-
+import Alert from '@mui/material/Alert';
+import DoneAllOutlinedIcon from '@mui/icons-material/DoneAllOutlined';
+import { Checkbox, Divider, FormControlLabel, Typography } from '@mui/material';
+import { useEffect, useState } from 'react';
+import { DateField } from '@mui/x-date-pickers';
 
 export interface ConstructionFormState {
   values: Partial<Omit<Construction, 'id'>>;
@@ -25,207 +24,222 @@ export interface ConstructionFormState {
 export type FormFieldValue = string | string[] | number | boolean | File | null;
 
 export interface ConstructionFormProps {
+  formId?: string;
   formState: ConstructionFormState;
   onFieldChange: (
     name: keyof ConstructionFormState['values'],
-    value: FormFieldValue,
+    value: FormFieldValue
   ) => void;
-  onSubmit: (formValues: Partial<ConstructionFormState['values']>) => Promise<void>;
-  onReset?: (formValues: Partial<ConstructionFormState['values']>) => void;
-  submitButtonLabel: string;
-  backButtonPath?: string;
+  onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
+  onReset?: () => void;
+  isSubmitting?: boolean;
+  submitError?: string | null;
+  isEditForm?: boolean;
 }
+
+type FieldType = 'text' | 'email' | 'date' | 'boolean';
+
+interface ConstructionField {
+  key: keyof ConstructionFormState['values'];
+  label: string;
+  type: FieldType;
+}
+
+export const validate = (
+  values: Partial<Omit<Construction, 'id'>>
+): Partial<Record<keyof ConstructionFormState['values'], string>> => {
+  const errors: Partial<Record<keyof ConstructionFormState['values'], string>> =
+    {};
+
+  if (!values.name) {
+    errors.name = 'Nazwa jest wymagana.';
+  }
+
+  if (values.name && values.name.length > 100) {
+    errors.name = 'Nazwa nie może być dłuższa niż 100 znaków.';
+  }
+
+  // if (values.email && values.email.length > 100) {
+  //   errors.email = 'E-mail nie może być dłuższy niż 100 znaków.';
+  // }
+
+  // if (values.email && !/\S+@\S+\.\S+/.test(values.email)) {
+  //   errors.email = 'Nieprawidłowy format adresu e-mail.';
+  // }
+
+  // if (
+  //   values.contractStartDate &&
+  //   values.contractEndDate &&
+  //   dayjs(values.contractEndDate).isBefore(dayjs(values.contractStartDate))
+  // ) {
+  //   errors.contractEndDate =
+  //     'Data wygaśnięcia umowy nie może być wcześniejsza niż data rozpoczęcia umowy.';
+  // }
+
+  // if (
+  //   values.a1StartDate &&
+  //   values.a1EndDate &&
+  //   dayjs(values.a1EndDate).isBefore(dayjs(values.a1StartDate))
+  // ) {
+  //   errors.a1EndDate =
+  //     'Data wygaśnięcia umowy nie może być wcześniejsza niż data rozpoczęcia umowy.';
+  // }
+
+  return errors;
+};
 
 export default function ConstructionForm(props: ConstructionFormProps) {
   const {
+    formId,
     formState,
     onFieldChange,
     onSubmit,
     onReset,
-    submitButtonLabel,
-    backButtonPath,
+    isSubmitting,
+    submitError,
+    isEditForm,
   } = props;
 
   const formValues = formState.values;
   const formErrors = formState.errors;
 
-  const navigate = useNavigate();
-  const { t } = useTranslation();
-
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
-
-  const handleSubmit = React.useCallback(
-    async (event: React.FormEvent<HTMLFormElement>) => {
-      event.preventDefault();
-
-      setIsSubmitting(true);
-      try {
-        await onSubmit(formValues);
-      } finally {
-        setIsSubmitting(false);
+  const handleFieldChange = React.useCallback(
+    (
+      name: keyof ConstructionFormState['values'],
+      value: string | boolean | Dayjs | null
+    ) => {
+      if (dayjs.isDayjs(value)) {
+        onFieldChange(name, value.isValid() ? value.toISOString() : null);
+      } else {
+        onFieldChange(name, value);
       }
     },
-    [formValues, onSubmit],
+    [onFieldChange]
   );
 
-  const handleTextFieldChange = React.useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      onFieldChange(
-        event.target.name as keyof ConstructionFormState['values'],
-        event.target.value,
-      );
-    },
-    [onFieldChange],
-  );
+  const constructionFields: ConstructionField[] = [
+    { key: 'name', label: 'Nazwa budowy', type: 'text' },
+    { key: 'location', label: 'Lokalizacja', type: 'text' },
+    { key: 'contractor', label: 'Wykonawca', type: 'text' },
+  ];
 
-  // const handleNumberFieldChange = React.useCallback(
-  //   (event: React.ChangeEvent<HTMLInputElement>) => {
-  //     onFieldChange(
-  //       event.target.name as keyof ConstructionFormState['values'],
-  //       Number(event.target.value),
-  //     );
-  //   },
-  //   [onFieldChange],
-  // );
+  const DateFields: ConstructionField[] = [
+    { key: 'startDate', label: 'Data rozpoczęcia', type: 'date' },
+    { key: 'endDate', label: 'Data zakończenia', type: 'date' },
+  ];
 
-  // const handleCheckboxFieldChange = React.useCallback(
-  //   (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
-  //     onFieldChange(event.target.name as keyof ConstructionFormState['values'], checked);
-  //   },
-  //   [onFieldChange],
-  // );
+  const [cleared, setCleared] = useState<boolean>(false);
 
-  const handleDateFieldChange = React.useCallback(
-    (fieldName: keyof ConstructionFormState['values']) => (value: Dayjs | null) => {
-      if (value?.isValid()) {
-        onFieldChange(fieldName, value.toISOString() ?? null);
-      } else if (formValues[fieldName]) {
-        onFieldChange(fieldName, null);
-      }
-    },
-    [formValues, onFieldChange],
-  );
+  useEffect(() => {
+    if (cleared) {
+      const timeout = setTimeout(() => {
+        setCleared(false);
+      }, 1500);
 
-  // const handleSelectFieldChange = React.useCallback(
-  //   (event: SelectChangeEvent) => {
-  //     onFieldChange(
-  //       event.target.name as keyof ConstructionFormState['values'],
-  //       event.target.value,
-  //     );
-  //   },
-  //   [onFieldChange],
-  // );
-
-  const handleReset = React.useCallback(() => {
-    if (onReset) {
-      onReset(formValues);
+      return () => clearTimeout(timeout);
     }
-  }, [formValues, onReset]);
-
-  const handleBack = React.useCallback(() => {
-    navigate(backButtonPath ?? '/constructions');
-  }, [navigate, backButtonPath]);
+    return () => {};
+  }, [cleared]);
 
   return (
     <Box
+      id={formId}
       component="form"
-      onSubmit={handleSubmit}
+      onSubmit={onSubmit}
       noValidate
       autoComplete="off"
-      onReset={handleReset}
+      onReset={onReset}
       sx={{ width: '100%' }}
     >
-      <Typography sx={{
-        marginBottom: '1rem'
-      }}>Pola oznaczone gwiazdką (*) są obowiązkowe.</Typography>
+      {submitError && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {submitError}
+        </Alert>
+      )}
       <FormGroup>
-        <Grid container spacing={2} sx={{ mb: 2, width: '100%' }}>
-          <Grid size={{ xs: 12, sm: 6 }} sx={{ display: 'flex' }}>
-            <TextField
-              required
-              value={formValues.name ?? ''}
-              onChange={handleTextFieldChange}
-              name="name"
-              label={t('constructions.name')}
-              error={!!formErrors.name}
-              helperText={formErrors.name ?? ' '}
-              fullWidth
+        <Grid container columns={12} spacing={1}>
+          <Typography variant="subtitle1" className="mb-2 font-medium">
+            Dane budowy
+          </Typography>
+          <Grid container columns={12} spacing={{ xs: 2 }} width={'100%'}>
+            {constructionFields.map(({ key, label, type }) => (
+              <Grid size={{ xs: 12, md: 6 }} key={key}>
+                <TextField
+                  fullWidth
+                  label={label}
+                  type={type}
+                  value={formValues[key] ?? ''}
+                  onChange={(e) => handleFieldChange(key, e.target.value)}
+                  name={key}
+                  error={Boolean(formErrors[key])}
+                  helperText={formErrors[key]}
+                />
+              </Grid>
+            ))}
+          </Grid>
+          <Divider sx={{ width: '100%' }} className="my-3" />
+          <Typography variant="subtitle1" className="mb-2 font-medium">
+            Terminy
+          </Typography>
+          <Grid container columns={12} spacing={{ xs: 2 }} width={'100%'}>
+            {DateFields.map(({ key, label, type }) => (
+              <Grid size={{ xs: 12, md: 6 }} key={key}>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker
+                    label={label}
+                    value={formValues[key] ? dayjs(formValues[key]) : null}
+                    onChange={(newValue) => handleFieldChange(key, newValue)}
+                    slotProps={{
+                      textField: {
+                        fullWidth: true,
+                        name: key,
+                        error: Boolean(formErrors[key]),
+                        helperText: formErrors[key],
+                      },
+                      field: {
+                        clearable: true,
+                        onClear: () => setCleared(true),
+                      },
+                    }}
+                  />
+                </LocalizationProvider>
+              </Grid>
+            ))}
+          </Grid>
+          <Divider sx={{ width: '100%' }} className="my-3" />
+          <Grid size={{ xs: 12 }}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={Boolean(formValues['inProgress'])}
+                  onChange={(e) =>
+                    handleFieldChange('inProgress', e.target.checked)
+                  }
+                  name={'inProgress'}
+                />
+              }
+              label="W trakcie realizacji"
             />
           </Grid>
-          <Grid size={{ xs: 12, sm: 6 }} sx={{ display: 'flex' }}>
-            <TextField
-              required
-              value={formValues.location ?? ''}
-              onChange={handleTextFieldChange}
-              name="location"
-              label={t('constructions.location')}
-              error={!!formErrors.location}
-              helperText={formErrors.location ?? ' '}
-              fullWidth
-            />
-          </Grid>
-          <Grid size={{ xs: 12, sm: 6 }} sx={{ display: 'flex' }}>
-            <TextField
-              required
-              value={formValues.contractor ?? ''}
-              onChange={handleTextFieldChange}
-              name="contractor"
-              label={t('constructions.contractor')}
-              error={!!formErrors.contractor}
-              helperText={formErrors.contractor ?? ' '}
-              fullWidth
-            />
-          </Grid>
-          <Grid size={{ xs: 12, sm: 6 }} sx={{ display: 'flex' }}>
-            <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale='pl'>
-              <DatePicker
-                value={formValues.startDate ? dayjs(formValues.startDate) : null}
-                onChange={handleDateFieldChange('startDate')}
-                name="startDate"
-                label={`${t('constructions.startDate')} *`}
-                slotProps={{
-                  textField: {
-                    error: !!formErrors.startDate,
-                    helperText: formErrors.startDate ?? ' ',
-                    fullWidth: true,
-                  },
-                }}
-              />
-            </LocalizationProvider>
-            </Grid>
-          {/* <Grid size={{ xs: 12, sm: 6 }} sx={{ display: 'flex' }}> */}
-            <TextField
-            multiline
-            minRows={10}
-            maxRows={10}
-              value={formValues.notes ?? ''}
-              onChange={handleTextFieldChange}
-              name="notes"
-              label={'Notatki'}
-              error={!!formErrors.notes}
-              helperText={formErrors.notes ?? ' '}
-              fullWidth
-            />
-          {/* </Grid> */}
+          <Divider sx={{ width: '100%' }} className="mt-3" />
         </Grid>
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="flex-start"
+          spacing={3}
+          sx={{ mt: 4 }}
+        >
+          <Button
+            variant="contained"
+            startIcon={<DoneAllOutlinedIcon />}
+            type="submit"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Zapisywanie...' : 'Zapisz'}
+          </Button>
+        </Stack>
       </FormGroup>
-      <Stack direction="row" spacing={2} justifyContent="space-between">
-        <Button
-          variant="contained"
-          startIcon={<ArrowBackIcon />}
-          onClick={handleBack}
-        >
-          {t('menu.back')}
-        </Button>
-        <Button
-          type="submit"
-          variant="contained"
-          size="large"
-          loading={isSubmitting}
-        >
-          {submitButtonLabel}
-        </Button>
-      </Stack>
     </Box>
   );
 }

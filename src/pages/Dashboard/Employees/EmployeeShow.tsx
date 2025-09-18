@@ -15,13 +15,23 @@ import { type Employee } from '../../../types';
 import { getEmployee, updateEmployee } from '../../../api/employees';
 
 import EditIcon from '@mui/icons-material/Edit';
-import LocalPrintshopIcon from '@mui/icons-material/LocalPrintshop';
+import CloseIcon from '@mui/icons-material/Close';
 
-import { Chip, IconButton, Tab, Tabs } from '@mui/material';
+import {
+  Chip,
+  Divider,
+  IconButton,
+  Switch,
+  Tab,
+  Tabs,
+  TextField,
+} from '@mui/material';
 import { useParams } from 'react-router';
 import dayjs from 'dayjs';
 
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import useNotifications from '../../../hooks/useNotifications/useNotifications';
 
 // Extended async status & helpers
 interface NormalizedError {
@@ -42,55 +52,62 @@ function normalizeError(err: unknown): NormalizedError {
 export default function EmployeeShow() {
   const { employeeId } = useParams<{ employeeId: string }>();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<NormalizedError | null>(null);
   const [notFound, setNotFound] = useState(false);
   const [showDebug, setShowDebug] = useState(false);
-  const [isDismissing, setIsDismissing] = useState(false);
 
-  const [employee, setEmployee] = useState<Employee | null>(null);
+  const [editNote, setEditNote] = useState(false);
 
+  const notifications = useNotifications();
+
+  // const [employee, setEmployee] = useState<Employee | null>(null);
+  const [note, setNote] = useState('');
   const [tab, setTab] = useState(0);
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setTab(newValue);
   };
 
-  const loadData = useCallback(async () => {
-    setError(null);
-    setNotFound(false);
-    setIsLoading(true);
-
-    let isActive = true; // guard against state update after unmount
-
-    try {
-      if (!employeeId) {
-        throw new Error('Brak ID pracownika.');
-      }
-      const showData = await getEmployee(employeeId);
-      if (!isActive) return;
-      if (!showData) {
-        setNotFound(true);
-        setEmployee(null);
-      } else {
-        setEmployee(showData);
-      }
-    } catch (showDataError) {
-      if (!isActive) return;
-      setError(normalizeError(showDataError));
-    } finally {
-      if (isActive) setIsLoading(false);
-    }
-    return () => {
-      isActive = false;
-    };
-  }, [employeeId]);
+  const {
+    data: employee,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ['employee', employeeId],
+    queryFn: () => getEmployee(employeeId!),
+    enabled: !!employeeId,
+  });
 
   useEffect(() => {
-    // loadData returns a promise (ignored) — no cleanup needed
-    void loadData();
-  }, [loadData]);
+    if (employee) {
+      setNote(employee.note ?? '');
+      setNotFound(false);
+    } else if (!isLoading) {
+      setNotFound(true);
+    }
+  }, [employee, isLoading]);
+
+  const updateNoteMutation = useMutation({
+    mutationFn: (newNote: string) =>
+      updateEmployee(employeeId!, { note: newNote }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['employee', employeeId] });
+    },
+  });
+
+  const handleSaveNote = useCallback(async () => {
+    const currentNote = employee?.note ?? '';
+    if (currentNote === note) {
+      return;
+    }
+    setEditNote(false);
+    notifications.show('Pomyślnie zaktualizowano notatkę.', {
+      severity: 'success',
+      autoHideDuration: 3000,
+    });
+    updateNoteMutation.mutate(note);
+  }, [employee?.note, note, updateNoteMutation, notifications]);
 
   const handleEmployeeEdit = useCallback(() => {
     navigate(`/employees/${employeeId}/edit`);
@@ -100,38 +117,21 @@ export default function EmployeeShow() {
     navigate('/employees');
   }, [navigate]);
 
-  const handleRetry = useCallback(() => {
-    loadData();
-  }, [loadData]);
-
-  const handleEmployeeDismiss = useCallback(async () => {
-    if (!employeeId || !employee?.status) {
-      return;
-    }
-    setIsDismissing(true);
-    try {
-      await updateEmployee(employeeId, { status: false });
-      setEmployee((prev) => (prev ? { ...prev, status: false } : null));
-    } catch (dismissError) {
-      setError(normalizeError(dismissError));
-    } finally {
-      setIsDismissing(false);
-    }
-  }, [employeeId, employee]);
-
   const personalFields = [
     { key: 'name', label: 'Imię' },
-
     { key: 'email', label: 'E-mail' },
     { key: 'phone', label: 'Telefon' },
     { key: 'address', label: 'Adres' },
-    { key: 'position', label: 'Stanowisko' },
   ];
 
-  const employmentFields = [
-    { key: 'hireDate', label: 'Data zatrudnienia' },
+  const contractFields = [
+    { key: 'contractStartDate', label: 'Data rozpoczęcia umowy' },
     { key: 'contractEndDate', label: 'Data wygaśnięcia umowy' },
-    { key: 'file', label: 'Plik' },
+  ];
+
+  const a1Fields = [
+    { key: 'a1StartDate', label: 'Data rozpoczęcia umowy' },
+    { key: 'a1EndDate', label: 'Data wygaśnięcia umowy' },
   ];
 
   const renderShow = useMemo(() => {
@@ -163,9 +163,9 @@ export default function EmployeeShow() {
             severity="error"
             action={
               <Stack direction="row" spacing={1}>
-                <Button size="small" onClick={handleRetry} variant="outlined">
+                {/* <Button size="small" onClick={handleRetry} variant="outlined">
                   Ponów
-                </Button>
+                </Button> */}
                 <Button
                   size="small"
                   onClick={() => setShowDebug((v) => !v)}
@@ -176,9 +176,9 @@ export default function EmployeeShow() {
               </Stack>
             }
           >
-            {error.code
+            {/* {error.code
               ? `${error.message} (kod: ${error.code})`
-              : error.message}
+              : error.message} */}
           </Alert>
           {showDebug && (
             <Paper sx={{ mt: 2, p: 2, bgcolor: 'grey.50' }} variant="outlined">
@@ -187,7 +187,7 @@ export default function EmployeeShow() {
                 component="pre"
                 sx={{ m: 0, whiteSpace: 'pre-wrap' }}
               >
-                {JSON.stringify(error.raw, null, 2)}
+                {/* {JSON.stringify(error.raw, null, 2)} */}
               </Typography>
             </Paper>
           )}
@@ -198,23 +198,16 @@ export default function EmployeeShow() {
     if (notFound) {
       return (
         <Box sx={{ width: '100%' }}>
-          <Alert
-            severity="info"
-            action={
-              <Button size="small" onClick={handleRetry} variant="outlined">
-                Odśwież
-              </Button>
-            }
-          >
+          <Alert severity="info">
             Nie znaleziono pracownika. Mógł zostać usunięty lub nie istnieje.
           </Alert>
           <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
             <Button variant="contained" onClick={handleBack}>
               Wróć
             </Button>
-            <Button variant="outlined" onClick={handleRetry}>
+            {/* <Button variant="outlined" onClick={handleRetry}>
               Spróbuj ponownie
-            </Button>
+            </Button> */}
           </Stack>
         </Box>
       );
@@ -223,10 +216,16 @@ export default function EmployeeShow() {
     return employee ? (
       <Box
         sx={{ width: '100%' }}
-        className="border-lightGray rounded-lg border bg-white px-6 py-4"
+        className="border-lightGray rounded-lg border bg-white p-4 md:px-6 md:py-4"
       >
-        <Grid container spacing={2} columns={12} sx={{ mb: 3 }}>
-          <Grid size={{ xs: 6 }}>
+        <Grid
+          container
+          spacing={2}
+          alignItems={'center'}
+          columns={12}
+          sx={{ mb: 2 }}
+        >
+          <Grid size={{ xs: 12, sm: 8 }}>
             <Tabs
               value={tab}
               onChange={handleTabChange}
@@ -236,31 +235,28 @@ export default function EmployeeShow() {
               <Tab label="Pliki" />
             </Tabs>
           </Grid>
-          {tab === 0 && (
-            <Grid
-              container
-              size={{ xs: 6 }}
-              sx={{
-                justifyContent: 'flex-end',
-                alignItems: 'center',
-                gap: 3,
-              }}
-            >
-              <IconButton
-                color="default"
-                className="border-darkGray border"
-                aria-label="Drukuj"
-              >
-                <LocalPrintshopIcon />
-              </IconButton>
-            </Grid>
-          )}
+          <Grid
+            container
+            sx={{ justifyContent: 'flex-end' }}
+            width={'100%'}
+            size={{ xs: 12, sm: 4 }}
+          >
+            {tab === 0 && (
+              <Chip
+                label={employee?.status ? 'Zatrudniony' : 'Niezatrudniony'}
+                className={
+                  employee?.status ? 'bg-green-400/50' : 'bg-red-400/50'
+                }
+                variant="filled"
+              />
+            )}
+          </Grid>
         </Grid>
         {tab === 0 && (
           <Grid container spacing={2} columns={12}>
             <Grid
-              size={{ xs: 12, md: 8, lg: 8 }}
-              className="border-lightGray rounded-lg border bg-white p-5"
+              size={{ xs: 12, md: 7 }}
+              className="border-lightGray rounded-lg border bg-white p-3 md:p-5"
               sx={{ flexGrow: 1 }}
             >
               <Stack direction="row" justifyContent="space-between" mb={3}>
@@ -270,11 +266,12 @@ export default function EmployeeShow() {
                 >
                   Informacje osobiste
                 </Typography>
-                <Chip
-                  label={employee?.status ? 'Zatrudniony' : 'Nie zatrudniony'}
-                  color={employee?.status ? 'primary' : 'error'}
+                {/* <Chip
+                  label={employee?.status ? 'Zatrudniony' : 'Niezatrudniony'}
+                  color={employee?.status ? 'success' : 'error'}
                   variant="filled"
-                />
+                  className="-mt-7 sm:mt-0"
+                /> */}
               </Stack>
               <Grid container spacing={2}>
                 {personalFields.map(({ key, label }) => (
@@ -286,14 +283,17 @@ export default function EmployeeShow() {
                       <Typography
                         variant="body1"
                         className="border-lightGray rounded border px-3 py-1 text-gray-700"
+                        sx={{
+                          maxWidth: '100%',
+                          overflow: 'visible',
+                          whiteSpace: 'normal',
+                          wordBreak: 'break-word',
+                        }}
                       >
                         {(() => {
                           const value = employee[key as keyof Employee];
                           if (!value) {
                             return <em className="text-gray-400">Brak</em>;
-                          }
-                          if (key === 'hireDate' || key === 'contractEndDate') {
-                            return dayjs(value).format('YYYY-MM-DD');
                           }
                           return String(value);
                         })() || <em className="text-gray-400">Brak</em>}
@@ -303,79 +303,118 @@ export default function EmployeeShow() {
                 ))}
               </Grid>
             </Grid>
-            <Grid
-              size={{ xs: 12, md: 4, lg: 4 }}
-              className="border-lightGray rounded-lg border bg-white p-5"
-            >
-              <Stack direction="row" justifyContent="space-between" mb={3}>
-                <Typography
-                  variant="subtitle1"
-                  className="text-lg font-semibold"
-                >
-                  Akcje
-                </Typography>
-              </Stack>
-              <Grid container spacing={3}>
-                <Stack
-                  direction={{ xs: 'column', xl: 'row' }}
-                  justifyContent={{ xs: 'flex-start', xl: 'space-between' }}
-                  alignItems={{ xs: 'flex-start', xl: 'center' }}
-                  sx={{ width: '100%' }}
-                  spacing={{ xs: 1, xl: 2 }}
-                >
-                  <div>
-                    <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                      Edytuj pracownika
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      sx={{ color: 'text.secondary' }}
-                    >
-                      Zmiana danych pracownika
-                    </Typography>
-                  </div>
-                  <Button
-                    variant="contained"
-                    onClick={handleEmployeeEdit}
-                    startIcon={<EditIcon />}
-                    sx={{ minWidth: 120 }}
+            <Grid container spacing={2} size={{ xs: 12, md: 5 }}>
+              <Grid
+                size={{ xs: 12 }}
+                className="border-lightGray rounded-lg border bg-white p-3 md:p-5"
+              >
+                <Stack direction="row" justifyContent="space-between" mb={3}>
+                  <Typography
+                    variant="subtitle1"
+                    className="text-lg font-semibold"
                   >
-                    Edytuj
-                  </Button>
+                    Akcje
+                  </Typography>
                 </Stack>
-                <Stack
-                  direction={{ xs: 'column', xl: 'row' }}
-                  justifyContent={{ xs: 'flex-start', xl: 'space-between' }}
-                  alignItems={{ xs: 'flex-start', xl: 'center' }}
-                  sx={{ width: '100%' }}
-                  spacing={{ xs: 1, xl: 2 }}
-                >
-                  <div>
-                    <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                      Zwolnij pracownika
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      sx={{ color: 'text.secondary' }}
+                <Grid container spacing={3}>
+                  <Box sx={{ width: '100%' }}>
+                    <Stack
+                      direction={{ xs: 'column', lg: 'row' }}
+                      justifyContent={{ xs: 'flex-start', lg: 'space-between' }}
+                      alignItems={{ xs: 'flex-start', lg: 'center' }}
+                      sx={{ width: '100%' }}
+                      spacing={{ xs: 1, lg: 2 }}
                     >
-                      Zmienia status pracownika na "Nie zatrudniony".
-                    </Typography>
-                  </div>
-                  <Button
-                    variant="contained"
-                    color="error"
-                    sx={{ minWidth: 120 }}
-                    onClick={handleEmployeeDismiss}
-                    disabled={!employee?.status || isDismissing}
-                  >
-                    {isDismissing ? 'Zwalnianie...' : 'Zwolnij'}
-                  </Button>
-                </Stack>
+                      <div>
+                        <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                          Edytuj pracownika
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          sx={{ color: 'text.secondary' }}
+                        >
+                          Zmiana danych pracownika
+                        </Typography>
+                      </div>
+                      <Button
+                        variant="contained"
+                        onClick={handleEmployeeEdit}
+                        startIcon={<EditIcon />}
+                        sx={{ minWidth: 120 }}
+                      >
+                        Edytuj
+                      </Button>
+                    </Stack>
+                    <Divider className="my-5" />
+                  </Box>
+                </Grid>
               </Grid>
             </Grid>
             <Grid
-              size={{ xs: 12, lg: 6 }}
-              className="border-lightGray rounded-lg border bg-white p-5"
+              size={{ xs: 12 }}
+              className="rounded-lg border border-dashed border-gray-300 p-4"
+            >
+              <Typography variant="body1" className="mb-2 font-medium">
+                Notatka:
+              </Typography>
+              <Stack
+                spacing={1.5}
+                direction={'column'}
+                alignItems={'flex-start'}
+              >
+                <TextField
+                  variant="outlined"
+                  className={`bg-white ${editNote ? '' : 'bg-gray-50! opacity-70'}`}
+                  fullWidth
+                  multiline
+                  rows={5}
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  error={updateNoteMutation.isError}
+                  slotProps={{
+                    input: {
+                      readOnly: updateNoteMutation.isPending || !editNote,
+                    },
+                  }}
+                  helperText={
+                    updateNoteMutation.isError
+                      ? 'Nie udało się zapisać notatki.'
+                      : ''
+                  }
+                />
+                <Stack direction="row" spacing={2}>
+                  <IconButton
+                    onClick={() => {
+                      setEditNote(!editNote);
+                      note !== (employee?.note ?? '') &&
+                        setNote(employee?.note ?? '');
+                    }}
+                    color={!editNote ? 'primary' : 'inherit'}
+                    className="rounded-lg border border-gray-300"
+                  >
+                    {editNote ? (
+                      <CloseIcon className="text-gray-500" />
+                    ) : (
+                      <EditIcon />
+                    )}
+                  </IconButton>
+                  {editNote && (
+                    <Button
+                      variant="contained"
+                      onClick={handleSaveNote}
+                      disabled={updateNoteMutation.isPending || !editNote}
+                    >
+                      {updateNoteMutation.isPending
+                        ? 'Zapisywanie...'
+                        : 'Zapisz'}
+                    </Button>
+                  )}
+                </Stack>
+              </Stack>
+            </Grid>
+            <Grid
+              size={{ xs: 12, md: 6 }}
+              className="border-lightGray rounded-lg border bg-white p-3 md:p-5"
               sx={{ flexGrow: 1 }}
             >
               <Stack direction="row" justifyContent="space-between" mb={3}>
@@ -383,87 +422,190 @@ export default function EmployeeShow() {
                   variant="subtitle1"
                   className="text-lg font-semibold"
                 >
-                  Szczegóły zatrudnienia
+                  Umowa zatrudnienia
                 </Typography>
               </Stack>
               <Grid container spacing={2}>
-                {employmentFields.map(({ key, label }) => (
-                  <Grid key={key} size={{ xs: 12 }}>
-                    <Stack direction="row" alignItems="center" spacing={1}>
-                      <Typography variant="body1" className="font-medium">
-                        {label}:
-                      </Typography>
-                      <Typography
-                        variant="body1"
-                        className="border-lightGray rounded border px-3 py-1 text-gray-700"
+                {contractFields.map(({ key, label }) => {
+                  const endDate = dayjs(employee.contractEndDate?.date);
+                  const today = dayjs();
+                  const daysDiff = endDate.diff(today, 'day');
+                  const isEndDateField = key === 'contractEndDate';
+                  let dateStyles = '';
+                  let severity: 'error' | 'warning' = 'warning';
+                  let message = '';
+                  let dayWord = 'dni';
+                  const isPermanent = employee.contractEndDate?.permanent;
+                  if (Math.abs(daysDiff) === 1) {
+                    dayWord = 'dzień';
+                  }
+
+                  if (daysDiff <= 14 && isEndDateField) {
+                    dateStyles =
+                      'border-red-500/25! bg-red-600/10! text-red-800!';
+                    severity = 'error';
+                    if (daysDiff < 0) {
+                      message = `Umowa wygasła ${Math.abs(
+                        daysDiff
+                      )} ${dayWord} temu`;
+                    } else {
+                      message = `Umowa kończy się za ${daysDiff} ${dayWord}`;
+                    }
+                  } else if (daysDiff <= 30 && isEndDateField) {
+                    dateStyles =
+                      'border-amber-500/25! bg-amber-500/10! text-amber-600!';
+                    severity = 'warning';
+                    message = `Umowa kończy się za ${daysDiff} ${dayWord}`;
+                  }
+                  const value = employee[key as keyof Employee];
+                  let returnValue = null;
+                  if (!value) {
+                    returnValue = <em className="text-gray-400">Brak</em>;
+                  } else {
+                    if (isEndDateField) {
+                      if (employee.contractEndDate?.permanent) {
+                        returnValue = 'Na czas nieokreślony';
+                      } else if (employee.contractEndDate?.date) {
+                        returnValue = dayjs(
+                          employee.contractEndDate?.date
+                        ).format('DD/MM/YYYY');
+                      }
+                    } else {
+                      returnValue = dayjs(value as Date).format('DD/MM/YYYY');
+                    }
+                  }
+                  return (
+                    <Grid key={key} size={{ xs: 12 }}>
+                      <Stack
+                        direction={{ xs: 'column', lg: 'row' }}
+                        justifyContent={'flex-start'}
+                        alignItems={{ xs: 'flex-start', lg: 'center' }}
+                        sx={{ width: '100%' }}
+                        spacing={{ xs: 1, lg: 2 }}
                       >
-                        {(() => {
-                          const value = employee[key as keyof Employee];
-                          if (!value) {
-                            return <em className="text-gray-400">Brak</em>;
-                          }
-                          if (key === 'hireDate' || key === 'contractEndDate') {
-                            return dayjs(value).format('YYYY-MM-DD');
-                          }
-                          return String(value);
-                        })() || <em className="text-gray-400">Brak</em>}
-                      </Typography>
-                    </Stack>
-                  </Grid>
-                ))}
+                        <Typography variant="body1" className="font-medium">
+                          {label}:
+                        </Typography>
+                        <Typography
+                          variant="body1"
+                          className={`border-lightGray rounded border px-3 py-1 text-gray-700 ${dateStyles}`}
+                        >
+                          {returnValue}
+                        </Typography>
+                      </Stack>
+                      {isEndDateField &&
+                        !isPermanent &&
+                        (() => {
+                          return (
+                            <Alert
+                              severity={severity}
+                              sx={{ width: '100%', mt: 2 }}
+                            >
+                              <Typography variant="body2">{message}</Typography>
+                            </Alert>
+                          );
+                        })()}
+                    </Grid>
+                  );
+                })}
               </Grid>
             </Grid>
             <Grid
-              size={{ xs: 12, lg: 6 }}
-              className="border-lightGray rounded-lg border bg-white p-5"
+              size={{ xs: 12, md: 6 }}
+              className="border-lightGray rounded-lg border bg-white p-3 md:p-5"
+              sx={{ flexGrow: 1 }}
             >
               <Stack direction="row" justifyContent="space-between" mb={3}>
                 <Typography
                   variant="subtitle1"
                   className="text-lg font-semibold"
                 >
-                  Powiadomienia i terminy
+                  Umowa A1
                 </Typography>
               </Stack>
-              <Grid container spacing={3}>
-                <Stack
-                  direction="row"
-                  justifyContent="space-between"
-                  alignItems={'center'}
-                  sx={{ width: '100%' }}
-                  spacing={2}
-                >
-                  <div>
-                    <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                      Edytuj pracownika
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      sx={{ color: 'text.secondary' }}
-                    >
-                      Zmiana danych pracownika
-                    </Typography>
-                  </div>
-                </Stack>
-                <Stack
-                  direction="row"
-                  justifyContent="space-between"
-                  alignItems={'center'}
-                  sx={{ width: '100%' }}
-                  spacing={2}
-                >
-                  <div>
-                    <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                      Zwolnij pracownika
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      sx={{ color: 'text.secondary' }}
-                    >
-                      Zmienia status pracownika na "Nie zatrudniony".
-                    </Typography>
-                  </div>
-                </Stack>
+              <Grid container spacing={2}>
+                {a1Fields.map(({ key, label }) => {
+                  const endDate = dayjs(employee.a1EndDate?.date);
+                  const today = dayjs();
+                  const daysDiff = endDate.diff(today, 'day');
+                  const isEndDateField = key === 'a1EndDate';
+                  let dateStyles = '';
+                  let severity: 'error' | 'warning' = 'warning';
+                  let message = '';
+                  let dayWord = 'dni';
+                  const isPermanent = employee.a1EndDate?.permanent;
+                  if (Math.abs(daysDiff) === 1) {
+                    dayWord = 'dzień';
+                  }
+
+                  if (daysDiff <= 14 && isEndDateField) {
+                    dateStyles =
+                      'border-red-500/25! bg-red-600/10! text-red-800!';
+                    severity = 'error';
+                    if (daysDiff < 0) {
+                      message = `Umowa wygasła ${Math.abs(
+                        daysDiff
+                      )} ${dayWord} temu`;
+                    } else {
+                      message = `Umowa kończy się za ${daysDiff} ${dayWord}`;
+                    }
+                  } else if (daysDiff <= 30 && isEndDateField) {
+                    dateStyles =
+                      'border-amber-500/25! bg-amber-500/10! text-amber-600!';
+                    severity = 'warning';
+                    message = `Umowa kończy się za ${daysDiff} ${dayWord}`;
+                  }
+                  const value = employee[key as keyof Employee];
+                  let returnValue = null;
+                  if (!value) {
+                    returnValue = <em className="text-gray-400">Brak</em>;
+                  } else {
+                    if (isEndDateField) {
+                      if (employee.a1EndDate?.permanent) {
+                        returnValue = 'Na czas nieokreślony';
+                      } else if (employee.a1EndDate?.date) {
+                        returnValue = dayjs(employee.a1EndDate?.date).format(
+                          'DD/MM/YYYY'
+                        );
+                      }
+                    } else {
+                      returnValue = dayjs(value as Date).format('DD/MM/YYYY');
+                    }
+                  }
+                  return (
+                    <Grid key={key} size={{ xs: 12 }}>
+                      <Stack
+                        direction={{ xs: 'column', lg: 'row' }}
+                        justifyContent={'flex-start'}
+                        alignItems={{ xs: 'flex-start', lg: 'center' }}
+                        sx={{ width: '100%' }}
+                        spacing={{ xs: 1, lg: 2 }}
+                      >
+                        <Typography variant="body1" className="font-medium">
+                          {label}:
+                        </Typography>
+                        <Typography
+                          variant="body1"
+                          className={`border-lightGray rounded border px-3 py-1 text-gray-700 ${dateStyles}`}
+                        >
+                          {returnValue}
+                        </Typography>
+                      </Stack>
+                      {isEndDateField &&
+                        !isPermanent &&
+                        (() => {
+                          return (
+                            <Alert
+                              severity={severity}
+                              sx={{ width: '100%', mt: 2 }}
+                            >
+                              <Typography variant="body2">{message}</Typography>
+                            </Alert>
+                          );
+                        })()}
+                    </Grid>
+                  );
+                })}
               </Grid>
             </Grid>
           </Grid>
@@ -479,11 +621,11 @@ export default function EmployeeShow() {
     handleEmployeeEdit,
     handleTabChange,
     personalFields,
-    handleRetry,
-    notFound,
     showDebug,
-    handleEmployeeDismiss,
-    isDismissing,
+    note,
+    updateNoteMutation.isPending,
+    updateNoteMutation.isError,
+    handleSaveNote,
   ]);
 
   const pageTitle = employee?.name || 'Szczegóły Pracownika';

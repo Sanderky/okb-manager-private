@@ -15,6 +15,7 @@ import ConstructionShow from './pages/Dashboard/Constructions/ConstructionShow';
 import EmployeeList from './pages/Dashboard/Employees/EmployeeList';
 import EmployeeEdit from './pages/Dashboard/Employees/EmployeeEdit';
 import EmployeeCreate from './pages/Dashboard/Employees/EmployeeCreate';
+import ConstructionEdit from './pages/Dashboard/Constructions/ConstructionEdit';
 
 // import AppTheme from './theme/AppTheme';
 // import {
@@ -41,28 +42,33 @@ export default function App() {
           <Router>
             <Routes>
               <Route path="/login" element={<Login />} />
-              <Route path="/" element={<DashboardLayout />}>
-                <Route path="employees" element={<EmployeeList />} />
-                <Route
-                  path="employees/:employeeId"
-                  element={<EmployeeShow />}
-                />
-                <Route
-                  path="employees/:employeeId/edit"
-                  element={<EmployeeEdit />}
-                />
-                <Route path="employees/create" element={<EmployeeCreate />} />
-                <Route path="constructions" element={<ConstructionsList />} />
-                <Route
-                  path="constructions/new"
-                  element={<ConstructionCreate />}
-                />
-                <Route
-                  path="constructions/:constructionId"
-                  element={<ConstructionShow />}
-                />
+              <Route element={<PrivateRoute />}>
+                <Route path="/" element={<DashboardLayout />}>
+                  <Route path="employees" element={<EmployeeList />} />
+                  <Route
+                    path="employees/:employeeId"
+                    element={<EmployeeShow />}
+                  />
+                  <Route
+                    path="employees/:employeeId/edit"
+                    element={<EmployeeEdit />}
+                  />
+                  <Route path="employees/create" element={<EmployeeCreate />} />
+                  <Route path="constructions" element={<ConstructionsList />} />
+                  <Route
+                    path="constructions/:constructionId"
+                    element={<ConstructionShow />}
+                  />
+                  <Route
+                    path="constructions/:constructionId/edit"
+                    element={<ConstructionEdit />}
+                  />
+                  <Route
+                    path="constructions/create"
+                    element={<ConstructionCreate />}
+                  />
+                </Route>
               </Route>
-              <Route element={<PrivateRoute />}></Route>
             </Routes>
           </Router>
         </DialogsProvider>

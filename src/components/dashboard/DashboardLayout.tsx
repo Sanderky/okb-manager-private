@@ -92,7 +92,7 @@ export default function DashboardLayout() {
               flexGrow: 1,
               overflowY: 'auto',
             }}
-            className="p-5"
+            className="p2"
           >
             <Outlet />
           </Box>

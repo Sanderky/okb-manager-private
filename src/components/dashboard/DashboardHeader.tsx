@@ -9,9 +9,19 @@ import Typography from '@mui/material/Typography';
 import MenuIcon from '@mui/icons-material/Menu';
 import MenuOpenIcon from '@mui/icons-material/MenuOpen';
 import Stack from '@mui/material/Stack';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { useAuth } from '../../context/AuthContext';
 import { useTranslation } from 'react-i18next';
+import {
+  Avatar,
+  Button,
+  Chip,
+  ListItemIcon,
+  Menu,
+  MenuItem,
+} from '@mui/material';
+
+import Logout from '@mui/icons-material/Logout';
 
 const AppBar = styled(MuiAppBar)(({ theme }) => ({
   borderWidth: 0,
@@ -46,12 +56,31 @@ export default function DashboardHeader({
   onToggleMenu,
 }: DashboardHeaderProps) {
   const theme = useTheme();
-  const auth = useAuth();
+  const { user, logout } = useAuth();
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   const handleMenuOpen = React.useCallback(() => {
     onToggleMenu(!menuOpen);
   }, [menuOpen, onToggleMenu]);
+
+  const handleSettingsOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+
+  const open = Boolean(anchorEl);
+
+  const handleSettingsClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleLogout = async () => {
+    handleSettingsClose();
+    await logout();
+    navigate('/login');
+  };
 
   const getMenuIcon = React.useCallback(
     (isExpanded: boolean) => {
@@ -77,6 +106,8 @@ export default function DashboardHeader({
     },
     [handleMenuOpen]
   );
+
+  // const open = Boolean(anchorEl);
 
   return (
     <AppBar color="inherit" position="absolute" sx={{ displayPrint: 'none' }}>
@@ -118,9 +149,81 @@ export default function DashboardHeader({
             spacing={1}
             sx={{ marginLeft: 'auto' }}
           >
-            <Stack direction="row" alignItems="center">
-              <div>{auth.user?.email}</div>
-            </Stack>
+            <React.Fragment>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  textAlign: 'center',
+                }}
+              >
+                <Button
+                  variant="text"
+                  onClick={handleSettingsOpen}
+                  size="small"
+                  sx={{ ml: 2 }}
+                >
+                  <Avatar sx={{ width: 32, height: 32 }}>
+                    {user?.email?.charAt(0)}
+                  </Avatar>
+                  <Typography
+                    variant="body2"
+                    sx={{ ml: 1, display: { xs: 'none', sm: 'block' } }}
+                    className="font-medium text-gray-500"
+                  >
+                    {user?.email}
+                  </Typography>
+                </Button>
+              </Box>
+              <Menu
+                anchorEl={anchorEl}
+                open={open}
+                onClose={handleSettingsClose}
+                slotProps={{
+                  paper: {
+                    elevation: 0,
+                    sx: {
+                      overflow: 'visible',
+                      filter: 'drop-shadow(0px 0px 2px rgba(0,0,0,0.32))',
+                      mt: 1.5,
+                      '& .MuiAvatar-root': {
+                        width: 32,
+                        height: 32,
+                        ml: -0.5,
+                        mr: 1,
+                      },
+                      '&::before': {
+                        content: '""',
+                        display: 'block',
+                        position: 'absolute',
+                        top: 0,
+                        right: 14,
+                        width: 10,
+                        height: 10,
+                        bgcolor: 'background.paper',
+                        transform: 'translateY(-50%) rotate(45deg)',
+                        zIndex: 0,
+                      },
+                    },
+                  },
+                }}
+                transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+                anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+              >
+                <MenuItem onClick={handleLogout} className="py-0">
+                  <ListItemIcon>
+                    <Logout fontSize="small" />
+                  </ListItemIcon>
+                  Wyloguj
+                </MenuItem>
+              </Menu>
+            </React.Fragment>
+            {/* <Stack direction="row" alignItems="center">
+              <Chip
+                avatar={<Avatar>{auth.user?.email.charAt(0)}</Avatar>}
+                label={auth.user?.email}
+              />
+            </Stack> */}
           </Stack>
         </Stack>
       </Toolbar>

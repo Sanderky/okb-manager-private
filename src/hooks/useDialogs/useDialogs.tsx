@@ -137,7 +137,7 @@ export interface OpenDialog {
   <P extends undefined, R>(
     Component: DialogComponent<P, R>,
     payload?: P,
-    options?: OpenDialogOptions<R>,
+    options?: OpenDialogOptions<R>
   ): Promise<R>;
   /**
    * Open a dialog and pass a payload.
@@ -148,7 +148,7 @@ export interface OpenDialog {
   <P, R>(
     Component: DialogComponent<P, R>,
     payload: P,
-    options?: OpenDialogOptions<R>,
+    options?: OpenDialogOptions<R>
   ): Promise<R>;
 }
 
@@ -190,7 +190,8 @@ export interface AlertDialogPayload extends AlertOptions {
   msg: React.ReactNode;
 }
 
-export interface AlertDialogProps extends DialogProps<AlertDialogPayload, void> {}
+export interface AlertDialogProps
+  extends DialogProps<AlertDialogPayload, void> {}
 
 export function AlertDialog({ open, payload, onClose }: AlertDialogProps) {
   const okButtonProps = useDialogLoadingButton(() => onClose());
@@ -200,7 +201,7 @@ export function AlertDialog({ open, payload, onClose }: AlertDialogProps) {
       <DialogTitle>{payload.title ?? 'Alert'}</DialogTitle>
       <DialogContent>{payload.msg}</DialogContent>
       <DialogActions>
-        <Button disabled={!open} {...okButtonProps}>
+        <Button variant="contained" disabled={!open} {...okButtonProps}>
           {payload.okText ?? 'Ok'}
         </Button>
       </DialogActions>
@@ -224,10 +225,22 @@ export function ConfirmDialog({ open, payload, onClose }: ConfirmDialogProps) {
       <DialogTitle>{payload.title ?? 'Confirm'}</DialogTitle>
       <DialogContent>{payload.msg}</DialogContent>
       <DialogActions>
-        <Button autoFocus disabled={!open} {...cancelButtonProps}>
+        <Button
+          variant="outlined"
+          color="inherit"
+          autoFocus
+          disabled={!open}
+          {...cancelButtonProps}
+          className="border-gray-400"
+        >
           {payload.cancelText ?? 'Cancel'}
         </Button>
-        <Button color={payload.severity} disabled={!open} {...okButtonProps}>
+        <Button
+          variant="contained"
+          color={payload.severity}
+          disabled={!open}
+          {...okButtonProps}
+        >
           {payload.okText ?? 'Ok'}
         </Button>
       </DialogActions>
@@ -294,10 +307,21 @@ export function PromptDialog({ open, payload, onClose }: PromptDialogProps) {
         />
       </DialogContent>
       <DialogActions>
-        <Button disabled={!open} {...cancelButtonProps}>
+        <Button
+          variant="outlined"
+          color="inherit"
+          className="border-gray-400"
+          disabled={!open}
+          {...cancelButtonProps}
+        >
           {payload.cancelText ?? 'Cancel'}
         </Button>
-        <Button disabled={!open} loading={loading} type="submit">
+        <Button
+          variant="contained"
+          disabled={!open}
+          loading={loading}
+          type="submit"
+        >
           {payload.okText ?? 'Ok'}
         </Button>
       </DialogActions>
@@ -314,17 +338,17 @@ export function useDialogs(): DialogHook {
 
   const alert = useEventCallback<OpenAlertDialog>(
     (msg, { onClose, ...options } = {}) =>
-      open(AlertDialog, { ...options, msg }, { onClose }),
+      open(AlertDialog, { ...options, msg }, { onClose })
   );
 
   const confirm = useEventCallback<OpenConfirmDialog>(
     (msg, { onClose, ...options } = {}) =>
-      open(ConfirmDialog, { ...options, msg }, { onClose }),
+      open(ConfirmDialog, { ...options, msg }, { onClose })
   );
 
   const prompt = useEventCallback<OpenPromptDialog>(
     (msg, { onClose, ...options } = {}) =>
-      open(PromptDialog, { ...options, msg }, { onClose }),
+      open(PromptDialog, { ...options, msg }, { onClose })
   );
 
   return React.useMemo(
@@ -335,6 +359,6 @@ export function useDialogs(): DialogHook {
       open,
       close,
     }),
-    [alert, close, confirm, open, prompt],
+    [alert, close, confirm, open, prompt]
   );
 }

@@ -12,14 +12,17 @@ import dayjs, { type Dayjs } from 'dayjs';
 import type { Employee } from '../../../types';
 import Alert from '@mui/material/Alert';
 import DoneAllOutlinedIcon from '@mui/icons-material/DoneAllOutlined';
-import { Checkbox, FormControlLabel } from '@mui/material';
+import { Checkbox, Divider, FormControlLabel, Typography } from '@mui/material';
+import { useEffect, useState } from 'react';
 
 export interface EmployeeFormState {
   values: Partial<Omit<Employee, 'id'>>;
   errors: Partial<Record<keyof EmployeeFormState['values'], string>>;
 }
 
-export type FormFieldValue = string | string[] | number | boolean | File | null;
+export type DateWithPermanent = { date: string | null; permanent: boolean };
+
+export type FormFieldValue = string | boolean | null | DateWithPermanent;
 
 export interface EmployeeFormProps {
   formId?: string;
@@ -32,9 +35,10 @@ export interface EmployeeFormProps {
   onReset?: () => void;
   isSubmitting?: boolean;
   submitError?: string | null;
+  isEditForm?: boolean;
 }
 
-type FieldType = 'text' | 'email' | 'date' | 'boolean';
+type FieldType = 'text' | 'email' | 'date' | 'boolean' | 'object';
 
 interface EmployeeField {
   key: keyof EmployeeFormState['values'];
@@ -50,28 +54,37 @@ export const validate = (
   if (!values.name) {
     errors.name = 'Imię jest wymagane.';
   }
-
-  if (!values.email) {
-    errors.email = 'E-mail jest wymagany.';
-  } else if (!/\S+@\S+\.\S+/.test(values.email)) {
+  if (values.name && values.name.length > 100) {
+    errors.name = 'Imię nie może być dłuższe niż 100 znaków.';
+  }
+  if (values.email && !/\S+@\S+\.\S+/.test(values.email)) {
     errors.email = 'Nieprawidłowy format adresu e-mail.';
   }
 
-  if (!values.phone) {
-    errors.phone = 'Telefon jest wymagany.';
+  if (values.contractEndDate?.date && !values.contractStartDate) {
+    errors.contractStartDate =
+      'Data rozpoczęcia jest wymagana, jeśli podano datę zakończenia.';
   }
-
-  if (!values.hireDate) {
-    errors.hireDate = 'Data zatrudnienia jest wymagana.';
-  }
-
   if (
-    values.hireDate &&
-    values.contractEndDate &&
-    dayjs(values.contractEndDate).isBefore(dayjs(values.hireDate))
+    values.contractStartDate &&
+    values.contractEndDate?.date &&
+    dayjs(values.contractEndDate.date).isBefore(dayjs(values.contractStartDate))
   ) {
     errors.contractEndDate =
-      'Data wygaśnięcia umowy nie może być wcześniejsza niż data zatrudnienia.';
+      'Data zakończenia nie może być wcześniejsza niż data rozpoczęcia.';
+  }
+
+  if (values.a1EndDate?.date && !values.a1StartDate) {
+    errors.a1StartDate =
+      'Data rozpoczęcia A1 jest wymagana, jeśli podano datę zakończenia A1.';
+  }
+  if (
+    values.a1StartDate &&
+    values.a1EndDate?.date &&
+    dayjs(values.a1EndDate.date).isBefore(dayjs(values.a1StartDate))
+  ) {
+    errors.a1EndDate =
+      'Data zakończenia A1 nie może być wcześniejsza niż data rozpoczęcia A1.';
   }
 
   return errors;
@@ -86,6 +99,7 @@ export default function EmployeeForm(props: EmployeeFormProps) {
     onReset,
     isSubmitting,
     submitError,
+    isEditForm,
   } = props;
 
   const formValues = formState.values;
@@ -94,30 +108,87 @@ export default function EmployeeForm(props: EmployeeFormProps) {
   const handleFieldChange = React.useCallback(
     (
       name: keyof EmployeeFormState['values'],
-      value: string | boolean | Dayjs | null
+      value: FormFieldValue | object | null
     ) => {
       if (dayjs.isDayjs(value)) {
-        onFieldChange(name, value.isValid() ? value.toISOString() : null);
+        onFieldChange(
+          name,
+          value.isValid() ? value.format('YYYY-MM-DD') : null
+        );
       } else {
-        onFieldChange(name, value);
+        onFieldChange(name, value as FormFieldValue);
       }
     },
     [onFieldChange]
   );
+
+  const handleDateFieldChange = (
+    name: keyof EmployeeFormState['values'],
+    newValue: Dayjs | null
+  ) => {
+    handleFieldChange(name, newValue?.format('YYYY-MM-DD') ?? null);
+  };
+
+  const handlePermanentChange = (
+    name: keyof EmployeeFormState['values'],
+    checked: boolean
+  ) => {
+    handleFieldChange(name, { date: null, permanent: checked });
+  };
+
+  const handlePermanentDateFieldChange = (
+    name: keyof EmployeeFormState['values'],
+    newValue: Dayjs | null
+  ) => {
+    handleFieldChange(name, {
+      date: newValue?.format('YYYY-MM-DD') ?? null,
+      permanent: false,
+    });
+  };
+
+  const getDateValue = (
+    key: keyof EmployeeFormState['values'],
+    values: EmployeeFormState['values']
+  ) => {
+    const val = values[key];
+    if (!val) return null;
+
+    if (typeof val === 'string') return dayjs(val);
+    if (typeof val === 'object' && 'date' in val && val.date)
+      return dayjs(val.date);
+    return null;
+  };
 
   const employeeFields: EmployeeField[] = [
     { key: 'name', label: 'Imię i nazwisko', type: 'text' },
     { key: 'email', label: 'E-mail', type: 'email' },
     { key: 'phone', label: 'Telefon', type: 'text' },
     { key: 'address', label: 'Adres', type: 'text' },
-    { key: 'status', label: 'Zatrudniony', type: 'boolean' },
-    { key: 'hireDate', label: 'Data zatrudnienia', type: 'date' },
-    {
-      key: 'contractEndDate',
-      label: 'Data wygaśnięcia umowy',
-      type: 'date',
-    },
+    // { key: 'status', label: 'Zatrudniony', type: 'boolean' },
   ];
+
+  const contractFields: EmployeeField[] = [
+    { key: 'contractStartDate', label: 'Data rozpoczęcia umowy', type: 'date' },
+    { key: 'contractEndDate', label: 'Data wygaśnięcia umowy', type: 'object' },
+  ];
+
+  const a1Fields: EmployeeField[] = [
+    { key: 'a1StartDate', label: 'Data rozpoczęcia umowy A1', type: 'date' },
+    { key: 'a1EndDate', label: 'Data wygaśnięcia umowy A1', type: 'object' },
+  ];
+
+  const [cleared, setCleared] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (cleared) {
+      const timeout = setTimeout(() => {
+        setCleared(false);
+      }, 1500);
+
+      return () => clearTimeout(timeout);
+    }
+    return () => {};
+  }, [cleared]);
 
   return (
     <Box
@@ -135,37 +206,13 @@ export default function EmployeeForm(props: EmployeeFormProps) {
         </Alert>
       )}
       <FormGroup>
-        <Grid container columnSpacing={3} rowSpacing={4}>
-          {employeeFields.map(({ key, label, type }) => (
-            <Grid sx={{ xs: 12, md: 6 }} key={key}>
-              {type === 'date' ? (
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DatePicker
-                    label={label}
-                    value={formValues[key] ? dayjs(formValues[key]) : null}
-                    onChange={(newValue) => handleFieldChange(key, newValue)}
-                    slotProps={{
-                      textField: {
-                        fullWidth: true,
-                        name: key,
-                        error: Boolean(formErrors[key]),
-                        helperText: formErrors[key],
-                      },
-                    }}
-                  />
-                </LocalizationProvider>
-              ) : type === 'boolean' ? (
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={Boolean(formValues[key])}
-                      onChange={(e) => handleFieldChange(key, e.target.checked)}
-                      name={key}
-                    />
-                  }
-                  label={label}
-                />
-              ) : (
+        <Grid container columns={12} spacing={1}>
+          <Typography variant="subtitle1" className="mb-2 font-medium">
+            Dane pracownika
+          </Typography>
+          <Grid container columns={12} spacing={{ xs: 2 }} width={'100%'}>
+            {employeeFields.map(({ key, label, type }) => (
+              <Grid size={{ xs: 12, md: 6 }} key={key}>
                 <TextField
                   fullWidth
                   label={label}
@@ -176,27 +223,157 @@ export default function EmployeeForm(props: EmployeeFormProps) {
                   error={Boolean(formErrors[key])}
                   helperText={formErrors[key]}
                 />
-              )}
+              </Grid>
+            ))}
+          </Grid>
+          <Divider sx={{ width: '100%' }} className="my-3" />
+          <Typography variant="subtitle1" className="mb-2 font-medium">
+            Umowa zatrudnienia
+          </Typography>
+          <Grid container columns={12} spacing={{ xs: 2 }} width={'100%'}>
+            {contractFields.map(({ key, label }) => (
+              <Grid size={{ xs: 12, md: 6 }} key={key}>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker
+                    label={label}
+                    value={getDateValue(key, formValues)}
+                    onChange={(newValue) =>
+                      key === 'contractEndDate'
+                        ? handlePermanentDateFieldChange(key, newValue)
+                        : handleDateFieldChange(key, newValue)
+                    }
+                    disabled={
+                      key === 'contractEndDate' &&
+                      formValues.contractEndDate?.permanent
+                    }
+                    slotProps={{
+                      textField: {
+                        fullWidth: true,
+                        name: key,
+                        error: Boolean(formErrors[key]),
+                        helperText: formErrors[key],
+                      },
+                      field: {
+                        clearable: true,
+                        onClear: () => setCleared(true),
+                      },
+                    }}
+                  />
+                </LocalizationProvider>
+              </Grid>
+            ))}
+            <Grid size={{ xs: 12 }} mt={-1}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={formValues.contractEndDate?.permanent ?? false}
+                    onChange={(e) =>
+                      handlePermanentChange('contractEndDate', e.target.checked)
+                    }
+                  />
+                }
+                label="Na czas nieokreślony"
+              />
             </Grid>
-          ))}
+          </Grid>
+          <Divider sx={{ width: '100%' }} className="my-3" />
+          <Typography variant="subtitle1" className="mb-2 font-medium">
+            Umowa A1
+          </Typography>
+          <Grid container columns={12} spacing={{ xs: 2 }} width={'100%'}>
+            {a1Fields.map(({ key, label }) => (
+              <Grid size={{ xs: 12, md: 6 }} key={key}>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker
+                    label={label}
+                    value={getDateValue(key, formValues)}
+                    onChange={(newValue) =>
+                      key === 'contractEndDate'
+                        ? handlePermanentDateFieldChange(key, newValue)
+                        : handleDateFieldChange(key, newValue)
+                    }
+                    disabled={
+                      key === 'a1EndDate' && formValues.a1EndDate?.permanent
+                    }
+                    slotProps={{
+                      textField: {
+                        fullWidth: true,
+                        name: key,
+                        error: Boolean(formErrors[key]),
+                        helperText: formErrors[key],
+                      },
+                      field: {
+                        clearable: true,
+                        onClear: () => setCleared(true),
+                      },
+                    }}
+                  />
+                </LocalizationProvider>
+              </Grid>
+            ))}
+            <Grid size={{ xs: 12 }} mt={-1}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={formValues.a1EndDate?.permanent ?? false}
+                    onChange={(e) =>
+                      handlePermanentChange('a1EndDate', e.target.checked)
+                    }
+                  />
+                }
+                label="Na czas nieokreślony"
+              />
+            </Grid>
+          </Grid>
+          <Divider sx={{ width: '100%' }} className="my-3" />
+          {isEditForm && (
+            <Grid size={{ xs: 12 }} className="my-2">
+              <TextField
+                multiline
+                minRows={5}
+                maxRows={10}
+                fullWidth
+                label="Notatka"
+                value={formValues.note ?? ''}
+                onChange={(e) => handleFieldChange('note', e.target.value)}
+                error={Boolean(formErrors.note)}
+                helperText={formErrors.note}
+              />
+            </Grid>
+          )}
+          <Grid size={{ xs: 12 }}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={Boolean(formValues['status'])}
+                  onChange={(e) =>
+                    handleFieldChange('status', e.target.checked)
+                  }
+                  name="status"
+                />
+              }
+              label="Zatrudniony"
+            />
+          </Grid>
+          <Divider sx={{ width: '100%' }} className="mt-3" />
         </Grid>
-      </FormGroup>
-      <Stack
-        direction="row"
-        alignItems="center"
-        justifyContent="flex-end"
-        spacing={3}
-        sx={{ mt: 4 }}
-      >
-        <Button
-          variant="contained"
-          startIcon={<DoneAllOutlinedIcon />}
-          type="submit"
-          disabled={isSubmitting}
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="flex-start"
+          spacing={3}
+          sx={{ mt: 4 }}
         >
-          {isSubmitting ? 'Zapisywanie...' : 'Zapisz'}
-        </Button>
-      </Stack>
+          <Button
+            variant="contained"
+            startIcon={<DoneAllOutlinedIcon />}
+            type="submit"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Zapisywanie...' : 'Zapisz'}
+          </Button>
+        </Stack>
+      </FormGroup>
     </Box>
   );
 }
