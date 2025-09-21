@@ -19,6 +19,7 @@ type Employee = {
 
 export type { Employee };
 
+
 export interface Construction {
   id: string;
   name: string;
@@ -29,3 +30,22 @@ export interface Construction {
   inProgress: boolean;
   note?: string;
 }
+
+
+export interface FileItem {
+  name: string;
+  type: 'file';
+  fullPath: string;
+  url: string;
+  timeCreated?: string;
+  size?: number;
+  contentType?: string;
+}
+
+export interface FolderItem {
+  name: string;
+  type: 'folder';
+  fullPath: string;
+}
+
+export type File = FileItem | FolderItem;

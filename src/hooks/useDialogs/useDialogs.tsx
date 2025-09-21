@@ -65,6 +65,10 @@ export interface PromptOptions extends OpenDialogOptions<string | null> {
    * The text to show in the "Cancel" button. Defaults to `'Cancel'`.
    */
   cancelText?: React.ReactNode;
+  /**
+   * Default input value`.
+   */
+  defaultValue?: React.ReactNode;
 }
 
 /**
@@ -256,7 +260,7 @@ export interface PromptDialogProps
   extends DialogProps<PromptDialogPayload, string | null> {}
 
 export function PromptDialog({ open, payload, onClose }: PromptDialogProps) {
-  const [input, setInput] = React.useState('');
+  const [input, setInput] = React.useState(payload.defaultValue ?? '');
   const cancelButtonProps = useDialogLoadingButton(() => onClose(null));
 
   const [loading, setLoading] = React.useState(false);
