@@ -11,6 +11,7 @@ import ConstructionIcon from '@mui/icons-material/Construction';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import DescriptionIcon from '@mui/icons-material/Description';
 import LayersIcon from '@mui/icons-material/Layers';
+import HomeIcon from '@mui/icons-material/Home';
 import { matchPath, useLocation } from 'react-router';
 import DashboardSidebarContext from '../../context/DashboardSidebarContext';
 import { DRAWER_WIDTH, MINI_DRAWER_WIDTH } from '../../constants';
@@ -133,6 +134,13 @@ export default function DashboardSidebar({
               width: mini ? MINI_DRAWER_WIDTH : 'auto',
             }}
           >
+            <DashboardSidebarPageItem
+              id="home"
+              title="Strona główna"
+              icon={<HomeIcon />}
+              href="/home"
+              selected={!!matchPath('/home/*', pathname)}
+            />
             <DashboardSidebarPageItem
               id="constructions"
               title="Budowy"

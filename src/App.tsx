@@ -16,6 +16,7 @@ import EmployeeList from './pages/Dashboard/Employees/EmployeeList';
 import EmployeeEdit from './pages/Dashboard/Employees/EmployeeEdit';
 import EmployeeCreate from './pages/Dashboard/Employees/EmployeeCreate';
 import ConstructionEdit from './pages/Dashboard/Constructions/ConstructionEdit';
+import Home from './pages/Dashboard/Home/Home';
 
 // import AppTheme from './theme/AppTheme';
 // import {
@@ -44,6 +45,7 @@ export default function App() {
               <Route path="/login" element={<Login />} />
               <Route element={<PrivateRoute />}>
                 <Route path="/" element={<DashboardLayout />}>
+                  <Route path="home" element={<Home />} />
                   <Route path="employees" element={<EmployeeList />} />
                   <Route
                     path="employees/:employeeId"
