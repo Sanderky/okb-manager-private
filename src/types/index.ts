@@ -1,9 +1,11 @@
+import type { Dayjs } from 'dayjs';
+
 type EndDateObject = {
   date: Date | null;
   permanent: boolean;
 };
 
-type Employee = {
+export interface Employee {
   id: string;
   name: string;
   email: string;
@@ -15,9 +17,12 @@ type Employee = {
   contractEndDate?: EndDateObject;
   a1StartDate: Date | null;
   a1EndDate?: EndDateObject;
-};
-
-export type { Employee };
+  vacation: {
+    id: string;
+    startDate: Date;
+    endDate: Date;
+  }[];
+}
 
 
 export interface Construction {

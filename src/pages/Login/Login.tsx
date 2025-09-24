@@ -4,15 +4,17 @@ import {
   browserLocalPersistence,
   setPersistence,
   signInWithEmailAndPassword,
+  // GoogleAuthProvider,
+  // signInWithPopup,
 } from 'firebase/auth';
 import { auth } from '../../firebase';
 import TextField from '@mui/material/TextField';
-import { Alert, CircularProgress } from '@mui/material';
+import { Alert, CircularProgress, Button, Divider } from '@mui/material';
 import ForgotPassword from './ForgotPassword';
 import { getRules, validateField } from './validation';
 import { useAuth } from '../../context/AuthContext';
-
 import { default as LogoIcon } from '@mui/icons-material/TokenOutlined';
+// import GoogleIcon from '@mui/icons-material/Google';
 
 type FormValues = {
   email: string;
@@ -80,6 +82,21 @@ const Login = () => {
     }
   };
 
+  // const handleGoogleLogin = async () => {
+  //   setActionLoading(true);
+  //   try {
+  //     await setPersistence(auth, browserLocalPersistence);
+  //     const provider = new GoogleAuthProvider();
+  //     const result = await signInWithPopup(auth, provider);
+  //     console.log('✅ Zalogowano przez Google:', result.user);
+  //     navigate('/');
+  //   } catch (error: any) {
+  //     console.error('❌ Google login error:', error.message);
+  //   } finally {
+  //     setActionLoading(false);
+  //   }
+  // };
+
   if (authLoading || user) {
     return (
       <div className="flex h-screen items-center justify-center">
@@ -124,9 +141,7 @@ const Login = () => {
               onChange={handleChange}
               disabled={actionLoading}
               slotProps={{
-                input: {
-                  className: 'rounded-lg',
-                },
+                input: { className: 'rounded-lg' },
               }}
             />
             <TextField
@@ -142,9 +157,7 @@ const Login = () => {
               onChange={handleChange}
               disabled={actionLoading}
               slotProps={{
-                input: {
-                  className: 'rounded-lg',
-                },
+                input: { className: 'rounded-lg' },
               }}
             />
 
@@ -171,6 +184,19 @@ const Login = () => {
             >
               {actionLoading ? <CircularProgress size={24} /> : 'Zaloguj się'}
             </button>
+
+            {/* <Divider className="my-2">|</Divider>
+
+            <Button
+              variant="outlined"
+              startIcon={<GoogleIcon />}
+              fullWidth
+              onClick={handleGoogleLogin}
+              disabled={actionLoading}
+              className="mt-2"
+            >
+              Zaloguj przez Google
+            </Button> */}
           </form>
 
           <ForgotPassword

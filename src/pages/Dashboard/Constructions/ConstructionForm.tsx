@@ -14,7 +14,6 @@ import Alert from '@mui/material/Alert';
 import DoneAllOutlinedIcon from '@mui/icons-material/DoneAllOutlined';
 import { Checkbox, Divider, FormControlLabel, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { DateField } from '@mui/x-date-pickers';
 
 export interface ConstructionFormState {
   values: Partial<Omit<Construction, 'id'>>;
@@ -184,7 +183,10 @@ export default function ConstructionForm(props: ConstructionFormProps) {
           <Grid container columns={12} spacing={{ xs: 2 }} width={'100%'}>
             {DateFields.map(({ key, label, type }) => (
               <Grid size={{ xs: 12, md: 6 }} key={key}>
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <LocalizationProvider
+                  dateAdapter={AdapterDayjs}
+                  adapterLocale="pl"
+                >
                   <DatePicker
                     label={label}
                     value={formValues[key] ? dayjs(formValues[key]) : null}

@@ -11,6 +11,7 @@ import ConstructionIcon from '@mui/icons-material/Construction';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import DescriptionIcon from '@mui/icons-material/Description';
 import LayersIcon from '@mui/icons-material/Layers';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import HomeIcon from '@mui/icons-material/Home';
 import { matchPath, useLocation } from 'react-router';
 import DashboardSidebarContext from '../../context/DashboardSidebarContext';
@@ -154,6 +155,13 @@ export default function DashboardSidebar({
               icon={<PersonIcon />}
               href="/employees"
               selected={!!matchPath('/employees/*', pathname)}
+            />
+            <DashboardSidebarPageItem
+              id="calendar"
+              title="Urlopy"
+              icon={<CalendarMonthIcon />}
+              href="/calendar"
+              selected={!!matchPath('/calendar/*', pathname)}
             />
             {/* <DashboardSidebarHeaderItem>Main items</DashboardSidebarHeaderItem>
             <DashboardSidebarPageItem
