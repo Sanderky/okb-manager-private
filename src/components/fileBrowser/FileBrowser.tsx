@@ -42,9 +42,9 @@ import {
 } from '@mui/icons-material';
 import MoveItemsDialog from './MoveFilesDialog';
 import { PreviewDialog } from './FilePreviewDialog';
-import type { FileItem, File } from '../../types';
+import type { FileItem, FileCustom } from '../../types';
 import useFileView from './useFileBrowser';
-import { formatBytes, getFileType } from './FileBrowserHelpers';
+import { canOpenPreview, formatBytes, getFileType } from './FileBrowserHelpers';
 import PdfIcon from '../../assets/icons/file-pdf.svg?react';
 import 'dayjs/locale/pl';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -53,7 +53,7 @@ import { MRT_Localization_PL } from 'material-react-table/locales/pl';
 
 const BASE_DIRECTORY = 'files';
 
-const RenderFileImage = ({ file }: { file: File }) => {
+const RenderFileImage = ({ file }: { file: FileCustom }) => {
   if (file.type === 'folder') return <Folder />;
   const fileType = getFileType(file.name);
   // if(fileType === 'pdf') return <PictureAsPdfOutlined/>
@@ -236,7 +236,7 @@ const FirebaseFileBrowser: React.FC = () => {
   }, []);
 
   const handleClikOnName = useCallback(
-    (item: File) => {
+    (item: FileCustom) => {
       if (item.type === 'folder') {
         changeCurrentPath(item.fullPath);
       } else if (canOpenPreview(item)) {
@@ -248,14 +248,7 @@ const FirebaseFileBrowser: React.FC = () => {
     [changeCurrentPath, handleOpenPreview, handleOpenFileInNewTab]
   );
 
-  const canOpenPreview = (item: File) => {
-    if (item.type === 'folder') return false;
-    const fileType = getFileType(item.name);
-    if (fileType !== 'image' && fileType !== 'pdf') return false;
-    return true;
-  };
-
-  const columns = useMemo<MRT_ColumnDef<File>[]>(
+  const columns = useMemo<MRT_ColumnDef<FileCustom>[]>(
     () => [
       {
         accessorKey: 'name',

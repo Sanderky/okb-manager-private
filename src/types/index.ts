@@ -5,6 +5,8 @@ type EndDateObject = {
   permanent: boolean;
 };
 
+export type EmployeeAttachment = 'idAttachment' | 'contractAttachment' | 'a1Attachment'
+
 export interface Employee {
   id: string;
   name: string;
@@ -16,13 +18,16 @@ export interface Employee {
   contractStartDate: Date | null;
   contractEndDate?: EndDateObject;
   a1StartDate: Date | null;
-  a1EndDate?: EndDateObject;
+  a1EndDate: EndDateObject | null;
+  a1Attachment: FileItem | null
+  contractAttachment: FileItem | null
+  idAttachment: FileItem | null
   vacation: {
     id: string;
     startDate: Date;
     endDate: Date;
   }[];
-}
+};
 
 
 export interface Construction {
@@ -53,4 +58,4 @@ export interface FolderItem {
   fullPath: string;
 }
 
-export type File = FileItem | FolderItem;
+export type FileCustom = FileItem | FolderItem;

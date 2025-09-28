@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router';
 import EmployeeForm, {
   type EmployeeFormState,
   type FormFieldValue,
-  validate,
 } from './EmployeeForm';
 import PageContainer from '../../../components/PageContainer';
 import type { Employee } from '../../../types';
@@ -19,6 +18,7 @@ import {
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { validate } from './EmployeeEditHelpers';
 
 export default function EmployeeCreate() {
   const navigate = useNavigate();

@@ -8,6 +8,7 @@ import {
   listAll,
   getStorage,
 } from 'firebase/storage';
+import type { FileCustom } from '../../types';
 
 const storage = getStorage();
 
@@ -27,6 +28,19 @@ export const getFileType = (fileName: string) => {
     return 'word';
   }
   return 'unsupported';
+};
+
+export const forceDownloadFile = async (url: string, fileName: string) => {
+  const response = await fetch(url);
+  const blob = await response.blob();
+  const blobUrl = window.URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = blobUrl;
+  link.setAttribute('download', fileName);
+  document.body.appendChild(link);
+  link.click();
+  if (link.parentNode) link.parentNode.removeChild(link);
+  window.URL.revokeObjectURL(blobUrl);
 };
 
 export function formatBytes(bytes: number, decimals = 2): string {
@@ -139,6 +153,13 @@ export const moveFolderRecursive = async (
   if (placeholderFile) {
     await moveFile(placeholderFile.fullPath, `${destPath}/.placeholder`);
   }
+};
+
+export const canOpenPreview = (item: FileCustom) => {
+  if (item.type === 'folder') return false;
+  const fileType = getFileType(item.name);
+  if (fileType !== 'image' && fileType !== 'pdf') return false;
+  return true;
 };
 
 export const listAllFoldersRecursive = async (

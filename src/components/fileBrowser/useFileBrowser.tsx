@@ -10,7 +10,7 @@ import {
 } from 'firebase/storage';
 import { useCallback, useEffect, useState } from 'react';
 import { useDialogs } from '../../hooks/useDialogs/useDialogs';
-import type { FileItem, FolderItem, File } from '../../types';
+import type { FileItem, FolderItem, FileCustom } from '../../types';
 import useNotifications from '../../hooks/useNotifications/useNotifications';
 import {
   deleteFolderRecursive,
@@ -20,12 +20,13 @@ import {
   moveFolderRecursive,
   getUniqueDestPath,
   listAllFoldersRecursive,
+  forceDownloadFile,
 } from './FileBrowserHelpers';
 
 const storage = getStorage();
 
 const useFileView = (baseDirectory: string, onFetch: () => void) => {
-  const [data, setData] = useState<File[]>([]);
+  const [data, setData] = useState<FileCustom[]>([]);
   const [currentPath, setCurrentPath] = useState<string>(baseDirectory);
 
   const [loading, setLoading] = useState<boolean>(false);
@@ -34,7 +35,7 @@ const useFileView = (baseDirectory: string, onFetch: () => void) => {
     {}
   );
   const notifications = useNotifications();
-  const [itemsToMove, setItemsToMove] = useState<File[]>([]);
+  const [itemsToMove, setItemsToMove] = useState<FileCustom[]>([]);
   const [destinationFolders, setDestinationFolders] = useState<
     Array<{ name: string; fullPath: string }>
   >([]);
@@ -42,31 +43,21 @@ const useFileView = (baseDirectory: string, onFetch: () => void) => {
 
   const downloadFile = useCallback(
     (url: string, fileName: string): void => {
-      fetch(url)
-        .then((response) => response.blob())
-        .then((blob) => {
-          const blobUrl = window.URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = blobUrl;
-          link.setAttribute('download', fileName);
-          document.body.appendChild(link);
-          link.click();
-          if (link.parentNode) link.parentNode.removeChild(link);
-          window.URL.revokeObjectURL(blobUrl);
-        })
-        .catch((e) => {
-          console.error('Download error:', e);
-          notifications.show('Błąd podczas pobierania pliku', {
-            severity: 'error',
-            autoHideDuration: 5000,
-          });
+      try {
+        forceDownloadFile(url, fileName);
+      } catch (e) {
+        console.error('Download error:', e);
+        notifications.show('Błąd podczas pobierania pliku', {
+          severity: 'error',
+          autoHideDuration: 5000,
         });
+      }
     },
     [notifications]
   );
 
   const handleDownloadZip = useCallback(
-    async (items: File[]): Promise<void> => {
+    async (items: FileCustom[]): Promise<void> => {
       const allItems = items.filter(
         (item) => item.type === 'file' || item.type === 'folder'
       );
@@ -111,7 +102,7 @@ const useFileView = (baseDirectory: string, onFetch: () => void) => {
   );
 
   const handleDownload = useCallback(
-    (items: File[]) => {
+    (items: FileCustom[]) => {
       if (items.length === 1 && items[0].type === 'file') {
         downloadFile(items[0].url, items[0].name);
       } else {
@@ -207,7 +198,7 @@ const useFileView = (baseDirectory: string, onFetch: () => void) => {
   }, [notifications, fetchData, data, currentPath, dialogs]);
 
   const handleDelete = useCallback(
-    async (items: File[]): Promise<void> => {
+    async (items: FileCustom[]): Promise<void> => {
       const confirmation = await dialogs.confirm(
         `Czy na pewno chcesz usunąć ${items.length} element(ów)?`,
         {
@@ -244,7 +235,7 @@ const useFileView = (baseDirectory: string, onFetch: () => void) => {
   );
 
   const handleRename = useCallback(
-    async (item: File): Promise<void> => {
+    async (item: FileCustom): Promise<void> => {
       let newName: string | null = null;
       if (item.type === 'file') {
         const extension = getFileExtension(item.name);
@@ -334,7 +325,7 @@ const useFileView = (baseDirectory: string, onFetch: () => void) => {
   );
 
   const openMoveDialog = useCallback(
-    async (items: File[]): Promise<void> => {
+    async (items: FileCustom[]): Promise<void> => {
       setItemsToMove(items);
       setLoading(true);
       const allFolders = await listAllFoldersRecursive(baseDirectory);

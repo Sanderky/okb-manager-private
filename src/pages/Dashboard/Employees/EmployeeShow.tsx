@@ -11,43 +11,55 @@ import { useNavigate } from 'react-router';
 
 import PageContainer from '../../../components/PageContainer';
 
-import { type Employee } from '../../../types';
+import { type Employee, type FileItem } from '../../../types';
 import { getEmployee, updateEmployee } from '../../../api/employees';
 
 import EditIcon from '@mui/icons-material/Edit';
 import CloseIcon from '@mui/icons-material/Close';
 
-import {
-  Chip,
-  Divider,
-  IconButton,
-  Switch,
-  Tab,
-  Tabs,
-  TextField,
-} from '@mui/material';
+import { Chip, Divider, IconButton, Tab, Tabs, TextField } from '@mui/material';
 import { useParams } from 'react-router';
 import dayjs from 'dayjs';
 
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import useNotifications from '../../../hooks/useNotifications/useNotifications';
+import AttachmentBox from './AttachmentBox';
+import { PreviewDialog } from '../../../components/fileBrowser/FilePreviewDialog';
+import { handleDownloadAttachment } from './EmployeeEditHelpers';
 
 // Extended async status & helpers
-interface NormalizedError {
-  message: string;
-  code?: string;
-  raw?: unknown;
-}
+// interface NormalizedError {
+//   message: string;
+//   code?: string;
+//   raw?: unknown;
+// }
 
-function normalizeError(err: unknown): NormalizedError {
-  if (err instanceof Error) {
-    const anyErr = err as any;
-    const code = typeof anyErr.code === 'string' ? anyErr.code : undefined;
-    return { message: err.message || 'Wystąpił nieznany błąd', code, raw: err };
-  }
-  return { message: 'Wystąpił nieznany błąd', raw: err };
-}
+// function normalizeError(err: unknown): NormalizedError {
+//   if (err instanceof Error) {
+//     const anyErr = err as any;
+//     const code = typeof anyErr.code === 'string' ? anyErr.code : undefined;
+//     return { message: err.message || 'Wystąpił nieznany błąd', code, raw: err };
+//   }
+//   return { message: 'Wystąpił nieznany błąd', raw: err };
+// }
+
+const personalFields = [
+  { key: 'name', label: 'Imię' },
+  { key: 'email', label: 'E-mail' },
+  { key: 'phone', label: 'Telefon' },
+  { key: 'address', label: 'Adres' },
+];
+
+const contractFields = [
+  { key: 'contractStartDate', label: 'Data rozpoczęcia umowy' },
+  { key: 'contractEndDate', label: 'Data wygaśnięcia umowy' },
+];
+
+const a1Fields = [
+  { key: 'a1StartDate', label: 'Data rozpoczęcia umowy' },
+  { key: 'a1EndDate', label: 'Data wygaśnięcia umowy' },
+];
 
 export default function EmployeeShow() {
   const { employeeId } = useParams<{ employeeId: string }>();
@@ -61,9 +73,17 @@ export default function EmployeeShow() {
 
   const notifications = useNotifications();
 
-  // const [employee, setEmployee] = useState<Employee | null>(null);
+  const [previewFile, setPreviewFile] = useState<FileItem | null>(null);
+  const [isPreviewOpen, setIsPreviewOpen] = useState<boolean>(false);
+
   const [note, setNote] = useState('');
   const [tab, setTab] = useState(0);
+
+  const handleOpenPreview = useCallback((file: FileItem | null | undefined) => {
+    if (!file) return;
+    setPreviewFile(file);
+    setIsPreviewOpen(true);
+  }, []);
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setTab(newValue);
@@ -87,6 +107,8 @@ export default function EmployeeShow() {
       setNotFound(true);
     }
   }, [employee, isLoading]);
+
+  // const {handleDownloadAttachment} = useEmployeeAttachment(employee)
 
   const updateNoteMutation = useMutation({
     mutationFn: (newNote: string) =>
@@ -116,23 +138,6 @@ export default function EmployeeShow() {
   const handleBack = useCallback(() => {
     navigate('/employees');
   }, [navigate]);
-
-  const personalFields = [
-    { key: 'name', label: 'Imię' },
-    { key: 'email', label: 'E-mail' },
-    { key: 'phone', label: 'Telefon' },
-    { key: 'address', label: 'Adres' },
-  ];
-
-  const contractFields = [
-    { key: 'contractStartDate', label: 'Data rozpoczęcia umowy' },
-    { key: 'contractEndDate', label: 'Data wygaśnięcia umowy' },
-  ];
-
-  const a1Fields = [
-    { key: 'a1StartDate', label: 'Data rozpoczęcia umowy' },
-    { key: 'a1EndDate', label: 'Data wygaśnięcia umowy' },
-  ];
 
   const renderShow = useMemo(() => {
     if (isLoading) {
@@ -386,8 +391,11 @@ export default function EmployeeShow() {
                   <IconButton
                     onClick={() => {
                       setEditNote(!editNote);
-                      note !== (employee?.note ?? '') &&
+                      if (note !== (employee?.note ?? '')) {
                         setNote(employee?.note ?? '');
+                      }
+                      // note !== (employee?.note ?? '') &&
+                      //   setNote(employee?.note ?? '');
                     }}
                     color={!editNote ? 'primary' : 'inherit'}
                     className="rounded-lg border border-gray-300"
@@ -425,6 +433,15 @@ export default function EmployeeShow() {
                   Umowa zatrudnienia
                 </Typography>
               </Stack>
+
+              <AttachmentBox
+                file={employee.contractAttachment}
+                onShow={() => handleOpenPreview(employee.contractAttachment)}
+                onDownload={() =>
+                  handleDownloadAttachment(employee.contractAttachment)
+                }
+              />
+
               <Grid container spacing={2}>
                 {contractFields.map(({ key, label }) => {
                   const endDate = dayjs(employee.contractEndDate?.date);
@@ -523,6 +540,13 @@ export default function EmployeeShow() {
                   Umowa A1
                 </Typography>
               </Stack>
+              <AttachmentBox
+                file={employee.a1Attachment}
+                onShow={() => handleOpenPreview(employee.a1Attachment)}
+                onDownload={() =>
+                  handleDownloadAttachment(employee.a1Attachment)
+                }
+              />
               <Grid container spacing={2}>
                 {a1Fields.map(({ key, label }) => {
                   const endDate = dayjs(employee.a1EndDate?.date);
@@ -591,6 +615,7 @@ export default function EmployeeShow() {
                           {returnValue}
                         </Typography>
                       </Stack>
+
                       {isEndDateField &&
                         !isPermanent &&
                         (() => {
@@ -619,13 +644,14 @@ export default function EmployeeShow() {
     tab,
     handleBack,
     handleEmployeeEdit,
-    handleTabChange,
-    personalFields,
     showDebug,
     note,
     updateNoteMutation.isPending,
     updateNoteMutation.isError,
     handleSaveNote,
+    editNote,
+    notFound,
+    handleOpenPreview,
   ]);
 
   const pageTitle = employee?.name || 'Szczegóły Pracownika';
@@ -656,6 +682,11 @@ export default function EmployeeShow() {
       }
     >
       <Box sx={{ display: 'flex', flex: 1, width: '100%' }}>{renderShow}</Box>
+      <PreviewDialog
+        open={isPreviewOpen}
+        onClose={() => setIsPreviewOpen(false)}
+        file={previewFile}
+      />
     </PageContainer>
   );
 }

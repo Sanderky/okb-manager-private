@@ -10,6 +10,7 @@ import {
 import { db } from '../firebase';
 import type { Employee } from '../types';
 
+
 export async function createEmployee(data: Employee) {
   try {
     const newEmployee: Employee = {

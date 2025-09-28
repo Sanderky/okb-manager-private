@@ -9,14 +9,13 @@ import {
   removeEmployee,
   updateEmployee,
 } from '../../../api/employees';
-import type { Employee } from '../../../types';
+import type { Employee, EmployeeAttachment } from '../../../types';
 import EmployeeForm, {
   type FormFieldValue,
   type EmployeeFormState,
-  validate,
 } from './EmployeeForm';
 import PageContainer from '../../../components/PageContainer';
-import { AlertTitle, Divider, Stack, Typography } from '@mui/material';
+import { AlertTitle, Stack, Typography } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useCallback, useEffect, useState } from 'react';
 import { useDialogs } from '../../../hooks/useDialogs/useDialogs';
@@ -25,6 +24,12 @@ import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import useNotifications from '../../../hooks/useNotifications/useNotifications';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
+import useEmployeeAttachment from './useAttachment';
+import { validate } from './EmployeeEditHelpers';
+
+export type FileStateMap = {
+  [K in EmployeeAttachment]: File | null;
+};
 
 export default function EmployeeEdit() {
   const { employeeId } = useParams<{ employeeId: string }>();
@@ -32,7 +37,8 @@ export default function EmployeeEdit() {
   const dialogs = useDialogs();
   const queryClient = useQueryClient();
   const notifications = useNotifications();
-  const [isSubmited, setIsSubmited] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const {
     data: employee,
@@ -49,11 +55,21 @@ export default function EmployeeEdit() {
     errors: {},
   });
 
+  const [files, setFiles] = useState<FileStateMap>({
+    idAttachment: null,
+    contractAttachment: null,
+    a1Attachment: null,
+  });
+
   useEffect(() => {
     if (employee) {
       setFormState({ values: employee, errors: {} });
     }
   }, [employee]);
+
+  useEffect(() => {
+    if (error) console.error('Load data error:', error);
+  }, [error]);
 
   const updateMutation = useMutation({
     mutationFn: (values: Partial<Employee>) =>
@@ -61,39 +77,29 @@ export default function EmployeeEdit() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['employee', employeeId] });
       queryClient.invalidateQueries({ queryKey: ['employees'] });
-      notifications.show('Zmiany zostały pomyślnie zapisane.', {
-        severity: 'success',
-        autoHideDuration: 3000,
-      });
-      navigate(`/employees/${employeeId}`);
-      setIsSubmited(false);
     },
     onError: (error: Error) => {
-      notifications.show(`Błąd zapisu: ${error.message}`, {
-        severity: 'error',
-        autoHideDuration: 3000,
-      });
-      setIsSubmited(false);
+      console.error('Edit employee error:', error);
     },
   });
+
+  const handleFileChange = (
+    file: File | null,
+    attachmentType: EmployeeAttachment
+  ) => {
+    setFiles((prevFiles) => ({
+      ...prevFiles,
+      [attachmentType]: file,
+    }));
+  };
 
   const deleteMutation = useMutation({
     mutationFn: () => removeEmployee(employeeId!),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['employees'] });
-      notifications.show('Pracownik został usunięty.', {
-        severity: 'info',
-        autoHideDuration: 3000,
-      });
-      navigate('/employees');
-      setIsSubmited(false);
     },
     onError: (error: Error) => {
-      notifications.show(`Błąd usuwania: ${error.message}`, {
-        severity: 'error',
-        autoHideDuration: 3000,
-      });
-      setIsSubmited(false);
+      console.error('Delete employee error:', error);
     },
   });
 
@@ -111,18 +117,93 @@ export default function EmployeeEdit() {
     []
   );
 
+  const {
+    handleDeleteAttachment,
+    handleUploadAttachment,
+    loading: attachmentLoading,
+  } = useEmployeeAttachment(employee);
+
   const handleSubmit = React.useCallback(
     async (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
+
       const validationErrors = validate(formState.values);
       if (Object.keys(validationErrors).length > 0) {
         setFormState((prev) => ({ ...prev, errors: validationErrors }));
         return;
       }
-      setIsSubmited(true);
-      updateMutation.mutate(formState.values);
+
+      try {
+        const attachmentsConfig = [
+          {
+            file: files.contractAttachment,
+            currentValue: formState.values.contractAttachment ?? null,
+            employeeValue: employee?.contractAttachment ?? null,
+            type: 'contractAttachment' as const,
+            key: 'contractAttachment' as const,
+          },
+          {
+            file: files.a1Attachment,
+            currentValue: formState.values.a1Attachment ?? null,
+            employeeValue: employee?.a1Attachment ?? null,
+            type: 'a1Attachment' as const,
+            key: 'a1Attachment' as const,
+          },
+        ];
+
+        const attachmentResults = await Promise.all(
+          attachmentsConfig.map(
+            async ({ file, currentValue, employeeValue, type }) => {
+              if (file) {
+                if (employeeValue) {
+                  await handleDeleteAttachment(type);
+                }
+                return await handleUploadAttachment(file, type);
+              } else if (!currentValue && employeeValue) {
+                await handleDeleteAttachment(type);
+                return null;
+              }
+              return currentValue ?? null;
+            }
+          )
+        );
+
+        const updateData = {
+          ...formState.values,
+          contractAttachment: attachmentResults[0],
+          a1Attachment: attachmentResults[1],
+        };
+        setIsSubmitting(true);
+
+        await updateMutation.mutateAsync(updateData);
+
+        notifications.show('Zmiany zostały pomyślnie zapisane.', {
+          severity: 'success',
+          autoHideDuration: 3000,
+        });
+
+        navigate(`/employees/${employeeId}`);
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : 'Wystąpił nieznany błąd';
+        notifications.show(`Błąd zapisu: ${errorMessage}`, {
+          severity: 'error',
+        });
+      } finally {
+        setIsSubmitting(false);
+      }
     },
-    [formState.values, updateMutation]
+    [
+      formState.values,
+      updateMutation,
+      handleDeleteAttachment,
+      handleUploadAttachment,
+      employeeId,
+      navigate,
+      notifications,
+      files,
+      employee,
+    ]
   );
 
   const handleEmployeeDelete = useCallback(async () => {
@@ -135,7 +216,8 @@ export default function EmployeeEdit() {
             Czy na pewno chcesz usunąć <strong>{employee.name}</strong>?
           </Typography>
           <Typography variant="body1" className="text-gray-600">
-            Ta akcja usunie budowę z systemu i wszystkie powiązane z nią dane.
+            Ta akcja usunie pracownika z systemu i wszystkie powiązane z nim
+            dane.
           </Typography>
         </div>
         <Alert severity="error">
@@ -148,7 +230,7 @@ export default function EmployeeEdit() {
           <Stack direction="row" spacing={2} alignItems="center">
             <WarningAmberIcon className="text-red-600" />
             <Typography variant="h6" className="text-red-600">
-              Usuwanie budowy
+              Usuwanie pracownika
             </Typography>
           </Stack>
         ),
@@ -159,16 +241,31 @@ export default function EmployeeEdit() {
     );
 
     if (confirmed) {
-      deleteMutation.mutate();
+      setIsDeleting(true);
+      try {
+        await deleteMutation.mutateAsync();
+        navigate('/employees');
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : 'Wystąpił nieznany błąd';
+        notifications.show(`Błąd usuwania: ${errorMessage}`, {
+          severity: 'error',
+        });
+      } finally {
+        setIsDeleting(false);
+      }
     }
-  }, [employee, dialogs, deleteMutation]);
+  }, [employee, dialogs, deleteMutation, notifications, navigate]);
 
   const handleBack = React.useCallback(() => {
     navigate(`/employees/${employeeId}`);
   }, [navigate, employeeId]);
 
+  const isFormLoading =
+    attachmentLoading !== false || isSubmitting || isDeleting;
+
   const renderContent = () => {
-    if (isLoading || isSubmited) {
+    if (isLoading) {
       return (
         <Box
           sx={{
@@ -181,14 +278,18 @@ export default function EmployeeEdit() {
         >
           <CircularProgress />
           <Typography variant="body2" sx={{ ml: 2, color: 'text.secondary' }}>
-            Ładowanie danych pracownika...
+            {'Ładowanie danych pracownika...'}
           </Typography>
         </Box>
       );
     }
 
     if (error) {
-      return <Alert severity="error">{(error as Error).message}</Alert>;
+      return (
+        <Alert severity="error">
+          Wystąpił niespodziewany błąd podczas pobierania danych.
+        </Alert>
+      );
     }
 
     if (!employee) {
@@ -201,17 +302,21 @@ export default function EmployeeEdit() {
       <Grid container columns={12} spacing={{ xs: 3, lg: 2 }}>
         <Grid size={{ xs: 12, lg: 8, xl: 9 }}>
           <Box
-            sx={{ width: '100%', maxWidth: { sm: '100%', md: '1790px' } }}
+            sx={{
+              width: '100%',
+              maxWidth: { sm: '100%', md: '1790px' },
+              position: 'relative',
+            }}
             className="border-lightGray rounded-lg border bg-white p-6"
           >
             <EmployeeForm
+              onFileChange={handleFileChange}
+              filesState={files}
               formState={formState}
               onFieldChange={handleFieldChange}
               onSubmit={handleSubmit}
-              isSubmitting={updateMutation.isPending}
-              submitError={
-                updateMutation.isError ? 'Wystąpił błąd podczas zapisu.' : null
-              }
+              isSubmitting={isSubmitting}
+              isFileLoading={attachmentLoading}
               isEditForm={true}
             />
           </Box>
@@ -238,10 +343,11 @@ export default function EmployeeEdit() {
               color="error"
               sx={{ minWidth: 120 }}
               onClick={handleEmployeeDelete}
-              disabled={deleteMutation.isPending}
+              disabled={isFormLoading}
               startIcon={<HighlightOffIcon />}
+              loading={isDeleting}
             >
-              {deleteMutation.isPending ? 'Usuwanie...' : 'Usuń'}
+              {isDeleting ? 'Usuwanie...' : 'Usuń'}
             </Button>
           </Stack>
         </Grid>
@@ -268,7 +374,7 @@ export default function EmployeeEdit() {
             variant="outlined"
             onClick={handleBack}
             startIcon={<ArrowBackIcon />}
-            disabled={updateMutation.isPending || deleteMutation.isPending}
+            disabled={isFormLoading}
           >
             Anuluj
           </Button>

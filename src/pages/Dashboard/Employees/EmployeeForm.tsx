@@ -9,11 +9,17 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import dayjs, { type Dayjs } from 'dayjs';
-import type { Employee } from '../../../types';
+import type { Employee, EmployeeAttachment, FileItem } from '../../../types';
 import Alert from '@mui/material/Alert';
 import DoneAllOutlinedIcon from '@mui/icons-material/DoneAllOutlined';
 import { Checkbox, Divider, FormControlLabel, Typography } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { FileUpload } from '@mui/icons-material';
+import AttachmentBox from './AttachmentBox';
+import { PreviewDialog } from '../../../components/fileBrowser/FilePreviewDialog';
+import { type LoadingState } from './useAttachment';
+import type { FileStateMap } from './EmployeeEdit';
+import { handleDownloadAttachment } from './EmployeeEditHelpers';
 
 export interface EmployeeFormState {
   values: Partial<Omit<Employee, 'id'>>;
@@ -34,8 +40,10 @@ export interface EmployeeFormProps {
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
   onReset?: () => void;
   isSubmitting?: boolean;
-  submitError?: string | null;
+  isFileLoading?: LoadingState | false;
   isEditForm?: boolean;
+  onFileChange: (file: File | null, attachmentType: EmployeeAttachment) => void;
+  filesState: FileStateMap;
 }
 
 type FieldType = 'text' | 'email' | 'date' | 'boolean' | 'object';
@@ -46,48 +54,85 @@ interface EmployeeField {
   type: FieldType;
 }
 
-export const validate = (
-  values: Partial<Omit<Employee, 'id'>>
-): Partial<Record<keyof EmployeeFormState['values'], string>> => {
-  const errors: Partial<Record<keyof EmployeeFormState['values'], string>> = {};
+interface AttachmentFieldProps {
+  attachmentType: EmployeeAttachment;
+  onOpenPreview: (file: FileItem | null | undefined) => void;
+  onFileChange: (file: File | null, attachmentType: EmployeeAttachment) => void;
+  handleFieldChange: (
+    name: keyof EmployeeFormState['values'],
+    value: FormFieldValue | object | null
+  ) => void;
+  formState: EmployeeFormState;
+}
 
-  if (!values.name) {
-    errors.name = 'Imię jest wymagane.';
-  }
-  if (values.name && values.name.length > 100) {
-    errors.name = 'Imię nie może być dłuższe niż 100 znaków.';
-  }
-  if (values.email && !/\S+@\S+\.\S+/.test(values.email)) {
-    errors.email = 'Nieprawidłowy format adresu e-mail.';
-  }
+const AttachmentField = ({
+  attachmentType,
+  onOpenPreview,
+  formState,
+  onFileChange,
+  handleFieldChange,
+}: AttachmentFieldProps) => {
+  const handleUploadFileForm = (file: File | null) => {
+    if (!file) return;
+    onFileChange(file, attachmentType);
+    handleFieldChange(attachmentType, {
+      name: file.name,
+      type: 'file',
+      fullPath: '',
+      url: URL.createObjectURL(file),
+      contentType: file.type,
+      size: file.size,
+      // timeCreated: new Date().toISOString()
+      timeCreated: '',
+    });
+  };
 
-  if (values.contractEndDate?.date && !values.contractStartDate) {
-    errors.contractStartDate =
-      'Data rozpoczęcia jest wymagana, jeśli podano datę zakończenia.';
-  }
-  if (
-    values.contractStartDate &&
-    values.contractEndDate?.date &&
-    dayjs(values.contractEndDate.date).isBefore(dayjs(values.contractStartDate))
-  ) {
-    errors.contractEndDate =
-      'Data zakończenia nie może być wcześniejsza niż data rozpoczęcia.';
-  }
+  const handleDeleteFileForm = () => {
+    onFileChange(null, attachmentType);
+    handleFieldChange(attachmentType, null);
+  };
 
-  if (values.a1EndDate?.date && !values.a1StartDate) {
-    errors.a1StartDate =
-      'Data rozpoczęcia A1 jest wymagana, jeśli podano datę zakończenia A1.';
-  }
-  if (
-    values.a1StartDate &&
-    values.a1EndDate?.date &&
-    dayjs(values.a1EndDate.date).isBefore(dayjs(values.a1StartDate))
-  ) {
-    errors.a1EndDate =
-      'Data zakończenia A1 nie może być wcześniejsza niż data rozpoczęcia A1.';
-  }
+  const attachment = formState.values[attachmentType] ?? null;
 
-  return errors;
+  return (
+    <Grid
+      sx={{ position: 'relative' }}
+      columns={12}
+      spacing={{ xs: 2 }}
+      width={'100%'}
+      marginBottom={5}
+      className="border-lightGray rounded-lg border p-3"
+    >
+      <Typography component="div" variant="body1" marginBottom={1}>
+        Załącznik
+      </Typography>
+      {attachment && (
+        <Alert severity="info" sx={{ marginBottom: 2 }}>
+          Tylko jeden plik może być dodany. Usuń stary aby dodać nowy.
+        </Alert>
+      )}
+      <AttachmentBox
+        file={attachment}
+        onShow={() => onOpenPreview(attachment)}
+        onDelete={handleDeleteFileForm}
+        onDownload={() => handleDownloadAttachment(attachment)}
+      />
+      {!attachment && (
+        <Button
+          component="label"
+          variant="contained"
+          startIcon={<FileUpload />}
+        >
+          Dodaj załącznik
+          <input
+            type="file"
+            hidden
+            onChange={(e) => handleUploadFileForm(e.target.files?.[0] || null)}
+          />
+        </Button>
+      )}
+    </Grid>
+  );
 };
 
 export default function EmployeeForm(props: EmployeeFormProps) {
@@ -98,13 +143,18 @@ export default function EmployeeForm(props: EmployeeFormProps) {
     onSubmit,
     onReset,
     isSubmitting,
-    submitError,
+    isFileLoading,
     isEditForm,
+    onFileChange,
   } = props;
 
   const formValues = formState.values;
   const formErrors = formState.errors;
 
+  const [previewFile, setPreviewFile] = useState<FileItem | null>(null);
+  const [isPreviewOpen, setIsPreviewOpen] = useState<boolean>(false);
+
+  const isFormLoading = isFileLoading !== false || isSubmitting;
   const handleFieldChange = React.useCallback(
     (
       name: keyof EmployeeFormState['values'],
@@ -145,6 +195,12 @@ export default function EmployeeForm(props: EmployeeFormProps) {
       permanent: false,
     });
   };
+
+  const handleOpenPreview = useCallback((file: FileItem | null | undefined) => {
+    if (!file) return;
+    setPreviewFile(file);
+    setIsPreviewOpen(true);
+  }, []);
 
   const getDateValue = (
     key: keyof EmployeeFormState['values'],
@@ -198,15 +254,27 @@ export default function EmployeeForm(props: EmployeeFormProps) {
       noValidate
       autoComplete="off"
       onReset={onReset}
-      sx={{ width: '100%' }}
+      sx={{ width: '100%', position: 'relative' }}
     >
-      {submitError && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {submitError}
-        </Alert>
-      )}
       <FormGroup>
-        <Grid container columns={12} spacing={1}>
+        <Grid container columns={12} spacing={1} sx={{ position: 'relative' }}>
+          {isFormLoading && (
+            <Box
+              sx={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                backgroundColor: 'rgba(255, 255, 255, 0.5)',
+                zIndex: 1,
+                borderRadius: 'inherit',
+              }}
+            />
+          )}
           <Typography variant="subtitle1" className="mb-2 font-medium">
             Dane pracownika
           </Typography>
@@ -231,6 +299,13 @@ export default function EmployeeForm(props: EmployeeFormProps) {
             Umowa zatrudnienia
           </Typography>
           <Grid container columns={12} spacing={{ xs: 2 }} width={'100%'}>
+            <AttachmentField
+              handleFieldChange={handleFieldChange}
+              onFileChange={onFileChange}
+              formState={formState}
+              attachmentType="contractAttachment"
+              onOpenPreview={handleOpenPreview}
+            />
             {contractFields.map(({ key, label }) => (
               <Grid size={{ xs: 12, md: 6 }} key={key}>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -281,6 +356,13 @@ export default function EmployeeForm(props: EmployeeFormProps) {
             Umowa A1
           </Typography>
           <Grid container columns={12} spacing={{ xs: 2 }} width={'100%'}>
+            <AttachmentField
+              handleFieldChange={handleFieldChange}
+              onFileChange={onFileChange}
+              formState={formState}
+              attachmentType="a1Attachment"
+              onOpenPreview={handleOpenPreview}
+            />
             {a1Fields.map(({ key, label }) => (
               <Grid size={{ xs: 12, md: 6 }} key={key}>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -368,12 +450,27 @@ export default function EmployeeForm(props: EmployeeFormProps) {
             variant="contained"
             startIcon={<DoneAllOutlinedIcon />}
             type="submit"
-            disabled={isSubmitting}
+            disabled={isFormLoading}
+            loading={isFormLoading}
           >
-            {isSubmitting ? 'Zapisywanie...' : 'Zapisz'}
+            Zapisz
           </Button>
+          {isFormLoading && (
+            <Typography>
+              {isSubmitting
+                ? 'Zapisywanie danych...'
+                : isFileLoading === 'uploading'
+                  ? 'Przesyłanie plików...'
+                  : 'Usuwanie plików...'}
+            </Typography>
+          )}
         </Stack>
       </FormGroup>
+      <PreviewDialog
+        open={isPreviewOpen}
+        onClose={() => setIsPreviewOpen(false)}
+        file={previewFile}
+      />
     </Box>
   );
 }
