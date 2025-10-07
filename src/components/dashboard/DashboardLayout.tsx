@@ -54,7 +54,7 @@ export default function DashboardLayout() {
         height: '100vh',
         overflow: 'hidden',
       }}
-      className="bg-gray-50"
+      // className="bg-gray-50"
     >
       <DashboardHeader
         logo={<SitemarkIcon />}

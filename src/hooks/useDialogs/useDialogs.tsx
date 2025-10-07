@@ -228,7 +228,7 @@ export function ConfirmDialog({ open, payload, onClose }: ConfirmDialogProps) {
     <Dialog maxWidth="xs" fullWidth open={open} onClose={() => onClose(false)}>
       <DialogTitle>{payload.title ?? 'Confirm'}</DialogTitle>
       <DialogContent>{payload.msg}</DialogContent>
-      <DialogActions>
+      <DialogActions className="mx-4 pt-0 mb-2">
         <Button
           variant="outlined"
           color="inherit"

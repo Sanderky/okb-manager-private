@@ -6,6 +6,7 @@ import {
   doc,
   updateDoc,
   deleteDoc,
+  Timestamp,
 } from 'firebase/firestore';
 import { db } from '../firebase';
 import type { Construction } from '../types';
@@ -14,7 +15,6 @@ export async function createConstruction(data: Construction) {
   try {
     const newConstruction: Construction = {
       ...data,
-      inProgress: true,
     };
     const docRef = await addDoc(
       collection(db, 'constructions'),
@@ -55,10 +55,12 @@ export async function getConstructionList(): Promise<Construction[]> {
   const constructionSnapshot = await getDocs(constructionsCol);
 
   const constructionsList = constructionSnapshot.docs.map((doc) => {
-    const docData = doc.data();
+    const data = doc.data();
     return {
       id: doc.id,
-      ...docData,
+      ...data,
+      startDate: data.startDate?.toDate(),
+      endDate: data.endDate?.toDate(),
     } as Construction;
   });
 
@@ -70,9 +72,12 @@ export async function getConstruction(
 ): Promise<Construction | null> {
   const constructionDoc = await getDoc(doc(db, 'constructions', id));
   if (constructionDoc.exists()) {
+    const data = constructionDoc.data();
     return {
       id: constructionDoc.id,
-      ...constructionDoc.data(),
+      ...data,
+      startDate: data.startDate?.toDate(),
+      endDate: data.endDate?.toDate(),
     } as Construction;
   } else {
     return null;

@@ -115,8 +115,9 @@ export default function DashboardSidebarPageItem({
         sx={{
           display: 'block',
           py: 0,
-          px: 1,
           overflowX: 'hidden',
+          borderRadius: 1,
+          mb: 1,
         }}
       >
         <ListItemButton
@@ -124,6 +125,7 @@ export default function DashboardSidebarPageItem({
           disabled={disabled}
           sx={{
             height: mini ? 50 : 'auto',
+            bgcolor: selected ? '#ffd85f!important' : 'inherit',
           }}
           {...(nestedNavigation && !mini
             ? {
@@ -162,6 +164,8 @@ export default function DashboardSidebarPageItem({
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: mini ? 'center' : 'auto',
+                  minWidth: mini ? 'auto' : 40,
+                  color: selected ? 'inherit' : 'lightSlateGray',
                 }}
               >
                 {icon ?? null}
@@ -196,6 +200,7 @@ export default function DashboardSidebarPageItem({
                     textOverflow: 'ellipsis',
                     maxWidth: MINI_DRAWER_WIDTH - 28,
                   }}
+                  textTransform={'uppercase'}
                 >
                   {title}
                 </Typography>
@@ -208,6 +213,7 @@ export default function DashboardSidebarPageItem({
               sx={{
                 whiteSpace: 'nowrap',
                 zIndex: 1,
+                textTransform: 'uppercase',
               }}
             />
           ) : null}

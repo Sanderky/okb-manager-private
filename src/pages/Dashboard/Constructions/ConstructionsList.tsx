@@ -14,6 +14,13 @@ import { useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo, useState } from 'react';
 import {
   MaterialReactTable,
+  MRT_GlobalFilterTextField,
+  MRT_ShowHideColumnsButton,
+  MRT_TablePagination,
+  MRT_ToggleDensePaddingButton,
+  MRT_ToggleFiltersButton,
+  MRT_ToggleGlobalFilterButton,
+  useMaterialReactTable,
   type MRT_ColumnDef,
   type MRT_ColumnFiltersState,
   type MRT_DensityState,
@@ -28,6 +35,7 @@ import dayjs from 'dayjs';
 import { MRT_Localization_PL } from 'material-react-table/locales/pl';
 
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import { TextField } from '@mui/material';
 
 const useTableState = () => {
   const safeParse = (key: string, defaultValue: any) => {
@@ -242,27 +250,27 @@ export default function ConstructionsList() {
       {
         accessorKey: 'name',
         header: 'Nazwa',
-        size: 150,
+        maxSize: 200,
+        grow: true,
       },
       {
         accessorKey: 'location',
         header: 'Adres',
-        size: 150,
+        grow: false,
       },
       {
         accessorKey: 'contractor',
         header: 'Wykonawca',
-        size: 200,
+        grow: false,
       },
       {
         accessorKey: 'startDate',
         header: 'Data rozpoczęcia',
-        size: 200,
         filterVariant: 'date-range',
         accessorFn: (originalRow) => {
           const value = originalRow.startDate;
           if (!value) return null;
-          return dayjs(value).startOf('day'); // Ustaw na początek dnia
+          return dayjs(value).startOf('day');
         },
         Cell: ({ cell }) => {
           const value = cell.getValue();
@@ -270,10 +278,13 @@ export default function ConstructionsList() {
           return dayjs(value).format('DD.MM.YYYY');
         },
         filterFn: dateBetweenFilterFn,
+        grow: false,
       },
       {
-        accessorKey: 'inProgress',
+        id: 'inProgress',
         header: 'Status',
+        accessorFn: (row) => !row.endDate,
+        filterVariant: 'text',
         filterSelectOptions: [
           { text: 'W trakcie', value: 'true' },
           { text: 'Zakończona', value: 'false' },
@@ -288,90 +299,165 @@ export default function ConstructionsList() {
             {cell.getValue<boolean>() ? 'W trakcie' : 'Zakończona'}
           </Box>
         ),
-        size: 125,
+        grow: false,
       },
     ],
     []
   );
 
+  const localization = React.useMemo(
+    () => ({ ...MRT_Localization_PL, rowNumber: 'Lp.' }),
+    []
+  );
+
   const tableData = useMemo(() => data || [], [data]);
+
+  const table = useMaterialReactTable({
+    localization,
+    columns,
+    data: tableData,
+    layoutMode: 'grid',
+    initialState: {
+      density: 'comfortable',
+      columnOrder: [
+        'mrt-row-numbers',
+        'name',
+        'contractor',
+        'location',
+        'startDate',
+        'inProgress',
+        'mrt-row-actions',
+      ],
+    },
+    state: {
+      columnFilters,
+      columnVisibility,
+      density,
+      globalFilter,
+      showColumnFilters,
+      showGlobalFilter,
+      sorting,
+      isLoading,
+    },
+    onColumnFiltersChange: setColumnFilters,
+    onColumnVisibilityChange: setColumnVisibility,
+    onDensityChange: setDensity,
+    onGlobalFilterChange: setGlobalFilter,
+    onShowColumnFiltersChange: setShowColumnFilters,
+    onShowGlobalFilterChange: setShowGlobalFilter,
+    onSortingChange: setSorting,
+    enableColumnResizing: false,
+    renderTopToolbarCustomActions: () => (
+      <Button
+        variant="outlined"
+        onClick={handleCreateClick}
+        startIcon={<AddIcon />}
+        size="small"
+        sx={{ mx: 1, my: 0.5, minWidth: 'fit-content' }}
+      >
+        Nowa
+      </Button>
+    ),
+    renderToolbarInternalActions: ({ table }) => (
+      <Stack direction="row" alignItems="center" spacing={1}>
+        <MRT_ToggleGlobalFilterButton table={table} />
+        <MRT_ToggleFiltersButton table={table} />
+        <MRT_ShowHideColumnsButton table={table} />
+        <MRT_ToggleDensePaddingButton table={table} />
+        <Tooltip title="Resetuj stan tabeli">
+          <IconButton onClick={resetState}>
+            <RefreshIcon />
+          </IconButton>
+        </Tooltip>
+      </Stack>
+    ),
+    rowNumberDisplayMode: 'static',
+    enableRowActions: true,
+    renderRowActions: ({ row }) => (
+      <IconButton onClick={() => navigate(`/constructions/${row.original.id}`)}>
+        <VisibilityIcon />
+      </IconButton>
+    ),
+    muiTablePaperProps: {
+      sx: {
+        boxShadow: 'none',
+        border: '1px solid #e0e0e0',
+        borderRadius: '10px',
+      },
+    },
+    muiTableHeadCellProps: {
+      sx: {
+        borderTop: '1px solid #e0e0e0',
+        fontWeight: 'bold',
+        color: '#374151',
+      },
+    },
+    muiTableBodyRowProps: {
+      sx: {
+        '&:hover': {
+          background: '#ffd85f30 !important',
+        },
+        'td:after': {
+          display: 'none',
+        },
+      },
+    },
+    enableRowNumbers: true,
+    displayColumnDefOptions: {
+      'mrt-row-numbers': {
+        // muiTableHeadCellProps: { sx: { py: '0.75rem' } },
+        muiTableBodyCellProps: { align: 'center' },
+      },
+      'mrt-row-actions': {
+        grow: false,
+      },
+    },
+    renderBottomToolbar: ({ table }) => (
+      <Stack
+        direction={{ xs: 'column', sm: 'row' }}
+        alignItems="center"
+        justifyContent="space-between"
+        spacing={1}
+        // className="px-2"
+        // sx={{
+        //   '& .MuiTablePagination-root': {
+        //     flexDirection: { xs: 'column', md: 'row' },
+        //   },
+        // }}
+      >
+        <Box
+          sx={{
+            fontSize: 12,
+            color: 'text.secondary',
+            textAlign: 'center',
+            pt: { xs: 2, sm: 0 },
+            px: { xs: 0, sm: 2 },
+          }}
+        >
+          Wynik: {table.getPrePaginationRowModel().rows.length} z{' '}
+          {tableData.length}
+        </Box>
+        <MRT_TablePagination table={table} />
+      </Stack>
+    ),
+    paginationDisplayMode: 'pages',
+    muiPaginationProps: {
+      color: 'primary',
+      rowsPerPageOptions: [5, 10, 25, 50, 100],
+      shape: 'rounded',
+      variant: 'outlined',
+    },
+  });
 
   return (
     <PageContainer
       title={t('constructions.constructionsList')}
       breadcrumbs={[{ title: t('constructions.constructions') }]}
-      actions={
-        <Stack direction="row" alignItems="center" spacing={1}>
-          <Button
-            variant="contained"
-            onClick={handleCreateClick}
-            startIcon={<AddIcon />}
-          >
-            {t('constructions.newConstruction')}
-          </Button>
-        </Stack>
-      }
+      actions={<Stack direction="row" alignItems="center" spacing={1}></Stack>}
     >
       <Box sx={{ flex: 1, width: '100%' }}>
         <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pl">
-          <MaterialReactTable
-            localization={MRT_Localization_PL}
-            columns={columns}
-            data={tableData}
-            state={{
-              columnFilters,
-              columnVisibility,
-              density,
-              globalFilter,
-              showColumnFilters,
-              showGlobalFilter,
-              sorting,
-              isLoading,
-            }}
-            onColumnFiltersChange={setColumnFilters}
-            onColumnVisibilityChange={setColumnVisibility}
-            onDensityChange={setDensity}
-            onGlobalFilterChange={setGlobalFilter}
-            onShowColumnFiltersChange={setShowColumnFilters}
-            onShowGlobalFilterChange={setShowGlobalFilter}
-            onSortingChange={setSorting}
-            enableColumnResizing={false}
-            rowNumberDisplayMode="static"
-            renderBottomToolbarCustomActions={() => (
-              <Button onClick={resetState}>Resetuj</Button>
-            )}
-            enableRowActions
-            renderRowActions={(table) => (
-              <IconButton
-                onClick={() =>
-                  navigate(`/constructions/${table.row.original.id}`)
-                }
-              >
-                <VisibilityIcon />
-              </IconButton>
-            )}
-            muiTablePaperProps={{
-              sx: {
-                boxShadow: 'none',
-                border: '1px solid #e0e0e0',
-                borderRadius: '10px',
-              },
-            }}
-            muiTableHeadCellProps={{
-              sx: {
-                borderTop: '1px solid #e0e0e0',
-                fontWeight: 'bold',
-                color: '#374151',
-              },
-            }}
-            muiTableBodyRowProps={{
-              sx: {
-                '&:hover': {
-                  background: 'white !important',
-                },
-              },
-            }}
-          />
+          <MaterialReactTable table={table} />
         </LocalizationProvider>
       </Box>
     </PageContainer>

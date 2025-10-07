@@ -9,16 +9,8 @@ import PageContainer from '../../../components/PageContainer';
 import type { Construction } from '../../../types';
 import { createConstruction } from '../../../api/constructions';
 import useNotifications from '../../../hooks/useNotifications/useNotifications';
-import {
-  Box,
-  Button,
-  CircularProgress,
-  Stack,
-  Typography,
-} from '@mui/material';
+import { Box, CircularProgress, Typography } from '@mui/material';
 
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 export default function ConstructionCreate() {
@@ -27,7 +19,7 @@ export default function ConstructionCreate() {
   const queryClient = useQueryClient();
 
   const [formState, setFormState] = React.useState<ConstructionFormState>({
-    values: { inProgress: true }, // Domyślnie zaznaczamy
+    values: {},
     errors: {},
   });
 
@@ -76,10 +68,6 @@ export default function ConstructionCreate() {
     [formState.values, createMutation]
   );
 
-  const handleBack = useCallback(() => {
-    navigate('/constructions');
-  }, [navigate]);
-
   if (createMutation.isPending) {
     return (
       <Box
@@ -108,27 +96,10 @@ export default function ConstructionCreate() {
         { title: 'Budowy', path: '/constructions' },
         { title: 'Nowa' },
       ]}
-      actions={
-        <Stack direction="row" alignItems="center" spacing={3}>
-          <Button
-            variant="outlined"
-            onClick={handleBack}
-            startIcon={<ArrowBackIcon />}
-          >
-            Powrót
-            <Box
-              component="span"
-              sx={{ display: { xs: 'none', md: 'inline' } }}
-            >
-              &nbsp;do listy
-            </Box>
-          </Button>
-        </Stack>
-      }
     >
       <Box
         sx={{ width: '100%', maxWidth: { sm: '100%', md: '1790px' } }}
-        className="border-lightGray rounded-lg border bg-white px-6 py-4"
+        className="border-lightGray rounded-lg border bg-white px-3 pt-4 pb-6 md:px-6"
       >
         <ConstructionForm
           formState={formState}

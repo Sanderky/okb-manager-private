@@ -19,6 +19,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { validate } from './EmployeeEditHelpers';
+import dayjs from 'dayjs';
 
 export default function EmployeeCreate() {
   const navigate = useNavigate();
@@ -73,16 +74,19 @@ export default function EmployeeCreate() {
         return;
       }
 
-      console.log('to sa data', formState.values);
-
-      createMutation.mutate(formState.values);
+      // mapowanie pól datowych
+      const payload: Partial<Employee> = {
+        ...formState.values,
+        contractStartDate: formState.values.contractStartDate ?? null,
+        a1StartDate: formState.values.a1StartDate ?? null,
+        contractEndDate: formState.values.contractEndDate ?? null,
+        a1EndDate: formState.values.a1EndDate ?? null,
+      };
+      console.log('createPayload', payload);
+      createMutation.mutate(payload);
     },
     [formState.values, createMutation]
   );
-
-  const handleBack = useCallback(() => {
-    navigate('/employees');
-  }, [navigate]);
 
   if (createMutation.isPending) {
     return (
@@ -112,17 +116,6 @@ export default function EmployeeCreate() {
         { title: 'Pracownicy', path: '/employees' },
         { title: 'Nowy' },
       ]}
-      actions={
-        <Stack direction="row" alignItems="center" spacing={3}>
-          <Button
-            variant="outlined"
-            onClick={handleBack}
-            startIcon={<ArrowBackIcon />}
-          >
-            Anuluj
-          </Button>
-        </Stack>
-      }
     >
       <Box
         sx={{ width: '100%', maxWidth: { sm: '100%', md: '1790px' } }}
@@ -133,11 +126,6 @@ export default function EmployeeCreate() {
           onFieldChange={handleFieldChange}
           onSubmit={handleSubmit}
           isSubmitting={createMutation.isPending}
-          submitError={
-            createMutation.isError
-              ? 'Wystąpił błąd podczas tworzenia pracownika.'
-              : null
-          }
           isEditForm={false}
         />
       </Box>

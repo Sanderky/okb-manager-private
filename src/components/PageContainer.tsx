@@ -32,8 +32,10 @@ const PageHeaderToolbar = styled('div')(({ theme }) => ({
   display: 'flex',
   flexDirection: 'row',
   gap: theme.spacing(1),
+  flexGrow: 1,
   // Ensure the toolbar is always on the right side, even after wrapping
-  marginLeft: 'auto',
+  // marginRight: 'auto',
+  // margin: 0,
 }));
 
 export interface Breadcrumb {
@@ -51,14 +53,17 @@ export default function PageContainer(props: PageContainerProps) {
   const { children, breadcrumbs, title, actions = null } = props;
 
   return (
-    <Container
+    <Box
       sx={{
         flex: 1,
         display: 'flex',
         flexDirection: 'column',
+        py: 2,
+        px: { xs: 2, sm: 3 },
       }}
+      // maxWidth={'md'}
     >
-      <Stack sx={{ flex: 1, my: 2 }} spacing={2}>
+      <Stack sx={{ flex: 1 }} spacing={2}>
         <Stack>
           <PageHeaderBreadcrumbs
             aria-label="breadcrumb"
@@ -68,6 +73,7 @@ export default function PageContainer(props: PageContainerProps) {
               overflow: 'hidden',
               textOverflow: 'ellipsis',
               whiteSpace: 'nowrap',
+              mt: 0,
             }}
           >
             {breadcrumbs
@@ -117,12 +123,7 @@ export default function PageContainer(props: PageContainerProps) {
               <Typography
                 variant="h4"
                 className="text-2xl font-medium md:text-3xl"
-                sx={{
-                  maxWidth: 'calc(100% - 200px)',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                }}
+                noWrap
                 title={title}
               >
                 {title}
@@ -135,6 +136,6 @@ export default function PageContainer(props: PageContainerProps) {
           {children}
         </Box>
       </Stack>
-    </Container>
+    </Box>
   );
 }

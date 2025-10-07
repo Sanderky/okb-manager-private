@@ -10,7 +10,6 @@ import {
 import { db } from '../firebase';
 import type { Employee } from '../types';
 
-
 export async function createEmployee(data: Employee) {
   try {
     const newEmployee: Employee = {
@@ -33,7 +32,7 @@ export async function updateEmployee(
     await updateDoc(employeeRef, data);
   } catch (e) {
     console.error('Błąd podczas aktualizacji dokumentu: ', e);
-    throw e; 
+    throw e;
   }
 }
 
@@ -53,10 +52,14 @@ export async function getEmployeeList(): Promise<Employee[]> {
 
   const employeesList = employeesSnapshot.docs.map((doc) => {
     // 1. Pobierz dane dokumentu i dodaj do nich ID
-    const docData = doc.data();
+    const data = doc.data();
     return {
       id: doc.id,
-      ...docData,
+      ...data,
+      contractStartDate: data.contractStartDate?.toDate(),
+      contractEndDate: data.contractEndDate?.toDate(),
+      a1StartDate: data.a1StartDate?.toDate(),
+      a1EndDate: data.a1EndDate?.toDate(),
     } as Employee;
   });
 
@@ -66,7 +69,15 @@ export async function getEmployeeList(): Promise<Employee[]> {
 export async function getEmployee(id: string): Promise<Employee | null> {
   const employeeDoc = await getDoc(doc(db, 'employees', id));
   if (employeeDoc.exists()) {
-    return { id: employeeDoc.id, ...employeeDoc.data() } as Employee;
+    const data = employeeDoc.data();
+    return {
+      id: employeeDoc.id,
+      ...data,
+      contractStartDate: data.contractStartDate?.toDate(),
+      contractEndDate: data.contractEndDate?.toDate(),
+      a1StartDate: data.a1StartDate?.toDate(),
+      a1EndDate: data.a1EndDate?.toDate(),
+    } as Employee;
   } else {
     return null;
   }

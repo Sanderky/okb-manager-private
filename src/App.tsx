@@ -18,6 +18,7 @@ import EmployeeCreate from './pages/Dashboard/Employees/EmployeeCreate';
 import ConstructionEdit from './pages/Dashboard/Constructions/ConstructionEdit';
 import VacationCalendar from './pages/Dashboard/Calendar/Calendar';
 import Home from './pages/Dashboard/Home/Home';
+import Schedule from './pages/Dashboard/Schedule/Schedule';
 
 // import AppTheme from './theme/AppTheme';
 // import {
@@ -71,6 +72,7 @@ export default function App() {
                     element={<ConstructionCreate />}
                   />
                   <Route path="calendar" element={<VacationCalendar />} />
+                  <Route path="schedule" element={<Schedule />} />
                 </Route>
               </Route>
             </Routes>

@@ -19,6 +19,7 @@ import { DRAWER_WIDTH, MINI_DRAWER_WIDTH } from '../../constants';
 import DashboardSidebarPageItem from './DashboardSidebarPageItem';
 import DashboardSidebarHeaderItem from './DashboardSidebarHeaderItem';
 import DashboardSidebarDividerItem from './DashboardSidebarDividerItem';
+import EventNoteIcon from '@mui/icons-material/EventNote';
 import {
   getDrawerSxTransitionMixin,
   getDrawerWidthTransitionMixin,
@@ -121,7 +122,6 @@ export default function DashboardSidebar({
             overflow: 'auto',
             scrollbarGutter: mini ? 'stable' : 'auto',
             overflowX: 'hidden',
-            pt: !mini ? 0 : 2,
             ...(hasDrawerTransitions
               ? getDrawerSxTransitionMixin(isFullyExpanded, 'padding')
               : {}),
@@ -130,9 +130,9 @@ export default function DashboardSidebar({
           <List
             dense
             sx={{
-              padding: mini ? 0 : 0.5,
-              mb: 4,
               width: mini ? MINI_DRAWER_WIDTH : 'auto',
+              px: mini ? 0 : 2,
+              py: 2,
             }}
           >
             <DashboardSidebarPageItem
@@ -162,6 +162,13 @@ export default function DashboardSidebar({
               icon={<CalendarMonthIcon />}
               href="/calendar"
               selected={!!matchPath('/calendar/*', pathname)}
+            />
+            <DashboardSidebarPageItem
+              id="schedule"
+              title="Harmonogram"
+              icon={<EventNoteIcon />}
+              href="/schedule"
+              selected={!!matchPath('/schedule/*', pathname)}
             />
             {/* <DashboardSidebarHeaderItem>Main items</DashboardSidebarHeaderItem>
             <DashboardSidebarPageItem
@@ -276,6 +283,7 @@ export default function DashboardSidebar({
             sm: disableCollapsibleSidebar ? 'block' : 'none',
             md: 'none',
           },
+          height: '100vh',
           ...getDrawerSharedSx(true),
         }}
       >
@@ -289,6 +297,7 @@ export default function DashboardSidebar({
             sm: disableCollapsibleSidebar ? 'none' : 'block',
             md: 'none',
           },
+
           ...getDrawerSharedSx(false),
         }}
       >

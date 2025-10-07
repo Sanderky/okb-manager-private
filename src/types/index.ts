@@ -1,11 +1,7 @@
-import type { Dayjs } from 'dayjs';
-
-type EndDateObject = {
-  date: Date | null;
-  permanent: boolean;
-};
-
-export type EmployeeAttachment = 'idAttachment' | 'contractAttachment' | 'a1Attachment'
+export type EmployeeAttachment =
+  | 'idAttachment'
+  | 'contractAttachment'
+  | 'a1Attachment';
 
 export interface Employee {
   id: string;
@@ -16,31 +12,25 @@ export interface Employee {
   status: boolean;
   note: string;
   contractStartDate: Date | null;
-  contractEndDate?: EndDateObject;
+  contractEndDate?: Date | null;
+  contractISPermanent?: boolean;
   a1StartDate: Date | null;
-  a1EndDate: EndDateObject | null;
-  a1Attachment: FileItem | null
-  contractAttachment: FileItem | null
-  idAttachment: FileItem | null
-  vacation: {
-    id: string;
-    startDate: Date;
-    endDate: Date;
-  }[];
-};
-
+  a1EndDate: Date | null;
+  a1Attachment: FileItem | null;
+  contractAttachment: FileItem | null;
+  idAttachment: FileItem | null;
+}
 
 export interface Construction {
   id: string;
   name: string;
   location: string;
   contractor: string;
-  startDate: Date;
-  endDate?: EndDateObject;
-  inProgress: boolean;
+  startDate: Date | null;
+  endDate: Date | null;
+  // inProgress: boolean;
   note?: string;
 }
-
 
 export interface FileItem {
   name: string;
@@ -58,4 +48,11 @@ export interface FolderItem {
   fullPath: string;
 }
 
-export type FileCustom = FileItem | FolderItem;
+export interface Vacation {
+  id: string;
+  employeeId: string | null;
+  startDate: Date | null;
+  endDate: Date | null;
+}
+
+export type File = FileItem | FolderItem;

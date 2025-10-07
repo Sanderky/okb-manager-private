@@ -12,6 +12,12 @@ import { useEffect, useMemo, useState } from 'react';
 import Alert from '@mui/material/Alert';
 import {
   MaterialReactTable,
+  MRT_ShowHideColumnsButton,
+  MRT_TablePagination,
+  MRT_ToggleDensePaddingButton,
+  MRT_ToggleFiltersButton,
+  MRT_ToggleGlobalFilterButton,
+  useMaterialReactTable,
   type MRT_ColumnDef,
   type MRT_ColumnFiltersState,
   type MRT_DensityState,
@@ -24,7 +30,13 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs, { type Dayjs } from 'dayjs';
 import { MRT_Localization_PL } from 'material-react-table/locales/pl';
-import { CircularProgress, IconButton, Typography } from '@mui/material';
+import {
+  CircularProgress,
+  IconButton,
+  Tooltip,
+  Typography,
+} from '@mui/material';
+import RefreshIcon from '@mui/icons-material/Refresh';
 
 import VisibilityIcon from '@mui/icons-material/Visibility';
 
@@ -41,90 +53,109 @@ const useTableState = () => {
   };
 
   const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>(
-    () => safeParse(`${TABLE_STATE_PREFIX}_columnFilters`, [])
+    () => {
+      const item = safeParse('mrt_columnFilters_table_1', []);
+      // Konwertuj stringi na Day.js dla filtrów daty
+      return item.map((filter: any) => {
+        if (filter.id === 'startDate' && Array.isArray(filter.value)) {
+          return {
+            ...filter,
+            value: filter.value.map((v: any) => (v ? dayjs(v) : null)),
+          };
+        }
+        return filter;
+      });
+    }
   );
 
   const [columnVisibility, setColumnVisibility] = useState<MRT_VisibilityState>(
-    () => safeParse(`${TABLE_STATE_PREFIX}_columnVisibility`, {})
+    () => safeParse('mrt_columnVisibility_table_1', {})
   );
 
   const [density, setDensity] = useState<MRT_DensityState>(() =>
-    safeParse(`${TABLE_STATE_PREFIX}_density`, 'comfortable')
+    safeParse('mrt_density_table_1', 'comfortable')
   );
 
-  const [globalFilter, setGlobalFilter] = useState<string | undefined>(() =>
-    safeParse(`${TABLE_STATE_PREFIX}_globalFilter`, '')
-  );
+  const [globalFilter, setGlobalFilter] = useState<string | undefined>(() => {
+    const item = safeParse('mrt_globalFilter_table_1', '');
+    return item || undefined;
+  });
 
   const [showGlobalFilter, setShowGlobalFilter] = useState<boolean>(() =>
-    safeParse(`${TABLE_STATE_PREFIX}_showGlobalFilter`, false)
+    safeParse('mrt_showGlobalFilter_table_1', false)
   );
 
   const [showColumnFilters, setShowColumnFilters] = useState<boolean>(() =>
-    safeParse(`${TABLE_STATE_PREFIX}_showColumnFilters`, false)
+    safeParse('mrt_showColumnFilters_table_1', false)
   );
 
   const [sorting, setSorting] = useState<MRT_SortingState>(() =>
-    safeParse(`${TABLE_STATE_PREFIX}_sorting`, [])
+    safeParse('mrt_sorting_table_1', [])
   );
 
+  // Zapisywanie stanu do sessionStorage
   useEffect(() => {
+    // Konwertuj Day.js na string przed zapisaniem
+    const filtersToSave = columnFilters.map((filter) => {
+      if (filter.id === 'startDate' && Array.isArray(filter.value)) {
+        return {
+          ...filter,
+          value: filter.value.map((v: any) => (v ? v.format() : null)),
+        };
+      }
+      return filter;
+    });
+
     sessionStorage.setItem(
-      `${TABLE_STATE_PREFIX}_columnFilters`,
-      JSON.stringify(columnFilters)
+      'mrt_columnFilters_table_1',
+      JSON.stringify(filtersToSave)
     );
   }, [columnFilters]);
 
   useEffect(() => {
     sessionStorage.setItem(
-      `${TABLE_STATE_PREFIX}_columnVisibility`,
+      'mrt_columnVisibility_table_1',
       JSON.stringify(columnVisibility)
     );
   }, [columnVisibility]);
 
   useEffect(() => {
-    sessionStorage.setItem(
-      `${TABLE_STATE_PREFIX}_density`,
-      JSON.stringify(density)
-    );
+    sessionStorage.setItem('mrt_density_table_1', JSON.stringify(density));
   }, [density]);
 
   useEffect(() => {
     sessionStorage.setItem(
-      `${TABLE_STATE_PREFIX}_globalFilter`,
+      'mrt_globalFilter_table_1',
       JSON.stringify(globalFilter ?? '')
     );
   }, [globalFilter]);
 
   useEffect(() => {
     sessionStorage.setItem(
-      `${TABLE_STATE_PREFIX}_showGlobalFilter`,
+      'mrt_showGlobalFilter_table_1',
       JSON.stringify(showGlobalFilter)
     );
   }, [showGlobalFilter]);
 
   useEffect(() => {
     sessionStorage.setItem(
-      `${TABLE_STATE_PREFIX}_showColumnFilters`,
+      'mrt_showColumnFilters_table_1',
       JSON.stringify(showColumnFilters)
     );
   }, [showColumnFilters]);
 
   useEffect(() => {
-    sessionStorage.setItem(
-      `${TABLE_STATE_PREFIX}_sorting`,
-      JSON.stringify(sorting)
-    );
+    sessionStorage.setItem('mrt_sorting_table_1', JSON.stringify(sorting));
   }, [sorting]);
 
   const resetState = () => {
-    sessionStorage.removeItem(`${TABLE_STATE_PREFIX}_columnFilters`);
-    sessionStorage.removeItem(`${TABLE_STATE_PREFIX}_columnVisibility`);
-    sessionStorage.removeItem(`${TABLE_STATE_PREFIX}_density`);
-    sessionStorage.removeItem(`${TABLE_STATE_PREFIX}_globalFilter`);
-    sessionStorage.removeItem(`${TABLE_STATE_PREFIX}_showGlobalFilter`);
-    sessionStorage.removeItem(`${TABLE_STATE_PREFIX}_showColumnFilters`);
-    sessionStorage.removeItem(`${TABLE_STATE_PREFIX}_sorting`);
+    sessionStorage.removeItem('mrt_columnFilters_table_1');
+    sessionStorage.removeItem('mrt_columnVisibility_table_1');
+    sessionStorage.removeItem('mrt_density_table_1');
+    sessionStorage.removeItem('mrt_globalFilter_table_1');
+    sessionStorage.removeItem('mrt_showGlobalFilter_table_1');
+    sessionStorage.removeItem('mrt_showColumnFilters_table_1');
+    sessionStorage.removeItem('mrt_sorting_table_1');
 
     setColumnFilters([]);
     setColumnVisibility({});
@@ -183,6 +214,11 @@ export default function EmployeeList() {
   const handleCreateClick = React.useCallback(() => {
     navigate('/employees/create');
   }, [navigate]);
+
+  const localization = React.useMemo(
+    () => ({ ...MRT_Localization_PL, rowNumber: 'Lp.' }),
+    []
+  );
 
   const columns = useMemo<MRT_ColumnDef<Employee>[]>(
     () => [
@@ -258,6 +294,144 @@ export default function EmployeeList() {
 
   const tableData = useMemo(() => data || [], [data]);
 
+  const table = useMaterialReactTable({
+    localization,
+    columns,
+    data: tableData,
+    layoutMode: 'grid',
+    initialState: {
+      density: 'comfortable',
+      columnOrder: [
+        'mrt-row-numbers',
+        'name',
+        'email',
+        'phone',
+        'status',
+        'contractStartDate',
+        'a1StartDate',
+        'mrt-row-actions',
+      ],
+    },
+    state: {
+      columnFilters,
+      columnVisibility,
+      density,
+      globalFilter,
+      showColumnFilters,
+      showGlobalFilter,
+      sorting,
+      isLoading,
+    },
+    onColumnFiltersChange: setColumnFilters,
+    onColumnVisibilityChange: setColumnVisibility,
+    onDensityChange: setDensity,
+    onGlobalFilterChange: setGlobalFilter,
+    onShowColumnFiltersChange: setShowColumnFilters,
+    onShowGlobalFilterChange: setShowGlobalFilter,
+    onSortingChange: setSorting,
+    enableColumnResizing: false,
+    renderTopToolbarCustomActions: () => (
+      <Button
+        variant="outlined"
+        onClick={handleCreateClick}
+        startIcon={<AddIcon />}
+        size="small"
+        sx={{ mx: 1, my: 0.5, minWidth: 'fit-content' }}
+      >
+        Nowa
+      </Button>
+    ),
+    renderToolbarInternalActions: ({ table }) => (
+      <Stack direction="row" alignItems="center" spacing={1}>
+        <MRT_ToggleGlobalFilterButton table={table} />
+        <MRT_ToggleFiltersButton table={table} />
+        <MRT_ShowHideColumnsButton table={table} />
+        <MRT_ToggleDensePaddingButton table={table} />
+        <Tooltip title="Resetuj stan tabeli">
+          <IconButton onClick={resetState}>
+            <RefreshIcon />
+          </IconButton>
+        </Tooltip>
+      </Stack>
+    ),
+    rowNumberDisplayMode: 'static',
+    enableRowActions: true,
+    renderRowActions: ({ row }) => (
+      <IconButton onClick={() => navigate(`/employees/${row.original.id}`)}>
+        <VisibilityIcon />
+      </IconButton>
+    ),
+    muiTablePaperProps: {
+      sx: {
+        boxShadow: 'none',
+        border: '1px solid #e0e0e0',
+        borderRadius: '10px',
+      },
+    },
+    muiTableHeadCellProps: {
+      sx: {
+        borderTop: '1px solid #e0e0e0',
+        fontWeight: 'bold',
+        color: '#374151',
+      },
+    },
+    muiTableBodyRowProps: {
+      sx: {
+        '&:hover': {
+          background: '#ffd85f30 !important',
+        },
+        'td:after': {
+          display: 'none',
+        },
+      },
+    },
+    enableRowNumbers: true,
+    displayColumnDefOptions: {
+      'mrt-row-numbers': {
+        // muiTableHeadCellProps: { sx: { py: '0.75rem' } },
+        muiTableBodyCellProps: { align: 'center' },
+      },
+      'mrt-row-actions': {
+        grow: false,
+      },
+    },
+    renderBottomToolbar: ({ table }) => (
+      <Stack
+        direction={{ xs: 'column', sm: 'row' }}
+        alignItems="center"
+        justifyContent="space-between"
+        spacing={1}
+        // className="px-2"
+        // sx={{
+        //   '& .MuiTablePagination-root': {
+        //     flexDirection: { xs: 'column', md: 'row' },
+        //   },
+        // }}
+      >
+        <Box
+          sx={{
+            fontSize: 12,
+            color: 'text.secondary',
+            textAlign: 'center',
+            pt: { xs: 2, sm: 0 },
+            px: { xs: 0, sm: 2 },
+          }}
+        >
+          Wynik: {table.getPrePaginationRowModel().rows.length} z{' '}
+          {tableData.length}
+        </Box>
+        <MRT_TablePagination table={table} />
+      </Stack>
+    ),
+    paginationDisplayMode: 'pages',
+    muiPaginationProps: {
+      color: 'primary',
+      rowsPerPageOptions: [5, 10, 25, 50, 100],
+      shape: 'rounded',
+      variant: 'outlined',
+    },
+  });
+
   if (isLoading) {
     return (
       <PageContainer title={t('employees.employeesList')}>
@@ -293,59 +467,10 @@ export default function EmployeeList() {
     <PageContainer
       title={'Lista pracowników'}
       breadcrumbs={[{ title: 'Pracownicy' }]}
-      actions={
-        <Stack direction="row" alignItems="center" spacing={1}>
-          <Button
-            variant="contained"
-            onClick={handleCreateClick}
-            startIcon={<AddIcon />}
-          >
-            Dodaj pracownika
-          </Button>
-        </Stack>
-      }
     >
       <Box sx={{ flex: 1, width: '100%' }}>
         <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pl">
-          <MaterialReactTable
-            localization={MRT_Localization_PL}
-            columns={columns}
-            data={tableData}
-            enableColumnResizing={false}
-            rowNumberDisplayMode="static"
-            renderBottomToolbarCustomActions={() => (
-              <Button onClick={resetState}>Resetuj</Button>
-            )}
-            enableRowActions
-            renderRowActions={({ row }) => (
-              <IconButton
-                onClick={() => navigate(`/employees/${row.original.id}`)}
-              >
-                <VisibilityIcon />
-              </IconButton>
-            )}
-            muiTablePaperProps={{
-              sx: {
-                boxShadow: 'none',
-                border: '1px solid #e0e0e0',
-                borderRadius: '10px',
-              },
-            }}
-            muiTableHeadCellProps={{
-              sx: {
-                borderTop: '1px solid #e0e0e0',
-                fontWeight: 'bold',
-                color: '#374151',
-              },
-            }}
-            muiTableBodyRowProps={{
-              sx: {
-                '&:hover': {
-                  background: 'white !important',
-                },
-              },
-            }}
-          />
+          <MaterialReactTable table={table} />
         </LocalizationProvider>
       </Box>
     </PageContainer>

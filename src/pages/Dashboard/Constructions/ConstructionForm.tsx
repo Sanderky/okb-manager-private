@@ -12,15 +12,20 @@ import dayjs, { type Dayjs } from 'dayjs';
 import type { Construction } from '../../../types';
 import Alert from '@mui/material/Alert';
 import DoneAllOutlinedIcon from '@mui/icons-material/DoneAllOutlined';
-import { Checkbox, Divider, FormControlLabel, Typography } from '@mui/material';
+import { Divider, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router';
+
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 
 export interface ConstructionFormState {
   values: Partial<Omit<Construction, 'id'>>;
   errors: Partial<Record<keyof ConstructionFormState['values'], string>>;
 }
 
-export type FormFieldValue = string | string[] | number | boolean | File | null;
+export type FormFieldValue = string | Date | number | boolean | File | null;
 
 export interface ConstructionFormProps {
   formId?: string;
@@ -102,13 +107,16 @@ export default function ConstructionForm(props: ConstructionFormProps) {
   const formValues = formState.values;
   const formErrors = formState.errors;
 
+  const navigate = useNavigate();
+  const { constructionId } = useParams<{ constructionId: string }>();
+
   const handleFieldChange = React.useCallback(
     (
       name: keyof ConstructionFormState['values'],
       value: string | boolean | Dayjs | null
     ) => {
       if (dayjs.isDayjs(value)) {
-        onFieldChange(name, value.isValid() ? value.toISOString() : null);
+        onFieldChange(name, value.toDate());
       } else {
         onFieldChange(name, value);
       }
@@ -140,6 +148,14 @@ export default function ConstructionForm(props: ConstructionFormProps) {
     return () => {};
   }, [cleared]);
 
+  const handleBack = React.useCallback(() => {
+    if (constructionId) {
+      navigate(`/constructions/${constructionId}`);
+    } else {
+      navigate('/constructions');
+    }
+  }, [navigate, constructionId]);
+
   return (
     <Box
       id={formId}
@@ -148,7 +164,7 @@ export default function ConstructionForm(props: ConstructionFormProps) {
       noValidate
       autoComplete="off"
       onReset={onReset}
-      sx={{ width: '100%' }}
+      sx={{ width: '100%', overflowY: 'auto' }}
     >
       {submitError && (
         <Alert severity="error" sx={{ mb: 2 }}>
@@ -209,36 +225,29 @@ export default function ConstructionForm(props: ConstructionFormProps) {
             ))}
           </Grid>
           <Divider sx={{ width: '100%' }} className="my-3" />
-          <Grid size={{ xs: 12 }}>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={Boolean(formValues['inProgress'])}
-                  onChange={(e) =>
-                    handleFieldChange('inProgress', e.target.checked)
-                  }
-                  name={'inProgress'}
-                />
-              }
-              label="W trakcie realizacji"
-            />
-          </Grid>
-          <Divider sx={{ width: '100%' }} className="mt-3" />
         </Grid>
         <Stack
           direction="row"
           alignItems="center"
           justifyContent="flex-start"
           spacing={3}
-          sx={{ mt: 4 }}
+          sx={{ mt: 2 }}
         >
           <Button
             variant="contained"
-            startIcon={<DoneAllOutlinedIcon />}
+            startIcon={<CheckCircleOutlineIcon />}
             type="submit"
             disabled={isSubmitting}
           >
             {isSubmitting ? 'Zapisywanie...' : 'Zapisz'}
+          </Button>
+          <Button
+            variant="outlined"
+            onClick={handleBack}
+            startIcon={<ArrowBackIcon />}
+            type="reset"
+          >
+            Anuluj
           </Button>
         </Stack>
       </FormGroup>

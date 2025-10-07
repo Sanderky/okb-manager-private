@@ -17,7 +17,18 @@ import { getEmployee, updateEmployee } from '../../../api/employees';
 import EditIcon from '@mui/icons-material/Edit';
 import CloseIcon from '@mui/icons-material/Close';
 
-import { Chip, Divider, IconButton, Tab, Tabs, TextField } from '@mui/material';
+import {
+  Chip,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  IconButton,
+  Tab,
+  Tabs,
+  TextField,
+} from '@mui/material';
 import { useParams } from 'react-router';
 import dayjs from 'dayjs';
 
@@ -27,6 +38,12 @@ import useNotifications from '../../../hooks/useNotifications/useNotifications';
 import AttachmentBox from './AttachmentBox';
 import { PreviewDialog } from '../../../components/fileBrowser/FilePreviewDialog';
 import { handleDownloadAttachment } from './EmployeeEditHelpers';
+
+import EventAvailableIcon from '@mui/icons-material/EventAvailable';
+import EventRepeatIcon from '@mui/icons-material/EventRepeat';
+import EditNoteIcon from '@mui/icons-material/EditNote';
+import CheckIcon from '@mui/icons-material/Check';
+import type { EmployeeFormState } from './EmployeeForm';
 
 // Extended async status & helpers
 // interface NormalizedError {
@@ -60,6 +77,106 @@ const a1Fields = [
   { key: 'a1StartDate', label: 'Data rozpoczęcia umowy' },
   { key: 'a1EndDate', label: 'Data wygaśnięcia umowy' },
 ];
+
+const generateDateBox = (
+  key: keyof Employee,
+  label: string,
+  employee: Employee | null
+) => {
+  if (!employee) return null;
+  const endDate =
+    key === 'contractEndDate'
+      ? employee?.contractEndDate
+      : key === 'a1EndDate'
+        ? employee?.a1EndDate
+        : null;
+  const today = dayjs().startOf('day');
+  let daysDiff = null;
+  if ((key === 'contractEndDate' || key === 'a1EndDate') && endDate) {
+    daysDiff = dayjs(endDate).startOf('day').diff(today, 'day');
+  }
+  const isPermanent =
+    key === 'contractEndDate' ? employee?.contractISPermanent : false;
+  const isEndDateField = key === 'contractEndDate' || key === 'a1EndDate';
+  let dateStyles = '';
+  let severity: 'error' | 'warning' = 'warning';
+  let message = '';
+  let dayWord = 'dni';
+
+  console.log('endDate', endDate, key);
+
+  if (endDate && daysDiff !== null && isEndDateField && !isPermanent) {
+    if (Math.abs(daysDiff) === 1) {
+      dayWord = 'dzień';
+    }
+    if (daysDiff <= 14) {
+      dateStyles = 'border-red-500/25! bg-red-600/10! text-red-800!';
+      severity = 'error';
+      if (daysDiff < 0) {
+        message = `Umowa wygasła ${Math.abs(daysDiff)} ${dayWord} temu`;
+      } else if (daysDiff === 0) {
+        message = `Umowa kończy się dziś`;
+      } else {
+        message = `Umowa kończy się za ${daysDiff} ${dayWord}`;
+      }
+    } else if (daysDiff <= 30) {
+      dateStyles = 'border-amber-500/25! bg-amber-500/10! text-amber-600!';
+      severity = 'warning';
+      message = `Umowa kończy się za ${daysDiff} ${dayWord}`;
+    }
+  } else if (isPermanent) {
+    dateStyles = 'border-amber-500/25! bg-amber-500/10! text-amber-600!';
+  }
+
+  const value = employee[key];
+
+  let returnValue = null;
+
+  if (!value) {
+    returnValue = <em className="text-gray-400">Brak</em>;
+  } else {
+    if (value instanceof Date) {
+      if (key === 'contractEndDate' && isPermanent) {
+        returnValue = 'Umowa na czas nieokreślony';
+      } else {
+        returnValue = dayjs(value).format('DD.MM.YYYY');
+      }
+    } else {
+      returnValue = <em className="text-gray-400">Brak</em>;
+    }
+  }
+
+  return (
+    <Grid key={key} size={{ xs: 12 }}>
+      <Stack
+        direction={{ xs: 'column', lg: 'row' }}
+        justifyContent={'flex-start'}
+        alignItems={{ xs: 'flex-start', lg: 'center' }}
+        sx={{ width: '100%' }}
+        spacing={{ xs: 1, lg: 2 }}
+      >
+        <Typography variant="body1" className="font-medium">
+          {label}:
+        </Typography>
+        <Typography
+          variant="body1"
+          className={`border-lightGray rounded border px-3 py-1 text-gray-700 ${dateStyles}`}
+        >
+          {returnValue}
+        </Typography>
+      </Stack>
+      {((key === 'contractEndDate' && !isPermanent) || key === 'a1EndDate') &&
+        daysDiff &&
+        (() => {
+          return (
+            <Alert severity={severity} sx={{ width: '100%', mt: 2 }}>
+              <Typography variant="body2">{message}</Typography>
+            </Alert>
+          );
+        })()}
+    </Grid>
+  );
+};
 
 export default function EmployeeShow() {
   const { employeeId } = useParams<{ employeeId: string }>();
@@ -99,14 +216,14 @@ export default function EmployeeShow() {
     enabled: !!employeeId,
   });
 
-  useEffect(() => {
-    if (employee) {
-      setNote(employee.note ?? '');
-      setNotFound(false);
-    } else if (!isLoading) {
-      setNotFound(true);
-    }
-  }, [employee, isLoading]);
+  // useEffect(() => {
+  //   if (employee) {
+  //     setNote(employee.note ?? '');
+  //     setNotFound(false);
+  //   } else if (!isLoading) {
+  //     setNotFound(true);
+  //   }
+  // }, [employee, isLoading]);
 
   // const {handleDownloadAttachment} = useEmployeeAttachment(employee)
 
@@ -155,7 +272,7 @@ export default function EmployeeShow() {
         >
           <CircularProgress />
           <Typography variant="body2" sx={{ mt: 2, color: 'text.secondary' }}>
-            Ładowanie danych pracownika…
+            Ładowanie danych pracownika...
           </Typography>
         </Box>
       );
@@ -166,36 +283,31 @@ export default function EmployeeShow() {
         <Box sx={{ flexGrow: 1, width: '100%' }}>
           <Alert
             severity="error"
-            action={
-              <Stack direction="row" spacing={1}>
-                {/* <Button size="small" onClick={handleRetry} variant="outlined">
-                  Ponów
-                </Button> */}
-                <Button
-                  size="small"
-                  onClick={() => setShowDebug((v) => !v)}
-                  variant="text"
-                >
-                  {showDebug ? 'Ukryj' : 'Szczegóły'}
-                </Button>
-              </Stack>
-            }
+            // action={
+            //   <Stack direction="row" spacing={1}>
+            //     <Button
+            //       size="small"
+            //       onClick={() => setShowDebug((v) => !v)}
+            //       variant="text"
+            //     >
+            //       {showDebug ? 'Ukryj' : 'Szczegóły'}
+            //     </Button>
+            //   </Stack>
+            // }
           >
-            {/* {error.code
-              ? `${error.message} (kod: ${error.code})`
-              : error.message} */}
+            {error.message}
           </Alert>
-          {showDebug && (
+          {/* {showDebug && (
             <Paper sx={{ mt: 2, p: 2, bgcolor: 'grey.50' }} variant="outlined">
               <Typography
                 variant="caption"
                 component="pre"
                 sx={{ m: 0, whiteSpace: 'pre-wrap' }}
               >
-                {/* {JSON.stringify(error.raw, null, 2)} */}
+                {JSON.stringify(error.raw, null, 2)}
               </Typography>
             </Paper>
-          )}
+          )} */}
         </Box>
       );
     }
@@ -221,7 +333,7 @@ export default function EmployeeShow() {
     return employee ? (
       <Box
         sx={{ width: '100%' }}
-        className="border-lightGray rounded-lg border bg-white p-4 md:px-6 md:py-4"
+        className="border-lightGray rounded-lg border bg-white p-4 md:p-6 md:pt-4"
       >
         <Grid
           container
@@ -230,411 +342,291 @@ export default function EmployeeShow() {
           columns={12}
           sx={{ mb: 2 }}
         >
-          <Grid size={{ xs: 12, sm: 8 }}>
-            <Tabs
-              value={tab}
-              onChange={handleTabChange}
-              aria-label="Zakładki pracownika"
-            >
-              <Tab label="Informacje" />
-              <Tab label="Pliki" />
-            </Tabs>
-          </Grid>
           <Grid
-            container
-            sx={{ justifyContent: 'flex-end' }}
-            width={'100%'}
-            size={{ xs: 12, sm: 4 }}
+            size={{ xs: 12, sm: 8 }}
+            sx={{ width: '100%!important' }}
+            mb={1.5}
           >
-            {tab === 0 && (
-              <Chip
-                label={employee?.status ? 'Zatrudniony' : 'Niezatrudniony'}
-                className={
-                  employee?.status ? 'bg-green-400/50' : 'bg-red-400/50'
-                }
-                variant="filled"
-              />
-            )}
+            <Stack direction="row" alignItems="center" spacing={1}>
+              <Tabs value={tab} onChange={handleTabChange}>
+                <Tab
+                  label="Informacje"
+                  sx={{
+                    fontSize: { xs: '0.8rem', sm: '.85rem' },
+                    padding: 2,
+                    minWidth: 0,
+                  }}
+                />
+                <Tab
+                  label="Pliki"
+                  sx={{
+                    fontSize: { xs: '0.8rem', sm: '.85rem' },
+                    padding: 2,
+                    minWidth: { xs: 0, sm: 100 },
+                  }}
+                />
+              </Tabs>
+              <Stack
+                direction="row"
+                justifyContent="flex-end"
+                flexGrow={1}
+                spacing={{ xs: 1.5, sm: 3 }}
+                sx={{ pl: 1 }}
+              >
+                <IconButton
+                  onClick={handleEmployeeEdit}
+                  color="primary"
+                  className="rounded-full border border-blue-300"
+                >
+                  <EditIcon />
+                </IconButton>
+                {/* {isInProgress ? (
+                  <IconButton
+                    onClick={openEndDialog}
+                    color="warning"
+                    className="rounded-full border border-amber-500 bg-amber-50/50"
+                    title="Zakończ budowę"
+                  >
+                    <EventAvailableIcon />
+                  </IconButton>
+                ) : (
+                  <IconButton
+                    onClick={handleResume}
+                    color="success"
+                    className="rounded-full border border-green-500 bg-green-50/50"
+                    title="Wznów budowę"
+                  >
+                    <EventRepeatIcon />
+                  </IconButton>
+                )} */}
+              </Stack>
+            </Stack>
           </Grid>
         </Grid>
         {tab === 0 && (
-          <Grid container spacing={2} columns={12}>
-            <Grid
-              size={{ xs: 12, md: 7 }}
-              className="border-lightGray rounded-lg border bg-white p-3 md:p-5"
-              sx={{ flexGrow: 1 }}
-            >
-              <Stack direction="row" justifyContent="space-between" mb={3}>
-                <Typography
-                  variant="subtitle1"
-                  className="text-lg font-semibold"
-                >
-                  Informacje osobiste
-                </Typography>
-                {/* <Chip
-                  label={employee?.status ? 'Zatrudniony' : 'Niezatrudniony'}
-                  color={employee?.status ? 'success' : 'error'}
-                  variant="filled"
-                  className="-mt-7 sm:mt-0"
-                /> */}
-              </Stack>
+          <Grid container spacing={{ xs: 2, lg: 3 }} columns={12}>
+            <Grid size={{ xs: 12, lg: 6 }} sx={{ flexGrow: 1 }}>
               <Grid container spacing={2}>
                 {personalFields.map(({ key, label }) => (
-                  <Grid key={key} size={{ xs: 12 }}>
-                    <Stack direction="row" alignItems="center" spacing={1}>
-                      <Typography variant="body1" className="font-medium">
+                  <Grid
+                    key={key}
+                    size={{ xs: 12 }}
+                    className="border-b border-gray-300 pb-3"
+                  >
+                    <Stack
+                      direction="row"
+                      alignItems="center"
+                      justifyContent={'space-between'}
+                      spacing={2}
+                    >
+                      <Typography
+                        variant="body1"
+                        className="font-medium text-gray-600"
+                        sx={{ minWidth: 120 }}
+                      >
                         {label}:
                       </Typography>
                       <Typography
                         variant="body1"
-                        className="border-lightGray rounded border px-3 py-1 text-gray-700"
+                        className="text-dark font-semibold"
                         sx={{
                           maxWidth: '100%',
                           overflow: 'visible',
                           whiteSpace: 'normal',
                           wordBreak: 'break-word',
+                          pr: 2,
                         }}
+                        // noWrap
                       >
                         {(() => {
                           const value = employee[key as keyof Employee];
                           if (!value) {
-                            return <em className="text-gray-400">Brak</em>;
+                            return <em className="text-gray-400">-</em>;
                           }
                           return String(value);
-                        })() || <em className="text-gray-400">Brak</em>}
+                        })() || <em className="text-gray-400">-</em>}
                       </Typography>
                     </Stack>
                   </Grid>
                 ))}
               </Grid>
+              <Box className="mt-8 rounded-lg border border-dashed border-gray-300 p-4">
+                <Stack
+                  spacing={1.5}
+                  direction={'column'}
+                  alignItems={'flex-start'}
+                >
+                  <Stack
+                    direction="row"
+                    alignItems={'center'}
+                    sx={{ width: '100%' }}
+                    spacing={2}
+                  >
+                    <Typography variant="body1" className="mb-2 font-medium">
+                      Notatka:
+                    </Typography>
+                    <Stack
+                      direction="row"
+                      sx={{ width: '100%' }}
+                      justifyContent={'flex-end'}
+                      alignItems="center"
+                      spacing={2}
+                    >
+                      {editNote && (
+                        <IconButton
+                          onClick={handleSaveNote}
+                          color="success"
+                          className="rounded-full border border-green-500 bg-green-50/50"
+                          disabled={updateNoteMutation.isPending || !editNote}
+                        >
+                          <CheckIcon />
+                        </IconButton>
+                      )}
+                      <IconButton
+                        onClick={() => {
+                          setEditNote(!editNote);
+                          note !== (employee?.note ?? '') &&
+                            setNote(employee?.note ?? '');
+                        }}
+                        color={!editNote ? 'primary' : 'inherit'}
+                        className={`rounded-lg border ${editNote ? 'border-red-500 bg-red-50/50' : 'border-blue-500'}`}
+                      >
+                        {editNote ? (
+                          <CloseIcon className="text-red-400" />
+                        ) : (
+                          <EditNoteIcon />
+                        )}
+                      </IconButton>
+                    </Stack>
+                  </Stack>
+                  <TextField
+                    variant="outlined"
+                    className={`bg-white ${editNote ? '' : 'bg-gray-100! opacity-50'}`}
+                    fullWidth
+                    multiline
+                    rows={5}
+                    value={note}
+                    onChange={(e) => setNote(e.target.value)}
+                    error={updateNoteMutation.isError}
+                    slotProps={{
+                      input: {
+                        readOnly: updateNoteMutation.isPending || !editNote,
+                      },
+                    }}
+                    helperText={
+                      updateNoteMutation.isError
+                        ? 'Nie udało się zapisać notatki.'
+                        : ''
+                    }
+                    sx={{ '& .MuiOutlinedInput-root': { p: 1.5 } }}
+                  />
+                </Stack>
+              </Box>
             </Grid>
-            <Grid container spacing={2} size={{ xs: 12, md: 5 }}>
-              <Grid
-                size={{ xs: 12 }}
-                className="border-lightGray rounded-lg border bg-white p-3 md:p-5"
-              >
+            <Grid size={{ xs: 12, lg: 6 }} sx={{ flexGrow: 1 }}>
+              <Grid className="border-lightGray mb-3 rounded-lg border bg-white p-3 md:p-5">
                 <Stack direction="row" justifyContent="space-between" mb={3}>
                   <Typography
                     variant="subtitle1"
                     className="text-lg font-semibold"
                   >
-                    Akcje
+                    Umowa zatrudnienia
                   </Typography>
                 </Stack>
-                <Grid container spacing={3}>
-                  <Box sx={{ width: '100%' }}>
-                    <Stack
-                      direction={{ xs: 'column', lg: 'row' }}
-                      justifyContent={{ xs: 'flex-start', lg: 'space-between' }}
-                      alignItems={{ xs: 'flex-start', lg: 'center' }}
-                      sx={{ width: '100%' }}
-                      spacing={{ xs: 1, lg: 2 }}
-                    >
-                      <div>
-                        <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                          Edytuj pracownika
-                        </Typography>
-                        <Typography
-                          variant="body2"
-                          sx={{ color: 'text.secondary' }}
-                        >
-                          Zmiana danych pracownika
-                        </Typography>
-                      </div>
-                      <Button
-                        variant="contained"
-                        onClick={handleEmployeeEdit}
-                        startIcon={<EditIcon />}
-                        sx={{ minWidth: 120 }}
-                      >
-                        Edytuj
-                      </Button>
-                    </Stack>
-                    <Divider className="my-5" />
-                  </Box>
-                </Grid>
-              </Grid>
-            </Grid>
-            <Grid
-              size={{ xs: 12 }}
-              className="rounded-lg border border-dashed border-gray-300 p-4"
-            >
-              <Typography variant="body1" className="mb-2 font-medium">
-                Notatka:
-              </Typography>
-              <Stack
-                spacing={1.5}
-                direction={'column'}
-                alignItems={'flex-start'}
-              >
-                <TextField
-                  variant="outlined"
-                  className={`bg-white ${editNote ? '' : 'bg-gray-50! opacity-70'}`}
-                  fullWidth
-                  multiline
-                  rows={5}
-                  value={note}
-                  onChange={(e) => setNote(e.target.value)}
-                  error={updateNoteMutation.isError}
-                  slotProps={{
-                    input: {
-                      readOnly: updateNoteMutation.isPending || !editNote,
-                    },
-                  }}
-                  helperText={
-                    updateNoteMutation.isError
-                      ? 'Nie udało się zapisać notatki.'
-                      : ''
+
+                <AttachmentBox
+                  file={employee.contractAttachment}
+                  onShow={() => handleOpenPreview(employee.contractAttachment)}
+                  onDownload={() =>
+                    handleDownloadAttachment(employee.contractAttachment)
                   }
                 />
-                <Stack direction="row" spacing={2}>
-                  <IconButton
-                    onClick={() => {
-                      setEditNote(!editNote);
-                      if (note !== (employee?.note ?? '')) {
-                        setNote(employee?.note ?? '');
-                      }
-                      // note !== (employee?.note ?? '') &&
-                      //   setNote(employee?.note ?? '');
-                    }}
-                    color={!editNote ? 'primary' : 'inherit'}
-                    className="rounded-lg border border-gray-300"
-                  >
-                    {editNote ? (
-                      <CloseIcon className="text-gray-500" />
-                    ) : (
-                      <EditIcon />
-                    )}
-                  </IconButton>
-                  {editNote && (
-                    <Button
-                      variant="contained"
-                      onClick={handleSaveNote}
-                      disabled={updateNoteMutation.isPending || !editNote}
-                    >
-                      {updateNoteMutation.isPending
-                        ? 'Zapisywanie...'
-                        : 'Zapisz'}
-                    </Button>
-                  )}
-                </Stack>
-              </Stack>
-            </Grid>
-            <Grid
-              size={{ xs: 12, md: 6 }}
-              className="border-lightGray rounded-lg border bg-white p-3 md:p-5"
-              sx={{ flexGrow: 1 }}
-            >
-              <Stack direction="row" justifyContent="space-between" mb={3}>
-                <Typography
-                  variant="subtitle1"
-                  className="text-lg font-semibold"
-                >
-                  Umowa zatrudnienia
-                </Typography>
-              </Stack>
 
-              <AttachmentBox
-                file={employee.contractAttachment}
-                onShow={() => handleOpenPreview(employee.contractAttachment)}
-                onDownload={() =>
-                  handleDownloadAttachment(employee.contractAttachment)
-                }
-              />
-
-              <Grid container spacing={2}>
-                {contractFields.map(({ key, label }) => {
-                  const endDate = dayjs(employee.contractEndDate?.date);
-                  const today = dayjs();
-                  const daysDiff = endDate.diff(today, 'day');
-                  const isEndDateField = key === 'contractEndDate';
-                  let dateStyles = '';
-                  let severity: 'error' | 'warning' = 'warning';
-                  let message = '';
-                  let dayWord = 'dni';
-                  const isPermanent = employee.contractEndDate?.permanent;
-                  if (Math.abs(daysDiff) === 1) {
-                    dayWord = 'dzień';
-                  }
-
-                  if (daysDiff <= 14 && isEndDateField) {
-                    dateStyles =
-                      'border-red-500/25! bg-red-600/10! text-red-800!';
-                    severity = 'error';
-                    if (daysDiff < 0) {
-                      message = `Umowa wygasła ${Math.abs(
-                        daysDiff
-                      )} ${dayWord} temu`;
-                    } else {
-                      message = `Umowa kończy się za ${daysDiff} ${dayWord}`;
-                    }
-                  } else if (daysDiff <= 30 && isEndDateField) {
-                    dateStyles =
-                      'border-amber-500/25! bg-amber-500/10! text-amber-600!';
-                    severity = 'warning';
-                    message = `Umowa kończy się za ${daysDiff} ${dayWord}`;
-                  }
-                  const value = employee[key as keyof Employee];
-                  let returnValue = null;
-                  if (!value) {
-                    returnValue = <em className="text-gray-400">Brak</em>;
-                  } else {
-                    if (isEndDateField) {
-                      if (employee.contractEndDate?.permanent) {
-                        returnValue = 'Na czas nieokreślony';
-                      } else if (employee.contractEndDate?.date) {
-                        returnValue = dayjs(
-                          employee.contractEndDate?.date
-                        ).format('DD/MM/YYYY');
-                      }
-                    } else {
-                      returnValue = dayjs(value as Date).format('DD/MM/YYYY');
-                    }
-                  }
-                  return (
-                    <Grid key={key} size={{ xs: 12 }}>
-                      <Stack
-                        direction={{ xs: 'column', lg: 'row' }}
-                        justifyContent={'flex-start'}
-                        alignItems={{ xs: 'flex-start', lg: 'center' }}
-                        sx={{ width: '100%' }}
-                        spacing={{ xs: 1, lg: 2 }}
-                      >
-                        <Typography variant="body1" className="font-medium">
-                          {label}:
-                        </Typography>
-                        <Typography
-                          variant="body1"
-                          className={`border-lightGray rounded border px-3 py-1 text-gray-700 ${dateStyles}`}
-                        >
-                          {returnValue}
-                        </Typography>
-                      </Stack>
-                      {isEndDateField &&
-                        !isPermanent &&
-                        (() => {
-                          return (
-                            <Alert
-                              severity={severity}
-                              sx={{ width: '100%', mt: 2 }}
-                            >
-                              <Typography variant="body2">{message}</Typography>
-                            </Alert>
-                          );
-                        })()}
-                    </Grid>
-                  );
-                })}
+                <Grid container spacing={2}>
+                  {contractFields.map(({ key, label }) => {
+                    return generateDateBox(key, label, employee);
+                  })}
+                </Grid>
               </Grid>
-            </Grid>
-            <Grid
-              size={{ xs: 12, md: 6 }}
-              className="border-lightGray rounded-lg border bg-white p-3 md:p-5"
-              sx={{ flexGrow: 1 }}
-            >
-              <Stack direction="row" justifyContent="space-between" mb={3}>
-                <Typography
-                  variant="subtitle1"
-                  className="text-lg font-semibold"
-                >
-                  Umowa A1
-                </Typography>
-              </Stack>
-              <AttachmentBox
-                file={employee.a1Attachment}
-                onShow={() => handleOpenPreview(employee.a1Attachment)}
-                onDownload={() =>
-                  handleDownloadAttachment(employee.a1Attachment)
-                }
-              />
-              <Grid container spacing={2}>
-                {a1Fields.map(({ key, label }) => {
-                  const endDate = dayjs(employee.a1EndDate?.date);
-                  const today = dayjs();
-                  const daysDiff = endDate.diff(today, 'day');
-                  const isEndDateField = key === 'a1EndDate';
-                  let dateStyles = '';
-                  let severity: 'error' | 'warning' = 'warning';
-                  let message = '';
-                  let dayWord = 'dni';
-                  const isPermanent = employee.a1EndDate?.permanent;
-                  if (Math.abs(daysDiff) === 1) {
-                    dayWord = 'dzień';
+              <Grid className="border-lightGray rounded-lg border bg-white p-3 md:p-5">
+                <Stack direction="row" justifyContent="space-between" mb={3}>
+                  <Typography
+                    variant="subtitle1"
+                    className="text-lg font-semibold"
+                  >
+                    Umowa A1
+                  </Typography>
+                </Stack>
+                <AttachmentBox
+                  file={employee.a1Attachment}
+                  onShow={() => handleOpenPreview(employee.a1Attachment)}
+                  onDownload={() =>
+                    handleDownloadAttachment(employee.a1Attachment)
                   }
-
-                  if (daysDiff <= 14 && isEndDateField) {
-                    dateStyles =
-                      'border-red-500/25! bg-red-600/10! text-red-800!';
-                    severity = 'error';
-                    if (daysDiff < 0) {
-                      message = `Umowa wygasła ${Math.abs(
-                        daysDiff
-                      )} ${dayWord} temu`;
-                    } else {
-                      message = `Umowa kończy się za ${daysDiff} ${dayWord}`;
-                    }
-                  } else if (daysDiff <= 30 && isEndDateField) {
-                    dateStyles =
-                      'border-amber-500/25! bg-amber-500/10! text-amber-600!';
-                    severity = 'warning';
-                    message = `Umowa kończy się za ${daysDiff} ${dayWord}`;
-                  }
-                  const value = employee[key as keyof Employee];
-                  let returnValue = null;
-                  if (!value) {
-                    returnValue = <em className="text-gray-400">Brak</em>;
-                  } else {
-                    if (isEndDateField) {
-                      if (employee.a1EndDate?.permanent) {
-                        returnValue = 'Na czas nieokreślony';
-                      } else if (employee.a1EndDate?.date) {
-                        returnValue = dayjs(employee.a1EndDate?.date).format(
-                          'DD/MM/YYYY'
-                        );
-                      }
-                    } else {
-                      returnValue = dayjs(value as Date).format('DD/MM/YYYY');
-                    }
-                  }
-                  return (
-                    <Grid key={key} size={{ xs: 12 }}>
-                      <Stack
-                        direction={{ xs: 'column', lg: 'row' }}
-                        justifyContent={'flex-start'}
-                        alignItems={{ xs: 'flex-start', lg: 'center' }}
-                        sx={{ width: '100%' }}
-                        spacing={{ xs: 1, lg: 2 }}
-                      >
-                        <Typography variant="body1" className="font-medium">
-                          {label}:
-                        </Typography>
-                        <Typography
-                          variant="body1"
-                          className={`border-lightGray rounded border px-3 py-1 text-gray-700 ${dateStyles}`}
-                        >
-                          {returnValue}
-                        </Typography>
-                      </Stack>
-
-                      {isEndDateField &&
-                        !isPermanent &&
-                        (() => {
-                          return (
-                            <Alert
-                              severity={severity}
-                              sx={{ width: '100%', mt: 2 }}
-                            >
-                              <Typography variant="body2">{message}</Typography>
-                            </Alert>
-                          );
-                        })()}
-                    </Grid>
-                  );
-                })}
+                />
+                <Grid container spacing={2}>
+                  {a1Fields.map(({ key, label }) => {
+                    return generateDateBox(key, label, employee);
+                  })}
+                </Grid>
               </Grid>
             </Grid>
           </Grid>
         )}
+        {/* <Dialog
+          open={endDialogOpen}
+          onClose={closeEndDialog}
+          fullWidth
+          maxWidth="xs"
+        >
+          <DialogTitle>
+            <Stack direction="row" alignItems="center" spacing={1}>
+              <Typography variant="h6" sx={{ flexGrow: 1 }}>
+                Zakończ budowę
+              </Typography>
+              <IconButton aria-label="close" onClick={closeEndDialog}>
+                <CloseIcon />
+              </IconButton> 
+            </Stack>
+          </DialogTitle>
+          <DialogContent dividers sx={{ pb: 4 }}>
+            <Stack spacing={2}>
+              <Typography variant="body2">
+                Wybierz datę zakończenia budowy.
+              </Typography>
+              <LocalizationProvider
+                dateAdapter={AdapterDayjs}
+                adapterLocale="pl"
+              >
+                <DatePicker
+                  label="Data zakończenia"
+                  value={endDateValue}
+                  onChange={(v) => {
+                    setEndDateError(null);
+                    setEndDateValue(v ?? dayjs());
+                  }}
+                  slotProps={{
+                    textField: {
+                      fullWidth: true,
+                      error: !!endDateError,
+                      helperText: endDateError ?? '',
+                    },
+                    field: { clearable: false },
+                  }}
+                />
+              </LocalizationProvider> 
+            </Stack>
+          </DialogContent>
+          <DialogActions sx={{ px: 3, py: 2 }}>
+            <Button
+              variant="contained"
+              // onClick={handleFinish}
+              // disabled={updateStatusMutation.isPending}
+            >
+              Zapisz
+            </Button>
+          </DialogActions>
+        </Dialog> */}
       </Box>
     ) : null;
   }, [
@@ -664,20 +656,29 @@ export default function EmployeeShow() {
         { title: pageTitle },
       ]}
       actions={
-        <Stack direction="row" alignItems="center" spacing={3}>
-          <Button
-            variant="outlined"
-            onClick={handleBack}
-            startIcon={<ArrowBackIcon />}
-          >
-            Powrót
-            <Box
-              component="span"
-              sx={{ display: { xs: 'none', md: 'inline' } }}
-            >
-              &nbsp;do listy
-            </Box>
-          </Button>
+        <Stack direction="row" alignItems="center">
+          {!error && !notFound ? (
+            isLoading ? (
+              <CircularProgress size={24} />
+            ) : (
+              <Chip
+                label={employee?.status ? 'Zatrudniony' : 'Niezatrudniony'}
+                className={
+                  employee?.status
+                    ? 'bg-green-300/50 text-green-600'
+                    : 'bg-red-300/50 text-red-600'
+                }
+                variant="filled"
+                sx={{
+                  borderRadius: 1,
+                  p: 0.5,
+                  ml: 2,
+                  textTransform: 'uppercase',
+                  fontWeight: 600,
+                }}
+              />
+            )
+          ) : null}
         </Stack>
       }
     >

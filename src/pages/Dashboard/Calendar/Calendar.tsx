@@ -18,6 +18,8 @@ import {
   DialogActions,
   Tooltip,
   Link,
+  Checkbox,
+  Icon,
 } from '@mui/material';
 import {
   ChevronLeft,
@@ -32,8 +34,17 @@ import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getEmployeeList, updateEmployee } from '../../../api/employees';
-import type { Employee } from '../../../types';
+import type { Employee, Vacation } from '../../../types';
 import useNotifications from '../../../hooks/useNotifications/useNotifications';
+
+import FilterListIcon from '@mui/icons-material/FilterList';
+
+import FilterListOffIcon from '@mui/icons-material/FilterListOff';
+import {
+  createVacation,
+  getVacationList,
+  removeVacation,
+} from '../../../api/vacations';
 
 dayjs.extend(isSameOrBefore);
 dayjs.extend(isSameOrAfter);
@@ -47,43 +58,75 @@ interface CalendarEvent {
   endDate: Dayjs;
 }
 
-interface EventFormData {
-  startDate: Dayjs | null;
-  endDate: Dayjs | null;
-  employee: Employee | null;
+interface EventFormState {
+  values: {
+    employeeId: string | null;
+    startDate: Dayjs | null;
+    endDate: Dayjs | null;
+  };
+  errors: Partial<Record<'employeeId' | 'startDate' | 'endDate', string>>;
 }
 
-interface EventFormState {
-  values: EventFormData;
-  errors: Partial<Record<keyof EventFormData, string>>;
-  isSubmitting: boolean;
-}
+type ActiveDialog =
+  | { type: 'none' }
+  | { type: 'addEvent' }
+  | { type: 'moreEvents'; day: Dayjs }
+  | { type: 'deleteEvent'; event: CalendarEvent };
 
 // ---------------------
 // Walidacja formularza
 // ---------------------
 const validate = (
-  values: EventFormData
-): Partial<Record<keyof EventFormData, string>> => {
-  const errors: Partial<Record<keyof EventFormData, string>> = {};
+  values: Vacation,
+  vacations: Vacation[]
+): Partial<Record<keyof Vacation, string>> => {
+  const errors: Partial<Record<keyof Vacation, string>> = {};
 
-  if (!values.employee?.id) errors.employee = 'Wybierz pracownika';
+  if (!values.employeeId) {
+    errors.employeeId = 'Wybierz pracownika';
+  }
+  if (!values.startDate) {
+    errors.startDate = 'Wybierz datę początkową';
+  }
+  if (!values.endDate) {
+    errors.endDate = 'Wybierz datę końcową';
+  }
+  if (
+    values.startDate &&
+    values.endDate &&
+    new Date(values.startDate) > new Date(values.endDate)
+  ) {
+    errors.endDate = 'Data końcowa nie może być przed początkową';
+  }
 
-  if (values.employee?.vacation) {
-    const conflict = values.employee.vacation.some((vac) => {
-      const vacStart = dayjs(vac.startDate);
-      const vacEnd = dayjs(vac.endDate);
-      return (
-        values.startDate!.isSameOrBefore(vacEnd, 'day') &&
-        values.endDate!.isSameOrAfter(vacStart, 'day')
-      );
-    });
-    if (conflict)
-      errors.startDate = errors.endDate =
-        'Pracownik ma już urlop w tym terminie';
+  if (values.employeeId && values.startDate && values.endDate) {
+    const hasConflict = vacations.some(
+      (vac) =>
+        vac.employeeId === values.employeeId &&
+        vac.id !== values.id &&
+        vac.startDate &&
+        vac.endDate &&
+        dayjs(values.startDate).isSameOrBefore(dayjs(vac.endDate), 'day') &&
+        dayjs(values.endDate).isSameOrAfter(dayjs(vac.startDate), 'day')
+    );
+    if (hasConflict) {
+      errors.startDate = 'Pracownik ma już urlop w tym terminie';
+      errors.endDate = 'Pracownik ma już urlop w tym terminie';
+    }
   }
 
   return errors;
+};
+
+const getColorForEmployee = (id: string) => {
+  let hash = 0;
+  for (let i = 0; i < id.length; i++)
+    hash = id.charCodeAt(i) + ((hash << 5) - hash);
+  const r = 150 + (hash % 60),
+    g = 160 + ((hash >> 3) % 60),
+    b = 200 + ((hash >> 6) % 55);
+  const toHex = (x: number) => ('00' + x.toString(16)).slice(-2);
+  return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
 };
 
 // ---------------------
@@ -93,28 +136,22 @@ const Calendar: React.FC = () => {
   const [currentMonth, setCurrentMonth] = useState<Dayjs>(
     dayjs().startOf('month')
   );
-  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(
-    null
-  );
+  const [selectedEmployees, setSelectedEmployees] = useState<Employee[]>([]);
+
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+
   const [startSelecting, setStartSelecting] = useState<Dayjs | null>(null);
 
   const notifications = useNotifications();
   const queryClient = useQueryClient();
-
-  type ActiveDialog =
-    | { type: 'none' }
-    | { type: 'addEvent' }
-    | { type: 'moreEvents'; day: Dayjs }
-    | { type: 'deleteEvent'; event: CalendarEvent };
 
   const [activeDialog, setActiveDialog] = useState<ActiveDialog>({
     type: 'none',
   });
 
   const [formState, setFormState] = useState<EventFormState>({
-    values: { employee: null, startDate: null, endDate: null },
+    values: { employeeId: null, startDate: null, endDate: null },
     errors: {},
-    isSubmitting: false,
   });
 
   useEffect(() => {
@@ -124,77 +161,72 @@ const Calendar: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  const { data: employees = [], isLoading } = useQuery<Employee[]>({
+  const { data: employees = [], isLoading: employeesLoading } = useQuery<
+    Employee[]
+  >({
     queryKey: ['employees'],
     queryFn: getEmployeeList,
+    select: (data) => data.filter((e) => e.status),
+  });
+
+  const { data: vacations = [], isLoading: vacationsLoading } = useQuery<
+    Vacation[]
+  >({
+    queryKey: ['vacations'],
+    queryFn: getVacationList,
   });
 
   // ---------------------
   // Mutacje
   // ---------------------
-  const updateMutation = useMutation({
-    mutationFn: (data: EventFormData) => {
-      if (!data.employee) throw new Error('Brak ID pracownika');
-      const newVacation = {
-        id: crypto.randomUUID(),
-        startDate: data.startDate!.toISOString(),
-        endDate: data.endDate!.toISOString(),
-      };
-      const updatedVacations = [...(data.employee.vacation || []), newVacation];
-      return updateEmployee(data.employee.id, { vacation: updatedVacations });
-    },
+  const createMutation = useMutation({
+    mutationFn: (data: Partial<Vacation>) => createVacation(data as Vacation),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['employees'] });
-      notifications.show('Urlop został zapisany.', {
+      queryClient.invalidateQueries({ queryKey: ['vacations'] });
+      notifications.show('Pomyślnie utworzono urlop.', {
         severity: 'success',
         autoHideDuration: 3000,
       });
       handleModalClose();
     },
-    onError: (error: Error) =>
-      notifications.show(`Błąd zapisu: ${error.message}`, {
+    onError: (error: Error) => {
+      notifications.show(`Błąd: ${error.message}`, {
         severity: 'error',
         autoHideDuration: 3000,
-      }),
+      });
+    },
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (event: CalendarEvent) =>
-      updateEmployee(event.employee.id, {
-        vacation: (
-          employees.find((e) => e.id === event.employee.id)?.vacation || []
-        ).filter((vac) => vac.id !== event.id),
-      }),
+    mutationFn: (event: CalendarEvent) => removeVacation(event.id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['employees'] });
+      queryClient.invalidateQueries({ queryKey: ['vacations'] });
       notifications.show('Urlop został usunięty.', {
         severity: 'success',
         autoHideDuration: 3000,
       });
       handleModalClose();
     },
-    onError: (error: Error) =>
-      notifications.show(`Błąd usuwania: ${error.message}`, {
-        severity: 'error',
-        autoHideDuration: 3000,
-      }),
   });
 
   // ---------------------
   // Generowanie wydarzeń
   // ---------------------
-  const events = useMemo(
-    () =>
-      employees.flatMap((emp) =>
-        (emp.vacation || []).map((vac) => ({
+  const events = useMemo(() => {
+    return vacations
+      .map((vac) => {
+        const emp = employees.find((e) => e.id === vac.employeeId);
+        if (!emp) return null;
+
+        return {
           id: vac.id,
           employee: { id: emp.id, name: emp.name },
-          startDate: dayjs(vac.startDate),
-          endDate: dayjs(vac.endDate),
-        }))
-      ),
-    [employees]
-  );
+          startDate: vac.startDate ? dayjs(vac.startDate) : dayjs(),
+          endDate: vac.endDate ? dayjs(vac.endDate) : dayjs(),
+        } as CalendarEvent;
+      })
+      .filter((e): e is CalendarEvent => e !== null);
+  }, [vacations, employees]);
 
   const filteredEvents = useMemo(() => {
     const sorted = [...events].sort(
@@ -202,10 +234,10 @@ const Calendar: React.FC = () => {
         a.startDate.diff(b.startDate, 'day') ||
         b.endDate.diff(b.startDate, 'day') - a.endDate.diff(b.startDate, 'day')
     );
-    return selectedEmployee
-      ? sorted.filter((e) => e.employee.id === selectedEmployee.id)
-      : sorted;
-  }, [events, selectedEmployee]);
+    if (!selectedEmployees.length) return sorted;
+    const ids = new Set(selectedEmployees.map((e) => e.id));
+    return sorted.filter((e) => ids.has(e.employee.id));
+  }, [events, selectedEmployees]);
 
   const assignSlotsToEvents = (
     events: CalendarEvent[]
@@ -280,21 +312,20 @@ const Calendar: React.FC = () => {
     );
 
   const handleFieldChange = (
-    field: keyof EventFormData,
+    field: keyof EventFormState['values'],
     value: string | Dayjs | null
-  ) =>
+  ) => {
     setFormState((prev) => ({
       ...prev,
       values: { ...prev.values, [field]: value },
       errors: {},
     }));
-
+  };
   const handleModalClose = () => {
     setActiveDialog({ type: 'none' });
     setFormState({
-      values: { employee: null, startDate: null, endDate: null },
+      values: { employeeId: null, startDate: null, endDate: null },
       errors: {},
-      isSubmitting: false,
     });
     setStartSelecting(null);
   };
@@ -302,12 +333,23 @@ const Calendar: React.FC = () => {
   const handleFormSubmit = useCallback(
     async (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
-      const validationErrors = validate(formState.values);
+      const validationErrors = validate(
+        formState.values as Vacation,
+        vacations
+      );
       if (Object.keys(validationErrors).length)
         return setFormState((prev) => ({ ...prev, errors: validationErrors }));
-      updateMutation.mutate(formState.values);
+      createMutation.mutate({
+        ...formState.values,
+        startDate: formState.values.startDate
+          ? formState.values.startDate.toDate()
+          : null,
+        endDate: formState.values.endDate
+          ? formState.values.endDate.toDate()
+          : null,
+      });
     },
-    [formState.values, updateMutation]
+    [formState.values, createMutation]
   );
 
   const handleDayClick = (day: Dayjs) => {
@@ -330,11 +372,11 @@ const Calendar: React.FC = () => {
     setFormState((prev) => ({
       ...prev,
       values: {
-        ...prev.values,
-        employee: employees.find((e) => e.id === event.employee.id) || null,
+        employeeId: event.employee.id,
         startDate: event.startDate,
         endDate: event.endDate,
       },
+      errors: {},
     }));
   };
 
@@ -346,18 +388,10 @@ const Calendar: React.FC = () => {
     );
   };
 
-  const getColorForEmployee = (id: string) => {
-    let hash = 0;
-    for (let i = 0; i < id.length; i++)
-      hash = id.charCodeAt(i) + ((hash << 5) - hash);
-    const r = 150 + (hash % 60),
-      g = 160 + ((hash >> 3) % 60),
-      b = 200 + ((hash >> 6) % 55);
-    const toHex = (x: number) => ('00' + x.toString(16)).slice(-2);
-    return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
-  };
+  // if (isLoading) return <Typography>Ładowanie...</Typography>;
 
-  if (isLoading) return <Typography>Ładowanie...</Typography>;
+  if (employeesLoading || vacationsLoading)
+    return <Typography>Ładowanie...</Typography>;
 
   // ---------------------
   // Render
@@ -365,58 +399,137 @@ const Calendar: React.FC = () => {
   return (
     <Box
       sx={{ padding: { xs: 1, sm: 2, md: 3 } }}
-      className="border-lightGray m-4 rounded-lg border bg-white p-4"
+      // className="border-lightGray m-4 rounded-lg border bg-white p-4"
     >
       {/* --- Nagłówek --- */}
+
       <Stack
         alignItems={'center'}
         direction={'row'}
         flexWrap={'wrap'}
         spacing={1}
-        gap={1}
+        gap={2}
         mb={2}
       >
-        <IconButton onClick={() => handleMonthChange('prev')}>
-          <ChevronLeft />
-        </IconButton>
-        <Button
-          size="small"
-          variant="outlined"
-          onClick={() => handleMonthChange('today')}
+        <Stack
+          alignItems={'center'}
+          direction={'row'}
+          flexWrap={'wrap'}
+          justifyContent={'center'}
+          spacing={1}
+          gap={1}
         >
-          Dziś
-        </Button>
-        <IconButton onClick={() => handleMonthChange('next')}>
-          <ChevronRight />
-        </IconButton>
-        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pl">
-          <DatePicker
-            openTo="month"
-            views={['year', 'month']}
-            sx={{
-              minWidth: 200,
-              '& .MuiPickersSectionList-root': {
-                padding: '7px 0',
-                width: 'auto',
-              },
-            }}
-            value={currentMonth}
-            onChange={(value) => handleMonthChange(value as Dayjs)}
-          />
-        </LocalizationProvider>
-        <FormControl sx={{ minWidth: 200, ml: 2 }}>
-          <Autocomplete
+          <IconButton onClick={() => handleMonthChange('prev')}>
+            <ChevronLeft />
+          </IconButton>
+          <Button
             size="small"
-            options={employees}
-            getOptionLabel={(opt) => opt.name}
-            value={selectedEmployee}
-            onChange={(_, val) => setSelectedEmployee(val)}
-            isOptionEqualToValue={(opt, val) => opt.id === val?.id}
-            renderInput={(params) => (
-              <TextField {...params} label="Filtr pracownika" />
-            )}
-          />
-        </FormControl>
+            variant="outlined"
+            onClick={() => handleMonthChange('today')}
+          >
+            Dziś
+          </Button>
+          <IconButton onClick={() => handleMonthChange('next')}>
+            <ChevronRight />
+          </IconButton>
+          <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pl">
+            <DatePicker
+              openTo="month"
+              views={['year', 'month']}
+              sx={{
+                minWidth: 200,
+                '& .MuiPickersSectionList-root': {
+                  padding: '7px 0',
+                  width: 'auto',
+                },
+              }}
+              value={currentMonth}
+              onChange={(value) => handleMonthChange(value as Dayjs)}
+            />
+          </LocalizationProvider>
+          {/* <FormControl sx={{ minWidth: 200, ml: 2 }}>
+            <Autocomplete
+              size="small"
+              options={employees}
+              getOptionLabel={(opt) => opt.name}
+              value={selectedEmployee}
+              onChange={(_, val) => setSelectedEmployee(val)}
+              isOptionEqualToValue={(opt, val) => opt.id === val?.id}
+              renderInput={(params) => (
+                <TextField {...params} label="Filtr pracownika" />
+              )}
+            />
+          </FormControl> */}
+          <Button
+            variant="outlined"
+            startIcon={<FilterListIcon />}
+            onClick={() => setIsFilterOpen(true)}
+          >
+            Filtr pracowników
+          </Button>
+          <IconButton onClick={() => setSelectedEmployees([])}>
+            <FilterListOffIcon />
+          </IconButton>
+          <Dialog
+            open={isFilterOpen}
+            onClose={() => setIsFilterOpen(false)}
+            maxWidth="sm"
+            fullWidth
+          >
+            <DialogTitle>
+              <Stack
+                direction="row"
+                alignItems="center"
+                justifyContent={'space-between'}
+              >
+                <Typography variant="h6" component="div">
+                  Filtr pracowników
+                </Typography>
+                <IconButton onClick={() => setIsFilterOpen(false)}>
+                  <CloseIcon />
+                </IconButton>
+              </Stack>
+            </DialogTitle>
+            <DialogContent dividers>
+              <FormControl sx={{ width: '100%', maxWidth: '100%' }}>
+                <Autocomplete
+                  size="small"
+                  multiple
+                  id="checkboxes-tags-demo"
+                  options={employees}
+                  disableCloseOnSelect
+                  getOptionLabel={(opt) => opt.name}
+                  value={selectedEmployees}
+                  onChange={(_, newValue) => setSelectedEmployees(newValue)}
+                  isOptionEqualToValue={(option, value) =>
+                    option.id === value?.id
+                  }
+                  renderOption={(props, option, { selected }) => {
+                    const { key, ...optionProps } = props;
+                    return (
+                      <li key={key} {...optionProps}>
+                        <Checkbox checked={selected} />
+                        {option.name}
+                      </li>
+                    );
+                  }}
+                  renderInput={(params) => (
+                    <TextField {...params} label="Pracownicy" />
+                  )}
+                />
+              </FormControl>
+            </DialogContent>
+            {/* <DialogActions>
+              <Button onClick={() => setSelectedEmployees([])}>Wyczyść</Button>
+              <Button
+                onClick={() => setIsFilterOpen(false)}
+                variant="contained"
+              >
+                Zastosuj
+              </Button>
+            </DialogActions> */}
+          </Dialog>
+        </Stack>
         <Typography
           variant="h5"
           component="h1"
@@ -424,11 +537,13 @@ const Calendar: React.FC = () => {
           sx={{
             ml: { xs: 0, sm: 2 },
             flexGrow: 1,
-            textAlign: { xs: 'center', md: 'right' },
+            textAlign: { xs: 'center', lg: 'right' },
           }}
           textTransform={'capitalize'}
         >
-          {currentMonth.format('MMMM YYYY')}
+          <span className="border-dark rounded-lg border px-4 py-1">
+            {currentMonth.format('MMMM YYYY')}
+          </span>
         </Typography>
       </Stack>
       {/* --- Siatka --- */}
@@ -446,7 +561,7 @@ const Calendar: React.FC = () => {
               <Typography
                 variant="caption"
                 color="text.secondary"
-                sx={{ fontWeight: 'bold' }}
+                sx={{ fontWeight: '700' }}
               >
                 {day}
               </Typography>
@@ -457,9 +572,13 @@ const Calendar: React.FC = () => {
             week.map((day, di) => {
               const isCurrentMonth = day.isSame(currentMonth, 'month');
 
-              const dayEvents = filteredEvents.filter((e) =>
-                day.isBetween(e.startDate, e.endDate, 'day', '[]')
-              );
+              const dayEvents = filteredEvents.filter((e) => {
+                return day.isBetween(e.startDate, e.endDate, 'day', '[]');
+              });
+
+              // console.log(filteredEvents);
+
+              const isToday = day.isSame(dayjs(), 'day');
 
               return (
                 <Grid
@@ -476,12 +595,32 @@ const Calendar: React.FC = () => {
                     ':hover': {
                       background: startSelecting ? 'lightskyblue' : '#f0f0f0',
                     },
+                    position: 'relative',
+                    '&::after': {
+                      content: '""',
+                      display: isToday ? 'block' : 'none',
+                      width: '10px',
+                      height: '10px',
+                      right: 10,
+                      top: 10,
+                      position: 'absolute',
+                      borderRadius: '50%',
+                      border: '1px solid #777',
+                      bgcolor: '#ffd85f',
+                      boxSizing: 'content-box',
+                      zIndex: 5,
+                      pointerEvents: 'none',
+                    },
                   }}
                   onClick={() => handleDayClick(day)}
                 >
                   <Typography
                     textAlign={'center'}
-                    sx={{ paddingTop: 0.15, opacity: isCurrentMonth ? 1 : 0.4 }}
+                    sx={{
+                      paddingTop: 0.15,
+                      opacity: isCurrentMonth ? 1 : 0.4,
+                      fontWeight: '500',
+                    }}
                     variant="body2"
                   >
                     {day.date()}
@@ -498,12 +637,25 @@ const Calendar: React.FC = () => {
 
                       return (
                         <Tooltip
+                          arrow
                           placement="top"
                           key={index}
                           title={ev.employee.name}
                           onClick={(e) => {
                             e.stopPropagation();
                             handleEventClick(ev);
+                          }}
+                          slotProps={{
+                            popper: {
+                              modifiers: [
+                                {
+                                  name: 'offset',
+                                  options: {
+                                    offset: [0, -5],
+                                  },
+                                },
+                              ],
+                            },
                           }}
                         >
                           <Box
@@ -523,12 +675,18 @@ const Calendar: React.FC = () => {
                               overflow: 'hidden',
                               textOverflow: 'ellipsis',
                               whiteSpace: 'nowrap',
-                              color: isStart ? 'dark' : 'transparent',
+                              color: isStart || isEnd ? 'dark' : 'transparent',
+                              // textShadow:
+                              //   isStart || isEnd
+                              //     ? '1px 0 #fff, -1px 0 #fff, 0 1px #fff, 0 -1px #fff'
+                              //     : undefined,
                               borderTopLeftRadius: isStart ? 10 : 0,
                               borderBottomLeftRadius: isStart ? 10 : 0,
                               borderTopRightRadius: isEnd ? 10 : 0,
                               borderBottomRightRadius: isEnd ? 10 : 0,
                               cursor: 'pointer',
+                              fontWeight: '400',
+                              textAlign: isEnd ? 'right' : 'left',
                             }}
                           >
                             {ev.employee.name}
@@ -607,9 +765,13 @@ const Calendar: React.FC = () => {
                 readOnly={activeDialog.type === 'deleteEvent'}
                 options={employees || []}
                 getOptionLabel={(option) => option.name}
-                value={formState.values.employee || null}
+                value={
+                  employees.find(
+                    (emp) => emp.id === formState.values.employeeId
+                  ) || null
+                }
                 onChange={(_, newValue) =>
-                  handleFieldChange('employee', newValue)
+                  handleFieldChange('employeeId', newValue ? newValue.id : null)
                 }
                 isOptionEqualToValue={(option, value) => option.id === value.id}
                 renderInput={(params) => (
@@ -618,11 +780,11 @@ const Calendar: React.FC = () => {
                     label="Pracownik"
                     required
                     error={
-                      !!formState.errors.employee ||
+                      !!formState.errors.employeeId ||
                       !!formState.errors.startDate ||
                       !!formState.errors.endDate
                     }
-                    helperText={formState.errors.employee}
+                    helperText={formState.errors.employeeId}
                     sx={{ my: 1 }}
                   />
                 )}
@@ -650,10 +812,10 @@ const Calendar: React.FC = () => {
                 </Alert>
               )}
             </DialogContent>
-            <DialogActions>
+            <DialogActions sx={{ px: 3, py: 2 }}>
               {activeDialog.type === 'deleteEvent' ? (
                 <Button
-                  variant="contained"
+                  variant="outlined"
                   color="error"
                   onClick={() => {
                     deleteMutation.mutate(activeDialog.event);
@@ -665,9 +827,10 @@ const Calendar: React.FC = () => {
                 <Button
                   type="submit"
                   variant="contained"
-                  disabled={formState.isSubmitting}
+                  //disabled={formState.isSubmitting}
                 >
-                  {formState.isSubmitting ? 'Zapisywanie...' : 'Zapisz'}
+                  Zapisz
+                  {/* {formState.isSubmitting ? 'Zapisywanie...' : 'Zapisz'} */}
                 </Button>
               )}
             </DialogActions>
@@ -697,7 +860,8 @@ const Calendar: React.FC = () => {
                   'day',
                   '[]'
                 ) &&
-                (!selectedEmployee || e.employee?.id === selectedEmployee.id)
+                (selectedEmployees.length === 0 ||
+                  selectedEmployees.some((emp) => emp.id === e.employee.id))
             )
             .map((event) => (
               <Box

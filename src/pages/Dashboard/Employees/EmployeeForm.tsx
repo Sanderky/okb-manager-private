@@ -20,6 +20,8 @@ import { PreviewDialog } from '../../../components/fileBrowser/FilePreviewDialog
 import { type LoadingState } from './useAttachment';
 import type { FileStateMap } from './EmployeeEdit';
 import { handleDownloadAttachment } from './EmployeeEditHelpers';
+import { useNavigate, useParams } from 'react-router';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 export interface EmployeeFormState {
   values: Partial<Omit<Employee, 'id'>>;
@@ -28,7 +30,7 @@ export interface EmployeeFormState {
 
 export type DateWithPermanent = { date: string | null; permanent: boolean };
 
-export type FormFieldValue = string | boolean | null | DateWithPermanent;
+export type FormFieldValue = string | Date | boolean | null | DateWithPermanent;
 
 export interface EmployeeFormProps {
   formId?: string;
@@ -50,6 +52,7 @@ type FieldType = 'text' | 'email' | 'date' | 'boolean' | 'object';
 
 interface EmployeeField {
   key: keyof EmployeeFormState['values'];
+  // key: keyof Employee;
   label: string;
   type: FieldType;
 }
@@ -143,7 +146,7 @@ export default function EmployeeForm(props: EmployeeFormProps) {
     onSubmit,
     onReset,
     isSubmitting,
-    isFileLoading,
+    isFileLoading = false,
     isEditForm,
     onFileChange,
   } = props;
@@ -155,16 +158,16 @@ export default function EmployeeForm(props: EmployeeFormProps) {
   const [isPreviewOpen, setIsPreviewOpen] = useState<boolean>(false);
 
   const isFormLoading = isFileLoading !== false || isSubmitting;
+
+  const { employeeId } = useParams<{ employeeId: string }>();
+  const navigate = useNavigate();
   const handleFieldChange = React.useCallback(
     (
       name: keyof EmployeeFormState['values'],
       value: FormFieldValue | object | null
     ) => {
       if (dayjs.isDayjs(value)) {
-        onFieldChange(
-          name,
-          value.isValid() ? value.format('YYYY-MM-DD') : null
-        );
+        onFieldChange(name, value.toDate() as FormFieldValue);
       } else {
         onFieldChange(name, value as FormFieldValue);
       }
@@ -172,29 +175,12 @@ export default function EmployeeForm(props: EmployeeFormProps) {
     [onFieldChange]
   );
 
-  const handleDateFieldChange = (
-    name: keyof EmployeeFormState['values'],
-    newValue: Dayjs | null
-  ) => {
-    handleFieldChange(name, newValue?.format('YYYY-MM-DD') ?? null);
-  };
-
-  const handlePermanentChange = (
-    name: keyof EmployeeFormState['values'],
-    checked: boolean
-  ) => {
-    handleFieldChange(name, { date: null, permanent: checked });
-  };
-
-  const handlePermanentDateFieldChange = (
-    name: keyof EmployeeFormState['values'],
-    newValue: Dayjs | null
-  ) => {
-    handleFieldChange(name, {
-      date: newValue?.format('YYYY-MM-DD') ?? null,
-      permanent: false,
-    });
-  };
+  // const handlePermanentChange = (
+  //   name: keyof EmployeeFormState['values'],
+  //   checked: boolean
+  // ) => {
+  //   handleFieldChange(name, { ...formValues[name], permanent: checked });
+  // };
 
   const handleOpenPreview = useCallback((file: FileItem | null | undefined) => {
     if (!file) return;
@@ -202,18 +188,26 @@ export default function EmployeeForm(props: EmployeeFormProps) {
     setIsPreviewOpen(true);
   }, []);
 
-  const getDateValue = (
-    key: keyof EmployeeFormState['values'],
-    values: EmployeeFormState['values']
-  ) => {
-    const val = values[key];
-    if (!val) return null;
+  const handleBack = React.useCallback(() => {
+    if (employeeId) {
+      navigate(`/employees/${employeeId}`);
+    } else {
+      navigate('/employees');
+    }
+  }, [navigate, employeeId]);
 
-    if (typeof val === 'string') return dayjs(val);
-    if (typeof val === 'object' && 'date' in val && val.date)
-      return dayjs(val.date);
-    return null;
-  };
+  // const getDateValue = (
+  //   key: keyof EmployeeFormState['values'],
+  //   values: EmployeeFormState['values']
+  // ) => {
+  //   const val = values[key];
+  //   if (!val) return null;
+
+  //   if (typeof val === 'string') return dayjs(val);
+  //   if (typeof val === 'object' && 'date' in val && val.date)
+  //     return dayjs(val.date);
+  //   return null;
+  // };
 
   const employeeFields: EmployeeField[] = [
     { key: 'name', label: 'Imię i nazwisko', type: 'text' },
@@ -225,12 +219,12 @@ export default function EmployeeForm(props: EmployeeFormProps) {
 
   const contractFields: EmployeeField[] = [
     { key: 'contractStartDate', label: 'Data rozpoczęcia umowy', type: 'date' },
-    { key: 'contractEndDate', label: 'Data wygaśnięcia umowy', type: 'object' },
+    { key: 'contractEndDate', label: 'Data wygaśnięcia umowy', type: 'date' },
   ];
 
   const a1Fields: EmployeeField[] = [
     { key: 'a1StartDate', label: 'Data rozpoczęcia umowy A1', type: 'date' },
-    { key: 'a1EndDate', label: 'Data wygaśnięcia umowy A1', type: 'object' },
+    { key: 'a1EndDate', label: 'Data wygaśnięcia umowy A1', type: 'date' },
   ];
 
   const [cleared, setCleared] = useState<boolean>(false);
@@ -306,44 +300,51 @@ export default function EmployeeForm(props: EmployeeFormProps) {
               attachmentType="contractAttachment"
               onOpenPreview={handleOpenPreview}
             />
-            {contractFields.map(({ key, label }) => (
-              <Grid size={{ xs: 12, md: 6 }} key={key}>
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DatePicker
-                    label={label}
-                    value={getDateValue(key, formValues)}
-                    onChange={(newValue) =>
-                      key === 'contractEndDate'
-                        ? handlePermanentDateFieldChange(key, newValue)
-                        : handleDateFieldChange(key, newValue)
-                    }
-                    disabled={
-                      key === 'contractEndDate' &&
-                      formValues.contractEndDate?.permanent
-                    }
-                    slotProps={{
-                      textField: {
-                        fullWidth: true,
-                        name: key,
-                        error: Boolean(formErrors[key]),
-                        helperText: formErrors[key],
-                      },
-                      field: {
-                        clearable: true,
-                        onClear: () => setCleared(true),
-                      },
-                    }}
-                  />
-                </LocalizationProvider>
-              </Grid>
-            ))}
+            {contractFields.map(({ key, label }) => {
+              let val;
+              if (formValues[key] instanceof Date) {
+                val = dayjs(formValues[key] as string);
+              } else {
+                val = null;
+              }
+              return (
+                <Grid size={{ xs: 12, md: 6 }} key={key}>
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      label={label}
+                      value={val}
+                      // value={null}
+                      onChange={(newValue) => {
+                        handleFieldChange(key, newValue);
+                      }}
+                      disabled={
+                        key === 'contractEndDate' &&
+                        formValues.contractISPermanent
+                      }
+                      slotProps={{
+                        textField: {
+                          fullWidth: true,
+                          name: key,
+                          error: Boolean(formErrors[key]),
+                          helperText: formErrors[key],
+                        },
+                        field: {
+                          clearable: true,
+                          onClear: () => setCleared(true),
+                        },
+                      }}
+                    />
+                  </LocalizationProvider>
+                </Grid>
+              );
+            })}
             <Grid size={{ xs: 12 }} mt={-1}>
               <FormControlLabel
                 control={
                   <Checkbox
-                    checked={formValues.contractEndDate?.permanent ?? false}
+                    checked={formValues.contractISPermanent ?? false}
                     onChange={(e) =>
-                      handlePermanentChange('contractEndDate', e.target.checked)
+                      handleFieldChange('contractISPermanent', e.target.checked)
                     }
                   />
                 }
@@ -363,49 +364,39 @@ export default function EmployeeForm(props: EmployeeFormProps) {
               attachmentType="a1Attachment"
               onOpenPreview={handleOpenPreview}
             />
-            {a1Fields.map(({ key, label }) => (
-              <Grid size={{ xs: 12, md: 6 }} key={key}>
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DatePicker
-                    label={label}
-                    value={getDateValue(key, formValues)}
-                    onChange={(newValue) =>
-                      key === 'contractEndDate'
-                        ? handlePermanentDateFieldChange(key, newValue)
-                        : handleDateFieldChange(key, newValue)
-                    }
-                    disabled={
-                      key === 'a1EndDate' && formValues.a1EndDate?.permanent
-                    }
-                    slotProps={{
-                      textField: {
-                        fullWidth: true,
-                        name: key,
-                        error: Boolean(formErrors[key]),
-                        helperText: formErrors[key],
-                      },
-                      field: {
-                        clearable: true,
-                        onClear: () => setCleared(true),
-                      },
-                    }}
-                  />
-                </LocalizationProvider>
-              </Grid>
-            ))}
-            <Grid size={{ xs: 12 }} mt={-1}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={formValues.a1EndDate?.permanent ?? false}
-                    onChange={(e) =>
-                      handlePermanentChange('a1EndDate', e.target.checked)
-                    }
-                  />
-                }
-                label="Na czas nieokreślony"
-              />
-            </Grid>
+            {a1Fields.map(({ key, label }) => {
+              let val;
+              if (formValues[key] instanceof Date) {
+                val = dayjs(formValues[key] as string);
+              } else {
+                val = null;
+              }
+              return (
+                <Grid size={{ xs: 12, md: 6 }} key={key}>
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      label={label}
+                      value={val}
+                      onChange={(newValue) => {
+                        handleFieldChange(key, newValue);
+                      }}
+                      slotProps={{
+                        textField: {
+                          fullWidth: true,
+                          name: key,
+                          error: Boolean(formErrors[key]),
+                          helperText: formErrors[key],
+                        },
+                        field: {
+                          clearable: true,
+                          onClear: () => setCleared(true),
+                        },
+                      }}
+                    />
+                  </LocalizationProvider>
+                </Grid>
+              );
+            })}
           </Grid>
           <Divider sx={{ width: '100%' }} className="my-3" />
           {isEditForm && (
@@ -464,6 +455,14 @@ export default function EmployeeForm(props: EmployeeFormProps) {
                   : 'Usuwanie plików...'}
             </Typography>
           )}
+          <Button
+            variant="outlined"
+            onClick={handleBack}
+            startIcon={<ArrowBackIcon />}
+            type="reset"
+          >
+            Anuluj
+          </Button>
         </Stack>
       </FormGroup>
       <PreviewDialog

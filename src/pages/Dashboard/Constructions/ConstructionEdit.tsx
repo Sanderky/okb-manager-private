@@ -16,8 +16,8 @@ import ConstructionForm, {
   validate,
 } from './ConstructionForm';
 import PageContainer from '../../../components/PageContainer';
-import { AlertTitle, Divider, Stack, Typography } from '@mui/material';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { AlertTitle, Stack, Typography } from '@mui/material';
+
 import { useCallback, useEffect } from 'react';
 import { useDialogs } from '../../../hooks/useDialogs/useDialogs';
 import { Grid } from '@mui/system';
@@ -122,9 +122,13 @@ export default function ConstructionEdit() {
     if (!construction) return;
 
     const confirmed = await dialogs.confirm(
-      <Stack direction="column" spacing={2}>
+      <Stack
+        direction="column"
+        // sx={{ maxWidth: '100%', overflow: 'hidden' }}
+        spacing={2}
+      >
         <div>
-          <Typography variant="body1" className="mb-1 text-gray-600">
+          <Typography variant="body1" className="mb-1 text-gray-600" noWrap>
             Czy na pewno chcesz usunąć <strong>{construction.name}</strong>?
           </Typography>
           <Typography variant="body1" className="text-gray-600">
@@ -156,10 +160,6 @@ export default function ConstructionEdit() {
     }
   }, [construction, dialogs, deleteMutation]);
 
-  const handleBack = React.useCallback(() => {
-    navigate(`/constructions/${constructionId}`);
-  }, [navigate, constructionId]);
-
   const renderContent = () => {
     if (isLoading || updateMutation.isPending || deleteMutation.isPending) {
       return (
@@ -190,7 +190,7 @@ export default function ConstructionEdit() {
         <Grid size={{ xs: 12, lg: 8, xl: 9 }}>
           <Box
             sx={{ width: '100%', maxWidth: { sm: '100%', md: '1790px' } }}
-            className="border-lightGray rounded-lg border bg-white p-6"
+            className="border-lightGray rounded-lg border bg-white px-3 pt-4 pb-6 md:px-6"
           >
             <ConstructionForm
               formState={formState}
@@ -250,18 +250,6 @@ export default function ConstructionEdit() {
         },
         { title: 'Edytuj' },
       ]}
-      actions={
-        <Stack direction="row" alignItems="center" spacing={3}>
-          <Button
-            variant="outlined"
-            onClick={handleBack}
-            startIcon={<ArrowBackIcon />}
-            disabled={updateMutation.isPending || deleteMutation.isPending}
-          >
-            Anuluj
-          </Button>
-        </Stack>
-      }
     >
       <Box sx={{ display: 'flex', flex: 1, width: '100%' }}>
         {renderContent()}

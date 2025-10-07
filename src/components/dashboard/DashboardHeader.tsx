@@ -23,6 +23,8 @@ import {
 
 import Logout from '@mui/icons-material/Logout';
 
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+
 const AppBar = styled(MuiAppBar)(({ theme }) => ({
   borderWidth: 0,
   borderBottomWidth: 1,
@@ -110,7 +112,11 @@ export default function DashboardHeader({
   // const open = Boolean(anchorEl);
 
   return (
-    <AppBar color="inherit" position="absolute" sx={{ displayPrint: 'none' }}>
+    <AppBar
+      color="inherit"
+      position="absolute"
+      sx={{ displayPrint: 'none', overflowX: 'hidden' }}
+    >
       <Toolbar sx={{ backgroundColor: 'inherit', mx: { xs: -0.75, sm: -1 } }}>
         <Stack
           direction="row"
@@ -163,13 +169,11 @@ export default function DashboardHeader({
                   size="small"
                   sx={{ ml: 2 }}
                 >
-                  <Avatar sx={{ width: 32, height: 32 }}>
-                    {user?.email?.charAt(0)}
-                  </Avatar>
+                  <AccountCircleIcon className="text-dark text-3xl" />
                   <Typography
                     variant="body2"
                     sx={{ ml: 1, display: { xs: 'none', sm: 'block' } }}
-                    className="font-medium text-gray-500"
+                    className="text-dark font-medium"
                   >
                     {user?.email}
                   </Typography>
@@ -186,12 +190,6 @@ export default function DashboardHeader({
                       overflow: 'visible',
                       filter: 'drop-shadow(0px 0px 2px rgba(0,0,0,0.32))',
                       mt: 1.5,
-                      '& .MuiAvatar-root': {
-                        width: 32,
-                        height: 32,
-                        ml: -0.5,
-                        mr: 1,
-                      },
                       '&::before': {
                         content: '""',
                         display: 'block',
@@ -210,7 +208,11 @@ export default function DashboardHeader({
                 transformOrigin={{ horizontal: 'right', vertical: 'top' }}
                 anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
               >
-                <MenuItem onClick={handleLogout} className="py-0">
+                <MenuItem
+                  onClick={handleLogout}
+                  className="py-0"
+                  sx={{ minHeight: 24 }}
+                >
                   <ListItemIcon>
                     <Logout fontSize="small" />
                   </ListItemIcon>

@@ -168,13 +168,17 @@ export default function EmployeeEdit() {
           )
         );
 
-        const updateData = {
+        const updateData: Partial<Employee> = {
           ...formState.values,
           contractAttachment: attachmentResults[0],
           a1Attachment: attachmentResults[1],
+          contractStartDate: formState.values.contractStartDate ?? null,
+          a1StartDate: formState.values.a1StartDate ?? null,
+          contractEndDate: formState.values.contractEndDate ?? null,
+          a1EndDate: formState.values.a1EndDate ?? null,
         };
         setIsSubmitting(true);
-
+        console.log('updateData', updateData);
         await updateMutation.mutateAsync(updateData);
 
         notifications.show('Zmiany zostały pomyślnie zapisane.', {
@@ -188,6 +192,7 @@ export default function EmployeeEdit() {
           error instanceof Error ? error.message : 'Wystąpił nieznany błąd';
         notifications.show(`Błąd zapisu: ${errorMessage}`, {
           severity: 'error',
+          autoHideDuration: 3000,
         });
       } finally {
         setIsSubmitting(false);
@@ -250,16 +255,13 @@ export default function EmployeeEdit() {
           error instanceof Error ? error.message : 'Wystąpił nieznany błąd';
         notifications.show(`Błąd usuwania: ${errorMessage}`, {
           severity: 'error',
+          autoHideDuration: 3000,
         });
       } finally {
         setIsDeleting(false);
       }
     }
   }, [employee, dialogs, deleteMutation, notifications, navigate]);
-
-  const handleBack = React.useCallback(() => {
-    navigate(`/employees/${employeeId}`);
-  }, [navigate, employeeId]);
 
   const isFormLoading =
     attachmentLoading !== false || isSubmitting || isDeleting;
@@ -368,18 +370,6 @@ export default function EmployeeEdit() {
         },
         { title: 'Edytuj' },
       ]}
-      actions={
-        <Stack direction="row" alignItems="center" spacing={3}>
-          <Button
-            variant="outlined"
-            onClick={handleBack}
-            startIcon={<ArrowBackIcon />}
-            disabled={isFormLoading}
-          >
-            Anuluj
-          </Button>
-        </Stack>
-      }
     >
       <Box sx={{ display: 'flex', flex: 1, width: '100%' }}>
         {renderContent()}
