@@ -1,3 +1,5 @@
+import type { Timestamp } from 'firebase/firestore';
+
 export type EmployeeAttachment =
   | 'idAttachment'
   | 'contractAttachment'
@@ -50,9 +52,16 @@ export interface FolderItem {
 
 export interface Vacation {
   id: string;
+  employeeId: string;
+  date: Timestamp | null;
+  yearMonth: string;
+}
+
+export interface Schedule {
+  id: string;
   employeeId: string | null;
-  startDate: Date | null;
-  endDate: Date | null;
+  constructionId: string | null;
+  date: Timestamp | null;
 }
 
 export type File = FileItem | FolderItem;

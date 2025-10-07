@@ -41,10 +41,13 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 
 import FilterListOffIcon from '@mui/icons-material/FilterListOff';
 import {
+  batchCreateVacations,
   createVacation,
   getVacationList,
+  getVacationListForMonths,
   removeVacation,
 } from '../../../api/vacations';
+import { Timestamp } from 'firebase/firestore';
 
 dayjs.extend(isSameOrBefore);
 dayjs.extend(isSameOrAfter);
@@ -56,6 +59,7 @@ interface CalendarEvent {
   employee: { id: string; name: string };
   startDate: Dayjs;
   endDate: Dayjs;
+  vacationIds: string[];
 }
 
 interface EventFormState {
@@ -77,44 +81,48 @@ type ActiveDialog =
 // Walidacja formularza
 // ---------------------
 const validate = (
-  values: Vacation,
+  values: {
+    employeeId: string | null;
+    startDate: Dayjs | null;
+    endDate: Dayjs | null;
+  },
   vacations: Vacation[]
-): Partial<Record<keyof Vacation, string>> => {
-  const errors: Partial<Record<keyof Vacation, string>> = {};
-
-  if (!values.employeeId) {
-    errors.employeeId = 'Wybierz pracownika';
-  }
-  if (!values.startDate) {
-    errors.startDate = 'Wybierz datę początkową';
-  }
-  if (!values.endDate) {
-    errors.endDate = 'Wybierz datę końcową';
-  }
+): Partial<Record<'employeeId' | 'startDate' | 'endDate', string>> => {
+  const errors: Partial<
+    Record<'employeeId' | 'startDate' | 'endDate', string>
+  > = {};
+  if (!values.employeeId) errors.employeeId = 'Wybierz pracownika';
+  if (!values.startDate) errors.startDate = 'Wybierz datę początkową';
+  if (!values.endDate) errors.endDate = 'Wybierz datę końcową';
   if (
     values.startDate &&
     values.endDate &&
-    new Date(values.startDate) > new Date(values.endDate)
+    values.startDate.isAfter(values.endDate, 'day')
   ) {
     errors.endDate = 'Data końcowa nie może być przed początkową';
   }
-
   if (values.employeeId && values.startDate && values.endDate) {
-    const hasConflict = vacations.some(
-      (vac) =>
-        vac.employeeId === values.employeeId &&
-        vac.id !== values.id &&
-        vac.startDate &&
-        vac.endDate &&
-        dayjs(values.startDate).isSameOrBefore(dayjs(vac.endDate), 'day') &&
-        dayjs(values.endDate).isSameOrAfter(dayjs(vac.startDate), 'day')
-    );
-    if (hasConflict) {
+    let conflict = false;
+    let d = values.startDate;
+    while (!d.isAfter(values.endDate, 'day')) {
+      if (
+        vacations.some(
+          (v) =>
+            v.employeeId === values.employeeId &&
+            v.date &&
+            dayjs(v.date.toDate()).isSame(d, 'day')
+        )
+      ) {
+        conflict = true;
+        break;
+      }
+      d = d.add(1, 'day');
+    }
+    if (conflict) {
       errors.startDate = 'Pracownik ma już urlop w tym terminie';
       errors.endDate = 'Pracownik ma już urlop w tym terminie';
     }
   }
-
   return errors;
 };
 
@@ -169,18 +177,20 @@ const Calendar: React.FC = () => {
     select: (data) => data.filter((e) => e.status),
   });
 
-  const { data: vacations = [], isLoading: vacationsLoading } = useQuery<
-    Vacation[]
-  >({
-    queryKey: ['vacations'],
-    queryFn: getVacationList,
-  });
-
   // ---------------------
   // Mutacje
   // ---------------------
   const createMutation = useMutation({
-    mutationFn: (data: Partial<Vacation>) => createVacation(data as Vacation),
+    mutationFn: async ({
+      employeeId,
+      startDate,
+      endDate,
+    }: {
+      employeeId: string;
+      startDate: Dayjs;
+      endDate: Dayjs;
+    }) =>
+      batchCreateVacations(employeeId, startDate.toDate(), endDate.toDate()),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['vacations'] });
       notifications.show('Pomyślnie utworzono urlop.', {
@@ -198,7 +208,9 @@ const Calendar: React.FC = () => {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (event: CalendarEvent) => removeVacation(event.id),
+    mutationFn: async (event: CalendarEvent) => {
+      await Promise.all(event.vacationIds.map((id) => removeVacation(id)));
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['vacations'] });
       notifications.show('Urlop został usunięty.', {
@@ -209,23 +221,65 @@ const Calendar: React.FC = () => {
     },
   });
 
+  const getThreeMonthKeys = (month: Dayjs): string[] => {
+    return [-1, 0, 1].map((offset) => {
+      const target = month.add(offset, 'month');
+      return `${target.year()}-${(target.month() + 1).toString().padStart(2, '0')}`;
+    });
+  };
+
+  const visibleMonths = useMemo(
+    () => getThreeMonthKeys(currentMonth),
+    [currentMonth]
+  );
+
+  const { data: vacations = [], isLoading: vacationsLoading } = useQuery<
+    Vacation[]
+  >({
+    queryKey: ['vacations', visibleMonths],
+    queryFn: () => getVacationListForMonths(visibleMonths),
+  });
+
   // ---------------------
   // Generowanie wydarzeń
   // ---------------------
   const events = useMemo(() => {
-    return vacations
-      .map((vac) => {
-        const emp = employees.find((e) => e.id === vac.employeeId);
-        if (!emp) return null;
+    const sorted = [...vacations]
+      .filter((v) => v.employeeId && v.date)
+      .sort((a, b) => {
+        if (a.employeeId !== b.employeeId)
+          return a.employeeId.localeCompare(b.employeeId);
+        return dayjs(a.date!.toDate()).diff(dayjs(b.date!.toDate()), 'day');
+      });
 
-        return {
-          id: vac.id,
+    const result: CalendarEvent[] = [];
+    let current: CalendarEvent | null = null;
+
+    for (const vac of sorted) {
+      const emp = employees.find((e) => e.id === vac.employeeId);
+      if (!emp) continue;
+      const date = dayjs(vac.date!.toDate());
+
+      if (
+        current &&
+        current.employee.id === emp.id &&
+        date.diff(current.endDate, 'day') === 1
+      ) {
+        current.endDate = date;
+        current.vacationIds.push(vac.id);
+      } else {
+        if (current) result.push(current);
+        current = {
+          id: `${emp.id}_${date.format('YYYYMMDD')}`,
           employee: { id: emp.id, name: emp.name },
-          startDate: vac.startDate ? dayjs(vac.startDate) : dayjs(),
-          endDate: vac.endDate ? dayjs(vac.endDate) : dayjs(),
-        } as CalendarEvent;
-      })
-      .filter((e): e is CalendarEvent => e !== null);
+          startDate: date,
+          endDate: date,
+          vacationIds: [vac.id],
+        };
+      }
+    }
+    if (current) result.push(current);
+    return result;
   }, [vacations, employees]);
 
   const filteredEvents = useMemo(() => {
@@ -333,23 +387,20 @@ const Calendar: React.FC = () => {
   const handleFormSubmit = useCallback(
     async (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
-      const validationErrors = validate(
-        formState.values as Vacation,
-        vacations
-      );
+      const { employeeId, startDate, endDate } = formState.values;
+      const validationErrors = validate(formState.values, vacations);
       if (Object.keys(validationErrors).length)
         return setFormState((prev) => ({ ...prev, errors: validationErrors }));
-      createMutation.mutate({
-        ...formState.values,
-        startDate: formState.values.startDate
-          ? formState.values.startDate.toDate()
-          : null,
-        endDate: formState.values.endDate
-          ? formState.values.endDate.toDate()
-          : null,
-      });
+
+      if (employeeId && startDate && endDate) {
+        await createMutation.mutateAsync({
+          employeeId,
+          startDate,
+          endDate,
+        });
+      }
     },
-    [formState.values, createMutation]
+    [formState.values, createMutation, vacations]
   );
 
   const handleDayClick = (day: Dayjs) => {
@@ -460,16 +511,29 @@ const Calendar: React.FC = () => {
               )}
             />
           </FormControl> */}
-          <Button
-            variant="outlined"
-            startIcon={<FilterListIcon />}
-            onClick={() => setIsFilterOpen(true)}
-          >
-            Filtr pracowników
-          </Button>
-          <IconButton onClick={() => setSelectedEmployees([])}>
-            <FilterListOffIcon />
-          </IconButton>
+          <Stack direction={'row'} alignItems={'center'} spacing={2}>
+            <Button
+              variant="outlined"
+              startIcon={
+                <FilterListIcon
+                  sx={{
+                    marginRight: {
+                      xs: '-8px !important',
+                      md: '.25rem !important',
+                    },
+                  }}
+                />
+              }
+              onClick={() => setIsFilterOpen(true)}
+            >
+              <Typography sx={{ display: { xs: 'none', md: 'block' } }}>
+                Filtr pracowników
+              </Typography>
+            </Button>
+            <IconButton onClick={() => setSelectedEmployees([])}>
+              <FilterListOffIcon />
+            </IconButton>
+          </Stack>
           <Dialog
             open={isFilterOpen}
             onClose={() => setIsFilterOpen(false)}
@@ -599,10 +663,10 @@ const Calendar: React.FC = () => {
                     '&::after': {
                       content: '""',
                       display: isToday ? 'block' : 'none',
-                      width: '10px',
-                      height: '10px',
-                      right: 10,
-                      top: 10,
+                      width: { xs: '5px', md: '10px' },
+                      height: { xs: '5px', md: '10px' },
+                      right: { xs: '5px', md: '10px' },
+                      top: { xs: '5px', md: '10px' },
                       position: 'absolute',
                       borderRadius: '50%',
                       border: '1px solid #777',

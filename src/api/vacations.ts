@@ -6,9 +6,43 @@ import {
   doc,
   updateDoc,
   deleteDoc,
+  writeBatch,
+  Timestamp,
+  query,
+  where,
 } from 'firebase/firestore';
 import { db } from '../firebase';
 import type { Vacation } from '../types';
+
+export const batchCreateVacations = async (
+  employeeId: string,
+  startDate: Date,
+  endDate: Date
+) => {
+  const batch = writeBatch(db);
+  const vacationRef = collection(db, 'vacations');
+
+  let currentDate = new Date(startDate.getTime());
+
+  while (currentDate <= endDate) {
+    const month = (currentDate.getMonth() + 1).toString().padStart(2, '0');
+    const year = currentDate.getFullYear();
+    const yearMonth = `${year}-${month}`;
+
+    const newVacationDocument = {
+      employeeId: employeeId,
+      date: Timestamp.fromDate(new Date(currentDate)),
+      yearMonth: yearMonth,
+    };
+
+    const newDocRef = doc(vacationRef);
+    batch.set(newDocRef, newVacationDocument);
+
+    currentDate.setDate(currentDate.getDate() + 1);
+  }
+
+  await batch.commit();
+};
 
 export async function createVacation(data: Vacation) {
   try {
@@ -50,8 +84,6 @@ export async function getVacationList(): Promise<Vacation[]> {
     return {
       id: doc.id,
       ...data,
-      startDate: data.startDate?.toDate(),
-      endDate: data.endDate?.toDate(),
     } as Vacation;
   });
 }
@@ -62,4 +94,23 @@ export async function getVacation(id: string): Promise<Vacation | null> {
     return { id: vacationDoc.id, ...vacationDoc.data() } as Vacation;
   }
   return null;
+}
+
+export async function getVacationListForMonths(
+  monthKeys: string[]
+): Promise<Vacation[]> {
+  if (!monthKeys.length) return [];
+  // Firestore 'in' obsługuje max 10 elementów
+  const q = query(
+    collection(db, 'vacations'),
+    where('yearMonth', 'in', monthKeys)
+  );
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map(
+    (doc) =>
+      ({
+        id: doc.id,
+        ...doc.data(),
+      }) as Vacation
+  );
 }

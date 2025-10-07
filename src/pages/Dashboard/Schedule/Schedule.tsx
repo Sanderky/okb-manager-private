@@ -55,15 +55,16 @@ const Schedule: React.FC = () => {
 
   const [selectedEmployees, setSelectedEmployees] = useState<Employee[]>([]);
 
-  const [values, setValues] = useState<
-    Record<string, Record<string, Construction | null>>
-  >({});
+  // const [values, setValues] = useState<
+  //   Record<string, Record<string, Construction | null>>
+  // >({});
 
   const { data: employees = [], isLoading: isLoadingEmployees } = useQuery<
     Employee[]
   >({
     queryKey: ['employees'],
     queryFn: getEmployeeList,
+    select: (data) => data.filter((e) => e.status),
   });
 
   const { data: constructions, isLoading: isLoadingConstructions } = useQuery<
@@ -93,7 +94,7 @@ const Schedule: React.FC = () => {
 
   // Filtrowanie pracowników
   const filteredEmployees = useMemo(() => {
-    let tEmployees = employees.filter((e) => e.contractEndDate?.date !== null);
+    let tEmployees = employees.filter((e) => e.contractEndDate !== null);
     console.log(tEmployees);
     if (!selectedEmployees.length) return employees;
     const ids = new Set(selectedEmployees.map((e) => e.id));
@@ -108,13 +109,13 @@ const Schedule: React.FC = () => {
   //   return Array(15).fill(base).flat();
   // }, [employees, selectedEmployees]);
 
-  const constructionsById = useMemo(() => {
-    const map: Record<string, Construction> = {};
-    constructions?.forEach((c) => {
-      map[c.id] = c;
-    });
-    return map;
-  }, [constructions]);
+  // const constructionsById = useMemo(() => {
+  //   const map: Record<string, Construction> = {};
+  //   constructions?.forEach((c) => {
+  //     map[c.id] = c;
+  //   });
+  //   return map;
+  // }, [constructions]);
 
   const notifications = useNotifications();
   const queryClient = useQueryClient();
@@ -124,8 +125,9 @@ const Schedule: React.FC = () => {
       updates: { id: string; constructionId: string }[]
     ): Promise<void> => {
       await Promise.all(
-        updates.map((u) =>
-          updateEmployee(u.id, { constructionId: u.constructionId })
+        updates.map(
+          (u) => <></>
+          // updateEmployee(u.id, { constructionId: u.constructionId })
         )
       );
     },
@@ -147,7 +149,7 @@ const Schedule: React.FC = () => {
   });
 
   const handleSave = () => {
-    console.log('form values', values);
+    // console.log('form values', values);
     // // Zapisujemy tylko te zmiany, które faktycznie zmieniają constructionId
     // const updates = Object.entries(values).flatMap(([empId, construction]) => {
     //   if (!construction?.id) return [];
@@ -173,13 +175,13 @@ const Schedule: React.FC = () => {
     value: Construction | null
   ) => {
     const weekKey = week.format('YYYY-MM-DD');
-    setValues((prev) => ({
-      ...prev,
-      [empId]: {
-        ...(prev[empId] || {}),
-        [weekKey]: value,
-      },
-    }));
+    // setValues((prev) => ({
+    //   ...prev,
+    //   [empId]: {
+    //     ...(prev[empId] || {}),
+    //     [weekKey]: value,
+    //   },
+    // }));
   };
 
   if (isLoadingConstructions || isLoadingEmployees) {
@@ -322,7 +324,7 @@ const Schedule: React.FC = () => {
 
                   // console.log('w', w);
                   const weekKey = w.format('YYYY-MM-DD');
-                  const currentValue = values[emp.id]?.[weekKey] ?? null;
+                  // const currentValue = values[emp.id]?.[weekKey] ?? null;
 
                   return (
                     <TableCell
