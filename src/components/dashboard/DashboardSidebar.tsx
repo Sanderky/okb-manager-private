@@ -170,6 +170,13 @@ export default function DashboardSidebar({
               href="/schedule"
               selected={!!matchPath('/schedule/*', pathname)}
             />
+            <DashboardSidebarPageItem
+              id="hours"
+              title="Godziny"
+              icon={<CalendarMonthIcon />}
+              href="/hours"
+              selected={!!matchPath('/hours/*', pathname)}
+            />
             {/* <DashboardSidebarHeaderItem>Main items</DashboardSidebarHeaderItem>
             <DashboardSidebarPageItem
               id="employees"

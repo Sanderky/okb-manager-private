@@ -65,3 +65,12 @@ export interface Schedule {
 }
 
 export type File = FileItem | FolderItem;
+
+
+export interface WorkHours {
+  id: string;
+  constructionId: string;
+  employeeId: string;
+  weekStart: Date; // Data poniedziałku danego tygodnia
+  hours: number[]; // [pon, wt, śr, czw, pt, sob, niedz]
+}

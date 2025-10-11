@@ -19,6 +19,7 @@ import ConstructionEdit from './pages/Dashboard/Constructions/ConstructionEdit';
 import VacationCalendar from './pages/Dashboard/Calendar/Calendar';
 import Home from './pages/Dashboard/Home/Home';
 import Schedule from './pages/Dashboard/Schedule/Schedule';
+import Hours from './pages/Dashboard/Hours/Hours';
 
 // import AppTheme from './theme/AppTheme';
 // import {
@@ -73,6 +74,7 @@ export default function App() {
                   />
                   <Route path="calendar" element={<VacationCalendar />} />
                   <Route path="schedule" element={<Schedule />} />
+                  <Route path="hours" element={<Hours />} />
                 </Route>
               </Route>
             </Routes>

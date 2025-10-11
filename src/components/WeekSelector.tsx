@@ -31,12 +31,14 @@ interface WeekSelectorProps {
   value: Date;
   onChange: (date: Date) => void;
   renderQuickActions?: boolean;
+  disabled?: boolean
 }
 
 const WeekSelector: React.FC<WeekSelectorProps> = ({
   value,
   onChange,
   renderQuickActions = false,
+  disabled = false
 }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const [hoveredWeek, setHoveredWeek] = useState<Date | null>(null);
@@ -112,6 +114,7 @@ const WeekSelector: React.FC<WeekSelectorProps> = ({
         variant="outlined"
         startIcon={<CalendarMonth />}
         onClick={handleClick}
+        disabled={disabled}
       >
         {`${formatDate(value)} - ${formatDate(getEndOfWeek(value))}`}
       </Button>

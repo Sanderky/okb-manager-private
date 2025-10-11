@@ -6,6 +6,8 @@ import {
   doc,
   updateDoc,
   deleteDoc,
+  query,
+  where,
 } from 'firebase/firestore';
 import { db } from '../firebase';
 import type { Employee } from '../types';
@@ -46,12 +48,40 @@ export async function removeEmployee(id: string): Promise<void> {
   }
 }
 
-export async function getEmployeeList(): Promise<Employee[]> {
+// export async function getEmployeeList(): Promise<Employee[]> {
+//   const employeesCol = collection(db, 'employees');
+//   const employeesSnapshot = await getDocs(employeesCol);
+
+//   const employeesList = employeesSnapshot.docs.map((doc) => {
+//     // 1. Pobierz dane dokumentu i dodaj do nich ID
+//     const data = doc.data();
+//     return {
+//       id: doc.id,
+//       ...data,
+//       contractStartDate: data.contractStartDate?.toDate(),
+//       contractEndDate: data.contractEndDate?.toDate(),
+//       a1StartDate: data.a1StartDate?.toDate(),
+//       a1EndDate: data.a1EndDate?.toDate(),
+//     } as Employee;
+//   });
+
+//   return employeesList;
+// }
+
+export async function getEmployeeList(activeOnly = false): Promise<Employee[]> {
   const employeesCol = collection(db, 'employees');
-  const employeesSnapshot = await getDocs(employeesCol);
+
+  let employeesSnapshot;
+
+  if (activeOnly) {
+    employeesSnapshot = await getDocs(
+      query(employeesCol, where('status', '==', true))
+    );
+  } else {
+    employeesSnapshot = await getDocs(employeesCol);
+  }
 
   const employeesList = employeesSnapshot.docs.map((doc) => {
-    // 1. Pobierz dane dokumentu i dodaj do nich ID
     const data = doc.data();
     return {
       id: doc.id,

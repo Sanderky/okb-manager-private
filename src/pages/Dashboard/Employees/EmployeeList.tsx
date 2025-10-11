@@ -208,7 +208,7 @@ export default function EmployeeList() {
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['employees'],
-    queryFn: getEmployeeList,
+    queryFn: () => getEmployeeList(),
   });
 
   const handleCreateClick = React.useCallback(() => {
