@@ -14,6 +14,7 @@ import ForgotPassword from './ForgotPassword';
 import { getRules, validateField } from './validation';
 import { useAuth } from '../../context/AuthContext';
 import { default as LogoIcon } from '@mui/icons-material/TokenOutlined';
+import { syncUserToFirestore } from '../../api/users';
 // import GoogleIcon from '@mui/icons-material/Google';
 
 type FormValues = {
@@ -67,7 +68,9 @@ const Login = () => {
         values.email,
         values.password
       );
-      console.log('✅ Zalogowano:', userCredential.user);
+      const user = userCredential.user;
+      
+      await syncUserToFirestore(user);
 
       setValues({ email: '', password: '' });
       setErrors({});

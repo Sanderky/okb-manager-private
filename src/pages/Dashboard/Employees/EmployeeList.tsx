@@ -8,7 +8,7 @@ import PageContainer from '../../../components/PageContainer';
 import { useTranslation } from 'react-i18next';
 import { getEmployeeList } from '../../../api/employees';
 import { useQuery } from '@tanstack/react-query';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import Alert from '@mui/material/Alert';
 import {
   MaterialReactTable,
@@ -19,10 +19,6 @@ import {
   MRT_ToggleGlobalFilterButton,
   useMaterialReactTable,
   type MRT_ColumnDef,
-  type MRT_ColumnFiltersState,
-  type MRT_DensityState,
-  type MRT_SortingState,
-  type MRT_VisibilityState,
 } from 'material-react-table';
 import type { Employee } from '../../../types';
 import 'dayjs/locale/pl';
@@ -39,174 +35,16 @@ import {
 import RefreshIcon from '@mui/icons-material/Refresh';
 
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import { useTableState } from '../../../hooks/useTableSettings';
 
-const TABLE_STATE_PREFIX = 'mrt_employees_table';
-
-const useTableState = () => {
-  const safeParse = (key: string, defaultValue: any) => {
-    try {
-      const item = sessionStorage.getItem(key);
-      return item ? JSON.parse(item) : defaultValue;
-    } catch {
-      return defaultValue;
-    }
-  };
-
-  const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>(
-    () => {
-      const item = safeParse('mrt_columnFilters_table_1', []);
-      // Konwertuj stringi na Day.js dla filtrów daty
-      return item.map((filter: any) => {
-        if (filter.id === 'startDate' && Array.isArray(filter.value)) {
-          return {
-            ...filter,
-            value: filter.value.map((v: any) => (v ? dayjs(v) : null)),
-          };
-        }
-        return filter;
-      });
-    }
-  );
-
-  const [columnVisibility, setColumnVisibility] = useState<MRT_VisibilityState>(
-    () => safeParse('mrt_columnVisibility_table_1', {})
-  );
-
-  const [density, setDensity] = useState<MRT_DensityState>(() =>
-    safeParse('mrt_density_table_1', 'comfortable')
-  );
-
-  const [globalFilter, setGlobalFilter] = useState<string | undefined>(() => {
-    const item = safeParse('mrt_globalFilter_table_1', '');
-    return item || undefined;
-  });
-
-  const [showGlobalFilter, setShowGlobalFilter] = useState<boolean>(() =>
-    safeParse('mrt_showGlobalFilter_table_1', false)
-  );
-
-  const [showColumnFilters, setShowColumnFilters] = useState<boolean>(() =>
-    safeParse('mrt_showColumnFilters_table_1', false)
-  );
-
-  const [sorting, setSorting] = useState<MRT_SortingState>(() =>
-    safeParse('mrt_sorting_table_1', [])
-  );
-
-  // Zapisywanie stanu do sessionStorage
-  useEffect(() => {
-    // Konwertuj Day.js na string przed zapisaniem
-    const filtersToSave = columnFilters.map((filter) => {
-      if (filter.id === 'startDate' && Array.isArray(filter.value)) {
-        return {
-          ...filter,
-          value: filter.value.map((v: any) => (v ? v.format() : null)),
-        };
-      }
-      return filter;
-    });
-
-    sessionStorage.setItem(
-      'mrt_columnFilters_table_1',
-      JSON.stringify(filtersToSave)
-    );
-  }, [columnFilters]);
-
-  useEffect(() => {
-    sessionStorage.setItem(
-      'mrt_columnVisibility_table_1',
-      JSON.stringify(columnVisibility)
-    );
-  }, [columnVisibility]);
-
-  useEffect(() => {
-    sessionStorage.setItem('mrt_density_table_1', JSON.stringify(density));
-  }, [density]);
-
-  useEffect(() => {
-    sessionStorage.setItem(
-      'mrt_globalFilter_table_1',
-      JSON.stringify(globalFilter ?? '')
-    );
-  }, [globalFilter]);
-
-  useEffect(() => {
-    sessionStorage.setItem(
-      'mrt_showGlobalFilter_table_1',
-      JSON.stringify(showGlobalFilter)
-    );
-  }, [showGlobalFilter]);
-
-  useEffect(() => {
-    sessionStorage.setItem(
-      'mrt_showColumnFilters_table_1',
-      JSON.stringify(showColumnFilters)
-    );
-  }, [showColumnFilters]);
-
-  useEffect(() => {
-    sessionStorage.setItem('mrt_sorting_table_1', JSON.stringify(sorting));
-  }, [sorting]);
-
-  const resetState = () => {
-    sessionStorage.removeItem('mrt_columnFilters_table_1');
-    sessionStorage.removeItem('mrt_columnVisibility_table_1');
-    sessionStorage.removeItem('mrt_density_table_1');
-    sessionStorage.removeItem('mrt_globalFilter_table_1');
-    sessionStorage.removeItem('mrt_showGlobalFilter_table_1');
-    sessionStorage.removeItem('mrt_showColumnFilters_table_1');
-    sessionStorage.removeItem('mrt_sorting_table_1');
-
-    setColumnFilters([]);
-    setColumnVisibility({});
-    setDensity('comfortable');
-    setGlobalFilter(undefined);
-    setShowColumnFilters(false);
-    setShowGlobalFilter(false);
-    setSorting([]);
-  };
-
-  return {
-    setColumnFilters,
-    setColumnVisibility,
-    setDensity,
-    setGlobalFilter,
-    setShowColumnFilters,
-    setShowGlobalFilter,
-    setSorting,
-    columnFilters,
-    columnVisibility,
-    density,
-    globalFilter,
-    showColumnFilters,
-    showGlobalFilter,
-    sorting,
-    resetState,
-  };
-};
 
 export default function EmployeeList() {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const {
-    setColumnFilters,
-    setColumnVisibility,
-    setDensity,
-    setGlobalFilter,
-    setShowColumnFilters,
-    setShowGlobalFilter,
-    setSorting,
-    columnFilters,
-    columnVisibility,
-    density,
-    globalFilter,
-    showColumnFilters,
-    showGlobalFilter,
-    sorting,
-    resetState,
-  } = useTableState();
 
-  const { data, isLoading, error, refetch } = useQuery({
+  const {density, setDensity, setColumnVisibility, columnVisibility} = useTableState('employees')
+
+  const { data: employees, isLoading, error, refetch } = useQuery({
     queryKey: ['employees'],
     queryFn: () => getEmployeeList(),
   });
@@ -240,9 +78,11 @@ export default function EmployeeList() {
       {
         accessorKey: 'status',
         header: 'Status',
+        filterVariant: 'select',
         filterSelectOptions: [
-          { text: 'Zatrudniony', value: 'true' },
-          { text: 'Niezatrudniony', value: 'false' },
+          {label: 'Zatrudnieni', value: 'true'},
+          {label: 'Niezatrudnieni', value: 'false'},
+          {label: 'Wszyscy', value: ''},
         ],
         Cell: ({ cell }) => (
           <Box
@@ -292,7 +132,7 @@ export default function EmployeeList() {
     []
   );
 
-  const tableData = useMemo(() => data || [], [data]);
+  const tableData = useMemo(() => employees || [], [employees]);
 
   const table = useMaterialReactTable({
     localization,
@@ -300,7 +140,6 @@ export default function EmployeeList() {
     data: tableData,
     layoutMode: 'grid',
     initialState: {
-      density: 'comfortable',
       columnOrder: [
         'mrt-row-numbers',
         'name',
@@ -311,26 +150,21 @@ export default function EmployeeList() {
         'a1StartDate',
         'mrt-row-actions',
       ],
+      columnFilters: [
+        {id: 'status', value: true}
+      ]
     },
     state: {
-      columnFilters,
-      columnVisibility,
       density,
-      globalFilter,
-      showColumnFilters,
-      showGlobalFilter,
-      sorting,
-      isLoading,
+      columnVisibility
     },
-    onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
+
     onDensityChange: setDensity,
-    onGlobalFilterChange: setGlobalFilter,
-    onShowColumnFiltersChange: setShowColumnFilters,
-    onShowGlobalFilterChange: setShowGlobalFilter,
-    onSortingChange: setSorting,
-    enableColumnResizing: false,
+    enableColumnResizing: true,
     renderTopToolbarCustomActions: () => (
+      <Stack direction={'row'}>
+
       <Button
         variant="outlined"
         onClick={handleCreateClick}
@@ -340,6 +174,7 @@ export default function EmployeeList() {
       >
         Nowa
       </Button>
+      </Stack>
     ),
     renderToolbarInternalActions: ({ table }) => (
       <Stack direction="row" alignItems="center" spacing={1}>
@@ -348,7 +183,7 @@ export default function EmployeeList() {
         <MRT_ShowHideColumnsButton table={table} />
         <MRT_ToggleDensePaddingButton table={table} />
         <Tooltip title="Resetuj stan tabeli">
-          <IconButton onClick={resetState}>
+          <IconButton onClick={()=>{}}>
             <RefreshIcon />
           </IconButton>
         </Tooltip>
