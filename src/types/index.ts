@@ -51,7 +51,7 @@ export interface FolderItem {
 }
 
 export interface Vacation {
-  id: string;
+  id?: string;
   employeeId: string;
   date: Timestamp;
   yearMonth: string;

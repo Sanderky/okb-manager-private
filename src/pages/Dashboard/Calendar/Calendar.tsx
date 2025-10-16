@@ -104,10 +104,6 @@ const pastelColors = [
 
 export const getColorForEmployee = (id: string): string => {
   let hash = 0;
-  if (!id) {
-    return pastelColors[0];
-  }
-
   for (let i = 0; i < id.length; i++) {
     hash = (hash << 5) - hash + id.charCodeAt(i);
     hash |= 0;
@@ -304,7 +300,7 @@ const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                             // alignItems: 'center',
                           }}
                         >
-                          {ev.employee?.name}
+                          {ev.employee.name}
                         </Box>
                       </Tooltip>
                     );
@@ -619,7 +615,6 @@ const Calendar: React.FC = () => {
 
     while (currentDate.isBefore(endDate) || currentDate.isSame(endDate)) {
       eventList.push({
-        ...currentEvent,
         employeeId: employee.id,
         startDate: Timestamp.fromDate(startDate.toDate()),
         endDate: Timestamp.fromDate(endDate.toDate()),

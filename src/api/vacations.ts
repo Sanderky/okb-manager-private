@@ -61,11 +61,11 @@ export async function createVacation(
     const createdIds: string[] = [];
 
     dataArray.forEach((vacationData) => {
-      const newVacation = {
-        ...vacationData,
-      };
+      const cleanedData = Object.fromEntries(
+        Object.entries(vacationData).filter(([_, value]) => value !== undefined)
+      );
       const newDocRef = doc(vacationRef);
-      batch.set(newDocRef, newVacation);
+      batch.set(newDocRef, cleanedData);
       createdIds.push(newDocRef.id);
     });
 
