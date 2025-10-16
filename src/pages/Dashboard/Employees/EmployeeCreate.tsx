@@ -8,18 +8,9 @@ import PageContainer from '../../../components/PageContainer';
 import type { Employee } from '../../../types';
 import { createEmployee } from '../../../api/employees';
 import useNotifications from '../../../hooks/useNotifications/useNotifications';
-import {
-  Box,
-  Button,
-  CircularProgress,
-  Stack,
-  Typography,
-} from '@mui/material';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { useCallback } from 'react';
+import { Box, CircularProgress, Typography } from '@mui/material';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { validate } from './EmployeeEditHelpers';
-import dayjs from 'dayjs';
 
 export default function EmployeeCreate() {
   const navigate = useNavigate();
@@ -74,14 +65,19 @@ export default function EmployeeCreate() {
         return;
       }
 
-      // mapowanie pól datowych
+      // przygotowanie payloadu z uwzględnieniem contractIsPermanent
       const payload: Partial<Employee> = {
         ...formState.values,
         contractStartDate: formState.values.contractStartDate ?? null,
         a1StartDate: formState.values.a1StartDate ?? null,
-        contractEndDate: formState.values.contractEndDate ?? null,
         a1EndDate: formState.values.a1EndDate ?? null,
+
+        // jeśli contractIsPermanent → wymuś null
+        contractEndDate: formState.values.contractISPermanent
+          ? null
+          : (formState.values.contractEndDate ?? null),
       };
+
       console.log('createPayload', payload);
       createMutation.mutate(payload);
     },
@@ -111,7 +107,7 @@ export default function EmployeeCreate() {
 
   return (
     <PageContainer
-      title={'Dodaj nowego pracownika'}
+      title="Dodaj nowego pracownika"
       breadcrumbs={[
         { title: 'Pracownicy', path: '/employees' },
         { title: 'Nowy' },
@@ -119,7 +115,7 @@ export default function EmployeeCreate() {
     >
       <Box
         sx={{ width: '100%', maxWidth: { sm: '100%', md: '1790px' } }}
-        className="border-lightGray rounded-lg border bg-white p-6"
+        className="border-lightGray rounded-lg border bg-white px-3 pt-4 pb-6 md:px-6"
       >
         <EmployeeForm
           formState={formState}

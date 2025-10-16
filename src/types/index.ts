@@ -53,15 +53,18 @@ export interface FolderItem {
 export interface Vacation {
   id: string;
   employeeId: string;
-  date: Timestamp | null;
+  date: Timestamp;
   yearMonth: string;
+  groupId: string;
+  startDate: Timestamp;
+  endDate: Timestamp;
 }
 
 export interface Schedule {
   id: string;
-  employeeId: string | null;
-  constructionId: string | null;
-  date: Timestamp | null;
+  employeeId: string;
+  constructionId: string;
+  date: Timestamp;
 }
 
 export type File = FileItem | FolderItem;

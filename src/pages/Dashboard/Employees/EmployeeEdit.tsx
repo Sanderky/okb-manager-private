@@ -16,7 +16,6 @@ import EmployeeForm, {
 } from './EmployeeForm';
 import PageContainer from '../../../components/PageContainer';
 import { AlertTitle, Stack, Typography } from '@mui/material';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useCallback, useEffect, useState } from 'react';
 import { useDialogs } from '../../../hooks/useDialogs/useDialogs';
 import { Grid } from '@mui/system';
@@ -37,6 +36,7 @@ export default function EmployeeEdit() {
   const dialogs = useDialogs();
   const queryClient = useQueryClient();
   const notifications = useNotifications();
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -50,7 +50,7 @@ export default function EmployeeEdit() {
     enabled: !!employeeId,
   });
 
-  const [formState, setFormState] = React.useState<EmployeeFormState>({
+  const [formState, setFormState] = useState<EmployeeFormState>({
     values: {},
     errors: {},
   });
@@ -103,7 +103,7 @@ export default function EmployeeEdit() {
     },
   });
 
-  const handleFieldChange = React.useCallback(
+  const handleFieldChange = useCallback(
     (
       name: keyof EmployeeFormState['values'],
       value: FormFieldValue | object | null
@@ -123,7 +123,7 @@ export default function EmployeeEdit() {
     loading: attachmentLoading,
   } = useEmployeeAttachment(employee);
 
-  const handleSubmit = React.useCallback(
+  const handleSubmit = useCallback(
     async (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
 
@@ -140,14 +140,12 @@ export default function EmployeeEdit() {
             currentValue: formState.values.contractAttachment ?? null,
             employeeValue: employee?.contractAttachment ?? null,
             type: 'contractAttachment' as const,
-            key: 'contractAttachment' as const,
           },
           {
             file: files.a1Attachment,
             currentValue: formState.values.a1Attachment ?? null,
             employeeValue: employee?.a1Attachment ?? null,
             type: 'a1Attachment' as const,
-            key: 'a1Attachment' as const,
           },
         ];
 
@@ -155,9 +153,7 @@ export default function EmployeeEdit() {
           attachmentsConfig.map(
             async ({ file, currentValue, employeeValue, type }) => {
               if (file) {
-                if (employeeValue) {
-                  await handleDeleteAttachment(type);
-                }
+                if (employeeValue) await handleDeleteAttachment(type);
                 return await handleUploadAttachment(file, type);
               } else if (!currentValue && employeeValue) {
                 await handleDeleteAttachment(type);
@@ -174,11 +170,17 @@ export default function EmployeeEdit() {
           a1Attachment: attachmentResults[1],
           contractStartDate: formState.values.contractStartDate ?? null,
           a1StartDate: formState.values.a1StartDate ?? null,
-          contractEndDate: formState.values.contractEndDate ?? null,
           a1EndDate: formState.values.a1EndDate ?? null,
+
+          // nowy warunek: jeśli umowa na czas nieokreślony → null
+          contractEndDate: formState.values.contractISPermanent
+            ? null
+            : (formState.values.contractEndDate ?? null),
         };
+
         setIsSubmitting(true);
         console.log('updateData', updateData);
+
         await updateMutation.mutateAsync(updateData);
 
         notifications.show('Zmiany zostały pomyślnie zapisane.', {
@@ -216,15 +218,12 @@ export default function EmployeeEdit() {
 
     const confirmed = await dialogs.confirm(
       <Stack direction="column" spacing={2}>
-        <div>
-          <Typography variant="body1" className="mb-1 text-gray-600">
-            Czy na pewno chcesz usunąć <strong>{employee.name}</strong>?
-          </Typography>
-          <Typography variant="body1" className="text-gray-600">
-            Ta akcja usunie pracownika z systemu i wszystkie powiązane z nim
-            dane.
-          </Typography>
-        </div>
+        <Typography variant="body1" className="mb-1 text-gray-600">
+          Czy na pewno chcesz usunąć <strong>{employee.name}</strong>?
+        </Typography>
+        <Typography variant="body1" className="text-gray-600">
+          Ta akcja usunie pracownika z systemu i wszystkie powiązane dane.
+        </Typography>
         <Alert severity="error">
           <AlertTitle>Uwaga!</AlertTitle>
           Proszę zachować ostrożność, tej operacji nie można cofnąć.
@@ -280,7 +279,7 @@ export default function EmployeeEdit() {
         >
           <CircularProgress />
           <Typography variant="body2" sx={{ ml: 2, color: 'text.secondary' }}>
-            {'Ładowanie danych pracownika...'}
+            Ładowanie danych pracownika...
           </Typography>
         </Box>
       );
@@ -288,9 +287,7 @@ export default function EmployeeEdit() {
 
     if (error) {
       return (
-        <Alert severity="error">
-          Wystąpił niespodziewany błąd podczas pobierania danych.
-        </Alert>
+        <Alert severity="error">Wystąpił błąd podczas pobierania danych.</Alert>
       );
     }
 
@@ -309,7 +306,7 @@ export default function EmployeeEdit() {
               maxWidth: { sm: '100%', md: '1790px' },
               position: 'relative',
             }}
-            className="border-lightGray rounded-lg border bg-white p-6"
+            className="border-lightGray rounded-lg border bg-white px-3 pt-4 pb-6 md:px-6"
           >
             <EmployeeForm
               onFileChange={handleFileChange}
@@ -327,9 +324,10 @@ export default function EmployeeEdit() {
           <Stack
             direction={{ xs: 'column' }}
             justifyContent={{ xs: 'flex-start' }}
-            alignItems={{ xs: 'flex-start' }}
+            alignItems={{ xs: 'stretch', sm: 'flex-start' }}
             spacing={{ xs: 1, xl: 2 }}
             className="rounded-lg border border-red-500/25 bg-red-600/5! p-3"
+            maxWidth={'400px'}
           >
             <div>
               <Typography variant="body1" sx={{ fontWeight: 600 }}>
@@ -347,7 +345,6 @@ export default function EmployeeEdit() {
               onClick={handleEmployeeDelete}
               disabled={isFormLoading}
               startIcon={<HighlightOffIcon />}
-              loading={isDeleting}
             >
               {isDeleting ? 'Usuwanie...' : 'Usuń'}
             </Button>
@@ -364,10 +361,7 @@ export default function EmployeeEdit() {
       title={`Edycja ${pageTitle}`}
       breadcrumbs={[
         { title: 'Pracownicy', path: '/employees' },
-        {
-          title: employee?.name || '...',
-          path: `/employees/${employeeId}`,
-        },
+        { title: employee?.name || '...', path: `/employees/${employeeId}` },
         { title: 'Edytuj' },
       ]}
     >

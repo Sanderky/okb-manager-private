@@ -19,11 +19,31 @@ import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
 import 'dayjs/locale/pl';
-import {
-  formatDate,
-  getEndOfWeek,
-  getStartOfWeek,
-} from '../pages/Dashboard/Hours/HoursHelpers';
+
+function getStartOfWeek(date: Date): Date {
+  const d = new Date(date);
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+  const newDate = new Date(d);
+  newDate.setDate(diff);
+  newDate.setHours(0, 0, 0, 0);
+  return newDate;
+}
+
+function getEndOfWeek(date: Date): Date {
+  const start = getStartOfWeek(date);
+  const end = new Date(start);
+  end.setDate(start.getDate() + 6);
+  return end;
+}
+
+function formatDate(date: Date): string {
+  return date.toLocaleDateString('pl-PL', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  });
+}
 
 dayjs.extend(isBetween);
 

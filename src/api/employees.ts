@@ -96,6 +96,17 @@ export async function getEmployeeList(activeOnly = false): Promise<Employee[]> {
   return employeesList;
 }
 
+// export async function getEmployees(): Promise<Employee[]> {
+//   const employeesSnapshot = await getDocs(collection(db, 'employees'));
+
+//   const employeeList = employeesSnapshot.docs.map((doc) => {
+//     const data = doc.data();
+//     return {  id: doc.id, ...data };
+//   });
+
+//   return employeeList as Employee[];
+// }
+
 export async function getEmployee(id: string): Promise<Employee | null> {
   const employeeDoc = await getDoc(doc(db, 'employees', id));
   if (employeeDoc.exists()) {

@@ -128,7 +128,7 @@ export default function ConstructionEdit() {
         spacing={2}
       >
         <div>
-          <Typography variant="body1" className="mb-1 text-gray-600" noWrap>
+          <Typography variant="body1" className="mb-1 text-gray-600">
             Czy na pewno chcesz usunąć <strong>{construction.name}</strong>?
           </Typography>
           <Typography variant="body1" className="text-gray-600">
@@ -208,9 +208,10 @@ export default function ConstructionEdit() {
           <Stack
             direction={{ xs: 'column' }}
             justifyContent={{ xs: 'flex-start' }}
-            alignItems={{ xs: 'flex-start' }}
+            alignItems={{ xs: 'stretch', sm: 'flex-start' }}
             spacing={{ xs: 1, xl: 2 }}
             className="rounded-lg border border-red-500/25 bg-red-600/5! p-3"
+            maxWidth={'400px'}
           >
             <div>
               <Typography variant="body1" sx={{ fontWeight: 600 }}>

@@ -16,9 +16,9 @@ import EmployeeList from './pages/Dashboard/Employees/EmployeeList';
 import EmployeeEdit from './pages/Dashboard/Employees/EmployeeEdit';
 import EmployeeCreate from './pages/Dashboard/Employees/EmployeeCreate';
 import ConstructionEdit from './pages/Dashboard/Constructions/ConstructionEdit';
-import VacationCalendar from './pages/Dashboard/Calendar/Calendar';
 import Home from './pages/Dashboard/Home/Home';
 import Schedule from './pages/Dashboard/Schedule/Schedule';
+import VacationCalendar from './pages/Dashboard/Calendar/Calendar';
 import Hours from './pages/Dashboard/Hours/Hours';
 
 // import AppTheme from './theme/AppTheme';
@@ -72,8 +72,9 @@ export default function App() {
                     path="constructions/create"
                     element={<ConstructionCreate />}
                   />
-                  <Route path="calendar" element={<VacationCalendar />} />
+                  {/* <Route path="calendar" element={<VacationCalendar />} /> */}
                   <Route path="schedule" element={<Schedule />} />
+                  <Route path="calendar" element={<VacationCalendar />} />
                   <Route path="hours" element={<Hours />} />
                 </Route>
               </Route>

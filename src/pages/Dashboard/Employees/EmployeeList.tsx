@@ -172,12 +172,12 @@ export default function EmployeeList() {
         size="small"
         sx={{ mx: 1, my: 0.5, minWidth: 'fit-content' }}
       >
-        Nowa
+        Nowy
       </Button>
       </Stack>
     ),
     renderToolbarInternalActions: ({ table }) => (
-      <Stack direction="row" alignItems="center" spacing={1}>
+      <Stack direction="row" alignItems="center" spacing={1} overflow={'auto'}>
         <MRT_ToggleGlobalFilterButton table={table} />
         <MRT_ToggleFiltersButton table={table} />
         <MRT_ShowHideColumnsButton table={table} />
@@ -208,6 +208,13 @@ export default function EmployeeList() {
         borderTop: '1px solid #e0e0e0',
         fontWeight: 'bold',
         color: '#374151',
+      },
+    },
+    muiTopToolbarProps: {
+      sx: {
+        '& .MuiBox-root': {
+          overflow: 'hidden',
+        },
       },
     },
     muiTableBodyRowProps: {

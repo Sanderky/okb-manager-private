@@ -343,9 +343,13 @@ export default function EmployeeForm(props: EmployeeFormProps) {
                 control={
                   <Checkbox
                     checked={formValues.contractISPermanent ?? false}
-                    onChange={(e) =>
-                      handleFieldChange('contractISPermanent', e.target.checked)
-                    }
+                    onChange={(e) => {
+                      const checked = e.target.checked;
+                      handleFieldChange('contractISPermanent', checked);
+                      if (checked) {
+                        handleFieldChange('contractEndDate', null);
+                      }
+                    }}
                   />
                 }
                 label="Na czas nieokreślony"

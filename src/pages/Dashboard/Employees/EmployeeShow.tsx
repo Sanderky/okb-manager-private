@@ -84,76 +84,69 @@ const generateDateBox = (
   employee: Employee | null
 ) => {
   if (!employee) return null;
+
   const endDate =
     key === 'contractEndDate'
-      ? employee?.contractEndDate
+      ? employee.contractEndDate
       : key === 'a1EndDate'
-        ? employee?.a1EndDate
+        ? employee.a1EndDate
         : null;
+
+  const isPermanent =
+    key === 'contractEndDate' ? employee.contractISPermanent : false;
+  const isEndDateField = key === 'contractEndDate' || key === 'a1EndDate';
+
   const today = dayjs().startOf('day');
-  let daysDiff = null;
-  if ((key === 'contractEndDate' || key === 'a1EndDate') && endDate) {
+  let daysDiff: number | null = null;
+
+  if (endDate) {
     daysDiff = dayjs(endDate).startOf('day').diff(today, 'day');
   }
-  const isPermanent =
-    key === 'contractEndDate' ? employee?.contractISPermanent : false;
-  const isEndDateField = key === 'contractEndDate' || key === 'a1EndDate';
+
   let dateStyles = '';
   let severity: 'error' | 'warning' = 'warning';
   let message = '';
   let dayWord = 'dni';
 
-  console.log('endDate', endDate, key);
+  if (isEndDateField && endDate && !isPermanent) {
+    if (Math.abs(daysDiff!) === 1) dayWord = 'dzień';
 
-  if (endDate && daysDiff !== null && isEndDateField && !isPermanent) {
-    if (Math.abs(daysDiff) === 1) {
-      dayWord = 'dzień';
-    }
-    if (daysDiff <= 14) {
+    if (daysDiff! <= 14) {
       dateStyles = 'border-red-500/25! bg-red-600/10! text-red-800!';
       severity = 'error';
-      if (daysDiff < 0) {
-        message = `Umowa wygasła ${Math.abs(daysDiff)} ${dayWord} temu`;
-      } else if (daysDiff === 0) {
-        message = `Umowa kończy się dziś`;
-      } else {
-        message = `Umowa kończy się za ${daysDiff} ${dayWord}`;
-      }
-    } else if (daysDiff <= 30) {
+      message =
+        daysDiff! < 0
+          ? `Umowa wygasła ${Math.abs(daysDiff!)} ${dayWord} temu`
+          : daysDiff! === 0
+            ? `Umowa kończy się dziś`
+            : `Umowa kończy się za ${daysDiff!} ${dayWord}`;
+    } else if (daysDiff! <= 30) {
       dateStyles = 'border-amber-500/25! bg-amber-500/10! text-amber-600!';
       severity = 'warning';
-      message = `Umowa kończy się za ${daysDiff} ${dayWord}`;
+      message = `Umowa kończy się za ${daysDiff!} ${dayWord}`;
     }
   } else if (isPermanent) {
     dateStyles = 'border-amber-500/25! bg-amber-500/10! text-amber-600!';
   }
 
-  const value = employee[key];
+  let displayValue: React.ReactNode;
 
-  let returnValue = null;
-
-  if (!value) {
-    returnValue = <em className="text-gray-400">Brak</em>;
+  if (key === 'contractEndDate' && isPermanent) {
+    displayValue = 'Umowa na czas nieokreślony';
+  } else if (endDate instanceof Date) {
+    displayValue = dayjs(endDate).format('DD.MM.YYYY');
   } else {
-    if (value instanceof Date) {
-      if (key === 'contractEndDate' && isPermanent) {
-        returnValue = 'Umowa na czas nieokreślony';
-      } else {
-        returnValue = dayjs(value).format('DD.MM.YYYY');
-      }
-    } else {
-      returnValue = <em className="text-gray-400">Brak</em>;
-    }
+    displayValue = <em className="text-gray-400">Brak</em>;
   }
 
   return (
     <Grid key={key} size={{ xs: 12 }}>
       <Stack
         direction={{ xs: 'column', lg: 'row' }}
-        justifyContent={'flex-start'}
+        justifyContent="flex-start"
         alignItems={{ xs: 'flex-start', lg: 'center' }}
-        sx={{ width: '100%' }}
         spacing={{ xs: 1, lg: 2 }}
+        sx={{ width: '100%' }}
       >
         <Typography variant="body1" className="font-medium">
           {label}:
@@ -162,18 +155,15 @@ const generateDateBox = (
           variant="body1"
           className={`border-lightGray rounded border px-3 py-1 text-gray-700 ${dateStyles}`}
         >
-          {returnValue}
+          {displayValue}
         </Typography>
       </Stack>
-      {((key === 'contractEndDate' && !isPermanent) || key === 'a1EndDate') &&
-        daysDiff &&
-        (() => {
-          return (
-            <Alert severity={severity} sx={{ width: '100%', mt: 2 }}>
-              <Typography variant="body2">{message}</Typography>
-            </Alert>
-          );
-        })()}
+
+      {isEndDateField && endDate && !isPermanent && daysDiff !== null && (
+        <Alert severity={severity} sx={{ width: '100%', mt: 2 }}>
+          <Typography variant="body2">{message}</Typography>
+        </Alert>
+      )}
     </Grid>
   );
 };

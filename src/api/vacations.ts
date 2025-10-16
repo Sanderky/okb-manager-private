@@ -17,7 +17,8 @@ import type { Vacation } from '../types';
 export const batchCreateVacations = async (
   employeeId: string,
   startDate: Date,
-  endDate: Date
+  endDate: Date,
+  groupId: string
 ) => {
   const batch = writeBatch(db);
   const vacationRef = collection(db, 'vacations');
@@ -33,6 +34,7 @@ export const batchCreateVacations = async (
       employeeId: employeeId,
       date: Timestamp.fromDate(new Date(currentDate)),
       yearMonth: yearMonth,
+      groupId: groupId,
     };
 
     const newDocRef = doc(vacationRef);
@@ -44,13 +46,32 @@ export const batchCreateVacations = async (
   await batch.commit();
 };
 
-export async function createVacation(data: Vacation) {
+export async function createVacation(
+  data: Partial<Vacation> | Partial<Vacation>[]
+) {
   try {
-    const newVacation: Vacation = {
-      ...data,
-    };
-    const docRef = await addDoc(collection(db, 'vacations'), newVacation);
-    return docRef.id;
+    const dataArray = Array.isArray(data) ? data : [data];
+
+    if (dataArray.length === 0) {
+      return Array.isArray(data) ? [] : null;
+    }
+
+    const batch = writeBatch(db);
+    const vacationRef = collection(db, 'vacations');
+    const createdIds: string[] = [];
+
+    dataArray.forEach((vacationData) => {
+      const newVacation = {
+        ...vacationData,
+      };
+      const newDocRef = doc(vacationRef);
+      batch.set(newDocRef, newVacation);
+      createdIds.push(newDocRef.id);
+    });
+
+    await batch.commit();
+
+    return Array.isArray(data) ? createdIds : createdIds[0];
   } catch (e) {
     console.error('Błąd podczas dodawania urlopu: ', e);
     throw e;
@@ -69,16 +90,23 @@ export async function updateVacation(id: string, data: Partial<Vacation>) {
 
 export async function removeVacation(id: string) {
   try {
-    await deleteDoc(doc(db, 'vacations', id));
+    const q = query(collection(db, 'vacations'), where('groupId', '==', id));
+    const snapshot = await getDocs(q);
+
+    const batchDeletions = snapshot.docs.map((d) =>
+      deleteDoc(doc(db, 'vacations', d.id))
+    );
+    await Promise.all(batchDeletions);
+
+    console.log(`Usunięto ${snapshot.size} dokumentów dla groupId ${id}`);
   } catch (e) {
-    console.error('Błąd podczas usuwania urlopu: ', e);
+    console.error('Błąd podczas usuwania urlopu po groupId:', e);
     throw e;
   }
 }
 
 export async function getVacationList(): Promise<Vacation[]> {
-  const vacationCol = collection(db, 'vacations');
-  const vacationSnapshot = await getDocs(vacationCol);
+  const vacationSnapshot = await getDocs(collection(db, 'vacations'));
   return vacationSnapshot.docs.map((doc) => {
     const data = doc.data();
     return {

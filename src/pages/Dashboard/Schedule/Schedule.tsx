@@ -19,36 +19,37 @@ import {
   TableBody,
   TableContainer,
   Autocomplete,
+  CircularProgress,
 } from '@mui/material';
-import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import FilterListOffIcon from '@mui/icons-material/FilterListOff';
 import CloseIcon from '@mui/icons-material/Close';
 import dayjs, { Dayjs } from 'dayjs';
 import 'dayjs/locale/pl';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getEmployeeList, updateEmployee } from '../../../api/employees';
+import { getEmployeeList } from '../../../api/employees';
 import type { Construction, Employee } from '../../../types';
 import { getConstructionList } from '../../../api/constructions';
 import useNotifications from '../../../hooks/useNotifications/useNotifications';
-import { positions } from '@mui/system';
+import WeekSelector from '../../../components/WeekSelector';
+
+import CalendarViewWeekIcon from '@mui/icons-material/CalendarViewWeek';
 
 dayjs.locale('pl');
 
-const weekStart = (d: Dayjs) => d.startOf('week');
-const weekEnd = (d: Dayjs) => d.endOf('week');
+// const weekStart = (d: Dayjs) => d.startOf('week');
+// const weekEnd = (d: Dayjs) => d.endOf('week');
 
-const formatWeekLabel = (d: Dayjs) =>
-  `${weekStart(d).format('DD.MM')}–${weekEnd(d).format('DD.MM')}`;
+// const formatWeekLabel = (d: Dayjs) =>
+//   `${weekStart(d).format('DD.MM')}–${weekEnd(d).format('DD.MM')}`;
 
 const Schedule: React.FC = () => {
   // Zakres tygodni (domyślnie: bieżący tydzień + 3 kolejne)
-  const [fromWeek, setFromWeek] = useState<Dayjs>(weekStart(dayjs()));
-
-  const [toWeek, setToWeek] = useState<Dayjs>(
-    weekStart(dayjs()).add(1, 'week')
+  const [fromWeek, setFromWeek] = useState<Date>(
+    dayjs().startOf('week').toDate()
   );
+
+  const [toWeek, setToWeek] = useState<Date>(dayjs().startOf('week').toDate());
 
   // Filtrowanie pracowników
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -76,13 +77,8 @@ const Schedule: React.FC = () => {
 
   // Lista tygodni między from–to (włącznie)
   const weeks = useMemo(() => {
-    let start = weekStart(fromWeek);
-    let end = weekStart(toWeek);
-    if (start.isAfter(end)) {
-      const tmp = start;
-      start = end;
-      end = tmp;
-    }
+    let start = dayjs(fromWeek);
+    let end = dayjs(toWeek);
     const arr: Dayjs[] = [];
     let cur = start;
     while (cur.isSame(end, 'week') || cur.isBefore(end, 'week')) {
@@ -94,8 +90,6 @@ const Schedule: React.FC = () => {
 
   // Filtrowanie pracowników
   const filteredEmployees = useMemo(() => {
-    let tEmployees = employees.filter((e) => e.contractEndDate !== null);
-    console.log(tEmployees);
     if (!selectedEmployees.length) return employees;
     const ids = new Set(selectedEmployees.map((e) => e.id));
     return employees.filter((e) => ids.has(e.id));
@@ -108,14 +102,6 @@ const Schedule: React.FC = () => {
   //   const base = employees.filter((e) => ids.has(e.id));
   //   return Array(15).fill(base).flat();
   // }, [employees, selectedEmployees]);
-
-  // const constructionsById = useMemo(() => {
-  //   const map: Record<string, Construction> = {};
-  //   constructions?.forEach((c) => {
-  //     map[c.id] = c;
-  //   });
-  //   return map;
-  // }, [constructions]);
 
   const notifications = useNotifications();
   const queryClient = useQueryClient();
@@ -184,72 +170,93 @@ const Schedule: React.FC = () => {
     // }));
   };
 
-  if (isLoadingConstructions || isLoadingEmployees) {
-    return (
-      <Box sx={{ p: { xs: 1, sm: 2, md: 3 } }}>
-        <Typography>Ładowanie...</Typography>
-      </Box>
-    );
-  }
-
   return (
-    <Box sx={{ p: { xs: 1, sm: 2, md: 3 }, overflow: 'hidden' }}>
+    <Box
+      sx={{ p: { xs: 1, sm: 2, md: 3 }, overflow: 'hidden' }}
+      className="relative"
+    >
+      {(isLoadingConstructions || isLoadingEmployees) && (
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: 'rgba(255, 255, 255, 0.5)',
+            zIndex: 100,
+            borderRadius: 'inherit',
+          }}
+        >
+          <CircularProgress />
+        </Box>
+      )}
+
       {/* Nagłówek i filtry */}
       <Stack
-        direction={{ xs: 'column', sm: 'row' }}
-        spacing={2}
-        alignItems="center"
-        justifyContent="space-between"
-        mb={2}
+        alignItems={'center'}
+        direction={'row'}
+        flexWrap={'wrap'}
+        justifyContent={'flex-start'}
+        gap={2}
+        mb={1}
+        width={'100%'}
+        className={
+          'border-lightGray rounded-lg border bg-gray-100/40 px-3 py-4 md:py-3'
+        }
       >
-        <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
-          <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pl">
-            <DatePicker
-              label="Od tygodnia"
-              value={fromWeek}
-              onChange={(val) => val && setFromWeek(weekStart(val))}
-              slotProps={{ textField: { size: 'small' } }}
-            />
-            <DatePicker
-              label="Do tygodnia"
-              value={toWeek}
-              onChange={(val) => val && setToWeek(weekStart(val))}
-              slotProps={{ textField: { size: 'small' } }}
-              sx={{ ml: { xs: 0, sm: 1 } }}
-            />
-          </LocalizationProvider>
+        <WeekSelector
+          value={fromWeek}
+          onChange={(val) => {
+            if (!val) return;
 
-          <Button
-            variant="outlined"
-            size="small"
-            startIcon={<FilterListIcon />}
-            onClick={() => setIsFilterOpen(true)}
-            sx={{ ml: { xs: 0, sm: 1 } }}
-          >
-            Filtr pracowników
-          </Button>
-          <IconButton
-            size="small"
-            onClick={() => setSelectedEmployees([])}
-            title="Wyczyść filtr"
-          >
-            <FilterListOffIcon />
-          </IconButton>
-          <Button
-            variant="contained"
-            size="small"
-            onClick={handleSave}
-            disabled={saveMutation.isPending}
-          >
-            {saveMutation.isPending ? 'Zapisywanie...' : 'Zapisz'}
-          </Button>
-        </Stack>
+            if (toWeek && dayjs(val).isAfter(toWeek, 'week')) {
+              return;
+            }
+
+            setFromWeek(val);
+          }}
+        />
+
+        <WeekSelector
+          value={toWeek}
+          onChange={(val) => {
+            if (!val) return;
+
+            if (fromWeek && dayjs(val).isBefore(fromWeek, 'week')) {
+              return;
+            }
+
+            setToWeek(val);
+          }}
+        />
+        <IconButton
+          sx={{
+            color: 'royalblue',
+          }}
+          size="small"
+          onClick={() => setIsFilterOpen(true)}
+          title="Wyczyść filtr"
+        >
+          <FilterListIcon />
+        </IconButton>
+        <Button
+          variant="contained"
+          size="small"
+          onClick={handleSave}
+          disabled={saveMutation.isPending}
+        >
+          {saveMutation.isPending ? 'Zapisywanie...' : 'Zapisz'}
+        </Button>
 
         <Typography
           variant="h6"
           sx={{ textAlign: { xs: 'center', sm: 'right' } }}
         >
-          Zakres: {formatWeekLabel(fromWeek)} – {formatWeekLabel(toWeek)}
+          {/* Zakres: {formatWeekLabel(fromWeek)} – {formatWeekLabel(toWeek)} */}
         </Typography>
       </Stack>
 
@@ -259,7 +266,7 @@ const Schedule: React.FC = () => {
           maxHeight: 1000,
           overflow: 'auto',
         }}
-        className="border-lightGray rounded-lg border"
+        className="border-dark rounded-lg border"
       >
         <Table stickyHeader>
           <TableHead>
@@ -269,24 +276,47 @@ const Schedule: React.FC = () => {
                   position: 'sticky',
                   left: 0,
                   zIndex: 3,
-                  bgcolor: 'background.paper',
+                  background: 'white',
+                  // background: '#ffebaf',
                 }}
-                className="border-r-lightGray border-r"
+                className="border-r-dark border-b-dark border-r border-b p-2 md:p-3"
               >
-                <Typography className="text-center font-bold">
+                {/* <Typography className="text-center font-bold">
                   Pracownik
-                </Typography>
+                </Typography> */}
               </TableCell>
-              {weeks.map((w, index) => (
-                <TableCell
-                  key={index}
-                  className="border-r-lightGray border-r last:border-r-0"
-                >
-                  <Typography className="text-center font-bold">
-                    {formatWeekLabel(w)}
-                  </Typography>
-                </TableCell>
-              ))}
+              {weeks.map((w, index) => {
+                console.log('w', w);
+                return (
+                  <TableCell
+                    key={index}
+                    className="border-r-dark border-b-dark relative border-r border-b bg-gray-100 p-2 last:border-r-0 md:p-3"
+                    sx={{
+                      '&:hover button': {
+                        opacity: 1,
+                        pointerEvents: 'all',
+                      },
+                    }}
+                  >
+                    <Typography className="text-center font-bold">
+                      {w.format('DD.MM')}
+                    </Typography>
+                    <IconButton
+                      sx={{
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        right: 10,
+                        opacity: 0,
+                        pointerEvents: 'none',
+                        transition: '.5s',
+                      }}
+                      className="absolute text-gray-600"
+                    >
+                      <CalendarViewWeekIcon />
+                    </IconButton>
+                  </TableCell>
+                );
+              })}
             </TableRow>
           </TableHead>
 
@@ -295,7 +325,9 @@ const Schedule: React.FC = () => {
               <TableRow
                 key={emp.id}
                 sx={{
-                  '&:last-child td, &:last-child th': { border: 0 },
+                  '&:last-child td, &:last-child  th': {
+                    borderBottom: '0 !important',
+                  },
                 }}
               >
                 <TableCell
@@ -303,12 +335,13 @@ const Schedule: React.FC = () => {
                     position: 'sticky',
                     left: 0,
                     zIndex: 2,
-                    bgcolor: 'background.paper',
                     maxWidth: { xs: 170, sm: 250 },
                     width: { xs: 170, sm: 250 },
                     overflow: 'hidden',
+                    background: 'white',
+                    // background: '#FFFCF1',
                   }}
-                  className="border-r-lightGray border-r"
+                  className="border-r-dark border-b-dark border-r border-b p-2 md:p-3"
                 >
                   <Typography noWrap className="font-semibold">
                     {emp.name}
@@ -329,9 +362,14 @@ const Schedule: React.FC = () => {
                   return (
                     <TableCell
                       key={weekKey}
-                      sx={{}}
-                      className="border-r-lightGray border-r last:border-r-0"
+                      sx={{
+                        '&:hover': {
+                          background: 'ghostwhite',
+                        },
+                      }}
+                      className="border-r-dark border-b-dark cursor-pointer border-r border-b p-2 text-center last:border-r-0 md:p-3"
                     >
+                      {weekKey + ' - ' + emp.name}
                       {/* <Autocomplete
                         size="small"
                         fullWidth
@@ -407,10 +445,7 @@ const Schedule: React.FC = () => {
           </FormControl>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setSelectedEmployees([])}>Wyczyść</Button>
-          <Button variant="contained" onClick={() => setIsFilterOpen(false)}>
-            Zastosuj
-          </Button>
+          <Button onClick={() => setSelectedEmployees([])}>Resetuj</Button>
         </DialogActions>
       </Dialog>
     </Box>
