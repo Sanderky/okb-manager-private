@@ -13,9 +13,8 @@ import { Link, useNavigate } from 'react-router';
 import { useAuth } from '../../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import {
-  Avatar,
   Button,
-  Chip,
+  Divider,
   ListItemIcon,
   Menu,
   MenuItem,
@@ -24,6 +23,8 @@ import {
 import Logout from '@mui/icons-material/Logout';
 
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import { Settings } from '@mui/icons-material';
+import UserSettingsDialog from './UserSettingsDialog';
 
 const AppBar = styled(MuiAppBar)(({ theme }) => ({
   borderWidth: 0,
@@ -66,7 +67,7 @@ export default function DashboardHeader({
     onToggleMenu(!menuOpen);
   }, [menuOpen, onToggleMenu]);
 
-  const handleSettingsOpen = (event: React.MouseEvent<HTMLElement>) => {
+  const handleBackdropOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
 
@@ -74,12 +75,22 @@ export default function DashboardHeader({
 
   const open = Boolean(anchorEl);
 
-  const handleSettingsClose = () => {
+  const [openSettings, setOpenSettings] = React.useState(false);
+
+  const handleClickOpenSettings = () => {
+    setOpenSettings(true);
+    setAnchorEl(null)
+  };
+  const handleCloseSettingsDialog = () => {
+    setOpenSettings(false);
+  };
+
+  const handleBackdropClose = () => {
     setAnchorEl(null);
   };
 
   const handleLogout = async () => {
-    handleSettingsClose();
+    handleBackdropClose();
     await logout();
     navigate('/login');
   };
@@ -106,7 +117,7 @@ export default function DashboardHeader({
         </Tooltip>
       );
     },
-    [handleMenuOpen]
+    [handleMenuOpen, t]
   );
 
   // const open = Boolean(anchorEl);
@@ -165,7 +176,7 @@ export default function DashboardHeader({
               >
                 <Button
                   variant="text"
-                  onClick={handleSettingsOpen}
+                  onClick={handleBackdropOpen}
                   size="small"
                   sx={{ ml: 2 }}
                 >
@@ -175,14 +186,14 @@ export default function DashboardHeader({
                     sx={{ ml: 1, display: { xs: 'none', sm: 'block' } }}
                     className="text-dark font-medium"
                   >
-                    {user?.email}
+                    {user?.displayName ?? user?.email ?? 'Użytkownik'}
                   </Typography>
                 </Button>
               </Box>
               <Menu
                 anchorEl={anchorEl}
                 open={open}
-                onClose={handleSettingsClose}
+                onClose={handleBackdropClose}
                 slotProps={{
                   paper: {
                     elevation: 0,
@@ -208,6 +219,17 @@ export default function DashboardHeader({
                 transformOrigin={{ horizontal: 'right', vertical: 'top' }}
                 anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
               >
+                 <MenuItem
+                  onClick={handleClickOpenSettings}
+                  className="py-0"
+                  sx={{ minHeight: 24 }}
+                >
+                  <ListItemIcon>
+                    <Settings fontSize="small" />
+                  </ListItemIcon>
+                  Ustawienia
+                </MenuItem>
+                <Divider/>
                 <MenuItem
                   onClick={handleLogout}
                   className="py-0"
@@ -229,6 +251,7 @@ export default function DashboardHeader({
           </Stack>
         </Stack>
       </Toolbar>
+      <UserSettingsDialog open={openSettings} onClose={handleCloseSettingsDialog}/>
     </AppBar>
   );
 }
