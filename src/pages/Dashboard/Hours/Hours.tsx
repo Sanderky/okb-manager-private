@@ -1,27 +1,43 @@
 import React, { useState } from 'react';
 import { Button, Box, Typography, Divider, Stack, Alert } from '@mui/material';
 import HoursTable from './HoursTable';
-import { Add } from '@mui/icons-material';
-
-
+import { Add, Summarize } from '@mui/icons-material';
+import { PrintReportDialog } from './HoursTableDialogs';
 
 const Hours: React.FC = () => {
   const [comparisionTables, setComparisionTables] = useState<number[]>([]);
   const handleDeleteTable = (keyToDelete: number) => {
     setComparisionTables((prev) => prev.filter((key) => key !== keyToDelete));
   };
+
+  const [printReportDialogOpen, setPrintReportDialogOpen] = useState(false);
+
   return (
     <Box p={3}>
-      <Typography
+      <Stack
         mb={3}
-        variant="h4"
-        className="text-2xl font-medium md:text-3xl"
+        direction={{ xs: 'column', sm: 'row' }}
+        sx={{
+          justifyContent: 'space-between',
+          alignItems: { xs: 'flex-start', sm: 'center' },
+          rowGap: 2,
+        }}
       >
-        Ewidencja godzin pracy
-      </Typography>
+        <Typography variant="h4" className="text-2xl font-medium md:text-3xl">
+          Ewidencja godzin pracy
+        </Typography>
+        <Button
+          onClick={() => setPrintReportDialogOpen(true)}
+          startIcon={<Summarize />}
+          variant="contained"
+        >
+          Drukuj raport
+        </Button>
+      </Stack>
       <Alert sx={{ mb: 3 }} severity="info">
         Zmiany od razu zapisują się w bazie danych
       </Alert>
+
       <Stack direction="column" spacing={6}>
         <HoursTable readOnly={false} />
 
@@ -56,6 +72,11 @@ const Hours: React.FC = () => {
           Dodaj tabelkę porównawczą
         </Button>
       </Divider>
+
+      <PrintReportDialog
+        open={printReportDialogOpen}
+        onClose={() => setPrintReportDialogOpen(false)}
+      />
     </Box>
   );
 };
