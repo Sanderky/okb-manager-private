@@ -49,6 +49,23 @@ const useHoursTable = (startWeek?: Date) => {
     startWeek ?? getStartOfWeek(new Date())
   );
 
+  const [selectedConstructions, setSelectedConstructions] = useState<string[]>(
+    []
+  );
+
+  const onSelectedConstructionsChange = (constructionIds: string[]) => {
+    setSelectedConstructions(constructionIds);
+  };
+
+  const handleSelectAll = () => {
+    const allConstructionIds = availableConstructions.map((c) => c.id);
+    setSelectedConstructions(allConstructionIds);
+  };
+
+  const handleDeselectAll = () => {
+    setSelectedConstructions([]);
+  };
+
   useEffect(() => {
     if (startWeek) setCurrentWeek(startWeek);
   }, [startWeek]);
@@ -358,8 +375,38 @@ const useHoursTable = (startWeek?: Date) => {
       }
     });
 
-    return Array.from(constructionMap.values());
-  }, [workHours, constructions, employees, vacations, currentWeek]);
+    const constructionArray = Array.from(constructionMap.values());
+    if (selectedConstructions.length === 0) {
+      return constructionArray;
+    } else {
+      return constructionArray.filter((construction) =>
+        selectedConstructions.includes(construction.id)
+      );
+    }
+  }, [
+    workHours,
+    constructions,
+    employees,
+    vacations,
+    currentWeek,
+    selectedConstructions,
+  ]);
+
+  const availableConstructions = useMemo(() => {
+    if (!workHours || !constructions) return [];
+
+    const constructionIdsInWorkHours = new Set(
+      workHours.map((wh) => wh.constructionId)
+    );
+
+    return constructions.filter((construction) =>
+      constructionIdsInWorkHours.has(construction.id)
+    );
+  }, [workHours, constructions]);
+
+  useEffect(() => {
+    setSelectedConstructions([]);
+  }, [currentWeek]);
 
   const existingConstructionIds = useMemo(() => {
     return constructionsWithWorkHours.map((construction) => construction.id);
@@ -416,6 +463,11 @@ const useHoursTable = (startWeek?: Date) => {
     constructions,
     constructionsWithWorkHours,
     onSelectedConstructionForEmployeeChange,
+    onSelectedConstructionsChange,
+    selectedConstructions,
+    availableConstructions,
+    handleSelectAll,
+    handleDeselectAll,
   };
 };
 

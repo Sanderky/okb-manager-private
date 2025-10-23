@@ -17,8 +17,10 @@ import {
   FormGroup,
   Checkbox,
   FormControlLabel,
+  Autocomplete,
+  TextField,
 } from '@mui/material';
-import type { WorkHours } from '../../../types';
+import type { Construction, WorkHours } from '../../../types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getEmployeeList } from '../../../api/employees';
 import { getConstructionList } from '../../../api/constructions';
@@ -38,6 +40,7 @@ import {
   Langs,
   type LangCode,
 } from './reportTranslations';
+import useAvailableConstructionsInRange from './useAvailableConstructionsInRange';
 
 interface AddConstructionWithEmployeeDialogProps {
   open: boolean;
@@ -366,9 +369,22 @@ export const PrintReportDialog: React.FC<PrintReportDialogProps> = ({
   const [showVacation, setShowVacation] = useState<boolean>(true);
   const [lang, setLang] = useState<LangCode>('pl-PL');
 
+  const [selectedConstructions, setSelectedConstructions] = useState<string[]>(
+    []
+  );
+
+  const weeks = getWeeksInRange(startWeek, endWeek);
+
   useEffect(() => {
     if (startWeek > endWeek) setIsError(true);
     else setIsError(false);
+  }, [startWeek, endWeek]);
+
+  const { availableConstructions, isLoading: constructionsLoading } =
+    useAvailableConstructionsInRange(weeks);
+
+  useEffect(() => {
+    setSelectedConstructions([]);
   }, [startWeek, endWeek]);
 
   const reset = () => {
@@ -381,6 +397,7 @@ export const PrintReportDialog: React.FC<PrintReportDialogProps> = ({
     setIsError(false);
     setReportLoading(false);
     setLang('pl-PL');
+    setSelectedConstructions([]);
   };
 
   const handleClose = () => {
@@ -399,14 +416,32 @@ export const PrintReportDialog: React.FC<PrintReportDialogProps> = ({
     }`,
   });
 
-  const weeks = getWeeksInRange(startWeek, endWeek);
-
   const handleSave = () => {
-    // setReportLoading(true)
     setTimeout(() => {
       reactToPrintFn();
       handleClose();
     }, 1000);
+  };
+
+  const handleSelectAllConstructions = () => {
+    const allIds = availableConstructions.map((c) => c.id);
+    setSelectedConstructions(allIds);
+  };
+
+  const handleDeselectAllConstructions = () => {
+    setSelectedConstructions([]);
+  };
+
+  const selectedConstructionObjects = availableConstructions.filter(
+    (construction) => selectedConstructions.includes(construction.id)
+  );
+
+  const handleConstructionChange = (
+    _: React.SyntheticEvent<Element, Event>,
+    newValue: Construction[]
+  ) => {
+    const newIds = newValue.map((construction) => construction.id);
+    setSelectedConstructions(newIds);
   };
 
   return (
@@ -424,6 +459,7 @@ export const PrintReportDialog: React.FC<PrintReportDialogProps> = ({
             ref={printContentRef}
             onLoading={(isLoading: boolean) => setReportLoading(isLoading)}
             lang={lang}
+            selectedConstructions={selectedConstructions}
           />
         </Box>
 
@@ -441,6 +477,51 @@ export const PrintReportDialog: React.FC<PrintReportDialogProps> = ({
           <Typography sx={{ mt: 2 }}>
             Wybrane tygodnie: {weeks.length}
           </Typography>
+          <Divider sx={{ mt: 2 }} flexItem />
+
+          <Typography sx={{ mt: 1, mb: 1 }}>Filtruj budowy</Typography>
+          <Typography variant='caption' sx={{ mb: 1 }}>
+            {`Wybrane: ${selectedConstructions.length}`}
+          </Typography>
+          <Box sx={{ mb: 1, display: 'flex', gap: 1 }}>
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={handleSelectAllConstructions}
+            >
+              Wszystkie
+            </Button>
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={handleDeselectAllConstructions}
+            >
+              Wyczyść
+            </Button>
+          </Box>
+
+          <FormControl sx={{ width: '100%', maxWidth: '100%', mt: 1 }}>
+            <Autocomplete
+              size="small"
+              multiple
+              options={availableConstructions}
+              disableCloseOnSelect
+              getOptionLabel={(option) => option.name}
+              value={selectedConstructionObjects}
+              onChange={handleConstructionChange}
+              isOptionEqualToValue={(option, value) => option.id === value.id}
+              renderOption={(props, option, { selected }) => {
+                const { key, ...optionProps } = props;
+                return (
+                  <li key={key} {...optionProps}>
+                    <Checkbox checked={selected} />
+                    {option.name}
+                  </li>
+                );
+              }}
+              renderInput={(params) => <TextField {...params} label="Budowy" />}
+            />
+          </FormControl>
 
           <Divider sx={{ mt: 2 }} flexItem />
 
@@ -486,6 +567,7 @@ export const PrintReportDialog: React.FC<PrintReportDialogProps> = ({
                 Język docelowy
               </InputLabel>
               <Select
+                size="small"
                 labelId="report-lang-select-label"
                 id="report-lang-select"
                 value={lang}
@@ -514,7 +596,7 @@ export const PrintReportDialog: React.FC<PrintReportDialogProps> = ({
         <Button
           onClick={handleSave}
           variant="contained"
-          loading={reportLoading}
+          loading={reportLoading || constructionsLoading}
           disabled={isError}
         >
           Drukuj

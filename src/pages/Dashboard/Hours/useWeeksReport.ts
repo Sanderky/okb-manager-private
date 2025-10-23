@@ -28,15 +28,26 @@ interface UseWeekReportResult {
 interface WeekReportData {
   weekStart: Date;
   workHours: WorkHours[];
-  vacations: Vacation[]; // Użyj właściwego typu dla vacations
+  vacations: Vacation[];
   employees: Employee[];
   constructions: Construction[];
 }
+interface UseWeekReportParams {
+  weekStarts: Date[];
+  selectedConstructions?: string[];
+}
 
-const useWeekReport = (weekStarts: Date[]): UseWeekReportResult => {
+const useWeekReport = ({
+  weekStarts,
+  selectedConstructions = [],
+}: UseWeekReportParams): UseWeekReportResult => {
   const weekQueries = useQueries({
     queries: weekStarts.map((weekStart) => ({
-      queryKey: ['weekReport', weekStart.toISOString()],
+      queryKey: [
+        'weekReport',
+        weekStart.toISOString(),
+        selectedConstructions.join(','),
+      ],
       queryFn: async () => {
         const [workHours, vacations] = await Promise.all([
           getWorkHoursList(weekStart),
@@ -56,7 +67,6 @@ const useWeekReport = (weekStarts: Date[]): UseWeekReportResult => {
           constructions,
         } as WeekReportData;
       },
-
       staleTime: 0,
     })),
   });
@@ -69,14 +79,6 @@ const useWeekReport = (weekStarts: Date[]): UseWeekReportResult => {
     if (isLoading) return [];
 
     return weekQueries.map((query, index) => {
-      //   if (!query.data) {
-      //     return {
-      //       weekStart: query.data?.weekStart || new Date(),
-      //       constructionsWithWorkHours: [],
-      //       weekDates: getWeekDates(query.data?.weekStart || new Date()),
-      //       totalHoursData: { dailyTotals: [0,0,0,0,0,0,0], grandTotal: 0 }
-      //     };
-      //   }
       const data = query.data as WeekReportData | undefined;
 
       if (!data) {
@@ -123,16 +125,22 @@ const useWeekReport = (weekStarts: Date[]): UseWeekReportResult => {
         let grandTotal = 0;
 
         workHours.forEach((workHour) => {
-          workHour.hours.forEach((hours, dayIndex) => {
-            const parsedHours = Number(hours);
-            const numericHours = isNaN(parsedHours) ? 0 : parsedHours;
-            const date = weekDates[dayIndex];
+          const isConstructionSelected =
+            selectedConstructions.length === 0 ||
+            selectedConstructions.includes(workHour.constructionId);
 
-            if (!isEmployeeOnVacation(workHour.employeeId, date)) {
-              dailyTotals[dayIndex] += numericHours;
-              grandTotal += numericHours;
-            }
-          });
+          if (isConstructionSelected) {
+            workHour.hours.forEach((hours, dayIndex) => {
+              const parsedHours = Number(hours);
+              const numericHours = isNaN(parsedHours) ? 0 : parsedHours;
+              const date = weekDates[dayIndex];
+
+              if (!isEmployeeOnVacation(workHour.employeeId, date)) {
+                dailyTotals[dayIndex] += numericHours;
+                grandTotal += numericHours;
+              }
+            });
+          }
         });
 
         return { dailyTotals, grandTotal };
@@ -142,7 +150,6 @@ const useWeekReport = (weekStarts: Date[]): UseWeekReportResult => {
         if (!workHours || !constructions || !employees) return [];
 
         const constructionMap = new Map<string, ConstructionsWithWorkHours>();
-        const weekDates = getWeekDates(weekStart);
 
         workHours.forEach((workHour) => {
           const construction = constructions.find(
@@ -150,7 +157,11 @@ const useWeekReport = (weekStarts: Date[]): UseWeekReportResult => {
           );
           const employee = employees.find((e) => e.id === workHour.employeeId);
 
-          if (construction && employee) {
+          const isConstructionSelected =
+            selectedConstructions.length === 0 ||
+            selectedConstructions.includes(workHour.constructionId);
+
+          if (construction && employee && isConstructionSelected) {
             if (!constructionMap.has(construction.id)) {
               constructionMap.set(construction.id, {
                 id: construction.id,
@@ -199,7 +210,7 @@ const useWeekReport = (weekStarts: Date[]): UseWeekReportResult => {
         totalHoursData,
       };
     });
-  }, [weekQueries, isLoading]);
+  }, [weekQueries, isLoading, selectedConstructions]);
 
   return {
     weeksData,
@@ -207,4 +218,5 @@ const useWeekReport = (weekStarts: Date[]): UseWeekReportResult => {
     error,
   };
 };
+
 export default useWeekReport;

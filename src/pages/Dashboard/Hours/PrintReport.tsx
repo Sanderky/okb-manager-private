@@ -23,6 +23,7 @@ import {
 } from './HoursHelpers';
 import useWeekReport from './useWeeksReport';
 import { getReporTranslations, type LangCode } from './reportTranslations';
+import type { TableData } from './Hours';
 
 dayjs.extend(isoWeek);
 dayjs.extend(isBetween);
@@ -340,6 +341,7 @@ interface PrintReportProps {
   omitEmpty?: boolean;
   showVacation?: boolean;
   lang?: LangCode;
+  selectedConstructions?: string[];
 }
 
 export const PrintReport = forwardRef<HTMLDivElement, PrintReportProps>(
@@ -353,6 +355,7 @@ export const PrintReport = forwardRef<HTMLDivElement, PrintReportProps>(
       omitEmpty,
       showVacation,
       lang = 'pl-PL',
+      selectedConstructions = [],
     },
     ref
   ) => {
@@ -360,7 +363,10 @@ export const PrintReport = forwardRef<HTMLDivElement, PrintReportProps>(
       return getWeeksInRange(startWeek, endWeek);
     }, [startWeek, endWeek]);
 
-    const { weeksData, isLoading, error } = useWeekReport(weeks);
+    const { weeksData, isLoading, error } = useWeekReport({
+      weekStarts: weeks,
+      selectedConstructions,
+    });
 
     const translations = getReporTranslations(lang);
 
@@ -462,3 +468,34 @@ export const PrintReport = forwardRef<HTMLDivElement, PrintReportProps>(
     );
   }
 );
+
+export const MultiTablePrintReport = forwardRef<
+  HTMLDivElement,
+  { tablesData: { [key: string]: TableData | null } }
+>(({ tablesData }, ref) => {
+  return (
+    <Box ref={ref} sx={{ backgroundColor: 'white' }}>
+      <Box
+        sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
+      >
+        {Object.entries(tablesData).map(([tableId, tableData]) => {
+          if (!tableData) return null;
+
+          return (
+            <Box key={tableId} sx={{ mb: 4, width: '100%' }}>
+              <PrintableTable
+                constructionsWithWorkHours={
+                  tableData.constructionsWithWorkHours
+                }
+                weekDates={tableData.weekDates}
+                totalHoursData={tableData.totalHoursData}
+                showVacation={true}
+                printTitle={true}
+              />
+            </Box>
+          );
+        })}
+      </Box>
+    </Box>
+  );
+});

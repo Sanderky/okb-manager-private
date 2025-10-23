@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Button,
   Box,
@@ -11,6 +11,15 @@ import {
   Divider,
   Grid,
   Menu,
+  Autocomplete,
+  Checkbox,
+  FormControl,
+  TextField,
+  DialogTitle,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  Badge,
 } from '@mui/material';
 import {
   ContentCopy,
@@ -21,6 +30,7 @@ import {
   ExpandMore,
   MoreHoriz,
   Print,
+  Close,
 } from '@mui/icons-material';
 import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
@@ -28,6 +38,8 @@ import 'dayjs/locale/pl';
 import WeekSelector from '../../../components/WeekSelector';
 import isoWeek from 'dayjs/plugin/isoWeek';
 import { useReactToPrint } from 'react-to-print';
+import type { Construction } from '../../../types';
+import FilterListIcon from '@mui/icons-material/FilterList';
 
 dayjs.extend(isoWeek);
 dayjs.extend(isBetween);
@@ -47,6 +59,12 @@ interface HoursTableControlsProps {
   onTableDelete?: () => void;
   tableBorder: string;
   contentRef: React.RefObject<HTMLDivElement | null>;
+  allConstructions: Construction[];
+  availableConstructions: Construction[];
+  selectedConstructions: string[];
+  onSelectedConstructionsChange: (constructionIds: string[]) => void;
+  handleSelectAll: () => void;
+  handleDeselectAll: () => void;
 }
 
 const HoursTableControls = ({
@@ -64,7 +82,14 @@ const HoursTableControls = ({
   isCoping,
   tableBorder,
   contentRef,
+  availableConstructions,
+  selectedConstructions,
+  onSelectedConstructionsChange,
+  handleDeselectAll,
+  handleSelectAll,
 }: HoursTableControlsProps) => {
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const openMobileMenu = Boolean(anchorEl);
   const handleClickMobileMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -72,6 +97,18 @@ const HoursTableControls = ({
   };
   const handleCloseMobileMenu = () => {
     setAnchorEl(null);
+  };
+
+  const selectedConstructionObjects = availableConstructions.filter(
+    (construction) => selectedConstructions.includes(construction.id)
+  );
+
+  const handleChange = (
+    _: React.SyntheticEvent<Element, Event>,
+    newValue: Construction[]
+  ) => {
+    const newIds = newValue.map((construction) => construction.id);
+    onSelectedConstructionsChange(newIds);
   };
 
   const reactToPrintFn = useReactToPrint({
@@ -179,8 +216,17 @@ const HoursTableControls = ({
           ]}
           <MenuItem
             onClick={() => {
+              setIsFilterOpen(true);
+              handleCloseMobileMenu();
+            }}
+            disableRipple
+          >
+            {`Filtry (${selectedConstructions.length})`}
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
               reactToPrintFn();
-              handleToggleExpand();
+              handleCloseMobileMenu();
             }}
             disableRipple
           >
@@ -272,6 +318,21 @@ const HoursTableControls = ({
                 value={currentWeek}
                 onChange={onWeeekChange}
               />
+
+              <Tooltip title="Filtry">
+                <Badge
+                  color="primary"
+                  badgeContent={selectedConstructions.length}
+                >
+                  <IconButton
+                    size="small"
+                    className="rounded-lg border text-blue-500"
+                    onClick={() => setIsFilterOpen(true)}
+                  >
+                    <FilterListIcon />
+                  </IconButton>
+                </Badge>
+              </Tooltip>
             </Stack>
           </Grid>
 
@@ -290,6 +351,16 @@ const HoursTableControls = ({
               height: 'min-content',
             }}
           >
+            <Tooltip title="Drukuj tabelkę">
+              <IconButton
+                disabled={isLoading}
+                onClick={reactToPrintFn}
+                loading={isLoading}
+              >
+                <Print />
+              </IconButton>
+            </Tooltip>
+
             {!readOnly && (
               <>
                 <Tooltip title="Tryb edycji">
@@ -300,15 +371,6 @@ const HoursTableControls = ({
                       handleToggleEditMode(e.currentTarget.checked)
                     }
                   />
-                </Tooltip>
-                <Tooltip title="Drukuj tabelkę">
-                  <IconButton
-                    disabled={isLoading}
-                    onClick={reactToPrintFn}
-                    loading={isLoading}
-                  >
-                    <Print />
-                  </IconButton>
                 </Tooltip>
                 <Tooltip title="Kopiuj z innego tygodnia">
                   <IconButton
@@ -336,6 +398,64 @@ const HoursTableControls = ({
           </Box>
         </Stack>
       </Box>
+
+      <Dialog
+        open={isFilterOpen}
+        onClose={() => setIsFilterOpen(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle sx={{ px: 2 }}>
+          <Stack
+            direction="row"
+            alignItems="center"
+            justifyContent={'space-between'}
+          >
+            <Typography variant="h6" component="div">
+              Filtr budów
+            </Typography>
+            <IconButton onClick={() => setIsFilterOpen(false)}>
+              <Close />
+            </IconButton>
+          </Stack>
+        </DialogTitle>
+        <DialogContent
+          dividers
+          sx={{
+            px: 2,
+          }}
+        >
+          <Typography sx={{mb: 2}} component={'div'} variant='caption'>
+            {`Wybrane: ${selectedConstructions.length}`}
+          </Typography>
+          <FormControl sx={{ width: '100%', maxWidth: '100%' }}>
+            <Autocomplete
+              size="small"
+              multiple
+              options={availableConstructions}
+              disableCloseOnSelect
+              getOptionLabel={(option) => option.name}
+              value={selectedConstructionObjects}
+              onChange={handleChange}
+              isOptionEqualToValue={(option, value) => option.id === value.id}
+              renderOption={(props, option, { selected }) => {
+                const { key, ...optionProps } = props;
+                return (
+                  <li key={key} {...optionProps}>
+                    <Checkbox checked={selected} />
+                    {option.name}
+                  </li>
+                );
+              }}
+              renderInput={(params) => <TextField {...params} label="Budowy" />}
+            />
+          </FormControl>
+        </DialogContent>
+        <DialogActions sx={{ px: 2 }}>
+          <Button onClick={handleSelectAll}>Wszystkie</Button>
+          <Button onClick={handleDeselectAll}>Wyczyść</Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 };
