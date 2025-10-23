@@ -61,14 +61,13 @@ export interface Vacation {
 }
 
 export interface Schedule {
-  id: string;
+  id?: string;
   employeeId: string;
-  constructionId: string;
-  date: Timestamp;
+  constructions: (string | null)[];
+  weekStart: Timestamp;
 }
 
 export type File = FileItem | FolderItem;
-
 
 export interface WorkHours {
   id: string;

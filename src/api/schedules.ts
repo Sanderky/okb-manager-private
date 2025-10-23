@@ -1,63 +1,52 @@
+// api/schedule.ts
 import {
   collection,
-  addDoc,
-  getDocs,
-  getDoc,
   doc,
-  updateDoc,
-  deleteDoc,
+  getDocs,
+  setDoc,
+  query,
+  where,
+  Timestamp,
 } from 'firebase/firestore';
 import { db } from '../firebase';
 import type { Schedule } from '../types';
 
-export async function createSchedule(data: Schedule) {
-  try {
-    const newSchedule: Schedule = {
-      ...data,
-    };
-    const docRef = await addDoc(collection(db, 'schedule'), newSchedule);
-    return docRef.id;
-  } catch (e) {
-    console.error('Błąd podczas dodawania harmonogramu: ', e);
-    throw e;
-  }
-}
+export const getScheduleList = async (): Promise<Schedule[]> => {
+  const querySnapshot = await getDocs(collection(db, 'schedules'));
+  return querySnapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  })) as Schedule[];
+};
 
-export async function updateSchedule(id: string, data: Partial<Schedule>) {
-  try {
-    const scheduleRef = doc(db, 'schedule', id);
-    await updateDoc(scheduleRef, data);
-  } catch (e) {
-    console.error('Błąd podczas aktualizacji harmonogramu: ', e);
-    throw e;
+export const updateSchedule = async (
+  schedule: Omit<Schedule, 'id'> & { id?: string }
+): Promise<void> => {
+  const { id, ...data } = schedule;
+  if (id) {
+    await setDoc(doc(db, 'schedules', id), data);
+  } else {
+    const newDocRef = doc(collection(db, 'schedules'));
+    await setDoc(newDocRef, data);
   }
-}
+};
 
-export async function removeSchedule(id: string) {
-  try {
-    await deleteDoc(doc(db, 'schedule', id));
-  } catch (e) {
-    console.error('Błąd podczas usuwania harmonogramu: ', e);
-    throw e;
-  }
-}
+export const getScheduleByEmployeeAndWeek = async (
+  employeeId: string,
+  weekStart: Date
+): Promise<Schedule | null> => {
+  const weekStartTimestamp = Timestamp.fromDate(weekStart);
+  const q = query(
+    collection(db, 'schedules'),
+    where('employeeId', '==', employeeId),
+    where('weekStart', '==', weekStartTimestamp)
+  );
 
-export async function getScheduleList(): Promise<Schedule[]> {
-  const scheduleCol = collection(db, 'schedule');
-  const scheduleSnapshot = await getDocs(scheduleCol);
-  return scheduleSnapshot.docs.map((doc) => {
-    const data = doc.data();
-    return {
-      id: doc.id,
-      ...data,
-    } as Schedule;
-  });
-}
+  const querySnapshot = await getDocs(q);
+  if (querySnapshot.empty) return null;
 
-export async function getSchedule(id: string): Promise<Schedule | null> {
-  const scheduleDoc = await getDoc(doc(db, 'schedule', id));
-  if (scheduleDoc.exists()) {
-    return { id: scheduleDoc.id, ...scheduleDoc.data() } as Schedule;
-  }
-  return null;
-}
+  return {
+    id: querySnapshot.docs[0].id,
+    ...querySnapshot.docs[0].data(),
+  } as Schedule;
+};

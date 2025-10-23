@@ -47,7 +47,7 @@ import useNotifications from '../../../hooks/useNotifications/useNotifications';
 import DeleteIcon from '@mui/icons-material/Delete';
 
 interface CalendarEvent {
-  id: string;
+  id?: string;
   employee: Employee;
   date: Dayjs;
   startDate: Dayjs;
@@ -102,7 +102,7 @@ const pastelColors = [
   '#D9CAB3', // ciepły beżowy
 ];
 
-export const getColorForEmployee = (id: string): string => {
+const getColorForEmployee = (id: string): string => {
   let hash = 0;
   for (let i = 0; i < id.length; i++) {
     hash = (hash << 5) - hash + id.charCodeAt(i);
@@ -154,6 +154,16 @@ const validateVacation = (
   return { isValid: true };
 };
 
+// const getInitials = (name: string): string => {
+//   if (!name?.trim()) return '';
+
+//   const parts = name.trim().split(/\s+/);
+//   const first = parts[0]?.charAt(0) ?? '';
+//   const last = parts[parts.length - 1]?.charAt(0) ?? '';
+
+//   return `${first}. ${last}.`.toUpperCase();
+// };
+
 const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
   ({
     monthGrid,
@@ -165,6 +175,16 @@ const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
     setActiveDialog,
   }) => {
     // console.log('CalendarGrid render');
+
+    const getInitials = (name: string): string => {
+      if (!name?.trim()) return '';
+
+      const parts = name.trim().split(/\s+/);
+      const first = parts[0]?.charAt(0) ?? '';
+      const last = parts[parts.length - 1]?.charAt(0) ?? '';
+
+      return `${first}. ${last}.`.toUpperCase();
+    };
 
     return (
       <Grid container>
@@ -248,11 +268,10 @@ const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                     const isEnd = ev.date.isSame(ev.endDate);
                     const slot = slots[ev.groupId];
 
-                    if (slot > 3) return null;
+                    if (slot > 3 || !ev.employee) return null;
 
                     return (
                       <Tooltip
-                        disableTouchListener
                         arrow
                         placement="top"
                         key={index}
@@ -280,7 +299,7 @@ const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                             top: slot * 23,
                             left: 0,
                             right: 0,
-                            bgcolor: getColorForEmployee(ev.employee?.id),
+                            bgcolor: getColorForEmployee(ev.employee.id),
                             px: 1,
                             ml: isStart ? 1 : '-5px',
                             mr: isEnd ? 1 : '-5px',
@@ -300,7 +319,22 @@ const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                             // alignItems: 'center',
                           }}
                         >
-                          {ev.employee.name}
+                          <Typography
+                            sx={{
+                              fontSize: 'inherit',
+                              display: { xs: 'none', sm: 'block' },
+                            }}
+                          >
+                            {ev.employee.name}
+                          </Typography>
+                          <Typography
+                            sx={{
+                              fontSize: 'inherit',
+                              display: { xs: 'block', sm: 'none' },
+                            }}
+                          >
+                            {getInitials(ev.employee.name)}
+                          </Typography>
                         </Box>
                       </Tooltip>
                     );
@@ -708,32 +742,16 @@ const Calendar: React.FC = () => {
         mb={1}
         width={'100%'}
         className={
-          'border-lightGray rounded-lg border bg-gray-100/40 px-3 py-4 md:py-3'
+          'border-lightGray rounded-lg border bg-gray-100/40 px-3 py-3 md:py-2'
         }
       >
-        <Stack direction={'row'}>
-          <IconButton
-            size="small"
-            className="rounded-l-lg rounded-r-none border text-blue-300"
-            onClick={() => handleMonthChange('prev')}
-          >
-            <ChevronLeft />
-          </IconButton>
-          <Button
-            variant="outlined"
-            className="rounded-none border-x-0"
-            onClick={() => handleMonthChange('today')}
-          >
-            Dziś
-          </Button>
-          <IconButton
-            size="small"
-            className="rounded-l-none rounded-r-lg border text-blue-300"
-            onClick={() => handleMonthChange('next')}
-          >
-            <ChevronRight />
-          </IconButton>
-        </Stack>
+        <IconButton
+          size="small"
+          className="rounded-lg border text-blue-500"
+          onClick={() => setIsFilterOpen(true)}
+        >
+          <FilterListIcon />
+        </IconButton>
 
         <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pl">
           <DatePicker
@@ -750,26 +768,27 @@ const Calendar: React.FC = () => {
             onChange={handleDatePickerChange}
           />
         </LocalizationProvider>
-
-        <Stack direction={'row'} alignItems={'center'} spacing={1}>
+        <Stack direction={'row'}>
           <IconButton
-            sx={{
-              color: 'royalblue',
-            }}
             size="small"
-            className="rounded-lg border"
-            onClick={() => setIsFilterOpen(true)}
+            className="rounded-l-lg rounded-r-none border text-blue-600"
+            onClick={() => handleMonthChange('prev')}
           >
-            <FilterListIcon />
+            <ChevronLeft />
           </IconButton>
-          <IconButton
-            sx={{
-              borderRadius: 0,
-            }}
-            disabled={selectedEmployees.length === 0}
-            onClick={handleClearFilter}
+          <Button
+            variant="outlined"
+            className="rounded-none border-x-0 border-blue-600 text-blue-600"
+            onClick={() => handleMonthChange('today')}
           >
-            <FilterListOffIcon />
+            Dziś
+          </Button>
+          <IconButton
+            size="small"
+            className="rounded-l-none rounded-r-lg border text-blue-600"
+            onClick={() => handleMonthChange('next')}
+          >
+            <ChevronRight />
           </IconButton>
         </Stack>
 
@@ -781,11 +800,11 @@ const Calendar: React.FC = () => {
           justifyContent={{ xs: 'flex-start', md: 'flex-end' }}
         >
           <Typography
-            variant="h5"
+            variant="h6"
             component="h1"
             fontWeight={'medium'}
             textTransform={'capitalize'}
-            className="border-dark rounded-lg border bg-white px-4 py-1"
+            className="border-dark rounded-lg border bg-white px-3 py-1"
           >
             {currentMonth.format('MMMM YYYY')}
           </Typography>
@@ -831,7 +850,7 @@ const Calendar: React.FC = () => {
         <DialogContent
           dividers
           sx={{
-            minHeight: 130,
+            // minHeight: 130,
             px: 2,
           }}
         >
@@ -886,9 +905,9 @@ const Calendar: React.FC = () => {
         <DialogContent dividers sx={{ maxWidth: '100%', px: 2 }}>
           <Autocomplete
             size="small"
-            options={employees}
+            options={employees.filter((e) => e.status)}
             getOptionLabel={(opt) => opt?.name}
-            value={currentEvent.employee}
+            value={currentEvent.employee ?? null}
             onChange={(_, newValue) => handleEmployeeChange(newValue!)}
             isOptionEqualToValue={(option, value) => option.id === value.id}
             renderOption={(props, option) => {
@@ -1005,6 +1024,7 @@ const Calendar: React.FC = () => {
                       }}
                       direction={'row'}
                       alignItems={'center'}
+                      className={'border-darkGray border'}
                       // onClick={() => handleEventClick(event)}
                     >
                       <Box
@@ -1051,6 +1071,7 @@ const Calendar: React.FC = () => {
                       cursor: 'pointer',
                       ':hover': { opacity: 0.9 },
                     }}
+                    className={'border-darkGray border'}
                     // onClick={() => handleEventClick(event)}
                   >
                     <Typography
