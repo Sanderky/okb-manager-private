@@ -19,6 +19,24 @@ export const getScheduleList = async (): Promise<Schedule[]> => {
   })) as Schedule[];
 };
 
+export const getScheduleListForWeek = async (
+  weekStart: Date
+): Promise<Schedule[]> => {
+  const weekStartTimestamp = Timestamp.fromDate(weekStart);
+  const q = query(
+    collection(db, 'schedules'),
+    where('weekStart', '==', weekStartTimestamp)
+  );
+  const querySnapshot = await getDocs(q);
+  return querySnapshot.docs.map(
+    (doc) =>
+      ({
+        id: doc.id,
+        ...doc.data(),
+      }) as Schedule
+  );
+};
+
 export const updateSchedule = async (
   schedule: Omit<Schedule, 'id'> & { id?: string }
 ): Promise<void> => {

@@ -17,6 +17,7 @@ import {
 } from '@mui/material';
 import {
   Add,
+  AutoFixHigh,
   CancelPresentation,
   Delete,
   ReportProblem,
@@ -91,6 +92,8 @@ interface TableRowsProps {
   isLoading: boolean;
   error: Error | null;
   employees: Employee[] | undefined;
+  isFilling: boolean;
+  handleFillWithSchedule: () => Promise<void>;
 }
 
 const TableRows = ({
@@ -103,6 +106,8 @@ const TableRows = ({
   handleDeleteEmployee,
   handleHoursChange,
   handleOpenAddEmployeeDialog,
+  isFilling,
+  handleFillWithSchedule,
 }: TableRowsProps) => {
   if (error)
     return (
@@ -354,6 +359,17 @@ const TableRows = ({
             <Typography color="textSecondary" variant="body2">
               Brak danych dla danego tygodnia
             </Typography>
+            {editMode && (
+              <Button
+                onClick={handleFillWithSchedule}
+                loading={isFilling}
+                variant="outlined"
+                startIcon={<AutoFixHigh />}
+                sx={{ mt: 2 }}
+              >
+                Uzupełnij proponowane
+              </Button>
+            )}
           </Box>
         </TableCell>
       </TableRow>
@@ -367,7 +383,11 @@ interface HoursTableProps {
   tableId?: string;
 }
 
-const HoursTable = ({ readOnly = true, onTableDelete, onTableDataUpdate }: HoursTableProps) => {
+const HoursTable = ({
+  readOnly = true,
+  onTableDelete,
+  onTableDataUpdate,
+}: HoursTableProps) => {
   const [addConstructionDialogOpen, setAddConstructionDialogOpen] =
     useState(false);
   const [copyDataDialogOpen, setCopyDataDialogOpen] = useState(false);
@@ -403,10 +423,12 @@ const HoursTable = ({ readOnly = true, onTableDelete, onTableDataUpdate }: Hours
     onSelectedConstructionsChange,
     availableConstructions,
     handleDeselectAll,
-    handleSelectAll
+    handleSelectAll,
+    isFilling,
+    handleFillWithSchedule,
   } = useHoursTable();
 
-    useEffect(() => {
+  useEffect(() => {
     if (onTableDataUpdate && !isLoading && !loadingError) {
       onTableDataUpdate({
         weekStart: currentWeek,
@@ -414,15 +436,10 @@ const HoursTable = ({ readOnly = true, onTableDelete, onTableDataUpdate }: Hours
         weekDates,
         totalHoursData,
         selectedConstructions,
-        availableConstructions: availableConstructions || []
+        availableConstructions: availableConstructions || [],
       });
     }
-  }, [
-    currentWeek,
-    constructionsWithWorkHours,
-    isLoading,
-    loadingError
-  ]);
+  }, [currentWeek, constructionsWithWorkHours, isLoading, loadingError]);
 
   const handleOpenAddEmployeeDialog = (constructionId: string) => {
     onSelectedConstructionForEmployeeChange(constructionId);
@@ -468,7 +485,7 @@ const HoursTable = ({ readOnly = true, onTableDelete, onTableDataUpdate }: Hours
         onSelectedConstructionsChange={onSelectedConstructionsChange}
         allConstructions={constructions ?? []}
         handleDeselectAll={handleDeselectAll}
-    handleSelectAll={handleSelectAll}
+        handleSelectAll={handleSelectAll}
       />
 
       <Collapse in={isExpanded} timeout="auto" unmountOnExit>
@@ -525,6 +542,8 @@ const HoursTable = ({ readOnly = true, onTableDelete, onTableDataUpdate }: Hours
             </TableHead>
             <TableBody>
               <TableRows
+                isFilling={isFilling}
+                handleFillWithSchedule={handleFillWithSchedule}
                 employees={employees}
                 isLoading={isLoading}
                 handleDeleteConstruction={handleDeleteConstruction}

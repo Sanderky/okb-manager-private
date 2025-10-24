@@ -23,7 +23,9 @@ import {
   deleteWorkHours,
   deleteConstructionWorkHours,
   copyFromPreviousWeek,
+  addWorkHours,
 } from '../../../api/hours';
+import { getScheduleListForWeek } from '../../../api/schedules';
 
 dayjs.extend(isoWeek);
 dayjs.extend(isBetween);
@@ -186,6 +188,97 @@ const useHoursTable = (startWeek?: Date) => {
       console.error('Data copy error:', error);
     },
   });
+
+  const fillWithScheduleMutation = useMutation({
+    mutationFn: async () => {
+      const schedules = await getScheduleListForWeek(currentWeek);
+      const newWorkHours: Omit<WorkHours, 'id'>[] = [];
+
+      // OPTIONAL - delete all data from current week
+      // await deleteAllWorkHoursForWeek(currentWeek);
+
+      const DEFAULT_HOURS = 10;
+
+      schedules.forEach((schedule) => {
+        const { employeeId, constructions } = schedule;
+        const constructionDays = new Map<string, number[]>();
+
+        constructions.forEach((constructionId, dayIndex) => {
+          if (constructionId) {
+            if (!constructionDays.has(constructionId)) {
+              constructionDays.set(constructionId, []);
+            }
+            constructionDays.get(constructionId)!.push(dayIndex);
+          }
+        });
+
+        constructionDays.forEach((days, constructionId) => {
+          const hours = Array(7).fill(0);
+
+          days.forEach((dayIndex) => {
+            hours[dayIndex] = DEFAULT_HOURS;
+          });
+
+          newWorkHours.push({
+            employeeId,
+            constructionId,
+            hours,
+            weekStart: currentWeek,
+          });
+        });
+      });
+
+      const createPromises = newWorkHours.map((wh) => addWorkHours(wh));
+      await Promise.all(createPromises);
+
+      return newWorkHours.length;
+    },
+    onSuccess: (count) => {
+      queryClient.invalidateQueries({
+        queryKey: ['workHours', currentWeek.toISOString()],
+      });
+
+      if (count === 0) {
+        notifications.show(`Brak danych dla tego tygodnia w harmonogramie`, {
+          severity: 'info',
+          autoHideDuration: 5000,
+        });
+      } else {
+        notifications.show(`Dodano ${count} pozycji z harmonogramu`, {
+          severity: 'success',
+          autoHideDuration: 5000,
+        });
+      }
+    },
+    onError: (error: Error) => {
+      notifications.show('Błąd podczas uzupełniania danych z harmonogramu', {
+        severity: 'error',
+        autoHideDuration: 5000,
+      });
+      console.error('Fill with schedule error:', error);
+    },
+  });
+
+  const handleFillWithSchedule = async () => {
+    const hasExistingData = workHours && workHours.length > 0;
+
+    let confirmation = true;
+    if (hasExistingData) {
+      confirmation = await dialogs.confirm(
+        `Czy na pewno chcesz uzupełnić dane z harmonogramu? Obecne dane w tym tygodniu mogą zostać nadpisane.`,
+        {
+          title: `Uzupełnianie z harmonogramu`,
+          severity: 'warning',
+          okText: 'Kontynuuj',
+          cancelText: 'Anuluj',
+        }
+      );
+    }
+
+    if (confirmation) {
+      fillWithScheduleMutation.mutate();
+    }
+  };
 
   const onWeeekChange = (weekStart: Date) => {
     setCurrentWeek(weekStart);
@@ -468,6 +561,8 @@ const useHoursTable = (startWeek?: Date) => {
     availableConstructions,
     handleSelectAll,
     handleDeselectAll,
+    handleFillWithSchedule,
+    isFilling: fillWithScheduleMutation.isPending,
   };
 };
 
