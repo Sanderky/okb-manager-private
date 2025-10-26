@@ -1,6 +1,7 @@
 import {
   Alert,
   Autocomplete,
+  Badge,
   Box,
   Button,
   Checkbox,
@@ -614,10 +615,6 @@ const Calendar: React.FC = () => {
     setValidationError('');
   }, []);
 
-  const handleClearFilter = useCallback(() => {
-    setSelectedEmployees([]);
-  }, []);
-
   const handleDatePickerChange = useCallback((value: Dayjs | null) => {
     if (value) {
       setCurrentMonth(value);
@@ -745,13 +742,15 @@ const Calendar: React.FC = () => {
           'border-lightGray rounded-lg border bg-gray-100/40 px-3 py-3 md:py-2'
         }
       >
-        <IconButton
-          size="small"
-          className="rounded-lg border text-blue-500"
-          onClick={() => setIsFilterOpen(true)}
-        >
-          <FilterListIcon />
-        </IconButton>
+        <Badge badgeContent={selectedEmployees.length} color="primary">
+          <IconButton
+            size="small"
+            className="rounded-lg border text-blue-500"
+            onClick={() => setIsFilterOpen(true)}
+          >
+            <FilterListIcon />
+          </IconButton>
+        </Badge>
 
         <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pl">
           <DatePicker

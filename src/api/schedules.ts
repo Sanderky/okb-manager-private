@@ -49,22 +49,17 @@ export const updateSchedule = async (
   }
 };
 
-export const getScheduleByEmployeeAndWeek = async (
-  employeeId: string,
-  weekStart: Date
-): Promise<Schedule | null> => {
-  const weekStartTimestamp = Timestamp.fromDate(weekStart);
+export const getEmployeesByScheduledConstruction = async (
+  constructionId: string
+): Promise<string[]> => {
   const q = query(
     collection(db, 'schedules'),
-    where('employeeId', '==', employeeId),
-    where('weekStart', '==', weekStartTimestamp)
+    where('constructions', 'array-contains', constructionId)
   );
-
   const querySnapshot = await getDocs(q);
-  if (querySnapshot.empty) return null;
 
-  return {
-    id: querySnapshot.docs[0].id,
-    ...querySnapshot.docs[0].data(),
-  } as Schedule;
+  const employeeIds = querySnapshot.docs.map((doc) => doc.data().employeeId);
+  const uniqueEmployeeIds = [...new Set(employeeIds)];
+
+  return uniqueEmployeeIds;
 };

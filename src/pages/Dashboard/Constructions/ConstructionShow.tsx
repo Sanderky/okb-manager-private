@@ -4,7 +4,6 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
 import Grid from '@mui/material/Grid';
-import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { useNavigate } from 'react-router';
@@ -23,6 +22,7 @@ import EventAvailableIcon from '@mui/icons-material/EventAvailable';
 import EventRepeatIcon from '@mui/icons-material/EventRepeat';
 import EditNoteIcon from '@mui/icons-material/EditNote';
 import CheckIcon from '@mui/icons-material/Check';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
 
 import {
   Chip,
@@ -34,6 +34,7 @@ import {
   IconButton,
   Tab,
   Tabs,
+  TextareaAutosize,
   TextField,
 } from '@mui/material';
 import { useParams } from 'react-router';
@@ -43,6 +44,17 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import useNotifications from '../../../hooks/useNotifications/useNotifications';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { getEmployeesByScheduledConstruction } from '../../../api/schedules';
+import { getEmployeeList } from '../../../api/employees';
+
+const personalFields = [
+  { key: 'name', label: 'Nazwa budowy' },
+  { key: 'location', label: 'Lokalizacja' },
+  { key: 'contractor', label: 'Wykonawca' },
+  { key: 'startDate', label: 'Data rozpoczęcia' },
+  { key: 'endDate', label: 'Data zakończenia' },
+  // { key: 'inProgress', label: 'W trakcie realizacji' },
+];
 
 export default function ConstructionShow() {
   const { constructionId } = useParams<{ constructionId: string }>();
@@ -50,7 +62,6 @@ export default function ConstructionShow() {
   const queryClient = useQueryClient();
 
   const [notFound, setNotFound] = useState(false);
-  const [showDebug, setShowDebug] = useState(false);
 
   const [editNote, setEditNote] = useState(false);
 
@@ -68,11 +79,30 @@ export default function ConstructionShow() {
 
   const {
     data: construction,
-    isLoading,
-    error,
+    isLoading: isLoadingConstruction,
+    error: errorConstruction,
   } = useQuery({
     queryKey: ['construction', constructionId],
     queryFn: () => getConstruction(constructionId!),
+    enabled: !!constructionId,
+  });
+
+  const {
+    data: employees,
+    isLoading: isLoadingEmployees,
+    error: errorEmployees,
+  } = useQuery({
+    queryKey: ['employees'],
+    queryFn: () => getEmployeeList(),
+  });
+
+  const {
+    data: scheduleEmployees,
+    isLoading: isScheduleEmployeesLoading,
+    error: errorScheduleEmployees,
+  } = useQuery({
+    queryKey: ['employeesByConstruction', constructionId],
+    queryFn: () => getEmployeesByScheduledConstruction(constructionId!),
     enabled: !!constructionId,
   });
 
@@ -80,10 +110,10 @@ export default function ConstructionShow() {
     if (construction) {
       setNote(construction.note ?? '');
       setNotFound(false);
-    } else if (!isLoading) {
+    } else if (!isLoadingConstruction) {
       setNotFound(true);
     }
-  }, [construction, isLoading]);
+  }, [construction, isLoadingConstruction]);
 
   const updateNoteMutation = useMutation({
     mutationFn: (newNote: string) =>
@@ -116,18 +146,10 @@ export default function ConstructionShow() {
     navigate('/constructions');
   }, [navigate]);
 
-  const personalFields = [
-    { key: 'name', label: 'Nazwa budowy' },
-    { key: 'location', label: 'Lokalizacja' },
-    { key: 'contractor', label: 'Wykonawca' },
-    { key: 'startDate', label: 'Data rozpoczęcia' },
-    { key: 'endDate', label: 'Data zakończenia' },
-    // { key: 'inProgress', label: 'W trakcie realizacji' },
-  ];
-
   const [endDialogOpen, setEndDialogOpen] = useState(false);
   const [endDateValue, setEndDateValue] = useState(dayjs());
   const [endDateError, setEndDateError] = useState<string | null>(null);
+  const [resumeDialogOpen, setResumeDialogOpen] = useState(false);
 
   const updateStatusMutation = useMutation({
     mutationFn: (payload: { endDate: Date | null }) =>
@@ -193,19 +215,26 @@ export default function ConstructionShow() {
   ]);
 
   const handleResume = useCallback(() => {
-    window.confirm('Czy na pewno chcesz wznowić budowę?') &&
-      updateStatusMutation.mutate({ endDate: null }, {
+    setResumeDialogOpen(false);
+    updateStatusMutation.mutate(
+      { endDate: null },
+      {
         onSuccess: () => {
           notifications.show('Budowa została wznowiona.', {
             severity: 'success',
             autoHideDuration: 3000,
           });
         },
-      } as any);
+      }
+    );
   }, [updateStatusMutation, notifications]);
 
+  const error = errorConstruction || errorEmployees || errorScheduleEmployees;
+  const loading =
+    isLoadingConstruction || isLoadingEmployees || isScheduleEmployeesLoading;
+
   const renderShow = useMemo(() => {
-    if (isLoading) {
+    if (loading) {
       return (
         <Box
           sx={{
@@ -336,7 +365,7 @@ export default function ConstructionShow() {
                   </IconButton>
                 ) : (
                   <IconButton
-                    onClick={handleResume}
+                    onClick={() => setResumeDialogOpen(true)}
                     color="success"
                     className="rounded-full border border-green-500 bg-green-50/50"
                     title="Wznów budowę"
@@ -375,31 +404,73 @@ export default function ConstructionShow() {
                       >
                         {label}:
                       </Typography>
-                      <Typography
-                        variant="body1"
-                        className="text-dark font-semibold"
-                        sx={{
-                          maxWidth: '100%',
-                          overflow: 'visible',
-                          whiteSpace: 'normal',
-                          wordBreak: 'break-word',
-                        }}
-                        // noWrap
-                      >
-                        {(() => {
-                          const value = construction[key as keyof Construction];
-                          if (!value && key !== 'inProgress') {
-                            return <em className="text-gray-400">-</em>;
-                          }
-                          if (key === 'startDate' || key === 'endDate') {
-                            return dayjs(value).format('DD/MM/YYYY');
-                          }
-                          if (key === 'inProgress') {
-                            return value ? 'Tak' : 'Nie';
-                          }
-                          return String(value);
-                        })() || <em className="text-gray-400">-</em>}
-                      </Typography>
+                      {key === 'location' ? (
+                        <Typography
+                          variant="body1"
+                          sx={{
+                            maxWidth: '100%',
+                            overflow: 'visible',
+                            whiteSpace: 'normal',
+                            wordBreak: 'break-word',
+                            fontWeight: 600,
+                            cursor: construction?.location
+                              ? 'pointer'
+                              : 'default',
+                            color: construction?.location ? 'navy' : 'inherit',
+                          }}
+                          onClick={() => {
+                            if (construction?.location) {
+                              const address = encodeURIComponent(
+                                construction.location
+                              );
+                              window.open(
+                                `https://www.google.com/maps/search/?api=1&query=${address}`,
+                                '_blank'
+                              );
+                            }
+                          }}
+                        >
+                          {(() => {
+                            const value =
+                              construction[key as keyof Construction];
+                            if (!value) {
+                              return <em className="text-gray-400">-</em>;
+                            }
+                            return (
+                              <>
+                                {String(value)} {<LocationOnIcon />}
+                              </>
+                            );
+                          })()}
+                        </Typography>
+                      ) : (
+                        <Typography
+                          variant="body1"
+                          className="text-dark font-semibold"
+                          sx={{
+                            maxWidth: '100%',
+                            overflow: 'visible',
+                            whiteSpace: 'normal',
+                            wordBreak: 'break-word',
+                          }}
+                          // noWrap
+                        >
+                          {(() => {
+                            const value =
+                              construction[key as keyof Construction];
+                            if (!value && key !== 'inProgress') {
+                              return <em className="text-gray-400">-</em>;
+                            }
+                            if (key === 'startDate' || key === 'endDate') {
+                              return dayjs(value).format('DD/MM/YYYY');
+                            }
+                            if (key === 'inProgress') {
+                              return value ? 'Tak' : 'Nie';
+                            }
+                            return String(value);
+                          })()}
+                        </Typography>
+                      )}
                     </Stack>
                   </Grid>
                 ))}
@@ -439,11 +510,16 @@ export default function ConstructionShow() {
                       <IconButton
                         onClick={() => {
                           setEditNote(!editNote);
-                          note !== (construction?.note ?? '') &&
+                          if (note !== (construction?.note ?? '')) {
                             setNote(construction?.note ?? '');
+                          }
                         }}
                         color={!editNote ? 'primary' : 'inherit'}
-                        className={`rounded-lg border ${editNote ? 'border-red-500 bg-red-50/50' : 'border-blue-500'}`}
+                        className={`rounded-lg border ${
+                          editNote
+                            ? 'border-red-500 bg-red-50/50'
+                            : 'border-blue-500'
+                        }`}
                       >
                         {editNote ? (
                           <CloseIcon className="text-red-400" />
@@ -453,7 +529,16 @@ export default function ConstructionShow() {
                       </IconButton>
                     </Stack>
                   </Stack>
-                  <TextField
+                  <TextareaAutosize
+                    minRows={3}
+                    className={`rounded-sm border border-gray-400 bg-white px-2 py-1 ${editNote ? '' : 'bg-gray-100! opacity-50'}`}
+                    style={{ width: '100%', minHeight: '50px' }}
+                    defaultValue="..."
+                    value={note}
+                    onChange={(e) => setNote(e.target.value)}
+                    readOnly={updateNoteMutation.isPending || !editNote}
+                  />
+                  {/* <TextField
                     variant="outlined"
                     className={`bg-white ${editNote ? '' : 'bg-gray-100! opacity-50'}`}
                     fullWidth
@@ -473,15 +558,55 @@ export default function ConstructionShow() {
                         : ''
                     }
                     sx={{ '& .MuiOutlinedInput-root': { p: 1.5 } }}
-                  />
+                  /> */}
                 </Stack>
               </Box>
             </Grid>
-            <Grid
-              size={{ xs: 12, lg: 6 }}
-              sx={{ flexGrow: 1 }}
-              className="border-lightGray rounded-lg border bg-white p-3 md:p-5"
-            ></Grid>
+            {scheduleEmployees && scheduleEmployees?.length > 0 && (
+              <Grid
+                size={{ xs: 12, lg: 6 }}
+                sx={{ flexGrow: 1 }}
+                className="border-lightGray rounded-lg border bg-white p-3 md:p-5"
+              >
+                <Typography
+                  variant="subtitle1"
+                  fontWeight={'600'}
+                  sx={{
+                    mb: 1,
+                  }}
+                >
+                  Pracownicy na budowie:
+                </Typography>
+                {employees && (
+                  <Stack
+                    direction={'column'}
+                    className="border-t border-t-gray-400"
+                  >
+                    {employees
+                      .filter((e) => scheduleEmployees.includes(e.id))
+                      .map((emp) => (
+                        <>
+                          <Typography
+                            variant="subtitle1"
+                            sx={{
+                              py: 1,
+                              fontWeight: '450',
+                            }}
+                            className="text-gray-700"
+                          >
+                            {emp.name}
+                          </Typography>
+                          <Divider
+                            orientation="horizontal"
+                            flexItem
+                            className="last:hidden"
+                          />
+                        </>
+                      ))}
+                  </Stack>
+                )}
+              </Grid>
+            )}
             {/* <Divider sx={{ width: '100%' }} orientation="vertical" /> */}
           </Grid>
         )}
@@ -539,20 +664,75 @@ export default function ConstructionShow() {
             </Button>
           </DialogActions>
         </Dialog>
+        <Dialog
+          open={resumeDialogOpen}
+          onClose={() => setResumeDialogOpen(false)}
+          fullWidth
+          maxWidth="sm"
+        >
+          <DialogTitle>
+            <Stack direction="row" alignItems="center" spacing={1}>
+              <Typography variant="h6" sx={{ flexGrow: 1 }}>
+                Wznawianie budowy
+              </Typography>
+              <IconButton
+                aria-label="close"
+                onClick={() => setResumeDialogOpen(false)}
+              >
+                <CloseIcon />
+              </IconButton>
+            </Stack>
+          </DialogTitle>
+          <DialogContent dividers>
+            <Typography variant="subtitle1">
+              Czy na pewno chcesz wznowić budowę <b>{construction.name}</b> ?
+            </Typography>
+          </DialogContent>
+          <DialogActions sx={{ px: 3, py: 2 }}>
+            <Button
+              variant="outlined"
+              onClick={() => setResumeDialogOpen(false)}
+              disabled={updateStatusMutation.isPending}
+            >
+              Anuluj
+            </Button>
+            <Button
+              variant="contained"
+              onClick={handleResume}
+              disabled={updateStatusMutation.isPending}
+              color="success"
+            >
+              Potwierdź
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Box>
     ) : null;
   }, [
-    isLoading,
+    loading,
     error,
+    notFound,
     construction,
-    handleBack,
+    tab,
     handleConstructionEdit,
-    personalFields,
-    showDebug,
-    note,
+    isInProgress,
+    openEndDialog,
+    editNote,
+    handleSaveNote,
     updateNoteMutation.isPending,
     updateNoteMutation.isError,
-    handleSaveNote,
+    note,
+    scheduleEmployees,
+    employees,
+    endDialogOpen,
+    closeEndDialog,
+    endDateValue,
+    endDateError,
+    handleFinish,
+    updateStatusMutation.isPending,
+    resumeDialogOpen,
+    handleResume,
+    handleBack,
   ]);
 
   const pageTitle = construction?.name || '...';
@@ -567,7 +747,7 @@ export default function ConstructionShow() {
       actions={
         <Stack direction="row" alignItems="center">
           {!error && !notFound ? (
-            isLoading ? (
+            loading ? (
               <CircularProgress size={24} />
             ) : (
               <Chip
