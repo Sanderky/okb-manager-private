@@ -24,6 +24,7 @@ import {
   getDrawerSxTransitionMixin,
   getDrawerWidthTransitionMixin,
 } from '../../mixins';
+import { Schedule } from '@mui/icons-material';
 
 export interface DashboardSidebarProps {
   expanded?: boolean;
@@ -172,8 +173,8 @@ export default function DashboardSidebar({
             />
             <DashboardSidebarPageItem
               id="hours"
-              title="Godziny"
-              icon={<CalendarMonthIcon />}
+              title="Godziny pracy"
+              icon={<Schedule />}
               href="/hours"
               selected={!!matchPath('/hours/*', pathname)}
             />

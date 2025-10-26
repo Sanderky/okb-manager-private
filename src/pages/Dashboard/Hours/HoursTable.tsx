@@ -13,13 +13,11 @@ import {
   CircularProgress,
   Tooltip,
   Collapse,
-  IconButton,
 } from '@mui/material';
 import {
   Add,
   AutoFixHigh,
   CancelPresentation,
-  Delete,
   ReportProblem,
 } from '@mui/icons-material';
 import type { Employee } from '../../../types';
@@ -44,9 +42,10 @@ dayjs.extend(isBetween);
 const borderBold = '2px solid #333';
 const numberCellMaxWidth = '20px';
 const numberCellPadding = 0.5;
-const vacationColor = 'none';
+const redAlert = 'bg-red-300';
+const orangeAlert = 'bg-amber-300';
 const sumColor = '#fff3cd';
-const tableBorder = '1px solid rgba(0, 0, 0, 0.87)';
+const tableBorder = '1px solid oklch(0.551 0.027 264.364)';
 
 interface ConstructionsWithWorkHours {
   id: string;
@@ -168,56 +167,43 @@ const TableRows = ({
                   sx={{
                     borderRight: tableBorder,
                     fontWeight: 'bold',
-                    verticalAlign: 'top',
+                    verticalAlign: 'middle',
                     borderBottom: borderBold,
                     background: '#fff',
-                    '& .MuiIconButton-root': {
-                      opacity: 0,
-                      transition: 'opacity 0.3s ease-in-out',
-                    },
-                    '&:hover .MuiIconButton-root': {
-                      opacity: 1,
-                    },
                   }}
                 >
-                  {construction.name}
-                  {editMode && (
-                    <IconButton
-                      size="small"
-                      onClick={() => handleDeleteConstruction(construction.id)}
-                    >
-                      <Delete fontSize="small" />
-                    </IconButton>
-                  )}
+                  <span
+                    onClick={() =>
+                      editMode && handleDeleteConstruction(construction.id)
+                    }
+                    style={{
+                      cursor: editMode ? 'pointer' : 'text',
+                    }}
+                  >
+                    {construction.name}
+                  </span>
                 </TableCell>
               )}
 
               <TableCell
                 align="center"
                 sx={{
+                  verticalAlign: 'middle',
                   p: numberCellPadding,
+                  position: 'relative',
                   fontWeight: 'bold',
                   borderRight: tableBorder,
                   borderBottom: tableBorder,
-                  '& .MuiIconButton-root': {
-                    opacity: 0,
-                    transition: 'opacity 0.3s ease-in-out',
-                  },
-                  '&:hover .MuiIconButton-root': {
-                    opacity: 1,
-                  },
                 }}
               >
-                {workHour.employeeName}
-                {editMode && (
-                  <IconButton
-                    size="small"
-                    sx={{ visibility: editMode ? 'visible' : 'hidden' }}
-                    onClick={() => handleDeleteEmployee(workHour.id)}
-                  >
-                    <Delete fontSize="small" />
-                  </IconButton>
-                )}
+                <span
+                  onClick={() => editMode && handleDeleteEmployee(workHour.id)}
+                  style={{
+                    cursor: editMode ? 'pointer' : 'text',
+                  }}
+                >
+                  {workHour.employeeName}
+                </span>
               </TableCell>
 
               {workHour.hours.map((hour, dayIndex) => {
@@ -226,11 +212,13 @@ const TableRows = ({
                   <TableCell
                     key={dayIndex}
                     align="center"
+                    className={
+                      hour > 24 ? redAlert : hour > 10 ? orangeAlert : ''
+                    }
                     sx={{
                       borderBottom: tableBorder,
                       p: numberCellPadding,
                       borderRight: tableBorder,
-                      backgroundColor: isVacation ? vacationColor : 'none',
                     }}
                   >
                     {isVacation ? (
@@ -248,13 +236,6 @@ const TableRows = ({
                             parseFloat(e.target.value) || 0
                           )
                         }
-                        // onBlur={(e) => {
-                        //   handleHoursChange(
-                        //     workHour.id,
-                        //     dayIndex,
-                        //     parseFloat(e.target.value) || 0
-                        //   )
-                        // }}
                         sx={{
                           '& .MuiInputBase-root:before, & .MuiInputBase-root:after':
                             {
@@ -263,6 +244,14 @@ const TableRows = ({
                           '& .MuiInputBase-input': {
                             textAlign: 'center',
                             padding: '0 !important',
+                            '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button':
+                              {
+                                WebkitAppearance: 'none',
+                                margin: 0,
+                              },
+                            '&[type=number]': {
+                              MozAppearance: 'textfield',
+                            },
                           },
                         }}
                         variant="standard"
@@ -315,14 +304,18 @@ const TableRows = ({
                       : ''
                   }
                 >
-                  <Button
-                    startIcon={<Add />}
-                    disabled={availableEmployees.length === 0}
-                    onClick={() => handleOpenAddEmployeeDialog(construction.id)}
-                    size="small"
-                  >
-                    Dodaj pracownika
-                  </Button>
+                  <span>
+                    <Button
+                      startIcon={<Add />}
+                      disabled={availableEmployees.length === 0}
+                      onClick={() =>
+                        handleOpenAddEmployeeDialog(construction.id)
+                      }
+                      size="small"
+                    >
+                      Dodaj pracownika
+                    </Button>
+                  </span>
                 </Tooltip>
               )}
             </TableCell>
@@ -489,8 +482,16 @@ const HoursTable = ({
       />
 
       <Collapse in={isExpanded} timeout="auto" unmountOnExit>
-        <TableContainer className="border-lightGray rounded-lg border bg-white">
-          <Table size="small" stickyHeader>
+        <TableContainer
+          className="rounded-lg border bg-white"
+          sx={{
+            border: '1px solid oklch(0.551 0.027 264.364)',
+            '& th': {
+              backgroundColor: 'oklch(0.967 0.003 264.542)',
+            },
+          }}
+        >
+          <Table size="small">
             <TableHead>
               <TableRow>
                 <TableCell
@@ -575,20 +576,22 @@ const HoursTable = ({
                           : ''
                       }
                     >
-                      <Button
-                        startIcon={<Add />}
-                        sx={{ visibility: editMode ? 'visible' : 'hidden' }}
-                        onClick={() => setAddConstructionDialogOpen(true)}
-                        size="small"
-                        variant="text"
-                        color="primary"
-                        disabled={
-                          existingConstructionIds.length ===
-                          (constructions?.length || 0)
-                        }
-                      >
-                        Dodaj budowę
-                      </Button>
+                      <span>
+                        <Button
+                          startIcon={<Add />}
+                          sx={{ visibility: editMode ? 'visible' : 'hidden' }}
+                          onClick={() => setAddConstructionDialogOpen(true)}
+                          size="small"
+                          variant="text"
+                          color="primary"
+                          disabled={
+                            existingConstructionIds.length ===
+                            (constructions?.length || 0)
+                          }
+                        >
+                          Dodaj budowę
+                        </Button>
+                      </span>
                     </Tooltip>
                   )}
                 </TableCell>

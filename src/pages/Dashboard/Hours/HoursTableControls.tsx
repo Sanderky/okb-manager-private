@@ -126,7 +126,7 @@ const HoursTableControls = ({
         spacing={1}
         direction={'row'}
         justifyContent={'space-between'}
-        className="border-lightGray mb-1 rounded-lg border p-2"
+        className="border-lightGray rounded-lg border bg-gray-100/40 p-2"
         sx={{
           border: tableBorder,
           display: { xs: 'flex', sm: 'none' },
@@ -161,41 +161,14 @@ const HoursTableControls = ({
           open={openMobileMenu}
           onClose={handleCloseMobileMenu}
         >
-          <MenuItem disableRipple sx={{ fontWeight: 'bold' }}>
+          <MenuItem disableRipple sx={{ fontWeight: 'bold' }} key={1}>
             Tydzień {dayjs(currentWeek).isoWeek()}
           </MenuItem>
           <Divider />
 
-          <MenuItem
-            onClick={() => {
-              handleCloseMobileMenu();
-              handleWeekChange('prev');
-            }}
-            disableRipple
-          >
-            Poprzedni tydzień
-          </MenuItem>
-          <MenuItem
-            onClick={() => {
-              handleCloseMobileMenu();
-              handleWeekChange('current');
-            }}
-            disableRipple
-          >
-            Obecny tydzień
-          </MenuItem>
-          <MenuItem
-            onClick={() => {
-              handleCloseMobileMenu();
-              handleWeekChange('next');
-            }}
-            disableRipple
-          >
-            Następny tydzień
-          </MenuItem>
-          <Divider />
           {!readOnly && [
             <MenuItem
+              key={2}
               onClick={() => {
                 handleCloseMobileMenu();
                 handleToggleEditMode();
@@ -205,6 +178,7 @@ const HoursTableControls = ({
               {editMode ? 'Wyłącz edycję' : 'Włącz edycję'}
             </MenuItem>,
             <MenuItem
+              key={3}
               onClick={() => {
                 handleCloseMobileMenu();
                 handleCopyDataDialogOpen();
@@ -215,6 +189,7 @@ const HoursTableControls = ({
             </MenuItem>,
           ]}
           <MenuItem
+            key={4}
             onClick={() => {
               setIsFilterOpen(true);
               handleCloseMobileMenu();
@@ -224,6 +199,7 @@ const HoursTableControls = ({
             {`Filtry (${selectedConstructions.length})`}
           </MenuItem>
           <MenuItem
+            key={5}
             onClick={() => {
               reactToPrintFn();
               handleCloseMobileMenu();
@@ -233,6 +209,7 @@ const HoursTableControls = ({
             Drukuj
           </MenuItem>
           <MenuItem
+            key={6}
             onClick={() => {
               handleCloseMobileMenu();
               handleToggleExpand();
@@ -243,6 +220,7 @@ const HoursTableControls = ({
           </MenuItem>
           {readOnly && onTableDelete && (
             <MenuItem
+              key={7}
               onClick={() => {
                 handleCloseMobileMenu();
                 onTableDelete();
@@ -254,9 +232,43 @@ const HoursTableControls = ({
           )}
         </Menu>
       </Stack>
-
+      <Stack
+        direction={'row'}
+        sx={{
+          display: { xs: 'flex', sm: 'none' },
+          alignItems: 'center',
+          width: '100%',
+          mt: 1,
+          mb: 1,
+        }}
+      >
+        <IconButton
+          size="small"
+          className="rounded-l-lg rounded-r-none border text-blue-300"
+          onClick={() => handleWeekChange('prev')}
+        >
+          <ChevronLeft />
+        </IconButton>
+        <Button
+          variant="outlined"
+          className="rounded-none border-x-0"
+          onClick={() => handleWeekChange('current')}
+          sx={{
+            width: '100%',
+          }}
+        >
+          Dziś
+        </Button>
+        <IconButton
+          size="small"
+          className="rounded-l-none rounded-r-lg border text-blue-300"
+          onClick={() => handleWeekChange('next')}
+        >
+          <ChevronRight />
+        </IconButton>
+      </Stack>
       <Box
-        className="border-lightGray mb-1 rounded-lg border p-2"
+        className="border-lightGray mb-2 rounded-lg border bg-gray-100/40 p-2"
         sx={{
           display: { xs: 'none', sm: 'flex' },
 
@@ -425,7 +437,7 @@ const HoursTableControls = ({
             px: 2,
           }}
         >
-          <Typography sx={{mb: 2}} component={'div'} variant='caption'>
+          <Typography sx={{ mb: 2 }} component={'div'} variant="caption">
             {`Wybrane: ${selectedConstructions.length}`}
           </Typography>
           <FormControl sx={{ width: '100%', maxWidth: '100%' }}>

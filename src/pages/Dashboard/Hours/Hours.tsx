@@ -69,9 +69,7 @@ const Hours: React.FC = () => {
     setComparisionTables((prev) => [...prev, newKey]);
   };
 
-  useEffect(() => {
-    console.log('333', tablesData);
-  }, [tablesData]);
+
 
   const reactToPrintFn = useReactToPrint({
     contentRef: printContentRef,
