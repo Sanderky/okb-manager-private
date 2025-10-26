@@ -71,8 +71,11 @@ export interface Vacation {
 export interface Schedule {
   id?: string;
   employeeId: string;
-  employeeName: string
-  constructions: ({constructionId: string, constructionName: string} | null)[];
+  employeeName: string;
+  constructions: ({
+    constructionId: string;
+    constructionName: string;
+  } | null)[];
   weekStart: Date;
 }
 
@@ -81,7 +84,7 @@ export type File = FileItem | FolderItem;
 export interface WorkHours {
   id: string;
   constructionId: string;
-  constructionName: string,
+  constructionName: string;
   employeeId: string;
   employeeName: string;
   weekStart: Date;

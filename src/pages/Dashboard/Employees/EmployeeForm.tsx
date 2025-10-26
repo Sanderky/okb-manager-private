@@ -12,7 +12,16 @@ import dayjs, { type Dayjs } from 'dayjs';
 import type { Employee, EmployeeAttachment, FileItem } from '../../../types';
 import Alert from '@mui/material/Alert';
 import DoneAllOutlinedIcon from '@mui/icons-material/DoneAllOutlined';
-import { Checkbox, Divider, FormControlLabel, Typography } from '@mui/material';
+import {
+  Checkbox,
+  Divider,
+  FormControl,
+  FormControlLabel,
+  InputAdornment,
+  InputLabel,
+  OutlinedInput,
+  Typography,
+} from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
 import { FileUpload } from '@mui/icons-material';
 import AttachmentBox from './AttachmentBox';
@@ -107,7 +116,7 @@ const AttachmentField = ({
       columns={12}
       spacing={{ xs: 2 }}
       width={'100%'}
-      marginBottom={5}
+      marginBottom={2}
       className="border-lightGray rounded-lg border p-3"
     >
       <Typography component="div" variant="body1" marginBottom={1}>
@@ -210,8 +219,8 @@ export default function EmployeeForm(props: EmployeeFormProps) {
   ];
 
   const a1Fields: EmployeeField[] = [
-    { key: 'a1StartDate', label: 'Data rozpoczęcia umowy A1', type: 'date' },
-    { key: 'a1EndDate', label: 'Data wygaśnięcia umowy A1', type: 'date' },
+    { key: 'a1StartDate', label: 'Data rozpoczęcia A1', type: 'date' },
+    { key: 'a1EndDate', label: 'Data wygaśnięcia A1', type: 'date' },
   ];
 
   const [cleared, setCleared] = useState<boolean>(false);
@@ -276,6 +285,39 @@ export default function EmployeeForm(props: EmployeeFormProps) {
               }}
             />
           </LocalizationProvider>
+        </Grid>
+      );
+    }
+
+    if (key === 'hourRate') {
+      return (
+        <Grid size={{ xs: 12, md: 6 }} key={key}>
+          <FormControl fullWidth>
+            <InputLabel htmlFor="adornment-amount">Stawka</InputLabel>
+            <OutlinedInput
+              id="adornment-amount"
+              startAdornment={
+                <InputAdornment position="start">€</InputAdornment>
+              }
+              label="Stawka"
+              value={formValues[key] ?? ''}
+              onChange={(e) => {
+                const inputValue = e.target.value.trim();
+
+                if (inputValue === '') {
+                  handleFieldChange(key, null);
+                  return;
+                }
+
+                const numericValue = Number(inputValue);
+                if (isNaN(numericValue)) {
+                  return;
+                }
+
+                handleFieldChange(key, numericValue);
+              }}
+            />
+          </FormControl>
         </Grid>
       );
     }
@@ -391,7 +433,7 @@ export default function EmployeeForm(props: EmployeeFormProps) {
           <Divider sx={{ width: '100%' }} className="my-3" />
 
           <Typography variant="subtitle1" className="mb-2 font-medium">
-            Umowa A1
+            A1
           </Typography>
           <Grid container columns={12} spacing={{ xs: 2 }} width={'100%'}>
             <AttachmentField
@@ -406,7 +448,7 @@ export default function EmployeeForm(props: EmployeeFormProps) {
 
           <Divider sx={{ width: '100%' }} className="my-3" />
 
-          {isEditForm && (
+          {!isEditForm && (
             <Grid size={{ xs: 12 }} className="my-2">
               <TextField
                 multiline

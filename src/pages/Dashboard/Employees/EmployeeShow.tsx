@@ -53,8 +53,8 @@ const contractFields = [
 ] as const;
 
 const a1Fields = [
-  { key: 'a1StartDate', label: 'Data rozpoczęcia umowy A1' },
-  { key: 'a1EndDate', label: 'Data wygaśnięcia umowy A1' },
+  { key: 'a1StartDate', label: 'Data rozpoczęcia A1' },
+  { key: 'a1EndDate', label: 'Data wygaśnięcia A1' },
 ] as const;
 
 const generateDateBox = (
@@ -245,7 +245,7 @@ export default function EmployeeShow() {
     }
 
     if (key === 'hourRate' && typeof value === 'number') {
-      return `${value} zł/h`;
+      return `${value} €/h`;
     }
 
     return String(value);
@@ -503,7 +503,7 @@ export default function EmployeeShow() {
                     variant="subtitle1"
                     className="text-lg font-semibold"
                   >
-                    Umowa A1
+                    A1
                   </Typography>
                 </Stack>
                 <AttachmentBox
@@ -524,7 +524,21 @@ export default function EmployeeShow() {
         )}
       </Box>
     ) : null;
-  }, [isLoading, error, employee, tab, handleBack, handleEmployeeEdit, note, updateNoteMutation.isPending, handleSaveNote, editNote, notFound, handleOpenPreview, handleCancelEdit]);
+  }, [
+    isLoading,
+    error,
+    employee,
+    tab,
+    handleBack,
+    handleEmployeeEdit,
+    note,
+    updateNoteMutation.isPending,
+    handleSaveNote,
+    editNote,
+    notFound,
+    handleOpenPreview,
+    handleCancelEdit,
+  ]);
 
   const pageTitle = employee?.name || 'Szczegóły Pracownika';
 

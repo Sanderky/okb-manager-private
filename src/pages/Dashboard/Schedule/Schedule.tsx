@@ -30,7 +30,6 @@ import { getConstructionList } from '../../../api/constructions';
 import useNotifications from '../../../hooks/useNotifications/useNotifications';
 import { getVacationList } from '../../../api/vacations';
 import { getScheduleList, updateSchedule } from '../../../api/schedules';
-import { Timestamp } from 'firebase/firestore';
 import {
   daysToRanges,
   getScheduleByEmployeeAndWeek,
@@ -41,6 +40,16 @@ import { EmployeeRow } from './ScheduleEmployeeRow';
 import { FilterDialog } from './ScheduleFilterDialog';
 
 dayjs.locale('pl');
+
+type ScheduleConstruction = {
+  constructionId: string;
+  constructionName: string;
+} | null;
+
+type SchedulePayload = Omit<Schedule, 'id' | 'constructions'> & {
+  id?: string;
+  constructions: ScheduleConstruction[];
+};
 
 const Schedule: React.FC = () => {
   const [fromWeek, setFromWeek] = useState<Date>(() => {
@@ -149,6 +158,51 @@ const Schedule: React.FC = () => {
     },
   });
 
+  type NormalizedEntry = {
+    constructionId: string | null;
+    constructionName: string | null;
+  } | null;
+
+  const normalizeEntry = useCallback(
+    (
+      raw:
+        | string
+        | {
+            constructionId?: string;
+            constructionName?: string;
+            id?: string;
+            name?: string;
+          }
+        | null
+        | undefined
+    ): NormalizedEntry => {
+      if (raw == null) return null;
+      if (typeof raw === 'string') {
+        return { constructionId: raw, constructionName: null };
+      }
+      if (typeof raw === 'object') {
+        return {
+          constructionId: raw.constructionId ?? raw.id ?? null,
+          constructionName: raw.constructionName ?? raw.name ?? null,
+        };
+      }
+      return null;
+    },
+    []
+  );
+
+  const resolveEntryName = useCallback(
+    (entryNormalized: NormalizedEntry) => {
+      if (!entryNormalized) return { name: null, notFound: false };
+      const cid = entryNormalized.constructionId;
+      if (!cid) return { name: null, notFound: false };
+      const found = constructions.find((c) => c.id === cid);
+      if (found) return { name: found.name, notFound: false };
+      return { name: entryNormalized.constructionName ?? null, notFound: true };
+    },
+    [constructions]
+  );
+
   const saveScheduleToDatabase = useCallback(
     async (
       empId: string,
@@ -162,9 +216,29 @@ const Schedule: React.FC = () => {
           weekStart
         );
 
-        const scheduleData: Omit<Schedule, 'id'> & { id?: string } = {
+        const constructionsPayload: ScheduleConstruction[] =
+          constructionIds.map((cid, idx) => {
+            if (!cid) return null;
+            const found = constructions.find((c) => c.id === cid);
+            if (found) {
+              return {
+                constructionId: cid,
+                constructionName: found.name ?? '',
+              };
+            }
+            const existingEntryRaw = existing?.constructions?.[idx] ?? null;
+            const normalizedExisting = normalizeEntry(existingEntryRaw);
+            const existingName = normalizedExisting?.constructionName ?? '';
+            return { constructionId: cid, constructionName: existingName };
+          });
+
+        const scheduleData: SchedulePayload = {
           employeeId: empId,
-          constructions: constructionIds,
+          employeeName:
+            existing?.employeeName ??
+            employees.find((e) => e.id === empId)?.name ??
+            '',
+          constructions: constructionsPayload,
           weekStart: weekStart,
           id: existing?.id,
         };
@@ -178,7 +252,14 @@ const Schedule: React.FC = () => {
         });
       }
     },
-    [schedules, updateScheduleMutation, notifications]
+    [
+      schedules,
+      updateScheduleMutation,
+      notifications,
+      constructions,
+      employees,
+      normalizeEntry,
+    ]
   );
 
   const handleCellChange = useCallback(
@@ -211,8 +292,26 @@ const Schedule: React.FC = () => {
           return isVacation ? null : (value?.id ?? null);
         });
       } else {
-        const existing = existingSchedule?.constructions ?? Array(7).fill(null);
-        newConstructions = [...existing];
+        const existingRaw =
+          existingSchedule?.constructions ?? Array(7).fill(null);
+        const existingIds = existingRaw.map(
+          (
+            entry:
+              | string
+              | {
+                  constructionId?: string;
+                  constructionName?: string;
+                  id?: string;
+                  name?: string;
+                }
+              | null
+          ) => {
+            const normalized = normalizeEntry(entry);
+            return normalized?.constructionId ?? null;
+          }
+        );
+
+        newConstructions = [...existingIds];
         const index = date.diff(startOfWeek, 'day');
 
         const isVacation = vacations?.some(
@@ -224,7 +323,7 @@ const Schedule: React.FC = () => {
 
       await saveScheduleToDatabase(empId, weekStartDate, newConstructions);
     },
-    [schedules, vacations, saveScheduleToDatabase]
+    [schedules, vacations, saveScheduleToDatabase, normalizeEntry]
   );
 
   const handleShowInputConstruction = useCallback(
@@ -271,18 +370,22 @@ const Schedule: React.FC = () => {
       const weekConstructions =
         Array.from({ length: 7 }, (_, i) => {
           const day = weekStart.add(i, 'day');
-          const cid = schedule?.constructions?.[i] ?? null;
-          const construction =
-            cid !== null
-              ? (constructions.find((c) => c.id === cid) ?? null)
-              : null;
+
+          const rawEntry = schedule?.constructions?.[i] ?? null;
+          const normalized = normalizeEntry(rawEntry);
+          const resolved = resolveEntryName(normalized);
           const isVacation = vacations?.some(
             (v) => v.employeeId === empId && day.isSame(dayjs(v.date), 'day')
           );
-          return { day, name: construction?.name ?? null, isVacation };
+
+          return {
+            day,
+            name: resolved.name,
+            isVacation,
+            notFound: resolved.notFound,
+          };
         }) ?? [];
 
-      // === widok tygodniowy ===
       if (isWeek) {
         const constructionsMap: Record<string, dayjs.Dayjs[]> = {};
         const vacationDays: dayjs.Dayjs[] = [];
@@ -301,14 +404,12 @@ const Schedule: React.FC = () => {
 
         const parts: string[] = [];
 
-        // === Urlop ===
         if (showVacations && vacationDays.length > 0) {
           const ranges = daysToRanges(vacationDays);
           const label = showDates ? `Urlop (${ranges.join(', ')})` : `Urlop`;
           parts.push(label);
         }
 
-        // === Budowy ===
         const allConstructions = Object.entries(constructionsMap);
         const shouldShowRanges =
           allConstructions.length > 1 || vacationDays.length > 0 || hasNullDay;
@@ -329,7 +430,6 @@ const Schedule: React.FC = () => {
         );
       }
 
-      // === widok dzienny ===
       const dayData = weekConstructions.find((w) => w.day.isSame(date, 'day'));
       if (dayData?.isVacation) {
         return (
@@ -340,11 +440,22 @@ const Schedule: React.FC = () => {
       }
       return (
         <Typography className="font-medium" variant="body2">
-          {dayData?.name || '-'}
+          {dayData
+            ? dayData.notFound
+              ? `Not found: ${dayData.name ?? '-'}`
+              : (dayData.name ?? '-')
+            : '-'}
         </Typography>
       );
     },
-    [schedules, vacations, constructions, showVacations, showDates]
+    [
+      schedules,
+      vacations,
+      showVacations,
+      showDates,
+      normalizeEntry,
+      resolveEntryName,
+    ]
   );
 
   const isLoading =
@@ -405,7 +516,6 @@ const Schedule: React.FC = () => {
         nagłówku tabeli, aby wyświetlić szczegółowy widok tego tygodnia.
       </Alert>
 
-      {/* Kontrolki tabeli */}
       <TableControls
         fromWeek={fromWeek}
         toWeek={toWeek}
@@ -420,7 +530,6 @@ const Schedule: React.FC = () => {
         activeTable={activeTable}
       />
 
-      {/* Tabela */}
       {activeTable.type === 0 ? (
         <TableContainer
           component={Box}
@@ -605,7 +714,6 @@ const Schedule: React.FC = () => {
         </TableContainer>
       )}
 
-      {/* Menu komórki */}
       <Menu
         anchorEl={cellAnchorEl}
         open={openCellMenu}
@@ -639,18 +747,35 @@ const Schedule: React.FC = () => {
               );
 
               if (activeCell.isWeek) {
-                const firstConstruction = schedule?.constructions?.find(
-                  (id) => id !== null
+                const firstRaw = schedule?.constructions?.find(
+                  (
+                    entry:
+                      | string
+                      | {
+                          constructionId?: string;
+                          constructionName?: string;
+                          id?: string;
+                          name?: string;
+                        }
+                      | null
+                  ) => {
+                    const norm = normalizeEntry(entry);
+                    return !!norm?.constructionId;
+                  }
                 );
+                const firstNorm = normalizeEntry(firstRaw ?? null);
+                const firstId = firstNorm?.constructionId ?? null;
                 return (
-                  constructions.find((c) => c.id === firstConstruction) ?? {
+                  constructions.find((c) => c.id === firstId) ?? {
                     id: null,
                     name: '— Brak —',
                   }
                 );
               } else {
                 const index = dayjs(activeCell.date).diff(weekStart, 'day');
-                const cid = schedule?.constructions?.[index] ?? null;
+                const rawEntry = schedule?.constructions?.[index] ?? null;
+                const norm = normalizeEntry(rawEntry);
+                const cid = norm?.constructionId ?? null;
                 return (
                   constructions.find((c) => c.id === cid) ?? {
                     id: null,
@@ -661,12 +786,14 @@ const Schedule: React.FC = () => {
             })()}
             onChange={(_, newValue) => {
               const valueToPass =
-                newValue && newValue.id === null ? null : newValue;
+                newValue && (newValue as Construction).id === null
+                  ? null
+                  : newValue;
 
               handleCellChange(
                 activeCell.empId,
                 activeCell.date,
-                valueToPass,
+                valueToPass as Construction | null,
                 activeCell.isWeek
               );
               handleCellMenuClose();

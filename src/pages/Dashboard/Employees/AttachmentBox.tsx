@@ -47,7 +47,7 @@ const AttachmentBox = ({
     return (
       <Box className="border-lightGray rounded-lg border p-2" marginBottom={2}>
         <Stack direction={'row'} alignItems={'center'} gap={1}>
-          <HighlightOff />
+          <HighlightOff className="text-gray-500" />
           <Typography variant="body2">Brak załącznika</Typography>
         </Stack>
       </Box>
