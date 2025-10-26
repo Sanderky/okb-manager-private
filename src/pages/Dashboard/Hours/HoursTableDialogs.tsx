@@ -21,7 +21,7 @@ import {
   TextField,
 } from '@mui/material';
 import type { Construction, WorkHours } from '../../../types';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { getEmployeeList } from '../../../api/employees';
 import { getConstructionList } from '../../../api/constructions';
 import 'dayjs/locale/pl';
@@ -31,7 +31,6 @@ import {
   getWeeksInRange,
 } from './HoursHelpers';
 import WeekSelector from '../../../components/WeekSelector';
-import { addWorkHours } from '../../../api/hours';
 import { useReactToPrint } from 'react-to-print';
 import { PrintReport } from './PrintReport';
 import dayjs from 'dayjs';
@@ -46,7 +45,7 @@ interface AddConstructionWithEmployeeDialogProps {
   open: boolean;
   onClose: () => void;
   currentWeek: Date;
-  onSuccess: () => void;
+  onSuccess: (newWorkHours: WorkHours) => void; // Zmienione - zwraca dane
   existingConstructionIds: string[];
 }
 
@@ -66,21 +65,6 @@ export const AddConstructionWithEmployeeDialog: React.FC<
     queryFn: getConstructionList,
   });
 
-  const queryClient = useQueryClient();
-
-  const addWorkHoursMutation = useMutation({
-    mutationFn: addWorkHours,
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['workHours', currentWeek.toISOString()],
-      });
-      onSuccess();
-      setSelectedConstruction('');
-      setSelectedEmployee('');
-      onClose();
-    },
-  });
-
   const availableConstructions = useMemo(() => {
     return (
       constructions?.filter(
@@ -92,14 +76,29 @@ export const AddConstructionWithEmployeeDialog: React.FC<
   const handleAdd = () => {
     if (!selectedConstruction || !selectedEmployee) return;
 
+    const construction = constructions?.find(
+      (c) => c.id === selectedConstruction
+    );
+    const employee = employees?.find((e) => e.id === selectedEmployee);
+
     const workHoursData: Omit<WorkHours, 'id'> = {
       constructionId: selectedConstruction,
+      constructionName: construction?.name || 'Nieznana budowa',
       employeeId: selectedEmployee,
+      employeeName: employee?.name || 'Nieznany pracownik',
       weekStart: currentWeek,
       hours: [0, 0, 0, 0, 0, 0, 0],
     };
 
-    addWorkHoursMutation.mutate(workHoursData);
+    const newWorkHours: WorkHours = {
+      ...workHoursData,
+      id: `${workHoursData.constructionId}_${workHoursData.employeeId}_${workHoursData.weekStart.getTime()}`,
+    };
+
+    onSuccess(newWorkHours);
+    setSelectedConstruction('');
+    setSelectedEmployee('');
+    onClose();
   };
 
   return (
@@ -152,7 +151,6 @@ export const AddConstructionWithEmployeeDialog: React.FC<
         <Button
           onClick={handleAdd}
           variant="contained"
-          loading={addWorkHoursMutation.isPending}
           disabled={
             !selectedConstruction ||
             !selectedEmployee ||
@@ -171,7 +169,7 @@ interface AddEmployeeDialogProps {
   onClose: () => void;
   constructionId: string;
   currentWeek: Date;
-  onEmployeeAdded: () => void;
+  onEmployeeAdded: (newWorkHours: WorkHours) => void;
   existingEmployeeIds: string[];
 }
 
@@ -195,20 +193,6 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
     queryFn: getConstructionList,
   });
 
-  const queryClient = useQueryClient();
-
-  const addWorkHoursMutation = useMutation({
-    mutationFn: addWorkHours,
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['workHours', currentWeek.toISOString()],
-      });
-      onEmployeeAdded();
-      setSelectedEmployee('');
-      onClose();
-    },
-  });
-
   const availableEmployees = useMemo(() => {
     return (
       employees?.filter(
@@ -220,14 +204,26 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
   const handleAdd = () => {
     if (!selectedEmployee) return;
 
+    const construction = constructions?.find((c) => c.id === constructionId);
+    const employee = employees?.find((e) => e.id === selectedEmployee);
+
     const workHoursData: Omit<WorkHours, 'id'> = {
       constructionId: constructionId,
+      constructionName: construction?.name || 'Nieznana budowa',
       employeeId: selectedEmployee,
+      employeeName: employee?.name || 'Nieznany pracownik',
       weekStart: currentWeek,
       hours: [0, 0, 0, 0, 0, 0, 0],
     };
 
-    addWorkHoursMutation.mutate(workHoursData);
+    const newWorkHours: WorkHours = {
+      ...workHoursData,
+      id: `${workHoursData.constructionId}_${workHoursData.employeeId}_${workHoursData.weekStart.getTime()}`,
+    };
+
+    onEmployeeAdded(newWorkHours);
+    setSelectedEmployee('');
+    onClose();
   };
 
   const construction = constructions?.find((c) => c.id === constructionId);
@@ -270,12 +266,7 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
         <Button
           onClick={handleAdd}
           variant="contained"
-          loading={addWorkHoursMutation.isPending}
-          disabled={
-            !selectedEmployee ||
-            addWorkHoursMutation.isPending ||
-            availableEmployees.length === 0
-          }
+          disabled={!selectedEmployee || availableEmployees.length === 0}
         >
           Dodaj
         </Button>
@@ -480,7 +471,7 @@ export const PrintReportDialog: React.FC<PrintReportDialogProps> = ({
           <Divider sx={{ mt: 2 }} flexItem />
 
           <Typography sx={{ mt: 1, mb: 1 }}>Filtruj budowy</Typography>
-          <Typography variant='caption' sx={{ mb: 1 }}>
+          <Typography variant="caption" sx={{ mb: 1 }}>
             {`Wybrane: ${selectedConstructions.length}`}
           </Typography>
           <Box sx={{ mb: 1, display: 'flex', gap: 1 }}>

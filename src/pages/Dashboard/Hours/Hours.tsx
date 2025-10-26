@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Button, Box, Typography, Divider, Stack, Alert } from '@mui/material';
+import { Button, Box, Typography, Divider, Stack } from '@mui/material';
 import HoursTable from './HoursTable';
 import { Add, Print, Summarize } from '@mui/icons-material';
 import { PrintReportDialog } from './HoursTableDialogs';
@@ -69,8 +69,6 @@ const Hours: React.FC = () => {
     setComparisionTables((prev) => [...prev, newKey]);
   };
 
-
-
   const reactToPrintFn = useReactToPrint({
     contentRef: printContentRef,
     documentTitle: `test`,
@@ -129,9 +127,6 @@ const Hours: React.FC = () => {
           </Button>
         </Stack>
       </Stack>
-      <Alert sx={{ mb: 3 }} severity="info">
-        Zmiany od razu zapisują się w bazie danych
-      </Alert>
 
       <Stack direction="column" spacing={6}>
         <HoursTable

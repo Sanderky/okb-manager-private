@@ -18,6 +18,7 @@ import {
   Add,
   AutoFixHigh,
   CancelPresentation,
+  ContentCopy,
   ReportProblem,
 } from '@mui/icons-material';
 import type { Employee } from '../../../types';
@@ -80,8 +81,15 @@ const getAvailableEmployeesForConstruction = (
 interface TableRowsProps {
   constructionsWithWorkHours: ConstructionsWithWorkHours[];
   editMode: boolean;
-  handleDeleteConstruction: (constructionId: string) => void;
-  handleDeleteEmployee: (workHoursId: string) => void;
+  handleDeleteConstruction: (
+    constructionId: string,
+    constructionName: string
+  ) => Promise<void>;
+  handleDeleteEmployee: (
+    workHoursId: string,
+    employeeName: string,
+    constructionName: string
+  ) => void;
   handleHoursChange: (
     workHourId: string,
     dayIndex: number,
@@ -93,6 +101,7 @@ interface TableRowsProps {
   employees: Employee[] | undefined;
   isFilling: boolean;
   handleFillWithSchedule: () => Promise<void>;
+  handleCopyDataDialogOpen: () => void;
 }
 
 const TableRows = ({
@@ -107,6 +116,7 @@ const TableRows = ({
   handleOpenAddEmployeeDialog,
   isFilling,
   handleFillWithSchedule,
+  handleCopyDataDialogOpen,
 }: TableRowsProps) => {
   if (error)
     return (
@@ -174,7 +184,11 @@ const TableRows = ({
                 >
                   <span
                     onClick={() =>
-                      editMode && handleDeleteConstruction(construction.id)
+                      editMode &&
+                      handleDeleteConstruction(
+                        construction.id,
+                        construction.name
+                      )
                     }
                     style={{
                       cursor: editMode ? 'pointer' : 'text',
@@ -197,7 +211,14 @@ const TableRows = ({
                 }}
               >
                 <span
-                  onClick={() => editMode && handleDeleteEmployee(workHour.id)}
+                  onClick={() =>
+                    editMode &&
+                    handleDeleteEmployee(
+                      workHour.id,
+                      workHour.employeeName,
+                      construction.name
+                    )
+                  }
                   style={{
                     cursor: editMode ? 'pointer' : 'text',
                   }}
@@ -229,6 +250,9 @@ const TableRows = ({
                       <TextField
                         type="number"
                         value={hour}
+                        onFocus={(e) => {
+                          e.target.select();
+                        }}
                         onChange={(e) =>
                           handleHoursChange(
                             workHour.id,
@@ -353,15 +377,26 @@ const TableRows = ({
               Brak danych dla danego tygodnia
             </Typography>
             {editMode && (
-              <Button
-                onClick={handleFillWithSchedule}
-                loading={isFilling}
-                variant="outlined"
-                startIcon={<AutoFixHigh />}
-                sx={{ mt: 2 }}
-              >
-                Uzupełnij proponowane
-              </Button>
+              <>
+                <Button
+                  onClick={handleFillWithSchedule}
+                  loading={isFilling}
+                  variant="outlined"
+                  startIcon={<AutoFixHigh />}
+                  sx={{ mt: 2 }}
+                >
+                  Uzupełnij proponowane
+                </Button>
+                <Button
+                  onClick={handleCopyDataDialogOpen}
+                  loading={isFilling}
+                  variant="outlined"
+                  startIcon={<ContentCopy />}
+                  sx={{ mt: 2 }}
+                >
+                  Kopiuj dane z innego tygodnia
+                </Button>
+              </>
             )}
           </Box>
         </TableCell>
@@ -419,6 +454,8 @@ const HoursTable = ({
     handleSelectAll,
     isFilling,
     handleFillWithSchedule,
+    isSaving,
+    handleCancelEdit,
   } = useHoursTable();
 
   useEffect(() => {
@@ -445,6 +482,8 @@ const HoursTable = ({
 
   const printContentRef = useRef<HTMLDivElement>(null);
 
+  const isTableLoading = isCoping || isFilling || isLoading || isSaving;
+
   return (
     <Box>
       <Box sx={{ display: 'none' }}>
@@ -459,7 +498,7 @@ const HoursTable = ({
       </Box>
 
       <HoursTableControls
-        isLoading={isLoading}
+        isLoading={isTableLoading}
         currentWeek={currentWeek}
         handleWeekChange={handleWeekChange}
         onWeeekChange={onWeeekChange}
@@ -479,12 +518,15 @@ const HoursTable = ({
         allConstructions={constructions ?? []}
         handleDeselectAll={handleDeselectAll}
         handleSelectAll={handleSelectAll}
+        handleCancelEdit={handleCancelEdit}
+        handleFillWithSchedule={handleFillWithSchedule}
       />
 
       <Collapse in={isExpanded} timeout="auto" unmountOnExit>
         <TableContainer
           className="rounded-lg border bg-white"
           sx={{
+            position: 'relative',
             border: '1px solid oklch(0.551 0.027 264.364)',
             '& th': {
               backgroundColor: 'oklch(0.967 0.003 264.542)',
@@ -546,7 +588,7 @@ const HoursTable = ({
                 isFilling={isFilling}
                 handleFillWithSchedule={handleFillWithSchedule}
                 employees={employees}
-                isLoading={isLoading}
+                isLoading={isTableLoading}
                 handleDeleteConstruction={handleDeleteConstruction}
                 handleDeleteEmployee={handleDeleteEmployee}
                 handleHoursChange={handleHoursChange}
@@ -554,6 +596,7 @@ const HoursTable = ({
                 constructionsWithWorkHours={constructionsWithWorkHours}
                 editMode={editMode}
                 error={loadingError}
+                handleCopyDataDialogOpen={handleCopyDataDialogOpen}
               />
 
               <TableRow

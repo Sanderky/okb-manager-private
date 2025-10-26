@@ -61,10 +61,18 @@ export interface Vacation {
   endDate: Date;
 }
 
+// export interface Schedule {
+//   id?: string;
+//   employeeId: string;
+//   constructions: (string | null)[];
+//   weekStart: Timestamp;
+// }
+
 export interface Schedule {
   id?: string;
   employeeId: string;
-  constructions: (string | null)[];
+  employeeName: string
+  constructions: ({constructionId: string, constructionName: string} | null)[];
   weekStart: Date;
 }
 
@@ -73,7 +81,9 @@ export type File = FileItem | FolderItem;
 export interface WorkHours {
   id: string;
   constructionId: string;
+  constructionName: string,
   employeeId: string;
-  weekStart: Date; // Data poniedziałku danego tygodnia
-  hours: number[]; // [pon, wt, śr, czw, pt, sob, niedz]
+  employeeName: string;
+  weekStart: Date;
+  hours: number[];
 }

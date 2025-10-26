@@ -97,7 +97,8 @@ const useWeekReport = ({
       const vacationMap = new Map<string, Set<string>>();
       vacations.forEach((vacation) => {
         if (!vacation.employeeId || !vacation.date) return;
-        const dateObj = vacation.date.toDate();
+        // const dateObj = vacation.date.toDate();
+        const dateObj = vacation.date;
         const dateString = dayjs(dateObj).format('YYYY-MM-DD');
         if (!vacationMap.has(vacation.employeeId)) {
           vacationMap.set(vacation.employeeId, new Set());

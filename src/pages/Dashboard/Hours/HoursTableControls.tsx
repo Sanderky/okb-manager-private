@@ -5,7 +5,6 @@ import {
   Typography,
   MenuItem,
   IconButton,
-  Switch,
   Stack,
   Tooltip,
   Divider,
@@ -31,6 +30,7 @@ import {
   MoreHoriz,
   Print,
   Close,
+  AutoFixHigh,
 } from '@mui/icons-material';
 import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
@@ -65,6 +65,8 @@ interface HoursTableControlsProps {
   onSelectedConstructionsChange: (constructionIds: string[]) => void;
   handleSelectAll: () => void;
   handleDeselectAll: () => void;
+  handleCancelEdit: () => Promise<void>;
+  handleFillWithSchedule: () => Promise<void>;
 }
 
 const HoursTableControls = ({
@@ -87,6 +89,8 @@ const HoursTableControls = ({
   onSelectedConstructionsChange,
   handleDeselectAll,
   handleSelectAll,
+  handleCancelEdit,
+  handleFillWithSchedule,
 }: HoursTableControlsProps) => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
@@ -161,24 +165,43 @@ const HoursTableControls = ({
           open={openMobileMenu}
           onClose={handleCloseMobileMenu}
         >
-          <MenuItem disableRipple sx={{ fontWeight: 'bold' }} key={1}>
+          <MenuItem
+            disableRipple
+            sx={{ fontWeight: 'bold', cursor: 'default' }}
+            key={1}
+          >
             Tydzień {dayjs(currentWeek).isoWeek()}
           </MenuItem>
           <Divider />
 
-          {!readOnly && [
+          {!readOnly && (
             <MenuItem
               key={2}
               onClick={() => {
+                if (!isExpanded) handleToggleExpand();
                 handleCloseMobileMenu();
                 handleToggleEditMode();
               }}
               disableRipple
             >
-              {editMode ? 'Wyłącz edycję' : 'Włącz edycję'}
-            </MenuItem>,
+              {editMode ? 'Zapisz' : 'Edytuj'}
+            </MenuItem>
+          )}
+          {!readOnly && editMode && (
             <MenuItem
               key={3}
+              onClick={() => {
+                handleCloseMobileMenu();
+                handleCancelEdit();
+              }}
+              disableRipple
+            >
+              Anuluj
+            </MenuItem>
+          )}
+          {!readOnly && editMode && (
+            <MenuItem
+              key={4}
               onClick={() => {
                 handleCloseMobileMenu();
                 handleCopyDataDialogOpen();
@@ -186,10 +209,23 @@ const HoursTableControls = ({
               disableRipple
             >
               Kopiuj z innego tygodnia
-            </MenuItem>,
-          ]}
+            </MenuItem>
+          )}
+          {!readOnly && editMode && (
+            <MenuItem
+              key={5}
+              onClick={() => {
+                handleFillWithSchedule();
+                handleCopyDataDialogOpen();
+              }}
+              disableRipple
+            >
+              Uzupełnij proponowane
+            </MenuItem>
+          )}
+          <Divider />
           <MenuItem
-            key={4}
+            key={6}
             onClick={() => {
               setIsFilterOpen(true);
               handleCloseMobileMenu();
@@ -199,7 +235,7 @@ const HoursTableControls = ({
             {`Filtry (${selectedConstructions.length})`}
           </MenuItem>
           <MenuItem
-            key={5}
+            key={7}
             onClick={() => {
               reactToPrintFn();
               handleCloseMobileMenu();
@@ -209,7 +245,7 @@ const HoursTableControls = ({
             Drukuj
           </MenuItem>
           <MenuItem
-            key={6}
+            key={8}
             onClick={() => {
               handleCloseMobileMenu();
               handleToggleExpand();
@@ -220,7 +256,7 @@ const HoursTableControls = ({
           </MenuItem>
           {readOnly && onTableDelete && (
             <MenuItem
-              key={7}
+              key={9}
               onClick={() => {
                 handleCloseMobileMenu();
                 onTableDelete();
@@ -272,7 +308,7 @@ const HoursTableControls = ({
         sx={{
           display: { xs: 'none', sm: 'flex' },
 
-          flexDirection: 'row',
+          flexDirection: { sm: 'column-reverse', md: 'row' },
           gap: 2,
         }}
       >
@@ -314,12 +350,13 @@ const HoursTableControls = ({
             <Stack
               alignItems="center"
               direction="row"
-              spacing={1}
+              // spacing={1}
               sx={{ flexShrink: 0 }}
             >
               <Typography
                 sx={{
                   display: { xs: 'none', sm: 'none', md: 'none', lg: 'block' },
+                  mr: 1,
                 }}
                 variant="body2"
               >
@@ -340,6 +377,9 @@ const HoursTableControls = ({
                     size="small"
                     className="rounded-lg border text-blue-500"
                     onClick={() => setIsFilterOpen(true)}
+                    sx={{
+                      ml: 1,
+                    }}
                   >
                     <FilterListIcon />
                   </IconButton>
@@ -348,7 +388,7 @@ const HoursTableControls = ({
             </Stack>
           </Grid>
 
-          <Grid display={'flex'} alignItems="center" sx={{ pr: 1.5, pl: 1.5 }}>
+          <Grid display={'flex'} alignItems="center">
             <Typography component={'div'} variant="body1">
               Tydzień {dayjs(currentWeek).isoWeek()}
             </Typography>
@@ -363,38 +403,66 @@ const HoursTableControls = ({
               height: 'min-content',
             }}
           >
-            <Tooltip title="Drukuj tabelkę">
-              <IconButton
-                disabled={isLoading}
-                onClick={reactToPrintFn}
-                loading={isLoading}
-              >
-                <Print />
-              </IconButton>
-            </Tooltip>
-
             {!readOnly && (
               <>
-                <Tooltip title="Tryb edycji">
-                  <Switch
-                    disabled={isLoading}
-                    checked={editMode}
-                    onChange={(e) =>
-                      handleToggleEditMode(e.currentTarget.checked)
-                    }
-                  />
-                </Tooltip>
-                <Tooltip title="Kopiuj z innego tygodnia">
-                  <IconButton
-                    disabled={isLoading}
-                    onClick={handleCopyDataDialogOpen}
-                    loading={isCoping}
+                <Button
+                  size="small"
+                  onClick={() => {
+                    if (!isExpanded) handleToggleExpand();
+
+                    handleToggleEditMode();
+                  }}
+                >
+                  {editMode ? 'Zapisz' : 'Edytuj'}
+                </Button>
+
+                {editMode && (
+                  <Button
+                    size="small"
+                    onClick={() => handleCancelEdit()}
+                    sx={{
+                      color: 'inherit',
+                    }}
                   >
-                    <ContentCopy />
-                  </IconButton>
+                    Anuluj
+                  </Button>
+                )}
+
+                <Tooltip title="Kopiuj z innego tygodnia">
+                  <span>
+                    <IconButton
+                      disabled={isLoading || !editMode}
+                      onClick={handleCopyDataDialogOpen}
+                      loading={isCoping}
+                    >
+                      <ContentCopy />
+                    </IconButton>
+                  </span>
+                </Tooltip>
+                <Tooltip title="Uzupełnij proponowane">
+                  <span>
+                    <IconButton
+                      disabled={isLoading || !editMode}
+                      onClick={handleFillWithSchedule}
+                      loading={isCoping}
+                    >
+                      <AutoFixHigh />
+                    </IconButton>
+                  </span>
                 </Tooltip>
               </>
             )}
+            <Tooltip title="Drukuj tabelkę">
+              <span>
+                <IconButton
+                  disabled={isLoading}
+                  onClick={reactToPrintFn}
+                  loading={isLoading}
+                >
+                  <Print />
+                </IconButton>
+              </span>
+            </Tooltip>
             <Tooltip title={isExpanded ? 'Zwiń' : 'Rozwiń'}>
               <IconButton onClick={handleToggleExpand}>
                 {isExpanded ? <ExpandLess /> : <ExpandMore />}
@@ -402,9 +470,11 @@ const HoursTableControls = ({
             </Tooltip>
             {readOnly && onTableDelete && (
               <Tooltip title="Usuń tabelę porównawczą">
-                <IconButton disabled={isLoading} onClick={onTableDelete}>
-                  <Clear />
-                </IconButton>
+                <span>
+                  <IconButton disabled={isLoading} onClick={onTableDelete}>
+                    <Clear />
+                  </IconButton>
+                </span>
               </Tooltip>
             )}
           </Box>

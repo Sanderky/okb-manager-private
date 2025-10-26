@@ -19,11 +19,8 @@ import { useDialogs } from '../../../hooks/useDialogs/useDialogs';
 import useNotifications from '../../../hooks/useNotifications/useNotifications';
 import {
   getWorkHoursList,
-  updateWorkHours,
-  deleteWorkHours,
-  deleteConstructionWorkHours,
-  copyFromPreviousWeek,
   addWorkHours,
+  deleteAllWorkHoursForWeek,
 } from '../../../api/hours';
 import { getScheduleListForWeek } from '../../../api/schedules';
 
@@ -51,9 +48,54 @@ const useHoursTable = (startWeek?: Date) => {
     startWeek ?? getStartOfWeek(new Date())
   );
 
+  const [localWorkHours, setLocalWorkHours] = useState<WorkHours[]>([]);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+
   const [selectedConstructions, setSelectedConstructions] = useState<string[]>(
     []
   );
+
+  useEffect(() => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        event.preventDefault();
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [hasUnsavedChanges]);
+
+  useEffect(() => {
+    const handleNavigation = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      const link = target.closest('a');
+
+      if (link && hasUnsavedChanges) {
+        const href = link.getAttribute('href');
+
+        if (href && href.startsWith('/') && !href.startsWith('#')) {
+          const confirmed = window.confirm(
+            'Masz niezapisane zmiany. Czy na pewno chcesz opuścić tę stronę? Wszystkie niezapisane zmiany zostaną utracone.'
+          );
+
+          if (!confirmed) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+        }
+      }
+    };
+
+    document.addEventListener('click', handleNavigation, true);
+
+    return () => {
+      document.removeEventListener('click', handleNavigation, true);
+    };
+  }, [hasUnsavedChanges]);
 
   const onSelectedConstructionsChange = (constructionIds: string[]) => {
     setSelectedConstructions(constructionIds);
@@ -79,6 +121,11 @@ const useHoursTable = (startWeek?: Date) => {
     if (currentWeek !== getStartOfWeek(new Date())) setEditMode(false);
   }, [currentWeek]);
 
+  useEffect(() => {
+    setLocalWorkHours([]);
+    setHasUnsavedChanges(false);
+  }, [currentWeek]);
+
   const [selectedConstructionForEmployee, setSelectedConstructionForEmployee] =
     useState<string>('');
 
@@ -101,13 +148,19 @@ const useHoursTable = (startWeek?: Date) => {
   });
 
   const {
-    data: workHours,
+    data: workHours = [],
     isLoading: workHoursLoading,
     error: workHoursError,
   } = useQuery({
     queryKey: ['workHours', currentWeek.toISOString()],
     queryFn: () => getWorkHoursList(currentWeek),
   });
+
+  useEffect(() => {
+    if (!hasUnsavedChanges) {
+      setLocalWorkHours(workHours);
+    }
+  }, [workHours, hasUnsavedChanges]);
 
   const {
     data: vacations = [],
@@ -124,7 +177,8 @@ const useHoursTable = (startWeek?: Date) => {
     vacations.forEach((vacation) => {
       if (!vacation.employeeId || !vacation.date) return;
 
-      const dateObj = vacation.date.toDate();
+      const dateObj = vacation.date;
+      // const dateObj = vacation.date.toDate();
       const dateString = dayjs(dateObj).format('YYYY-MM-DD');
 
       if (!map.has(vacation.employeeId)) {
@@ -140,45 +194,77 @@ const useHoursTable = (startWeek?: Date) => {
 
   const queryClient = useQueryClient();
 
-  const updateWorkHoursMutation = useMutation({
-    mutationFn: updateWorkHours,
+  const saveWorkHoursMutation = useMutation({
+    mutationFn: async (workHoursToSave: WorkHours[]) => {
+      await deleteAllWorkHoursForWeek(currentWeek);
+
+      if (workHoursToSave.length > 0) {
+        const savePromises = workHoursToSave.map((wh) => addWorkHours(wh));
+        await Promise.all(savePromises);
+      }
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ['workHours', currentWeek.toISOString()],
       });
-    },
-  });
-
-  const deleteWorkHoursMutation = useMutation({
-    mutationFn: deleteWorkHours,
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['workHours', currentWeek.toISOString()],
+      setHasUnsavedChanges(false);
+      notifications.show('Zmiany zostały zapisane', {
+        severity: 'success',
+        autoHideDuration: 3000,
       });
     },
-  });
-
-  const deleteConstructionMutation = useMutation({
-    mutationFn: (constructionId: string) =>
-      deleteConstructionWorkHours(constructionId, currentWeek),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['workHours', currentWeek.toISOString()],
+    onError: (error: Error) => {
+      console.error('Save error:', error);
+      notifications.show('Błąd podczas zapisywania zmian', {
+        severity: 'error',
+        autoHideDuration: 5000,
       });
     },
   });
 
   const copyFromPreviousWeekMutation = useMutation({
-    mutationFn: (sourceWeek: Date) =>
-      copyFromPreviousWeek(currentWeek, sourceWeek),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['workHours', currentWeek.toISOString()],
+    mutationFn: async (sourceWeek: Date) => {
+      const sourceWorkHours = await getWorkHoursList(sourceWeek);
+
+      const newWorkHours: WorkHours[] = sourceWorkHours.map((sourceWh) => {
+        const construction = constructions?.find(
+          (c) => c.id === sourceWh.constructionId
+        );
+        const employee = employees?.find((e) => e.id === sourceWh.employeeId);
+
+        return {
+          ...sourceWh,
+          id: `${sourceWh.constructionId}_${sourceWh.employeeId}_${currentWeek.getTime()}`,
+          weekStart: currentWeek,
+          constructionName:
+            construction?.name ||
+            sourceWh.constructionName ||
+            'Nieznana budowa',
+          employeeName:
+            employee?.name || sourceWh.employeeName || 'Nieznany pracownik',
+        };
       });
-      notifications.show('Dane zostały skopiowane z wybranego tygodnia', {
-        severity: 'success',
-        autoHideDuration: 5000,
-      });
+
+      return newWorkHours;
+    },
+    onSuccess: (newWorkHours) => {
+      setLocalWorkHours(newWorkHours);
+      setHasUnsavedChanges(true);
+
+      if (newWorkHours.length > 0) {
+        notifications.show(
+          `Dane zostały skopiowane z wybranego tygodnia. Pamiętaj o zapisaniu zmian.`,
+          {
+            severity: 'success',
+            autoHideDuration: 5000,
+          }
+        );
+      } else {
+        notifications.show(`Brak danych do skopiowania z danego tygodnia.`, {
+          severity: 'info',
+          autoHideDuration: 5000,
+        });
+      }
     },
     onError: (error: Error) => {
       notifications.show('Błąd podczas kopiowania danych', {
@@ -189,69 +275,122 @@ const useHoursTable = (startWeek?: Date) => {
     },
   });
 
+  const handleCopyFromSourceWeek = useCallback(
+    (sourceWeek: Date) => {
+      const hasExistingLocalData = localWorkHours && localWorkHours.length > 0;
+
+      if (hasExistingLocalData) {
+        dialogs
+          .confirm(
+            `Czy na pewno chcesz skopiować dane z wybranego tygodnia? Obecne niezapisane zmiany w tym tygodniu zostaną utracone.`,
+            {
+              title: `Kopiowanie danych`,
+              severity: 'warning',
+              okText: 'Kontynuuj',
+              cancelText: 'Anuluj',
+            }
+          )
+          .then((confirmed) => {
+            if (confirmed) {
+              copyFromPreviousWeekMutation.mutate(sourceWeek);
+            }
+          });
+      } else {
+        copyFromPreviousWeekMutation.mutate(sourceWeek);
+      }
+    },
+    [copyFromPreviousWeekMutation, localWorkHours, dialogs]
+  );
+
   const fillWithScheduleMutation = useMutation({
     mutationFn: async () => {
       const schedules = await getScheduleListForWeek(currentWeek);
-      const newWorkHours: Omit<WorkHours, 'id'>[] = [];
-
-      // OPTIONAL - delete all data from current week
-      // await deleteAllWorkHoursForWeek(currentWeek);
+      const newWorkHours: WorkHours[] = [];
 
       const DEFAULT_HOURS = 10;
 
       schedules.forEach((schedule) => {
-        const { employeeId, constructions } = schedule;
-        const constructionDays = new Map<string, number[]>();
+        const {
+          employeeId,
+          employeeName: scheduleEmployeeName,
+          constructions: scheduleConstructions,
+        } = schedule;
+        const constructionDays = new Map<
+          string,
+          { days: number[]; constructionName: string }
+        >();
 
-        constructions.forEach((constructionId, dayIndex) => {
-          if (constructionId) {
+        scheduleConstructions.forEach((constructionObj, dayIndex) => {
+          if (constructionObj && constructionObj.constructionId) {
+            const {
+              constructionId,
+              constructionName: scheduleConstructionName,
+            } = constructionObj;
+
             if (!constructionDays.has(constructionId)) {
-              constructionDays.set(constructionId, []);
+              constructionDays.set(constructionId, {
+                days: [],
+                constructionName: scheduleConstructionName,
+              });
             }
-            constructionDays.get(constructionId)!.push(dayIndex);
+
+            constructionDays.get(constructionId)!.days.push(dayIndex);
           }
         });
 
-        constructionDays.forEach((days, constructionId) => {
+        const employee = employees?.find((e) => e.id === employeeId);
+        const employeeName =
+          employee?.name || scheduleEmployeeName || 'Nieznany pracownik';
+
+        constructionDays.forEach((value, constructionId) => {
+          const construction = constructions?.find(
+            (c) => c.id === constructionId
+          );
+          const constructionName =
+            construction?.name || value.constructionName || 'Nieznana budowa';
+
           const hours = Array(7).fill(0);
 
-          days.forEach((dayIndex) => {
+          value.days.forEach((dayIndex) => {
             hours[dayIndex] = DEFAULT_HOURS;
           });
 
+          const workHoursId = `${constructionId}_${employeeId}_${currentWeek.getTime()}`;
           newWorkHours.push({
-            employeeId,
+            id: workHoursId,
             constructionId,
+            constructionName,
+            employeeId,
+            employeeName,
             hours,
             weekStart: currentWeek,
           });
         });
       });
 
-      const createPromises = newWorkHours.map((wh) => addWorkHours(wh));
-      await Promise.all(createPromises);
-
-      return newWorkHours.length;
+      return newWorkHours;
     },
-    onSuccess: (count) => {
-      queryClient.invalidateQueries({
-        queryKey: ['workHours', currentWeek.toISOString()],
-      });
+    onSuccess: (newWorkHours) => {
+      setLocalWorkHours(newWorkHours);
+      setHasUnsavedChanges(true);
 
-      if (count === 0) {
-        notifications.show(`Brak danych dla tego tygodnia w harmonogramie`, {
-          severity: 'info',
-          autoHideDuration: 5000,
-        });
+      if (newWorkHours.length > 0) {
+        notifications.show(
+          `Załadowano ${newWorkHours.length} pozycji z harmonogramu do tabeli. Pamiętaj o zapisaniu zmian.`,
+          {
+            severity: 'success',
+            autoHideDuration: 5000,
+          }
+        );
       } else {
-        notifications.show(`Dodano ${count} pozycji z harmonogramu`, {
-          severity: 'success',
+        notifications.show(`Brak danych w harmonogramie na dany tydzień.`, {
+          severity: 'info',
           autoHideDuration: 5000,
         });
       }
     },
     onError: (error: Error) => {
-      notifications.show('Błąd podczas uzupełniania danych z harmonogramu', {
+      notifications.show('Błąd podczas ładowania danych z harmonogramu', {
         severity: 'error',
         autoHideDuration: 5000,
       });
@@ -260,12 +399,12 @@ const useHoursTable = (startWeek?: Date) => {
   });
 
   const handleFillWithSchedule = async () => {
-    const hasExistingData = workHours && workHours.length > 0;
+    const hasExistingLocalData = localWorkHours && localWorkHours.length > 0;
 
     let confirmation = true;
-    if (hasExistingData) {
+    if (hasExistingLocalData) {
       confirmation = await dialogs.confirm(
-        `Czy na pewno chcesz uzupełnić dane z harmonogramu? Obecne dane w tym tygodniu mogą zostać nadpisane.`,
+        `Czy na pewno chcesz uzupełnić dane z harmonogramu? Obecne niezapisane zmiany w tym tygodniu zostaną utracone.`,
         {
           title: `Uzupełnianie z harmonogramu`,
           severity: 'warning',
@@ -281,20 +420,49 @@ const useHoursTable = (startWeek?: Date) => {
   };
 
   const onWeeekChange = (weekStart: Date) => {
-    setCurrentWeek(weekStart);
+    if (hasUnsavedChanges) {
+      dialogs
+        .confirm(
+          `Masz niezapisane zmiany. Czy na pewno chcesz zmienić tydzień? Wszystkie niezapisane zmiany zostaną utracone.`,
+          {
+            title: `Niezapisane zmiany`,
+            severity: 'warning',
+            okText: 'Tak, zmień tydzień',
+            cancelText: 'Pozostań',
+          }
+        )
+        .then((confirmed) => {
+          if (confirmed) {
+            setCurrentWeek(weekStart);
+            setEditMode(false);
+          }
+        });
+    } else {
+      setCurrentWeek(weekStart);
+    }
   };
 
   const onSelectedConstructionForEmployeeChange = (constructionId: string) => {
     setSelectedConstructionForEmployee(constructionId);
   };
 
-  const handleToggleEditMode = (editMode?: boolean) => {
-    if (editMode === undefined) {
-      setEditMode((prev) => !prev);
-      return;
-    }
+  const handleToggleEditMode = async (editModeVal?: boolean) => {
+    if (editModeVal === undefined) {
+      if (editMode) {
+        if (hasUnsavedChanges) {
+          await saveWorkHoursMutation.mutateAsync(localWorkHours);
+        }
+        setEditMode(false);
+      } else {
+        setEditMode(true);
+      }
+    } else {
+      if (!editModeVal && hasUnsavedChanges) {
+        await saveWorkHoursMutation.mutateAsync(localWorkHours);
+      }
 
-    return editMode ? setEditMode(true) : setEditMode(false);
+      setEditMode(editMode);
+    }
   };
 
   const handleToggleExpand = () => {
@@ -306,35 +474,73 @@ const useHoursTable = (startWeek?: Date) => {
     dayIndex: number,
     value: number | string
   ) => {
-    if (!workHours) return;
-
-    const existingRecord = workHours.find((wh) => wh.id === workHourId);
-    if (!existingRecord) return;
-
-    const newHours = [...existingRecord.hours];
+    if (!localWorkHours) return;
 
     const numericValue =
       typeof value === 'string' ? parseFloat(value) || 0 : value;
-    newHours[dayIndex] = numericValue;
 
-    const updatedWorkHours: WorkHours = {
-      ...existingRecord,
-      hours: newHours,
-    };
+    setLocalWorkHours((prev) =>
+      prev.map((wh) => {
+        if (wh.id === workHourId) {
+          const newHours = [...wh.hours];
+          newHours[dayIndex] = numericValue;
 
-    updateWorkHoursMutation.mutate(updatedWorkHours);
+          const weekDates = getWeekDates(currentWeek);
+          const newTotal = newHours.reduce((sum, current, index) => {
+            const isVacation = isEmployeeOnVacation(
+              wh.employeeId,
+              weekDates[index]
+            );
+            return isVacation ? sum : sum + current;
+          }, 0);
+
+          return {
+            ...wh,
+            hours: newHours,
+            total: newTotal,
+          };
+        }
+        return wh;
+      })
+    );
+    setHasUnsavedChanges(true);
   };
 
   const handleWeekChange = (week: 'prev' | 'current' | 'next') => {
+    if (hasUnsavedChanges) {
+      dialogs
+        .confirm(
+          `Masz niezapisane zmiany. Czy na pewno chcesz zmienić tydzień? Wszystkie niezapisane zmiany zostaną utracone.`,
+          {
+            title: `Niezapisane zmiany`,
+            severity: 'warning',
+            okText: 'Tak, zmień tydzień',
+            cancelText: 'Pozostań',
+          }
+        )
+        .then((confirmed) => {
+          if (confirmed) {
+            performWeekChange(week);
+          }
+        });
+    } else {
+      performWeekChange(week);
+    }
+  };
+
+  const performWeekChange = (week: 'prev' | 'current' | 'next') => {
     switch (week) {
       case 'prev':
         setCurrentWeek(getPreviousWeek(currentWeek));
+        setEditMode(false);
         return;
       case 'current':
         setCurrentWeek(getStartOfWeek(new Date()));
+        setEditMode(false);
         return;
       case 'next':
         setCurrentWeek(getNextWeek(currentWeek));
+        setEditMode(false);
         return;
     }
   };
@@ -348,9 +554,13 @@ const useHoursTable = (startWeek?: Date) => {
     return employeeVacations.has(dateString);
   };
 
-  const handleDeleteEmployee = async (workHoursId: string) => {
+  const handleDeleteEmployee = async (
+    workHoursId: string,
+    employeeName: string,
+    constructionName: string
+  ) => {
     const confirmation = await dialogs.confirm(
-      `Czy na pewno chcesz usunąć tego pracownika z budowy?`,
+      `Czy na pewno chcesz usunąć pracownika ${employeeName} z budowy ${constructionName}?`,
       {
         title: `Usuwanie pracownika`,
         severity: 'error',
@@ -359,13 +569,17 @@ const useHoursTable = (startWeek?: Date) => {
       }
     );
     if (confirmation) {
-      deleteWorkHoursMutation.mutate(workHoursId);
+      setLocalWorkHours((prev) => prev.filter((wh) => wh.id !== workHoursId));
+      setHasUnsavedChanges(true);
     }
   };
 
-  const handleDeleteConstruction = async (constructionId: string) => {
+  const handleDeleteConstruction = async (
+    constructionId: string,
+    constructionName: string
+  ) => {
     const confirmation = await dialogs.confirm(
-      `Czy na pewno chcesz usunąć tę budowę wraz ze wszystkimi pracownikami?`,
+      `Czy na pewno chcesz usunąć budowę ${constructionName} wraz ze wszystkimi pracownikami?`,
       {
         title: `Usuwanie budowy`,
         severity: 'error',
@@ -374,30 +588,57 @@ const useHoursTable = (startWeek?: Date) => {
       }
     );
     if (confirmation) {
-      deleteConstructionMutation.mutate(constructionId);
+      setLocalWorkHours((prev) =>
+        prev.filter((wh) => wh.constructionId !== constructionId)
+      );
+      setHasUnsavedChanges(true);
     }
   };
 
-  const handleConstructionWithEmployeeAdded = () => {};
+  const handleEmployeeAdded = (newWorkHours: WorkHours) => {
+    setLocalWorkHours((prev) => [...prev, newWorkHours]);
+    setHasUnsavedChanges(true);
+  };
 
-  const handleEmployeeAdded = () => {};
+  const handleConstructionWithEmployeeAdded = (newWorkHours: WorkHours) => {
+    setLocalWorkHours((prev) => [...prev, newWorkHours]);
+    setHasUnsavedChanges(true);
+  };
 
-  const handleCopyFromSourceWeek = useCallback(
-    (sourceWeek: Date) => {
-      copyFromPreviousWeekMutation.mutate(sourceWeek);
-    },
-    [copyFromPreviousWeekMutation]
-  );
+  const handleCancelEdit = async () => {
+    if (hasUnsavedChanges) {
+      const confirmed = await dialogs.confirm(
+        `Czy na pewno chcesz anulować edycję? Obecne niezapisane zmiany w tym tygodniu zostaną utracone.`,
+        {
+          title: `Anuluwanie edycji`,
+          severity: 'warning',
+          okText: 'Kontynuuj',
+          cancelText: 'Wróć',
+        }
+      );
+      if (confirmed) {
+        setLocalWorkHours(workHours);
+        setHasUnsavedChanges(false);
+        setEditMode(false);
+      }
+    } else {
+      setLocalWorkHours(workHours);
+      setHasUnsavedChanges(false);
+      setEditMode(false);
+    }
+  };
+
+  const displayedWorkHours = editMode ? localWorkHours : workHours;
 
   const totalHoursData = useMemo(() => {
-    if (!workHours)
+    if (!displayedWorkHours)
       return { dailyTotals: [0, 0, 0, 0, 0, 0, 0], grandTotal: 0 };
 
     const dailyTotals = [0, 0, 0, 0, 0, 0, 0];
     let grandTotal = 0;
     const weekDates = getWeekDates(currentWeek);
 
-    workHours.forEach((workHour) => {
+    displayedWorkHours.forEach((workHour) => {
       workHour.hours.forEach((hours, dayIndex) => {
         const parsedHours = Number(hours);
 
@@ -413,59 +654,69 @@ const useHoursTable = (startWeek?: Date) => {
     });
 
     return { dailyTotals, grandTotal };
-  }, [workHours, vacations, currentWeek]);
+  }, [displayedWorkHours, vacations, currentWeek]);
 
   const constructionsWithWorkHours = useMemo(() => {
-    if (!workHours || !constructions || !employees) return [];
+    if (!displayedWorkHours || !constructions || !employees) return [];
 
     const constructionMap = new Map<string, ConstructionsWithWorkHours>();
 
     const weekDates = getWeekDates(currentWeek);
 
-    workHours.forEach((workHour) => {
+    displayedWorkHours.forEach((workHour) => {
       const construction = constructions.find(
         (c) => c.id === workHour.constructionId
       );
+      const constructionName =
+        construction?.name || workHour.constructionName || 'Nieznana budowa';
+
       const employee = employees.find((e) => e.id === workHour.employeeId);
+      const employeeName =
+        employee?.name || workHour.employeeName || 'Nieznany pracownik';
 
-      if (construction && employee) {
-        if (!constructionMap.has(construction.id)) {
-          constructionMap.set(construction.id, {
-            id: construction.id,
-            name: construction.name,
-            workHours: [],
-            totalHours: 0,
-          });
-        }
-
-        const constructionData = constructionMap.get(construction.id)!;
-
-        const numericHours = workHour.hours.map((h) =>
-          typeof h === 'string' ? parseFloat(h as string) || 0 : h
-        );
-
-        const isOnVacation = weekDates.map((date) =>
-          isEmployeeOnVacation(workHour.employeeId, date)
-        );
-
-        const employeeTotalHours = numericHours.reduce(
-          (sum, current, index) => {
-            return isOnVacation[index] ? sum : sum + current;
-          },
-          0
-        );
-
-        constructionData.workHours.push({
-          id: workHour.id,
-          employeeId: workHour.employeeId,
-          employeeName: employee.name,
-          hours: numericHours,
-          total: employeeTotalHours,
-          isOnVacation,
-        });
-
-        constructionData.totalHours += employeeTotalHours;
+      if (!construction && !workHour.constructionName) {
+        console.warn(`Pominięto workHour bez budowy: ${workHour.id}`);
+        return;
       }
+
+      if (!employee && !workHour.employeeName) {
+        console.warn(`Pominięto workHour bez pracownika: ${workHour.id}`);
+        return;
+      }
+
+      if (!constructionMap.has(workHour.constructionId)) {
+        constructionMap.set(workHour.constructionId, {
+          id: workHour.constructionId,
+          name: constructionName,
+          workHours: [],
+          totalHours: 0,
+        });
+      }
+
+      const constructionData = constructionMap.get(workHour.constructionId)!;
+
+      const numericHours = workHour.hours.map((h) =>
+        typeof h === 'string' ? parseFloat(h as string) || 0 : h
+      );
+
+      const isOnVacation = weekDates.map((date) =>
+        isEmployeeOnVacation(workHour.employeeId, date)
+      );
+
+      const employeeTotalHours = numericHours.reduce((sum, current, index) => {
+        return isOnVacation[index] ? sum : sum + current;
+      }, 0);
+
+      constructionData.workHours.push({
+        id: workHour.id,
+        employeeId: workHour.employeeId,
+        employeeName: employeeName,
+        hours: numericHours,
+        total: employeeTotalHours,
+        isOnVacation,
+      });
+
+      constructionData.totalHours += employeeTotalHours;
     });
 
     const constructionArray = Array.from(constructionMap.values());
@@ -477,7 +728,7 @@ const useHoursTable = (startWeek?: Date) => {
       );
     }
   }, [
-    workHours,
+    displayedWorkHours,
     constructions,
     employees,
     vacations,
@@ -486,16 +737,16 @@ const useHoursTable = (startWeek?: Date) => {
   ]);
 
   const availableConstructions = useMemo(() => {
-    if (!workHours || !constructions) return [];
+    if (!displayedWorkHours || !constructions) return [];
 
     const constructionIdsInWorkHours = new Set(
-      workHours.map((wh) => wh.constructionId)
+      displayedWorkHours.map((wh) => wh.constructionId)
     );
 
     return constructions.filter((construction) =>
       constructionIdsInWorkHours.has(construction.id)
     );
-  }, [workHours, constructions]);
+  }, [displayedWorkHours, constructions]);
 
   useEffect(() => {
     setSelectedConstructions([]);
@@ -563,6 +814,9 @@ const useHoursTable = (startWeek?: Date) => {
     handleDeselectAll,
     handleFillWithSchedule,
     isFilling: fillWithScheduleMutation.isPending,
+    hasUnsavedChanges,
+    isSaving: saveWorkHoursMutation.isPending,
+    handleCancelEdit,
   };
 };
 
