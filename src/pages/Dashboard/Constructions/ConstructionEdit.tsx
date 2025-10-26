@@ -13,7 +13,6 @@ import type { Construction } from '../../../types';
 import ConstructionForm, {
   type FormFieldValue,
   type ConstructionFormState,
-  validate,
 } from './ConstructionForm';
 import PageContainer from '../../../components/PageContainer';
 import { AlertTitle, Stack, Typography } from '@mui/material';
@@ -25,6 +24,7 @@ import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import useNotifications from '../../../hooks/useNotifications/useNotifications';
+import { validate } from './ConstructionHelpers';
 
 export default function ConstructionEdit() {
   const { constructionId } = useParams<{ constructionId: string }>();
