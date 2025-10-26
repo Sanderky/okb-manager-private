@@ -9,16 +9,18 @@ import {
   Button,
   Box,
   Popover,
+  IconButton,
 } from '@mui/material';
-import { CalendarMonth } from '@mui/icons-material';
+import { CalendarMonth, ChevronLeft, ChevronRight } from '@mui/icons-material';
 
 import dayjs, { Dayjs } from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-
+import { plPL } from '@mui/x-date-pickers/locales';
 import 'dayjs/locale/pl';
+import { Stack } from '@mui/system';
 
 function getStartOfWeek(date: Date): Date {
   const d = new Date(date);
@@ -51,14 +53,14 @@ interface WeekSelectorProps {
   value: Date;
   onChange: (date: Date) => void;
   renderQuickActions?: boolean;
-  disabled?: boolean
+  disabled?: boolean;
 }
 
 const WeekSelector: React.FC<WeekSelectorProps> = ({
   value,
   onChange,
   renderQuickActions = false,
-  disabled = false
+  disabled = false,
 }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const [hoveredWeek, setHoveredWeek] = useState<Date | null>(null);
@@ -153,23 +155,54 @@ const WeekSelector: React.FC<WeekSelectorProps> = ({
           horizontal: 'left',
         }}
       >
-        <Box sx={{ width: 320, p: 2 }}>
-          <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pl">
-            <DatePicker
-              openTo="month"
-              views={['year', 'month']}
-              value={selectedMonth}
-              onChange={handleMonthChange}
-              sx={{
-                width: '100%',
-                mb: 2,
-                '& .MuiPickersSectionList-root': {
-                  padding: '7px 0',
-                  width: 'auto',
-                },
-              }}
-            />
-          </LocalizationProvider>
+        <Box
+          sx={{
+            width: 320,
+            py: 2,
+            px: 1,
+          }}
+        >
+          <Stack direction={'row'} sx={{ alignItems: 'center' }}>
+            <IconButton
+              onClick={() =>
+                setSelectedMonth((prev) => dayjs(prev).subtract(1, 'month'))
+              }
+            >
+              <ChevronLeft />
+            </IconButton>
+            <LocalizationProvider
+              dateAdapter={AdapterDayjs}
+              adapterLocale="pl"
+              // localeText={{
+              //   cancelButtonLabel: "Anuluj"
+              // }}
+              localeText={
+                plPL.components.MuiLocalizationProvider.defaultProps.localeText
+              }
+            >
+              <DatePicker
+                openTo="month"
+                views={['year', 'month']}
+                value={selectedMonth}
+                onChange={handleMonthChange}
+                sx={{
+                  width: '100%',
+                  '& .MuiPickersSectionList-root': {
+                    padding: '7px 0',
+                    width: 'auto',
+                  },
+                }}
+              />
+            </LocalizationProvider>
+
+            <IconButton
+              onClick={() =>
+                setSelectedMonth((prev) => dayjs(prev).add(1, 'month'))
+              }
+            >
+              <ChevronRight />
+            </IconButton>
+          </Stack>
 
           <TableContainer
             component={Box}
