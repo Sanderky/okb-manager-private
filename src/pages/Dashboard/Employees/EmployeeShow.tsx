@@ -4,10 +4,9 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
 import Grid from '@mui/material/Grid';
-import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import { useNavigate } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 
 import PageContainer from '../../../components/PageContainer';
 
@@ -19,17 +18,12 @@ import CloseIcon from '@mui/icons-material/Close';
 
 import {
   Chip,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Divider,
   IconButton,
   Tab,
   Tabs,
+  TextareaAutosize,
   TextField,
 } from '@mui/material';
-import { useParams } from 'react-router';
 import dayjs from 'dayjs';
 
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -39,102 +33,80 @@ import AttachmentBox from './AttachmentBox';
 import { PreviewDialog } from '../../../components/fileBrowser/FilePreviewDialog';
 import { handleDownloadAttachment } from './EmployeeEditHelpers';
 
-import EventAvailableIcon from '@mui/icons-material/EventAvailable';
-import EventRepeatIcon from '@mui/icons-material/EventRepeat';
 import EditNoteIcon from '@mui/icons-material/EditNote';
 import CheckIcon from '@mui/icons-material/Check';
-import type { EmployeeFormState } from './EmployeeForm';
-
-// Extended async status & helpers
-// interface NormalizedError {
-//   message: string;
-//   code?: string;
-//   raw?: unknown;
-// }
-
-// function normalizeError(err: unknown): NormalizedError {
-//   if (err instanceof Error) {
-//     const anyErr = err as any;
-//     const code = typeof anyErr.code === 'string' ? anyErr.code : undefined;
-//     return { message: err.message || 'Wystąpił nieznany błąd', code, raw: err };
-//   }
-//   return { message: 'Wystąpił nieznany błąd', raw: err };
-// }
 
 const personalFields = [
-  { key: 'name', label: 'Imię' },
+  { key: 'name', label: 'Imię i nazwisko' },
+  { key: 'pesel', label: 'PESEL' },
+  { key: 'birthDate', label: 'Data urodzenia' },
+  { key: 'address', label: 'Adres' },
   { key: 'email', label: 'E-mail' },
   { key: 'phone', label: 'Telefon' },
-  { key: 'address', label: 'Adres' },
-];
+  { key: 'hourRate', label: 'Stawka godzinowa' },
+  { key: 'isContractor', label: 'Kontraktor' },
+] as const;
 
 const contractFields = [
   { key: 'contractStartDate', label: 'Data rozpoczęcia umowy' },
   { key: 'contractEndDate', label: 'Data wygaśnięcia umowy' },
-];
+] as const;
 
 const a1Fields = [
-  { key: 'a1StartDate', label: 'Data rozpoczęcia umowy' },
-  { key: 'a1EndDate', label: 'Data wygaśnięcia umowy' },
-];
+  { key: 'a1StartDate', label: 'Data rozpoczęcia umowy A1' },
+  { key: 'a1EndDate', label: 'Data wygaśnięcia umowy A1' },
+] as const;
 
 const generateDateBox = (
   key: keyof Employee,
   label: string,
-  employee: Employee | null
+  employeeData: Employee | null
 ) => {
-  if (!employee) return null;
+  if (!employeeData) return null;
 
-  const endDate =
-    key === 'contractEndDate'
-      ? employee.contractEndDate
-      : key === 'a1EndDate'
-        ? employee.a1EndDate
-        : null;
-
-  const isPermanent =
-    key === 'contractEndDate' ? employee.contractISPermanent : false;
-  const isEndDateField = key === 'contractEndDate' || key === 'a1EndDate';
-
-  const today = dayjs().startOf('day');
-  let daysDiff: number | null = null;
-
-  if (endDate) {
-    daysDiff = dayjs(endDate).startOf('day').diff(today, 'day');
-  }
+  const dateValue = employeeData[key];
+  const isContractEndDate = key === 'contractEndDate';
+  const isA1EndDate = key === 'a1EndDate';
+  const isEndDateField = isContractEndDate || isA1EndDate;
+  const isPermanent = isContractEndDate
+    ? Boolean(employeeData.contractISPermanent)
+    : false;
 
   let dateStyles = '';
   let severity: 'error' | 'warning' = 'warning';
   let message = '';
   let dayWord = 'dni';
 
-  if (isEndDateField && endDate && !isPermanent) {
-    if (Math.abs(daysDiff!) === 1) dayWord = 'dzień';
-
-    if (daysDiff! <= 14) {
-      dateStyles = 'border-red-500/25! bg-red-600/10! text-red-800!';
-      severity = 'error';
-      message =
-        daysDiff! < 0
-          ? `Umowa wygasła ${Math.abs(daysDiff!)} ${dayWord} temu`
-          : daysDiff! === 0
-            ? `Umowa kończy się dziś`
-            : `Umowa kończy się za ${daysDiff!} ${dayWord}`;
-    } else if (daysDiff! <= 30) {
-      dateStyles = 'border-amber-500/25! bg-amber-500/10! text-amber-600!';
-      severity = 'warning';
-      message = `Umowa kończy się za ${daysDiff!} ${dayWord}`;
-    }
-  } else if (isPermanent) {
-    dateStyles = 'border-amber-500/25! bg-amber-500/10! text-amber-600!';
-  }
-
   let displayValue: React.ReactNode;
 
-  if (key === 'contractEndDate' && isPermanent) {
+  if (isContractEndDate && isPermanent) {
     displayValue = 'Umowa na czas nieokreślony';
-  } else if (endDate instanceof Date) {
-    displayValue = dayjs(endDate).format('DD.MM.YYYY');
+    dateStyles = 'border-amber-500/25! bg-amber-500/10! text-amber-600!';
+  } else if (dateValue instanceof Date) {
+    displayValue = dayjs(dateValue).format('DD.MM.YYYY');
+
+    if (isEndDateField && !isPermanent) {
+      const today = dayjs().startOf('day');
+      const endDate = dayjs(dateValue).startOf('day');
+      const daysDiff = endDate.diff(today, 'day');
+
+      if (Math.abs(daysDiff) === 1) dayWord = 'dzień';
+
+      if (daysDiff <= 14) {
+        dateStyles = 'border-red-500/25! bg-red-600/10! text-red-800!';
+        severity = 'error';
+        message =
+          daysDiff < 0
+            ? `Umowa wygasła ${Math.abs(daysDiff)} ${dayWord} temu`
+            : daysDiff === 0
+              ? `Umowa kończy się dziś`
+              : `Umowa kończy się za ${daysDiff} ${dayWord}`;
+      } else if (daysDiff <= 30) {
+        dateStyles = 'border-amber-500/25! bg-amber-500/10! text-amber-600!';
+        severity = 'warning';
+        message = `Umowa kończy się za ${daysDiff} ${dayWord}`;
+      }
+    }
   } else {
     displayValue = <em className="text-gray-400">Brak</em>;
   }
@@ -159,11 +131,14 @@ const generateDateBox = (
         </Typography>
       </Stack>
 
-      {isEndDateField && endDate && !isPermanent && daysDiff !== null && (
-        <Alert severity={severity} sx={{ width: '100%', mt: 2 }}>
-          <Typography variant="body2">{message}</Typography>
-        </Alert>
-      )}
+      {isEndDateField &&
+        dateValue instanceof Date &&
+        !isPermanent &&
+        message && (
+          <Alert severity={severity} sx={{ width: '100%', mt: 2 }}>
+            <Typography variant="body2">{message}</Typography>
+          </Alert>
+        )}
     </Grid>
   );
 };
@@ -174,8 +149,6 @@ export default function EmployeeShow() {
   const queryClient = useQueryClient();
 
   const [notFound, setNotFound] = useState(false);
-  const [showDebug, setShowDebug] = useState(false);
-
   const [editNote, setEditNote] = useState(false);
 
   const notifications = useNotifications();
@@ -206,16 +179,14 @@ export default function EmployeeShow() {
     enabled: !!employeeId,
   });
 
-  // useEffect(() => {
-  //   if (employee) {
-  //     setNote(employee.note ?? '');
-  //     setNotFound(false);
-  //   } else if (!isLoading) {
-  //     setNotFound(true);
-  //   }
-  // }, [employee, isLoading]);
-
-  // const {handleDownloadAttachment} = useEmployeeAttachment(employee)
+  useEffect(() => {
+    if (employee) {
+      setNote(employee.note ?? '');
+      setNotFound(false);
+    } else if (!isLoading && !employee) {
+      setNotFound(true);
+    }
+  }, [employee, isLoading]);
 
   const updateNoteMutation = useMutation({
     mutationFn: (newNote: string) =>
@@ -228,14 +199,23 @@ export default function EmployeeShow() {
   const handleSaveNote = useCallback(async () => {
     const currentNote = employee?.note ?? '';
     if (currentNote === note) {
+      setEditNote(false);
       return;
     }
-    setEditNote(false);
-    notifications.show('Pomyślnie zaktualizowano notatkę.', {
-      severity: 'success',
-      autoHideDuration: 3000,
-    });
-    updateNoteMutation.mutate(note);
+
+    try {
+      await updateNoteMutation.mutateAsync(note);
+      setEditNote(false);
+      notifications.show('Pomyślnie zaktualizowano notatkę.', {
+        severity: 'success',
+        autoHideDuration: 3000,
+      });
+    } catch (error) {
+      notifications.show('Nie udało się zapisać notatki.', {
+        severity: 'error',
+        autoHideDuration: 3000,
+      });
+    }
   }, [employee?.note, note, updateNoteMutation, notifications]);
 
   const handleEmployeeEdit = useCallback(() => {
@@ -245,6 +225,31 @@ export default function EmployeeShow() {
   const handleBack = useCallback(() => {
     navigate('/employees');
   }, [navigate]);
+
+  const handleCancelEdit = useCallback(() => {
+    setEditNote(false);
+    setNote(employee?.note ?? '');
+  }, [employee?.note]);
+
+  const formatFieldValue = (key: string, value: any) => {
+    if (value === null || value === undefined || value === '') {
+      return <em className="text-gray-400">-</em>;
+    }
+
+    if (key === 'birthDate' && value instanceof Date) {
+      return dayjs(value).format('DD.MM.YYYY');
+    }
+
+    if (key === 'isContractor') {
+      return value ? 'Tak' : 'Nie';
+    }
+
+    if (key === 'hourRate' && typeof value === 'number') {
+      return `${value} zł/h`;
+    }
+
+    return String(value);
+  };
 
   const renderShow = useMemo(() => {
     if (isLoading) {
@@ -271,33 +276,9 @@ export default function EmployeeShow() {
     if (error) {
       return (
         <Box sx={{ flexGrow: 1, width: '100%' }}>
-          <Alert
-            severity="error"
-            // action={
-            //   <Stack direction="row" spacing={1}>
-            //     <Button
-            //       size="small"
-            //       onClick={() => setShowDebug((v) => !v)}
-            //       variant="text"
-            //     >
-            //       {showDebug ? 'Ukryj' : 'Szczegóły'}
-            //     </Button>
-            //   </Stack>
-            // }
-          >
-            {error.message}
+          <Alert severity="error">
+            {error instanceof Error ? error.message : 'Wystąpił nieznany błąd'}
           </Alert>
-          {/* {showDebug && (
-            <Paper sx={{ mt: 2, p: 2, bgcolor: 'grey.50' }} variant="outlined">
-              <Typography
-                variant="caption"
-                component="pre"
-                sx={{ m: 0, whiteSpace: 'pre-wrap' }}
-              >
-                {JSON.stringify(error.raw, null, 2)}
-              </Typography>
-            </Paper>
-          )} */}
         </Box>
       );
     }
@@ -312,9 +293,6 @@ export default function EmployeeShow() {
             <Button variant="contained" onClick={handleBack}>
               Wróć
             </Button>
-            {/* <Button variant="outlined" onClick={handleRetry}>
-              Spróbuj ponownie
-            </Button> */}
           </Stack>
         </Box>
       );
@@ -370,25 +348,6 @@ export default function EmployeeShow() {
                 >
                   <EditIcon />
                 </IconButton>
-                {/* {isInProgress ? (
-                  <IconButton
-                    onClick={openEndDialog}
-                    color="warning"
-                    className="rounded-full border border-amber-500 bg-amber-50/50"
-                    title="Zakończ budowę"
-                  >
-                    <EventAvailableIcon />
-                  </IconButton>
-                ) : (
-                  <IconButton
-                    onClick={handleResume}
-                    color="success"
-                    className="rounded-full border border-green-500 bg-green-50/50"
-                    title="Wznów budowę"
-                  >
-                    <EventRepeatIcon />
-                  </IconButton>
-                )} */}
               </Stack>
             </Stack>
           </Grid>
@@ -426,15 +385,8 @@ export default function EmployeeShow() {
                           wordBreak: 'break-word',
                           pr: 2,
                         }}
-                        // noWrap
                       >
-                        {(() => {
-                          const value = employee[key as keyof Employee];
-                          if (!value) {
-                            return <em className="text-gray-400">-</em>;
-                          }
-                          return String(value);
-                        })() || <em className="text-gray-400">-</em>}
+                        {formatFieldValue(key, employee[key])}
                       </Typography>
                     </Stack>
                   </Grid>
@@ -467,17 +419,15 @@ export default function EmployeeShow() {
                           onClick={handleSaveNote}
                           color="success"
                           className="rounded-full border border-green-500 bg-green-50/50"
-                          disabled={updateNoteMutation.isPending || !editNote}
+                          disabled={updateNoteMutation.isPending}
                         >
                           <CheckIcon />
                         </IconButton>
                       )}
                       <IconButton
-                        onClick={() => {
-                          setEditNote(!editNote);
-                          note !== (employee?.note ?? '') &&
-                            setNote(employee?.note ?? '');
-                        }}
+                        onClick={
+                          editNote ? handleCancelEdit : () => setEditNote(true)
+                        }
                         color={!editNote ? 'primary' : 'inherit'}
                         className={`rounded-lg border ${editNote ? 'border-red-500 bg-red-50/50' : 'border-blue-500'}`}
                       >
@@ -489,7 +439,16 @@ export default function EmployeeShow() {
                       </IconButton>
                     </Stack>
                   </Stack>
-                  <TextField
+                  <TextareaAutosize
+                    minRows={3}
+                    className={`rounded-sm border border-gray-400 bg-white px-2 py-1 ${editNote ? '' : 'bg-gray-100! opacity-50'}`}
+                    style={{ width: '100%', minHeight: '50px' }}
+                    placeholder="..."
+                    value={note}
+                    onChange={(e) => setNote(e.target.value)}
+                    readOnly={updateNoteMutation.isPending || !editNote}
+                  />
+                  {/* <TextField
                     variant="outlined"
                     className={`bg-white ${editNote ? '' : 'bg-gray-100! opacity-50'}`}
                     fullWidth
@@ -500,7 +459,7 @@ export default function EmployeeShow() {
                     error={updateNoteMutation.isError}
                     slotProps={{
                       input: {
-                        readOnly: updateNoteMutation.isPending || !editNote,
+                        readOnly: !editNote,
                       },
                     }}
                     helperText={
@@ -509,12 +468,12 @@ export default function EmployeeShow() {
                         : ''
                     }
                     sx={{ '& .MuiOutlinedInput-root': { p: 1.5 } }}
-                  />
+                  /> */}
                 </Stack>
               </Box>
             </Grid>
             <Grid size={{ xs: 12, lg: 6 }} sx={{ flexGrow: 1 }}>
-              <Grid className="border-lightGray mb-3 rounded-lg border bg-white p-3 md:p-5">
+              <Box className="border-lightGray mb-3 rounded-lg border bg-white p-3 md:p-5">
                 <Stack direction="row" justifyContent="space-between" mb={3}>
                   <Typography
                     variant="subtitle1"
@@ -537,8 +496,8 @@ export default function EmployeeShow() {
                     return generateDateBox(key, label, employee);
                   })}
                 </Grid>
-              </Grid>
-              <Grid className="border-lightGray rounded-lg border bg-white p-3 md:p-5">
+              </Box>
+              <Box className="border-lightGray rounded-lg border bg-white p-3 md:p-5">
                 <Stack direction="row" justifyContent="space-between" mb={3}>
                   <Typography
                     variant="subtitle1"
@@ -559,82 +518,13 @@ export default function EmployeeShow() {
                     return generateDateBox(key, label, employee);
                   })}
                 </Grid>
-              </Grid>
+              </Box>
             </Grid>
           </Grid>
         )}
-        {/* <Dialog
-          open={endDialogOpen}
-          onClose={closeEndDialog}
-          fullWidth
-          maxWidth="xs"
-        >
-          <DialogTitle>
-            <Stack direction="row" alignItems="center" spacing={1}>
-              <Typography variant="h6" sx={{ flexGrow: 1 }}>
-                Zakończ budowę
-              </Typography>
-              <IconButton aria-label="close" onClick={closeEndDialog}>
-                <CloseIcon />
-              </IconButton> 
-            </Stack>
-          </DialogTitle>
-          <DialogContent dividers sx={{ pb: 4 }}>
-            <Stack spacing={2}>
-              <Typography variant="body2">
-                Wybierz datę zakończenia budowy.
-              </Typography>
-              <LocalizationProvider
-                dateAdapter={AdapterDayjs}
-                adapterLocale="pl"
-              >
-                <DatePicker
-                  label="Data zakończenia"
-                  value={endDateValue}
-                  onChange={(v) => {
-                    setEndDateError(null);
-                    setEndDateValue(v ?? dayjs());
-                  }}
-                  slotProps={{
-                    textField: {
-                      fullWidth: true,
-                      error: !!endDateError,
-                      helperText: endDateError ?? '',
-                    },
-                    field: { clearable: false },
-                  }}
-                />
-              </LocalizationProvider> 
-            </Stack>
-          </DialogContent>
-          <DialogActions sx={{ px: 3, py: 2 }}>
-            <Button
-              variant="contained"
-              // onClick={handleFinish}
-              // disabled={updateStatusMutation.isPending}
-            >
-              Zapisz
-            </Button>
-          </DialogActions>
-        </Dialog> */}
       </Box>
     ) : null;
-  }, [
-    isLoading,
-    error,
-    employee,
-    tab,
-    handleBack,
-    handleEmployeeEdit,
-    showDebug,
-    note,
-    updateNoteMutation.isPending,
-    updateNoteMutation.isError,
-    handleSaveNote,
-    editNote,
-    notFound,
-    handleOpenPreview,
-  ]);
+  }, [isLoading, error, employee, tab, handleBack, handleEmployeeEdit, note, updateNoteMutation.isPending, handleSaveNote, editNote, notFound, handleOpenPreview, handleCancelEdit]);
 
   const pageTitle = employee?.name || 'Szczegóły Pracownika';
 

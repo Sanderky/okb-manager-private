@@ -1,6 +1,6 @@
+// api/vacations.ts
 import {
   collection,
-  addDoc,
   getDocs,
   getDoc,
   doc,
@@ -23,7 +23,7 @@ export const batchCreateVacations = async (
   const batch = writeBatch(db);
   const vacationRef = collection(db, 'vacations');
 
-  let currentDate = new Date(startDate.getTime());
+  const currentDate = new Date(startDate.getTime());
 
   while (currentDate <= endDate) {
     const month = (currentDate.getMonth() + 1).toString().padStart(2, '0');
@@ -112,6 +112,9 @@ export async function getVacationList(): Promise<Vacation[]> {
     return {
       id: doc.id,
       ...data,
+      date: (data.date as Timestamp).toDate(),
+      startDate: (data.startDate as Timestamp).toDate(),
+      endDate: (data.endDate as Timestamp).toDate(),
     } as Vacation;
   });
 }
@@ -119,7 +122,14 @@ export async function getVacationList(): Promise<Vacation[]> {
 export async function getVacation(id: string): Promise<Vacation | null> {
   const vacationDoc = await getDoc(doc(db, 'vacations', id));
   if (vacationDoc.exists()) {
-    return { id: vacationDoc.id, ...vacationDoc.data() } as Vacation;
+    const data = vacationDoc.data();
+    return {
+      id: vacationDoc.id,
+      ...data,
+      date: (data.date as Timestamp).toDate(),
+      startDate: (data.startDate as Timestamp).toDate(),
+      endDate: (data.endDate as Timestamp).toDate(),
+    } as Vacation;
   }
   return null;
 }
@@ -134,11 +144,14 @@ export async function getVacationListForMonths(
     where('yearMonth', 'in', monthKeys)
   );
   const snapshot = await getDocs(q);
-  return snapshot.docs.map(
-    (doc) =>
-      ({
-        id: doc.id,
-        ...doc.data(),
-      }) as Vacation
-  );
+  return snapshot.docs.map((doc) => {
+    const data = doc.data();
+    return {
+      id: doc.id,
+      ...data,
+      date: (data.date as Timestamp).toDate(),
+      startDate: (data.startDate as Timestamp).toDate(),
+      endDate: (data.endDate as Timestamp).toDate(),
+    } as Vacation;
+  });
 }

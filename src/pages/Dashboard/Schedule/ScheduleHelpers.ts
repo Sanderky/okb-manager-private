@@ -1,4 +1,3 @@
-import { Timestamp } from 'firebase/firestore';
 import dayjs, { Dayjs } from 'dayjs';
 import type { Schedule } from '../../../types';
 
@@ -7,12 +6,10 @@ export const getScheduleByEmployeeAndWeek = (
   employeeId: string,
   weekStart: Date
 ): Schedule | null => {
-  const weekStartTimestamp = Timestamp.fromDate(weekStart);
-
   const foundSchedule = schedules.find(
     (schedule) =>
       schedule.employeeId === employeeId &&
-      schedule.weekStart.isEqual(weekStartTimestamp)
+      schedule.weekStart.getTime() === weekStart.getTime() // <-- porównanie Date
   );
 
   return foundSchedule || null;

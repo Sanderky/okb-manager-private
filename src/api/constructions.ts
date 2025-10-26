@@ -6,19 +6,26 @@ import {
   doc,
   updateDoc,
   deleteDoc,
-  Timestamp,
 } from 'firebase/firestore';
 import { db } from '../firebase';
 import type { Construction } from '../types';
 
-export async function createConstruction(data: Construction) {
+export async function createConstruction(
+  data: Partial<Construction> & { name: string }
+) {
   try {
-    const newConstruction: Construction = {
-      ...data,
+    const constructionData: Omit<Construction, 'id'> = {
+      name: data.name,
+      location: data.location ?? null,
+      contractor: data.contractor ?? null,
+      startDate: data.startDate ?? null,
+      endDate: data.endDate ?? null,
+      ...(data.note !== undefined && { note: data.note }),
     };
+
     const docRef = await addDoc(
       collection(db, 'constructions'),
-      newConstruction
+      constructionData
     );
     return docRef.id;
   } catch (e) {
@@ -58,9 +65,12 @@ export async function getConstructionList(): Promise<Construction[]> {
     const data = doc.data();
     return {
       id: doc.id,
-      ...data,
-      startDate: data.startDate?.toDate(),
-      endDate: data.endDate?.toDate(),
+      name: data.name ?? null,
+      location: data.location ?? null,
+      contractor: data.contractor ?? null,
+      startDate: data.startDate?.toDate() ?? null,
+      endDate: data.endDate?.toDate() ?? null,
+      note: data.note ?? null,
     } as Construction;
   });
 
@@ -75,9 +85,12 @@ export async function getConstruction(
     const data = constructionDoc.data();
     return {
       id: constructionDoc.id,
-      ...data,
-      startDate: data.startDate?.toDate(),
-      endDate: data.endDate?.toDate(),
+      name: data.name ?? null,
+      location: data.location ?? null,
+      contractor: data.contractor ?? null,
+      startDate: data.startDate?.toDate() ?? null,
+      endDate: data.endDate?.toDate() ?? null,
+      note: data.note ?? null,
     } as Construction;
   } else {
     return null;

@@ -12,12 +12,32 @@ import {
 import { db } from '../firebase';
 import type { Employee } from '../types';
 
-export async function createEmployee(data: Employee) {
+export async function createEmployee(
+  data: Partial<Employee> & { name: string }
+) {
   try {
-    const newEmployee: Employee = {
-      ...data,
+    const employeeData: Omit<Employee, 'id'> = {
+      name: data.name,
+      isContractor: data.isContractor ?? null,
+      pesel: data.pesel ?? null,
+      birthDate: data.birthDate ?? null,
+      address: data.address ?? null,
+      hourRate: data.hourRate ?? null,
+      email: data.email ?? null,
+      phone: data.phone ?? null,
+      status: data.status ?? true,
+      note: data.note ?? null,
+      contractStartDate: data.contractStartDate ?? null,
+      contractEndDate: data.contractEndDate ?? null,
+      contractISPermanent: data.contractISPermanent ?? false,
+      a1StartDate: data.a1StartDate ?? null,
+      a1EndDate: data.a1EndDate ?? null,
+      a1Attachment: data.a1Attachment ?? null,
+      contractAttachment: data.contractAttachment ?? null,
+      idAttachment: data.idAttachment ?? null,
     };
-    const docRef = await addDoc(collection(db, 'employees'), newEmployee);
+
+    const docRef = await addDoc(collection(db, 'employees'), employeeData);
     return docRef.id;
   } catch (e) {
     console.error('Błąd podczas dodawania dokumentu: ', e);
@@ -48,26 +68,6 @@ export async function removeEmployee(id: string): Promise<void> {
   }
 }
 
-// export async function getEmployeeList(): Promise<Employee[]> {
-//   const employeesCol = collection(db, 'employees');
-//   const employeesSnapshot = await getDocs(employeesCol);
-
-//   const employeesList = employeesSnapshot.docs.map((doc) => {
-//     // 1. Pobierz dane dokumentu i dodaj do nich ID
-//     const data = doc.data();
-//     return {
-//       id: doc.id,
-//       ...data,
-//       contractStartDate: data.contractStartDate?.toDate(),
-//       contractEndDate: data.contractEndDate?.toDate(),
-//       a1StartDate: data.a1StartDate?.toDate(),
-//       a1EndDate: data.a1EndDate?.toDate(),
-//     } as Employee;
-//   });
-
-//   return employeesList;
-// }
-
 export async function getEmployeeList(activeOnly = false): Promise<Employee[]> {
   const employeesCol = collection(db, 'employees');
 
@@ -85,27 +85,29 @@ export async function getEmployeeList(activeOnly = false): Promise<Employee[]> {
     const data = doc.data();
     return {
       id: doc.id,
-      ...data,
-      contractStartDate: data.contractStartDate?.toDate(),
-      contractEndDate: data.contractEndDate?.toDate(),
-      a1StartDate: data.a1StartDate?.toDate(),
-      a1EndDate: data.a1EndDate?.toDate(),
+      name: data.name ?? '',
+      isContractor: data.isContractor ?? null,
+      pesel: data.pesel ?? null,
+      birthDate: data.birthDate?.toDate() ?? null,
+      address: data.address ?? null,
+      hourRate: data.hourRate ?? null,
+      email: data.email ?? null,
+      phone: data.phone ?? null,
+      status: data.status ?? true,
+      note: data.note ?? null,
+      contractStartDate: data.contractStartDate?.toDate() ?? null,
+      contractEndDate: data.contractEndDate?.toDate() ?? null,
+      contractISPermanent: data.contractISPermanent ?? false,
+      a1StartDate: data.a1StartDate?.toDate() ?? null,
+      a1EndDate: data.a1EndDate?.toDate() ?? null,
+      a1Attachment: data.a1Attachment ?? null,
+      contractAttachment: data.contractAttachment ?? null,
+      idAttachment: data.idAttachment ?? null,
     } as Employee;
   });
 
   return employeesList;
 }
-
-// export async function getEmployees(): Promise<Employee[]> {
-//   const employeesSnapshot = await getDocs(collection(db, 'employees'));
-
-//   const employeeList = employeesSnapshot.docs.map((doc) => {
-//     const data = doc.data();
-//     return {  id: doc.id, ...data };
-//   });
-
-//   return employeeList as Employee[];
-// }
 
 export async function getEmployee(id: string): Promise<Employee | null> {
   const employeeDoc = await getDoc(doc(db, 'employees', id));
@@ -113,11 +115,24 @@ export async function getEmployee(id: string): Promise<Employee | null> {
     const data = employeeDoc.data();
     return {
       id: employeeDoc.id,
-      ...data,
-      contractStartDate: data.contractStartDate?.toDate(),
-      contractEndDate: data.contractEndDate?.toDate(),
-      a1StartDate: data.a1StartDate?.toDate(),
-      a1EndDate: data.a1EndDate?.toDate(),
+      name: data.name ?? '',
+      isContractor: data.isContractor ?? null,
+      pesel: data.pesel ?? null,
+      birthDate: data.birthDate?.toDate() ?? null,
+      address: data.address ?? null,
+      hourRate: data.hourRate ?? null,
+      email: data.email ?? null,
+      phone: data.phone ?? null,
+      status: data.status ?? true,
+      note: data.note ?? null,
+      contractStartDate: data.contractStartDate?.toDate() ?? null,
+      contractEndDate: data.contractEndDate?.toDate() ?? null,
+      contractISPermanent: data.contractISPermanent ?? false,
+      a1StartDate: data.a1StartDate?.toDate() ?? null,
+      a1EndDate: data.a1EndDate?.toDate() ?? null,
+      a1Attachment: data.a1Attachment ?? null,
+      contractAttachment: data.contractAttachment ?? null,
+      idAttachment: data.idAttachment ?? null,
     } as Employee;
   } else {
     return null;

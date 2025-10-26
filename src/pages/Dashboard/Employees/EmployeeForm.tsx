@@ -30,7 +30,13 @@ export interface EmployeeFormState {
 
 export type DateWithPermanent = { date: string | null; permanent: boolean };
 
-export type FormFieldValue = string | Date | boolean | null | DateWithPermanent;
+export type FormFieldValue =
+  | string
+  | Date
+  | boolean
+  | null
+  | DateWithPermanent
+  | number;
 
 export interface EmployeeFormProps {
   formId?: string;
@@ -48,11 +54,10 @@ export interface EmployeeFormProps {
   filesState: FileStateMap;
 }
 
-type FieldType = 'text' | 'email' | 'date' | 'boolean' | 'object';
+type FieldType = 'text' | 'email' | 'date' | 'boolean' | 'string' | 'number';
 
 interface EmployeeField {
   key: keyof EmployeeFormState['values'];
-  // key: keyof Employee;
   label: string;
   type: FieldType;
 }
@@ -85,8 +90,7 @@ const AttachmentField = ({
       url: URL.createObjectURL(file),
       contentType: file.type,
       size: file.size,
-      // timeCreated: new Date().toISOString()
-      timeCreated: '',
+      timeCreated: new Date().toISOString(),
     });
   };
 
@@ -161,6 +165,7 @@ export default function EmployeeForm(props: EmployeeFormProps) {
 
   const { employeeId } = useParams<{ employeeId: string }>();
   const navigate = useNavigate();
+
   const handleFieldChange = React.useCallback(
     (
       name: keyof EmployeeFormState['values'],
@@ -174,13 +179,6 @@ export default function EmployeeForm(props: EmployeeFormProps) {
     },
     [onFieldChange]
   );
-
-  // const handlePermanentChange = (
-  //   name: keyof EmployeeFormState['values'],
-  //   checked: boolean
-  // ) => {
-  //   handleFieldChange(name, { ...formValues[name], permanent: checked });
-  // };
 
   const handleOpenPreview = useCallback((file: FileItem | null | undefined) => {
     if (!file) return;
@@ -196,25 +194,14 @@ export default function EmployeeForm(props: EmployeeFormProps) {
     }
   }, [navigate, employeeId]);
 
-  // const getDateValue = (
-  //   key: keyof EmployeeFormState['values'],
-  //   values: EmployeeFormState['values']
-  // ) => {
-  //   const val = values[key];
-  //   if (!val) return null;
-
-  //   if (typeof val === 'string') return dayjs(val);
-  //   if (typeof val === 'object' && 'date' in val && val.date)
-  //     return dayjs(val.date);
-  //   return null;
-  // };
-
   const employeeFields: EmployeeField[] = [
     { key: 'name', label: 'Imię i nazwisko', type: 'text' },
+    { key: 'pesel', label: 'Pesel', type: 'string' },
+    { key: 'birthDate', label: 'Data urodzenia', type: 'date' },
+    { key: 'address', label: 'Adres', type: 'text' },
     { key: 'email', label: 'E-mail', type: 'email' },
     { key: 'phone', label: 'Telefon', type: 'text' },
-    { key: 'address', label: 'Adres', type: 'text' },
-    // { key: 'status', label: 'Zatrudniony', type: 'boolean' },
+    { key: 'hourRate', label: 'Stawka godzinowa', type: 'number' },
   ];
 
   const contractFields: EmployeeField[] = [
@@ -239,6 +226,81 @@ export default function EmployeeForm(props: EmployeeFormProps) {
     }
     return () => {};
   }, [cleared]);
+
+  const renderField = ({ key, label, type }: EmployeeField) => {
+    if (type === 'boolean') {
+      return (
+        <Grid size={{ xs: 12 }} key={key}>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={Boolean(formValues[key])}
+                onChange={(e) => handleFieldChange(key, e.target.checked)}
+                name={key}
+              />
+            }
+            label={label}
+          />
+        </Grid>
+      );
+    }
+
+    if (type === 'date') {
+      let val;
+      if (formValues[key] instanceof Date) {
+        val = dayjs(formValues[key] as Date);
+      } else {
+        val = null;
+      }
+
+      return (
+        <Grid size={{ xs: 12, md: 6 }} key={key}>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DatePicker
+              label={label}
+              value={val}
+              onChange={(newValue) => {
+                handleFieldChange(key, newValue);
+              }}
+              slotProps={{
+                textField: {
+                  fullWidth: true,
+                  name: key,
+                  error: Boolean(formErrors[key]),
+                  helperText: formErrors[key],
+                },
+                field: {
+                  clearable: true,
+                  onClear: () => setCleared(true),
+                },
+              }}
+            />
+          </LocalizationProvider>
+        </Grid>
+      );
+    }
+
+    return (
+      <Grid size={{ xs: 12, md: 6 }} key={key}>
+        <TextField
+          fullWidth
+          label={label}
+          type={type}
+          value={formValues[key] ?? ''}
+          onChange={(e) => {
+            let value: FormFieldValue = e.target.value;
+            if (type === 'number') {
+              value = e.target.value === '' ? null : Number(e.target.value);
+            }
+            handleFieldChange(key, value);
+          }}
+          name={key}
+          error={Boolean(formErrors[key])}
+          helperText={formErrors[key]}
+        />
+      </Grid>
+    );
+  };
 
   return (
     <Box
@@ -269,26 +331,32 @@ export default function EmployeeForm(props: EmployeeFormProps) {
               }}
             />
           )}
+
           <Typography variant="subtitle1" className="mb-2 font-medium">
             Dane pracownika
           </Typography>
           <Grid container columns={12} spacing={{ xs: 2 }} width={'100%'}>
-            {employeeFields.map(({ key, label, type }) => (
-              <Grid size={{ xs: 12, md: 6 }} key={key}>
-                <TextField
-                  fullWidth
-                  label={label}
-                  type={type}
-                  value={formValues[key] ?? ''}
-                  onChange={(e) => handleFieldChange(key, e.target.value)}
-                  name={key}
-                  error={Boolean(formErrors[key])}
-                  helperText={formErrors[key]}
-                />
-              </Grid>
-            ))}
+            {employeeFields.map(renderField)}
+
+            {/* Checkbox dla isContractor */}
+            <Grid size={{ xs: 12 }} key="isContractor">
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={Boolean(formValues.isContractor)}
+                    onChange={(e) =>
+                      handleFieldChange('isContractor', e.target.checked)
+                    }
+                    name="isContractor"
+                  />
+                }
+                label="Kontraktor"
+              />
+            </Grid>
           </Grid>
+
           <Divider sx={{ width: '100%' }} className="my-3" />
+
           <Typography variant="subtitle1" className="mb-2 font-medium">
             Umowa zatrudnienia
           </Typography>
@@ -300,44 +368,7 @@ export default function EmployeeForm(props: EmployeeFormProps) {
               attachmentType="contractAttachment"
               onOpenPreview={handleOpenPreview}
             />
-            {contractFields.map(({ key, label }) => {
-              let val;
-              if (formValues[key] instanceof Date) {
-                val = dayjs(formValues[key] as string);
-              } else {
-                val = null;
-              }
-              return (
-                <Grid size={{ xs: 12, md: 6 }} key={key}>
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker
-                      label={label}
-                      value={val}
-                      // value={null}
-                      onChange={(newValue) => {
-                        handleFieldChange(key, newValue);
-                      }}
-                      disabled={
-                        key === 'contractEndDate' &&
-                        formValues.contractISPermanent
-                      }
-                      slotProps={{
-                        textField: {
-                          fullWidth: true,
-                          name: key,
-                          error: Boolean(formErrors[key]),
-                          helperText: formErrors[key],
-                        },
-                        field: {
-                          clearable: true,
-                          onClear: () => setCleared(true),
-                        },
-                      }}
-                    />
-                  </LocalizationProvider>
-                </Grid>
-              );
-            })}
+            {contractFields.map(renderField)}
             <Grid size={{ xs: 12 }} mt={-1}>
               <FormControlLabel
                 control={
@@ -356,7 +387,9 @@ export default function EmployeeForm(props: EmployeeFormProps) {
               />
             </Grid>
           </Grid>
+
           <Divider sx={{ width: '100%' }} className="my-3" />
+
           <Typography variant="subtitle1" className="mb-2 font-medium">
             Umowa A1
           </Typography>
@@ -368,41 +401,11 @@ export default function EmployeeForm(props: EmployeeFormProps) {
               attachmentType="a1Attachment"
               onOpenPreview={handleOpenPreview}
             />
-            {a1Fields.map(({ key, label }) => {
-              let val;
-              if (formValues[key] instanceof Date) {
-                val = dayjs(formValues[key] as string);
-              } else {
-                val = null;
-              }
-              return (
-                <Grid size={{ xs: 12, md: 6 }} key={key}>
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker
-                      label={label}
-                      value={val}
-                      onChange={(newValue) => {
-                        handleFieldChange(key, newValue);
-                      }}
-                      slotProps={{
-                        textField: {
-                          fullWidth: true,
-                          name: key,
-                          error: Boolean(formErrors[key]),
-                          helperText: formErrors[key],
-                        },
-                        field: {
-                          clearable: true,
-                          onClear: () => setCleared(true),
-                        },
-                      }}
-                    />
-                  </LocalizationProvider>
-                </Grid>
-              );
-            })}
+            {a1Fields.map(renderField)}
           </Grid>
+
           <Divider sx={{ width: '100%' }} className="my-3" />
+
           {isEditForm && (
             <Grid size={{ xs: 12 }} className="my-2">
               <TextField
@@ -418,11 +421,12 @@ export default function EmployeeForm(props: EmployeeFormProps) {
               />
             </Grid>
           )}
+
           <Grid size={{ xs: 12 }}>
             <FormControlLabel
               control={
                 <Checkbox
-                  checked={Boolean(formValues['status'])}
+                  checked={Boolean(formValues.status)}
                   onChange={(e) =>
                     handleFieldChange('status', e.target.checked)
                   }
@@ -432,8 +436,10 @@ export default function EmployeeForm(props: EmployeeFormProps) {
               label="Zatrudniony"
             />
           </Grid>
+
           <Divider sx={{ width: '100%' }} className="mt-3" />
         </Grid>
+
         <Stack
           direction="row"
           alignItems="center"
@@ -446,7 +452,6 @@ export default function EmployeeForm(props: EmployeeFormProps) {
             startIcon={<DoneAllOutlinedIcon />}
             type="submit"
             disabled={isFormLoading}
-            loading={isFormLoading}
           >
             Zapisz
           </Button>
@@ -469,6 +474,7 @@ export default function EmployeeForm(props: EmployeeFormProps) {
           </Button>
         </Stack>
       </FormGroup>
+
       <PreviewDialog
         open={isPreviewOpen}
         onClose={() => setIsPreviewOpen(false)}

@@ -1,3 +1,4 @@
+// ConstructionForm.tsx
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -11,14 +12,11 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import dayjs, { type Dayjs } from 'dayjs';
 import type { Construction } from '../../../types';
 import Alert from '@mui/material/Alert';
-import DoneAllOutlinedIcon from '@mui/icons-material/DoneAllOutlined';
 import { Divider, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
-
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 export interface ConstructionFormState {
   values: Partial<Omit<Construction, 'id'>>;
@@ -49,45 +47,25 @@ interface ConstructionField {
   type: FieldType;
 }
 
-export const validate = (
+const validate = (
   values: Partial<Omit<Construction, 'id'>>
 ): Partial<Record<keyof ConstructionFormState['values'], string>> => {
   const errors: Partial<Record<keyof ConstructionFormState['values'], string>> =
     {};
 
-  if (!values.name) {
+  if (!values.name || values.name.trim() === '') {
     errors.name = 'Nazwa jest wymagana.';
-  }
-
-  if (values.name && values.name.length > 100) {
+  } else if (values.name.length > 100) {
     errors.name = 'Nazwa nie może być dłuższa niż 100 znaków.';
   }
 
-  // if (values.email && values.email.length > 100) {
-  //   errors.email = 'E-mail nie może być dłuższy niż 100 znaków.';
-  // }
+  if (values.location && values.location.length > 200) {
+    errors.location = 'Lokalizacja nie może być dłuższa niż 200 znaków.';
+  }
 
-  // if (values.email && !/\S+@\S+\.\S+/.test(values.email)) {
-  //   errors.email = 'Nieprawidłowy format adresu e-mail.';
-  // }
-
-  // if (
-  //   values.contractStartDate &&
-  //   values.contractEndDate &&
-  //   dayjs(values.contractEndDate).isBefore(dayjs(values.contractStartDate))
-  // ) {
-  //   errors.contractEndDate =
-  //     'Data wygaśnięcia umowy nie może być wcześniejsza niż data rozpoczęcia umowy.';
-  // }
-
-  // if (
-  //   values.a1StartDate &&
-  //   values.a1EndDate &&
-  //   dayjs(values.a1EndDate).isBefore(dayjs(values.a1StartDate))
-  // ) {
-  //   errors.a1EndDate =
-  //     'Data wygaśnięcia umowy nie może być wcześniejsza niż data rozpoczęcia umowy.';
-  // }
+  if (values.contractor && values.contractor.length > 200) {
+    errors.contractor = 'Wykonawca nie może być dłuższy niż 200 znaków.';
+  }
 
   return errors;
 };
@@ -116,7 +94,7 @@ export default function ConstructionForm(props: ConstructionFormProps) {
       value: string | boolean | Dayjs | null
     ) => {
       if (dayjs.isDayjs(value)) {
-        onFieldChange(name, value.toDate());
+        onFieldChange(name, value.isValid() ? value.toDate() : null);
       } else {
         onFieldChange(name, value);
       }

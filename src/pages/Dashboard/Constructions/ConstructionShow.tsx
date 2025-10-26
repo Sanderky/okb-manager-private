@@ -533,7 +533,7 @@ export default function ConstructionShow() {
                     minRows={3}
                     className={`rounded-sm border border-gray-400 bg-white px-2 py-1 ${editNote ? '' : 'bg-gray-100! opacity-50'}`}
                     style={{ width: '100%', minHeight: '50px' }}
-                    defaultValue="..."
+                    placeholder="..."
                     value={note}
                     onChange={(e) => setNote(e.target.value)}
                     readOnly={updateNoteMutation.isPending || !editNote}
@@ -708,32 +708,7 @@ export default function ConstructionShow() {
         </Dialog>
       </Box>
     ) : null;
-  }, [
-    loading,
-    error,
-    notFound,
-    construction,
-    tab,
-    handleConstructionEdit,
-    isInProgress,
-    openEndDialog,
-    editNote,
-    handleSaveNote,
-    updateNoteMutation.isPending,
-    updateNoteMutation.isError,
-    note,
-    scheduleEmployees,
-    employees,
-    endDialogOpen,
-    closeEndDialog,
-    endDateValue,
-    endDateError,
-    handleFinish,
-    updateStatusMutation.isPending,
-    resumeDialogOpen,
-    handleResume,
-    handleBack,
-  ]);
+  }, [loading, error, notFound, construction, tab, handleConstructionEdit, isInProgress, openEndDialog, editNote, handleSaveNote, updateNoteMutation.isPending, note, scheduleEmployees, employees, endDialogOpen, closeEndDialog, endDateValue, endDateError, handleFinish, updateStatusMutation.isPending, resumeDialogOpen, handleResume, handleBack]);
 
   const pageTitle = construction?.name || '...';
 

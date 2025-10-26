@@ -1,7 +1,14 @@
 import React from 'react';
-import { TableRow, TableCell, Typography, Tooltip } from '@mui/material';
-import dayjs, { Dayjs } from 'dayjs';
-import type { Employee, Vacation } from '../../../types';
+import {
+  TableRow,
+  TableCell,
+  Typography,
+  Tooltip,
+  useTheme,
+  useMediaQuery,
+} from '@mui/material';
+import { Dayjs } from 'dayjs';
+import type { Employee } from '../../../types';
 import type { ICell } from './ScheduleHelpers';
 
 interface EmployeeRowProps {
@@ -10,12 +17,10 @@ interface EmployeeRowProps {
   onCellClick: (e: React.MouseEvent<HTMLElement>, cell: ICell) => void;
   cellText: (cell: ICell) => React.ReactNode;
   activeTable: { type: number; week: Dayjs };
-  vacations?: Vacation[];
 }
 
 interface ScheduleCellProps {
   cell: ICell;
-  index: number;
   onClick: (e: React.MouseEvent<HTMLElement>, cell: ICell) => void;
   cellText: (cell: ICell) => React.ReactNode;
   hasVacation?: boolean;
@@ -23,30 +28,29 @@ interface ScheduleCellProps {
 
 // Komponent ScheduleCell
 const ScheduleCell: React.FC<ScheduleCellProps> = React.memo(
-  ({ cell, index, onClick, cellText, hasVacation = false }) => (
+  ({ cell, onClick, cellText }) => (
     <TableCell
       sx={{
         '&:hover': {
-          background: hasVacation ? '#fff3cd' : 'ghostwhite',
+          background: 'ghostwhite',
         },
-        backgroundColor: hasVacation ? '#fff3cd' : 'white',
+        cursor: 'pointer',
         transition: '0.3s',
-        cursor: hasVacation ? 'not-allowed' : 'pointer',
         borderBottom: '1px solid #6B7280',
         borderLeft: '1px solid #6B7280',
         padding: '6px 12px',
         textAlign: 'center',
-        display: {
-          xs: index === 0 ? 'table-cell' : 'none',
-          sm: 'table-cell',
-        },
-        opacity: hasVacation ? 0.8 : 1,
+        // display: {
+        //   xs: index === 0 ? 'table-cell' : 'none',
+        //   sm: 'table-cell',
+        // },
       }}
       onClick={(e) => {
-        if (hasVacation) return;
+        // if (hasVacation) {
+        //   e.stopPropagation();
+        //   return;
+        // }
         onClick(e, cell);
-        const target = e.currentTarget as HTMLElement;
-        target.style.backgroundColor = '#ffd85f80';
       }}
     >
       {cellText(cell)}
@@ -56,14 +60,11 @@ const ScheduleCell: React.FC<ScheduleCellProps> = React.memo(
 
 // Główny komponent EmployeeRow
 export const EmployeeRow: React.FC<EmployeeRowProps> = React.memo(
-  ({ employee, weeks, onCellClick, cellText, activeTable, vacations = [] }) => {
+  ({ employee, weeks, onCellClick, cellText, activeTable }) => {
     // Funkcja pomocnicza do sprawdzania urlopu
-    const hasVacation = (date: Dayjs, empId: string) => {
-      return vacations.some(
-        (v) =>
-          v.employeeId === empId && date.isSame(dayjs(v.date.toDate()), 'day')
-      );
-    };
+
+    const theme = useTheme();
+    const isXs = useMediaQuery(theme.breakpoints.only('xs'));
 
     if (activeTable.type === 1) {
       return (
@@ -124,16 +125,12 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = React.memo(
               isWeek: false,
             };
 
-            const isVacationDay = hasVacation(day, employee.id);
-
             return (
               <ScheduleCell
                 key={i}
-                index={i}
                 cell={cell}
                 onClick={onCellClick}
                 cellText={cellText}
-                hasVacation={isVacationDay}
               />
             );
           })}
@@ -171,22 +168,16 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = React.memo(
             isWeek: true,
           };
 
-          // Sprawdź czy w którymkolwiek dniu tygodnia jest urlop
-          const hasVacationInWeek = Array.from({ length: 7 }).some(
-            (_, dayIndex) => {
-              const day = week.add(dayIndex, 'day');
-              return hasVacation(day, employee.id);
-            }
-          );
+          if (isXs && i > 0) {
+            return;
+          }
 
           return (
             <ScheduleCell
               key={week.format('YYYY-MM-DD')}
-              index={i}
               cell={cell}
               onClick={onCellClick}
               cellText={cellText}
-              hasVacation={hasVacationInWeek}
             />
           );
         })}

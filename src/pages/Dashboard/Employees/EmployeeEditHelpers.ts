@@ -18,27 +18,27 @@ export const validate = (
     errors.email = 'Nieprawidłowy format adresu e-mail.';
   }
 
-  if (values.contractEndDate?.date && !values.contractStartDate) {
+  if (values.contractEndDate && !values.contractStartDate) {
     errors.contractStartDate =
       'Data rozpoczęcia jest wymagana, jeśli podano datę zakończenia.';
   }
   if (
     values.contractStartDate &&
-    values.contractEndDate?.date &&
-    dayjs(values.contractEndDate.date).isBefore(dayjs(values.contractStartDate))
+    values.contractEndDate &&
+    dayjs(values.contractEndDate).isBefore(dayjs(values.contractStartDate))
   ) {
     errors.contractEndDate =
       'Data zakończenia nie może być wcześniejsza niż data rozpoczęcia.';
   }
 
-  if (values.a1EndDate?.date && !values.a1StartDate) {
+  if (values.a1EndDate && !values.a1StartDate) {
     errors.a1StartDate =
       'Data rozpoczęcia A1 jest wymagana, jeśli podano datę zakończenia A1.';
   }
   if (
     values.a1StartDate &&
-    values.a1EndDate?.date &&
-    dayjs(values.a1EndDate.date).isBefore(dayjs(values.a1StartDate))
+    values.a1EndDate &&
+    dayjs(values.a1EndDate).isBefore(dayjs(values.a1StartDate))
   ) {
     errors.a1EndDate =
       'Data zakończenia A1 nie może być wcześniejsza niż data rozpoczęcia A1.';

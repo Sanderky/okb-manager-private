@@ -165,7 +165,7 @@ const Schedule: React.FC = () => {
         const scheduleData: Omit<Schedule, 'id'> & { id?: string } = {
           employeeId: empId,
           constructions: constructionIds,
-          weekStart: Timestamp.fromDate(weekStart),
+          weekStart: weekStart,
           id: existing?.id,
         };
 
@@ -194,7 +194,7 @@ const Schedule: React.FC = () => {
       const existingSchedule = schedules.find(
         (s) =>
           s.employeeId === empId &&
-          dayjs(s.weekStart.toDate()).isSame(startOfWeek, 'week')
+          dayjs(s.weekStart).isSame(startOfWeek, 'week')
       );
 
       let newConstructions: (string | null)[];
@@ -203,9 +203,7 @@ const Schedule: React.FC = () => {
         newConstructions = Array.from({ length: 7 }, (_, i) => {
           const day = startOfWeek.add(i, 'day');
           const isVacation = vacations?.some(
-            (v) =>
-              v.employeeId === empId &&
-              day.isSame(dayjs(v.date.toDate()), 'day')
+            (v) => v.employeeId === empId && day.isSame(dayjs(v.date), 'day')
           );
 
           if (i === 6) return null;
@@ -218,8 +216,7 @@ const Schedule: React.FC = () => {
         const index = date.diff(startOfWeek, 'day');
 
         const isVacation = vacations?.some(
-          (v) =>
-            v.employeeId === empId && date.isSame(dayjs(v.date.toDate()), 'day')
+          (v) => v.employeeId === empId && date.isSame(dayjs(v.date), 'day')
         );
 
         newConstructions[index] = isVacation ? null : (value?.id ?? null);
@@ -232,27 +229,29 @@ const Schedule: React.FC = () => {
 
   const handleShowInputConstruction = useCallback(
     (event: React.MouseEvent<HTMLElement>, cell: ICell) => {
+      event.stopPropagation();
+
       const hasVacation = vacations?.some(
         (v) =>
-          v.employeeId === cell.empId &&
-          cell.date.isSame(dayjs(v.date.toDate()), 'day')
+          v.employeeId === cell.empId && cell.date.isSame(dayjs(v.date), 'day')
       );
 
-      if (hasVacation) {
+      if (!cell.isWeek && hasVacation) {
         return;
       }
 
-      setCellAnchorEl(event.currentTarget);
-      setActiveCell(cell);
       const target = event.currentTarget as HTMLElement;
       target.style.backgroundColor = '#ffd85f80';
+
+      setCellAnchorEl(target);
+      setActiveCell(cell);
     },
     [vacations]
   );
 
   const handleCellMenuClose = () => {
     if (cellAnchorEl) {
-      cellAnchorEl.style.backgroundColor = 'white';
+      cellAnchorEl.style = '';
     }
     setCellAnchorEl(null);
     setActiveCell(null);
@@ -266,8 +265,7 @@ const Schedule: React.FC = () => {
 
       const schedule = schedules.find(
         (s) =>
-          s.employeeId === empId &&
-          dayjs(s.weekStart.toDate()).isSame(weekStart, 'week')
+          s.employeeId === empId && dayjs(s.weekStart).isSame(weekStart, 'week')
       );
 
       const weekConstructions =
@@ -279,9 +277,7 @@ const Schedule: React.FC = () => {
               ? (constructions.find((c) => c.id === cid) ?? null)
               : null;
           const isVacation = vacations?.some(
-            (v) =>
-              v.employeeId === empId &&
-              day.isSame(dayjs(v.date.toDate()), 'day')
+            (v) => v.employeeId === empId && day.isSame(dayjs(v.date), 'day')
           );
           return { day, name: construction?.name ?? null, isVacation };
         }) ?? [];
@@ -639,7 +635,7 @@ const Schedule: React.FC = () => {
               const schedule = schedules.find(
                 (s) =>
                   s.employeeId === activeCell.empId &&
-                  dayjs(s.weekStart.toDate()).isSame(weekStart, 'week')
+                  dayjs(s.weekStart).isSame(weekStart, 'week')
               );
 
               if (activeCell.isWeek) {

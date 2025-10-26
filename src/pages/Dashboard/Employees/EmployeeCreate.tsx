@@ -5,12 +5,13 @@ import EmployeeForm, {
   type FormFieldValue,
 } from './EmployeeForm';
 import PageContainer from '../../../components/PageContainer';
-import type { Employee } from '../../../types';
+import type { Employee, EmployeeAttachment } from '../../../types';
 import { createEmployee } from '../../../api/employees';
 import useNotifications from '../../../hooks/useNotifications/useNotifications';
 import { Box, CircularProgress, Typography } from '@mui/material';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { validate } from './EmployeeEditHelpers';
+import type { FileStateMap } from './EmployeeEdit';
 
 export default function EmployeeCreate() {
   const navigate = useNavigate();
@@ -20,6 +21,12 @@ export default function EmployeeCreate() {
   const [formState, setFormState] = React.useState<EmployeeFormState>({
     values: { status: true },
     errors: {},
+  });
+
+  const [files, setFiles] = React.useState<FileStateMap>({
+    idAttachment: null,
+    contractAttachment: null,
+    a1Attachment: null,
   });
 
   const createMutation = useMutation({
@@ -54,6 +61,16 @@ export default function EmployeeCreate() {
     },
     []
   );
+
+  const handleFileChange = (
+    file: File | null,
+    attachmentType: EmployeeAttachment
+  ) => {
+    setFiles((prevFiles) => ({
+      ...prevFiles,
+      [attachmentType]: file,
+    }));
+  };
 
   const handleSubmit = React.useCallback(
     async (event: React.FormEvent<HTMLFormElement>) => {
@@ -123,6 +140,8 @@ export default function EmployeeCreate() {
           onSubmit={handleSubmit}
           isSubmitting={createMutation.isPending}
           isEditForm={false}
+          onFileChange={handleFileChange}
+          filesState={files}
         />
       </Box>
     </PageContainer>

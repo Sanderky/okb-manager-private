@@ -13,10 +13,14 @@ import type { Schedule } from '../types';
 
 export const getScheduleList = async (): Promise<Schedule[]> => {
   const querySnapshot = await getDocs(collection(db, 'schedules'));
-  return querySnapshot.docs.map((doc) => ({
-    id: doc.id,
-    ...doc.data(),
-  })) as Schedule[];
+  return querySnapshot.docs.map((doc) => {
+    const data = doc.data();
+    return {
+      id: doc.id,
+      ...data,
+      weekStart: (data.weekStart as Timestamp).toDate(),
+    } as Schedule;
+  });
 };
 
 export const getScheduleListForWeek = async (
@@ -28,13 +32,14 @@ export const getScheduleListForWeek = async (
     where('weekStart', '==', weekStartTimestamp)
   );
   const querySnapshot = await getDocs(q);
-  return querySnapshot.docs.map(
-    (doc) =>
-      ({
-        id: doc.id,
-        ...doc.data(),
-      }) as Schedule
-  );
+  return querySnapshot.docs.map((doc) => {
+    const data = doc.data();
+    return {
+      id: doc.id,
+      ...data,
+      weekStart: (data.weekStart as Timestamp).toDate(),
+    } as Schedule;
+  });
 };
 
 export const updateSchedule = async (

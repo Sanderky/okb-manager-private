@@ -1,5 +1,3 @@
-import type { Timestamp } from 'firebase/firestore';
-
 export type EmployeeAttachment =
   | 'idAttachment'
   | 'contractAttachment'
@@ -8,14 +6,18 @@ export type EmployeeAttachment =
 export interface Employee {
   id: string;
   name: string;
-  email: string;
-  phone: string;
-  address: string;
-  status: boolean;
-  note: string;
+  isContractor: boolean | null;
+  pesel: string | null;
+  birthDate: Date | null;
+  address: string | null;
+  hourRate: number | null;
+  email: string | null;
+  phone: string | null;
+  status: boolean | null;
+  note: string | null;
   contractStartDate: Date | null;
-  contractEndDate?: Date | null;
-  contractISPermanent?: boolean;
+  contractEndDate: Date | null;
+  contractISPermanent: boolean | null;
   a1StartDate: Date | null;
   a1EndDate: Date | null;
   a1Attachment: FileItem | null;
@@ -26,12 +28,11 @@ export interface Employee {
 export interface Construction {
   id: string;
   name: string;
-  location: string;
-  contractor: string;
+  location: string | null;
+  contractor: string | null;
   startDate: Date | null;
   endDate: Date | null;
-  // inProgress: boolean;
-  note?: string;
+  note?: string | null;
 }
 
 export interface FileItem {
@@ -53,18 +54,18 @@ export interface FolderItem {
 export interface Vacation {
   id?: string;
   employeeId: string;
-  date: Timestamp;
+  date: Date;
   yearMonth: string;
   groupId: string;
-  startDate: Timestamp;
-  endDate: Timestamp;
+  startDate: Date;
+  endDate: Date;
 }
 
 export interface Schedule {
   id?: string;
   employeeId: string;
   constructions: (string | null)[];
-  weekStart: Timestamp;
+  weekStart: Date;
 }
 
 export type File = FileItem | FolderItem;
