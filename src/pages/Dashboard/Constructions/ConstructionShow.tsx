@@ -47,6 +47,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { getEmployeesByScheduledConstruction } from '../../../api/schedules';
 import { getEmployeeList } from '../../../api/employees';
 import BaseDialog, { ConfirmationDialog } from '../../../components/BaseDialog';
+import FirebaseFileBrowser from '../../../components/fileBrowser/FileBrowser';
 
 const personalFields = [
   { key: 'name', label: 'Nazwa budowy' },
@@ -610,6 +611,13 @@ export default function ConstructionShow() {
             )}
             {/* <Divider sx={{ width: '100%' }} orientation="vertical" /> */}
           </Grid>
+        )}
+        {tab === 1 && (
+          <Box>
+            <FirebaseFileBrowser
+              baseDirectory={`constructions/${construction.id}/files`}
+            />
+          </Box>
         )}
         <BaseDialog
           open={endDialogOpen}

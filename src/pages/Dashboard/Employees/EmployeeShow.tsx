@@ -35,6 +35,7 @@ import { handleDownloadAttachment } from './EmployeeEditHelpers';
 
 import EditNoteIcon from '@mui/icons-material/EditNote';
 import CheckIcon from '@mui/icons-material/Check';
+import FirebaseFileBrowser from '../../../components/fileBrowser/FileBrowser';
 
 const personalFields = [
   { key: 'name', label: 'Imię i nazwisko' },
@@ -521,6 +522,13 @@ export default function EmployeeShow() {
               </Box>
             </Grid>
           </Grid>
+        )}
+        {tab === 1 && (
+          <Box>
+            <FirebaseFileBrowser
+              baseDirectory={`employees/${employee.id}/files`}
+            />
+          </Box>
         )}
       </Box>
     ) : null;

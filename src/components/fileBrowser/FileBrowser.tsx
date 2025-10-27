@@ -56,7 +56,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { MRT_Localization_PL } from 'material-react-table/locales/pl';
 
-const BASE_DIRECTORY = 'files';
+// const BASE_DIRECTORY = 'files';
 
 const RenderFileImage = ({ file }: { file: FileCustom }) => {
   if (file.type === 'folder') return <Folder />;
@@ -216,7 +216,11 @@ const FileBreadcrumps = ({
   }
 };
 
-const FirebaseFileBrowser: React.FC = () => {
+interface FirebaseFileBrowserProps {
+  baseDirectory: string;
+}
+
+const FirebaseFileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
   const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
   const [previewFile, setPreviewFile] = useState<FileItem | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState<boolean>(false);
@@ -246,7 +250,7 @@ const FirebaseFileBrowser: React.FC = () => {
     closeMoveDialog,
     handleMove,
     destinationFolders,
-  } = useFileView(BASE_DIRECTORY, onFetch);
+  } = useFileView(baseDirectory, onFetch);
 
   const handleOpenPreview = useCallback((file: FileItem) => {
     setPreviewFile(file);
@@ -477,15 +481,17 @@ const FirebaseFileBrowser: React.FC = () => {
           <input type="file" hidden multiple onChange={handleFileUpload} />
         </Button>
         <Tooltip title="Prześlij pliki">
-          <IconButton
-            component="label"
-            sx={{
-              display: { xs: 'inline-flex', md: 'none' },
-            }}
-          >
-            <FileUpload color="primary" />
-            <input type="file" hidden multiple onChange={handleFileUpload} />
-          </IconButton>
+          <span>
+            <IconButton
+              component="label"
+              sx={{
+                display: { xs: 'inline-flex', md: 'none' },
+              }}
+            >
+              <FileUpload color="primary" />
+              <input type="file" hidden multiple onChange={handleFileUpload} />
+            </IconButton>
+          </span>
         </Tooltip>
 
         <Tooltip title="Utwórz folder">
@@ -530,14 +536,14 @@ const FirebaseFileBrowser: React.FC = () => {
   const table = useMaterialReactTable({
     localization: MRT_Localization_PL,
     //pagination
-    // enablePagination: false,
-    // enableBottomToolbar: true,
-    // enableStickyHeader: false,
+    enablePagination: true,
+    enableBottomToolbar: true,
+    enableStickyHeader: false,
 
     //scroll
-    enableStickyHeader: true,
-    enablePagination: false,
-    enableBottomToolbar: false,
+    // enableStickyHeader: true,
+    // enablePagination: false,
+    // enableBottomToolbar: false,
     //
 
     muiPaginationProps: {
@@ -576,8 +582,8 @@ const FirebaseFileBrowser: React.FC = () => {
     },
     muiTableContainerProps: {
       sx: {
-        minHeight: '500px',
-        maxHeight: '500px',
+        // minHeight: '500px',
+        // maxHeight: '500px',
         width: '100%',
       },
     },
@@ -753,23 +759,25 @@ const FirebaseFileBrowser: React.FC = () => {
             }}
           >
             <Tooltip title="Wróć">
-              <IconButton
-                size="small"
-                aria-label="delete"
-                disabled={currentPath === BASE_DIRECTORY}
-                onClick={() =>
-                  changeCurrentPath(
-                    currentPath.substring(0, currentPath.lastIndexOf('/'))
-                  )
-                }
-              >
-                <ArrowBack />
-              </IconButton>
+              <span>
+                <IconButton
+                  size="small"
+                  aria-label="delete"
+                  disabled={currentPath === baseDirectory}
+                  onClick={() =>
+                    changeCurrentPath(
+                      currentPath.substring(0, currentPath.lastIndexOf('/'))
+                    )
+                  }
+                >
+                  <ArrowBack />
+                </IconButton>
+              </span>
             </Tooltip>
 
             <FileBreadcrumps
               path={currentPath}
-              baseDirectory={BASE_DIRECTORY}
+              baseDirectory={baseDirectory}
               onClick={(path) => changeCurrentPath(path)}
             />
           </Box>
@@ -796,7 +804,7 @@ const FirebaseFileBrowser: React.FC = () => {
         </Box>
       )}
 
-      <Box ref={dropRef} sx={{ position: 'relative', minHeight: '400px' }}>
+      <Box ref={dropRef} sx={{ position: 'relative',  }}>
         {isDragOver && (
           <Paper
             sx={{
@@ -834,7 +842,7 @@ const FirebaseFileBrowser: React.FC = () => {
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
                 Pliki zostaną przesłane do:{' '}
-                {currentPath.replace(BASE_DIRECTORY, 'Katalog główny')}
+                {currentPath.replace(baseDirectory, 'Katalog główny')}
               </Typography>
             </Box>
           </Paper>
@@ -848,7 +856,7 @@ const FirebaseFileBrowser: React.FC = () => {
         folders={destinationFolders}
         onClose={closeMoveDialog}
         onMove={handleMove}
-        baseDirectory={BASE_DIRECTORY}
+        baseDirectory={baseDirectory}
         currentPath={currentPath}
       />
       <PreviewDialog

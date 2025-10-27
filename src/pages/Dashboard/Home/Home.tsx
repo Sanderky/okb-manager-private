@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom"
 import { useQuery } from "@tanstack/react-query"
 import { getEmployeeList } from "../../../api/employees"
 import { getConstructionList } from "../../../api/constructions"
+import FirebaseFileBrowser from "../../../components/fileBrowser/FileBrowser"
 
 interface CountCardProps {
     data: number,
@@ -58,7 +59,7 @@ const Home = () => {
 
    const { data: employees} = useQuery({
     queryKey: ['employees'],
-    queryFn: getEmployeeList,
+    queryFn: () => getEmployeeList(),
   });
 
   const { data: constructions } = useQuery({
@@ -82,6 +83,7 @@ const Home = () => {
         <Stack
         direction={'row'}
         spacing={5}
+        mb={4}
         >
 
             <CountCard
@@ -95,6 +97,7 @@ const Home = () => {
                 onClick={handleConstructionsClick}
             />
         </Stack>
+        <FirebaseFileBrowser baseDirectory="general"/>
         </PageContainer>
     )
 }
