@@ -86,23 +86,13 @@ export async function getEmployeeList(activeOnly = false): Promise<Employee[]> {
     return {
       id: doc.id,
       name: data.name ?? '',
-      isContractor: data.isContractor ?? null,
-      pesel: data.pesel ?? null,
       birthDate: data.birthDate?.toDate() ?? null,
-      address: data.address ?? null,
-      hourRate: data.hourRate ?? null,
-      email: data.email ?? null,
-      phone: data.phone ?? null,
-      status: data.status ?? true,
-      note: data.note ?? null,
       contractStartDate: data.contractStartDate?.toDate() ?? null,
       contractEndDate: data.contractEndDate?.toDate() ?? null,
       contractISPermanent: data.contractISPermanent ?? false,
       a1StartDate: data.a1StartDate?.toDate() ?? null,
       a1EndDate: data.a1EndDate?.toDate() ?? null,
-      a1Attachment: data.a1Attachment ?? null,
-      contractAttachment: data.contractAttachment ?? null,
-      idAttachment: data.idAttachment ?? null,
+      ...data,
     } as Employee;
   });
 
@@ -116,23 +106,12 @@ export async function getEmployee(id: string): Promise<Employee | null> {
     return {
       id: employeeDoc.id,
       name: data.name ?? '',
-      isContractor: data.isContractor ?? null,
-      pesel: data.pesel ?? null,
       birthDate: data.birthDate?.toDate() ?? null,
-      address: data.address ?? null,
-      hourRate: data.hourRate ?? null,
-      email: data.email ?? null,
-      phone: data.phone ?? null,
-      status: data.status ?? true,
-      note: data.note ?? null,
       contractStartDate: data.contractStartDate?.toDate() ?? null,
       contractEndDate: data.contractEndDate?.toDate() ?? null,
-      contractISPermanent: data.contractISPermanent ?? false,
       a1StartDate: data.a1StartDate?.toDate() ?? null,
       a1EndDate: data.a1EndDate?.toDate() ?? null,
-      a1Attachment: data.a1Attachment ?? null,
-      contractAttachment: data.contractAttachment ?? null,
-      idAttachment: data.idAttachment ?? null,
+      ...data,
     } as Employee;
   } else {
     return null;

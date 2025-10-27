@@ -1,29 +1,24 @@
 import React from 'react';
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
   FormControl,
   TextField,
   Checkbox,
-  Button,
-  IconButton,
   Stack,
   Typography,
   Autocomplete,
   Chip,
   Alert,
   Box,
+  IconButton,
+  Button,
 } from '@mui/material';
-import { Close as CloseIcon } from '@mui/icons-material';
+import BaseDialog from '../../../components/BaseDialog';
 import {
   getColorForEmployee,
   type ActiveDialog,
   type CalendarEvent,
 } from './CalendarHelpers';
 import type { Employee } from '../../../types';
-
 import DeleteIcon from '@mui/icons-material/Delete';
 
 interface FilterDialogProps {
@@ -42,62 +37,41 @@ export const FilterDialog: React.FC<FilterDialogProps> = ({
   setSelectedEmployees,
 }) => {
   return (
-    <Dialog
+    <BaseDialog
       open={isFilterOpen}
       onClose={() => setIsFilterOpen(false)}
-      maxWidth="sm"
-      fullWidth
-    >
-      <DialogTitle sx={{ px: 2 }}>
-        <Stack
-          direction="row"
-          alignItems="center"
-          justifyContent={'space-between'}
-        >
-          <Typography variant="h6" component="div">
-            Filtr pracowników
-          </Typography>
-          <IconButton onClick={() => setIsFilterOpen(false)}>
-            <CloseIcon />
-          </IconButton>
-        </Stack>
-      </DialogTitle>
-      <DialogContent
-        dividers
-        sx={{
-          px: 2,
-        }}
-      >
-        <FormControl sx={{ width: '100%', maxWidth: '100%' }}>
-          <Autocomplete
-            size="small"
-            multiple
-            id="checkboxes-tags-demo"
-            options={employees}
-            disableCloseOnSelect
-            getOptionLabel={(opt) => opt.name}
-            value={selectedEmployees}
-            onChange={(_, newValue) => setSelectedEmployees(newValue)}
-            isOptionEqualToValue={(option, value) => option.id === value?.id}
-            renderOption={(props, option, { selected }) => {
-              const { key, ...optionProps } = props;
-              return (
-                <li key={key} {...optionProps}>
-                  <Checkbox checked={selected} />
-                  {option.name}
-                </li>
-              );
-            }}
-            renderInput={(params) => (
-              <TextField {...params} label="Pracownicy" />
-            )}
-          />
-        </FormControl>
-      </DialogContent>
-      <DialogActions sx={{ px: 2 }}>
+      title="Filtr pracowników"
+      showConfirm={false}
+      actions={
         <Button onClick={() => setSelectedEmployees([])}>Wyczyść</Button>
-      </DialogActions>
-    </Dialog>
+      }
+    >
+      <Typography variant="overline" sx={{ mb: 1.5, display: 'block' }}>
+        {`Wybrane: ${selectedEmployees.length}`}
+      </Typography>
+      <FormControl sx={{ width: '100%', maxWidth: '100%' }}>
+        <Autocomplete
+          size="small"
+          multiple
+          options={employees}
+          disableCloseOnSelect
+          getOptionLabel={(opt) => opt.name}
+          value={selectedEmployees}
+          onChange={(_, newValue) => setSelectedEmployees(newValue)}
+          isOptionEqualToValue={(option, value) => option.id === value?.id}
+          renderOption={(props, option, { selected }) => {
+            const { key, ...optionProps } = props;
+            return (
+              <li key={key} {...optionProps}>
+                <Checkbox checked={selected} />
+                {option.name}
+              </li>
+            );
+          }}
+          renderInput={(params) => <TextField {...params} label="Pracownicy" />}
+        />
+      </FormControl>
+    </BaseDialog>
   );
 };
 
@@ -109,6 +83,7 @@ interface AddEventDialogProps {
   handleModalClose: () => void;
   handleEmployeeChange: (employee: Employee) => void;
   handleAddEvent: () => void;
+  loading?: boolean;
 }
 
 export const AddEventDialog: React.FC<AddEventDialogProps> = ({
@@ -119,25 +94,19 @@ export const AddEventDialog: React.FC<AddEventDialogProps> = ({
   handleModalClose,
   handleEmployeeChange,
   handleAddEvent,
+  loading = false,
 }) => {
   return (
-    <Dialog
+    <BaseDialog
       open={activeDialog.type === 'addEvent'}
       onClose={handleModalClose}
-      fullWidth
-      maxWidth="sm"
+      onConfirm={handleAddEvent}
+      title="Dodaj urlop"
+      confirmText="Zapisz urlop"
+      loading={loading}
+      disabled={!currentEvent.employee}
     >
-      <DialogTitle sx={{ px: 2 }}>
-        <Stack direction="row" alignItems="center" spacing={1}>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Dodaj urlop
-          </Typography>
-          <IconButton onClick={handleModalClose}>
-            <CloseIcon />
-          </IconButton>
-        </Stack>
-      </DialogTitle>
-      <DialogContent dividers sx={{ maxWidth: '100%', px: 2 }}>
+      <Stack spacing={2}>
         <Autocomplete
           size="small"
           options={employees.filter((e) => e.status)}
@@ -156,7 +125,7 @@ export const AddEventDialog: React.FC<AddEventDialogProps> = ({
           renderInput={(params) => (
             <TextField
               {...params}
-              label="Pracownicy"
+              label="Pracownik"
               error={!!validationError && !currentEvent.employee?.id}
               helperText={
                 validationError && !currentEvent.employee?.id
@@ -166,36 +135,33 @@ export const AddEventDialog: React.FC<AddEventDialogProps> = ({
             />
           )}
         />
+
         {currentEvent.startDate && currentEvent.endDate && (
-          <Stack direction="row" alignItems="center" spacing={1} my={2}>
+          <Stack
+            direction="row"
+            alignItems="center"
+            spacing={1}
+            justifyContent="center"
+          >
             <Chip
               label={currentEvent.startDate.format('DD.MM.YYYY')}
               color="primary"
               variant="outlined"
-              sx={{ ml: 1, mr: 1 }}
             />
-            <Typography>–</Typography>
+            <Typography variant="body2">–</Typography>
             <Chip
               label={currentEvent.endDate.format('DD.MM.YYYY')}
               color="primary"
               variant="outlined"
-              sx={{ ml: 1, mr: 1 }}
             />
           </Stack>
         )}
 
         {validationError && validationError.includes('urlop w dniach') && (
-          <Alert severity="error" sx={{ mt: 2 }}>
-            {validationError}
-          </Alert>
+          <Alert severity="error">{validationError}</Alert>
         )}
-      </DialogContent>
-      <DialogActions sx={{ px: 2 }}>
-        <Button variant="contained" onClick={() => handleAddEvent()}>
-          Zapisz
-        </Button>
-      </DialogActions>
-    </Dialog>
+      </Stack>
+    </BaseDialog>
   );
 };
 
@@ -205,6 +171,7 @@ interface EventDetailsDialogProps {
   selectedEmployees: Employee[];
   handleModalClose: () => void;
   handleDeleteEvent: (id?: string) => void;
+  loading?: boolean;
 }
 
 export const EventDetailsDialog: React.FC<EventDetailsDialogProps> = ({
@@ -213,133 +180,111 @@ export const EventDetailsDialog: React.FC<EventDetailsDialogProps> = ({
   selectedEmployees,
   handleModalClose,
   handleDeleteEvent,
+  loading = false,
 }) => {
+  const isMultipleEvents = activeDialog.type === 'moreEvents';
+
+  const handleDelete = () => {
+    handleDeleteEvent();
+  };
+
   return (
-    <Dialog
-      open={
-        activeDialog.type === 'moreEvents' ||
-        activeDialog.type === 'eventDetails'
-      }
+    <BaseDialog
+      open={isMultipleEvents || activeDialog.type === 'eventDetails'}
       onClose={handleModalClose}
-      fullWidth
-      maxWidth="sm"
-    >
-      <DialogTitle sx={{ px: 2 }}>
-        <Stack direction="row" alignItems="center" spacing={1}>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            {activeDialog.type === 'moreEvents'
-              ? `Urlopy - ${activeDialog.day.date.format('DD.MM.YYYY')}`
-              : 'Szczegóły urlopu'}
-          </Typography>
-          <IconButton onClick={handleModalClose}>
-            <CloseIcon />
-          </IconButton>
-        </Stack>
-      </DialogTitle>
-      <DialogContent dividers sx={{ maxWidth: '100%', px: 2 }}>
-        <Stack direction={'column'} spacing={1}>
-          {activeDialog.type === 'moreEvents'
-            ? activeDialog.day.events
-                .filter(
-                  (e) =>
-                    activeDialog.day.date.isBetween(
-                      e.startDate,
-                      e.endDate,
-                      'day',
-                      '[]'
-                    ) &&
-                    (selectedEmployees.length === 0 ||
-                      selectedEmployees.some((emp) => emp.id === e.employee.id))
-                )
-                .map((event) => (
-                  <Stack
-                    key={event.id}
-                    sx={{
-                      p: 1,
-                      backgroundColor: getColorForEmployee(event.employee.id),
-                      borderRadius: 1,
-                      cursor: 'pointer',
-                      ':hover': { opacity: 0.9 },
-                      overflow: 'hidden',
-                    }}
-                    direction={'row'}
-                    alignItems={'center'}
-                    className={'border-darkGray border'}
-                  >
-                    <Box
-                      sx={{
-                        flexGrow: 1,
-                        flexShrink: 1,
-                        maxWidth: '100%',
-                        overflow: 'hidden',
-                      }}
-                    >
-                      <Typography
-                        variant="subtitle1"
-                        noWrap
-                        sx={{
-                          mb: 0.25,
-                          fontWeight: 500,
-                        }}
-                      >
-                        {event.employee?.name}
-                      </Typography>
-                      <Typography variant="body1">
-                        {event.startDate.format('DD.MM.YYYY')} –{' '}
-                        {event.endDate.format('DD.MM.YYYY')}
-                      </Typography>
-                    </Box>
-                    <IconButton
-                      size="small"
-                      className="text-gray-700/50"
-                      onClick={() => handleDeleteEvent(event.groupId)}
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  </Stack>
-                ))
-            : currentEvent.employee && (
-                <Box
-                  sx={{
-                    p: 1,
-                    backgroundColor: getColorForEmployee(
-                      currentEvent.employee.id
-                    ),
-                    borderRadius: 1,
-                    cursor: 'pointer',
-                    ':hover': { opacity: 0.9 },
-                  }}
-                  className={'border-darkGray border'}
-                >
-                  <Typography
-                    variant="subtitle1"
-                    noWrap
-                    sx={{
-                      mb: 0.25,
-                      fontWeight: 500,
-                    }}
-                  >
-                    {currentEvent.employee?.name}
-                  </Typography>
-                  <Typography variant="body1">
-                    {currentEvent.startDate.format('DD.MM.YYYY')} –{' '}
-                    {currentEvent.endDate.format('DD.MM.YYYY')}
-                  </Typography>
-                </Box>
-              )}
-        </Stack>
-      </DialogContent>
-      <DialogActions sx={{ px: 2 }}>
-        {activeDialog.type === 'eventDetails' && (
+      title={
+        isMultipleEvents
+          ? `Urlopy - ${activeDialog.day.date.format('DD.MM.YYYY')}`
+          : 'Szczegóły urlopu'
+      }
+      showConfirm={false}
+      showCancel={!isMultipleEvents}
+      cancelText="Zamknij"
+      actions={
+        !isMultipleEvents ? (
           <Button
             variant="outlined"
             color="error"
-            onClick={() => handleDeleteEvent()}
+            onClick={handleDelete}
+            disabled={loading}
+            startIcon={<DeleteIcon />}
           >
-            Usuń
+            Usuń urlop
           </Button>
-        )}
-      </DialogActions>
-    </Dialog>
+        ) : undefined
+      }
+    >
+      <Stack direction="column" spacing={1}>
+        {isMultipleEvents
+          ? activeDialog.day.events
+              .filter(
+                (e) =>
+                  activeDialog.day.date.isBetween(
+                    e.startDate,
+                    e.endDate,
+                    'day',
+                    '[]'
+                  ) &&
+                  (selectedEmployees.length === 0 ||
+                    selectedEmployees.some((emp) => emp.id === e.employee.id))
+              )
+              .map((event) => (
+                <Stack
+                  key={event.id}
+                  sx={{
+                    p: 2,
+                    backgroundColor: getColorForEmployee(event.employee.id),
+                    borderRadius: 1,
+                    cursor: 'pointer',
+                    ':hover': { opacity: 0.9 },
+                    overflow: 'hidden',
+                  }}
+                  direction="row"
+                  alignItems="center"
+                  className="border border-gray-300"
+                >
+                  <Box sx={{ flexGrow: 1 }}>
+                    <Typography variant="subtitle1" fontWeight="500">
+                      {event.employee?.name}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {event.startDate.format('DD.MM.YYYY')} –{' '}
+                      {event.endDate.format('DD.MM.YYYY')}
+                    </Typography>
+                  </Box>
+                  <IconButton
+                    size="small"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteEvent(event.groupId);
+                    }}
+                    disabled={loading}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </Stack>
+              ))
+          : currentEvent.employee && (
+              <Box
+                sx={{
+                  p: 2,
+                  backgroundColor: getColorForEmployee(
+                    currentEvent.employee.id
+                  ),
+                  borderRadius: 1,
+                }}
+                className="border border-gray-300"
+              >
+                <Typography variant="subtitle1" fontWeight="500">
+                  {currentEvent.employee?.name}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {currentEvent.startDate.format('DD.MM.YYYY')} –{' '}
+                  {currentEvent.endDate.format('DD.MM.YYYY')}
+                </Typography>
+              </Box>
+            )}
+      </Stack>
+    </BaseDialog>
   );
 };

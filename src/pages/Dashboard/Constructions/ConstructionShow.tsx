@@ -46,6 +46,7 @@ import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { getEmployeesByScheduledConstruction } from '../../../api/schedules';
 import { getEmployeeList } from '../../../api/employees';
+import BaseDialog, { ConfirmationDialog } from '../../../components/BaseDialog';
 
 const personalFields = [
   { key: 'name', label: 'Nazwa budowy' },
@@ -585,7 +586,7 @@ export default function ConstructionShow() {
                     {employees
                       .filter((e) => scheduleEmployees.includes(e.id))
                       .map((emp) => (
-                        <>
+                        <div key={emp.id}>
                           <Typography
                             variant="subtitle1"
                             sx={{
@@ -601,7 +602,7 @@ export default function ConstructionShow() {
                             flexItem
                             className="last:hidden"
                           />
-                        </>
+                        </div>
                       ))}
                   </Stack>
                 )}
@@ -610,105 +611,85 @@ export default function ConstructionShow() {
             {/* <Divider sx={{ width: '100%' }} orientation="vertical" /> */}
           </Grid>
         )}
-        <Dialog
+        <BaseDialog
           open={endDialogOpen}
           onClose={closeEndDialog}
-          fullWidth
-          maxWidth="xs"
+          onConfirm={handleFinish}
+          title="Zakończ budowę"
+          confirmText="Zakończ budowę"
+          confirmColor="warning"
+          cancelText="Anuluj"
+          loading={updateStatusMutation.isPending}
         >
-          <DialogTitle>
-            <Stack direction="row" alignItems="center" spacing={1}>
-              <Typography variant="h6" sx={{ flexGrow: 1 }}>
-                Zakończ budowę
-              </Typography>
-              <IconButton aria-label="close" onClick={closeEndDialog}>
-                <CloseIcon />
-              </IconButton>
-            </Stack>
-          </DialogTitle>
-          <DialogContent dividers sx={{ pb: 4 }}>
-            <Stack spacing={2}>
-              <Typography variant="body2">
-                Wybierz datę zakończenia budowy.
-              </Typography>
-              <LocalizationProvider
-                dateAdapter={AdapterDayjs}
-                adapterLocale="pl"
-              >
-                <DatePicker
-                  label="Data zakończenia"
-                  value={endDateValue}
-                  onChange={(v) => {
-                    setEndDateError(null);
-                    setEndDateValue(v ?? dayjs());
-                  }}
-                  slotProps={{
-                    textField: {
-                      fullWidth: true,
-                      error: !!endDateError,
-                      helperText: endDateError ?? '',
-                    },
-                    field: { clearable: false },
-                  }}
-                />
-              </LocalizationProvider>
-            </Stack>
-          </DialogContent>
-          <DialogActions sx={{ px: 3, py: 2 }}>
-            <Button
-              variant="contained"
-              onClick={handleFinish}
-              disabled={updateStatusMutation.isPending}
-            >
-              Zapisz
-            </Button>
-          </DialogActions>
-        </Dialog>
-        <Dialog
+          <Stack spacing={3}>
+            <Typography variant="body1">
+              Wybierz datę zakończenia budowy{' '}
+              <strong>{construction?.name}</strong>:
+            </Typography>
+
+            <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pl">
+              <DatePicker
+                label="Data zakończenia"
+                value={endDateValue}
+                onChange={(v) => {
+                  setEndDateError(null);
+                  setEndDateValue(v ?? dayjs());
+                }}
+                slotProps={{
+                  textField: {
+                    fullWidth: true,
+                    error: !!endDateError,
+                    helperText: endDateError ?? '',
+                  },
+                  field: { clearable: false },
+                }}
+              />
+            </LocalizationProvider>
+          </Stack>
+        </BaseDialog>
+        <ConfirmationDialog
           open={resumeDialogOpen}
           onClose={() => setResumeDialogOpen(false)}
-          fullWidth
-          maxWidth="sm"
-        >
-          <DialogTitle>
-            <Stack direction="row" alignItems="center" spacing={1}>
-              <Typography variant="h6" sx={{ flexGrow: 1 }}>
-                Wznawianie budowy
-              </Typography>
-              <IconButton
-                aria-label="close"
-                onClick={() => setResumeDialogOpen(false)}
-              >
-                <CloseIcon />
-              </IconButton>
-            </Stack>
-          </DialogTitle>
-          <DialogContent dividers>
-            <Typography variant="subtitle1">
-              Czy na pewno chcesz wznowić budowę <b>{construction.name}</b> ?
+          onConfirm={handleResume}
+          title="Wznawianie budowy"
+          message={
+            <Typography variant="body1">
+              Czy na pewno chcesz wznowić budowę{' '}
+              <strong>{construction?.name}</strong>?
             </Typography>
-          </DialogContent>
-          <DialogActions sx={{ px: 3, py: 2 }}>
-            <Button
-              variant="outlined"
-              onClick={() => setResumeDialogOpen(false)}
-              disabled={updateStatusMutation.isPending}
-            >
-              Anuluj
-            </Button>
-            <Button
-              variant="contained"
-              onClick={handleResume}
-              disabled={updateStatusMutation.isPending}
-              color="success"
-            >
-              Potwierdź
-            </Button>
-          </DialogActions>
-        </Dialog>
+          }
+          confirmText="Wznów budowę"
+          cancelText="Anuluj"
+          confirmColor="success"
+          loading={updateStatusMutation.isPending}
+        />
       </Box>
     ) : null;
-  }, [loading, error, notFound, construction, tab, handleConstructionEdit, isInProgress, openEndDialog, editNote, handleSaveNote, updateNoteMutation.isPending, note, scheduleEmployees, employees, endDialogOpen, closeEndDialog, endDateValue, endDateError, handleFinish, updateStatusMutation.isPending, resumeDialogOpen, handleResume, handleBack]);
+  }, [
+    loading,
+    error,
+    notFound,
+    construction,
+    tab,
+    handleConstructionEdit,
+    isInProgress,
+    openEndDialog,
+    editNote,
+    handleSaveNote,
+    updateNoteMutation.isPending,
+    note,
+    scheduleEmployees,
+    employees,
+    endDialogOpen,
+    closeEndDialog,
+    endDateValue,
+    endDateError,
+    handleFinish,
+    updateStatusMutation.isPending,
+    resumeDialogOpen,
+    handleResume,
+    handleBack,
+  ]);
 
   const pageTitle = construction?.name || '...';
 

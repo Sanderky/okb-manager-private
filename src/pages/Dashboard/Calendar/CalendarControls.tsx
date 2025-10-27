@@ -70,7 +70,7 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
               width: 'auto',
             },
             '&:hover .MuiPickersOutlinedInput-notchedOutline': {
-              borderColor: '#1976d2',
+              borderColor: '#1976d2 !important',
             },
             '& .MuiPickersOutlinedInput-notchedOutline': {
               borderColor: '#1976d2',

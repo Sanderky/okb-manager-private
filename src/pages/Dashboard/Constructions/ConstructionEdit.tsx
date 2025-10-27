@@ -16,22 +16,22 @@ import ConstructionForm, {
 } from './ConstructionForm';
 import PageContainer from '../../../components/PageContainer';
 import { AlertTitle, Stack, Typography } from '@mui/material';
-
-import { useCallback, useEffect } from 'react';
-import { useDialogs } from '../../../hooks/useDialogs/useDialogs';
+import { useCallback, useEffect, useState } from 'react'; // DODAJ useState
 import { Grid } from '@mui/system';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import useNotifications from '../../../hooks/useNotifications/useNotifications';
 import { validate } from './ConstructionHelpers';
+import { ConfirmationDialog } from '../../../components/BaseDialog'; // DODAJ TEN IMPORT
 
 export default function ConstructionEdit() {
   const { constructionId } = useParams<{ constructionId: string }>();
   const navigate = useNavigate();
-  const dialogs = useDialogs();
   const queryClient = useQueryClient();
   const notifications = useNotifications();
+
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false); // DODAJ STAN DLA DIALOGU
 
   const {
     data: construction,
@@ -144,43 +144,19 @@ export default function ConstructionEdit() {
     [formState.values, construction, updateMutation, notifications]
   );
 
-  const handleConstructionDelete = useCallback(async () => {
-    if (!construction) return;
+  // ZASTĄP STARĄ FUNKCJĘ handleConstructionDelete NOWYMI FUNKCJAMI
+  const handleDeleteClick = useCallback(() => {
+    setDeleteDialogOpen(true);
+  }, []);
 
-    const confirmed = await dialogs.confirm(
-      <Stack direction="column" spacing={2}>
-        <div>
-          <Typography variant="body1" className="mb-1 text-gray-600">
-            Czy na pewno chcesz usunąć <strong>{construction.name}</strong>?
-          </Typography>
-          <Typography variant="body1" className="text-gray-600">
-            Ta akcja usunie budowę z systemu i wszystkie powiązane z nią dane.
-          </Typography>
-        </div>
-        <Alert severity="error">
-          <AlertTitle>Uwaga!</AlertTitle>
-          Proszę zachować ostrożność, tej operacji nie można cofnąć.
-        </Alert>
-      </Stack>,
-      {
-        title: (
-          <Stack direction="row" spacing={2} alignItems="center">
-            <WarningAmberIcon className="text-red-600" />
-            <Typography variant="h6" className="text-red-600">
-              Usuwanie budowy
-            </Typography>
-          </Stack>
-        ),
-        severity: 'error',
-        okText: 'Usuń',
-        cancelText: 'Anuluj',
-      }
-    );
+  const handleDeleteConfirm = useCallback(() => {
+    deleteMutation.mutate();
+    setDeleteDialogOpen(false);
+  }, [deleteMutation]);
 
-    if (confirmed) {
-      deleteMutation.mutate();
-    }
-  }, [construction, dialogs, deleteMutation]);
+  const handleDeleteCancel = useCallback(() => {
+    setDeleteDialogOpen(false);
+  }, []);
 
   const renderContent = () => {
     if (isLoading || updateMutation.isPending || deleteMutation.isPending) {
@@ -208,55 +184,85 @@ export default function ConstructionEdit() {
     }
 
     return (
-      <Grid container columns={12} spacing={{ xs: 3, lg: 2 }}>
-        <Grid size={{ xs: 12, lg: 8, xl: 9 }}>
-          <Box
-            sx={{ width: '100%', maxWidth: { sm: '100%', md: '1790px' } }}
-            className="border-lightGray rounded-lg border bg-white px-3 pt-4 pb-6 md:px-6"
-          >
-            <ConstructionForm
-              formState={formState}
-              onFieldChange={handleFieldChange}
-              onSubmit={handleSubmit}
-              isSubmitting={updateMutation.isPending}
-              submitError={
-                updateMutation.isError ? updateMutation.error.message : null
-              }
-              isEditForm={true}
-            />
-          </Box>
-        </Grid>
-        <Grid size={{ xs: 12, lg: 4, xl: 3 }}>
-          <Stack
-            direction={{ xs: 'column' }}
-            justifyContent={{ xs: 'flex-start' }}
-            alignItems={{ xs: 'stretch', sm: 'flex-start' }}
-            spacing={{ xs: 1, xl: 2 }}
-            className="rounded-lg border border-red-500/25 bg-red-600/5! p-3"
-            maxWidth={'400px'}
-          >
-            <div>
-              <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                Usuń budowę
-              </Typography>
-              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                Trwale usuwa budowę z bazy danych. Tej operacji nie można
-                cofnąć.
-              </Typography>
-            </div>
-            <Button
-              variant="contained"
-              color="error"
-              sx={{ minWidth: 120 }}
-              onClick={handleConstructionDelete}
-              disabled={deleteMutation.isPending}
-              startIcon={<HighlightOffIcon />}
+      <>
+        <Grid container columns={12} spacing={{ xs: 3, lg: 2 }}>
+          <Grid size={{ xs: 12, lg: 8, xl: 9 }}>
+            <Box
+              sx={{ width: '100%', maxWidth: { sm: '100%', md: '1790px' } }}
+              className="border-lightGray rounded-lg border bg-white px-3 pt-4 pb-6 md:px-6"
             >
-              {deleteMutation.isPending ? 'Usuwanie...' : 'Usuń'}
-            </Button>
-          </Stack>
+              <ConstructionForm
+                formState={formState}
+                onFieldChange={handleFieldChange}
+                onSubmit={handleSubmit}
+                isSubmitting={updateMutation.isPending}
+                submitError={
+                  updateMutation.isError ? updateMutation.error.message : null
+                }
+                isEditForm={true}
+              />
+            </Box>
+          </Grid>
+          <Grid size={{ xs: 12, lg: 4, xl: 3 }}>
+            <Stack
+              direction={{ xs: 'column' }}
+              justifyContent={{ xs: 'flex-start' }}
+              alignItems={{ xs: 'stretch', sm: 'flex-start' }}
+              spacing={{ xs: 1, xl: 2 }}
+              className="rounded-lg border border-red-500/25 bg-red-600/5! p-3"
+              maxWidth={'400px'}
+            >
+              <div>
+                <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                  Usuń budowę
+                </Typography>
+                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                  Trwale usuwa budowę z bazy danych. Tej operacji nie można
+                  cofnąć.
+                </Typography>
+              </div>
+              <Button
+                variant="contained"
+                color="error"
+                sx={{ minWidth: 120 }}
+                onClick={handleDeleteClick} // ZMIANA: handleConstructionDelete -> handleDeleteClick
+                disabled={deleteMutation.isPending}
+                startIcon={<HighlightOffIcon />}
+              >
+                {deleteMutation.isPending ? 'Usuwanie...' : 'Usuń'}
+              </Button>
+            </Stack>
+          </Grid>
         </Grid>
-      </Grid>
+
+        {/* DODAJ DIALOG POTWIERDZENIA USUWANIA */}
+        <ConfirmationDialog
+          open={deleteDialogOpen}
+          onClose={handleDeleteCancel}
+          onConfirm={handleDeleteConfirm}
+          title={
+            <Stack direction="row" spacing={1} alignItems="center">
+              <WarningAmberIcon className="text-red-600" />
+              <span>Usuwanie budowy</span>
+            </Stack>
+          }
+          message={
+            <Stack direction="column" spacing={2}>
+              <Typography variant="body1" className="text-gray-600">
+                Czy na pewno chcesz usunąć <strong>{construction.name}</strong>?
+              </Typography>
+              <Alert severity="error">
+                <AlertTitle>Uwaga!</AlertTitle>
+                Proszę zachować ostrożność, tej operacji nie można cofnąć.
+              </Alert>
+            </Stack>
+          }
+          confirmText="Usuń"
+          cancelText="Anuluj"
+          confirmColor="error"
+          loading={deleteMutation.isPending}
+        />
+      </>
     );
   };
 

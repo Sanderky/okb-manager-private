@@ -37,7 +37,7 @@ import {
 } from './ScheduleHelpers';
 import { TableControls } from './ScheduleTableControls';
 import { EmployeeRow } from './ScheduleEmployeeRow';
-import { FilterDialog } from './ScheduleFilterDialog';
+import { FilterDialog } from './ScheduleDialogs';
 
 dayjs.locale('pl');
 
