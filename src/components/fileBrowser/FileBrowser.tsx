@@ -23,6 +23,9 @@ import {
   Paper,
   Stack,
   Divider,
+  Dialog,
+  DialogContent,
+  DialogTitle,
 } from '@mui/material';
 import {
   Folder,
@@ -39,6 +42,8 @@ import {
   OpenInNew,
   InsertPhotoOutlined,
   DescriptionOutlined,
+  InfoOutline,
+  Close,
 } from '@mui/icons-material';
 import MoveItemsDialog from './MoveFilesDialog';
 import { PreviewDialog } from './FilePreviewDialog';
@@ -62,6 +67,82 @@ const RenderFileImage = ({ file }: { file: FileCustom }) => {
   if (fileType === 'text') return <DescriptionOutlined />;
   if (fileType === 'word') return <DescriptionOutlined />;
   return <InsertDriveFileOutlined />;
+};
+
+interface FileDetailsDialogProps {
+  open: boolean;
+  onClose: () => void;
+  file: FileItem | null;
+}
+
+const FileDetailsItem = ({
+  title,
+  value,
+}: {
+  title: string;
+  value: string;
+}) => {
+  return (
+    <Box>
+      <Typography variant="subtitle2" component={'div'}>
+        {title}
+      </Typography>
+      <Typography variant="body2">{value}</Typography>
+    </Box>
+  );
+};
+
+export const FileDetailsDialog: React.FC<FileDetailsDialogProps> = ({
+  open,
+  onClose,
+  file,
+}) => {
+  if (!file) return null;
+
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+      <DialogTitle sx={{ px: 2 }}>
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent={'space-between'}
+        >
+          <Typography variant="h6" component="div">
+            Szczegóły pliku
+          </Typography>
+          <IconButton onClick={onClose}>
+            <Close />
+          </IconButton>
+        </Stack>
+      </DialogTitle>
+      <DialogContent>
+        <Stack
+          direction={'column'}
+          alignItems={'flex-start'}
+          spacing={{ xs: 2, sm: 1 }}
+        >
+          <FileDetailsItem title="Nazwa" value={file.name} />
+
+          <FileDetailsItem
+            title="Data dodania"
+            value={
+              file.timeCreated
+                ? new Date(file.timeCreated).toLocaleString()
+                : 'brak danych'
+            }
+          />
+          <FileDetailsItem
+            title="Rozmiar"
+            value={file.size ? formatBytes(file.size as number) : 'brak danych'}
+          />
+          <FileDetailsItem
+            title="Rodzaj"
+            value={file.contentType ?? 'brak danych'}
+          />
+        </Stack>
+      </DialogContent>
+    </Dialog>
+  );
 };
 
 const FileBreadcrumps = ({
@@ -139,6 +220,9 @@ const FirebaseFileBrowser: React.FC = () => {
   const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
   const [previewFile, setPreviewFile] = useState<FileItem | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState<boolean>(false);
+  const [selectedFile, setSelectedFile] = useState<FileItem | null>(null);
+  const [isDetailsDialogOpen, setIsDetailsDialogOpen] =
+    useState<boolean>(false);
   const [isDragOver, setIsDragOver] = useState<boolean>(false);
   const dropRef = useRef<HTMLDivElement>(null);
 
@@ -253,6 +337,16 @@ const FirebaseFileBrowser: React.FC = () => {
       {
         accessorKey: 'name',
         header: 'Nazwa',
+        muiTableBodyCellProps: {
+          sx: {
+            pl: 0,
+          },
+        },
+        muiTableHeadCellProps: {
+          sx: {
+            pl: 0,
+          },
+        },
         Cell: ({ cell, row }) => (
           <Stack
             direction={'row'}
@@ -291,7 +385,12 @@ const FirebaseFileBrowser: React.FC = () => {
         header: 'Data dodania',
         grow: false,
         size: 150,
-
+        muiTableHeadCellProps: {
+          sx: { display: { xs: 'none', md: 'table-cell' } },
+        },
+        muiTableBodyCellProps: {
+          sx: { display: { xs: 'none', md: 'table-cell' } },
+        },
         Cell: ({ cell, row }) => {
           if (row.original.type === 'folder') return '';
           return (
@@ -314,6 +413,12 @@ const FirebaseFileBrowser: React.FC = () => {
       {
         accessorKey: 'size',
         header: 'Rozmiar',
+        muiTableHeadCellProps: {
+          sx: { display: { xs: 'none', md: 'table-cell' } },
+        },
+        muiTableBodyCellProps: {
+          sx: { display: { xs: 'none', md: 'table-cell' } },
+        },
         grow: false,
         size: 150,
         Cell: ({ cell, row }) => {
@@ -332,6 +437,12 @@ const FirebaseFileBrowser: React.FC = () => {
         header: 'Rodzaj',
         grow: false,
         size: 150,
+        muiTableHeadCellProps: {
+          sx: { display: { xs: 'none', md: 'table-cell' } },
+        },
+        muiTableBodyCellProps: {
+          sx: { display: { xs: 'none', md: 'table-cell' } },
+        },
         Cell: ({ row }) => {
           return (
             <Chip
@@ -350,16 +461,101 @@ const FirebaseFileBrowser: React.FC = () => {
     [handleClikOnName]
   );
 
+  const renderToolbarButtons = (selectedRows: FileCustom[]) => {
+    return (
+      <>
+        <Button
+          component="label"
+          variant="contained"
+          size="small"
+          startIcon={<FileUpload />}
+          sx={{
+            display: { xs: 'none', md: 'inline-flex' },
+          }}
+        >
+          Prześlij pliki
+          <input type="file" hidden multiple onChange={handleFileUpload} />
+        </Button>
+        <Tooltip title="Prześlij pliki">
+          <IconButton
+            component="label"
+            sx={{
+              display: { xs: 'inline-flex', md: 'none' },
+            }}
+          >
+            <FileUpload color="primary" />
+            <input type="file" hidden multiple onChange={handleFileUpload} />
+          </IconButton>
+        </Tooltip>
+
+        <Tooltip title="Utwórz folder">
+          <IconButton onClick={handleCreateFolder}>
+            <CreateNewFolder />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title={`Pobierz (${selectedRows.length})`}>
+          <span>
+            <IconButton
+              disabled={selectedRows.length === 0}
+              onClick={() => handleDownload(selectedRows)}
+            >
+              <Download />
+            </IconButton>
+          </span>
+        </Tooltip>
+        <Tooltip title={`Przenieś (${selectedRows.length})`}>
+          <span>
+            <IconButton
+              disabled={selectedRows.length === 0}
+              onClick={() => openMoveDialog(selectedRows)}
+            >
+              <DriveFileMove />
+            </IconButton>
+          </span>
+        </Tooltip>
+        <Tooltip title={`Usuń (${selectedRows.length})`}>
+          <span>
+            <IconButton
+              disabled={selectedRows.length === 0}
+              onClick={() => handleDelete(selectedRows)}
+            >
+              <Delete />
+            </IconButton>
+          </span>
+        </Tooltip>
+      </>
+    );
+  };
+
   const table = useMaterialReactTable({
     localization: MRT_Localization_PL,
+    //pagination
+    // enablePagination: false,
+    // enableBottomToolbar: true,
+    // enableStickyHeader: false,
+
+    //scroll
     enableStickyHeader: true,
     enablePagination: false,
+    enableBottomToolbar: false,
+    //
+
+    muiPaginationProps: {
+      color: 'primary',
+
+      shape: 'rounded',
+
+      showRowsPerPage: false,
+
+      variant: 'outlined',
+    },
+    positionGlobalFilter: 'right',
+
+    paginationDisplayMode: 'pages',
     layoutMode: 'grid',
-    // layoutMode: 'semantic',
     columns,
     data,
     state: {
-      // isLoading: loading,
       rowSelection,
       showSkeletons: loading,
       showProgressBars: loading,
@@ -374,14 +570,14 @@ const FirebaseFileBrowser: React.FC = () => {
     enableRowActions: true,
     enableColumnFilters: false,
     positionActionsColumn: 'last',
-    enableBottomToolbar: false,
     initialState: {
       density: 'comfortable',
+      showGlobalFilter: true,
     },
     muiTableContainerProps: {
       sx: {
-        maxHeight: '500px',
         minHeight: '500px',
+        maxHeight: '500px',
         width: '100%',
       },
     },
@@ -389,7 +585,6 @@ const FirebaseFileBrowser: React.FC = () => {
       sx: {},
     },
     muiTablePaperProps: {
-      // elevation: 0,
       sx: {
         width: '100%',
         boxShadow: 'none',
@@ -406,9 +601,10 @@ const FirebaseFileBrowser: React.FC = () => {
     },
     muiTopToolbarProps: {
       sx: {
-        padding: '0',
+        width: '100%',
       },
     },
+
     muiSearchTextFieldProps: {
       placeholder: 'Przeszukaj obecny katalog',
       variant: 'outlined',
@@ -457,6 +653,17 @@ const FirebaseFileBrowser: React.FC = () => {
               }}
               table={table}
             />,
+            <MRT_ActionMenuItem
+              icon={<InfoOutline />}
+              key="details"
+              label="Szczegóły"
+              onClick={() => {
+                setSelectedFile(row.original as FileItem);
+                setIsDetailsDialogOpen(true);
+                closeMenu();
+              }}
+              table={table}
+            />,
           ]
         : null,
       <MRT_ActionMenuItem
@@ -490,97 +697,82 @@ const FirebaseFileBrowser: React.FC = () => {
         table={table}
       />,
     ],
-    renderTopToolbar: () => (
-      <Box sx={{ overflow: 'hidden', maxWidth: '100%' }}>
-        <MRT_TopToolbar table={table} />
-        <Divider />
-
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            paddingRight: '10px',
-            gap: 1,
-            overflow: 'hidden',
-            maxWidth: '100%',
-            padding: '5px',
-          }}
-        >
-          <Tooltip title="Wróć">
-            <IconButton
-              size="small"
-              aria-label="delete"
-              disabled={currentPath === BASE_DIRECTORY}
-              onClick={() =>
-                changeCurrentPath(
-                  currentPath.substring(0, currentPath.lastIndexOf('/'))
-                )
-              }
-            >
-              <ArrowBack />
-            </IconButton>
-          </Tooltip>
-
-          <FileBreadcrumps
-            path={currentPath}
-            baseDirectory={BASE_DIRECTORY}
-            onClick={(path) => changeCurrentPath(path)}
-          />
-        </Box>
-      </Box>
-    ),
     renderTopToolbarCustomActions: ({ table }) => {
       const selectedRows = table
         .getSelectedRowModel()
         .flatRows.map((row) => row.original);
       return (
         <Box
-          sx={{ display: 'flex', gap: '1rem', p: '0.5rem', flexWrap: 'wrap' }}
+          sx={{
+            pl: 0.5,
+          }}
         >
-          <Button
-            component="label"
-            variant="contained"
-            size="small"
-            startIcon={<FileUpload />}
+          <Box
+            sx={{
+              display: { xs: 'none', sm: 'flex' },
+              columnGap: 1,
+              flexWrap: 'wrap',
+            }}
           >
-            Prześlij pliki
-            <input type="file" hidden multiple onChange={handleFileUpload} />
-          </Button>
-          {/* <Tooltip title="Dodaj pliki">
-            <IconButton component="label">
-              <FileUpload />
-              <input type="file" hidden multiple onChange={handleFileUpload} />
-            </IconButton>
-          </Tooltip> */}
-          <Tooltip title="Utwórz folder">
-            <IconButton onClick={handleCreateFolder}>
-              <CreateNewFolder />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title={`Pobierz (${selectedRows.length})`}>
-            <IconButton
-              disabled={selectedRows.length === 0}
-              onClick={() => handleDownload(selectedRows)}
-            >
-              <Download />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title={`Przenieś (${selectedRows.length})`}>
-            <IconButton
-              disabled={selectedRows.length === 0}
-              onClick={() => openMoveDialog(selectedRows)}
-            >
-              <DriveFileMove />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title={`Usuń (${selectedRows.length})`}>
-            <IconButton
-              disabled={selectedRows.length === 0}
-              onClick={() => handleDelete(selectedRows)}
-            >
-              <Delete />
-            </IconButton>
-          </Tooltip>
+            {renderToolbarButtons(selectedRows)}
+          </Box>
+        </Box>
+      );
+    },
+    renderTopToolbar: ({ table }) => {
+      const selectedRows = table
+        .getSelectedRowModel()
+        .flatRows.map((row) => row.original);
+
+      return (
+        <Box sx={{ maxWidth: '100%' }}>
+          <MRT_TopToolbar table={table} />
+
+          <Box
+            sx={{
+              display: { xs: 'flex', sm: 'none' },
+              gap: 2,
+              padding: 1,
+              flexWrap: 'wrap',
+            }}
+          >
+            {renderToolbarButtons(selectedRows)}
+          </Box>
+
+          <Divider />
+
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              paddingRight: '10px',
+              gap: 1,
+              overflow: 'hidden',
+              maxWidth: '100%',
+              padding: '5px',
+            }}
+          >
+            <Tooltip title="Wróć">
+              <IconButton
+                size="small"
+                aria-label="delete"
+                disabled={currentPath === BASE_DIRECTORY}
+                onClick={() =>
+                  changeCurrentPath(
+                    currentPath.substring(0, currentPath.lastIndexOf('/'))
+                  )
+                }
+              >
+                <ArrowBack />
+              </IconButton>
+            </Tooltip>
+
+            <FileBreadcrumps
+              path={currentPath}
+              baseDirectory={BASE_DIRECTORY}
+              onClick={(path) => changeCurrentPath(path)}
+            />
+          </Box>
         </Box>
       );
     },
@@ -663,6 +855,11 @@ const FirebaseFileBrowser: React.FC = () => {
         open={isPreviewOpen}
         onClose={handleClosePreview}
         file={previewFile}
+      />
+      <FileDetailsDialog
+        open={isDetailsDialogOpen}
+        onClose={() => setIsDetailsDialogOpen(false)}
+        file={selectedFile}
       />
     </Box>
   );

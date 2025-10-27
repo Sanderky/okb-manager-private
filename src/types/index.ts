@@ -3,6 +3,8 @@ export type EmployeeAttachment =
   | 'contractAttachment'
   | 'a1Attachment';
 
+export type FileCustom = FileItem | FolderItem;
+
 export interface Employee {
   id: string;
   name: string;
