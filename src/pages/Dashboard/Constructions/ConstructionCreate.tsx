@@ -28,16 +28,17 @@ export default function ConstructionCreate() {
       createConstruction(newConstruction as Construction),
     onSuccess: (newConstructionId) => {
       queryClient.invalidateQueries({ queryKey: ['constructions'] });
-      notifications.show('Pomyślnie utworzono budowę.', {
+      notifications.show('Budowa została pomyślnie utworzona.', {
         severity: 'success',
-        autoHideDuration: 3000,
+        autoHideDuration: 5000,
       });
       navigate(`/constructions/${newConstructionId}`);
     },
     onError: (error: Error) => {
-      notifications.show(`Błąd: ${error.message}`, {
+      console.error('Create construction error:', error);
+      notifications.show('Wystąpił błąd podczas tworzenia budowy.', {
         severity: 'error',
-        autoHideDuration: 3000,
+        autoHideDuration: 5000,
       });
     },
   });
@@ -60,12 +61,16 @@ export default function ConstructionCreate() {
       const validationErrors = validate(formState.values);
       if (Object.keys(validationErrors).length > 0) {
         setFormState((prev) => ({ ...prev, errors: validationErrors }));
+        notifications.show('Proszę poprawić błędy w formularzu.', {
+          severity: 'error',
+          autoHideDuration: 5000,
+        });
         return;
       }
 
       createMutation.mutate(formState.values);
     },
-    [formState.values, createMutation]
+    [formState.values, createMutation, notifications]
   );
 
   if (createMutation.isPending) {

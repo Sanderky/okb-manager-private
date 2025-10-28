@@ -26,16 +26,11 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 
 import {
   Chip,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
   Divider,
   IconButton,
   Tab,
   Tabs,
   TextareaAutosize,
-  TextField,
 } from '@mui/material';
 import { useParams } from 'react-router';
 import dayjs from 'dayjs';
@@ -55,7 +50,6 @@ const personalFields = [
   { key: 'contractor', label: 'Wykonawca' },
   { key: 'startDate', label: 'Data rozpoczęcia' },
   { key: 'endDate', label: 'Data zakończenia' },
-  // { key: 'inProgress', label: 'W trakcie realizacji' },
 ];
 
 export default function ConstructionShow() {
@@ -74,8 +68,6 @@ export default function ConstructionShow() {
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setTab(newValue);
   };
-
-  // const [employee, setEmployee] = useState<Employee | null>(null);
 
   const [note, setNote] = useState('');
 
@@ -124,6 +116,17 @@ export default function ConstructionShow() {
       queryClient.invalidateQueries({
         queryKey: ['construction', constructionId],
       });
+      notifications.show('Notatka została zaktualizowana.', {
+        severity: 'success',
+        autoHideDuration: 5000,
+      });
+    },
+    onError: (error: Error) => {
+      console.error('Update note error:', error);
+      notifications.show('Wystąpił błąd podczas zapisywania notatki.', {
+        severity: 'error',
+        autoHideDuration: 5000,
+      });
     },
   });
 
@@ -134,11 +137,7 @@ export default function ConstructionShow() {
     }
     updateNoteMutation.mutate(note);
     setEditNote(false);
-    notifications.show('Pomyślnie zaktualizowano notatkę.', {
-      severity: 'success',
-      autoHideDuration: 3000,
-    });
-  }, [construction?.note, note, updateNoteMutation, notifications]);
+  }, [construction?.note, note, updateNoteMutation]);
 
   const handleConstructionEdit = useCallback(() => {
     navigate(`/constructions/${constructionId}/edit`);
@@ -161,11 +160,13 @@ export default function ConstructionShow() {
         queryKey: ['construction', constructionId],
       });
       queryClient.invalidateQueries({ queryKey: ['constructions'] });
+      // Powiadomienia są wyświetlane w handleFinish i handleResume
     },
     onError: (error: Error) => {
-      notifications.show(`Błąd zapisu: ${error.message}`, {
+      console.error('Update construction status error:', error);
+      notifications.show('Wystąpił błąd podczas zmiany stanu budowy.', {
         severity: 'error',
-        autoHideDuration: 3000,
+        autoHideDuration: 5000,
       });
     },
   });
@@ -174,7 +175,7 @@ export default function ConstructionShow() {
 
   const openEndDialog = useCallback(() => {
     setEndDateError(null);
-    setEndDateValue(dayjs()); // domyślnie dziś
+    setEndDateValue(dayjs());
     setEndDialogOpen(true);
   }, []);
 
@@ -183,7 +184,6 @@ export default function ConstructionShow() {
   }, []);
 
   const handleFinish = useCallback(() => {
-    // Walidacja: data zakończenia nie może być wcześniejsza niż startDate
     const start = construction?.startDate
       ? dayjs(construction.startDate).startOf('day')
       : null;
@@ -203,7 +203,7 @@ export default function ConstructionShow() {
         onSuccess: () => {
           notifications.show('Budowa została oznaczona jako zakończona.', {
             severity: 'success',
-            autoHideDuration: 3000,
+            autoHideDuration: 5000,
           });
         },
       }
@@ -224,7 +224,7 @@ export default function ConstructionShow() {
         onSuccess: () => {
           notifications.show('Budowa została wznowiona.', {
             severity: 'success',
-            autoHideDuration: 3000,
+            autoHideDuration: 5000,
           });
         },
       }
@@ -260,33 +260,9 @@ export default function ConstructionShow() {
     if (error) {
       return (
         <Box sx={{ flexGrow: 1, width: '100%' }}>
-          <Alert
-            severity="error"
-            // action={
-            //   <Stack direction="row" spacing={1}>
-            //     <Button
-            //       size="small"
-            //       onClick={() => setShowDebug((v) => !v)}
-            //       variant="text"
-            //     >
-            //       {showDebug ? 'Ukryj' : 'Szczegóły'}
-            //     </Button>
-            //   </Stack>
-            // }
-          >
-            {error.message}
+          <Alert severity="error">
+            Wystąpił błąd podczas ładowania danych budowy.
           </Alert>
-          {/* {showDebug && (
-            <Paper sx={{ mt: 2, p: 2, bgcolor: 'grey.50' }} variant="outlined">
-              <Typography
-                variant="caption"
-                component="pre"
-                sx={{ m: 0, whiteSpace: 'pre-wrap' }}
-              >
-                {JSON.stringify(error.raw, null, 2)}
-              </Typography>
-            </Paper>
-          )} */}
         </Box>
       );
     }
@@ -381,11 +357,7 @@ export default function ConstructionShow() {
         </Grid>
         {tab === 0 && (
           <Grid container spacing={{ xs: 2 }} columns={12}>
-            <Grid
-              size={{ xs: 12, lg: 6 }}
-              sx={{ flexGrow: 1 }}
-              // className="border-lightGray border bg-white p-3 md:p-5"
-            >
+            <Grid size={{ xs: 12, lg: 6 }} sx={{ flexGrow: 1 }}>
               <Grid container spacing={2}>
                 {personalFields.map(({ key, label }) => (
                   <Grid
@@ -455,7 +427,6 @@ export default function ConstructionShow() {
                             whiteSpace: 'normal',
                             wordBreak: 'break-word',
                           }}
-                          // noWrap
                         >
                           {(() => {
                             const value =
@@ -540,27 +511,6 @@ export default function ConstructionShow() {
                     onChange={(e) => setNote(e.target.value)}
                     readOnly={updateNoteMutation.isPending || !editNote}
                   />
-                  {/* <TextField
-                    variant="outlined"
-                    className={`bg-white ${editNote ? '' : 'bg-gray-100! opacity-50'}`}
-                    fullWidth
-                    multiline
-                    rows={5}
-                    value={note}
-                    onChange={(e) => setNote(e.target.value)}
-                    error={updateNoteMutation.isError}
-                    slotProps={{
-                      input: {
-                        readOnly: updateNoteMutation.isPending || !editNote,
-                      },
-                    }}
-                    helperText={
-                      updateNoteMutation.isError
-                        ? 'Nie udało się zapisać notatki.'
-                        : ''
-                    }
-                    sx={{ '& .MuiOutlinedInput-root': { p: 1.5 } }}
-                  /> */}
                 </Stack>
               </Box>
             </Grid>
@@ -609,7 +559,6 @@ export default function ConstructionShow() {
                 )}
               </Grid>
             )}
-            {/* <Divider sx={{ width: '100%' }} orientation="vertical" /> */}
           </Grid>
         )}
         {tab === 1 && (

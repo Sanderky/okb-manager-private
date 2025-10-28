@@ -24,7 +24,7 @@ import useNotifications from '../../../hooks/useNotifications/useNotifications';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import useEmployeeAttachment from './useAttachment';
 import { validate } from './EmployeeEditHelpers';
-import { ConfirmationDialog } from '../../../components/BaseDialog'; // DODAJ TEN IMPORT
+import { ConfirmationDialog } from '../../../components/BaseDialog';
 
 export type FileStateMap = {
   [K in EmployeeAttachment]: File | null;
@@ -38,7 +38,7 @@ export default function EmployeeEdit() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false); // DODAJ STAN DLA DIALOGU
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const {
     data: employee,
@@ -67,19 +67,26 @@ export default function EmployeeEdit() {
     }
   }, [employee]);
 
-  useEffect(() => {
-    if (error) console.error('Load data error:', error);
-  }, [error]);
-
   const updateMutation = useMutation({
     mutationFn: (values: Partial<Employee>) =>
       updateEmployee(employeeId!, values),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['employee', employeeId] });
       queryClient.invalidateQueries({ queryKey: ['employees'] });
+      notifications.show('Dane pracownika zostały zaktualizowane.', {
+        severity: 'success',
+        autoHideDuration: 5000,
+      });
     },
     onError: (error: Error) => {
-      console.error('Edit employee error:', error);
+      console.error('Update employee error:', error);
+      notifications.show(
+        'Wystąpił błąd podczas aktualizacji danych pracownika.',
+        {
+          severity: 'error',
+          autoHideDuration: 5000,
+        }
+      );
     },
   });
 
@@ -97,9 +104,17 @@ export default function EmployeeEdit() {
     mutationFn: () => removeEmployee(employeeId!),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['employees'] });
+      notifications.show('Pracownik został usunięty.', {
+        severity: 'info',
+        autoHideDuration: 5000,
+      });
     },
     onError: (error: Error) => {
       console.error('Delete employee error:', error);
+      notifications.show('Wystąpił błąd podczas usuwania pracownika.', {
+        severity: 'error',
+        autoHideDuration: 5000,
+      });
     },
   });
 
@@ -130,6 +145,10 @@ export default function EmployeeEdit() {
       const validationErrors = validate(formState.values);
       if (Object.keys(validationErrors).length > 0) {
         setFormState((prev) => ({ ...prev, errors: validationErrors }));
+        notifications.show('Proszę poprawić błędy w formularzu.', {
+          severity: 'error',
+          autoHideDuration: 5000,
+        });
         return;
       }
 
@@ -171,8 +190,6 @@ export default function EmployeeEdit() {
           contractStartDate: formState.values.contractStartDate ?? null,
           a1StartDate: formState.values.a1StartDate ?? null,
           a1EndDate: formState.values.a1EndDate ?? null,
-
-          // nowy warunek: jeśli umowa na czas nieokreślony → null
           contractEndDate: formState.values.contractISPermanent
             ? null
             : (formState.values.contractEndDate ?? null),
@@ -183,19 +200,10 @@ export default function EmployeeEdit() {
 
         await updateMutation.mutateAsync(updateData);
 
-        notifications.show('Zmiany zostały pomyślnie zapisane.', {
-          severity: 'success',
-          autoHideDuration: 3000,
-        });
-
         navigate(`/employees/${employeeId}`);
       } catch (error) {
-        const errorMessage =
-          error instanceof Error ? error.message : 'Wystąpił nieznany błąd';
-        notifications.show(`Błąd zapisu: ${errorMessage}`, {
-          severity: 'error',
-          autoHideDuration: 3000,
-        });
+        // Error handling is done in mutation
+        console.error('Error:', error);
       } finally {
         setIsSubmitting(false);
       }
@@ -213,7 +221,6 @@ export default function EmployeeEdit() {
     ]
   );
 
-  // ZASTĄP STARĄ FUNKCJĘ handleEmployeeDelete NOWYMI FUNKCJAMI
   const handleDeleteClick = useCallback(() => {
     setDeleteDialogOpen(true);
   }, []);
@@ -227,16 +234,11 @@ export default function EmployeeEdit() {
       setDeleteDialogOpen(false);
       navigate('/employees');
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'Wystąpił nieznany błąd';
-      notifications.show(`Błąd usuwania: ${errorMessage}`, {
-        severity: 'error',
-        autoHideDuration: 3000,
-      });
+      // Error handling is done in mutation
     } finally {
       setIsDeleting(false);
     }
-  }, [employee, deleteMutation, notifications, navigate]);
+  }, [employee, deleteMutation, navigate]);
 
   const handleDeleteCancel = useCallback(() => {
     setDeleteDialogOpen(false);
@@ -267,7 +269,9 @@ export default function EmployeeEdit() {
 
     if (error) {
       return (
-        <Alert severity="error">Wystąpił błąd podczas pobierania danych.</Alert>
+        <Alert severity="error">
+          Wystąpił błąd podczas ładowania danych pracownika.
+        </Alert>
       );
     }
 
@@ -323,7 +327,7 @@ export default function EmployeeEdit() {
                 variant="contained"
                 color="error"
                 sx={{ minWidth: 120 }}
-                onClick={handleDeleteClick} // ZMIANA: handleEmployeeDelete -> handleDeleteClick
+                onClick={handleDeleteClick}
                 disabled={isFormLoading}
                 startIcon={<HighlightOffIcon />}
               >
@@ -333,7 +337,6 @@ export default function EmployeeEdit() {
           </Grid>
         </Grid>
 
-        {/* DODAJ DIALOG POTWIERDZENIA USUWANIA */}
         <ConfirmationDialog
           open={deleteDialogOpen}
           onClose={handleDeleteCancel}

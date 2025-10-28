@@ -40,7 +40,7 @@ export default function ConstructionsList() {
     columnVisibility,
     density,
     resetState,
-  } = useTableState('constructions')
+  } = useTableState('constructions');
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['constructions'],
@@ -127,9 +127,9 @@ export default function ConstructionsList() {
         accessorFn: (row) => !row.endDate,
         filterVariant: 'select',
         filterSelectOptions: [
-          {label: 'W trakcie', value: 'true'},
-          {label: 'Zakończone', value: 'false'},
-          {label: 'Wszystkie', value: ''},
+          { label: 'W trakcie', value: 'true' },
+          { label: 'Zakończone', value: 'false' },
+          { label: 'Wszystkie', value: '' },
         ],
         Cell: ({ cell }) => (
           <Box
@@ -170,9 +170,7 @@ export default function ConstructionsList() {
         'inProgress',
         'mrt-row-actions',
       ],
-      columnFilters: [
-        {id: 'inProgress', value: 'true'}
-      ]
+      columnFilters: [{ id: 'inProgress', value: 'true' }],
     },
     state: {
       columnVisibility,

@@ -16,14 +16,14 @@ import ConstructionForm, {
 } from './ConstructionForm';
 import PageContainer from '../../../components/PageContainer';
 import { AlertTitle, Stack, Typography } from '@mui/material';
-import { useCallback, useEffect, useState } from 'react'; // DODAJ useState
+import { useCallback, useEffect, useState } from 'react';
 import { Grid } from '@mui/system';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import useNotifications from '../../../hooks/useNotifications/useNotifications';
 import { validate } from './ConstructionHelpers';
-import { ConfirmationDialog } from '../../../components/BaseDialog'; // DODAJ TEN IMPORT
+import { ConfirmationDialog } from '../../../components/BaseDialog';
 
 export default function ConstructionEdit() {
   const { constructionId } = useParams<{ constructionId: string }>();
@@ -31,7 +31,7 @@ export default function ConstructionEdit() {
   const queryClient = useQueryClient();
   const notifications = useNotifications();
 
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false); // DODAJ STAN DLA DIALOGU
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const {
     data: construction,
@@ -69,9 +69,10 @@ export default function ConstructionEdit() {
       navigate(`/constructions/${constructionId}`);
     },
     onError: (error: Error) => {
-      notifications.show(`Błąd zapisu: ${error.message}`, {
+      console.error('Update construction error:', error);
+      notifications.show('Wystąpił błąd podczas zapisywania danych budowy.', {
         severity: 'error',
-        autoHideDuration: 3000,
+        autoHideDuration: 5000,
       });
     },
   });
@@ -80,16 +81,17 @@ export default function ConstructionEdit() {
     mutationFn: () => removeConstruction(constructionId!),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['constructions'] });
-      notifications.show('Budowa została usunięta.', {
-        severity: 'info',
+      notifications.show('Budowa została pomyślnie usunięta.', {
+        severity: 'success',
         autoHideDuration: 3000,
       });
       navigate('/constructions');
     },
     onError: (error: Error) => {
-      notifications.show(`Błąd usuwania: ${error.message}`, {
+      console.error('Delete construction error:', error);
+      notifications.show('Wystąpił błąd podczas usuwania budowy.', {
         severity: 'error',
-        autoHideDuration: 3000,
+        autoHideDuration: 5000,
       });
     },
   });
@@ -112,7 +114,7 @@ export default function ConstructionEdit() {
       const validationErrors = validate(formState.values);
       if (Object.keys(validationErrors).length > 0) {
         setFormState((prev) => ({ ...prev, errors: validationErrors }));
-        notifications.show('Proszę poprawić błędy w formularzu', {
+        notifications.show('Proszę poprawić błędy w formularzu.', {
           severity: 'error',
           autoHideDuration: 3000,
         });
@@ -125,17 +127,13 @@ export default function ConstructionEdit() {
         if (field === 'id') return;
 
         if (formState.values[field] !== construction?.[field]) {
-          // Use type assertion for the specific field
-          changedValues[field as keyof Omit<Construction, 'id'>] = formState
-            .values[field] as any;
+          // Użyj type assertion z odpowiednim typem
+          const constructionKey = field as keyof Omit<Construction, 'id'>;
+          changedValues[constructionKey] = formState.values[field] as never;
         }
       });
 
       if (Object.keys(changedValues).length === 0) {
-        notifications.show('Nie wprowadzono żadnych zmian', {
-          severity: 'info',
-          autoHideDuration: 3000,
-        });
         return;
       }
 
@@ -144,7 +142,6 @@ export default function ConstructionEdit() {
     [formState.values, construction, updateMutation, notifications]
   );
 
-  // ZASTĄP STARĄ FUNKCJĘ handleConstructionDelete NOWYMI FUNKCJAMI
   const handleDeleteClick = useCallback(() => {
     setDeleteDialogOpen(true);
   }, []);
@@ -176,7 +173,11 @@ export default function ConstructionEdit() {
     }
 
     if (error) {
-      return <Alert severity="error">{(error as Error).message}</Alert>;
+      return (
+        <Alert severity="error">
+          Wystąpił błąd podczas ładowania danych budowy.
+        </Alert>
+      );
     }
 
     if (!construction) {
@@ -197,7 +198,9 @@ export default function ConstructionEdit() {
                 onSubmit={handleSubmit}
                 isSubmitting={updateMutation.isPending}
                 submitError={
-                  updateMutation.isError ? updateMutation.error.message : null
+                  updateMutation.isError
+                    ? 'Wystąpił błąd podczas aktualizacji budowy.'
+                    : null
                 }
                 isEditForm={true}
               />
@@ -225,7 +228,7 @@ export default function ConstructionEdit() {
                 variant="contained"
                 color="error"
                 sx={{ minWidth: 120 }}
-                onClick={handleDeleteClick} // ZMIANA: handleConstructionDelete -> handleDeleteClick
+                onClick={handleDeleteClick}
                 disabled={deleteMutation.isPending}
                 startIcon={<HighlightOffIcon />}
               >
@@ -235,7 +238,6 @@ export default function ConstructionEdit() {
           </Grid>
         </Grid>
 
-        {/* DODAJ DIALOG POTWIERDZENIA USUWANIA */}
         <ConfirmationDialog
           open={deleteDialogOpen}
           onClose={handleDeleteCancel}

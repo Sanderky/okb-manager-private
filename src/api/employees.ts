@@ -84,6 +84,7 @@ export async function getEmployeeList(activeOnly = false): Promise<Employee[]> {
   const employeesList = employeesSnapshot.docs.map((doc) => {
     const data = doc.data();
     return {
+      ...data,
       id: doc.id,
       name: data.name ?? '',
       birthDate: data.birthDate?.toDate() ?? null,
@@ -92,7 +93,6 @@ export async function getEmployeeList(activeOnly = false): Promise<Employee[]> {
       contractISPermanent: data.contractISPermanent ?? false,
       a1StartDate: data.a1StartDate?.toDate() ?? null,
       a1EndDate: data.a1EndDate?.toDate() ?? null,
-      ...data,
     } as Employee;
   });
 
@@ -104,6 +104,7 @@ export async function getEmployee(id: string): Promise<Employee | null> {
   if (employeeDoc.exists()) {
     const data = employeeDoc.data();
     return {
+      ...data,
       id: employeeDoc.id,
       name: data.name ?? '',
       birthDate: data.birthDate?.toDate() ?? null,
@@ -111,7 +112,6 @@ export async function getEmployee(id: string): Promise<Employee | null> {
       contractEndDate: data.contractEndDate?.toDate() ?? null,
       a1StartDate: data.a1StartDate?.toDate() ?? null,
       a1EndDate: data.a1EndDate?.toDate() ?? null,
-      ...data,
     } as Employee;
   } else {
     return null;

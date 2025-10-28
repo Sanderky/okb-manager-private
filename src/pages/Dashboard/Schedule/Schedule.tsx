@@ -135,25 +135,35 @@ const Schedule: React.FC = () => {
     return arr;
   }, [fromWeek, toWeek]);
 
+  // const filteredEmployees = useMemo(() => {
+  //   if (!selectedEmployees.length) return employees;
+  //   const ids = new Set(selectedEmployees.map((e) => e.id));
+  //   return employees.filter((e) => ids.has(e.id));
+  // }, [employees, selectedEmployees]);
+
   const filteredEmployees = useMemo(() => {
-    if (!selectedEmployees.length) return employees;
+    const activeEmployees = employees.filter((emp) => emp.status !== false);
+
+    if (!selectedEmployees.length) return activeEmployees;
+
     const ids = new Set(selectedEmployees.map((e) => e.id));
-    return employees.filter((e) => ids.has(e.id));
+    return activeEmployees.filter((e) => ids.has(e.id));
   }, [employees, selectedEmployees]);
 
   const updateScheduleMutation = useMutation({
     mutationFn: updateSchedule,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['schedules'] });
-      notifications.show('Harmonogram zaktualizowany.', {
+      notifications.show('Harmonogram został zaktualizowany.', {
         severity: 'success',
-        autoHideDuration: 3000,
+        autoHideDuration: 5000,
       });
     },
     onError: (error: Error) => {
-      notifications.show(`Błąd zapisu harmonogramu: ${error.message}`, {
+      console.error('Update schedule error:', error);
+      notifications.show('Wystąpił błąd podczas zapisywania harmonogramu.', {
         severity: 'error',
-        autoHideDuration: 3000,
+        autoHideDuration: 5000,
       });
     },
   });
@@ -245,17 +255,13 @@ const Schedule: React.FC = () => {
 
         await updateScheduleMutation.mutateAsync(scheduleData);
       } catch (err) {
-        console.error('❌ Błąd zapisu harmonogramu:', err);
-        notifications.show('Błąd podczas zapisu harmonogramu.', {
-          severity: 'error',
-          autoHideDuration: 3000,
-        });
+        // console.error('Błąd zapisu harmonogramu:', err);
+        // Nie wyświetlamy powiadomienia tutaj, ponieważ mutation już to obsługuje
       }
     },
     [
       schedules,
       updateScheduleMutation,
-      notifications,
       constructions,
       employees,
       normalizeEntry,
@@ -336,6 +342,10 @@ const Schedule: React.FC = () => {
       );
 
       if (!cell.isWeek && hasVacation) {
+        // notifications.show('Nie można zmienić przydziału w dniu urlopu.', {
+        //   severity: 'warning',
+        //   autoHideDuration: 3000,
+        // });
         return;
       }
 
@@ -476,7 +486,7 @@ const Schedule: React.FC = () => {
         sx={{ p: { xs: 1, sm: 2, md: 3 }, overflow: 'hidden' }}
         className="relative"
       >
-        <Alert severity="error">Nastąpił błąd przy wczytywaniu danych.</Alert>
+        <Alert severity="error">Wystąpił błąd podczas ładowania danych.</Alert>
       </Box>
     );
   }
@@ -512,8 +522,9 @@ const Schedule: React.FC = () => {
           mb: 1,
         }}
       >
-        Zmiany są zapisywane od razu w bazie danych. / Kliknij w datę tygodnia w
-        nagłówku tabeli, aby wyświetlić szczegółowy widok tego tygodnia.
+        Zmiany są zapisywane automatycznie w bazie danych. / Kliknij w datę
+        tygodnia w nagłówku tabeli, aby wyświetlić szczegółowy widok tego
+        tygodnia.
       </Alert>
 
       <TableControls

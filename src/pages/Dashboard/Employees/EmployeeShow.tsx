@@ -194,12 +194,27 @@ export default function EmployeeShow() {
       updateEmployee(employeeId!, { note: newNote }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['employee', employeeId] });
+      notifications.show('Notatka została zaktualizowana.', {
+        severity: 'success',
+        autoHideDuration: 5000,
+      });
+    },
+    onError: (error: Error) => {
+      console.error('Update note error:', error);
+      notifications.show('Wystąpił błąd podczas zapisywania notatki.', {
+        severity: 'error',
+        autoHideDuration: 5000,
+      });
     },
   });
 
   const handleSaveNote = useCallback(async () => {
     const currentNote = employee?.note ?? '';
     if (currentNote === note) {
+      // notifications.show('Nie wprowadzono żadnych zmian w notatce.', {
+      //   severity: 'info',
+      //   autoHideDuration: 5000,
+      // });
       setEditNote(false);
       return;
     }
@@ -207,17 +222,11 @@ export default function EmployeeShow() {
     try {
       await updateNoteMutation.mutateAsync(note);
       setEditNote(false);
-      notifications.show('Pomyślnie zaktualizowano notatkę.', {
-        severity: 'success',
-        autoHideDuration: 3000,
-      });
     } catch (error) {
-      notifications.show('Nie udało się zapisać notatki.', {
-        severity: 'error',
-        autoHideDuration: 3000,
-      });
+      // Error handling is done in mutation
+      console.error('Error:', error);
     }
-  }, [employee?.note, note, updateNoteMutation, notifications]);
+  }, [employee?.note, note, updateNoteMutation]);
 
   const handleEmployeeEdit = useCallback(() => {
     navigate(`/employees/${employeeId}/edit`);
@@ -278,7 +287,7 @@ export default function EmployeeShow() {
       return (
         <Box sx={{ flexGrow: 1, width: '100%' }}>
           <Alert severity="error">
-            {error instanceof Error ? error.message : 'Wystąpił nieznany błąd'}
+            Wystąpił błąd podczas ładowania danych pracownika.
           </Alert>
         </Box>
       );
@@ -449,27 +458,6 @@ export default function EmployeeShow() {
                     onChange={(e) => setNote(e.target.value)}
                     readOnly={updateNoteMutation.isPending || !editNote}
                   />
-                  {/* <TextField
-                    variant="outlined"
-                    className={`bg-white ${editNote ? '' : 'bg-gray-100! opacity-50'}`}
-                    fullWidth
-                    multiline
-                    rows={5}
-                    value={note}
-                    onChange={(e) => setNote(e.target.value)}
-                    error={updateNoteMutation.isError}
-                    slotProps={{
-                      input: {
-                        readOnly: !editNote,
-                      },
-                    }}
-                    helperText={
-                      updateNoteMutation.isError
-                        ? 'Nie udało się zapisać notatki.'
-                        : ''
-                    }
-                    sx={{ '& .MuiOutlinedInput-root': { p: 1.5 } }}
-                  /> */}
                 </Stack>
               </Box>
             </Grid>

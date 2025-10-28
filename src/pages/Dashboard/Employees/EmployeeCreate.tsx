@@ -34,16 +34,17 @@ export default function EmployeeCreate() {
       createEmployee(newEmployee as Employee),
     onSuccess: (newEmployeeId) => {
       queryClient.invalidateQueries({ queryKey: ['employees'] });
-      notifications.show('Pomyślnie utworzono pracownika.', {
+      notifications.show('Pracownik został utworzony.', {
         severity: 'success',
-        autoHideDuration: 3000,
+        autoHideDuration: 5000,
       });
       navigate(`/employees/${newEmployeeId}`);
     },
     onError: (error: Error) => {
-      notifications.show(`Błąd: ${error.message}`, {
+      console.error('Create employee error:', error);
+      notifications.show('Wystąpił błąd podczas tworzenia pracownika.', {
         severity: 'error',
-        autoHideDuration: 3000,
+        autoHideDuration: 5000,
       });
     },
   });
@@ -79,6 +80,10 @@ export default function EmployeeCreate() {
       const validationErrors = validate(formState.values);
       if (Object.keys(validationErrors).length > 0) {
         setFormState((prev) => ({ ...prev, errors: validationErrors }));
+        notifications.show('Proszę poprawić błędy w formularzu.', {
+          severity: 'error',
+          autoHideDuration: 5000,
+        });
         return;
       }
 
@@ -98,7 +103,7 @@ export default function EmployeeCreate() {
       console.log('createPayload', payload);
       createMutation.mutate(payload);
     },
-    [formState.values, createMutation]
+    [formState.values, createMutation, notifications]
   );
 
   if (createMutation.isPending) {

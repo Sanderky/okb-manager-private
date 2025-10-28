@@ -11,7 +11,6 @@ import {
 import { Close as CloseIcon } from '@mui/icons-material';
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
-import { Timestamp } from 'firebase/firestore';
 import useNotifications from '../../../hooks/useNotifications/useNotifications';
 import { CalendarGrid } from './CalendarGrid';
 import { CalendarControls } from './CalendarControls';
@@ -67,16 +66,17 @@ const Calendar: React.FC = () => {
     mutationFn: (payload: Vacation[]) => createVacation(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['vacations'] });
-      notifications.show('Pomyślnie utworzono urlop.', {
+      notifications.show('Urlop został pomyślnie utworzony.', {
         severity: 'success',
-        autoHideDuration: 3000,
+        autoHideDuration: 5000,
       });
       handleModalClose();
     },
     onError: (err: Error) => {
-      notifications.show(`Błąd: ${err.message}`, {
+      console.error('Create vacation error:', err);
+      notifications.show('Wystąpił błąd podczas tworzenia urlopu.', {
         severity: 'error',
-        autoHideDuration: 3000,
+        autoHideDuration: 5000,
       });
     },
   });
@@ -85,16 +85,17 @@ const Calendar: React.FC = () => {
     mutationFn: (id: string) => removeVacation(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['vacations'] });
-      notifications.show('Pomyślnie usunięto urlop.', {
-        severity: 'success',
-        autoHideDuration: 3000,
+      notifications.show('Urlop został pomyślnie usunięty.', {
+        severity: 'info',
+        autoHideDuration: 5000,
       });
       handleModalClose();
     },
     onError: (err: Error) => {
-      notifications.show(`Błąd: ${err.message}`, {
+      console.error('Delete vacation error:', err);
+      notifications.show('Wystąpił błąd podczas usuwania urlopu.', {
         severity: 'error',
-        autoHideDuration: 3000,
+        autoHideDuration: 5000,
       });
     },
   });
@@ -331,7 +332,16 @@ const Calendar: React.FC = () => {
   }, []);
 
   if (isErrorEmployees || isErrorVacations) {
-    return <Box>{isErrorEmployees ? 'employeesError' : 'vacationsError'}</Box>;
+    return (
+      <Box
+        sx={{ padding: { xs: 1, sm: 2, md: 3 }, pb: 4 }}
+        className="relative"
+      >
+        <Alert severity="error">
+          Wystąpił błąd podczas ładowania danych kalendarza.
+        </Alert>
+      </Box>
+    );
   }
 
   return (
@@ -429,4 +439,4 @@ const Calendar: React.FC = () => {
   );
 };
 
-export default React.memo(Calendar);
+export default Calendar;
