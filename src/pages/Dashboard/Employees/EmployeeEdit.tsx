@@ -291,7 +291,7 @@ export default function EmployeeEdit() {
                 maxWidth: { sm: '100%', md: '1790px' },
                 position: 'relative',
               }}
-              className="border-lightGray rounded-lg border bg-white px-3 pt-4 pb-6 md:px-6"
+              className="border-darkGray rounded-lg border bg-white px-3 pt-4 pb-6 md:px-6"
             >
               <EmployeeForm
                 onFileChange={handleFileChange}

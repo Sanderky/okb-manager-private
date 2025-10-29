@@ -33,13 +33,14 @@ import { getScheduleList, updateSchedule } from '../../../api/schedules';
 import {
   daysToRanges,
   getScheduleByEmployeeAndWeek,
+  WEEK_DAYS,
   type ICell,
 } from './ScheduleHelpers';
 import { TableControls } from './ScheduleTableControls';
 import { EmployeeRow } from './ScheduleEmployeeRow';
 import { FilterDialog } from './ScheduleDialogs';
 
-dayjs.locale('pl');
+// dayjs.locale('pl');
 
 type ScheduleConstruction = {
   constructionId: string;
@@ -92,7 +93,7 @@ const Schedule: React.FC = () => {
     isLoading: isLoadingEmployees,
     isError: isErrorEmployees,
   } = useQuery<Employee[], Error>({
-    queryKey: ['employees'],
+    queryKey: ['employees', { status: true }],
     queryFn: () => getEmployeeList(true),
   });
 
@@ -135,19 +136,10 @@ const Schedule: React.FC = () => {
     return arr;
   }, [fromWeek, toWeek]);
 
-  // const filteredEmployees = useMemo(() => {
-  //   if (!selectedEmployees.length) return employees;
-  //   const ids = new Set(selectedEmployees.map((e) => e.id));
-  //   return employees.filter((e) => ids.has(e.id));
-  // }, [employees, selectedEmployees]);
-
   const filteredEmployees = useMemo(() => {
-    const activeEmployees = employees.filter((emp) => emp.status !== false);
-
-    if (!selectedEmployees.length) return activeEmployees;
-
+    if (!selectedEmployees.length) return employees;
     const ids = new Set(selectedEmployees.map((e) => e.id));
-    return activeEmployees.filter((e) => ids.has(e.id));
+    return employees.filter((e) => ids.has(e.id));
   }, [employees, selectedEmployees]);
 
   const updateScheduleMutation = useMutation({
@@ -578,7 +570,7 @@ const Schedule: React.FC = () => {
                       lg: '20%',
                     },
                   }}
-                  className="border-b border-b-gray-500 bg-blue-500 px-3 py-2 text-center"
+                  className="border-b border-b-gray-500 bg-blue-400 px-3 py-2 text-center"
                 >
                   <Typography className="font-semibold" variant="body2">
                     Pracownik
@@ -681,7 +673,7 @@ const Schedule: React.FC = () => {
                       md: '200px',
                     },
                   }}
-                  className="cursor-pointer border-b border-b-gray-500 bg-blue-500 px-3 py-2 text-center"
+                  className="cursor-pointer border-b border-b-gray-500 bg-blue-400 px-3 py-2 text-center"
                   onClick={() =>
                     setActiveTable((prev) => ({ ...prev, type: 0 }))
                   }
@@ -690,14 +682,21 @@ const Schedule: React.FC = () => {
                 </TableCell>
                 {Array.from({ length: 7 }).map((_, i) => {
                   const day = activeTable.week.add(i, 'day');
+                  const isToday = day.isSame(dayjs(), 'day');
                   return (
                     <TableCell
                       key={i}
                       sx={{
                         minWidth: '150px',
                       }}
-                      className="border-b border-l border-gray-500 bg-gray-100 px-3 py-2"
+                      className={`border-b border-l border-gray-500 bg-gray-100 px-3 py-2 ${isToday && 'bg-green-300'}`}
                     >
+                      <Typography
+                        className="block text-center font-semibold"
+                        variant="caption"
+                      >
+                        {WEEK_DAYS[i]}
+                      </Typography>
                       <Typography
                         className="text-center font-semibold"
                         variant="body2"

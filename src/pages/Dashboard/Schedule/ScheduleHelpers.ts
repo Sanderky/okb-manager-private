@@ -44,6 +44,16 @@ export const daysToRanges = (days: dayjs.Dayjs[]) => {
   return ranges;
 };
 
+export const WEEK_DAYS = [
+  'Pon.',
+  'Wt.',
+  'Śr.',
+  'Czw.',
+  'Pt.',
+  'Sob.',
+  'Niedz.',
+];
+
 export interface ICell {
   date: Dayjs;
   weekKey: string;

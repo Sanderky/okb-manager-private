@@ -264,7 +264,7 @@ export default function EmployeeForm(props: EmployeeFormProps) {
 
       return (
         <Grid size={{ xs: 12, md: 6 }} key={key}>
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pl">
             <DatePicker
               label={label}
               value={val}
@@ -283,6 +283,10 @@ export default function EmployeeForm(props: EmployeeFormProps) {
                   onClear: () => setCleared(true),
                 },
               }}
+              disabled={
+                (formValues.contractISPermanent && key === 'contractEndDate') ??
+                false
+              }
             />
           </LocalizationProvider>
         </Grid>
@@ -395,6 +399,21 @@ export default function EmployeeForm(props: EmployeeFormProps) {
                 label="Kontraktor"
               />
             </Grid>
+          </Grid>
+
+          <Divider sx={{ width: '100%' }} className="my-3" />
+
+          <Typography variant="subtitle1" className="mb-2 font-medium">
+            Dowód osobisty
+          </Typography>
+          <Grid container columns={12} spacing={{ xs: 2 }} width={'100%'}>
+            <AttachmentField
+              handleFieldChange={handleFieldChange}
+              onFileChange={onFileChange}
+              formState={formState}
+              attachmentType="idAttachment"
+              onOpenPreview={handleOpenPreview}
+            />
           </Grid>
 
           <Divider sx={{ width: '100%' }} className="my-3" />

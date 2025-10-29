@@ -78,11 +78,11 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = React.memo(
               position: 'sticky',
               left: 0,
               zIndex: 3,
-              backgroundColor: '#f3f4f6',
               borderBottom: '1px solid #6B7280',
               padding: '6px 12px',
               textAlign: 'center',
             }}
+            className="bg-blue-100/25"
           >
             <Tooltip
               arrow
@@ -149,11 +149,12 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = React.memo(
             position: 'sticky',
             left: 0,
             zIndex: 3,
-            backgroundColor: '#f3f4f6',
+            // backgroundColor: '#f3f4f6',
             borderBottom: '1px solid #6B7280',
             padding: '6px 12px',
             textAlign: 'center',
           }}
+          className="bg-blue-100/25"
         >
           <Typography noWrap sx={{ fontWeight: 600 }} variant="body2">
             {employee.name}

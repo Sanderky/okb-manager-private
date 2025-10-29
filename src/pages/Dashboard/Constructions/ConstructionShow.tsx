@@ -285,7 +285,7 @@ export default function ConstructionShow() {
     return construction ? (
       <Box
         sx={{ width: '100%' }}
-        className="border-lightGray rounded-lg border bg-white p-4 md:p-6 md:pt-4"
+        className="border-darkGray rounded-lg border bg-white p-4 md:p-6 md:pt-4"
       >
         <Grid
           container
@@ -517,45 +517,43 @@ export default function ConstructionShow() {
             {scheduleEmployees && scheduleEmployees?.length > 0 && (
               <Grid
                 size={{ xs: 12, lg: 6 }}
-                sx={{ flexGrow: 1 }}
-                className="border-lightGray rounded-lg border bg-white p-3 md:p-5"
+                className="border-lightGray overflow-hidden rounded-lg border"
+                sx={{
+                  alignSelf: 'flex-start',
+                }}
               >
-                <Typography
-                  variant="subtitle1"
-                  fontWeight={'600'}
-                  sx={{
-                    mb: 1,
-                  }}
-                >
-                  Pracownicy na budowie:
-                </Typography>
                 {employees && (
-                  <Stack
-                    direction={'column'}
-                    className="border-t border-t-gray-400"
-                  >
-                    {employees
-                      .filter((e) => scheduleEmployees.includes(e.id))
-                      .map((emp) => (
-                        <div key={emp.id}>
-                          <Typography
-                            variant="subtitle1"
-                            sx={{
-                              py: 1,
-                              fontWeight: '450',
-                            }}
-                            className="text-gray-700"
-                          >
-                            {emp.name}
+                  <table className="w-full">
+                    <thead>
+                      <tr className="bg-gray-50">
+                        <th className="px-4 py-3 text-left">
+                          <Typography variant="subtitle2" fontWeight="600">
+                            Pracownicy na budowie ({scheduleEmployees?.length}):
                           </Typography>
-                          <Divider
-                            orientation="horizontal"
-                            flexItem
-                            className="last:hidden"
-                          />
-                        </div>
-                      ))}
-                  </Stack>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                      {employees
+                        .filter((e) => scheduleEmployees.includes(e.id))
+                        .map((emp) => (
+                          <tr
+                            key={emp.id}
+                            onClick={() => navigate(`/employees/${emp.id}`)}
+                            className="cursor-pointer transition-colors hover:bg-blue-50 active:bg-blue-100"
+                          >
+                            <td className="px-4 py-3">
+                              <Typography
+                                variant="body2"
+                                className="text-gray-700"
+                              >
+                                {emp.name}
+                              </Typography>
+                            </td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
                 )}
               </Grid>
             )}

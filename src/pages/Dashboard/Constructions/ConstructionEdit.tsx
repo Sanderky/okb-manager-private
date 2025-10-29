@@ -190,7 +190,7 @@ export default function ConstructionEdit() {
           <Grid size={{ xs: 12, lg: 8, xl: 9 }}>
             <Box
               sx={{ width: '100%', maxWidth: { sm: '100%', md: '1790px' } }}
-              className="border-lightGray rounded-lg border bg-white px-3 pt-4 pb-6 md:px-6"
+              className="border-darkGray rounded-lg border bg-white px-3 pt-4 pb-6 md:px-6"
             >
               <ConstructionForm
                 formState={formState}

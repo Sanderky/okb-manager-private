@@ -67,7 +67,7 @@ const AttachmentBox = ({
         position: 'relative',
         transition: 'box-shadow 0.2s ease-in-out',
         '&:hover': {
-          boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.1)',
+          boxShadow: '0px 0px 5px rgba(0, 0, 0, 0.15)',
           cursor: 'pointer',
         },
       }}

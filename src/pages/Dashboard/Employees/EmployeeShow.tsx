@@ -311,7 +311,7 @@ export default function EmployeeShow() {
     return employee ? (
       <Box
         sx={{ width: '100%' }}
-        className="border-lightGray rounded-lg border bg-white p-4 md:p-6 md:pt-4"
+        className="border-darkGray rounded-lg border bg-white p-4 md:p-6 md:pt-4"
       >
         <Grid
           container
@@ -462,6 +462,24 @@ export default function EmployeeShow() {
               </Box>
             </Grid>
             <Grid size={{ xs: 12, lg: 6 }} sx={{ flexGrow: 1 }}>
+              <Box className="border-lightGray mb-3 rounded-lg border bg-white p-3 md:p-5 md:pb-3">
+                <Stack direction="row" justifyContent="space-between" mb={3}>
+                  <Typography
+                    variant="subtitle1"
+                    className="text-lg font-semibold"
+                  >
+                    Dowód osobisty
+                  </Typography>
+                </Stack>
+
+                <AttachmentBox
+                  file={employee.idAttachment}
+                  onShow={() => handleOpenPreview(employee.idAttachment)}
+                  onDownload={() =>
+                    handleDownloadAttachment(employee.idAttachment)
+                  }
+                />
+              </Box>
               <Box className="border-lightGray mb-3 rounded-lg border bg-white p-3 md:p-5">
                 <Stack direction="row" justifyContent="space-between" mb={3}>
                   <Typography

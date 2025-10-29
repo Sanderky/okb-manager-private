@@ -98,6 +98,27 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
         </IconButton>
       </Badge>
 
+      {/* <Stack
+                sx={{ flexGrow: 1 }}
+                alignItems={'center'}
+                direction={'row'}
+                flexWrap={'wrap'}
+                justifyContent={{ xs: 'flex-start', md: 'flex-end' }}
+              >
+                <Typography
+                  className="rounded-full border border-gray-700 px-3 py-1 font-semibold"
+                  sx={{
+                    display: {
+                      xs: 'none',
+                      sm: 'block',
+                    },
+                  }}
+                >
+                  {dayjs(fromWeek).format('DD.MM.YY')} -{' '}
+                  {dayjs(toWeek).add(6, 'day').format('DD.MM.YY')}
+                </Typography>
+              </Stack> */}
+
       <Stack
         sx={{ flexGrow: 1 }}
         alignItems={'center'}
@@ -106,11 +127,8 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
         justifyContent={{ xs: 'flex-start', md: 'flex-end' }}
       >
         <Typography
-          variant="h6"
-          component="h1"
-          fontWeight={'medium'}
           textTransform={'capitalize'}
-          className="border-dark rounded-lg border bg-white px-3 py-1"
+          className="rounded-full border border-gray-700 px-3 py-1 font-semibold"
         >
           {currentMonth.format('MMMM YYYY')}
         </Typography>
