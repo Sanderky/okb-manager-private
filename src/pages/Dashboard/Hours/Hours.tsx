@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Button, Box, Typography, Divider, Stack } from '@mui/material';
 import HoursTable from './HoursTable';
 import { Add, Print, Summarize } from '@mui/icons-material';
@@ -7,27 +7,7 @@ import type { ConstructionsWithWorkHours } from './useHoursTable';
 import type { Construction } from '../../../types';
 import { useReactToPrint } from 'react-to-print';
 import { MultiTablePrintReport } from './PrintReport';
-
-const usePrintShortcut = (onPrint: () => void) => {
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      const isPrintShortcut =
-        (event.ctrlKey || event.metaKey) && event.key === 'p';
-
-      if (isPrintShortcut) {
-        event.preventDefault();
-        event.stopPropagation();
-        onPrint();
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown, true);
-
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown, true);
-    };
-  }, [onPrint]);
-};
+import usePrintShortcut from '../../../hooks/usePrintShortcut';
 
 export interface TableData {
   weekStart: Date;
@@ -71,7 +51,7 @@ const Hours: React.FC = () => {
 
   const reactToPrintFn = useReactToPrint({
     contentRef: printContentRef,
-    documentTitle: `test`,
+    documentTitle: `Ewidencja_godzin_pracy`,
     pageStyle: `
     @page {
       margin: 10mm;

@@ -243,8 +243,8 @@ const TableRows = ({
                     }}
                   >
                     {isVacation ? (
-                      <Typography variant="body2" color="textPrimary">
-                        urlop
+                      <Typography className="font-medium text-amber-700" variant="body2">
+                        Urlop
                       </Typography>
                     ) : editMode ? (
                       <TextField
@@ -487,14 +487,15 @@ const HoursTable = ({
   return (
     <Box>
       <Box sx={{ display: 'none' }}>
-        <PrintableTable
-          printTitle={true}
-          showVacation={true}
-          ref={printContentRef}
-          constructionsWithWorkHours={constructionsWithWorkHours}
-          weekDates={weekDates}
-          totalHoursData={totalHoursData}
-        />
+        <Box ref={printContentRef} sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
+          <PrintableTable
+            printTitle={true}
+            showVacation={true}
+            constructionsWithWorkHours={constructionsWithWorkHours}
+            weekDates={weekDates}
+            totalHoursData={totalHoursData}
+          />
+        </Box>
       </Box>
 
       <HoursTableControls

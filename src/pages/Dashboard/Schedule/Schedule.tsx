@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {
   Box,
   Alert,
@@ -13,6 +19,8 @@ import {
   TableCell,
   TableBody,
   Typography,
+  Button,
+  Stack,
 } from '@mui/material';
 import CalendarViewWeekIcon from '@mui/icons-material/CalendarViewWeek';
 import CalendarViewMonthIcon from '@mui/icons-material/CalendarViewMonth';
@@ -39,6 +47,10 @@ import {
 import { TableControls } from './ScheduleTableControls';
 import { EmployeeRow } from './ScheduleEmployeeRow';
 import { FilterDialog } from './ScheduleDialogs';
+import { useReactToPrint } from 'react-to-print';
+import { PrintableSchedule } from './SchedulePrint';
+import usePrintShortcut from '../../../hooks/usePrintShortcut';
+import { Print } from '@mui/icons-material';
 
 // dayjs.locale('pl');
 
@@ -79,6 +91,19 @@ const ScheduleComponent = () => {
 
   const notifications = useNotifications();
   const queryClient = useQueryClient();
+
+  const printRef = useRef<HTMLDivElement>(null);
+
+  const handlePrint = useReactToPrint({
+    contentRef: printRef,
+    documentTitle: 'Harmonogram_pracowników',
+    pageStyle: `
+    @page {
+      margin: 10mm;
+    }`,
+  });
+
+  usePrintShortcut(handlePrint);
 
   useEffect(() => {
     localStorage.setItem('scheduleFromWeek', fromWeek.toISOString());
@@ -361,7 +386,10 @@ const ScheduleComponent = () => {
   const openCellMenu = Boolean(cellAnchorEl);
 
   const cellText = useCallback(
-    ({ empId, weekKey, date, isWeek }: ICell) => {
+    (
+      { empId, weekKey, date, isWeek }: ICell,
+      renderEmptyCellIndicator = true
+    ) => {
       const weekStart = dayjs(weekKey);
 
       const schedule = schedules.find(
@@ -427,7 +455,7 @@ const ScheduleComponent = () => {
 
         return (
           <Typography className="font-medium" variant="body2">
-            {parts.join(' / ') || '-'}
+            {parts.join(' / ') || (renderEmptyCellIndicator ? '-' : '')}
           </Typography>
         );
       }
@@ -444,9 +472,11 @@ const ScheduleComponent = () => {
         <Typography className="font-medium" variant="body2">
           {dayData
             ? dayData.notFound
-              ? `Not found: ${dayData.name ?? '-'}`
-              : (dayData.name ?? '-')
-            : '-'}
+              ? `Nie znaleziono: ${dayData.name ?? (renderEmptyCellIndicator ? '-' : '')}`
+              : (dayData.name ?? (renderEmptyCellIndicator ? '-' : ''))
+            : renderEmptyCellIndicator
+              ? '-'
+              : ''}
         </Typography>
       );
     },
@@ -507,6 +537,12 @@ const ScheduleComponent = () => {
           <CircularProgress />
         </Box>
       )}
+
+      <Stack direction={'row'} justifyContent={'flex-end'} sx={{ mb: 2 }}>
+        <Button onClick={handlePrint} variant="contained" startIcon={<Print />}>
+          Drukuj
+        </Button>
+      </Stack>
 
       <Alert
         severity="info"
@@ -838,6 +874,17 @@ const ScheduleComponent = () => {
         selectedEmployees={selectedEmployees}
         setSelectedEmployees={setSelectedEmployees}
       />
+
+      <div style={{ display: 'none' }}>
+        <div ref={printRef}>
+          <PrintableSchedule
+            activeTable={activeTable}
+            weeks={weeks}
+            filteredEmployees={filteredEmployees}
+            cellText={cellText}
+          />
+        </div>
+      </div>
     </Box>
   );
 };

@@ -26,7 +26,7 @@ const PL: ReportTranslations = {
   totalSum: 'Suma całkowita',
   construction: 'Budowa',
   employee: 'Pracownik',
-  vacation: 'urlop',
+  vacation: 'Urlop',
   noData: 'Brak danych',
   fileNamePrefix: 'Raport_godzin_',
 };

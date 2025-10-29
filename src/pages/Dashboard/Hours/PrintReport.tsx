@@ -61,14 +61,15 @@ const TableRows = ({
             <TableRow key={workHour.id}>
               <TableCell
                 sx={{
-                  p: numberCellPadding,
+                  // p: numberCellPadding,
+                  p: 1,
                   fontWeight: 'bold',
                   verticalAlign: 'top',
                   borderBottom: 'none !important',
                   borderTop: 'none !important',
                   width: constructionCellWidth,
                   minWidth: constructionCellMinWidth,
-                  wordBreak: 'break-all',
+                  // wordBreak: 'break-all',
                 }}
               >
                 {employeeIndex === 0 ? construction.name : ''}
@@ -76,13 +77,14 @@ const TableRows = ({
 
               <TableCell
                 sx={{
-                  p: numberCellPadding,
+                  // p: numberCellPadding,
+                  p: 1,
                   // pl: 2,
                   width: employeeCellWidth,
                   fontWeight: 'bold',
                   minWidth: employeeCellMinWidth,
                   borderTop: tableBorder,
-                  wordBreak: 'break-all',
+                  // wordBreak: 'break-all',
                 }}
               >
                 {workHour.employeeName}
@@ -482,7 +484,7 @@ export const MultiTablePrintReport = forwardRef<
           if (!tableData) return null;
 
           return (
-            <Box key={tableId} sx={{ mb: 4, width: '100%' }}>
+            <Box key={tableId} sx={{ mb: 4 }}>
               <PrintableTable
                 constructionsWithWorkHours={
                   tableData.constructionsWithWorkHours
