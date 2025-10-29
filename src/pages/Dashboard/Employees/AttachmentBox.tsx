@@ -62,6 +62,7 @@ const AttachmentBox = ({
             sx={{
               p: 0,
               m: 0,
+              textTransform: 'none',
             }}
             onClick={() => {
               if (canOpenPreview(file) && onShow) onShow();
