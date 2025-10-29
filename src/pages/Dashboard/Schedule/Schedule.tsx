@@ -270,52 +270,52 @@ const Schedule: React.FC = () => {
       const startOfWeek = date.startOf('week');
       const weekStartDate = startOfWeek.toDate();
 
-      const existingSchedule = schedules.find(
-        (s) =>
-          s.employeeId === empId &&
-          dayjs(s.weekStart).isSame(startOfWeek, 'week')
+      const existingSchedule = getScheduleByEmployeeAndWeek(
+        schedules,
+        empId,
+        weekStartDate
       );
 
       let newConstructions: (string | null)[];
 
       if (isWeek) {
+        // Zmiana całego tygodnia
         newConstructions = Array.from({ length: 7 }, (_, i) => {
           const day = startOfWeek.add(i, 'day');
           const isVacation = vacations?.some(
             (v) => v.employeeId === empId && day.isSame(dayjs(v.date), 'day')
           );
 
+          // Niedziela (index 6) zawsze null
           if (i === 6) return null;
 
           return isVacation ? null : (value?.id ?? null);
         });
       } else {
+        // Zmiana pojedynczego dnia
         const existingRaw =
           existingSchedule?.constructions ?? Array(7).fill(null);
-        const existingIds = existingRaw.map(
-          (
-            entry:
-              | string
-              | {
-                  constructionId?: string;
-                  constructionName?: string;
-                  id?: string;
-                  name?: string;
-                }
-              | null
-          ) => {
-            const normalized = normalizeEntry(entry);
-            return normalized?.constructionId ?? null;
-          }
-        );
+
+        // Poprawne mapowanie istniejących konstrukcji
+        const existingIds = existingRaw.map((entry) => {
+          const normalized = normalizeEntry(entry);
+          return normalized?.constructionId ?? null;
+        });
 
         newConstructions = [...existingIds];
-        const index = date.diff(startOfWeek, 'day');
+
+        // POPRAWIONE: Używamy day() do uzyskania dnia tygodnia (0-6)
+        // i dostosowujemy do naszego formatu (poniedziałek=0, niedziela=6)
+        const dayOfWeek = date.day();
+        // W dayjs: niedziela=0, poniedziałek=1, ..., sobota=6
+        // My chcemy: poniedziałek=0, wtorek=1, ..., niedziela=6
+        const index = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
 
         const isVacation = vacations?.some(
           (v) => v.employeeId === empId && date.isSame(dayjs(v.date), 'day')
         );
 
+        // Aktualizujemy tylko wybrany dzień
         newConstructions[index] = isVacation ? null : (value?.id ?? null);
       }
 

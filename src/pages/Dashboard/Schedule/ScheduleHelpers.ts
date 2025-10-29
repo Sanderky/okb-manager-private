@@ -1,15 +1,18 @@
 import dayjs, { Dayjs } from 'dayjs';
 import type { Schedule } from '../../../types';
 
+// ScheduleHelpers.ts - POPRAWIONA FUNKCJA
 export const getScheduleByEmployeeAndWeek = (
   schedules: Schedule[],
   employeeId: string,
   weekStart: Date
 ): Schedule | null => {
+  const weekStartDayjs = dayjs(weekStart).startOf('week');
+  
   const foundSchedule = schedules.find(
     (schedule) =>
       schedule.employeeId === employeeId &&
-      schedule.weekStart.getTime() === weekStart.getTime() // <-- porównanie Date
+      dayjs(schedule.weekStart).startOf('week').isSame(weekStartDayjs, 'week')
   );
 
   return foundSchedule || null;
