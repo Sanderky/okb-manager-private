@@ -341,13 +341,13 @@ export default function EmployeeForm(props: EmployeeFormProps) {
       return (
         <Grid size={{ xs: 12, md: 6 }} key={key}>
           <FormControl fullWidth>
-            <InputLabel htmlFor="adornment-amount">Stawka</InputLabel>
+            <InputLabel htmlFor="adornment-amount">Stawka godzinowa</InputLabel>
             <OutlinedInput
               id="adornment-amount"
               startAdornment={
                 <InputAdornment position="start">€</InputAdornment>
               }
-              label="Stawka"
+              label="Stawka godzinowa"
               value={formValues[key] ?? ''}
               onChange={(e) => {
                 const inputValue = e.target.value.trim();

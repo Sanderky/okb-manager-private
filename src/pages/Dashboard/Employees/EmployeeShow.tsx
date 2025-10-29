@@ -37,7 +37,7 @@ const personalFields = [
   { key: 'address', label: 'Adres' },
   { key: 'email', label: 'E-mail' },
   { key: 'phone', label: 'Telefon' },
-  { key: 'hourRate', label: 'Stawka godzinowa' },
+  { key: 'hourRate', label: 'Stawka' },
   { key: 'isContractor', label: 'Kontraktor' },
 ] as const;
 
