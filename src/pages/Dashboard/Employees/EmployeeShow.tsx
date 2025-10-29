@@ -83,26 +83,30 @@ const generateDateBox = (
       const today = dayjs().startOf('day');
       const endDate = dayjs(dateValue).startOf('day');
       const daysDiff = endDate.diff(today, 'day');
-      const itemName = isA1EndDate ? 'A1' : 'Umowa'
-      const warningRange = isA1EndDate ? EmployeeAlertRange.a1.warning : EmployeeAlertRange.contract.warning
-      const criticalRange = isA1EndDate ? EmployeeAlertRange.a1.critical : EmployeeAlertRange.contract.critical
+      const itemName = isA1EndDate ? 'A1' : 'Umowa';
+      const warningRange = isA1EndDate
+        ? EmployeeAlertRange.a1.warning
+        : EmployeeAlertRange.contract.warning;
+      const criticalRange = isA1EndDate
+        ? EmployeeAlertRange.a1.critical
+        : EmployeeAlertRange.contract.critical;
 
       if (Math.abs(daysDiff) === 1) dayWord = 'dzień';
 
       if (daysDiff <= criticalRange) {
-          dateStyles = 'border-red-500/25! bg-red-600/10! text-red-800!';
-          severity = 'error';
-          message =
-            daysDiff < 0
-              ? `${itemName} wygasła ${Math.abs(daysDiff)} ${dayWord} temu`
-              : daysDiff === 0
-                ? `${itemName} kończy się dziś`
-                : `${itemName} kończy się za ${daysDiff} ${dayWord}`;
-        } else if (daysDiff <= warningRange) {
-          dateStyles = 'border-amber-500/25! bg-amber-500/10! text-amber-600!';
-          severity = 'warning';
-          message = `${itemName} kończy się za ${daysDiff} ${dayWord}`;
-        }
+        dateStyles = 'border-red-500/25! bg-red-600/10! text-red-800!';
+        severity = 'error';
+        message =
+          daysDiff < 0
+            ? `${itemName} wygasła ${Math.abs(daysDiff)} ${dayWord} temu`
+            : daysDiff === 0
+              ? `${itemName} kończy się dziś`
+              : `${itemName} kończy się za ${daysDiff} ${dayWord}`;
+      } else if (daysDiff <= warningRange) {
+        dateStyles = 'border-amber-500/25! bg-amber-500/10! text-amber-600!';
+        severity = 'warning';
+        message = `${itemName} kończy się za ${daysDiff} ${dayWord}`;
+      }
     }
   } else {
     displayValue = <em className="text-gray-400">Brak</em>;
@@ -459,7 +463,7 @@ export default function EmployeeShow() {
             </Grid>
             <Grid size={{ xs: 12, lg: 6 }} sx={{ flexGrow: 1 }}>
               <Box className="border-lightGray mb-3 rounded-lg border bg-white p-3 md:p-5 md:pb-3">
-                <Stack direction="row" justifyContent="space-between" mb={3}>
+                <Stack direction="row" justifyContent="space-between" mb={2}>
                   <Typography
                     variant="subtitle1"
                     className="text-lg font-semibold"
@@ -477,7 +481,7 @@ export default function EmployeeShow() {
                 />
               </Box>
               <Box className="border-lightGray mb-3 rounded-lg border bg-white p-3 md:p-5">
-                <Stack direction="row" justifyContent="space-between" mb={3}>
+                <Stack direction="row" justifyContent="space-between" mb={2}>
                   <Typography
                     variant="subtitle1"
                     className="text-lg font-semibold"
@@ -501,7 +505,7 @@ export default function EmployeeShow() {
                 </Grid>
               </Box>
               <Box className="border-lightGray rounded-lg border bg-white p-3 md:p-5">
-                <Stack direction="row" justifyContent="space-between" mb={3}>
+                <Stack direction="row" justifyContent="space-between" mb={2}>
                   <Typography
                     variant="subtitle1"
                     className="text-lg font-semibold"

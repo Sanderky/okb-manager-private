@@ -89,6 +89,33 @@ const AttachmentField = ({
   onFileChange,
   handleFieldChange,
 }: AttachmentFieldProps) => {
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    if (!attachment) {
+      e.preventDefault();
+      setIsDragging(true);
+    }
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    if (!attachment) {
+      e.preventDefault();
+      setIsDragging(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    if (!attachment) {
+      e.preventDefault();
+      setIsDragging(false);
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        handleUploadFileForm(files[0]);
+      }
+    }
+  };
+
   const handleUploadFileForm = (file: File | null) => {
     if (!file) return;
     onFileChange(file, attachmentType);
@@ -112,12 +139,19 @@ const AttachmentField = ({
 
   return (
     <Grid
-      sx={{ position: 'relative' }}
+      sx={{
+        position: 'relative',
+        backgroundColor: isDragging ? 'rgba(25, 118, 210, 0.1)' : 'none',
+        border: isDragging ? '1px dashed #1976d2 !important' : '',
+      }}
       columns={12}
       spacing={{ xs: 2 }}
       width={'100%'}
       marginBottom={2}
       className="border-lightGray rounded-lg border p-3"
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
     >
       <Typography component="div" variant="body1" marginBottom={1}>
         Załącznik
@@ -134,18 +168,28 @@ const AttachmentField = ({
         onDownload={() => handleDownloadAttachment(attachment)}
       />
       {!attachment && (
-        <Button
-          component="label"
-          variant="contained"
-          startIcon={<FileUpload />}
+        <Stack
+          alignItems={'center'}
+          spacing={1}
+          direction={'row'}
+          sx={{ flexWrap: 'wrap' }}
         >
-          Dodaj załącznik
-          <input
-            type="file"
-            hidden
-            onChange={(e) => handleUploadFileForm(e.target.files?.[0] || null)}
-          />
-        </Button>
+          <Button
+            component="label"
+            variant="contained"
+            startIcon={<FileUpload />}
+          >
+            Dodaj załącznik
+            <input
+              type="file"
+              hidden
+              onChange={(e) =>
+                handleUploadFileForm(e.target.files?.[0] || null)
+              }
+            />
+          </Button>
+          <Typography variant="caption">lub przeciągnij i upuść</Typography>
+        </Stack>
       )}
     </Grid>
   );
@@ -530,6 +574,7 @@ export default function EmployeeForm(props: EmployeeFormProps) {
             onClick={handleBack}
             startIcon={<ArrowBackIcon />}
             type="reset"
+            disabled={isFormLoading}
           >
             Anuluj
           </Button>
