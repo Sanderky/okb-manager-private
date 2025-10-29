@@ -16,17 +16,9 @@ import { getEmployee, updateEmployee } from '../../../api/employees';
 import EditIcon from '@mui/icons-material/Edit';
 import CloseIcon from '@mui/icons-material/Close';
 
-import {
-  Chip,
-  IconButton,
-  Tab,
-  Tabs,
-  TextareaAutosize,
-  TextField,
-} from '@mui/material';
+import { Chip, IconButton, Tab, Tabs, TextareaAutosize } from '@mui/material';
 import dayjs from 'dayjs';
 
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import useNotifications from '../../../hooks/useNotifications/useNotifications';
 import AttachmentBox from './AttachmentBox';
@@ -36,6 +28,7 @@ import { handleDownloadAttachment } from './EmployeeEditHelpers';
 import EditNoteIcon from '@mui/icons-material/EditNote';
 import CheckIcon from '@mui/icons-material/Check';
 import FirebaseFileBrowser from '../../../components/fileBrowser/FileBrowser';
+import { EmployeeAlertRange } from '../../../hooks/useEmployeeAlert';
 
 const personalFields = [
   { key: 'name', label: 'Imię i nazwisko' },
@@ -90,23 +83,26 @@ const generateDateBox = (
       const today = dayjs().startOf('day');
       const endDate = dayjs(dateValue).startOf('day');
       const daysDiff = endDate.diff(today, 'day');
+      const itemName = isA1EndDate ? 'A1' : 'Umowa'
+      const warningRange = isA1EndDate ? EmployeeAlertRange.a1.warning : EmployeeAlertRange.contract.warning
+      const criticalRange = isA1EndDate ? EmployeeAlertRange.a1.critical : EmployeeAlertRange.contract.critical
 
       if (Math.abs(daysDiff) === 1) dayWord = 'dzień';
 
-      if (daysDiff <= 14) {
-        dateStyles = 'border-red-500/25! bg-red-600/10! text-red-800!';
-        severity = 'error';
-        message =
-          daysDiff < 0
-            ? `Umowa wygasła ${Math.abs(daysDiff)} ${dayWord} temu`
-            : daysDiff === 0
-              ? `Umowa kończy się dziś`
-              : `Umowa kończy się za ${daysDiff} ${dayWord}`;
-      } else if (daysDiff <= 30) {
-        dateStyles = 'border-amber-500/25! bg-amber-500/10! text-amber-600!';
-        severity = 'warning';
-        message = `Umowa kończy się za ${daysDiff} ${dayWord}`;
-      }
+      if (daysDiff <= criticalRange) {
+          dateStyles = 'border-red-500/25! bg-red-600/10! text-red-800!';
+          severity = 'error';
+          message =
+            daysDiff < 0
+              ? `${itemName} wygasła ${Math.abs(daysDiff)} ${dayWord} temu`
+              : daysDiff === 0
+                ? `${itemName} kończy się dziś`
+                : `${itemName} kończy się za ${daysDiff} ${dayWord}`;
+        } else if (daysDiff <= warningRange) {
+          dateStyles = 'border-amber-500/25! bg-amber-500/10! text-amber-600!';
+          severity = 'warning';
+          message = `${itemName} kończy się za ${daysDiff} ${dayWord}`;
+        }
     }
   } else {
     displayValue = <em className="text-gray-400">Brak</em>;

@@ -52,7 +52,7 @@ type SchedulePayload = Omit<Schedule, 'id' | 'constructions'> & {
   constructions: ScheduleConstruction[];
 };
 
-const Schedule: React.FC = () => {
+const ScheduleComponent = () => {
   const [fromWeek, setFromWeek] = useState<Date>(() => {
     const saved = localStorage.getItem('scheduleFromWeek');
     return saved ? new Date(saved) : dayjs().startOf('week').toDate();
@@ -842,4 +842,4 @@ const Schedule: React.FC = () => {
   );
 };
 
-export default Schedule;
+export default ScheduleComponent;

@@ -15,12 +15,12 @@ export async function createConstruction(
 ) {
   try {
     const constructionData: Omit<Construction, 'id'> = {
+      ...(data.note !== undefined && { note: data.note }),
       name: data.name,
       location: data.location ?? null,
       contractor: data.contractor ?? null,
       startDate: data.startDate ?? null,
       endDate: data.endDate ?? null,
-      ...(data.note !== undefined && { note: data.note }),
     };
 
     const docRef = await addDoc(

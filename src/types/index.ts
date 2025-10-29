@@ -27,6 +27,17 @@ export interface Employee {
   idAttachment: FileItem | null;
 }
 
+export type EmployeeAlertSeverity = 'error' | 'warning' | 'info';
+
+export interface EmployeeAlert {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  severity: EmployeeAlertSeverity;
+  title: string;
+  message: string;
+}
+
 export interface Construction {
   id: string;
   name: string;
