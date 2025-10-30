@@ -29,6 +29,9 @@ import EditNoteIcon from '@mui/icons-material/EditNote';
 import CheckIcon from '@mui/icons-material/Check';
 import FirebaseFileBrowser from '../../../components/fileBrowser/FileBrowser';
 import { EmployeeAlertRange } from '../../../hooks/useEmployeeAlert';
+import { getUpcomingVacationsForEmployee } from '../../../api/vacations';
+
+import InfoOutlineIcon from '@mui/icons-material/InfoOutline';
 
 const personalFields = [
   { key: 'name', label: 'Imię i nazwisko' },
@@ -177,6 +180,16 @@ export default function EmployeeShow() {
   } = useQuery({
     queryKey: ['employee', employeeId],
     queryFn: () => getEmployee(employeeId!),
+    enabled: !!employeeId,
+  });
+
+  const {
+    data: employeeVacation,
+    isLoading: isEmployeeVacationLoading,
+    error: errorEmployeeVacation,
+  } = useQuery({
+    queryKey: ['employeeVacations', employeeId],
+    queryFn: () => getUpcomingVacationsForEmployee(employeeId!),
     enabled: !!employeeId,
   });
 
@@ -365,12 +378,15 @@ export default function EmployeeShow() {
         {tab === 0 && (
           <Grid container spacing={{ xs: 2, lg: 3 }} columns={12}>
             <Grid size={{ xs: 12, lg: 6 }} sx={{ flexGrow: 1 }}>
-              <Grid container spacing={2}>
+              <Stack
+                direction={'column'}
+                spacing={2}
+                className="border-lightGray overflow-hidden rounded-lg border p-4"
+              >
                 {personalFields.map(({ key, label }) => (
-                  <Grid
+                  <Box
                     key={key}
-                    size={{ xs: 12 }}
-                    className="border-b border-gray-300 pb-3"
+                    className="border-b border-gray-300 pb-3 last:border-b-0 last:pb-1"
                   >
                     <Stack
                       direction="row"
@@ -393,16 +409,17 @@ export default function EmployeeShow() {
                           overflow: 'visible',
                           whiteSpace: 'normal',
                           wordBreak: 'break-word',
-                          pr: 2,
+                          // pr: 2,
+                          textAlign: 'right',
                         }}
                       >
                         {formatFieldValue(key, employee[key])}
                       </Typography>
                     </Stack>
-                  </Grid>
+                  </Box>
                 ))}
-              </Grid>
-              <Box className="mt-8 rounded-lg border border-dashed border-gray-300 p-4">
+              </Stack>
+              <Box className="mt-6 rounded-lg border border-dashed border-gray-300 p-4">
                 <Stack
                   spacing={1.5}
                   direction={'column'}
@@ -527,8 +544,47 @@ export default function EmployeeShow() {
                 </Grid>
               </Box>
             </Grid>
+            <Grid
+              size={{ xs: 12, lg: 6 }}
+              className="border-lightGray overflow-hidden rounded-lg border"
+              sx={{
+                alignSelf: 'flex-start',
+              }}
+            >
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-blue-50">
+                    <th className="px-4 py-3 text-left">
+                      <Stack direction={'row'} spacing={1}>
+                        <InfoOutlineIcon className="text-blue-600" />
+                        <Typography variant="subtitle2" fontWeight="600">
+                          Nadchodzące urlopy pracownika:
+                        </Typography>
+                      </Stack>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {employeeVacation &&
+                    employeeVacation.map((empV) => (
+                      <tr
+                        key={empV.id}
+                        className="cursor-pointer transition-colors hover:bg-blue-50/50 active:bg-blue-100"
+                      >
+                        <td className="px-4 py-3">
+                          <Typography variant="body2" className="text-gray-700">
+                            {dayjs(empV.startDate).format('DD.MM.YYYY')} -{' '}
+                            {dayjs(empV.endDate).format('DD.MM.YYYY')}
+                          </Typography>
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </Grid>
           </Grid>
         )}
+
         {tab === 1 && (
           <Box>
             <FirebaseFileBrowser
@@ -541,17 +597,18 @@ export default function EmployeeShow() {
   }, [
     isLoading,
     error,
+    notFound,
     employee,
     tab,
-    handleBack,
     handleEmployeeEdit,
-    note,
-    updateNoteMutation.isPending,
-    handleSaveNote,
     editNote,
-    notFound,
-    handleOpenPreview,
+    handleSaveNote,
+    updateNoteMutation.isPending,
     handleCancelEdit,
+    note,
+    employeeVacation,
+    handleBack,
+    handleOpenPreview,
   ]);
 
   const pageTitle = employee?.name || 'Szczegóły Pracownika';

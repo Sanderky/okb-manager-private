@@ -358,12 +358,15 @@ export default function ConstructionShow() {
         {tab === 0 && (
           <Grid container spacing={{ xs: 2 }} columns={12}>
             <Grid size={{ xs: 12, lg: 6 }} sx={{ flexGrow: 1 }}>
-              <Grid container spacing={2}>
+              <Stack
+                direction={'column'}
+                spacing={2}
+                className="border-lightGray overflow-hidden rounded-lg border p-4"
+              >
                 {personalFields.map(({ key, label }) => (
-                  <Grid
+                  <Box
                     key={key}
-                    size={{ xs: 12 }}
-                    className="border-b border-gray-300 pb-3"
+                    className="border-b border-gray-300 pb-3 last:border-b-0 last:pb-1"
                   >
                     <Stack
                       direction="row"
@@ -445,10 +448,10 @@ export default function ConstructionShow() {
                         </Typography>
                       )}
                     </Stack>
-                  </Grid>
+                  </Box>
                 ))}
-              </Grid>
-              <Box className="mt-8 rounded-lg border border-dashed border-gray-300 p-4">
+              </Stack>
+              <Box className="mt-6 rounded-lg border border-dashed border-gray-300 p-4">
                 <Stack
                   spacing={1.5}
                   direction={'column'}
@@ -514,27 +517,28 @@ export default function ConstructionShow() {
                 </Stack>
               </Box>
             </Grid>
-            {scheduleEmployees && scheduleEmployees?.length > 0 && (
-              <Grid
-                size={{ xs: 12, lg: 6 }}
-                className="border-lightGray overflow-hidden rounded-lg border"
-                sx={{
-                  alignSelf: 'flex-start',
-                }}
-              >
-                {employees && (
-                  <table className="w-full">
-                    <thead>
-                      <tr className="bg-gray-50">
-                        <th className="px-4 py-3 text-left">
-                          <Typography variant="subtitle2" fontWeight="600">
-                            Pracownicy na budowie ({scheduleEmployees?.length}):
-                          </Typography>
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200">
-                      {employees
+
+            <Grid
+              size={{ xs: 12, lg: 6 }}
+              className="border-lightGray overflow-hidden rounded-lg border"
+              sx={{
+                alignSelf: 'flex-start',
+              }}
+            >
+              {employees && (
+                <table className="w-full">
+                  <thead>
+                    <tr className="bg-gray-50">
+                      <th className="px-4 py-3 text-left">
+                        <Typography variant="subtitle2" fontWeight="600">
+                          Pracownicy na budowie ({scheduleEmployees?.length}):
+                        </Typography>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {scheduleEmployees &&
+                      employees
                         .filter((e) => scheduleEmployees.includes(e.id))
                         .map((emp) => (
                           <tr
@@ -552,11 +556,10 @@ export default function ConstructionShow() {
                             </td>
                           </tr>
                         ))}
-                    </tbody>
-                  </table>
-                )}
-              </Grid>
-            )}
+                  </tbody>
+                </table>
+              )}
+            </Grid>
           </Grid>
         )}
         {tab === 1 && (

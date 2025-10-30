@@ -6,6 +6,7 @@ import {
   Button,
   Autocomplete,
   Typography,
+  Stack,
 } from '@mui/material';
 import BaseDialog from '../../../components/BaseDialog';
 import type { Employee } from '../../../types';
@@ -25,6 +26,17 @@ export const FilterDialog: React.FC<FilterDialogProps> = ({
   selectedEmployees,
   setSelectedEmployees,
 }) => {
+  const handleSelectAll = () => {
+    setSelectedEmployees([...employees]);
+  };
+
+  const handleClear = () => {
+    setSelectedEmployees([]);
+  };
+
+  const isAllSelected =
+    selectedEmployees.length === employees.length && employees.length > 0;
+
   return (
     <BaseDialog
       open={isFilterOpen}
@@ -32,11 +44,16 @@ export const FilterDialog: React.FC<FilterDialogProps> = ({
       title="Filtr pracowników"
       showConfirm={false}
       actions={
-        <Button onClick={() => setSelectedEmployees([])}>Wyczyść</Button>
+        <Stack direction="row" spacing={1}>
+          <Button onClick={handleSelectAll} disabled={isAllSelected}>
+            Wszystko
+          </Button>
+          <Button onClick={handleClear}>Wyczyść</Button>
+        </Stack>
       }
     >
       <Typography variant="overline" sx={{ mb: 1.5, display: 'block' }}>
-        {`Wybrane: ${selectedEmployees.length}`}
+        {`Wybrane: ${selectedEmployees.length} z ${employees.length}`}
       </Typography>
       <FormControl sx={{ width: '100%', maxWidth: '100%' }}>
         <Autocomplete

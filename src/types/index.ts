@@ -74,13 +74,6 @@ export interface Vacation {
   endDate: Date;
 }
 
-// export interface Schedule {
-//   id?: string;
-//   employeeId: string;
-//   constructions: (string | null)[];
-//   weekStart: Timestamp;
-// }
-
 export interface Schedule {
   id?: string;
   employeeId: string;

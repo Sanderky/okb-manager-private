@@ -13,6 +13,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '../firebase';
 import type { Vacation } from '../types';
+import dayjs from 'dayjs';
 
 export const batchCreateVacations = async (
   employeeId: string,
@@ -155,3 +156,48 @@ export async function getVacationListForMonths(
     } as Vacation;
   });
 }
+
+export const getUpcomingVacationsForEmployee = async (
+  employeeId: string
+): Promise<Vacation[]> => {
+  try {
+    const now = dayjs();
+    const oneMonthFromNow = now.add(1, 'month').endOf('day');
+
+    const monthKeys: string[] = [];
+    for (let i = -1; i < 2; i++) {
+      const date = now.add(i, 'month');
+      const month = date.month() + 1;
+      const year = date.year();
+      const monthKey = `${year}-${month.toString().padStart(2, '0')}`;
+      monthKeys.push(monthKey);
+    }
+
+    const vacations = await getVacationListForMonths(monthKeys);
+
+    const uniqueVacations = vacations.reduce((acc, vacation) => {
+      if (vacation.employeeId === employeeId && !acc.has(vacation.groupId)) {
+        acc.set(vacation.groupId, vacation);
+      }
+      return acc;
+    }, new Map<string, Vacation>());
+
+    const uniqueVacationsArray = Array.from(uniqueVacations.values());
+
+    const filteredVacations = uniqueVacationsArray.filter((vacation) => {
+      const startDate = dayjs(vacation.startDate);
+      const endDate = dayjs(vacation.endDate);
+
+      const isCurrent = now.isBetween(startDate, endDate, 'day', '[]');
+      const isUpcoming =
+        startDate.isAfter(now) && startDate.isBefore(oneMonthFromNow);
+
+      return isCurrent || isUpcoming;
+    });
+
+    return filteredVacations;
+  } catch (error) {
+    console.error('Błąd podczas pobierania urlopów pracownika:', error);
+    throw error;
+  }
+};
