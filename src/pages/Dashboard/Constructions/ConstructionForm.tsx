@@ -45,9 +45,8 @@ interface ConstructionField {
   key: keyof ConstructionFormState['values'];
   label: string;
   type: FieldType;
+  required: boolean;
 }
-
-
 
 export default function ConstructionForm(props: ConstructionFormProps) {
   const {
@@ -82,14 +81,24 @@ export default function ConstructionForm(props: ConstructionFormProps) {
   );
 
   const constructionFields: ConstructionField[] = [
-    { key: 'name', label: 'Nazwa budowy', type: 'text' },
-    { key: 'location', label: 'Lokalizacja', type: 'text' },
-    { key: 'contractor', label: 'Wykonawca', type: 'text' },
+    { key: 'name', label: 'Nazwa budowy', type: 'text', required: true },
+    { key: 'location', label: 'Lokalizacja', type: 'text', required: false },
+    { key: 'contractor', label: 'Wykonawca', type: 'text', required: false },
   ];
 
   const DateFields: ConstructionField[] = [
-    { key: 'startDate', label: 'Data rozpoczęcia', type: 'date' },
-    { key: 'endDate', label: 'Data zakończenia', type: 'date' },
+    {
+      key: 'startDate',
+      label: 'Data rozpoczęcia',
+      type: 'date',
+      required: true,
+    },
+    {
+      key: 'endDate',
+      label: 'Data zakończenia',
+      type: 'date',
+      required: false,
+    },
   ];
 
   const [cleared, setCleared] = useState<boolean>(false);
@@ -134,9 +143,10 @@ export default function ConstructionForm(props: ConstructionFormProps) {
             Dane budowy
           </Typography>
           <Grid container columns={12} spacing={{ xs: 2 }} width={'100%'}>
-            {constructionFields.map(({ key, label, type }) => (
+            {constructionFields.map(({ key, label, type, required }) => (
               <Grid size={{ xs: 12, md: 6 }} key={key}>
                 <TextField
+                  required={required}
                   fullWidth
                   label={label}
                   type={type}
@@ -154,7 +164,7 @@ export default function ConstructionForm(props: ConstructionFormProps) {
             Terminy
           </Typography>
           <Grid container columns={12} spacing={{ xs: 2 }} width={'100%'}>
-            {DateFields.map(({ key, label, type }) => (
+            {DateFields.map(({ key, label, type, required }) => (
               <Grid size={{ xs: 12, md: 6 }} key={key}>
                 <LocalizationProvider
                   dateAdapter={AdapterDayjs}
@@ -168,6 +178,7 @@ export default function ConstructionForm(props: ConstructionFormProps) {
                       textField: {
                         fullWidth: true,
                         name: key,
+                        required,
                         error: Boolean(formErrors[key]),
                         helperText: formErrors[key],
                       },
@@ -181,6 +192,25 @@ export default function ConstructionForm(props: ConstructionFormProps) {
               </Grid>
             ))}
           </Grid>
+
+          {!isEditForm && (
+            <React.Fragment>
+              <Divider sx={{ width: '100%' }} className="my-3" />
+              <Grid size={{ xs: 12 }} className="my-2">
+                <TextField
+                  multiline
+                  minRows={5}
+                  maxRows={10}
+                  fullWidth
+                  label="Notatka"
+                  value={formValues.note ?? ''}
+                  onChange={(e) => handleFieldChange('note', e.target.value)}
+                  error={Boolean(formErrors.note)}
+                  helperText={formErrors.note}
+                />
+              </Grid>
+            </React.Fragment>
+          )}
           <Divider sx={{ width: '100%' }} className="my-3" />
         </Grid>
         <Stack

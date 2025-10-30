@@ -10,10 +10,10 @@ export const validate = (
 
   if (!values.name) {
     errors.name = 'Imię jest wymagane.';
-  }
-  if (values.name && values.name.length > 100) {
+  } else if (values.name.length > 100) {
     errors.name = 'Imię nie może być dłuższe niż 100 znaków.';
   }
+
   if (values.email && !/\S+@\S+\.\S+/.test(values.email)) {
     errors.email = 'Nieprawidłowy format adresu e-mail.';
   }
@@ -22,6 +22,7 @@ export const validate = (
     errors.contractStartDate =
       'Data rozpoczęcia jest wymagana, jeśli podano datę zakończenia.';
   }
+  
   if (
     values.contractStartDate &&
     values.contractEndDate &&

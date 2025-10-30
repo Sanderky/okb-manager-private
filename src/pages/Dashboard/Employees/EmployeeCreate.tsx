@@ -30,7 +30,7 @@ export default function EmployeeCreate() {
   });
 
   const createMutation = useMutation({
-    mutationFn: (newEmployee: Partial<Employee>) =>
+    mutationFn: (newEmployee: Partial<Employee> & { name: string }) =>
       createEmployee(newEmployee as Employee),
     onSuccess: (newEmployeeId) => {
       queryClient.invalidateQueries({ queryKey: ['employees'] });
@@ -87,14 +87,11 @@ export default function EmployeeCreate() {
         return;
       }
 
-      // przygotowanie payloadu z uwzględnieniem contractIsPermanent
       const payload: Partial<Employee> = {
         ...formState.values,
         contractStartDate: formState.values.contractStartDate ?? null,
         a1StartDate: formState.values.a1StartDate ?? null,
         a1EndDate: formState.values.a1EndDate ?? null,
-
-        // jeśli contractIsPermanent → wymuś null
         contractEndDate: formState.values.contractISPermanent
           ? null
           : (formState.values.contractEndDate ?? null),

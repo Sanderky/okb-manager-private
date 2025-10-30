@@ -5,14 +5,14 @@ import type { Schedule } from '../../../types';
 export const getScheduleByEmployeeAndWeek = (
   schedules: Schedule[],
   employeeId: string,
-  weekStart: Date
+  weekStart: Dayjs
 ): Schedule | null => {
-  const weekStartDayjs = dayjs(weekStart).startOf('week');
-  
+  // const weekStartDayjs = weekStart.startOf('week');
+
   const foundSchedule = schedules.find(
     (schedule) =>
       schedule.employeeId === employeeId &&
-      dayjs(schedule.weekStart).startOf('week').isSame(weekStartDayjs, 'week')
+      dayjs(schedule.weekStart).isSame(weekStart, 'week')
   );
 
   return foundSchedule || null;

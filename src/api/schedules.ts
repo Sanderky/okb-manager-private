@@ -57,13 +57,17 @@ export const updateSchedule = async (
 export const getEmployeesByScheduledConstruction = async (
   constructionId: string
 ): Promise<string[]> => {
-  const q = query(
-    collection(db, 'schedules'),
-    where('constructions', 'array-contains', constructionId)
-  );
-  const querySnapshot = await getDocs(q);
+  const querySnapshot = await getDocs(collection(db, 'schedules'));
 
-  const employeeIds = querySnapshot.docs.map((doc) => doc.data().employeeId);
+  const employeeIds = querySnapshot.docs
+    .filter((doc) => {
+      const data = doc.data() as Schedule;
+      return data.constructions?.some(
+        (c) => c && c.constructionId === constructionId
+      );
+    })
+    .map((doc) => (doc.data() as Schedule).employeeId);
+
   const uniqueEmployeeIds = [...new Set(employeeIds)];
 
   return uniqueEmployeeIds;

@@ -16,6 +16,10 @@ export async function createEmployee(
   data: Partial<Employee> & { name: string }
 ) {
   try {
+    if (!data.name) {
+      throw new Error('Imię jest wymagane');
+    }
+
     const employeeData: Omit<Employee, 'id'> = {
       name: data.name,
       isContractor: data.isContractor ?? null,

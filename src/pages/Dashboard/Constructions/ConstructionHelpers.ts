@@ -13,12 +13,16 @@ export const validate = (
     errors.name = 'Nazwa nie może być dłuższa niż 100 znaków.';
   }
 
-  if (values.location && values.location.length > 200) {
-    errors.location = 'Lokalizacja nie może być dłuższa niż 200 znaków.';
+  if (!values.startDate) {
+    errors.startDate = 'Data rozpoczęcia jest wymagana.';
   }
 
-  if (values.contractor && values.contractor.length > 200) {
-    errors.contractor = 'Wykonawca nie może być dłuższy niż 200 znaków.';
+  if (values.location && values.location.length > 100) {
+    errors.location = 'Lokalizacja nie może być dłuższa niż 100 znaków.';
+  }
+
+  if (values.contractor && values.contractor.length > 100) {
+    errors.contractor = 'Wykonawca nie może być dłuższy niż 100 znaków.';
   }
 
   return errors;

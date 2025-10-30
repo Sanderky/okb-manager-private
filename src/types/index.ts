@@ -43,7 +43,7 @@ export interface Construction {
   name: string;
   location: string | null;
   contractor: string | null;
-  startDate: Date | null;
+  startDate: Date;
   endDate: Date | null;
   note?: string | null;
 }

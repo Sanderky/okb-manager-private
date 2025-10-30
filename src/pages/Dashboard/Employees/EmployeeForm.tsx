@@ -69,6 +69,7 @@ interface EmployeeField {
   key: keyof EmployeeFormState['values'];
   label: string;
   type: FieldType;
+  required: boolean;
 }
 
 interface AttachmentFieldProps {
@@ -248,23 +249,53 @@ export default function EmployeeForm(props: EmployeeFormProps) {
   }, [navigate, employeeId]);
 
   const employeeFields: EmployeeField[] = [
-    { key: 'name', label: 'Imię i nazwisko', type: 'text' },
-    { key: 'pesel', label: 'Pesel', type: 'string' },
-    { key: 'birthDate', label: 'Data urodzenia', type: 'date' },
-    { key: 'address', label: 'Adres', type: 'text' },
-    { key: 'email', label: 'E-mail', type: 'email' },
-    { key: 'phone', label: 'Telefon', type: 'text' },
-    { key: 'hourRate', label: 'Stawka godzinowa', type: 'number' },
+    { key: 'name', label: 'Imię i nazwisko', type: 'text', required: true },
+    { key: 'pesel', label: 'Pesel', type: 'string', required: false },
+    {
+      key: 'birthDate',
+      label: 'Data urodzenia',
+      type: 'date',
+      required: false,
+    },
+    { key: 'address', label: 'Adres', type: 'text', required: false },
+    { key: 'email', label: 'E-mail', type: 'email', required: false },
+    { key: 'phone', label: 'Telefon', type: 'text', required: false },
+    {
+      key: 'hourRate',
+      label: 'Stawka godzinowa',
+      type: 'number',
+      required: false,
+    },
   ];
 
   const contractFields: EmployeeField[] = [
-    { key: 'contractStartDate', label: 'Data rozpoczęcia umowy', type: 'date' },
-    { key: 'contractEndDate', label: 'Data wygaśnięcia umowy', type: 'date' },
+    {
+      key: 'contractStartDate',
+      label: 'Data rozpoczęcia umowy',
+      type: 'date',
+      required: false,
+    },
+    {
+      key: 'contractEndDate',
+      label: 'Data wygaśnięcia umowy',
+      type: 'date',
+      required: false,
+    },
   ];
 
   const a1Fields: EmployeeField[] = [
-    { key: 'a1StartDate', label: 'Data rozpoczęcia A1', type: 'date' },
-    { key: 'a1EndDate', label: 'Data wygaśnięcia A1', type: 'date' },
+    {
+      key: 'a1StartDate',
+      label: 'Data rozpoczęcia A1',
+      type: 'date',
+      required: false,
+    },
+    {
+      key: 'a1EndDate',
+      label: 'Data wygaśnięcia A1',
+      type: 'date',
+      required: false,
+    },
   ];
 
   const [cleared, setCleared] = useState<boolean>(false);
@@ -280,7 +311,7 @@ export default function EmployeeForm(props: EmployeeFormProps) {
     return () => {};
   }, [cleared]);
 
-  const renderField = ({ key, label, type }: EmployeeField) => {
+  const renderField = ({ key, label, type, required }: EmployeeField) => {
     if (type === 'boolean') {
       return (
         <Grid size={{ xs: 12 }} key={key}>
@@ -293,6 +324,7 @@ export default function EmployeeForm(props: EmployeeFormProps) {
               />
             }
             label={label}
+            required={required}
           />
         </Grid>
       );
@@ -319,6 +351,7 @@ export default function EmployeeForm(props: EmployeeFormProps) {
                 textField: {
                   fullWidth: true,
                   name: key,
+                  required,
                   error: Boolean(formErrors[key]),
                   helperText: formErrors[key],
                 },
@@ -340,7 +373,7 @@ export default function EmployeeForm(props: EmployeeFormProps) {
     if (key === 'hourRate') {
       return (
         <Grid size={{ xs: 12, md: 6 }} key={key}>
-          <FormControl fullWidth>
+          <FormControl fullWidth required={required}>
             <InputLabel htmlFor="adornment-amount">Stawka godzinowa</InputLabel>
             <OutlinedInput
               id="adornment-amount"
@@ -373,6 +406,7 @@ export default function EmployeeForm(props: EmployeeFormProps) {
     return (
       <Grid size={{ xs: 12, md: 6 }} key={key}>
         <TextField
+          required={required}
           fullWidth
           label={label}
           type={type}

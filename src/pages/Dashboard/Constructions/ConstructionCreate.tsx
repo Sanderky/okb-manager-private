@@ -24,8 +24,9 @@ export default function ConstructionCreate() {
   });
 
   const createMutation = useMutation({
-    mutationFn: (newConstruction: Partial<Construction>) =>
-      createConstruction(newConstruction as Construction),
+    mutationFn: (
+      newConstruction: Partial<Construction> & { name: string; startDate: Date }
+    ) => createConstruction(newConstruction as Construction),
     onSuccess: (newConstructionId) => {
       queryClient.invalidateQueries({ queryKey: ['constructions'] });
       notifications.show('Budowa została pomyślnie utworzona.', {

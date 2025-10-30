@@ -14,12 +14,16 @@ export async function createConstruction(
   data: Partial<Construction> & { name: string }
 ) {
   try {
+    if (!data.name || !data.startDate) {
+      throw new Error('Nazwa i data rozpoczęcia są wymagane');
+    }
+
     const constructionData: Omit<Construction, 'id'> = {
       ...(data.note !== undefined && { note: data.note }),
       name: data.name,
       location: data.location ?? null,
       contractor: data.contractor ?? null,
-      startDate: data.startDate ?? null,
+      startDate: data.startDate,
       endDate: data.endDate ?? null,
     };
 
@@ -65,10 +69,10 @@ export async function getConstructionList(): Promise<Construction[]> {
     const data = doc.data();
     return {
       id: doc.id,
-      name: data.name ?? null,
+      name: data.name,
       location: data.location ?? null,
       contractor: data.contractor ?? null,
-      startDate: data.startDate?.toDate() ?? null,
+      startDate: data.startDate?.toDate(),
       endDate: data.endDate?.toDate() ?? null,
       note: data.note ?? null,
     } as Construction;
@@ -85,10 +89,10 @@ export async function getConstruction(
     const data = constructionDoc.data();
     return {
       id: constructionDoc.id,
-      name: data.name ?? null,
+      name: data.name,
       location: data.location ?? null,
       contractor: data.contractor ?? null,
-      startDate: data.startDate?.toDate() ?? null,
+      startDate: data.startDate?.toDate(),
       endDate: data.endDate?.toDate() ?? null,
       note: data.note ?? null,
     } as Construction;

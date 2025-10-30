@@ -234,15 +234,10 @@ const ScheduleComponent = () => {
     async (
       empId: string,
       weekStart: Date,
-      constructionIds: (string | null)[]
+      constructionIds: (string | null)[],
+      existing: Schedule | null
     ) => {
       try {
-        const existing = getScheduleByEmployeeAndWeek(
-          schedules,
-          empId,
-          weekStart
-        );
-
         const constructionsPayload: ScheduleConstruction[] =
           constructionIds.map((cid, idx) => {
             if (!cid) return null;
@@ -276,13 +271,7 @@ const ScheduleComponent = () => {
         // Nie wyświetlamy powiadomienia tutaj, ponieważ mutation już to obsługuje
       }
     },
-    [
-      schedules,
-      updateScheduleMutation,
-      constructions,
-      employees,
-      normalizeEntry,
-    ]
+    [updateScheduleMutation, constructions, employees, normalizeEntry]
   );
 
   const handleCellChange = useCallback(
@@ -292,36 +281,32 @@ const ScheduleComponent = () => {
       value: Construction | null,
       isWeek: boolean
     ) => {
-      const startOfWeek = date.startOf('week');
+      const startOfWeek = date.isoWeekday(1);
       const weekStartDate = startOfWeek.toDate();
 
       const existingSchedule = getScheduleByEmployeeAndWeek(
         schedules,
         empId,
-        weekStartDate
+        startOfWeek
       );
 
       let newConstructions: (string | null)[];
 
       if (isWeek) {
-        // Zmiana całego tygodnia
         newConstructions = Array.from({ length: 7 }, (_, i) => {
           const day = startOfWeek.add(i, 'day');
           const isVacation = vacations?.some(
             (v) => v.employeeId === empId && day.isSame(dayjs(v.date), 'day')
           );
 
-          // Niedziela (index 6) zawsze null
           if (i === 6) return null;
 
           return isVacation ? null : (value?.id ?? null);
         });
       } else {
-        // Zmiana pojedynczego dnia
         const existingRaw =
           existingSchedule?.constructions ?? Array(7).fill(null);
 
-        // Poprawne mapowanie istniejących konstrukcji
         const existingIds = existingRaw.map((entry) => {
           const normalized = normalizeEntry(entry);
           return normalized?.constructionId ?? null;
@@ -329,22 +314,23 @@ const ScheduleComponent = () => {
 
         newConstructions = [...existingIds];
 
-        // POPRAWIONE: Używamy day() do uzyskania dnia tygodnia (0-6)
-        // i dostosowujemy do naszego formatu (poniedziałek=0, niedziela=6)
         const dayOfWeek = date.day();
-        // W dayjs: niedziela=0, poniedziałek=1, ..., sobota=6
-        // My chcemy: poniedziałek=0, wtorek=1, ..., niedziela=6
+
         const index = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
 
         const isVacation = vacations?.some(
           (v) => v.employeeId === empId && date.isSame(dayjs(v.date), 'day')
         );
 
-        // Aktualizujemy tylko wybrany dzień
         newConstructions[index] = isVacation ? null : (value?.id ?? null);
       }
 
-      await saveScheduleToDatabase(empId, weekStartDate, newConstructions);
+      await saveScheduleToDatabase(
+        empId,
+        weekStartDate,
+        newConstructions,
+        existingSchedule
+      );
     },
     [schedules, vacations, saveScheduleToDatabase, normalizeEntry]
   );
@@ -441,8 +427,18 @@ const ScheduleComponent = () => {
         }
 
         const allConstructions = Object.entries(constructionsMap);
+
+        // Sprawdzamy czy cały tydzień ma tę samą budowę (6 lub 7 dni)
+        const hasSingleConstructionAllWeek =
+          allConstructions.length === 1 &&
+          (allConstructions[0][1].length === 6 ||
+            allConstructions[0][1].length === 7);
+
         const shouldShowRanges =
-          allConstructions.length > 1 || vacationDays.length > 0 || hasNullDay;
+          !hasSingleConstructionAllWeek &&
+          (allConstructions.length > 1 ||
+            vacationDays.length > 0 ||
+            hasNullDay);
 
         allConstructions.forEach(([name, days]) => {
           if (!shouldShowRanges || !showDates) {

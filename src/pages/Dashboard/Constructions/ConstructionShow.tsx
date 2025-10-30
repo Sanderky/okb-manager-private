@@ -637,13 +637,14 @@ export default function ConstructionShow() {
     employees,
     endDialogOpen,
     closeEndDialog,
-    endDateValue,
-    endDateError,
     handleFinish,
     updateStatusMutation.isPending,
+    endDateValue,
+    endDateError,
     resumeDialogOpen,
     handleResume,
     handleBack,
+    navigate,
   ]);
 
   const pageTitle = construction?.name || '...';
