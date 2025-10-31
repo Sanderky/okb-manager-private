@@ -61,6 +61,7 @@ export interface EmployeeFormProps {
   isEditForm?: boolean;
   onFileChange: (file: File | null, attachmentType: EmployeeAttachment) => void;
   filesState: FileStateMap;
+  registerFieldRef?: (name: string, el: HTMLInputElement | null) => void;
 }
 
 type FieldType = 'text' | 'email' | 'date' | 'boolean' | 'string' | 'number';
@@ -325,6 +326,11 @@ export default function EmployeeForm(props: EmployeeFormProps) {
             }
             label={label}
             required={required}
+            name={key}
+            inputRef={(el) => {
+              if (props.registerFieldRef)
+                props.registerFieldRef(key as string, el);
+            }}
           />
         </Grid>
       );
@@ -360,10 +366,15 @@ export default function EmployeeForm(props: EmployeeFormProps) {
                   onClear: () => setCleared(true),
                 },
               }}
+              name={key}
               disabled={
                 (formValues.contractISPermanent && key === 'contractEndDate') ??
                 false
               }
+              inputRef={(el) => {
+                if (props.registerFieldRef)
+                  props.registerFieldRef(key as string, el);
+              }}
             />
           </LocalizationProvider>
         </Grid>
@@ -377,6 +388,7 @@ export default function EmployeeForm(props: EmployeeFormProps) {
             <InputLabel htmlFor="adornment-amount">Stawka godzinowa</InputLabel>
             <OutlinedInput
               id="adornment-amount"
+              name={key}
               startAdornment={
                 <InputAdornment position="start">€</InputAdornment>
               }
@@ -396,6 +408,10 @@ export default function EmployeeForm(props: EmployeeFormProps) {
                 }
 
                 handleFieldChange(key, numericValue);
+              }}
+              inputRef={(el) => {
+                if (props.registerFieldRef)
+                  props.registerFieldRef(key as string, el);
               }}
             />
           </FormControl>
@@ -421,6 +437,10 @@ export default function EmployeeForm(props: EmployeeFormProps) {
           name={key}
           error={Boolean(formErrors[key])}
           helperText={formErrors[key]}
+          inputRef={(el) => {
+            if (props.registerFieldRef)
+              props.registerFieldRef(key as string, el);
+          }}
         />
       </Grid>
     );
@@ -557,6 +577,10 @@ export default function EmployeeForm(props: EmployeeFormProps) {
                 onChange={(e) => handleFieldChange('note', e.target.value)}
                 error={Boolean(formErrors.note)}
                 helperText={formErrors.note}
+                inputRef={(el) => {
+                  if (props.registerFieldRef)
+                    props.registerFieldRef('note', el);
+                }}
               />
             </Grid>
           )}

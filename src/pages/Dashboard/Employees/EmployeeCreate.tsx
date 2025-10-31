@@ -18,6 +18,12 @@ export default function EmployeeCreate() {
   const notifications = useNotifications();
   const queryClient = useQueryClient();
 
+  const formRefs = React.useRef<Record<string, HTMLInputElement | null>>({});
+
+  const registerFieldRef = (name: string, el: HTMLInputElement | null) => {
+    formRefs.current[name] = el;
+  };
+
   const [formState, setFormState] = React.useState<EmployeeFormState>({
     values: { status: true },
     errors: {},
@@ -30,7 +36,7 @@ export default function EmployeeCreate() {
   });
 
   const createMutation = useMutation({
-    mutationFn: (newEmployee: Partial<Employee> & { name: string }) =>
+    mutationFn: (newEmployee: Partial<Employee>) =>
       createEmployee(newEmployee as Employee),
     onSuccess: (newEmployeeId) => {
       queryClient.invalidateQueries({ queryKey: ['employees'] });
@@ -84,6 +90,20 @@ export default function EmployeeCreate() {
           severity: 'error',
           autoHideDuration: 5000,
         });
+
+        const firstErrorKey = Object.keys(validationErrors)[0];
+        const firstErrorInput = formRefs.current[firstErrorKey];
+        if (firstErrorInput) {
+          firstErrorInput.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center',
+          });
+          // firstErrorInput.focus();
+        }
+        // fieldRef.scrollIntoView({
+        //   behavior: 'smooth',
+        //   block: 'center'
+        // });
         return;
       }
 
@@ -144,6 +164,7 @@ export default function EmployeeCreate() {
           isEditForm={false}
           onFileChange={handleFileChange}
           filesState={files}
+          registerFieldRef={registerFieldRef}
         />
       </Box>
     </PageContainer>

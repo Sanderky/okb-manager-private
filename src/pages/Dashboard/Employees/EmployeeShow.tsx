@@ -544,29 +544,29 @@ export default function EmployeeShow() {
                 </Grid>
               </Box>
             </Grid>
-            <Grid
-              size={{ xs: 12, lg: 6 }}
-              className="border-lightGray overflow-hidden rounded-lg border"
-              sx={{
-                alignSelf: 'flex-start',
-              }}
-            >
-              <table className="w-full">
-                <thead>
-                  <tr className="bg-blue-50">
-                    <th className="px-4 py-3 text-left">
-                      <Stack direction={'row'} spacing={1}>
-                        <InfoOutlineIcon className="text-blue-600" />
-                        <Typography variant="subtitle2" fontWeight="600">
-                          Nadchodzące urlopy pracownika:
-                        </Typography>
-                      </Stack>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {employeeVacation &&
-                    employeeVacation.map((empV) => (
+            {employeeVacation && employeeVacation.length > 0 && (
+              <Grid
+                size={{ xs: 12, lg: 6 }}
+                className="border-lightGray overflow-hidden rounded-lg border"
+                sx={{
+                  alignSelf: 'flex-start',
+                }}
+              >
+                <table className="w-full">
+                  <thead>
+                    <tr className="bg-blue-50">
+                      <th className="px-4 py-3 text-left">
+                        <Stack direction={'row'} spacing={1}>
+                          <InfoOutlineIcon className="text-blue-600" />
+                          <Typography variant="subtitle2" fontWeight="600">
+                            Nadchodzące urlopy pracownika:
+                          </Typography>
+                        </Stack>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {employeeVacation.map((empV) => (
                       <tr
                         key={empV.id}
                         className="cursor-pointer transition-colors hover:bg-blue-50/50 active:bg-blue-100"
@@ -579,9 +579,10 @@ export default function EmployeeShow() {
                         </td>
                       </tr>
                     ))}
-                </tbody>
-              </table>
-            </Grid>
+                  </tbody>
+                </table>
+              </Grid>
+            )}
           </Grid>
         )}
 

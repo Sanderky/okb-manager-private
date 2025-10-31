@@ -153,12 +153,7 @@ export const AddEventDialog: React.FC<AddEventDialogProps> = ({
         />
 
         {currentEvent.startDate && currentEvent.endDate && (
-          <Stack
-            direction="row"
-            alignItems="center"
-            spacing={1}
-            justifyContent="center"
-          >
+          <Stack direction="row" alignItems="center" spacing={1}>
             <Chip
               label={currentEvent.startDate.format('DD.MM.YYYY')}
               color="primary"
@@ -248,7 +243,6 @@ export const EventDetailsDialog: React.FC<EventDetailsDialogProps> = ({
                 <Stack
                   key={event.id}
                   sx={{
-                    p: 2,
                     backgroundColor: getColorForEmployee(event.employee.id),
                     borderRadius: 1,
                     cursor: 'pointer',
@@ -257,7 +251,7 @@ export const EventDetailsDialog: React.FC<EventDetailsDialogProps> = ({
                   }}
                   direction="row"
                   alignItems="center"
-                  className="border border-gray-300"
+                  className="border border-gray-300 px-3 py-2"
                 >
                   <Box sx={{ flexGrow: 1 }}>
                     <Typography variant="subtitle1" fontWeight="500">
@@ -283,13 +277,12 @@ export const EventDetailsDialog: React.FC<EventDetailsDialogProps> = ({
           : currentEvent.employee && (
               <Box
                 sx={{
-                  p: 2,
                   backgroundColor: getColorForEmployee(
                     currentEvent.employee.id
                   ),
                   borderRadius: 1,
                 }}
-                className="border border-gray-300"
+                className="border border-gray-300 px-3 py-2"
               >
                 <Typography variant="subtitle1" fontWeight="500">
                   {currentEvent.employee?.name}

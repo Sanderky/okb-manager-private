@@ -37,6 +37,7 @@ export interface ConstructionFormProps {
   isSubmitting?: boolean;
   submitError?: string | null;
   isEditForm?: boolean;
+  registerFieldRef?: (name: string, el: HTMLInputElement | null) => void;
 }
 
 type FieldType = 'text' | 'email' | 'date' | 'boolean';
@@ -155,6 +156,10 @@ export default function ConstructionForm(props: ConstructionFormProps) {
                   name={key}
                   error={Boolean(formErrors[key])}
                   helperText={formErrors[key]}
+                  inputRef={(el) => {
+                    if (props.registerFieldRef)
+                      props.registerFieldRef(key as string, el);
+                  }}
                 />
               </Grid>
             ))}
@@ -187,6 +192,10 @@ export default function ConstructionForm(props: ConstructionFormProps) {
                         onClear: () => setCleared(true),
                       },
                     }}
+                    inputRef={(el) => {
+                      if (props.registerFieldRef)
+                        props.registerFieldRef(key as string, el);
+                    }}
                   />
                 </LocalizationProvider>
               </Grid>
@@ -207,6 +216,10 @@ export default function ConstructionForm(props: ConstructionFormProps) {
                   onChange={(e) => handleFieldChange('note', e.target.value)}
                   error={Boolean(formErrors.note)}
                   helperText={formErrors.note}
+                  inputRef={(el) => {
+                    if (props.registerFieldRef)
+                      props.registerFieldRef('note', el);
+                  }}
                 />
               </Grid>
             </React.Fragment>

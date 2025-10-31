@@ -53,21 +53,21 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                     background: selectDay ? 'lightskyblue' : '#f0f0f0',
                   },
                   position: 'relative',
-                  '&::after': {
-                    content: '""',
-                    display: isToday ? 'block' : 'none',
-                    width: { xs: '5px', md: '10px' },
-                    height: { xs: '5px', md: '10px' },
-                    right: { xs: '5px', md: '10px' },
-                    top: { xs: '5px', md: '10px' },
-                    position: 'absolute',
-                    borderRadius: '50%',
-                    border: '1px solid #777',
-                    bgcolor: '#ffd85f',
-                    boxSizing: 'content-box',
-                    zIndex: 5,
-                    pointerEvents: 'none',
-                  },
+                  // '&::after': {
+                  //   content: '""',
+                  //   display: isToday ? 'block' : 'none',
+                  //   width: { xs: '5px', md: '10px' },
+                  //   height: { xs: '5px', md: '10px' },
+                  //   right: { xs: '5px', md: '10px' },
+                  //   top: { xs: '5px', md: '10px' },
+                  //   position: 'absolute',
+                  //   borderRadius: '50%',
+                  //   border: '1px solid #777',
+                  //   bgcolor: '#ffd85f',
+                  //   boxSizing: 'content-box',
+                  //   zIndex: 5,
+                  //   pointerEvents: 'none',
+                  // },
                 }}
                 onClick={() => onDayClick(day)}
               >
@@ -80,6 +80,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                     pb: 0.5,
                   }}
                   variant="body2"
+                  className={`${isToday && 'font-bold text-blue-700'}`}
                 >
                   {day.date()}
                 </Typography>

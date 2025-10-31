@@ -33,6 +33,12 @@ export default function ConstructionEdit() {
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
+  const formRefs = React.useRef<Record<string, HTMLInputElement | null>>({});
+
+  const registerFieldRef = (name: string, el: HTMLInputElement | null) => {
+    formRefs.current[name] = el;
+  };
+
   const {
     data: construction,
     isLoading,
@@ -118,6 +124,15 @@ export default function ConstructionEdit() {
           severity: 'error',
           autoHideDuration: 3000,
         });
+        const firstErrorKey = Object.keys(validationErrors)[0];
+        const firstErrorInput = formRefs.current[firstErrorKey];
+        if (firstErrorInput) {
+          firstErrorInput.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center',
+          });
+          // firstErrorInput.focus();
+        }
         return;
       }
 
@@ -203,6 +218,7 @@ export default function ConstructionEdit() {
                     : null
                 }
                 isEditForm={true}
+                registerFieldRef={registerFieldRef}
               />
             </Box>
           </Grid>

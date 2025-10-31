@@ -26,7 +26,7 @@ import {
   type CalendarEvent,
 } from './CalendarHelpers';
 
-// dayjs.locale('pl');
+dayjs.locale('pl');
 
 const Calendar: React.FC = () => {
   const [currentMonth, setCurrentMonth] = useState<Dayjs>(

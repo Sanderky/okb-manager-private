@@ -18,15 +18,20 @@ export default function ConstructionCreate() {
   const notifications = useNotifications();
   const queryClient = useQueryClient();
 
+  const formRefs = React.useRef<Record<string, HTMLInputElement | null>>({});
+
+  const registerFieldRef = (name: string, el: HTMLInputElement | null) => {
+    formRefs.current[name] = el;
+  };
+
   const [formState, setFormState] = React.useState<ConstructionFormState>({
     values: {},
     errors: {},
   });
 
   const createMutation = useMutation({
-    mutationFn: (
-      newConstruction: Partial<Construction> & { name: string; startDate: Date }
-    ) => createConstruction(newConstruction as Construction),
+    mutationFn: (newConstruction: Partial<Construction>) =>
+      createConstruction(newConstruction as Construction),
     onSuccess: (newConstructionId) => {
       queryClient.invalidateQueries({ queryKey: ['constructions'] });
       notifications.show('Budowa została pomyślnie utworzona.', {
@@ -66,6 +71,15 @@ export default function ConstructionCreate() {
           severity: 'error',
           autoHideDuration: 5000,
         });
+        const firstErrorKey = Object.keys(validationErrors)[0];
+        const firstErrorInput = formRefs.current[firstErrorKey];
+        if (firstErrorInput) {
+          firstErrorInput.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center',
+          });
+          // firstErrorInput.focus();
+        }
         return;
       }
 
@@ -118,6 +132,7 @@ export default function ConstructionCreate() {
               : null
           }
           isEditForm={false}
+          registerFieldRef={registerFieldRef}
         />
       </Box>
     </PageContainer>

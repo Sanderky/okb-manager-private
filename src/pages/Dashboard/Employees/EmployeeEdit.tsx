@@ -40,6 +40,12 @@ export default function EmployeeEdit() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
+  const formRefs = React.useRef<Record<string, HTMLInputElement | null>>({});
+
+  const registerFieldRef = (name: string, el: HTMLInputElement | null) => {
+    formRefs.current[name] = el;
+  };
+
   const {
     data: employee,
     isLoading,
@@ -149,6 +155,17 @@ export default function EmployeeEdit() {
           severity: 'error',
           autoHideDuration: 5000,
         });
+
+        const firstErrorKey = Object.keys(validationErrors)[0];
+        const firstErrorInput = formRefs.current[firstErrorKey];
+        if (firstErrorInput) {
+          firstErrorInput.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center',
+          });
+          // firstErrorInput.focus();
+        }
+
         return;
       }
 
@@ -302,6 +319,7 @@ export default function EmployeeEdit() {
                 isSubmitting={isSubmitting}
                 isFileLoading={attachmentLoading}
                 isEditForm={true}
+                registerFieldRef={registerFieldRef}
               />
             </Box>
           </Grid>

@@ -2,26 +2,26 @@ import dayjs, { Dayjs } from 'dayjs';
 import type { Employee, Vacation } from '../../../types';
 
 export const pastelColors = [
-  '#AEC6CF',
-  '#BFD8B8',
-  '#C2B9B0',
-  '#E6CBA8',
-  '#F5DD90',
-  '#A8C3BC',
-  '#C1C8E4',
-  '#D5E1DF',
-  '#E2CFC4',
-  '#C5D5CB',
-  '#D0B8A8',
-  '#BFCBA8',
-  '#C7D3D4',
-  '#E0D8B0',
-  '#B5C9C3',
-  '#D4C5C7',
-  '#BACDB0',
-  '#C7BEA2',
-  '#A7BBC7',
-  '#D9CAB3',
+  '#F7C8C2', // różowy grapefruit
+  '#F9D8B6', // kremowy brzoskwiniowy
+  '#F6E7B4', // jasny żółty z nutą piasku
+  '#D5EDB5', // miękka limonkowa zieleń
+  '#BDE4C9', // chłodna miętowa
+  '#B9E1E0', // błękit z turkusem
+  '#C3D3F3', // pastelowy niebieski
+  '#D3C4F3', // pastelowy lawendowy
+  '#E7C1E0', // różowo-fioletowy
+  '#F3C1C6', // malinowo-pastelowy
+  '#F1D0B8', // jasny toffi
+  '#E8E1B5', // kremowo-żółty
+  '#CAE2C4', // pastelowa szałwia
+  '#C2E5DA', // morska mięta
+  '#C6DCF1', // niebieski obłok
+  '#D7C7EE', // pastelowy fiolet
+  '#E8C7D9', // malinowy róż
+  '#F2CCC3', // delikatny koralowy
+  '#E4D8B4', // jasny beż-żółty
+  '#CBE1CE', // zieleń z szarą nutą
 ];
 
 export const WEEK_DAYS = [

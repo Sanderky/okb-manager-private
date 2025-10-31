@@ -760,8 +760,8 @@ const ScheduleComponent = () => {
         anchorEl={cellAnchorEl}
         open={openCellMenu}
         onClose={handleCellMenuClose}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'center' }}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
         slotProps={{
           paper: {
             sx: {
