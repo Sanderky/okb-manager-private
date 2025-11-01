@@ -40,7 +40,7 @@ const ScheduleCell: React.FC<ScheduleCellProps> = React.memo(
         //   sm: 'table-cell',
         // },
       }}
-      className="border-l border-l-gray-300 hover:bg-blue-50"
+      className="hover:bg-lightBlue border-l border-l-gray-300"
       onClick={(e) => {
         // if (hasVacation) {
         //   e.stopPropagation();

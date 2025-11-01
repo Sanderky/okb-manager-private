@@ -1,5 +1,11 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Alert, Box, CircularProgress, IconButton } from '@mui/material';
+import {
+  Alert,
+  Box,
+  Button,
+  CircularProgress,
+  IconButton,
+} from '@mui/material';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getEmployeeList } from '../../../api/employees';
 import type { Employee, Vacation } from '../../../types';
@@ -18,6 +24,7 @@ import {
   FilterDialog,
   AddEventDialog,
   EventDetailsDialog,
+  VacationReportDialog,
 } from './CalendarDialogs';
 import {
   validateVacation,
@@ -26,6 +33,8 @@ import {
   type CalendarEvent,
 } from './CalendarHelpers';
 import PageContainer from '../../../components/PageContainer';
+
+import ListAltIcon from '@mui/icons-material/ListAlt';
 
 dayjs.locale('pl');
 
@@ -43,6 +52,9 @@ const Calendar: React.FC = () => {
     {} as CalendarEvent
   );
   const [validationError, setValidationError] = useState<string>('');
+
+  const [isVacationReportOpen, setIsVacationReportOpen] =
+    useState<boolean>(false);
 
   const notifications = useNotifications();
   const queryClient = useQueryClient();
@@ -348,7 +360,19 @@ const Calendar: React.FC = () => {
   }
 
   return (
-    <PageContainer breadcrumbs={[{ title: 'Kalendarz urlopów' }]}>
+    <PageContainer
+      breadcrumbs={[{ title: 'Kalendarz urlopów' }]}
+      actions={
+        <Button
+          size="small"
+          onClick={() => setIsVacationReportOpen(true)}
+          variant="contained"
+          startIcon={<ListAltIcon />}
+        >
+          Wykaz urlopów
+        </Button>
+      }
+    >
       <Box className="relative">
         {(isLoadingEmployees || isLoadingVacations) && (
           <Box
@@ -438,6 +462,13 @@ const Calendar: React.FC = () => {
           selectedEmployees={selectedEmployees}
           handleModalClose={handleModalClose}
           handleDeleteEvent={handleDeleteEvent}
+        />
+
+        <VacationReportDialog
+          open={isVacationReportOpen}
+          onClose={() => setIsVacationReportOpen(false)}
+          employees={employees}
+          vacations={vacations}
         />
       </Box>
     </PageContainer>

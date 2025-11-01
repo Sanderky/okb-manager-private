@@ -43,7 +43,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
               <Grid
                 size={{ xs: 12 / 7 }}
                 key={`${wi}-${di}`}
-                className={`border-t border-t-gray-300 p-1 ${isSelected && 'bg-blue-100'}`}
+                className={`border-t border-t-gray-300 p-1 ${isSelected && 'bg-lightBlue'}`}
                 sx={{
                   borderLeft: di % 7 !== 0 ? '1px solid #ddd' : 'none',
                   minHeight: 140,
