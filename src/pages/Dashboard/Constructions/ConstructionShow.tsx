@@ -577,6 +577,7 @@ export default function ConstructionShow() {
           confirmText="Zakończ budowę"
           confirmColor="warning"
           cancelText="Anuluj"
+          showCloseButton={false}
           loading={updateStatusMutation.isPending}
         >
           <Stack spacing={3}>

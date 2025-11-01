@@ -1,8 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
   TextField,
   Button,
   Box,
@@ -13,7 +10,7 @@ import {
   InputAdornment,
   Collapse,
 } from '@mui/material';
-import { Visibility, VisibilityOff, Close } from '@mui/icons-material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 import {
   updatePassword,
   updateEmail,
@@ -23,6 +20,7 @@ import {
   type User,
 } from 'firebase/auth';
 import { auth } from '../../firebase';
+import BaseDialog from '../BaseDialog';
 
 interface UserSettingsDialogProps {
   open: boolean;
@@ -263,203 +261,82 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
   }
 
   return (
-    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-      <DialogTitle>
-        <Box display="flex" justifyContent="space-between" alignItems="center">
-          <Typography variant="h6">Ustawienia konta</Typography>
-          <IconButton onClick={handleClose} size="small">
-            <Close />
-          </IconButton>
-        </Box>
-      </DialogTitle>
+    <BaseDialog
+      open={open}
+      onClose={handleClose}
+      title="Ustawienia konta"
+      showConfirm={false}
+    >
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+      )}
 
-      <DialogContent>
-        {error && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {error}
-          </Alert>
-        )}
+      {success && (
+        <Alert severity="success" sx={{ mb: 2 }}>
+          {success}
+        </Alert>
+      )}
 
-        {success && (
-          <Alert severity="success" sx={{ mb: 2 }}>
-            {success}
-          </Alert>
-        )}
+      <Box component="form" sx={{ mt: 1 }}>
+        <Typography variant="body1" gutterBottom>
+          Informacje podstawowe
+        </Typography>
 
-        <Box component="form" sx={{ mt: 1 }}>
-          <Typography variant="body1" gutterBottom>
-            Informacje podstawowe
-          </Typography>
+        <TextField
+          size="small"
+          label="Nazwa użytkownika"
+          slotProps={{
+            input: {
+              readOnly: !editMode,
+            },
+          }}
+          value={displayName}
+          onChange={(e) => setDisplayName(e.target.value)}
+          fullWidth
+          margin="normal"
+          disabled={loading || !editMode}
+        />
 
+        <TextField
+          size="small"
+          label="Email"
+          type="email"
+          slotProps={{
+            input: {
+              readOnly: !editMode,
+            },
+          }}
+          error={Boolean(fieldsErrors['email'])}
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          fullWidth
+          helperText={fieldsErrors['email']}
+          margin="normal"
+          disabled={loading || !editMode}
+        />
+
+        <Collapse in={editMode}>
           <TextField
-            label="Nazwa użytkownika"
-            slotProps={{
-              input: {
-                readOnly: !editMode,
-              },
-            }}
-            value={displayName}
-            onChange={(e) => setDisplayName(e.target.value)}
+            size="small"
+            label="Hasło"
+            error={Boolean(fieldsErrors['password'])}
+            type={showPassword ? 'text' : 'password'}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             fullWidth
             margin="normal"
             disabled={loading}
-          />
-
-          <TextField
-            label="Email"
-            type="email"
-            slotProps={{
-              input: {
-                readOnly: !editMode,
-              },
-            }}
-            error={Boolean(fieldsErrors['email'])}
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            fullWidth
-            helperText={fieldsErrors['email']}
-            margin="normal"
-            disabled={loading}
-          />
-
-          <Collapse in={editMode}>
-            <TextField
-              label="Hasło"
-              error={Boolean(fieldsErrors['password'])}
-              type={showPassword ? 'text' : 'password'}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              fullWidth
-              margin="normal"
-              disabled={loading}
-              helperText={fieldsErrors['password']}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      onClick={() => setShowPassword((prev) => !prev)}
-                      edge="end"
-                    >
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-            />
-
-            <Typography
-              variant="caption"
-              color="text.secondary"
-              display="block"
-              sx={{ mt: 1, mb: 2 }}
-            >
-              Aby zmienić adres email należy również wprowadzić obecne hasło
-            </Typography>
-          </Collapse>
-
-          {!editMode && (
-            <Button
-              variant="contained"
-              sx={{ mt: 2 }}
-              onClick={() => setEditMode(true)}
-            >
-              Edytuj
-            </Button>
-          )}
-          {editMode && (
-            <>
-              <Button
-                variant="outlined"
-                color="inherit"
-                className="border-gray-400"
-                sx={{ mr: 2 }}
-                onClick={() => setEditMode(false)}
-              >
-                Anuluj
-              </Button>
-
-              <Button
-                variant="contained"
-                onClick={handleSave}
-                loading={loading}
-              >
-                Zapisz
-              </Button>
-            </>
-          )}
-
-          <Divider sx={{ my: 3 }} />
-
-          <Typography variant="body1" gutterBottom>
-            Zmiana hasła
-          </Typography>
-
-          <TextField
-            label="Obecne hasło"
-            error={Boolean(fieldsErrors['currentPassword'])}
-            type={showCurrentPassword ? 'text' : 'password'}
-            value={currentPassword}
-            onChange={(e) => setCurrentPassword(e.target.value)}
-            fullWidth
-            margin="normal"
-            disabled={loading}
-            helperText={fieldsErrors['currentPassword']}
+            helperText={fieldsErrors['password']}
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
                   <IconButton
-                    onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                    onClick={() => setShowPassword((prev) => !prev)}
                     edge="end"
                   >
-                    {showCurrentPassword ? <VisibilityOff /> : <Visibility />}
-                  </IconButton>
-                </InputAdornment>
-              ),
-            }}
-          />
-
-          <TextField
-            label="Nowe hasło"
-            error={Boolean(fieldsErrors['newPassword'])}
-            helperText={fieldsErrors['newPassword']}
-            type={showNewPassword ? 'text' : 'password'}
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-            fullWidth
-            margin="normal"
-            disabled={loading}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton
-                    onClick={() => setShowNewPassword(!showNewPassword)}
-                    edge="end"
-                  >
-                    {showNewPassword ? <VisibilityOff /> : <Visibility />}
-                  </IconButton>
-                </InputAdornment>
-              ),
-            }}
-          />
-
-          <TextField
-            label="Potwierdź nowe hasło"
-            error={Boolean(fieldsErrors['confirmPassword'])}
-            helperText={fieldsErrors['confirmPassword']}
-            type={showConfirmPassword ? 'text' : 'password'}
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            fullWidth
-            margin="normal"
-            disabled={loading}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    edge="end"
-                  >
-                    {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
                   </IconButton>
                 </InputAdornment>
               ),
@@ -472,19 +349,136 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
             display="block"
             sx={{ mt: 1, mb: 2 }}
           >
-            Hasło musi mieć co najmniej 8 znaków
+            Aby zmienić adres email należy również wprowadzić obecne hasło
           </Typography>
+        </Collapse>
 
+        {!editMode && (
           <Button
             variant="contained"
-            onClick={handleResetPassword}
-            loading={loading}
+            sx={{ mt: 2 }}
+            onClick={() => setEditMode(true)}
           >
-            Resetuj hasło
+            Edytuj
           </Button>
-        </Box>
-      </DialogContent>
-    </Dialog>
+        )}
+        {editMode && (
+          <>
+            <Button
+              variant="outlined"
+              color="inherit"
+              className="border-gray-400"
+              sx={{ mr: 2 }}
+              onClick={() => setEditMode(false)}
+            >
+              Anuluj
+            </Button>
+
+            <Button variant="contained" onClick={handleSave} loading={loading}>
+              Zapisz
+            </Button>
+          </>
+        )}
+
+        <Divider sx={{ my: 3 }} />
+
+        <Typography variant="body1" gutterBottom>
+          Zmiana hasła
+        </Typography>
+
+        <TextField
+          size="small"
+          label="Obecne hasło"
+          error={Boolean(fieldsErrors['currentPassword'])}
+          type={showCurrentPassword ? 'text' : 'password'}
+          value={currentPassword}
+          onChange={(e) => setCurrentPassword(e.target.value)}
+          fullWidth
+          margin="normal"
+          disabled={loading}
+          helperText={fieldsErrors['currentPassword']}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                  edge="end"
+                >
+                  {showCurrentPassword ? <VisibilityOff /> : <Visibility />}
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
+        />
+
+        <TextField
+          label="Nowe hasło"
+          size="small"
+          error={Boolean(fieldsErrors['newPassword'])}
+          helperText={fieldsErrors['newPassword']}
+          type={showNewPassword ? 'text' : 'password'}
+          value={newPassword}
+          onChange={(e) => setNewPassword(e.target.value)}
+          fullWidth
+          margin="normal"
+          disabled={loading}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                  edge="end"
+                >
+                  {showNewPassword ? <VisibilityOff /> : <Visibility />}
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
+        />
+
+        <TextField
+          label="Potwierdź nowe hasło"
+          size="small"
+          error={Boolean(fieldsErrors['confirmPassword'])}
+          helperText={fieldsErrors['confirmPassword']}
+          type={showConfirmPassword ? 'text' : 'password'}
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          fullWidth
+          margin="normal"
+          disabled={loading}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  edge="end"
+                >
+                  {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
+        />
+
+        <Typography
+          variant="caption"
+          color="text.secondary"
+          display="block"
+          sx={{ mt: 1, mb: 2 }}
+        >
+          Hasło musi mieć co najmniej 8 znaków
+        </Typography>
+
+        <Button
+          variant="contained"
+          onClick={handleResetPassword}
+          loading={loading}
+        >
+          Resetuj hasło
+        </Button>
+      </Box>
+    </BaseDialog>
   );
 };
 

@@ -1,16 +1,14 @@
 import { useState } from 'react';
 import {
   Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
   Typography,
+  Stack,
 } from '@mui/material';
+import BaseDialog from '../BaseDialog';
 
 interface MoveItemsDialogProps {
   open: boolean;
@@ -44,46 +42,49 @@ const MoveItemsDialog = ({
   const canMove = currentPath !== baseDirectory || foldersAvailable;
 
   return (
-    <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
-      <DialogTitle>Przenieś do folderu</DialogTitle>
-      <DialogContent>
-        {canMove ? (
-          <FormControl fullWidth sx={{ mt: 2 }}>
-            <InputLabel>Folder docelowy</InputLabel>
-            <Select
-              required
-              value={destination}
-              label="Folder docelowy"
-              onChange={(e) => setDestination(e.target.value)}
+    <BaseDialog
+      open={open}
+      onClose={handleClose}
+      title={`Przenieś do folderu`}
+      showConfirm={false}
+      actions={
+        <Stack direction="row" spacing={1}>
+          {foldersAvailable && (
+            <Button
+              onClick={handleMove}
+              disabled={destination === '' || destination === undefined}
             >
-              {currentPath !== baseDirectory && (
-                <MenuItem value={baseDirectory}>Katalog główny</MenuItem>
-              )}
-              {folders.map((folder) => (
-                <MenuItem key={folder.fullPath} value={folder.fullPath}>
-                  {folder.fullPath.replace(baseDirectory, 'Katalog główny')}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        ) : (
-          <Typography sx={{ mt: 2 }}>
-            Brak dostępnych folderów docelowych.
-          </Typography>
-        )}
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={handleClose}>Anuluj</Button>
-        {foldersAvailable && (
-          <Button
-            onClick={handleMove}
-            disabled={destination === '' || destination === undefined}
+              Przenieś
+            </Button>
+          )}
+        </Stack>
+      }
+    >
+      {canMove ? (
+        <FormControl fullWidth sx={{ mt: 2 }}>
+          <InputLabel>Folder docelowy</InputLabel>
+          <Select
+            required
+            value={destination}
+            label="Folder docelowy"
+            onChange={(e) => setDestination(e.target.value)}
           >
-            Przenieś
-          </Button>
-        )}
-      </DialogActions>
-    </Dialog>
+            {currentPath !== baseDirectory && (
+              <MenuItem value={baseDirectory}>Katalog główny</MenuItem>
+            )}
+            {folders.map((folder) => (
+              <MenuItem key={folder.fullPath} value={folder.fullPath}>
+                {folder.fullPath.replace(baseDirectory, 'Katalog główny')}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      ) : (
+        <Typography sx={{ mt: 2 }}>
+          Brak dostępnych folderów docelowych.
+        </Typography>
+      )}
+    </BaseDialog>
   );
 };
 

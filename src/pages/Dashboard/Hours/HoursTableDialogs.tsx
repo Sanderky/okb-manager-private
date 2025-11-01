@@ -2,10 +2,6 @@ import React, { useState, useMemo, useRef, useEffect } from 'react';
 import {
   Button,
   Typography,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
   MenuItem,
   FormControl,
   InputLabel,
@@ -40,6 +36,7 @@ import {
   type LangCode,
 } from './reportTranslations';
 import useAvailableConstructionsInRange from './useAvailableConstructionsInRange';
+import BaseDialog from '../../../components/BaseDialog';
 
 interface AddConstructionWithEmployeeDialogProps {
   open: boolean;
@@ -102,65 +99,61 @@ export const AddConstructionWithEmployeeDialog: React.FC<
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Dodaj nową budowę z pracownikiem</DialogTitle>
-      <DialogContent>
-        <FormControl fullWidth sx={{ mt: 2 }}>
-          <InputLabel>Wybierz budowę</InputLabel>
-          <Select
-            value={selectedConstruction}
-            onChange={(e) => setSelectedConstruction(e.target.value)}
-            label="Wybierz budowę"
+    <BaseDialog
+      open={open}
+      onClose={onClose}
+      title="Dodaj nową budowę z pracownikiem"
+      showConfirm={false}
+      actions={
+        <Stack direction="row" spacing={1}>
+          <Button
+            onClick={handleAdd}
+            variant="contained"
+            disabled={
+              !selectedConstruction ||
+              !selectedEmployee ||
+              availableConstructions.length === 0
+            }
           >
-            {availableConstructions.map((construction) => (
-              <MenuItem key={construction.id} value={construction.id}>
-                {construction.name}
-              </MenuItem>
-            ))}
-            {availableConstructions.length === 0 && (
-              <MenuItem disabled>
-                Wszystkie budowy są już dodane do tabeli
-              </MenuItem>
-            )}
-          </Select>
-        </FormControl>
-        <FormControl fullWidth sx={{ mt: 2 }}>
-          <InputLabel>Wybierz pracownika</InputLabel>
-          <Select
-            value={selectedEmployee}
-            onChange={(e) => setSelectedEmployee(e.target.value)}
-            label="Wybierz pracownika"
-          >
-            {employees?.map((employee) => (
-              <MenuItem key={employee.id} value={employee.id}>
-                {employee.name}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      </DialogContent>
-      <DialogActions>
-        <Button
-          onClick={onClose}
-          color="inherit"
-          variant="outlined"
-          className="border-gray-400"
+            Dodaj
+          </Button>
+        </Stack>
+      }
+    >
+      <FormControl fullWidth sx={{ mt: 2 }}>
+        <InputLabel>Wybierz budowę</InputLabel>
+        <Select
+          value={selectedConstruction}
+          onChange={(e) => setSelectedConstruction(e.target.value)}
+          label="Wybierz budowę"
         >
-          Anuluj
-        </Button>
-        <Button
-          onClick={handleAdd}
-          variant="contained"
-          disabled={
-            !selectedConstruction ||
-            !selectedEmployee ||
-            availableConstructions.length === 0
-          }
+          {availableConstructions.map((construction) => (
+            <MenuItem key={construction.id} value={construction.id}>
+              {construction.name}
+            </MenuItem>
+          ))}
+          {availableConstructions.length === 0 && (
+            <MenuItem disabled>
+              Wszystkie budowy są już dodane do tabeli
+            </MenuItem>
+          )}
+        </Select>
+      </FormControl>
+      <FormControl fullWidth sx={{ mt: 2 }}>
+        <InputLabel>Wybierz pracownika</InputLabel>
+        <Select
+          value={selectedEmployee}
+          onChange={(e) => setSelectedEmployee(e.target.value)}
+          label="Wybierz pracownika"
         >
-          Dodaj
-        </Button>
-      </DialogActions>
-    </Dialog>
+          {employees?.map((employee) => (
+            <MenuItem key={employee.id} value={employee.id}>
+              {employee.name}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+    </BaseDialog>
   );
 };
 
@@ -229,49 +222,43 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
   const construction = constructions?.find((c) => c.id === constructionId);
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>
-        Dodaj pracownika do budowy: {construction?.name}
-      </DialogTitle>
-      <DialogContent>
-        <FormControl fullWidth sx={{ mt: 2 }}>
-          <InputLabel>Wybierz pracownika</InputLabel>
-          <Select
-            value={selectedEmployee}
-            onChange={(e) => setSelectedEmployee(e.target.value)}
-            label="Wybierz pracownika"
+    <BaseDialog
+      open={open}
+      onClose={onClose}
+      title={`Dodaj pracownika do budowy: ${construction?.name}`}
+      showConfirm={false}
+      actions={
+        <Stack direction="row" spacing={1}>
+          <Button
+            onClick={handleAdd}
+            variant="contained"
+            disabled={!selectedEmployee || availableEmployees.length === 0}
           >
-            {availableEmployees.map((employee) => (
-              <MenuItem key={employee.id} value={employee.id}>
-                {employee.name}
-              </MenuItem>
-            ))}
-            {availableEmployees.length === 0 && (
-              <MenuItem disabled>
-                Wszyscy pracownicy są już dodani do tej budowy
-              </MenuItem>
-            )}
-          </Select>
-        </FormControl>
-      </DialogContent>
-      <DialogActions>
-        <Button
-          onClick={onClose}
-          variant="outlined"
-          className="border-gray-400"
-          color="inherit"
+            Dodaj
+          </Button>
+        </Stack>
+      }
+    >
+      <FormControl fullWidth sx={{ mt: 2 }}>
+        <InputLabel>Wybierz pracownika</InputLabel>
+        <Select
+          value={selectedEmployee}
+          onChange={(e) => setSelectedEmployee(e.target.value)}
+          label="Wybierz pracownika"
         >
-          Anuluj
-        </Button>
-        <Button
-          onClick={handleAdd}
-          variant="contained"
-          disabled={!selectedEmployee || availableEmployees.length === 0}
-        >
-          Dodaj
-        </Button>
-      </DialogActions>
-    </Dialog>
+          {availableEmployees.map((employee) => (
+            <MenuItem key={employee.id} value={employee.id}>
+              {employee.name}
+            </MenuItem>
+          ))}
+          {availableEmployees.length === 0 && (
+            <MenuItem disabled>
+              Wszyscy pracownicy są już dodani do tej budowy
+            </MenuItem>
+          )}
+        </Select>
+      </FormControl>
+    </BaseDialog>
   );
 };
 
@@ -301,40 +288,36 @@ export const CopyTableDialog: React.FC<CopyTableDialogProps> = ({
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Kopiowanie danych</DialogTitle>
-      <DialogContent>
-        <Stack
-          direction={{ xs: 'column', sm: 'row' }}
-          alignItems={{ xs: 'flex-start', sm: 'center' }}
-          spacing={{ xs: 2, sm: 1 }}
-        >
-          <Typography>Kopiuj dane z wybranego tygodnia:</Typography>
-          <WeekSelector value={weekToCopy} onChange={setWeekToCopy} />
-        </Stack>
-        <Divider sx={{ mb: 4, mt: 4 }}>
-          <Button onClick={handleCopyFromPrevious}>
-            Lub kopiuj z poprzedniego
+    <BaseDialog
+      open={open}
+      onClose={onClose}
+      title={`Kopiowanie danych`}
+      showConfirm={false}
+      actions={
+        <Stack direction="row" spacing={1}>
+          <Button onClick={handleSave} variant="contained">
+            Kopiuj
           </Button>
-        </Divider>
-        <Alert severity="info">
-          Kopiowianie nadpisuje wszystkie dane w obecnym tygodniu
-        </Alert>
-      </DialogContent>
-      <DialogActions>
-        <Button
-          onClick={onClose}
-          variant="outlined"
-          className="border-gray-400"
-          color="inherit"
-        >
-          Anuluj
+        </Stack>
+      }
+    >
+      <Stack
+        direction={{ xs: 'column', sm: 'row' }}
+        alignItems={{ xs: 'flex-start', sm: 'center' }}
+        spacing={{ xs: 2, sm: 1 }}
+      >
+        <Typography>Kopiuj dane z wybranego tygodnia:</Typography>
+        <WeekSelector value={weekToCopy} onChange={setWeekToCopy} />
+      </Stack>
+      <Divider sx={{ mb: 4, mt: 4 }}>
+        <Button onClick={handleCopyFromPrevious}>
+          Lub kopiuj z poprzedniego
         </Button>
-        <Button onClick={handleSave} variant="contained">
-          Kopiuj
-        </Button>
-      </DialogActions>
-    </Dialog>
+      </Divider>
+      <Alert severity="info">
+        Kopiowianie nadpisuje wszystkie dane w obecnym tygodniu
+      </Alert>
+    </BaseDialog>
   );
 };
 
@@ -436,163 +419,157 @@ export const PrintReportDialog: React.FC<PrintReportDialogProps> = ({
   };
 
   return (
-    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Drukowanie raportu</DialogTitle>
-      <DialogContent>
-        <Box sx={{ display: 'none' }}>
-          <PrintReport
-            showVacation={showVacation}
-            omitEmpty={omitEmpty}
-            printTitle={printTitle}
-            printTablesTitle={printTablesTitle}
-            startWeek={startWeek}
-            endWeek={endWeek}
-            ref={printContentRef}
-            onLoading={(isLoading: boolean) => setReportLoading(isLoading)}
-            lang={lang}
-            selectedConstructions={selectedConstructions}
-          />
+    <BaseDialog
+      open={open}
+      onClose={onClose}
+      title={`Drukowanie raportu`}
+      showConfirm={false}
+      actions={
+        <Stack direction="row" spacing={1}>
+          <Button
+            onClick={handleSave}
+            variant="contained"
+            loading={reportLoading || constructionsLoading}
+            disabled={isError}
+          >
+            Drukuj
+          </Button>
+        </Stack>
+      }
+    >
+      <Box sx={{ display: 'none' }}>
+        <PrintReport
+          showVacation={showVacation}
+          omitEmpty={omitEmpty}
+          printTitle={printTitle}
+          printTablesTitle={printTablesTitle}
+          startWeek={startWeek}
+          endWeek={endWeek}
+          ref={printContentRef}
+          onLoading={(isLoading: boolean) => setReportLoading(isLoading)}
+          lang={lang}
+          selectedConstructions={selectedConstructions}
+        />
+      </Box>
+
+      <Stack direction={'column'} alignItems="flex-start">
+        {isError && (
+          <Alert sx={{ width: '100%', mb: 2 }} severity="error">
+            Tydzień początkowy nie może być później niż końcowy
+          </Alert>
+        )}
+        <Typography>Tydzień początkowy</Typography>
+        <WeekSelector value={startWeek} onChange={setStartWeek} />
+        <Typography sx={{ mt: 2 }}>Tydzień końcowy</Typography>
+        <WeekSelector value={endWeek} onChange={setEndWeek} />
+
+        <Typography sx={{ mt: 2 }}>Wybrane tygodnie: {weeks.length}</Typography>
+        <Divider sx={{ mt: 2 }} flexItem />
+
+        <Typography sx={{ mt: 1, mb: 1 }}>Filtruj budowy</Typography>
+        <Typography variant="caption" sx={{ mb: 1 }}>
+          {`Wybrane: ${selectedConstructions.length} z ${availableConstructions.length}`}
+        </Typography>
+        <Box sx={{ mb: 1, display: 'flex', gap: 1 }}>
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={handleSelectAllConstructions}
+          >
+            Wszystkie
+          </Button>
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={handleDeselectAllConstructions}
+          >
+            Wyczyść
+          </Button>
         </Box>
 
-        <Stack direction={'column'} alignItems="flex-start">
-          {isError && (
-            <Alert sx={{ width: '100%', mb: 2 }} severity="error">
-              Tydzień początkowy nie może być później niż końcowy
-            </Alert>
-          )}
-          <Typography>Tydzień początkowy</Typography>
-          <WeekSelector value={startWeek} onChange={setStartWeek} />
-          <Typography sx={{ mt: 2 }}>Tydzień końcowy</Typography>
-          <WeekSelector value={endWeek} onChange={setEndWeek} />
+        <FormControl sx={{ width: '100%', maxWidth: '100%', mt: 1 }}>
+          <Autocomplete
+            size="small"
+            multiple
+            options={availableConstructions}
+            disableCloseOnSelect
+            getOptionLabel={(option) => option.name}
+            value={selectedConstructionObjects}
+            onChange={handleConstructionChange}
+            isOptionEqualToValue={(option, value) => option.id === value.id}
+            renderOption={(props, option, { selected }) => {
+              const { key, ...optionProps } = props;
+              return (
+                <li key={key} {...optionProps}>
+                  <Checkbox checked={selected} />
+                  {option.name}
+                </li>
+              );
+            }}
+            renderInput={(params) => <TextField {...params} label="Budowy" />}
+          />
+        </FormControl>
 
-          <Typography sx={{ mt: 2 }}>
-            Wybrane tygodnie: {weeks.length}
-          </Typography>
-          <Divider sx={{ mt: 2 }} flexItem />
+        <Divider sx={{ mt: 2 }} flexItem />
 
-          <Typography sx={{ mt: 1, mb: 1 }}>Filtruj budowy</Typography>
-          <Typography variant="caption" sx={{ mb: 1 }}>
-            {`Wybrane: ${selectedConstructions.length}`}
-          </Typography>
-          <Box sx={{ mb: 1, display: 'flex', gap: 1 }}>
-            <Button
-              variant="outlined"
+        <FormGroup>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={printTitle}
+                onChange={(e) => setPrintTile(e.target.checked)}
+              />
+            }
+            label="Drukuj tytuł raportu"
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={printTablesTitle}
+                onChange={(e) => setPrintTablesTitle(e.target.checked)}
+              />
+            }
+            label="Drukuj tytuły tabelek"
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={showVacation}
+                onChange={(e) => setShowVacation(e.target.checked)}
+              />
+            }
+            label="Pokaż informacje o urlopach"
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={omitEmpty}
+                onChange={(e) => setOmitEmpty(e.target.checked)}
+              />
+            }
+            label="Omijaj puste tygodnie"
+          />
+          <FormControl sx={{ mt: 2 }}>
+            <InputLabel id="report-lang-select-label">
+              Język docelowy
+            </InputLabel>
+            <Select
               size="small"
-              onClick={handleSelectAllConstructions}
+              labelId="report-lang-select-label"
+              id="report-lang-select"
+              value={lang}
+              label="Język docelowy"
+              onChange={(e) => setLang(e.target.value)}
             >
-              Wszystkie
-            </Button>
-            <Button
-              variant="outlined"
-              size="small"
-              onClick={handleDeselectAllConstructions}
-            >
-              Wyczyść
-            </Button>
-          </Box>
-
-          <FormControl sx={{ width: '100%', maxWidth: '100%', mt: 1 }}>
-            <Autocomplete
-              size="small"
-              multiple
-              options={availableConstructions}
-              disableCloseOnSelect
-              getOptionLabel={(option) => option.name}
-              value={selectedConstructionObjects}
-              onChange={handleConstructionChange}
-              isOptionEqualToValue={(option, value) => option.id === value.id}
-              renderOption={(props, option, { selected }) => {
-                const { key, ...optionProps } = props;
-                return (
-                  <li key={key} {...optionProps}>
-                    <Checkbox checked={selected} />
-                    {option.name}
-                  </li>
-                );
-              }}
-              renderInput={(params) => <TextField {...params} label="Budowy" />}
-            />
+              {Object.entries(Langs).map(([code, name]) => (
+                <MenuItem key={code} value={code}>
+                  {name}
+                </MenuItem>
+              ))}
+            </Select>
           </FormControl>
-
-          <Divider sx={{ mt: 2 }} flexItem />
-
-          <FormGroup>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={printTitle}
-                  onChange={(e) => setPrintTile(e.target.checked)}
-                />
-              }
-              label="Drukuj tytuł raportu"
-            />
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={printTablesTitle}
-                  onChange={(e) => setPrintTablesTitle(e.target.checked)}
-                />
-              }
-              label="Drukuj tytuły tabelek"
-            />
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={showVacation}
-                  onChange={(e) => setShowVacation(e.target.checked)}
-                />
-              }
-              label="Pokaż informacje o urlopach"
-            />
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={omitEmpty}
-                  onChange={(e) => setOmitEmpty(e.target.checked)}
-                />
-              }
-              label="Omijaj puste tygodnie"
-            />
-            <FormControl sx={{ mt: 2 }}>
-              <InputLabel id="report-lang-select-label">
-                Język docelowy
-              </InputLabel>
-              <Select
-                size="small"
-                labelId="report-lang-select-label"
-                id="report-lang-select"
-                value={lang}
-                label="Język docelowy"
-                onChange={(e) => setLang(e.target.value)}
-              >
-                {Object.entries(Langs).map(([code, name]) => (
-                  <MenuItem key={code} value={code}>
-                    {name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </FormGroup>
-        </Stack>
-      </DialogContent>
-      <DialogActions>
-        <Button
-          onClick={handleClose}
-          variant="outlined"
-          className="border-gray-400"
-          color="inherit"
-        >
-          Anuluj
-        </Button>
-        <Button
-          onClick={handleSave}
-          variant="contained"
-          loading={reportLoading || constructionsLoading}
-          disabled={isError}
-        >
-          Drukuj
-        </Button>
-      </DialogActions>
-    </Dialog>
+        </FormGroup>
+      </Stack>
+    </BaseDialog>
   );
 };

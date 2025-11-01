@@ -7,7 +7,6 @@ import {
   IconButton,
   Stack,
   Typography,
-  Box,
   Button,
   CircularProgress,
 } from '@mui/material';
@@ -162,7 +161,7 @@ export const ConfirmationDialog: React.FC<
   }
 > = ({ message, confirmColor = 'primary', ...props }) => {
   return (
-    <BaseDialog {...props} confirmColor={confirmColor}>
+    <BaseDialog {...props} confirmColor={confirmColor} showCloseButton={false}>
       {typeof message === 'string' ? (
         <Typography variant="body1">{message}</Typography>
       ) : (

@@ -14,10 +14,6 @@ import {
   Checkbox,
   FormControl,
   TextField,
-  DialogTitle,
-  Dialog,
-  DialogActions,
-  DialogContent,
   Badge,
 } from '@mui/material';
 import {
@@ -29,7 +25,6 @@ import {
   ExpandMore,
   MoreHoriz,
   Print,
-  Close,
   AutoFixHigh,
 } from '@mui/icons-material';
 import dayjs from 'dayjs';
@@ -40,6 +35,7 @@ import isoWeek from 'dayjs/plugin/isoWeek';
 import { useReactToPrint } from 'react-to-print';
 import type { Construction } from '../../../types';
 import FilterListIcon from '@mui/icons-material/FilterList';
+import BaseDialog from '../../../components/BaseDialog';
 
 dayjs.extend(isoWeek);
 dayjs.extend(isBetween);
@@ -481,63 +477,44 @@ const HoursTableControls = ({
         </Stack>
       </Box>
 
-      <Dialog
+      <BaseDialog
         open={isFilterOpen}
         onClose={() => setIsFilterOpen(false)}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle sx={{ px: 2 }}>
-          <Stack
-            direction="row"
-            alignItems="center"
-            justifyContent={'space-between'}
-          >
-            <Typography variant="h6" component="div">
-              Filtr budów
-            </Typography>
-            <IconButton onClick={() => setIsFilterOpen(false)}>
-              <Close />
-            </IconButton>
+        title="Filtr budów"
+        showConfirm={false}
+        actions={
+          <Stack direction="row" spacing={1}>
+            <Button onClick={handleSelectAll}>Wszystkie</Button>
+            <Button onClick={handleDeselectAll}>Wyczyść</Button>
           </Stack>
-        </DialogTitle>
-        <DialogContent
-          dividers
-          sx={{
-            px: 2,
-          }}
-        >
-          <Typography sx={{ mb: 2 }} component={'div'} variant="caption">
-            {`Wybrane: ${selectedConstructions.length}`}
-          </Typography>
-          <FormControl sx={{ width: '100%', maxWidth: '100%' }}>
-            <Autocomplete
-              size="small"
-              multiple
-              options={availableConstructions}
-              disableCloseOnSelect
-              getOptionLabel={(option) => option.name}
-              value={selectedConstructionObjects}
-              onChange={handleChange}
-              isOptionEqualToValue={(option, value) => option.id === value.id}
-              renderOption={(props, option, { selected }) => {
-                const { key, ...optionProps } = props;
-                return (
-                  <li key={key} {...optionProps}>
-                    <Checkbox checked={selected} />
-                    {option.name}
-                  </li>
-                );
-              }}
-              renderInput={(params) => <TextField {...params} label="Budowy" />}
-            />
-          </FormControl>
-        </DialogContent>
-        <DialogActions sx={{ px: 2 }}>
-          <Button onClick={handleSelectAll}>Wszystkie</Button>
-          <Button onClick={handleDeselectAll}>Wyczyść</Button>
-        </DialogActions>
-      </Dialog>
+        }
+      >
+        <Typography sx={{ mb: 2 }} component={'div'} variant="caption">
+          {`Wybrane: ${selectedConstructions.length} z ${availableConstructions.length}`}
+        </Typography>
+        <FormControl sx={{ width: '100%', maxWidth: '100%' }}>
+          <Autocomplete
+            size="small"
+            multiple
+            options={availableConstructions}
+            disableCloseOnSelect
+            getOptionLabel={(option) => option.name}
+            value={selectedConstructionObjects}
+            onChange={handleChange}
+            isOptionEqualToValue={(option, value) => option.id === value.id}
+            renderOption={(props, option, { selected }) => {
+              const { key, ...optionProps } = props;
+              return (
+                <li key={key} {...optionProps}>
+                  <Checkbox checked={selected} />
+                  {option.name}
+                </li>
+              );
+            }}
+            renderInput={(params) => <TextField {...params} label="Budowy" />}
+          />
+        </FormControl>
+      </BaseDialog>
     </>
   );
 };

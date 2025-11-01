@@ -8,6 +8,8 @@ import DialogTitle from '@mui/material/DialogTitle';
 import TextField from '@mui/material/TextField';
 import useEventCallback from '@mui/utils/useEventCallback';
 import DialogsContext from './DialogsContext';
+import { Typography, IconButton, Stack } from '@mui/material';
+import { Close } from '@mui/icons-material';
 
 export interface OpenDialogOptions<R> {
   /**
@@ -201,10 +203,20 @@ export function AlertDialog({ open, payload, onClose }: AlertDialogProps) {
   const okButtonProps = useDialogLoadingButton(() => onClose());
 
   return (
-    <Dialog maxWidth="xs" fullWidth open={open} onClose={() => onClose()}>
+    <Dialog
+      maxWidth="xs"
+      fullWidth
+      open={open}
+      onClose={() => onClose()}
+      PaperProps={{
+        sx: {
+          borderRadius: 2,
+        },
+      }}
+    >
       <DialogTitle>{payload.title ?? 'Alert'}</DialogTitle>
-      <DialogContent>{payload.msg}</DialogContent>
-      <DialogActions>
+      <DialogContent dividers>{payload.msg}</DialogContent>
+      <DialogActions sx={{ px: 3, py: 2 }}>
         <Button variant="contained" disabled={!open} {...okButtonProps}>
           {payload.okText ?? 'Ok'}
         </Button>
@@ -225,10 +237,20 @@ export function ConfirmDialog({ open, payload, onClose }: ConfirmDialogProps) {
   const okButtonProps = useDialogLoadingButton(() => onClose(true));
 
   return (
-    <Dialog maxWidth="xs" fullWidth open={open} onClose={() => onClose(false)}>
+    <Dialog
+      maxWidth="xs"
+      fullWidth
+      open={open}
+      onClose={() => onClose(false)}
+      PaperProps={{
+        sx: {
+          borderRadius: 2,
+        },
+      }}
+    >
       <DialogTitle>{payload.title ?? 'Confirm'}</DialogTitle>
-      <DialogContent>{payload.msg}</DialogContent>
-      <DialogActions className="mx-4 pt-0 mb-2">
+      <DialogContent dividers>{payload.msg}</DialogContent>
+      <DialogActions sx={{ px: 3, py: 2 }}>
         <Button
           variant="outlined"
           color="inherit"
@@ -261,7 +283,7 @@ export interface PromptDialogProps
 
 export function PromptDialog({ open, payload, onClose }: PromptDialogProps) {
   const [input, setInput] = React.useState(payload.defaultValue ?? '');
-  const cancelButtonProps = useDialogLoadingButton(() => onClose(null));
+  // const cancelButtonProps = useDialogLoadingButton(() => onClose(null));
 
   const [loading, setLoading] = React.useState(false);
 
@@ -269,6 +291,11 @@ export function PromptDialog({ open, payload, onClose }: PromptDialogProps) {
   return (
     <Dialog
       maxWidth="xs"
+      PaperProps={{
+        sx: {
+          borderRadius: 2,
+        },
+      }}
       fullWidth
       open={open}
       onClose={() => onClose(null)}
@@ -294,8 +321,26 @@ export function PromptDialog({ open, payload, onClose }: PromptDialogProps) {
         },
       }}
     >
-      <DialogTitle>{payload.title ?? 'Confirm'}</DialogTitle>
-      <DialogContent>
+      <DialogTitle sx={{ px: 3, py: 2 }}>
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent={'space-between'}
+        >
+          <Typography variant="h6" component="div" fontWeight="600">
+            {payload.title ?? 'Confirm'}
+          </Typography>
+
+          <IconButton
+            onClick={() => onClose(null)}
+            disabled={loading}
+            size="small"
+          >
+            <Close />
+          </IconButton>
+        </Stack>
+      </DialogTitle>
+      <DialogContent dividers>
         <DialogContentText>{payload.msg} </DialogContentText>
         <TextField
           autoFocus
@@ -305,13 +350,13 @@ export function PromptDialog({ open, payload, onClose }: PromptDialogProps) {
           name={name}
           type="text"
           fullWidth
-          variant="standard"
+          size="small"
           value={input}
           onChange={(event) => setInput(event.target.value)}
         />
       </DialogContent>
-      <DialogActions>
-        <Button
+      <DialogActions sx={{ px: 3, py: 2 }}>
+        {/* <Button
           variant="outlined"
           color="inherit"
           className="border-gray-400"
@@ -319,7 +364,7 @@ export function PromptDialog({ open, payload, onClose }: PromptDialogProps) {
           {...cancelButtonProps}
         >
           {payload.cancelText ?? 'Cancel'}
-        </Button>
+        </Button> */}
         <Button
           variant="contained"
           disabled={!open}

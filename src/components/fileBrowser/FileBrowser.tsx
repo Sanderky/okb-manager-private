@@ -23,9 +23,6 @@ import {
   Paper,
   Stack,
   Divider,
-  Dialog,
-  DialogContent,
-  DialogTitle,
 } from '@mui/material';
 import {
   Folder,
@@ -43,7 +40,6 @@ import {
   InsertPhotoOutlined,
   DescriptionOutlined,
   InfoOutline,
-  Close,
 } from '@mui/icons-material';
 import MoveItemsDialog from './MoveFilesDialog';
 import { PreviewDialog } from './FilePreviewDialog';
@@ -55,6 +51,7 @@ import 'dayjs/locale/pl';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { MRT_Localization_PL } from 'material-react-table/locales/pl';
+import BaseDialog from '../BaseDialog';
 
 // const BASE_DIRECTORY = 'files';
 
@@ -100,48 +97,37 @@ export const FileDetailsDialog: React.FC<FileDetailsDialogProps> = ({
   if (!file) return null;
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle sx={{ px: 2 }}>
-        <Stack
-          direction="row"
-          alignItems="center"
-          justifyContent={'space-between'}
-        >
-          <Typography variant="h6" component="div">
-            Szczegóły pliku
-          </Typography>
-          <IconButton onClick={onClose}>
-            <Close />
-          </IconButton>
-        </Stack>
-      </DialogTitle>
-      <DialogContent>
-        <Stack
-          direction={'column'}
-          alignItems={'flex-start'}
-          spacing={{ xs: 2, sm: 1 }}
-        >
-          <FileDetailsItem title="Nazwa" value={file.name} />
+    <BaseDialog
+      open={open}
+      onClose={onClose}
+      title={`Szczegóły pliku`}
+      showConfirm={false}
+    >
+      <Stack
+        direction={'column'}
+        alignItems={'flex-start'}
+        spacing={{ xs: 2, sm: 1 }}
+      >
+        <FileDetailsItem title="Nazwa" value={file.name} />
 
-          <FileDetailsItem
-            title="Data dodania"
-            value={
-              file.timeCreated
-                ? new Date(file.timeCreated).toLocaleString()
-                : 'brak danych'
-            }
-          />
-          <FileDetailsItem
-            title="Rozmiar"
-            value={file.size ? formatBytes(file.size as number) : 'brak danych'}
-          />
-          <FileDetailsItem
-            title="Rodzaj"
-            value={file.contentType ?? 'brak danych'}
-          />
-        </Stack>
-      </DialogContent>
-    </Dialog>
+        <FileDetailsItem
+          title="Data dodania"
+          value={
+            file.timeCreated
+              ? new Date(file.timeCreated).toLocaleString()
+              : 'brak danych'
+          }
+        />
+        <FileDetailsItem
+          title="Rozmiar"
+          value={file.size ? formatBytes(file.size as number) : 'brak danych'}
+        />
+        <FileDetailsItem
+          title="Rodzaj"
+          value={file.contentType ?? 'brak danych'}
+        />
+      </Stack>
+    </BaseDialog>
   );
 };
 
@@ -804,7 +790,7 @@ const FirebaseFileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
         </Box>
       )}
 
-      <Box ref={dropRef} sx={{ position: 'relative',  }}>
+      <Box ref={dropRef} sx={{ position: 'relative' }}>
         {isDragOver && (
           <Paper
             sx={{
