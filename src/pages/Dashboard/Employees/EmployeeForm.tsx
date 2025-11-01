@@ -355,6 +355,7 @@ export default function EmployeeForm(props: EmployeeFormProps) {
               }}
               slotProps={{
                 textField: {
+                  size: 'small',
                   fullWidth: true,
                   name: key,
                   required,
@@ -393,6 +394,7 @@ export default function EmployeeForm(props: EmployeeFormProps) {
                 <InputAdornment position="start">€</InputAdornment>
               }
               label="Stawka godzinowa"
+              size='small'
               value={formValues[key] ?? ''}
               onChange={(e) => {
                 const inputValue = e.target.value.trim();
@@ -422,6 +424,7 @@ export default function EmployeeForm(props: EmployeeFormProps) {
     return (
       <Grid size={{ xs: 12, md: 6 }} key={key}>
         <TextField
+        size="small"
           required={required}
           fullWidth
           label={label}

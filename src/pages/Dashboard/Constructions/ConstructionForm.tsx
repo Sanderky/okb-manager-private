@@ -147,6 +147,7 @@ export default function ConstructionForm(props: ConstructionFormProps) {
             {constructionFields.map(({ key, label, type, required }) => (
               <Grid size={{ xs: 12, md: 6 }} key={key}>
                 <TextField
+                  size="small"
                   required={required}
                   fullWidth
                   label={label}
@@ -181,6 +182,7 @@ export default function ConstructionForm(props: ConstructionFormProps) {
                     onChange={(newValue) => handleFieldChange(key, newValue)}
                     slotProps={{
                       textField: {
+                        size: 'small',
                         fullWidth: true,
                         name: key,
                         required,

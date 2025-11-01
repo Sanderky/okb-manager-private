@@ -596,6 +596,7 @@ export default function ConstructionShow() {
                 }}
                 slotProps={{
                   textField: {
+                    size: 'small',
                     fullWidth: true,
                     error: !!endDateError,
                     helperText: endDateError ?? '',
