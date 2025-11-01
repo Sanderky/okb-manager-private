@@ -36,7 +36,7 @@ const Login = () => {
 
   useEffect(() => {
     if (!authLoading && user) {
-      navigate('/');
+      navigate('/home');
     }
   }, [user, authLoading, navigate]);
 
@@ -76,7 +76,7 @@ const Login = () => {
       setErrors({});
       setCredentialError(false);
 
-      navigate('/');
+      navigate('/home');
     } catch (error: any) {
       console.error('❌ Login error:', error.message);
       if (error.code === 'auth/invalid-credential') setCredentialError(true);

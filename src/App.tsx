@@ -1,5 +1,5 @@
 import CssBaseline from '@mui/material/CssBaseline';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import DashboardLayout from './components/dashboard/DashboardLayout';
 import Login from './pages/Login/Login';
 import { AuthProvider } from './context/AuthContext';
@@ -50,6 +50,7 @@ export default function App() {
                 <Route path="/login" element={<Login />} />
                 <Route element={<PrivateRoute />}>
                   <Route path="/" element={<DashboardLayout />}>
+                    <Route index element={<Navigate replace to="/home" />} />
                     <Route path="home" element={<Home />} />
                     <Route path="employees" element={<EmployeeList />} />
                     <Route
