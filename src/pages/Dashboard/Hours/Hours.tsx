@@ -8,6 +8,7 @@ import type { Construction } from '../../../types';
 import { useReactToPrint } from 'react-to-print';
 import { MultiTablePrintReport } from './PrintReport';
 import usePrintShortcut from '../../../hooks/usePrintShortcut';
+import PageContainer from '../../../components/PageContainer';
 
 export interface TableData {
   weekStart: Date;
@@ -61,8 +62,32 @@ const Hours: React.FC = () => {
   usePrintShortcut(reactToPrintFn);
 
   return (
-    <Box p={3}>
-      <Stack
+    <PageContainer
+      breadcrumbs={[{ title: 'Ewidencja godzin pracy' }]}
+      actions={[
+        <Button
+          size="small"
+          onClick={reactToPrintFn}
+          startIcon={<Print />}
+          variant="contained"
+          sx={{
+            flexGrow: 0,
+          }}
+        >
+          Drukuj
+        </Button>,
+        <Button
+          size="small"
+          onClick={() => setPrintReportDialogOpen(true)}
+          startIcon={<Summarize />}
+          variant="contained"
+          sx={{ flexGrow: 0, whiteSpace: 'nowrap' }}
+        >
+          Generuj raport
+        </Button>,
+      ]}
+    >
+      {/* <Stack
         mb={3}
         direction={{ xs: 'column', sm: 'row' }}
         spacing={3}
@@ -106,7 +131,7 @@ const Hours: React.FC = () => {
             Generuj raport
           </Button>
         </Stack>
-      </Stack>
+      </Stack> */}
 
       <Stack direction="column" spacing={6}>
         <HoursTable
@@ -156,7 +181,7 @@ const Hours: React.FC = () => {
       <Box sx={{ display: 'none' }}>
         <MultiTablePrintReport tablesData={tablesData} ref={printContentRef} />
       </Box>
-    </Box>
+    </PageContainer>
   );
 };
 

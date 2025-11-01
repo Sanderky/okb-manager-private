@@ -294,17 +294,6 @@ export default function ConstructionsList() {
     onDensityChange: setDensity,
     enableColumnFilters: false,
     enableColumnResizing: true,
-    renderTopToolbarCustomActions: () => (
-      <Button
-        variant="outlined"
-        onClick={handleCreateClick}
-        startIcon={<AddIcon />}
-        size="small"
-        sx={{ mx: 1, my: 0.5, minWidth: 'fit-content' }}
-      >
-        Nowa
-      </Button>
-    ),
     renderToolbarInternalActions: ({ table }) => (
       <Stack direction="row" alignItems="center" spacing={1}>
         <MRT_ToggleGlobalFilterButton table={table} />
@@ -404,9 +393,18 @@ export default function ConstructionsList() {
 
   return (
     <PageContainer
-      title={t('constructions.constructionsList')}
-      breadcrumbs={[{ title: t('constructions.constructions') }]}
-      actions={<Stack direction="row" alignItems="center" spacing={1}></Stack>}
+      breadcrumbs={[{ title: 'Lista budów' }]}
+      actions={
+        <Button
+          variant="contained"
+          onClick={handleCreateClick}
+          startIcon={<AddIcon />}
+          size="small"
+          sx={{ mx: 1, my: 0.5, minWidth: 'fit-content' }}
+        >
+          Nowa
+        </Button>
+      }
     >
       <Box sx={{ flex: 1, width: '100%' }}>
         <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pl">

@@ -428,13 +428,13 @@ export default function EmployeeList() {
         'status',
       ],
       columnFilters: [{ id: 'status', value: 'true' }],
-      // columnVisibility: {
-      //   address: false,
-      //   birthDate: false,
-      //   isContractor: false,
-      //   contractEndDate: false,
-      //   a1EndDate: false,
-      // },
+      columnVisibility: {
+        address: false,
+        birthDate: false,
+        isContractor: false,
+        contractEndDate: false,
+        a1EndDate: false,
+      },
     },
     state: {
       columnVisibility,
@@ -445,17 +445,6 @@ export default function EmployeeList() {
     onDensityChange: setDensity,
     enableColumnFilters: false,
     enableColumnResizing: true,
-    renderTopToolbarCustomActions: () => (
-      <Button
-        variant="outlined"
-        onClick={handleCreateClick}
-        startIcon={<AddIcon />}
-        size="small"
-        sx={{ mx: 1, my: 0.5, minWidth: 'fit-content' }}
-      >
-        Nowy
-      </Button>
-    ),
     renderToolbarInternalActions: ({ table }) => (
       <Stack direction="row" alignItems="center" spacing={1}>
         <MRT_ToggleGlobalFilterButton table={table} />
@@ -591,9 +580,18 @@ export default function EmployeeList() {
 
   return (
     <PageContainer
-      title={'Lista pracowników'}
-      breadcrumbs={[{ title: 'Pracownicy' }]}
-      actions={<Stack direction="row" alignItems="center" spacing={1}></Stack>}
+      breadcrumbs={[{ title: 'Lista pracowników' }]}
+      actions={
+        <Button
+          variant="contained"
+          onClick={handleCreateClick}
+          startIcon={<AddIcon />}
+          size="small"
+          sx={{ mx: 1, my: 0.5, minWidth: 'fit-content' }}
+        >
+          Nowy
+        </Button>
+      }
     >
       <Box sx={{ flex: 1, width: '100%' }}>
         <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pl">

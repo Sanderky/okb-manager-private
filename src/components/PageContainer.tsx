@@ -3,19 +3,12 @@ import * as React from 'react';
 import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Breadcrumbs, { breadcrumbsClasses } from '@mui/material/Breadcrumbs';
-import Container, { type ContainerProps } from '@mui/material/Container';
+import { type ContainerProps } from '@mui/material/Container';
 import MuiLink from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import NavigateNextRoundedIcon from '@mui/icons-material/NavigateNextRounded';
 import { Link } from 'react-router';
-
-const PageContentHeader = styled('div')(({ theme }) => ({
-  display: 'flex',
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  gap: theme.spacing(2),
-}));
 
 const PageHeaderBreadcrumbs = styled(Breadcrumbs)(({ theme }) => ({
   margin: theme.spacing(1, 0),
@@ -26,6 +19,7 @@ const PageHeaderBreadcrumbs = styled(Breadcrumbs)(({ theme }) => ({
   [`& .${breadcrumbsClasses.ol}`]: {
     alignItems: 'center',
   },
+  flexShrink: 0,
 }));
 
 const PageHeaderToolbar = styled('div')(({ theme }) => ({
@@ -33,9 +27,8 @@ const PageHeaderToolbar = styled('div')(({ theme }) => ({
   flexDirection: 'row',
   gap: theme.spacing(1),
   flexGrow: 1,
-  // Ensure the toolbar is always on the right side, even after wrapping
-  // marginRight: 'auto',
-  // margin: 0,
+  justifyContent: 'flex-end',
+  flexWrap: 'wrap',
 }));
 
 export interface Breadcrumb {
@@ -50,21 +43,34 @@ export interface PageContainerProps extends ContainerProps {
 }
 
 export default function PageContainer(props: PageContainerProps) {
-  const { children, breadcrumbs, title, actions = null } = props;
+  const { children, breadcrumbs, actions = null } = props;
 
   return (
     <Box
       sx={{
-        flex: 1,
         display: 'flex',
-        flexDirection: 'column',
-        py: 2,
-        px: { xs: 2, sm: 3 },
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
       }}
-      // maxWidth={'md'}
     >
-      <Stack sx={{ flex: 1 }} spacing={2}>
-        <Stack>
+      <Stack
+        sx={{
+          flex: 1,
+          py: 2,
+          px: { xs: 2, sm: 3 },
+          maxWidth: '1500px',
+        }}
+        spacing={0}
+      >
+        <Stack
+          direction={'row'}
+          sx={{
+            mb: 2,
+            flexWrap: 'wrap',
+            columnGap: 2,
+          }}
+        >
           <PageHeaderBreadcrumbs
             aria-label="breadcrumb"
             separator={<NavigateNextRoundedIcon fontSize="small" />}
@@ -118,21 +124,15 @@ export default function PageContainer(props: PageContainerProps) {
                 })
               : null}
           </PageHeaderBreadcrumbs>
-          <PageContentHeader sx={{ my: 1 }}>
-            {title ? (
-              <Typography
-                variant="h4"
-                className="text-lg font-semibold md:text-xl"
-                noWrap
-                title={title}
-              >
-                {title}
-              </Typography>
-            ) : null}
-            <PageHeaderToolbar>{actions}</PageHeaderToolbar>
-          </PageContentHeader>
+          <PageHeaderToolbar>{actions}</PageHeaderToolbar>
         </Stack>
-        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <Box
+          sx={{
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
           {children}
         </Box>
       </Stack>

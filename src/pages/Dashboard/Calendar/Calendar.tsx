@@ -25,6 +25,7 @@ import {
   type CalendarDay,
   type CalendarEvent,
 } from './CalendarHelpers';
+import PageContainer from '../../../components/PageContainer';
 
 dayjs.locale('pl');
 
@@ -347,97 +348,99 @@ const Calendar: React.FC = () => {
   }
 
   return (
-    <Box sx={{ padding: { xs: 1, sm: 2, md: 3 }, pb: 4 }} className="relative">
-      {(isLoadingEmployees || isLoadingVacations) && (
-        <Box
+    <PageContainer breadcrumbs={[{ title: 'Kalendarz urlopów' }]}>
+      <Box className="relative">
+        {(isLoadingEmployees || isLoadingVacations) && (
+          <Box
+            sx={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              backgroundColor: 'rgba(255, 255, 255, 0.5)',
+              zIndex: 100,
+              borderRadius: 'inherit',
+            }}
+          >
+            <CircularProgress />
+          </Box>
+        )}
+
+        <IconButton
+          size="large"
           sx={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            backgroundColor: 'rgba(255, 255, 255, 0.5)',
+            color: 'red',
+            position: 'fixed',
+            bottom: 25,
+            right: 25,
             zIndex: 100,
-            borderRadius: 'inherit',
+            display: {
+              xs: selectDay ? 'flex' : 'none',
+              sm: 'none',
+            },
+          }}
+          className="border bg-red-100"
+          onClick={() => {
+            handleModalClose();
           }}
         >
-          <CircularProgress />
-        </Box>
-      )}
+          <CloseIcon />
+        </IconButton>
 
-      <IconButton
-        size="large"
-        sx={{
-          color: 'red',
-          position: 'fixed',
-          bottom: 25,
-          right: 25,
-          zIndex: 100,
-          display: {
-            xs: selectDay ? 'flex' : 'none',
-            sm: 'none',
-          },
-        }}
-        className="border bg-red-100"
-        onClick={() => {
-          handleModalClose();
-        }}
-      >
-        <CloseIcon />
-      </IconButton>
-
-      <CalendarControls
-        currentMonth={currentMonth}
-        selectedEmployees={selectedEmployees}
-        setIsFilterOpen={setIsFilterOpen}
-        handleMonthChange={handleMonthChange}
-        handleDatePickerChange={handleDatePickerChange}
-      />
-
-      <Box
-        sx={{ overflow: 'hidden', userSelect: 'none', position: 'relative' }}
-        className="rounded-lg border border-gray-300"
-      >
-        <CalendarGrid
-          monthGrid={monthGrid}
+        <CalendarControls
           currentMonth={currentMonth}
-          selectDay={selectDay}
-          onDayClick={handleDayClick}
-          isDayInRange={isDayInRange}
-          handleEventClick={handleEventClick}
-          setActiveDialog={setActiveDialog}
+          selectedEmployees={selectedEmployees}
+          setIsFilterOpen={setIsFilterOpen}
+          handleMonthChange={handleMonthChange}
+          handleDatePickerChange={handleDatePickerChange}
+        />
+
+        <Box
+          sx={{ overflow: 'hidden', userSelect: 'none', position: 'relative' }}
+          className="rounded-lg border border-gray-300"
+        >
+          <CalendarGrid
+            monthGrid={monthGrid}
+            currentMonth={currentMonth}
+            selectDay={selectDay}
+            onDayClick={handleDayClick}
+            isDayInRange={isDayInRange}
+            handleEventClick={handleEventClick}
+            setActiveDialog={setActiveDialog}
+          />
+        </Box>
+
+        <FilterDialog
+          isFilterOpen={isFilterOpen}
+          setIsFilterOpen={setIsFilterOpen}
+          employees={employees}
+          selectedEmployees={selectedEmployees}
+          setSelectedEmployees={setSelectedEmployees}
+        />
+
+        <AddEventDialog
+          activeDialog={activeDialog}
+          currentEvent={currentEvent}
+          validationError={validationError}
+          employees={employees}
+          handleModalClose={handleModalClose}
+          handleEmployeeChange={handleEmployeeChange}
+          handleAddEvent={handleAddEvent}
+        />
+
+        <EventDetailsDialog
+          activeDialog={activeDialog}
+          currentEvent={currentEvent}
+          selectedEmployees={selectedEmployees}
+          handleModalClose={handleModalClose}
+          handleDeleteEvent={handleDeleteEvent}
         />
       </Box>
-
-      <FilterDialog
-        isFilterOpen={isFilterOpen}
-        setIsFilterOpen={setIsFilterOpen}
-        employees={employees}
-        selectedEmployees={selectedEmployees}
-        setSelectedEmployees={setSelectedEmployees}
-      />
-
-      <AddEventDialog
-        activeDialog={activeDialog}
-        currentEvent={currentEvent}
-        validationError={validationError}
-        employees={employees}
-        handleModalClose={handleModalClose}
-        handleEmployeeChange={handleEmployeeChange}
-        handleAddEvent={handleAddEvent}
-      />
-
-      <EventDetailsDialog
-        activeDialog={activeDialog}
-        currentEvent={currentEvent}
-        selectedEmployees={selectedEmployees}
-        handleModalClose={handleModalClose}
-        handleDeleteEvent={handleDeleteEvent}
-      />
-    </Box>
+    </PageContainer>
   );
 };
 

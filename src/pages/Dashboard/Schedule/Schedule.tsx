@@ -51,6 +51,7 @@ import { useReactToPrint } from 'react-to-print';
 import { PrintableSchedule } from './SchedulePrint';
 import usePrintShortcut from '../../../hooks/usePrintShortcut';
 import { Print } from '@mui/icons-material';
+import PageContainer from '../../../components/PageContainer';
 
 // dayjs.locale('pl');
 
@@ -508,378 +509,389 @@ const ScheduleComponent = () => {
   }
 
   return (
-    <Box
-      sx={{ p: { xs: 1, sm: 2, md: 3 }, overflow: 'hidden' }}
-      className="relative"
-    >
-      {isLoading && (
-        <Box
-          sx={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            backgroundColor: 'rgba(255, 255, 255, 0.5)',
-            zIndex: 100,
-            borderRadius: 'inherit',
-          }}
+    <PageContainer
+      breadcrumbs={[{ title: 'Harmonogram pracowników' }]}
+      actions={
+        <Button
+          size="small"
+          onClick={handlePrint}
+          variant="contained"
+          startIcon={<Print />}
         >
-          <CircularProgress />
-        </Box>
-      )}
-
-      <Stack direction={'row'} justifyContent={'flex-end'} sx={{ mb: 2 }}>
-        <Button onClick={handlePrint} variant="contained" startIcon={<Print />}>
           Drukuj
         </Button>
-      </Stack>
-
-      <Alert
-        severity="info"
+      }
+    >
+      <Box
         sx={{
-          mb: 1,
+          overflow: 'hidden',
         }}
+        className="relative"
       >
-        Zmiany są zapisywane automatycznie w bazie danych. / Kliknij w datę
-        tygodnia w nagłówku tabeli, aby wyświetlić szczegółowy widok tego
-        tygodnia.
-      </Alert>
-
-      <TableControls
-        fromWeek={fromWeek}
-        toWeek={toWeek}
-        setFromWeek={setFromWeek}
-        setToWeek={setToWeek}
-        selectedEmployees={selectedEmployees}
-        setIsFilterOpen={setIsFilterOpen}
-        showVacations={showVacations}
-        setShowVacations={setShowVacations}
-        showDates={showDates}
-        setShowDates={setShowDates}
-        activeTable={activeTable}
-      />
-
-      {activeTable.type === 0 ? (
-        <TableContainer
-          component={Box}
-          className="rounded-lg border border-gray-300 bg-gray-50"
-          sx={{
-            overflowX: 'auto',
-            width: '100%',
-          }}
-        >
-          <Table
-            stickyHeader
+        {isLoading && (
+          <Box
             sx={{
-              tableLayout: 'fixed',
-              minWidth: {
-                xs: '100%',
-                sm: `${40 + (60 / 2) * weeks.length}%`,
-                md: `${30 + (70 / 3) * weeks.length}%`,
-                lg: `${20 + (80 / 4) * weeks.length}%`,
-                xl: `${20 + (80 / 7) * weeks.length}%`,
-              },
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              backgroundColor: 'rgba(255, 255, 255, 0.5)',
+              zIndex: 100,
+              borderRadius: 'inherit',
             }}
           >
-            <TableHead>
-              <TableRow>
-                <TableCell
-                  sx={{
-                    position: 'sticky',
-                    left: 0,
-                    zIndex: 3,
-                    color: 'white',
-                    width: {
-                      xs: '45%',
-                      sm: '40%',
-                      md: '30%',
-                      lg: '20%',
-                    },
-                  }}
-                  className="bg-blue-400 px-3 py-2 text-center"
-                >
-                  <Typography className="font-semibold" variant="body2">
-                    Pracownik
-                  </Typography>
-                </TableCell>
+            <CircularProgress />
+          </Box>
+        )}
 
-                {weeks.map((w, index) => {
-                  const isBefor = w.isBefore(dayjs(), 'week');
-                  const isAfter = w.isAfter(dayjs(), 'week');
-
-                  return (
-                    <TableCell
-                      key={index}
-                      className={`relative cursor-pointer border-l border-l-gray-300 px-3 py-2 ${
-                        isBefor
-                          ? 'bg-red-300'
-                          : isAfter
-                            ? 'bg-gray-100'
-                            : 'bg-green-300'
-                      }`}
-                      sx={{
-                        '&:hover svg, &:active svg, &:focus-within svg': {
-                          opacity: 1,
-                        },
-                        display: {
-                          xs: index === 0 ? 'table-cell' : 'none',
-                          sm: 'table-cell',
-                        },
-                        width: {
-                          xs: '55%',
-                          sm: `${60 / Math.min(weeks.length, 2)}%`,
-                          md: `${70 / Math.min(weeks.length, 3)}%`,
-                          lg: `${80 / Math.min(weeks.length, 4)}%`,
-                          xl: `${80 / Math.min(weeks.length, 7)}%`,
-                        },
-                      }}
-                      onClick={() => setActiveTable({ type: 1, week: w })}
-                    >
-                      <Typography
-                        className="text-center font-semibold"
-                        variant="body2"
-                      >
-                        {w.format('DD.MM')} - {w.add(6, 'day').format('DD.MM')}
-                      </Typography>
-                      <CalendarViewWeekIcon
-                        sx={{
-                          fontSize: '1rem',
-                          fontWeight: '300',
-                          position: 'absolute',
-                          top: '50%',
-                          right: 10,
-                          transform: 'translateY(-50%)',
-                          opacity: 0,
-                          transition: '0.3s',
-                        }}
-                      />
-                    </TableCell>
-                  );
-                })}
-              </TableRow>
-            </TableHead>
-
-            <TableBody>
-              {filteredEmployees.map((emp) => (
-                <EmployeeRow
-                  key={emp.id}
-                  employee={emp}
-                  weeks={weeks}
-                  onCellClick={handleShowInputConstruction}
-                  cellText={cellText}
-                  activeTable={activeTable}
-                />
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      ) : (
-        <TableContainer
-          component={Box}
-          className="rounded-lg border border-gray-300 bg-gray-50"
+        <Alert
+          severity="info"
+          sx={{
+            mb: 1,
+          }}
         >
-          <Table
-            stickyHeader
+          Zmiany są zapisywane automatycznie w bazie danych. / Kliknij w datę
+          tygodnia w nagłówku tabeli, aby wyświetlić szczegółowy widok tego
+          tygodnia.
+        </Alert>
+
+        <TableControls
+          fromWeek={fromWeek}
+          toWeek={toWeek}
+          setFromWeek={setFromWeek}
+          setToWeek={setToWeek}
+          selectedEmployees={selectedEmployees}
+          setIsFilterOpen={setIsFilterOpen}
+          showVacations={showVacations}
+          setShowVacations={setShowVacations}
+          showDates={showDates}
+          setShowDates={setShowDates}
+          activeTable={activeTable}
+        />
+
+        {activeTable.type === 0 ? (
+          <TableContainer
+            component={Box}
+            className="rounded-lg border border-gray-300 bg-gray-50"
             sx={{
-              tableLayout: 'fixed',
-              minWidth: 800,
+              overflowX: 'auto',
               width: '100%',
             }}
           >
-            <TableHead>
-              <TableRow>
-                <TableCell
-                  sx={{
-                    position: 'sticky',
-                    left: 0,
-                    zIndex: 3,
-                    color: 'white',
-                    width: {
-                      xs: '135px',
-                      md: '200px',
-                    },
-                  }}
-                  className="cursor-pointer bg-blue-400 px-3 py-2 text-center"
-                  onClick={() =>
-                    setActiveTable((prev) => ({ ...prev, type: 0 }))
-                  }
-                >
-                  <CalendarViewMonthIcon />
-                </TableCell>
-                {Array.from({ length: 7 }).map((_, i) => {
-                  const day = activeTable.week.add(i, 'day');
-                  const isToday = day.isSame(dayjs(), 'day');
-                  return (
-                    <TableCell
-                      key={i}
-                      sx={{
-                        minWidth: '150px',
-                      }}
-                      className={`border-l border-l-gray-300 bg-gray-100 px-3 py-2 ${isToday && 'bg-green-300'}`}
-                    >
-                      <Typography
-                        className="block text-center font-semibold"
-                        variant="caption"
+            <Table
+              stickyHeader
+              sx={{
+                tableLayout: 'fixed',
+                minWidth: {
+                  xs: '100%',
+                  sm: `${40 + (60 / 2) * weeks.length}%`,
+                  md: `${30 + (70 / 3) * weeks.length}%`,
+                  lg: `${20 + (80 / 4) * weeks.length}%`,
+                  xl: `${20 + (80 / 7) * weeks.length}%`,
+                },
+              }}
+            >
+              <TableHead>
+                <TableRow>
+                  <TableCell
+                    sx={{
+                      position: 'sticky',
+                      left: 0,
+                      zIndex: 3,
+                      color: 'white',
+                      width: {
+                        xs: '45%',
+                        sm: '40%',
+                        md: '30%',
+                        lg: '20%',
+                      },
+                    }}
+                    className="bg-blue-400 px-3 py-2 text-center"
+                  >
+                    <Typography className="font-semibold" variant="body2">
+                      Pracownik
+                    </Typography>
+                  </TableCell>
+
+                  {weeks.map((w, index) => {
+                    const isBefor = w.isBefore(dayjs(), 'week');
+                    const isAfter = w.isAfter(dayjs(), 'week');
+
+                    return (
+                      <TableCell
+                        key={index}
+                        className={`relative cursor-pointer border-l border-l-gray-300 px-3 py-2 ${
+                          isBefor
+                            ? 'bg-red-300'
+                            : isAfter
+                              ? 'bg-gray-100'
+                              : 'bg-green-300'
+                        }`}
+                        sx={{
+                          '&:hover svg, &:active svg, &:focus-within svg': {
+                            opacity: 1,
+                          },
+                          display: {
+                            xs: index === 0 ? 'table-cell' : 'none',
+                            sm: 'table-cell',
+                          },
+                          width: {
+                            xs: '55%',
+                            sm: `${60 / Math.min(weeks.length, 2)}%`,
+                            md: `${70 / Math.min(weeks.length, 3)}%`,
+                            lg: `${80 / Math.min(weeks.length, 4)}%`,
+                            xl: `${80 / Math.min(weeks.length, 7)}%`,
+                          },
+                        }}
+                        onClick={() => setActiveTable({ type: 1, week: w })}
                       >
-                        {WEEK_DAYS[i]}
-                      </Typography>
-                      <Typography
-                        className="text-center font-semibold"
-                        variant="body2"
+                        <Typography
+                          className="text-center font-semibold"
+                          variant="body2"
+                        >
+                          {w.format('DD.MM')} -{' '}
+                          {w.add(6, 'day').format('DD.MM')}
+                        </Typography>
+                        <CalendarViewWeekIcon
+                          sx={{
+                            fontSize: '1rem',
+                            fontWeight: '300',
+                            position: 'absolute',
+                            top: '50%',
+                            right: 10,
+                            transform: 'translateY(-50%)',
+                            opacity: 0,
+                            transition: '0.3s',
+                          }}
+                        />
+                      </TableCell>
+                    );
+                  })}
+                </TableRow>
+              </TableHead>
+
+              <TableBody>
+                {filteredEmployees.map((emp) => (
+                  <EmployeeRow
+                    key={emp.id}
+                    employee={emp}
+                    weeks={weeks}
+                    onCellClick={handleShowInputConstruction}
+                    cellText={cellText}
+                    activeTable={activeTable}
+                  />
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        ) : (
+          <TableContainer
+            component={Box}
+            className="rounded-lg border border-gray-300 bg-gray-50"
+          >
+            <Table
+              stickyHeader
+              sx={{
+                tableLayout: 'fixed',
+                minWidth: 800,
+                width: '100%',
+              }}
+            >
+              <TableHead>
+                <TableRow>
+                  <TableCell
+                    sx={{
+                      position: 'sticky',
+                      left: 0,
+                      zIndex: 3,
+                      color: 'white',
+                      width: {
+                        xs: '135px',
+                        md: '200px',
+                      },
+                    }}
+                    className="cursor-pointer bg-blue-400 px-3 py-2 text-center"
+                    onClick={() =>
+                      setActiveTable((prev) => ({ ...prev, type: 0 }))
+                    }
+                  >
+                    <CalendarViewMonthIcon />
+                  </TableCell>
+                  {Array.from({ length: 7 }).map((_, i) => {
+                    const day = activeTable.week.add(i, 'day');
+                    const isToday = day.isSame(dayjs(), 'day');
+                    return (
+                      <TableCell
+                        key={i}
+                        sx={{
+                          minWidth: '150px',
+                        }}
+                        className={`border-l border-l-gray-300 bg-gray-100 px-3 py-2 ${isToday && 'bg-green-300'}`}
                       >
-                        {day.format('DD.MM')}
-                      </Typography>
-                    </TableCell>
-                  );
-                })}
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {filteredEmployees.map((emp) => (
-                <EmployeeRow
-                  key={emp.id}
-                  employee={emp}
-                  weeks={weeks}
-                  onCellClick={handleShowInputConstruction}
-                  cellText={cellText}
-                  activeTable={activeTable}
-                />
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      )}
-
-      <Menu
-        anchorEl={cellAnchorEl}
-        open={openCellMenu}
-        onClose={handleCellMenuClose}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-        slotProps={{
-          paper: {
-            sx: {
-              width: cellAnchorEl ? cellAnchorEl.clientWidth - 2 : 'auto',
-              maxWidth: '100%',
-              minWidth: '220px',
-              boxShadow: 'rgba(0, 0, 0, 0.3) 0px 0px 2px 1px',
-              px: 1,
-            },
-          },
-        }}
-      >
-        {activeCell && (
-          <Autocomplete
-            size="small"
-            options={[{ id: null, name: '— Brak —' }, ...constructions]}
-            getOptionLabel={(opt) => opt?.name || ''}
-            isOptionEqualToValue={(opt, val) => opt.id === val?.id}
-            value={(() => {
-              const weekStart = dayjs(activeCell.weekKey);
-              const schedule = schedules.find(
-                (s) =>
-                  s.employeeId === activeCell.empId &&
-                  dayjs(s.weekStart).isSame(weekStart, 'week')
-              );
-
-              if (activeCell.isWeek) {
-                const firstRaw = schedule?.constructions?.find(
-                  (
-                    entry:
-                      | string
-                      | {
-                          constructionId?: string;
-                          constructionName?: string;
-                          id?: string;
-                          name?: string;
-                        }
-                      | null
-                  ) => {
-                    const norm = normalizeEntry(entry);
-                    return !!norm?.constructionId;
-                  }
-                );
-                const firstNorm = normalizeEntry(firstRaw ?? null);
-                const firstId = firstNorm?.constructionId ?? null;
-                return (
-                  constructions.find((c) => c.id === firstId) ?? {
-                    id: null,
-                    name: '— Brak —',
-                  }
-                );
-              } else {
-                const index = dayjs(activeCell.date).diff(weekStart, 'day');
-                const rawEntry = schedule?.constructions?.[index] ?? null;
-                const norm = normalizeEntry(rawEntry);
-                const cid = norm?.constructionId ?? null;
-                return (
-                  constructions.find((c) => c.id === cid) ?? {
-                    id: null,
-                    name: '— Brak —',
-                  }
-                );
-              }
-            })()}
-            onChange={(_, newValue) => {
-              const valueToPass =
-                newValue && (newValue as Construction).id === null
-                  ? null
-                  : newValue;
-
-              handleCellChange(
-                activeCell.empId,
-                activeCell.date,
-                valueToPass as Construction | null,
-                activeCell.isWeek
-              );
-              handleCellMenuClose();
-            }}
-            renderOption={(props, option) => {
-              const { key, ...optionProps } = props;
-              return (
-                <li
-                  key={key}
-                  {...optionProps}
-                  style={
-                    option.id === null
-                      ? {
-                          opacity: '.5',
-                        }
-                      : {}
-                  }
-                >
-                  {option.name}
-                </li>
-              );
-            }}
-            renderInput={(params) => <TextField {...params} label="Budowa" />}
-          />
+                        <Typography
+                          className="block text-center font-semibold"
+                          variant="caption"
+                        >
+                          {WEEK_DAYS[i]}
+                        </Typography>
+                        <Typography
+                          className="text-center font-semibold"
+                          variant="body2"
+                        >
+                          {day.format('DD.MM')}
+                        </Typography>
+                      </TableCell>
+                    );
+                  })}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {filteredEmployees.map((emp) => (
+                  <EmployeeRow
+                    key={emp.id}
+                    employee={emp}
+                    weeks={weeks}
+                    onCellClick={handleShowInputConstruction}
+                    cellText={cellText}
+                    activeTable={activeTable}
+                  />
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
         )}
-      </Menu>
 
-      <FilterDialog
-        isFilterOpen={isFilterOpen}
-        setIsFilterOpen={setIsFilterOpen}
-        employees={employees}
-        selectedEmployees={selectedEmployees}
-        setSelectedEmployees={setSelectedEmployees}
-      />
+        <Menu
+          anchorEl={cellAnchorEl}
+          open={openCellMenu}
+          onClose={handleCellMenuClose}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+          transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+          slotProps={{
+            paper: {
+              sx: {
+                width: cellAnchorEl ? cellAnchorEl.clientWidth - 2 : 'auto',
+                maxWidth: '100%',
+                minWidth: '220px',
+                boxShadow: 'rgba(0, 0, 0, 0.3) 0px 0px 2px 1px',
+                px: 1,
+              },
+            },
+          }}
+        >
+          {activeCell && (
+            <Autocomplete
+              size="small"
+              options={[{ id: null, name: '— Brak —' }, ...constructions]}
+              getOptionLabel={(opt) => opt?.name || ''}
+              isOptionEqualToValue={(opt, val) => opt.id === val?.id}
+              value={(() => {
+                const weekStart = dayjs(activeCell.weekKey);
+                const schedule = schedules.find(
+                  (s) =>
+                    s.employeeId === activeCell.empId &&
+                    dayjs(s.weekStart).isSame(weekStart, 'week')
+                );
 
-      <div style={{ display: 'none' }}>
-        <div ref={printRef}>
-          <PrintableSchedule
-            activeTable={activeTable}
-            weeks={weeks}
-            filteredEmployees={filteredEmployees}
-            cellText={cellText}
-          />
+                if (activeCell.isWeek) {
+                  const firstRaw = schedule?.constructions?.find(
+                    (
+                      entry:
+                        | string
+                        | {
+                            constructionId?: string;
+                            constructionName?: string;
+                            id?: string;
+                            name?: string;
+                          }
+                        | null
+                    ) => {
+                      const norm = normalizeEntry(entry);
+                      return !!norm?.constructionId;
+                    }
+                  );
+                  const firstNorm = normalizeEntry(firstRaw ?? null);
+                  const firstId = firstNorm?.constructionId ?? null;
+                  return (
+                    constructions.find((c) => c.id === firstId) ?? {
+                      id: null,
+                      name: '— Brak —',
+                    }
+                  );
+                } else {
+                  const index = dayjs(activeCell.date).diff(weekStart, 'day');
+                  const rawEntry = schedule?.constructions?.[index] ?? null;
+                  const norm = normalizeEntry(rawEntry);
+                  const cid = norm?.constructionId ?? null;
+                  return (
+                    constructions.find((c) => c.id === cid) ?? {
+                      id: null,
+                      name: '— Brak —',
+                    }
+                  );
+                }
+              })()}
+              onChange={(_, newValue) => {
+                const valueToPass =
+                  newValue && (newValue as Construction).id === null
+                    ? null
+                    : newValue;
+
+                handleCellChange(
+                  activeCell.empId,
+                  activeCell.date,
+                  valueToPass as Construction | null,
+                  activeCell.isWeek
+                );
+                handleCellMenuClose();
+              }}
+              renderOption={(props, option) => {
+                const { key, ...optionProps } = props;
+                return (
+                  <li
+                    key={key}
+                    {...optionProps}
+                    style={
+                      option.id === null
+                        ? {
+                            opacity: '.5',
+                          }
+                        : {}
+                    }
+                  >
+                    {option.name}
+                  </li>
+                );
+              }}
+              renderInput={(params) => <TextField {...params} label="Budowa" />}
+            />
+          )}
+        </Menu>
+
+        <FilterDialog
+          isFilterOpen={isFilterOpen}
+          setIsFilterOpen={setIsFilterOpen}
+          employees={employees}
+          selectedEmployees={selectedEmployees}
+          setSelectedEmployees={setSelectedEmployees}
+        />
+
+        <div style={{ display: 'none' }}>
+          <div ref={printRef}>
+            <PrintableSchedule
+              activeTable={activeTable}
+              weeks={weeks}
+              filteredEmployees={filteredEmployees}
+              cellText={cellText}
+            />
+          </div>
         </div>
-      </div>
-    </Box>
+      </Box>
+    </PageContainer>
   );
 };
 

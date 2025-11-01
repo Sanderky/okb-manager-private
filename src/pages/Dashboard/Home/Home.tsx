@@ -142,7 +142,6 @@ const Home = () => {
 
   return (
     <PageContainer
-      title={'Strona główna'}
       breadcrumbs={[{ title: 'Strona główna' }]}
     >
       <Stack direction={'row'} spacing={5} mb={4}>
