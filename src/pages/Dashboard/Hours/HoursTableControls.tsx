@@ -130,7 +130,7 @@ const HoursTableControls = ({
         spacing={1}
         direction={'row'}
         justifyContent={'space-between'}
-        className="border-lightGray rounded-lg border bg-gray-100/40 p-2"
+        className="border-lightGray rounded-lg border bg-gray-50 p-2"
         sx={{
           border: tableBorder,
           display: { xs: 'flex', sm: 'none' },
@@ -304,7 +304,7 @@ const HoursTableControls = ({
         </IconButton>
       </Stack>
       <Box
-        className="border-lightGray mb-2 rounded-lg border bg-gray-100/40 p-2"
+        className="border-lightGray mb-2 rounded-lg border bg-gray-50 p-2"
         sx={{
           display: { xs: 'none', sm: 'flex' },
 

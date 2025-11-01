@@ -15,7 +15,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
     setActiveDialog,
   }) => {
     return (
-      <Grid container>
+      <Grid container className="bg-gray-50">
         {WEEK_DAYS.map((day, index) => (
           <Grid
             size={{ xs: 12 / 7 }}

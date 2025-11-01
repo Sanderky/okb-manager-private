@@ -602,13 +602,19 @@ export default function EmployeeForm(props: EmployeeFormProps) {
 
           <Divider sx={{ width: '100%' }} className="mt-3" />
         </Grid>
-
+        <Alert
+          severity="info"
+          // variant="outlined"
+          className="mt-3 px-3 py-0 font-medium"
+        >
+          Pola oznaczone * są obowiązkowe.
+        </Alert>
         <Stack
           direction="row"
           alignItems="center"
           justifyContent="flex-start"
           spacing={3}
-          sx={{ mt: 4 }}
+          sx={{ mt: 2 }}
         >
           <Button
             variant="contained"

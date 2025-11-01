@@ -451,7 +451,7 @@ const ScheduleComponent = () => {
 
         return (
           <Typography className="font-medium" variant="body2">
-            {parts.join(' / ') || (renderEmptyCellIndicator ? '-' : '')}
+            {parts.join(' / ') || (renderEmptyCellIndicator && '')}
           </Typography>
         );
       }
@@ -468,11 +468,9 @@ const ScheduleComponent = () => {
         <Typography className="font-medium" variant="body2">
           {dayData
             ? dayData.notFound
-              ? `Nie znaleziono: ${dayData.name ?? (renderEmptyCellIndicator ? '-' : '')}`
-              : (dayData.name ?? (renderEmptyCellIndicator ? '-' : ''))
-            : renderEmptyCellIndicator
-              ? '-'
-              : ''}
+              ? `Archiwum: ${dayData.name ?? (renderEmptyCellIndicator && '')}`
+              : (dayData.name ?? (renderEmptyCellIndicator && ''))
+            : renderEmptyCellIndicator && ''}
         </Typography>
       );
     },
@@ -568,7 +566,7 @@ const ScheduleComponent = () => {
       {activeTable.type === 0 ? (
         <TableContainer
           component={Box}
-          className="rounded-lg border border-gray-500"
+          className="rounded-lg border border-gray-300 bg-gray-50"
           sx={{
             overflowX: 'auto',
             width: '100%',
@@ -602,7 +600,7 @@ const ScheduleComponent = () => {
                       lg: '20%',
                     },
                   }}
-                  className="border-b border-b-gray-500 bg-blue-400 px-3 py-2 text-center"
+                  className="bg-blue-400 px-3 py-2 text-center"
                 >
                   <Typography className="font-semibold" variant="body2">
                     Pracownik
@@ -616,7 +614,7 @@ const ScheduleComponent = () => {
                   return (
                     <TableCell
                       key={index}
-                      className={`relative cursor-pointer border-b border-l border-b-gray-500 border-l-gray-500 px-3 py-2 ${
+                      className={`relative cursor-pointer border-l border-l-gray-300 px-3 py-2 ${
                         isBefor
                           ? 'bg-red-300'
                           : isAfter
@@ -682,7 +680,7 @@ const ScheduleComponent = () => {
       ) : (
         <TableContainer
           component={Box}
-          className="rounded-lg border border-gray-500"
+          className="rounded-lg border border-gray-300 bg-gray-50"
         >
           <Table
             stickyHeader
@@ -705,7 +703,7 @@ const ScheduleComponent = () => {
                       md: '200px',
                     },
                   }}
-                  className="cursor-pointer border-b border-b-gray-500 bg-blue-400 px-3 py-2 text-center"
+                  className="cursor-pointer bg-blue-400 px-3 py-2 text-center"
                   onClick={() =>
                     setActiveTable((prev) => ({ ...prev, type: 0 }))
                   }
@@ -721,7 +719,7 @@ const ScheduleComponent = () => {
                       sx={{
                         minWidth: '150px',
                       }}
-                      className={`border-b border-l border-gray-500 bg-gray-100 px-3 py-2 ${isToday && 'bg-green-300'}`}
+                      className={`border-l border-l-gray-300 bg-gray-100 px-3 py-2 ${isToday && 'bg-green-300'}`}
                     >
                       <Typography
                         className="block text-center font-semibold"

@@ -32,7 +32,7 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
       mb={1}
       width={'100%'}
       className={
-        'border-lightGray rounded-lg border bg-gray-100/40 px-3 py-3 md:py-2'
+        'border-lightGray rounded-lg border bg-gray-50 px-3 py-3 md:py-2'
       }
     >
       <Stack direction={'row'}>
@@ -63,6 +63,9 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
         <DatePicker
           openTo="month"
           views={['year', 'month']}
+          // slotProps={{
+          //   textField: { size: 'small' },
+          // }}
           sx={{
             minWidth: 200,
             '& .MuiPickersSectionList-root': {

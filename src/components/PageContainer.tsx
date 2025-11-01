@@ -122,7 +122,7 @@ export default function PageContainer(props: PageContainerProps) {
             {title ? (
               <Typography
                 variant="h4"
-                className="text-2xl font-medium md:text-3xl"
+                className="text-lg font-semibold md:text-xl"
                 noWrap
                 title={title}
               >

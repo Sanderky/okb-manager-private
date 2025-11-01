@@ -204,8 +204,12 @@ export default function ConstructionEdit() {
         <Grid container columns={12} spacing={{ xs: 3, lg: 2 }}>
           <Grid size={{ xs: 12, lg: 8, xl: 9 }}>
             <Box
-              sx={{ width: '100%', maxWidth: { sm: '100%', md: '1790px' } }}
-              className="border-darkGray rounded-lg border bg-white px-3 pt-4 pb-6 md:px-6"
+              sx={{
+                width: '100%',
+                maxWidth: { sm: '100%', md: '1790px' },
+                boxShadow: 1,
+              }}
+              className="rounded-lg bg-white px-3 pt-4 pb-6 md:px-6"
             >
               <ConstructionForm
                 formState={formState}

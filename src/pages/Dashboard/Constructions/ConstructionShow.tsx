@@ -284,8 +284,8 @@ export default function ConstructionShow() {
 
     return construction ? (
       <Box
-        sx={{ width: '100%' }}
-        className="border-darkGray rounded-lg border bg-white p-4 md:p-6 md:pt-4"
+        sx={{ width: '100%', boxShadow: 1 }}
+        className="rounded-lg bg-white p-4 md:p-6 md:pt-4"
       >
         <Grid
           container

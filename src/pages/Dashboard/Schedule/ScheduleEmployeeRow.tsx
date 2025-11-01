@@ -31,13 +31,8 @@ const ScheduleCell: React.FC<ScheduleCellProps> = React.memo(
   ({ cell, onClick, cellText }) => (
     <TableCell
       sx={{
-        '&:hover': {
-          background: 'ghostwhite',
-        },
         cursor: 'pointer',
         transition: '0.3s',
-        borderBottom: '1px solid #6B7280',
-        borderLeft: '1px solid #6B7280',
         padding: '6px 12px',
         textAlign: 'center',
         // display: {
@@ -45,6 +40,7 @@ const ScheduleCell: React.FC<ScheduleCellProps> = React.memo(
         //   sm: 'table-cell',
         // },
       }}
+      className="border-l border-l-gray-300 hover:bg-blue-50"
       onClick={(e) => {
         // if (hasVacation) {
         //   e.stopPropagation();
@@ -70,7 +66,9 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = React.memo(
       return (
         <TableRow
           sx={{
-            '&:last-child td, &:last-child th': { borderBottom: 0 },
+            '&:last-child td, &:last-child th': {
+              borderBottom: '0 !important',
+            },
           }}
         >
           <TableCell
@@ -79,7 +77,6 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = React.memo(
               left: 0,
               zIndex: 3,
               backgroundColor: '#f6faff',
-              borderBottom: '1px solid #6B7280',
               padding: '6px 12px',
               textAlign: 'center',
             }}
@@ -141,7 +138,7 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = React.memo(
     return (
       <TableRow
         sx={{
-          '&:last-child td, &:last-child th': { borderBottom: 0 },
+          '&:last-child td, &:last-child th': { borderBottom: '0 !important' },
         }}
       >
         <TableCell
@@ -151,7 +148,6 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = React.memo(
             zIndex: 3,
             // backgroundColor: '#f3f4f6',
             backgroundColor: '#f6faff',
-            borderBottom: '1px solid #6B7280',
             padding: '6px 12px',
             textAlign: 'center',
           }}

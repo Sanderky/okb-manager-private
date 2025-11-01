@@ -6,18 +6,18 @@ import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 import AddIcon from '@mui/icons-material/Add';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import FilterListIcon from '@mui/icons-material/FilterList';
 import { useNavigate } from 'react-router';
 import PageContainer from '../../../components/PageContainer';
 import { useTranslation } from 'react-i18next';
 import { getConstructionList } from '../../../api/constructions';
 import { useQuery } from '@tanstack/react-query';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import {
   MaterialReactTable,
   MRT_ShowHideColumnsButton,
   MRT_TablePagination,
   MRT_ToggleDensePaddingButton,
-  MRT_ToggleFiltersButton,
   MRT_ToggleGlobalFilterButton,
   useMaterialReactTable,
   type MRT_ColumnDef,
@@ -26,10 +26,35 @@ import type { Construction } from '../../../types';
 import 'dayjs/locale/pl';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import dayjs from 'dayjs';
+import dayjs, { Dayjs } from 'dayjs';
 import { MRT_Localization_PL } from 'material-react-table/locales/pl';
-import VisibilityIcon from '@mui/icons-material/Visibility';
 import { useTableState } from '../../../hooks/useTableSettings';
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  MenuItem,
+  FormControl,
+  Select,
+  Grid,
+  Typography,
+  FormLabel,
+} from '@mui/material';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import CloseIcon from '@mui/icons-material/Close';
+
+interface Filters {
+  name: string;
+  contractor: string;
+  location: string;
+  startDateFrom: Dayjs | null;
+  startDateTo: Dayjs | null;
+  endDateFrom: Dayjs | null;
+  endDateTo: Dayjs | null;
+  inProgress: string;
+}
 
 export default function ConstructionsList() {
   const navigate = useNavigate();
@@ -42,6 +67,18 @@ export default function ConstructionsList() {
     resetState,
   } = useTableState('constructions');
 
+  const [filtersModalOpen, setFiltersModalOpen] = useState(false);
+  const [filters, setFilters] = useState<Filters>({
+    name: '',
+    contractor: '',
+    location: '',
+    startDateFrom: null,
+    startDateTo: null,
+    endDateFrom: null,
+    endDateTo: null,
+    inProgress: 'true',
+  });
+
   const { data, isLoading, error } = useQuery({
     queryKey: ['constructions'],
     queryFn: () => getConstructionList(),
@@ -51,38 +88,96 @@ export default function ConstructionsList() {
     navigate('/constructions/create');
   }, [navigate]);
 
-  const dateBetweenFilterFn = (row, columnId, filterValue) => {
-    if (!filterValue || !Array.isArray(filterValue)) {
-      return true;
+  const handleRowClick = React.useCallback(
+    (row: any) => {
+      navigate(`/constructions/${row.original.id}`);
+    },
+    [navigate]
+  );
+
+  const handleOpenFilters = () => {
+    setFiltersModalOpen(true);
+  };
+
+  const handleCloseFilters = () => {
+    setFiltersModalOpen(false);
+  };
+
+  const handleApplyFilters = () => {
+    const columnFilters = [];
+
+    if (filters.name) {
+      columnFilters.push({ id: 'name', value: filters.name });
     }
+
+    if (filters.contractor) {
+      columnFilters.push({ id: 'contractor', value: filters.contractor });
+    }
+
+    if (filters.location) {
+      columnFilters.push({ id: 'location', value: filters.location });
+    }
+
+    // Filtry zakresów dat
+    if (filters.startDateFrom || filters.startDateTo) {
+      columnFilters.push({
+        id: 'startDate',
+        value: [filters.startDateFrom, filters.startDateTo],
+      });
+    }
+
+    if (filters.endDateFrom || filters.endDateTo) {
+      columnFilters.push({
+        id: 'endDate',
+        value: [filters.endDateFrom, filters.endDateTo],
+      });
+    }
+
+    if (filters.inProgress) {
+      columnFilters.push({ id: 'inProgress', value: filters.inProgress });
+    }
+
+    table.setColumnFilters(columnFilters);
+    handleCloseFilters();
+  };
+
+  const handleResetFilters = () => {
+    setFilters({
+      name: '',
+      contractor: '',
+      location: '',
+      startDateFrom: null,
+      startDateTo: null,
+      endDateFrom: null,
+      endDateTo: null,
+      inProgress: '',
+    });
+    table.setColumnFilters([]);
+  };
+
+  // Funkcja do filtrowania zakresów dat
+  const dateBetweenFilterFn = (
+    row: any,
+    columnId: string,
+    filterValue: any
+  ) => {
+    if (!filterValue || !Array.isArray(filterValue)) return true;
 
     const [start, end] = filterValue;
     const rowValue = row.getValue(columnId);
 
-    if (!rowValue) {
-      return false;
-    }
+    if (!rowValue) return true;
 
     const rowDate = dayjs.isDayjs(rowValue) ? rowValue : dayjs(rowValue);
-    if (!rowDate.isValid()) {
-      return false;
-    }
+    if (!rowDate.isValid()) return true;
 
     const startDate = start ? dayjs(start).startOf('day') : null;
-    const endDate = end ? dayjs(end).endOf('day') : null; // Używamy endOf dla daty końcowej
+    const endDate = end ? dayjs(end).endOf('day') : null;
 
-    const rowTimestamp = rowDate.valueOf();
-
-    if (startDate && endDate) {
-      return (
-        rowTimestamp >= startDate.valueOf() && rowTimestamp <= endDate.valueOf()
-      );
-    } else if (startDate) {
-      return rowTimestamp >= startDate.valueOf();
-    } else if (endDate) {
-      return rowTimestamp <= endDate.valueOf();
-    }
-
+    if (startDate && endDate)
+      return rowDate.isAfter(startDate) && rowDate.isBefore(endDate);
+    if (startDate) return rowDate.isAfter(startDate);
+    if (endDate) return rowDate.isBefore(endDate);
     return true;
   };
 
@@ -91,18 +186,14 @@ export default function ConstructionsList() {
       {
         accessorKey: 'name',
         header: 'Nazwa',
-        maxSize: 200,
-        grow: true,
-      },
-      {
-        accessorKey: 'location',
-        header: 'Adres',
-        grow: false,
       },
       {
         accessorKey: 'contractor',
         header: 'Wykonawca',
-        grow: false,
+      },
+      {
+        accessorKey: 'location',
+        header: 'Adres',
       },
       {
         accessorKey: 'startDate',
@@ -119,7 +210,24 @@ export default function ConstructionsList() {
           return dayjs(value).format('DD.MM.YYYY');
         },
         filterFn: dateBetweenFilterFn,
-        grow: false,
+        maxSize: 140,
+      },
+      {
+        accessorKey: 'endDate',
+        header: 'Data zakończenia',
+        filterVariant: 'date-range',
+        accessorFn: (originalRow) => {
+          const value = originalRow.endDate;
+          if (!value) return null;
+          return dayjs(value).isValid() ? dayjs(value).startOf('day') : null;
+        },
+        Cell: ({ cell }) => {
+          const value = cell.getValue();
+          if (!value || !dayjs(value).isValid()) return '-';
+          return dayjs(value).format('DD.MM.YYYY');
+        },
+        filterFn: dateBetweenFilterFn,
+        maxSize: 140,
       },
       {
         id: 'inProgress',
@@ -131,6 +239,11 @@ export default function ConstructionsList() {
           { label: 'Zakończone', value: 'false' },
           { label: 'Wszystkie', value: '' },
         ],
+        filterFn: (row: any, _columnId: string, filterValue: string) => {
+          if (!filterValue) return true;
+          const isInProgress = !row.original.endDate;
+          return String(isInProgress) === filterValue;
+        },
         Cell: ({ cell }) => (
           <Box
             component="span"
@@ -141,7 +254,7 @@ export default function ConstructionsList() {
             {cell.getValue<boolean>() ? 'W trakcie' : 'Zakończona'}
           </Box>
         ),
-        grow: false,
+        maxSize: 140,
       },
     ],
     []
@@ -167,8 +280,8 @@ export default function ConstructionsList() {
         'contractor',
         'location',
         'startDate',
+        'endDate',
         'inProgress',
-        'mrt-row-actions',
       ],
       columnFilters: [{ id: 'inProgress', value: 'true' }],
     },
@@ -179,6 +292,7 @@ export default function ConstructionsList() {
     },
     onColumnVisibilityChange: setColumnVisibility,
     onDensityChange: setDensity,
+    enableColumnFilters: false,
     enableColumnResizing: true,
     renderTopToolbarCustomActions: () => (
       <Button
@@ -194,7 +308,11 @@ export default function ConstructionsList() {
     renderToolbarInternalActions: ({ table }) => (
       <Stack direction="row" alignItems="center" spacing={1}>
         <MRT_ToggleGlobalFilterButton table={table} />
-        <MRT_ToggleFiltersButton table={table} />
+        <Tooltip title="Filtry">
+          <IconButton onClick={handleOpenFilters}>
+            <FilterListIcon />
+          </IconButton>
+        </Tooltip>
         <MRT_ShowHideColumnsButton table={table} />
         <MRT_ToggleDensePaddingButton table={table} />
         <Tooltip title="Resetuj stan tabeli">
@@ -203,13 +321,6 @@ export default function ConstructionsList() {
           </IconButton>
         </Tooltip>
       </Stack>
-    ),
-    rowNumberDisplayMode: 'static',
-    enableRowActions: true,
-    renderRowActions: ({ row }) => (
-      <IconButton onClick={() => navigate(`/constructions/${row.original.id}`)}>
-        <VisibilityIcon />
-      </IconButton>
     ),
     muiTablePaperProps: {
       sx: {
@@ -221,12 +332,26 @@ export default function ConstructionsList() {
     muiTableHeadCellProps: {
       sx: {
         borderTop: '1px solid #e0e0e0',
-        fontWeight: 'bold',
+        borderLeft: '1px solid #e0e0e0',
+        fontWeight: '600',
         color: '#374151',
+        fontSize: '14px',
+        '&:first-child .Mui-TableHeadCell-Content': {
+          justifyContent: 'center',
+          textAlign: 'center',
+        },
+      },
+      className: 'first:border-l-0',
+    },
+    muiTableBodyCellProps: {
+      sx: {
+        borderLeft: '1px solid #e0e0e0',
       },
     },
-    muiTableBodyRowProps: {
+    muiTableBodyRowProps: ({ row }) => ({
+      onClick: () => handleRowClick(row),
       sx: {
+        cursor: 'pointer',
         '&:hover': {
           background: '#ffd85f30 !important',
         },
@@ -234,15 +359,16 @@ export default function ConstructionsList() {
           display: 'none',
         },
       },
-    },
+    }),
     enableRowNumbers: true,
     displayColumnDefOptions: {
       'mrt-row-numbers': {
-        // muiTableHeadCellProps: { sx: { py: '0.75rem' } },
-        muiTableBodyCellProps: { align: 'center' },
-      },
-      'mrt-row-actions': {
-        grow: false,
+        muiTableBodyCellProps: {
+          align: 'center',
+          sx: { borderLeft: 'none' },
+        },
+        size: 80,
+        enableResizing: false,
       },
     },
     renderBottomToolbar: ({ table }) => (
@@ -251,12 +377,6 @@ export default function ConstructionsList() {
         alignItems="center"
         justifyContent="space-between"
         spacing={1}
-        // className="px-2"
-        // sx={{
-        //   '& .MuiTablePagination-root': {
-        //     flexDirection: { xs: 'column', md: 'row' },
-        //   },
-        // }}
       >
         <Box
           sx={{
@@ -291,6 +411,200 @@ export default function ConstructionsList() {
       <Box sx={{ flex: 1, width: '100%' }}>
         <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pl">
           <MaterialReactTable table={table} />
+
+          {/* Modal z filtrami */}
+          <Dialog
+            open={filtersModalOpen}
+            onClose={handleCloseFilters}
+            maxWidth="md"
+            fullWidth
+          >
+            <DialogTitle className="p-3 sm:p-5">
+              <Stack
+                direction={'row'}
+                alignItems={'center'}
+                justifyContent={'space-between'}
+              >
+                <Typography variant="h6">Filtry budów</Typography>
+                <IconButton onClick={handleCloseFilters}>
+                  <CloseIcon fontSize="inherit" />
+                </IconButton>
+              </Stack>
+            </DialogTitle>
+            <DialogContent dividers className="p-3 sm:p-5">
+              <Grid container spacing={2}>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <FormLabel className="mb-2 block">Nazwa</FormLabel>
+                  <TextField
+                    size="small"
+                    fullWidth
+                    placeholder="Nazwa"
+                    value={filters.name}
+                    onChange={(e) =>
+                      setFilters({ ...filters, name: e.target.value })
+                    }
+                  />
+                </Grid>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <FormLabel className="mb-2 block">Wykonawca</FormLabel>
+                  <TextField
+                    size="small"
+                    fullWidth
+                    placeholder="Wykonawca"
+                    value={filters.contractor}
+                    onChange={(e) =>
+                      setFilters({ ...filters, contractor: e.target.value })
+                    }
+                  />
+                </Grid>
+                <Grid size={{ xs: 12, md: 6 }}>
+                  <FormLabel className="mb-2 block">Adres</FormLabel>
+                  <TextField
+                    size="small"
+                    fullWidth
+                    placeholder="Adres"
+                    value={filters.location}
+                    onChange={(e) =>
+                      setFilters({ ...filters, location: e.target.value })
+                    }
+                  />
+                </Grid>
+
+                {/* Zakres daty rozpoczęcia */}
+                <Grid size={{ xs: 12, md: 6 }}>
+                  <FormLabel className="mb-2 block">Data rozpoczęcia</FormLabel>
+                  <Stack
+                    direction={{
+                      xs: 'column',
+                      sm: 'row',
+                    }}
+                    alignItems={'center'}
+                    spacing={1}
+                  >
+                    <DatePicker
+                      label="Od"
+                      value={filters.startDateFrom}
+                      onChange={(newValue) =>
+                        setFilters({ ...filters, startDateFrom: newValue })
+                      }
+                      slotProps={{
+                        textField: { fullWidth: true, size: 'small' },
+                      }}
+                    />
+                    <Typography
+                      sx={{
+                        display: {
+                          xs: 'none',
+                          sm: 'block',
+                        },
+                      }}
+                    >
+                      -
+                    </Typography>
+                    <DatePicker
+                      label="Do"
+                      value={filters.startDateTo}
+                      onChange={(newValue) =>
+                        setFilters({ ...filters, startDateTo: newValue })
+                      }
+                      slotProps={{
+                        textField: { fullWidth: true, size: 'small' },
+                      }}
+                    />
+                  </Stack>
+                </Grid>
+
+                <Grid size={{ xs: 12, md: 6 }}>
+                  <FormLabel className="mb-2 block">Data zakończenia</FormLabel>
+                  <Stack
+                    direction={{
+                      xs: 'column',
+                      sm: 'row',
+                    }}
+                    alignItems={'center'}
+                    spacing={1}
+                  >
+                    <DatePicker
+                      label="Od"
+                      value={filters.endDateFrom}
+                      onChange={(newValue) =>
+                        setFilters({ ...filters, endDateFrom: newValue })
+                      }
+                      slotProps={{
+                        textField: { fullWidth: true, size: 'small' },
+                      }}
+                    />
+                    <Typography
+                      sx={{
+                        display: {
+                          xs: 'none',
+                          sm: 'block',
+                        },
+                      }}
+                    >
+                      -
+                    </Typography>
+                    <DatePicker
+                      label="Do"
+                      value={filters.endDateTo}
+                      onChange={(newValue) =>
+                        setFilters({ ...filters, endDateTo: newValue })
+                      }
+                      slotProps={{
+                        textField: { fullWidth: true, size: 'small' },
+                      }}
+                    />
+                  </Stack>
+                </Grid>
+
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <FormControl fullWidth>
+                    <FormLabel className="mb-2 block">Status</FormLabel>
+                    <Select
+                      size="small"
+                      value={filters.inProgress}
+                      displayEmpty
+                      onChange={(e) =>
+                        setFilters({ ...filters, inProgress: e.target.value })
+                      }
+                    >
+                      <MenuItem value="">Wszystkie</MenuItem>
+                      <MenuItem value="true">W trakcie</MenuItem>
+                      <MenuItem value="false">Zakończone</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+              </Grid>
+            </DialogContent>
+            <DialogActions className="p-3 sm:p-5">
+              <Stack
+                direction={{
+                  xs: 'column',
+                  sm: 'row',
+                }}
+                alignItems={{
+                  xs: 'stretch',
+                  sm: 'center',
+                }}
+                justifyContent={'flex-end'}
+                spacing={1}
+                sx={{
+                  width: '100%',
+                }}
+              >
+                <Button
+                  onClick={handleResetFilters}
+                  variant="outlined"
+                  color="primary"
+                >
+                  Wyczyść filtry
+                </Button>
+                <Button onClick={handleApplyFilters} variant="contained">
+                  Zastosuj filtry
+                </Button>
+              </Stack>
+            </DialogActions>
+          </Dialog>
         </LocalizationProvider>
       </Box>
     </PageContainer>

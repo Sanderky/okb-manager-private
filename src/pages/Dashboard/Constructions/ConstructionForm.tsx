@@ -226,6 +226,13 @@ export default function ConstructionForm(props: ConstructionFormProps) {
           )}
           <Divider sx={{ width: '100%' }} className="my-3" />
         </Grid>
+        <Alert
+          severity="info"
+          // variant="outlined"
+          className="px-3 py-0 font-medium"
+        >
+          Pola oznaczone * są obowiązkowe.
+        </Alert>
         <Stack
           direction="row"
           alignItems="center"
