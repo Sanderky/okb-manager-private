@@ -1,36 +1,49 @@
 import {
   Card,
   Typography,
-  Divider,
   Stack,
   Box,
   List,
   ListItem,
+  IconButton,
+  TextareaAutosize,
 } from '@mui/material';
 import PageContainer from '../../../components/PageContainer';
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getEmployeeList } from '../../../api/employees';
 import { getConstructionList } from '../../../api/constructions';
 import FirebaseFileBrowser from '../../../components/fileBrowser/FileBrowser';
 import { useEmployeeAlert } from '../../../context/EmployeeAlertContext';
-import { Done } from '@mui/icons-material';
+import {
+  Check,
+  Close,
+  Construction,
+  Done,
+  EditNote,
+  Person,
+} from '@mui/icons-material';
+import useNotifications from '../../../hooks/useNotifications/useNotifications';
+import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import { db } from '../../../firebase';
+import type { HomeDocument } from '../../../types';
 
 interface CountCardProps {
   data: number;
   title: string;
   onClick?: () => void;
+  icon?: React.ReactNode;
 }
 
-const CountCard = ({ data, title, onClick }: CountCardProps) => {
+const CountCard = ({ data, title, onClick, icon }: CountCardProps) => {
   return (
     <Card
       variant="outlined"
       sx={{
         borderRadius: '20px',
-        width: '200px',
-        height: '200px',
+        p: 2,
+        width: '250px',
         transition: 'box-shadow 0.2s ease-in-out',
         '&:hover': {
           boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.1)',
@@ -39,30 +52,25 @@ const CountCard = ({ data, title, onClick }: CountCardProps) => {
       }}
       onClick={onClick}
     >
-      <Stack
-        direction="row"
-        sx={{ justifyContent: 'space-between', alignItems: 'center' }}
-      >
-        <Typography
-          gutterBottom
-          variant="h5"
-          component="div"
-          sx={{ textAlign: 'center', width: '100%', paddingTop: '5px' }}
-        >
-          {title}
-        </Typography>
-      </Stack>
-      <Divider />
-      <Box
-        sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
-      >
+      <Stack direction="row" sx={{ alignItems: 'center' }} spacing={2}>
+        <Stack direction={'row'} spacing={0.5}>
+          {icon && icon}
+          <Typography
+            gutterBottom
+            variant="h5"
+            component="div"
+            sx={{ p: 0, m: 0, lineHeight: 1 }}
+          >
+            {title}
+          </Typography>
+        </Stack>
         <Typography
           variant="body1"
-          sx={{ color: 'text.secondary', fontSize: '5rem' }}
+          sx={{ color: '#ffd85f', fontSize: '2rem', lineHeight: 1 }}
         >
           {data ?? '-'}
         </Typography>
-      </Box>
+      </Stack>
     </Card>
   );
 };
@@ -119,12 +127,163 @@ const EmployeeAlerts = () => {
   );
 };
 
+const Note = () => {
+  const notifications = useNotifications();
+  const queryClient = useQueryClient();
+
+  const [editNote, setEditNote] = useState(false);
+  const [note, setNote] = useState('');
+
+  const HOME_DOC_ID = 'home';
+
+  const { data: home } = useQuery({
+    queryKey: ['home', HOME_DOC_ID],
+    queryFn: async (): Promise<HomeDocument | null> => {
+      const homeDocRef = doc(db, 'home', HOME_DOC_ID);
+      const docSnap = await getDoc(homeDocRef);
+
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        return {
+          id: docSnap.id,
+          note: data.note
+        };
+      }
+      return null;
+    },
+  });
+
+  useEffect(() => {
+    if (home?.note !== undefined) {
+      setNote(home.note || '');
+    } else {
+      setNote('');
+    }
+  }, [home]);
+
+  const updateNoteMutation = useMutation({
+    mutationFn: async (newNote: string) => {
+      const homeDocRef = doc(db, 'home', HOME_DOC_ID);
+      const docSnap = await getDoc(homeDocRef);
+
+      if (docSnap.exists()) {
+        await updateDoc(homeDocRef, {
+          note: newNote
+        });
+      } else {
+        const newHome = {
+          note: newNote
+        };
+        await setDoc(homeDocRef, newHome);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['home', HOME_DOC_ID],
+      });
+      notifications.show('Notatka została zaktualizowana.', {
+        severity: 'success',
+        autoHideDuration: 5000,
+      });
+    },
+    onError: (error: Error) => {
+      console.error('Update note error:', error);
+      notifications.show('Wystąpił błąd podczas zapisywania notatki.', {
+        severity: 'error',
+        autoHideDuration: 5000,
+      });
+    },
+  });
+
+  const handleSaveNote = useCallback(async () => {
+    const currentNote = home?.note ?? '';
+    if (currentNote === note) {
+      return;
+    }
+    updateNoteMutation.mutate(note);
+    setEditNote(false);
+  }, [home?.note, note, updateNoteMutation]);
+
+  const handleCancelEdit = () => {
+    setEditNote(false);
+    setNote(home?.note ?? '');
+  };
+
+  return (
+    <Box
+      className="rounded-lg border border-gray-300 bg-white p-4"
+      sx={{ mb: 5 }}
+    >
+      <Stack spacing={1.5} direction={'column'} alignItems={'flex-start'}>
+        <Stack
+          direction="row"
+          alignItems={'center'}
+          sx={{ width: '100%' }}
+          spacing={2}
+        >
+          <Typography variant="h5" className="mb-2">
+            Notatka
+          </Typography>
+          <Stack
+            direction="row"
+            sx={{ width: '100%' }}
+            justifyContent={'flex-end'}
+            alignItems="center"
+            spacing={2}
+          >
+            {editNote && (
+              <IconButton
+                onClick={handleSaveNote}
+                color="success"
+                className="rounded-full border border-green-500 bg-green-50/50"
+                disabled={updateNoteMutation.isPending || !editNote}
+              >
+                <Check />
+              </IconButton>
+            )}
+            <IconButton
+              onClick={() => {
+                if (editNote) {
+                  handleCancelEdit();
+                } else {
+                  setEditNote(true);
+                }
+              }}
+              color={!editNote ? 'primary' : 'inherit'}
+              className={`rounded-lg border ${
+                editNote ? 'border-red-500 bg-red-50/50' : 'border-blue-500'
+              }`}
+            >
+              {editNote ? <Close className="text-red-400" /> : <EditNote />}
+            </IconButton>
+          </Stack>
+        </Stack>
+        <TextareaAutosize
+          minRows={3}
+          className={`rounded-sm border border-gray-400 bg-white px-2 py-1 ${
+            editNote ? '' : 'bg-gray-100! opacity-50'
+          }`}
+          style={{ width: '100%', minHeight: '50px' }}
+          placeholder="Dodaj notatkę..."
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          readOnly={updateNoteMutation.isPending || !editNote}
+        />
+        {updateNoteMutation.isPending && (
+          <Typography variant="body2" color="text.secondary">
+            Zapisywanie...
+          </Typography>
+        )}
+      </Stack>
+    </Box>
+  );
+};
 const Home = () => {
   const navigate = useNavigate();
 
   const { data: employees } = useQuery({
-    queryKey: ['employees'],
-    queryFn: () => getEmployeeList(),
+    queryKey: ['employees', { status: true }],
+    queryFn: () => getEmployeeList(true),
   });
 
   const { data: constructions } = useQuery({
@@ -141,22 +300,26 @@ const Home = () => {
   }, [navigate]);
 
   return (
-    <PageContainer
-      breadcrumbs={[{ title: 'Strona główna' }]}
-    >
-      <Stack direction={'row'} spacing={5} mb={4}>
+    <PageContainer breadcrumbs={[{ title: 'Strona główna' }]}>
+      <Stack direction={'column'} spacing={2} mb={5}>
         <CountCard
+          icon={<Person />}
           data={employees?.length ?? 0}
-          title="Pracownicy"
+          title="Pracownicy:"
           onClick={handleEmployeesClick}
         />
         <CountCard
-          data={constructions?.length ?? 0}
-          title="Budowy"
+          icon={<Construction />}
+          data={constructions?.filter((c) => !c.endDate).length ?? 0}
+          title="Budowy:"
           onClick={handleConstructionsClick}
         />
       </Stack>
       <EmployeeAlerts />
+      <Note />
+      <Typography variant="h5" mb={2}>
+        Lista plików
+      </Typography>
       <FirebaseFileBrowser baseDirectory="general" />
     </PageContainer>
   );

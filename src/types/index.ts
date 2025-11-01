@@ -38,6 +38,12 @@ export interface EmployeeAlert {
   message: string;
 }
 
+export interface HomeDocument {
+  id: string;
+  note?: string;
+}
+
+
 export interface Construction {
   id: string;
   name: string;
