@@ -182,7 +182,7 @@ export default function DashboardHeader({
                   <AccountCircleIcon className="text-dark text-3xl" />
                   <Typography
                     variant="body2"
-                    sx={{ ml: 1, display: { xs: 'none', sm: 'block' } }}
+                    sx={{ ml: 1, display: { xs: 'none', sm: 'block' }, textTransform: 'none', }}
                     className="text-dark font-medium"
                   >
                     {user?.displayName ?? user?.email ?? 'Użytkownik'}
