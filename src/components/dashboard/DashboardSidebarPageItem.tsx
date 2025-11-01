@@ -125,7 +125,7 @@ export default function DashboardSidebarPageItem({
           disabled={disabled}
           sx={{
             height: mini ? 50 : 'auto',
-            bgcolor: selected ? '#ffd85f!important' : 'inherit',
+            bgcolor: selected ? '#ffd85f !important' : 'inherit',
           }}
           {...(nestedNavigation && !mini
             ? {

@@ -53,6 +53,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                     background: selectDay ? 'lightskyblue' : '#f0f0f0',
                   },
                   position: 'relative',
+                  cursor: 'pointer',
                   // '&::after': {
                   //   content: '""',
                   //   display: isToday ? 'block' : 'none',

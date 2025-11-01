@@ -45,6 +45,9 @@ import {
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import CloseIcon from '@mui/icons-material/Close';
+import WarningIcon from '@mui/icons-material/Warning';
+import ErrorIcon from '@mui/icons-material/Error';
+import { useEmployeeAlert } from '../../../context/EmployeeAlertContext';
 
 interface EmployeeFilters {
   name: string;
@@ -77,6 +80,9 @@ export default function EmployeeList() {
     resetState,
   } = useTableState('employees');
 
+  // Użyj kontekstu alertów
+  const { getEmployeeAlerts } = useEmployeeAlert();
+
   const [filtersModalOpen, setFiltersModalOpen] = useState(false);
   const [filters, setFilters] = useState<EmployeeFilters>({
     name: '',
@@ -107,6 +113,66 @@ export default function EmployeeList() {
     queryKey: ['employees'],
     queryFn: () => getEmployeeList(),
   });
+
+  // Funkcja do sprawdzania alertów pracownika i zwracania odpowiedniego stylu
+  const getEmployeeRowStyle = (employeeId: string) => {
+    const alerts = getEmployeeAlerts(employeeId);
+
+    if (alerts.length === 0) {
+      return {};
+    }
+
+    // Sprawdź czy są krytyczne alerty
+    const hasCriticalAlert = alerts.some((alert) => alert.severity === 'error');
+    const hasWarningAlert = alerts.some(
+      (alert) => alert.severity === 'warning'
+    );
+
+    if (hasCriticalAlert || hasWarningAlert) {
+      return {
+        backgroundColor: '#ffd85f2e',
+        // borderLeft: '4px solid #f44336',
+      };
+    }
+    // else if (hasWarningAlert) {
+    //   return {
+    //     backgroundColor: '#fff5d4',
+    //     // borderLeft: '4px solid #ff9800',
+    //   };
+    // }
+
+    return {};
+  };
+
+  // Funkcja do renderowania ikony alertu w kolumnie
+  // const renderAlertIcon = (employeeId: string) => {
+  //   const alerts = getEmployeeAlerts(employeeId);
+
+  //   if (alerts.length === 0) {
+  //     return null;
+  //   }
+
+  //   const hasCriticalAlert = alerts.some((alert) => alert.severity === 'error');
+  //   const hasWarningAlert = alerts.some(
+  //     (alert) => alert.severity === 'warning'
+  //   );
+
+  //   if (hasCriticalAlert) {
+  //     return (
+  //       <Tooltip title={`Krytyczne alerty: ${alerts.length}`}>
+  //         <ErrorIcon sx={{ color: '#f44336', fontSize: 20 }} />
+  //       </Tooltip>
+  //     );
+  //   } else if (hasWarningAlert) {
+  //     return (
+  //       <Tooltip title={`Ostrzeżenia: ${alerts.length}`}>
+  //         <WarningIcon sx={{ color: '#ff9800', fontSize: 20 }} />
+  //       </Tooltip>
+  //     );
+  //   }
+
+  //   return null;
+  // };
 
   const handleCreateClick = React.useCallback(() => {
     navigate('/employees/create');
@@ -249,6 +315,16 @@ export default function EmployeeList() {
 
   const columns = useMemo<MRT_ColumnDef<Employee>[]>(
     () => [
+      // {
+      //   id: 'alerts',
+      //   header: 'Alerty',
+      //   accessorFn: (row) => row.id,
+      //   Cell: ({ cell }) => renderAlertIcon(cell.getValue<string>()),
+      //   maxSize: 60,
+      //   enableResizing: false,
+      //   enableColumnFilter: false,
+      //   enableSorting: false,
+      // },
       {
         accessorKey: 'name',
         header: 'Imię',
@@ -414,6 +490,7 @@ export default function EmployeeList() {
       density: 'comfortable',
       columnOrder: [
         'mrt-row-numbers',
+        // 'alerts',
         'name',
         'email',
         'phone',
@@ -476,30 +553,69 @@ export default function EmployeeList() {
         fontWeight: '600',
         color: '#374151',
         fontSize: '14px',
-        '&:first-child .Mui-TableHeadCell-Content': {
+        // '&:first-of-type .Mui-TableHeadCell-Content': {
+        // },
+        '& .Mui-TableHeadCell-Content': {
           justifyContent: 'center',
           textAlign: 'center',
         },
       },
       className: 'first:border-l-0',
     },
+    // muiTableBodyCellProps: ({ cell, row }) => {
+    //   // Tylko dla kolumny "Lp." (mrt-row-numbers) zastosuj styl alertu
+    //   if (cell.column.id === 'name') {
+    //     const employeeId = row.original.id;
+    //     const cellStyle = getEmployeeRowStyle(employeeId);
+    //     return {
+    //       sx: {
+    //         borderLeft: '1px solid #e0e0e0',
+    //         ...cellStyle,
+    //       },
+    //     };
+    //   }
+    //   return {
+    //     sx: {
+    //       borderLeft: '1px solid #e0e0e0',
+    //     },
+    //   };
+    // },
     muiTableBodyCellProps: {
       sx: {
         borderLeft: '1px solid #e0e0e0',
+        justifyContent: 'center',
       },
     },
-    muiTableBodyRowProps: ({ row }) => ({
-      onClick: () => handleRowClick(row),
-      sx: {
-        cursor: 'pointer',
-        '&:hover': {
-          background: '#ffd85f30 !important',
+    // muiTableBodyRowProps: ({ row }) => ({
+    //   onClick: () => handleRowClick(row),
+    //   sx: {
+    //     cursor: 'pointer',
+    //     '&:hover': {
+    //       background: '#ffd85f30 !important',
+    //     },
+    //     'td:after': {
+    //       display: 'none',
+    //     },
+    //   },
+    // }),
+    muiTableBodyRowProps: ({ row }) => {
+      const employeeId = row.original.id;
+      const rowStyle = getEmployeeRowStyle(employeeId);
+
+      return {
+        onClick: () => handleRowClick(row),
+        sx: {
+          cursor: 'pointer',
+          ...rowStyle,
+          '&:hover': {
+            background: '#5fadff14 !important',
+          },
+          'td:after': {
+            display: 'none',
+          },
         },
-        'td:after': {
-          display: 'none',
-        },
-      },
-    }),
+      };
+    },
     enableRowNumbers: true,
     displayColumnDefOptions: {
       'mrt-row-numbers': {
@@ -507,7 +623,7 @@ export default function EmployeeList() {
           align: 'center',
           sx: { borderLeft: 'none' },
         },
-        size: 80,
+        size: 50,
         enableResizing: false,
       },
     },

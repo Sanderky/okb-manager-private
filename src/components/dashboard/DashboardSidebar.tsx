@@ -138,7 +138,7 @@ export default function DashboardSidebar({
           >
             <DashboardSidebarPageItem
               id="home"
-              title="Strona główna"
+              title="Dashboard"
               icon={<HomeIcon />}
               href="/home"
               selected={!!matchPath('/home/*', pathname)}
@@ -234,7 +234,7 @@ export default function DashboardSidebar({
         </Box>
       </React.Fragment>
     ),
-    [mini, hasDrawerTransitions, isFullyExpanded, expandedItemIds, pathname]
+    [mini, hasDrawerTransitions, isFullyExpanded, pathname]
   );
 
   const getDrawerSharedSx = React.useCallback(

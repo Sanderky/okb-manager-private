@@ -60,14 +60,16 @@ export default function PageContainer(props: PageContainerProps) {
           py: 2,
           px: { xs: 2, sm: 3 },
           maxWidth: '1500px',
+          overflow: 'hidden',
         }}
         spacing={0}
       >
         <Stack
           direction={'row'}
+          alignItems={'center'}
+          flexWrap={'wrap'}
           sx={{
             mb: 2,
-            flexWrap: 'wrap',
             columnGap: 2,
           }}
         >
@@ -79,7 +81,7 @@ export default function PageContainer(props: PageContainerProps) {
               overflow: 'hidden',
               textOverflow: 'ellipsis',
               whiteSpace: 'nowrap',
-              mt: 0,
+              my: 0,
             }}
           >
             {breadcrumbs

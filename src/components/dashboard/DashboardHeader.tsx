@@ -12,13 +12,7 @@ import Stack from '@mui/material/Stack';
 import { Link, useNavigate } from 'react-router';
 import { useAuth } from '../../context/AuthContext';
 import { useTranslation } from 'react-i18next';
-import {
-  Button,
-  Divider,
-  ListItemIcon,
-  Menu,
-  MenuItem,
-} from '@mui/material';
+import { Button, Divider, ListItemIcon, Menu, MenuItem } from '@mui/material';
 
 import Logout from '@mui/icons-material/Logout';
 
@@ -79,7 +73,7 @@ export default function DashboardHeader({
 
   const handleClickOpenSettings = () => {
     setOpenSettings(true);
-    setAnchorEl(null)
+    setAnchorEl(null);
   };
   const handleCloseSettingsDialog = () => {
     setOpenSettings(false);
@@ -126,7 +120,12 @@ export default function DashboardHeader({
     <AppBar
       color="inherit"
       position="absolute"
-      sx={{ displayPrint: 'none', overflowX: 'hidden' }}
+      sx={{
+        displayPrint: 'none',
+        overflowX: 'hidden',
+        // backgroundColor: '#ffd85f',
+      }}
+      // className="bg-darkYellow"
     >
       <Toolbar sx={{ backgroundColor: 'inherit', mx: { xs: -0.75, sm: -1 } }}>
         <Stack
@@ -219,7 +218,7 @@ export default function DashboardHeader({
                 transformOrigin={{ horizontal: 'right', vertical: 'top' }}
                 anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
               >
-                 <MenuItem
+                <MenuItem
                   onClick={handleClickOpenSettings}
                   className="py-0"
                   sx={{ minHeight: 24 }}
@@ -229,7 +228,7 @@ export default function DashboardHeader({
                   </ListItemIcon>
                   Ustawienia
                 </MenuItem>
-                <Divider/>
+                <Divider />
                 <MenuItem
                   onClick={handleLogout}
                   className="py-0"
@@ -251,7 +250,10 @@ export default function DashboardHeader({
           </Stack>
         </Stack>
       </Toolbar>
-      <UserSettingsDialog open={openSettings} onClose={handleCloseSettingsDialog}/>
+      <UserSettingsDialog
+        open={openSettings}
+        onClose={handleCloseSettingsDialog}
+      />
     </AppBar>
   );
 }

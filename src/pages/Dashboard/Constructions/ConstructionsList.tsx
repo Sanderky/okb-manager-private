@@ -44,6 +44,7 @@ import {
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import CloseIcon from '@mui/icons-material/Close';
+// import { useConstructionAlert } from '../../../context/ConstructionAlertContext'; // Załóżmy, że masz podobny kontekst dla constructions
 
 interface Filters {
   name: string;
@@ -67,6 +68,9 @@ export default function ConstructionsList() {
     resetState,
   } = useTableState('constructions');
 
+  // Użyj kontekstu alertów dla constructions
+  // const { getConstructionAlerts } = useConstructionAlert();
+
   const [filtersModalOpen, setFiltersModalOpen] = useState(false);
   const [filters, setFilters] = useState<Filters>({
     name: '',
@@ -83,6 +87,29 @@ export default function ConstructionsList() {
     queryKey: ['constructions'],
     queryFn: () => getConstructionList(),
   });
+
+  // Funkcja do sprawdzania alertów budowy i zwracania odpowiedniego stylu
+  // const getConstructionRowStyle = (constructionId: string) => {
+  //   const alerts = getConstructionAlerts(constructionId);
+
+  //   if (alerts.length === 0) {
+  //     return {};
+  //   }
+
+  //   // Sprawdź czy są krytyczne alerty
+  //   const hasCriticalAlert = alerts.some((alert) => alert.severity === 'error');
+  //   const hasWarningAlert = alerts.some(
+  //     (alert) => alert.severity === 'warning'
+  //   );
+
+  //   if (hasCriticalAlert || hasWarningAlert) {
+  //     return {
+  //       backgroundColor: '#ffd85f2e',
+  //     };
+  //   }
+
+  //   return {};
+  // };
 
   const handleCreateClick = React.useCallback(() => {
     navigate('/constructions/create');
@@ -325,7 +352,7 @@ export default function ConstructionsList() {
         fontWeight: '600',
         color: '#374151',
         fontSize: '14px',
-        '&:first-child .Mui-TableHeadCell-Content': {
+        '&:first-of-type .Mui-TableHeadCell-Content': {
           justifyContent: 'center',
           textAlign: 'center',
         },
@@ -337,18 +364,24 @@ export default function ConstructionsList() {
         borderLeft: '1px solid #e0e0e0',
       },
     },
-    muiTableBodyRowProps: ({ row }) => ({
-      onClick: () => handleRowClick(row),
-      sx: {
-        cursor: 'pointer',
-        '&:hover': {
-          background: '#ffd85f30 !important',
+    muiTableBodyRowProps: ({ row }) => {
+      // const constructionId = row.original.id;
+      // const rowStyle = getConstructionRowStyle(constructionId);
+
+      return {
+        onClick: () => handleRowClick(row),
+        sx: {
+          cursor: 'pointer',
+          // ...rowStyle,
+          '&:hover': {
+            background: '#5fadff14 !important',
+          },
+          'td:after': {
+            display: 'none',
+          },
         },
-        'td:after': {
-          display: 'none',
-        },
-      },
-    }),
+      };
+    },
     enableRowNumbers: true,
     displayColumnDefOptions: {
       'mrt-row-numbers': {
@@ -356,7 +389,7 @@ export default function ConstructionsList() {
           align: 'center',
           sx: { borderLeft: 'none' },
         },
-        size: 80,
+        size: 50,
         enableResizing: false,
       },
     },
