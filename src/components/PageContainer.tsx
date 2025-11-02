@@ -51,7 +51,7 @@ export default function PageContainer(props: PageContainerProps) {
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'center',
-        alignItems: 'center',
+        minHeight: '100%',
       }}
     >
       <Stack
