@@ -44,7 +44,7 @@ const ForgotPassword = ({ open, handleClose }: ForgotPasswordProps) => {
   }, [open]);
 
   const validateEmail = () => {
-    const error = validateField(email, getRules('email', t));
+    const error = validateField(email, getRules('email'));
     if (error) {
       setEmailError(true);
       setEmailErrorMessage(error);
@@ -71,10 +71,12 @@ const ForgotPassword = ({ open, handleClose }: ForgotPasswordProps) => {
       setEmail('');
       setEmailError(false);
       setEmailErrorMessage('');
-    } catch (error: any) {
-      console.error('❌ Reset password error:', error.code, error.message);
+    } catch (error) {
+      const firebaseError = error as { code?: string; message: string };
+
+      // console.error('Reset password error:', error);
       setToastMsg(
-        error.code === 'auth/invalid-email'
+        firebaseError.code === 'auth/invalid-email'
           ? t('login.forgotPassword.invalidEmail')
           : t('login.forgotPassword.error')
       );
@@ -109,6 +111,7 @@ const ForgotPassword = ({ open, handleClose }: ForgotPasswordProps) => {
               {t('login.forgotPassword.description')}
             </DialogContentText>
             <TextField
+              size="small"
               autoFocus
               required
               id="email"

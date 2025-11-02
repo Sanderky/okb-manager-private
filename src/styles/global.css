@@ -20,7 +20,7 @@
 
 @theme {
   --font-sans: 'Barlow', sans-serif;
-  --primary-gradient: linear-gradient(150deg, #fcfbf5 55%, #ffd85f80 100%);
+  --primary-gradient: linear-gradient(150deg, #fcfbf5 30%, #ffd85f80 100%);
   --color-dark: #303030;
   --color-light: #fcfbf5;
   --color-darkYellow: #ffd85f;

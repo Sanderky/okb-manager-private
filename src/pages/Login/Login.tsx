@@ -4,18 +4,15 @@ import {
   browserLocalPersistence,
   setPersistence,
   signInWithEmailAndPassword,
-  // GoogleAuthProvider,
-  // signInWithPopup,
 } from 'firebase/auth';
 import { auth } from '../../firebase';
 import TextField from '@mui/material/TextField';
-import { Alert, CircularProgress, Button, Divider } from '@mui/material';
+import { Alert, CircularProgress } from '@mui/material';
 import ForgotPassword from './ForgotPassword';
 import { getRules, validateField } from './validation';
 import { useAuth } from '../../context/AuthContext';
 import { default as LogoIcon } from '@mui/icons-material/TokenOutlined';
 import { syncUserToFirestore } from '../../api/users';
-// import GoogleIcon from '@mui/icons-material/Google';
 
 type FormValues = {
   email: string;
@@ -69,7 +66,7 @@ const Login = () => {
         values.password
       );
       const user = userCredential.user;
-      
+
       await syncUserToFirestore(user);
 
       setValues({ email: '', password: '' });
@@ -77,28 +74,16 @@ const Login = () => {
       setCredentialError(false);
 
       navigate('/home');
-    } catch (error: any) {
-      console.error('❌ Login error:', error.message);
-      if (error.code === 'auth/invalid-credential') setCredentialError(true);
+    } catch (error) {
+      const firebaseError = error as { code?: string; message: string };
+      if (firebaseError.code === 'auth/invalid-credential') {
+        setCredentialError(true);
+      }
+      // console.error('Login error:', error);
     } finally {
       setActionLoading(false);
     }
   };
-
-  // const handleGoogleLogin = async () => {
-  //   setActionLoading(true);
-  //   try {
-  //     await setPersistence(auth, browserLocalPersistence);
-  //     const provider = new GoogleAuthProvider();
-  //     const result = await signInWithPopup(auth, provider);
-  //     console.log('✅ Zalogowano przez Google:', result.user);
-  //     navigate('/');
-  //   } catch (error: any) {
-  //     console.error('❌ Google login error:', error.message);
-  //   } finally {
-  //     setActionLoading(false);
-  //   }
-  // };
 
   if (authLoading || user) {
     return (
@@ -132,6 +117,7 @@ const Login = () => {
             onSubmit={handleSubmit}
           >
             <TextField
+              size="small"
               error={!!errors.email}
               required
               fullWidth
@@ -148,6 +134,7 @@ const Login = () => {
               }}
             />
             <TextField
+              size="small"
               error={!!errors.password}
               required
               fullWidth
@@ -187,19 +174,6 @@ const Login = () => {
             >
               {actionLoading ? <CircularProgress size={24} /> : 'Zaloguj się'}
             </button>
-
-            {/* <Divider className="my-2">|</Divider>
-
-            <Button
-              variant="outlined"
-              startIcon={<GoogleIcon />}
-              fullWidth
-              onClick={handleGoogleLogin}
-              disabled={actionLoading}
-              className="mt-2"
-            >
-              Zaloguj przez Google
-            </Button> */}
           </form>
 
           <ForgotPassword
