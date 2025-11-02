@@ -427,7 +427,7 @@ const useHoursTable = (startWeek?: Date) => {
           {
             title: `Niezapisane zmiany`,
             severity: 'warning',
-            okText: 'Tak, zmień tydzień',
+            okText: 'Tak',
             cancelText: 'Pozostań',
           }
         )
@@ -514,7 +514,7 @@ const useHoursTable = (startWeek?: Date) => {
           {
             title: `Niezapisane zmiany`,
             severity: 'warning',
-            okText: 'Tak, zmień tydzień',
+            okText: 'Tak',
             cancelText: 'Pozostań',
           }
         )

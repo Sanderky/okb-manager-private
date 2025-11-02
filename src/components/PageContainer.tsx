@@ -70,7 +70,7 @@ export default function PageContainer(props: PageContainerProps) {
           flexWrap={'wrap'}
           sx={{
             mb: 2,
-            columnGap: 2,
+            gap: 2,
           }}
         >
           <PageHeaderBreadcrumbs

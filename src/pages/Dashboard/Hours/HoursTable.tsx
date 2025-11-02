@@ -40,13 +40,13 @@ import type { TableData } from './Hours';
 dayjs.extend(isoWeek);
 dayjs.extend(isBetween);
 
-const borderBold = '2px solid #333';
+const borderBold = '1px solid #333';
 const numberCellMaxWidth = '20px';
 const numberCellPadding = 0.5;
 const redAlert = 'bg-red-300';
 const orangeAlert = 'bg-amber-300';
-const sumColor = '#fff3cd';
-const tableBorder = '1px solid oklch(0.551 0.027 264.364)';
+const sumColor = 'oklch(0.707 0.165 254.624)';
+const tableBorder = '1px solid rgb(224, 224, 224)';
 
 interface ConstructionsWithWorkHours {
   id: string;
@@ -179,7 +179,9 @@ const TableRows = ({
                     fontWeight: 'bold',
                     verticalAlign: 'middle',
                     borderBottom: borderBold,
-                    background: '#fff',
+                    '& span:hover': {
+                      textDecoration: editMode ? 'underline' : 'none',
+                    },
                   }}
                 >
                   <span
@@ -208,6 +210,9 @@ const TableRows = ({
                   fontWeight: 'bold',
                   borderRight: tableBorder,
                   borderBottom: tableBorder,
+                  '& span:hover': {
+                    textDecoration: editMode ? 'underline' : 'none',
+                  },
                 }}
               >
                 <span
@@ -243,7 +248,10 @@ const TableRows = ({
                     }}
                   >
                     {isVacation ? (
-                      <Typography className="font-medium text-amber-700" variant="body2">
+                      <Typography
+                        className="font-medium text-amber-700"
+                        variant="body2"
+                      >
                         Urlop
                       </Typography>
                     ) : editMode ? (
@@ -346,6 +354,7 @@ const TableRows = ({
             <TableCell
               align="center"
               sx={{
+                color: '#fff',
                 borderBottom: borderBold,
                 p: 0.5,
                 fontWeight: 'bold',
@@ -487,7 +496,14 @@ const HoursTable = ({
   return (
     <Box>
       <Box sx={{ display: 'none' }}>
-        <Box ref={printContentRef} sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
+        <Box
+          ref={printContentRef}
+          sx={{
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'center',
+          }}
+        >
           <PrintableTable
             printTitle={true}
             showVacation={true}
@@ -525,10 +541,9 @@ const HoursTable = ({
 
       <Collapse in={isExpanded} timeout="auto" unmountOnExit>
         <TableContainer
-          className="rounded-lg border bg-white"
+          className="border-lightGray rounded-lg border bg-white"
           sx={{
             position: 'relative',
-            border: '1px solid oklch(0.551 0.027 264.364)',
             '& th': {
               backgroundColor: 'oklch(0.967 0.003 264.542)',
             },
