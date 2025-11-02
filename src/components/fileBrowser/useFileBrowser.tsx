@@ -63,11 +63,10 @@ const useFileView = (baseDirectory: string, onFetch: () => void) => {
         (item) => item.type === 'file' || item.type === 'folder'
       );
       if (allItems.length === 0) {
-        alert('Zaznacz przynajmniej jeden plik lub folder do pobrania.');
         return;
       }
       const functionUrl =
-        'http://127.0.0.1:5001/okb-app-6501f/us-central1/createZip';
+        import.meta.env.VITE_FIREBASE_CLOUD_FUNCTION_CREATE_ZIP_URL ?? '';
       try {
         setLoading(true);
         const response = await fetch(functionUrl, {
@@ -76,6 +75,7 @@ const useFileView = (baseDirectory: string, onFetch: () => void) => {
           body: JSON.stringify({
             items: allItems,
             includeSubdirectories: true,
+            baseDirectory: baseDirectory,
           }),
         });
         if (!response.ok)
@@ -84,7 +84,7 @@ const useFileView = (baseDirectory: string, onFetch: () => void) => {
         const blobUrl = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = blobUrl;
-        link.setAttribute('download', 'archiwum.zip');
+        link.setAttribute('download', `archiwum-${Date.now()}.zip`);
         document.body.appendChild(link);
         link.click();
         if (link.parentNode) link.parentNode.removeChild(link);
@@ -99,7 +99,7 @@ const useFileView = (baseDirectory: string, onFetch: () => void) => {
         setLoading(false);
       }
     },
-    [notifications]
+    [notifications, baseDirectory]
   );
 
   const handleDownload = useCallback(
