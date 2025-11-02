@@ -1,53 +1,52 @@
 import { useNavigate } from 'react-router-dom';
 import PageContainer from '../../components/PageContainer';
-import { Box, Button, Stack, Typography } from '@mui/material';
-import { ArrowBack } from '@mui/icons-material';
+import { Button, Stack, Typography } from '@mui/material';
 
 const PageNotFound = () => {
   const navigate = useNavigate();
 
   return (
     <PageContainer>
-      <Stack direction={'row'} justifyContent={'center'} sx={{ flex: 1 }}>
-        <Box
-          className="border-lightGray rounded-lg border"
+      <Stack direction={'column'} alignItems={'center'}>
+        <Typography
+          textAlign={'center'}
+          variant="h5"
+          component={'div'}
+          sx={{ fontSize: '8rem', fontWeight: 'bold', color: '#ffd85f' }}
+        >
+          404
+        </Typography>
+        <Typography
+          textAlign={'center'}
+          variant="body1"
+          sx={{ fontSize: '1rem', fontWeight: 'bold' }}
+        >
+          Ups! Strona nie istnieje!
+        </Typography>
+        <Typography
+          textAlign={'center'}
+          variant="body1"
+          color="textSecondary"
+          sx={{ fontSize: '1rem' }}
+        >
+          Wygląda na to że strona której szukasz nie istnieje lub została
+          usunięta.
+        </Typography>
+        <Stack
+          direction={'row'}
           sx={{
-            background: '#fff',
-            maxHeight: '300px',
-            maxWidth: '400px',
-            display: 'flex',
-            flexGrow: 1,
-            p: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-            height: '100%',
-            width: '100%',
+            flexWrap: 'wrap',
+            gap: 2,
+            mt: 3,
           }}
         >
-          <Box>
-            <Typography
-              textAlign={'right'}
-              variant="h5"
-              sx={{
-                color: '#ffd85f',
-                fontSize: '4rem',
-              }}
-            >
-              404
-            </Typography>
-            <Typography variant="h5" textAlign={'left'} component={'div'}>
-              Ups! Nie znaleziono strony
-            </Typography>
-            <Button
-              startIcon={<ArrowBack />}
-              onClick={() => navigate('/home')}
-              sx={{ mt: 5 }}
-              variant="text"
-            >
-              Wróć na stronę główną
-            </Button>
-          </Box>
-        </Box>
+          <Button variant="outlined" onClick={() => navigate(-1)}>
+            Wróć
+          </Button>
+          <Button variant="contained" onClick={() => navigate('/home')}>
+            Strona główna
+          </Button>
+        </Stack>
       </Stack>
     </PageContainer>
   );
