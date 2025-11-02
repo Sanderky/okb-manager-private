@@ -57,7 +57,8 @@ export default function PageContainer(props: PageContainerProps) {
       <Stack
         sx={{
           flex: 1,
-          py: 2,
+          pt: 2,
+          pb: 8,
           px: { xs: 2, sm: 3 },
           maxWidth: '1500px',
           overflow: 'hidden',
