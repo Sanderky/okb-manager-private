@@ -143,6 +143,7 @@ export const AddEventDialog: React.FC<AddEventDialogProps> = ({
       confirmText="Zapisz urlop"
       loading={loading}
       disabled={!currentEvent.employee}
+      showCancel={false}
     >
       <Stack spacing={2}>
         <Autocomplete
@@ -764,7 +765,6 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
       </DialogContent>
 
       <DialogActions>
-        <Button onClick={onClose}>Zamknij</Button>
         {generatedReport.length > 0 && (
           <Button
             variant="contained"

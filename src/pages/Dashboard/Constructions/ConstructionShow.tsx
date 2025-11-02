@@ -96,7 +96,8 @@ export default function ConstructionShow() {
     error: errorScheduleEmployees,
   } = useQuery({
     queryKey: ['employeesByConstruction', constructionId],
-    queryFn: () => getEmployeesByScheduledConstruction(constructionId!),
+    queryFn: () =>
+      getEmployeesByScheduledConstruction(constructionId!, dayjs().toDate()),
     enabled: !!constructionId,
   });
 
@@ -538,24 +539,22 @@ export default function ConstructionShow() {
                   </thead>
                   <tbody className="divide-y divide-gray-200">
                     {scheduleEmployees &&
-                      employees
-                        .filter((e) => scheduleEmployees.includes(e.id))
-                        .map((emp) => (
-                          <tr
-                            key={emp.id}
-                            onClick={() => navigate(`/employees/${emp.id}`)}
-                            className="cursor-pointer transition-colors hover:bg-blue-50 active:bg-blue-100"
-                          >
-                            <td className="px-4 py-3">
-                              <Typography
-                                variant="body2"
-                                className="text-gray-700"
-                              >
-                                {emp.name}
-                              </Typography>
-                            </td>
-                          </tr>
-                        ))}
+                      scheduleEmployees.map((emp) => (
+                        <tr
+                          key={emp[0]}
+                          onClick={() => navigate(`/employees/${emp[0]}`)}
+                          className="cursor-pointer transition-colors hover:bg-blue-50 active:bg-blue-100"
+                        >
+                          <td className="px-4 py-3">
+                            <Typography
+                              variant="body2"
+                              className="text-gray-700"
+                            >
+                              {emp[1]}
+                            </Typography>
+                          </td>
+                        </tr>
+                      ))}
                   </tbody>
                 </table>
               )}
@@ -576,8 +575,7 @@ export default function ConstructionShow() {
           title="Zakończ budowę"
           confirmText="Zakończ budowę"
           confirmColor="warning"
-          cancelText="Anuluj"
-          showCloseButton={false}
+          showCancel={false}
           loading={updateStatusMutation.isPending}
         >
           <Stack spacing={3}>
@@ -621,6 +619,7 @@ export default function ConstructionShow() {
           confirmText="Wznów budowę"
           cancelText="Anuluj"
           confirmColor="success"
+          showCancel={false}
           loading={updateStatusMutation.isPending}
         />
       </Box>

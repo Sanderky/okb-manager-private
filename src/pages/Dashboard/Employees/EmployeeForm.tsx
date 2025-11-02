@@ -267,6 +267,12 @@ export default function EmployeeForm(props: EmployeeFormProps) {
       type: 'number',
       required: false,
     },
+    {
+      key: 'accountNumber',
+      label: 'Numer konta',
+      type: 'string',
+      required: false,
+    },
   ];
 
   const contractFields: EmployeeField[] = [
@@ -394,7 +400,7 @@ export default function EmployeeForm(props: EmployeeFormProps) {
                 <InputAdornment position="start">€</InputAdornment>
               }
               label="Stawka godzinowa"
-              size='small'
+              size="small"
               value={formValues[key] ?? ''}
               onChange={(e) => {
                 const inputValue = e.target.value.trim();
@@ -424,7 +430,7 @@ export default function EmployeeForm(props: EmployeeFormProps) {
     return (
       <Grid size={{ xs: 12, md: 6 }} key={key}>
         <TextField
-        size="small"
+          size="small"
           required={required}
           fullWidth
           label={label}

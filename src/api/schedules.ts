@@ -10,6 +10,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '../firebase';
 import type { Schedule } from '../types';
+import dayjs from 'dayjs';
 
 export const getScheduleList = async (): Promise<Schedule[]> => {
   const querySnapshot = await getDocs(collection(db, 'schedules'));
@@ -55,18 +56,42 @@ export const updateSchedule = async (
 };
 
 export const getEmployeesByScheduledConstruction = async (
-  constructionId: string
-): Promise<string[]> => {
+  constructionId: string,
+  date?: Date
+): Promise<string[][]> => {
   const querySnapshot = await getDocs(collection(db, 'schedules'));
 
   const employeeIds = querySnapshot.docs
     .filter((doc) => {
-      const data = doc.data() as Schedule;
-      return data.constructions?.some(
+      const data = doc.data();
+      const hasConstruction = data.constructions?.some(
         (c) => c && c.constructionId === constructionId
       );
+
+      if (!date) {
+        return hasConstruction;
+      }
+
+      if (hasConstruction) {
+        const weekStart = dayjs(data.weekStart.toDate());
+        const targetDate = dayjs(date);
+
+        if (
+          targetDate.isBetween(weekStart, weekStart.add(6, 'day'), 'day', '[]')
+        ) {
+          const dayIndex = targetDate.diff(weekStart, 'day');
+
+          const constructionAtDay = data.constructions?.[dayIndex];
+          return (
+            constructionAtDay &&
+            constructionAtDay.constructionId === constructionId
+          );
+        }
+      }
+
+      return false;
     })
-    .map((doc) => (doc.data() as Schedule).employeeId);
+    .map((doc) => [doc.data().employeeId, doc.data().employeeName]);
 
   const uniqueEmployeeIds = [...new Set(employeeIds)];
 

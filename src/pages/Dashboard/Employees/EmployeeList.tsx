@@ -348,6 +348,10 @@ export default function EmployeeList() {
         maxSize: 140,
       },
       {
+        accessorKey: 'accountNumber',
+        header: 'Numer konta',
+      },
+      {
         accessorKey: 'isContractor',
         header: 'Kontraktor',
         filterVariant: 'checkbox',
@@ -497,6 +501,7 @@ export default function EmployeeList() {
         'pesel',
         'address',
         'birthDate',
+        'accountNumber',
         'isContractor',
         'contractStartDate',
         'contractEndDate',

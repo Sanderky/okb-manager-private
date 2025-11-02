@@ -161,7 +161,7 @@ export const ConfirmationDialog: React.FC<
   }
 > = ({ message, confirmColor = 'primary', ...props }) => {
   return (
-    <BaseDialog {...props} confirmColor={confirmColor} showCloseButton={false}>
+    <BaseDialog {...props} confirmColor={confirmColor}>
       {typeof message === 'string' ? (
         <Typography variant="body1">{message}</Typography>
       ) : (

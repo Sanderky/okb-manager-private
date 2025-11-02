@@ -16,6 +16,7 @@ export interface Employee {
   email: string | null;
   phone: string | null;
   status: boolean | null;
+  accountNumber: string | null;
   note: string | null;
   contractStartDate: Date | null;
   contractEndDate: Date | null;
@@ -42,7 +43,6 @@ export interface HomeDocument {
   id: string;
   note?: string;
 }
-
 
 export interface Construction {
   id: string;

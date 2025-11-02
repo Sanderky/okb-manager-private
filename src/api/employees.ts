@@ -30,6 +30,7 @@ export async function createEmployee(
       email: data.email ?? null,
       phone: data.phone ?? null,
       status: data.status ?? true,
+      accountNumber: data.accountNumber ?? null,
       note: data.note ?? null,
       contractStartDate: data.contractStartDate ?? null,
       contractEndDate: data.contractEndDate ?? null,
