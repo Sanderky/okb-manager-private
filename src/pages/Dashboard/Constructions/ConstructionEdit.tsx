@@ -24,6 +24,7 @@ import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import useNotifications from '../../../hooks/useNotifications/useNotifications';
 import { validate } from './ConstructionHelpers';
 import { ConfirmationDialog } from '../../../components/BaseDialog';
+import { deleteFolderRecursive } from '../../../components/fileBrowser/FileBrowserHelpers';
 
 export default function ConstructionEdit() {
   const { constructionId } = useParams<{ constructionId: string }>();
@@ -32,6 +33,7 @@ export default function ConstructionEdit() {
   const notifications = useNotifications();
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const formRefs = React.useRef<Record<string, HTMLInputElement | null>>({});
 
@@ -85,21 +87,6 @@ export default function ConstructionEdit() {
 
   const deleteMutation = useMutation({
     mutationFn: () => removeConstruction(constructionId!),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['constructions'] });
-      notifications.show('Budowa została pomyślnie usunięta.', {
-        severity: 'success',
-        autoHideDuration: 3000,
-      });
-      navigate('/constructions');
-    },
-    onError: (error: Error) => {
-      console.error('Delete construction error:', error);
-      notifications.show('Wystąpił błąd podczas usuwania budowy.', {
-        severity: 'error',
-        autoHideDuration: 5000,
-      });
-    },
   });
 
   const handleFieldChange = useCallback(
@@ -161,17 +148,37 @@ export default function ConstructionEdit() {
     setDeleteDialogOpen(true);
   }, []);
 
-  const handleDeleteConfirm = useCallback(() => {
-    deleteMutation.mutate();
-    setDeleteDialogOpen(false);
-  }, [deleteMutation]);
+  const handleDeleteConstruction = useCallback(async () => {
+    if (!construction) return;
+
+    setIsDeleting(true);
+    try {
+      await deleteMutation.mutateAsync();
+      await deleteFolderRecursive(`/constructions/${construction.id}`);
+      setDeleteDialogOpen(false);
+      notifications.show('Budowa została pomyślnie usunięta.', {
+        severity: 'info',
+        autoHideDuration: 5000,
+      });
+      navigate('/constructions');
+    } catch (error) {
+      setDeleteDialogOpen(false);
+      console.error('Delete employee error:', error);
+      notifications.show('Wystąpił błąd podczas usuwania budowy.', {
+        severity: 'error',
+        autoHideDuration: 5000,
+      });
+    } finally {
+      setIsDeleting(false);
+    }
+  }, [deleteMutation, navigate, notifications, construction]);
 
   const handleDeleteCancel = useCallback(() => {
     setDeleteDialogOpen(false);
   }, []);
 
   const renderContent = () => {
-    if (isLoading || updateMutation.isPending || deleteMutation.isPending) {
+    if (isLoading || updateMutation.isPending) {
       return (
         <Box
           sx={{
@@ -249,10 +256,10 @@ export default function ConstructionEdit() {
                 color="error"
                 sx={{ minWidth: 120 }}
                 onClick={handleDeleteClick}
-                disabled={deleteMutation.isPending}
+                disabled={isDeleting || isLoading || updateMutation.isPending}
                 startIcon={<HighlightOffIcon />}
               >
-                {deleteMutation.isPending ? 'Usuwanie...' : 'Usuń'}
+                {isDeleting ? 'Usuwanie...' : 'Usuń'}
               </Button>
             </Stack>
           </Grid>
@@ -261,7 +268,7 @@ export default function ConstructionEdit() {
         <ConfirmationDialog
           open={deleteDialogOpen}
           onClose={handleDeleteCancel}
-          onConfirm={handleDeleteConfirm}
+          onConfirm={handleDeleteConstruction}
           title={
             <Stack direction="row" spacing={1} alignItems="center">
               <WarningAmberIcon className="text-red-600" />
@@ -273,6 +280,10 @@ export default function ConstructionEdit() {
               <Typography variant="body1" className="text-gray-600">
                 Czy na pewno chcesz usunąć <strong>{construction.name}</strong>?
               </Typography>
+              <Typography variant="body1" className="text-gray-600">
+                Budowa zostanie usunięta z bazy danych łącznie ze wszytkimi
+                plikami.
+              </Typography>
               <Alert severity="error">
                 <AlertTitle>Uwaga!</AlertTitle>
                 Proszę zachować ostrożność, tej operacji nie można cofnąć.
@@ -282,7 +293,7 @@ export default function ConstructionEdit() {
           confirmText="Usuń"
           cancelText="Anuluj"
           confirmColor="error"
-          loading={deleteMutation.isPending}
+          loading={isDeleting}
         />
       </>
     );

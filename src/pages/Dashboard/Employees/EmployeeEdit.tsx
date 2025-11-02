@@ -25,6 +25,7 @@ import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import useEmployeeAttachment from './useAttachment';
 import { validate } from './EmployeeEditHelpers';
 import { ConfirmationDialog } from '../../../components/BaseDialog';
+import { deleteFolderRecursive } from '../../../components/fileBrowser/FileBrowserHelpers';
 
 export type FileStateMap = {
   [K in EmployeeAttachment]: File | null;
@@ -108,20 +109,6 @@ export default function EmployeeEdit() {
 
   const deleteMutation = useMutation({
     mutationFn: () => removeEmployee(employeeId!),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['employees'] });
-      notifications.show('Pracownik został usunięty.', {
-        severity: 'info',
-        autoHideDuration: 5000,
-      });
-    },
-    onError: (error: Error) => {
-      console.error('Delete employee error:', error);
-      notifications.show('Wystąpił błąd podczas usuwania pracownika.', {
-        severity: 'error',
-        autoHideDuration: 5000,
-      });
-    },
   });
 
   const handleFieldChange = useCallback(
@@ -242,20 +229,30 @@ export default function EmployeeEdit() {
     setDeleteDialogOpen(true);
   }, []);
 
-  const handleDeleteConfirm = useCallback(async () => {
+  const handleDeleteEmployee = useCallback(async () => {
     if (!employee) return;
 
     setIsDeleting(true);
     try {
       await deleteMutation.mutateAsync();
+      await deleteFolderRecursive(`/employees/${employee.id}`);
       setDeleteDialogOpen(false);
+      notifications.show('Pracownik został usunięty.', {
+        severity: 'info',
+        autoHideDuration: 5000,
+      });
       navigate('/employees');
     } catch (error) {
-      // Error handling is done in mutation
+      setDeleteDialogOpen(false);
+      console.error('Delete employee error:', error);
+      notifications.show('Wystąpił błąd podczas usuwania pracownika.', {
+        severity: 'error',
+        autoHideDuration: 5000,
+      });
     } finally {
       setIsDeleting(false);
     }
-  }, [employee, deleteMutation, navigate]);
+  }, [employee, deleteMutation, navigate, notifications]);
 
   const handleDeleteCancel = useCallback(() => {
     setDeleteDialogOpen(false);
@@ -277,9 +274,6 @@ export default function EmployeeEdit() {
           }}
         >
           <CircularProgress />
-          <Typography variant="body2" sx={{ ml: 2, color: 'text.secondary' }}>
-            Ładowanie danych pracownika...
-          </Typography>
         </Box>
       );
     }
@@ -359,7 +353,7 @@ export default function EmployeeEdit() {
         <ConfirmationDialog
           open={deleteDialogOpen}
           onClose={handleDeleteCancel}
-          onConfirm={handleDeleteConfirm}
+          onConfirm={handleDeleteEmployee}
           title={
             <Stack direction="row" spacing={1} alignItems="center">
               <WarningAmberIcon className="text-red-600" />
@@ -370,6 +364,10 @@ export default function EmployeeEdit() {
             <Stack direction="column" spacing={2}>
               <Typography variant="body1" className="text-gray-600">
                 Czy na pewno chcesz usunąć <strong>{employee.name}</strong>?
+              </Typography>
+              <Typography variant="body1" className="text-gray-600">
+                Pracownik zostanie usunięty z bazy danych łącznie ze wszytkimi
+                jego plikami.
               </Typography>
               <Alert severity="error">
                 <AlertTitle>Uwaga!</AlertTitle>
