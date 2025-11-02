@@ -40,6 +40,7 @@ import {
   InsertPhotoOutlined,
   DescriptionOutlined,
   InfoOutline,
+  Check,
 } from '@mui/icons-material';
 import MoveItemsDialog from './MoveFilesDialog';
 import { PreviewDialog } from './FilePreviewDialog';
@@ -236,6 +237,7 @@ const FirebaseFileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
     closeMoveDialog,
     handleMove,
     destinationFolders,
+    isUploadDialogOpen,
   } = useFileView(baseDirectory, onFetch);
 
   const handleOpenPreview = useCallback((file: FileItem) => {
@@ -550,7 +552,7 @@ const FirebaseFileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
     state: {
       rowSelection,
       showSkeletons: loading,
-      showProgressBars: loading,
+      // showProgressBars: loading,
     },
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
@@ -774,21 +776,30 @@ const FirebaseFileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
 
   return (
     <Box sx={{ width: '100%' }}>
-      {Object.keys(uploadProgress).length > 0 && (
-        <Box
-          sx={{ p: 2, border: '1px solid #ddd', borderRadius: '4px', mb: 2 }}
-        >
-          <Typography variant="h6" gutterBottom>
-            Przesyłanie plików...
-          </Typography>
-          {Object.entries(uploadProgress).map(([fileName, progress]) => (
-            <Box key={fileName} sx={{ mb: 1 }}>
-              <Typography variant="body2">{fileName}</Typography>
-              <LinearProgress variant="determinate" value={progress} />
+      <BaseDialog
+        open={isUploadDialogOpen}
+        onClose={() => {}}
+        title={'Przesyłanie plików'}
+        showCloseButton={false}
+      >
+        <>
+          {Object.keys(uploadProgress).length > 0 && (
+            <Box>
+              {Object.entries(uploadProgress).map(([fileName, progress]) => (
+                <Box key={fileName} sx={{ mb: 1 }}>
+                  <Stack direction={'row'} alignItems={'center'} spacing={1}>
+                    {progress === 100 && <Check sx={{ fontSize: '1rem' }} />}
+                    <Typography variant="subtitle2">{fileName}</Typography>
+                  </Stack>
+                  {progress < 100 && (
+                    <LinearProgress variant="determinate" value={progress} />
+                  )}
+                </Box>
+              ))}
             </Box>
-          ))}
-        </Box>
-      )}
+          )}
+        </>
+      </BaseDialog>
 
       <Box ref={dropRef} sx={{ position: 'relative' }}>
         {isDragOver && (

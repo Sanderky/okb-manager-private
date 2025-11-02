@@ -40,6 +40,7 @@ const useFileView = (baseDirectory: string, onFetch: () => void) => {
     Array<{ name: string; fullPath: string }>
   >([]);
   const [moveDialogOpen, setMoveDialogOpen] = useState<boolean>(false);
+  const [isUploadDialogOpen, setIsUploadDialogOpen] = useState<boolean>(false);
 
   const downloadFile = useCallback(
     (url: string, fileName: string): void => {
@@ -349,9 +350,10 @@ const useFileView = (baseDirectory: string, onFetch: () => void) => {
   );
 
   const handleFileUpload = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>): void => {
+    async (event: React.ChangeEvent<HTMLInputElement>) => {
       const files = event.target.files;
       if (!files || files.length === 0) return;
+      setIsUploadDialogOpen(true);
       const uploadPromises: Promise<void>[] = [];
       for (const file of files) {
         let finalFileName = file.name;
@@ -396,22 +398,24 @@ const useFileView = (baseDirectory: string, onFetch: () => void) => {
         });
         uploadPromises.push(promise);
       }
-      Promise.all(uploadPromises)
-        .then(() => fetchData(currentPath))
-        .catch((error) => {
-          console.error('Upload files error:', error);
-          notifications.show('Błąd podczas przesyłania plików!', {
-            severity: 'error',
-            autoHideDuration: 5000,
-          });
-        })
-        .finally(() => {
-          setUploadProgress({});
-          notifications.show(`Dodano pliki (${files.length})`, {
-            severity: 'success',
-            autoHideDuration: 3000,
-          });
+      try {
+        await Promise.all(uploadPromises);
+
+        fetchData(currentPath);
+        notifications.show(`Dodano pliki (${files.length})`, {
+          severity: 'success',
+          autoHideDuration: 3000,
         });
+      } catch (error) {
+        console.error('Upload files error:', error);
+        notifications.show('Błąd podczas przesyłania plików!', {
+          severity: 'error',
+          autoHideDuration: 5000,
+        });
+      } finally {
+        setUploadProgress({});
+        setIsUploadDialogOpen(false);
+      }
     },
     [currentPath, fetchData, data, notifications]
   );
@@ -436,6 +440,7 @@ const useFileView = (baseDirectory: string, onFetch: () => void) => {
     openMoveDialog,
     closeMoveDialog,
     handleMove,
+    isUploadDialogOpen,
   };
 };
 
