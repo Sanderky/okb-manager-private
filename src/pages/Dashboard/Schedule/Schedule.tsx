@@ -19,8 +19,7 @@ import {
   TableCell,
   TableBody,
   Typography,
-  Button,
-  Stack,
+  Button
 } from '@mui/material';
 import CalendarViewWeekIcon from '@mui/icons-material/CalendarViewWeek';
 import CalendarViewMonthIcon from '@mui/icons-material/CalendarViewMonth';
@@ -238,7 +237,6 @@ const ScheduleComponent = () => {
       constructionIds: (string | null)[],
       existing: Schedule | null
     ) => {
-      try {
         const constructionsPayload: ScheduleConstruction[] =
           constructionIds.map((cid, idx) => {
             if (!cid) return null;
@@ -267,10 +265,7 @@ const ScheduleComponent = () => {
         };
 
         await updateScheduleMutation.mutateAsync(scheduleData);
-      } catch (err) {
-        // console.error('Błąd zapisu harmonogramu:', err);
-        // Nie wyświetlamy powiadomienia tutaj, ponieważ mutation już to obsługuje
-      }
+
     },
     [updateScheduleMutation, constructions, employees, normalizeEntry]
   );

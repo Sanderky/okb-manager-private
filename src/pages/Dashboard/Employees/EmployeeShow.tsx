@@ -233,13 +233,9 @@ export default function EmployeeShow() {
       return;
     }
 
-    try {
       await updateNoteMutation.mutateAsync(note);
       setEditNote(false);
-    } catch (error) {
-      // Error handling is done in mutation
-      console.error('Error:', error);
-    }
+
   }, [employee?.note, note, updateNoteMutation]);
 
   const handleEmployeeEdit = useCallback(() => {

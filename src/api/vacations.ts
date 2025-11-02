@@ -50,60 +50,43 @@ export const batchCreateVacations = async (
 export async function createVacation(
   data: Partial<Vacation> | Partial<Vacation>[]
 ) {
-  try {
-    const dataArray = Array.isArray(data) ? data : [data];
+  const dataArray = Array.isArray(data) ? data : [data];
 
-    if (dataArray.length === 0) {
-      return Array.isArray(data) ? [] : null;
-    }
-
-    const batch = writeBatch(db);
-    const vacationRef = collection(db, 'vacations');
-    const createdIds: string[] = [];
-
-    dataArray.forEach((vacationData) => {
-      const cleanedData = Object.fromEntries(
-        Object.entries(vacationData).filter(([_, value]) => value !== undefined)
-      );
-      const newDocRef = doc(vacationRef);
-      batch.set(newDocRef, cleanedData);
-      createdIds.push(newDocRef.id);
-    });
-
-    await batch.commit();
-
-    return Array.isArray(data) ? createdIds : createdIds[0];
-  } catch (e) {
-    console.error('Błąd podczas dodawania urlopu: ', e);
-    throw e;
+  if (dataArray.length === 0) {
+    return Array.isArray(data) ? [] : null;
   }
+
+  const batch = writeBatch(db);
+  const vacationRef = collection(db, 'vacations');
+  const createdIds: string[] = [];
+
+  dataArray.forEach((vacationData) => {
+    const cleanedData = Object.fromEntries(
+      Object.entries(vacationData).filter(([_, value]) => value !== undefined)
+    );
+    const newDocRef = doc(vacationRef);
+    batch.set(newDocRef, cleanedData);
+    createdIds.push(newDocRef.id);
+  });
+
+  await batch.commit();
+
+  return Array.isArray(data) ? createdIds : createdIds[0];
 }
 
 export async function updateVacation(id: string, data: Partial<Vacation>) {
-  try {
-    const vacationRef = doc(db, 'vacations', id);
-    await updateDoc(vacationRef, data);
-  } catch (e) {
-    console.error('Błąd podczas aktualizacji urlopu: ', e);
-    throw e;
-  }
+  const vacationRef = doc(db, 'vacations', id);
+  await updateDoc(vacationRef, data);
 }
 
 export async function removeVacation(id: string) {
-  try {
-    const q = query(collection(db, 'vacations'), where('groupId', '==', id));
-    const snapshot = await getDocs(q);
+  const q = query(collection(db, 'vacations'), where('groupId', '==', id));
+  const snapshot = await getDocs(q);
 
-    const batchDeletions = snapshot.docs.map((d) =>
-      deleteDoc(doc(db, 'vacations', d.id))
-    );
-    await Promise.all(batchDeletions);
-
-    console.log(`Usunięto ${snapshot.size} dokumentów dla groupId ${id}`);
-  } catch (e) {
-    console.error('Błąd podczas usuwania urlopu po groupId:', e);
-    throw e;
-  }
+  const batchDeletions = snapshot.docs.map((d) =>
+    deleteDoc(doc(db, 'vacations', d.id))
+  );
+  await Promise.all(batchDeletions);
 }
 
 export async function getVacationList(): Promise<Vacation[]> {
@@ -160,44 +143,39 @@ export async function getVacationListForMonths(
 export const getUpcomingVacationsForEmployee = async (
   employeeId: string
 ): Promise<Vacation[]> => {
-  try {
-    const now = dayjs();
-    const oneMonthFromNow = now.add(1, 'month').endOf('day');
+  const now = dayjs();
+  const oneMonthFromNow = now.add(1, 'month').endOf('day');
 
-    const monthKeys: string[] = [];
-    for (let i = -1; i < 2; i++) {
-      const date = now.add(i, 'month');
-      const month = date.month() + 1;
-      const year = date.year();
-      const monthKey = `${year}-${month.toString().padStart(2, '0')}`;
-      monthKeys.push(monthKey);
-    }
-
-    const vacations = await getVacationListForMonths(monthKeys);
-
-    const uniqueVacations = vacations.reduce((acc, vacation) => {
-      if (vacation.employeeId === employeeId && !acc.has(vacation.groupId)) {
-        acc.set(vacation.groupId, vacation);
-      }
-      return acc;
-    }, new Map<string, Vacation>());
-
-    const uniqueVacationsArray = Array.from(uniqueVacations.values());
-
-    const filteredVacations = uniqueVacationsArray.filter((vacation) => {
-      const startDate = dayjs(vacation.startDate);
-      const endDate = dayjs(vacation.endDate);
-
-      const isCurrent = now.isBetween(startDate, endDate, 'day', '[]');
-      const isUpcoming =
-        startDate.isAfter(now) && startDate.isBefore(oneMonthFromNow);
-
-      return isCurrent || isUpcoming;
-    });
-
-    return filteredVacations;
-  } catch (error) {
-    console.error('Błąd podczas pobierania urlopów pracownika:', error);
-    throw error;
+  const monthKeys: string[] = [];
+  for (let i = -1; i < 2; i++) {
+    const date = now.add(i, 'month');
+    const month = date.month() + 1;
+    const year = date.year();
+    const monthKey = `${year}-${month.toString().padStart(2, '0')}`;
+    monthKeys.push(monthKey);
   }
+
+  const vacations = await getVacationListForMonths(monthKeys);
+
+  const uniqueVacations = vacations.reduce((acc, vacation) => {
+    if (vacation.employeeId === employeeId && !acc.has(vacation.groupId)) {
+      acc.set(vacation.groupId, vacation);
+    }
+    return acc;
+  }, new Map<string, Vacation>());
+
+  const uniqueVacationsArray = Array.from(uniqueVacations.values());
+
+  const filteredVacations = uniqueVacationsArray.filter((vacation) => {
+    const startDate = dayjs(vacation.startDate);
+    const endDate = dayjs(vacation.endDate);
+
+    const isCurrent = now.isBetween(startDate, endDate, 'day', '[]');
+    const isUpcoming =
+      startDate.isAfter(now) && startDate.isBefore(oneMonthFromNow);
+
+    return isCurrent || isUpcoming;
+  });
+
+  return filteredVacations;
 };

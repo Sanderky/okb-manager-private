@@ -8,17 +8,12 @@ import Toolbar from '@mui/material/Toolbar';
 import type {} from '@mui/material/themeCssVarsAugmentation';
 import PersonIcon from '@mui/icons-material/Person';
 import ConstructionIcon from '@mui/icons-material/Construction';
-import BarChartIcon from '@mui/icons-material/BarChart';
-import DescriptionIcon from '@mui/icons-material/Description';
-import LayersIcon from '@mui/icons-material/Layers';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import HomeIcon from '@mui/icons-material/Home';
 import { matchPath, useLocation } from 'react-router';
 import DashboardSidebarContext from '../../context/DashboardSidebarContext';
 import { DRAWER_WIDTH, MINI_DRAWER_WIDTH } from '../../constants';
 import DashboardSidebarPageItem from './DashboardSidebarPageItem';
-import DashboardSidebarHeaderItem from './DashboardSidebarHeaderItem';
-import DashboardSidebarDividerItem from './DashboardSidebarDividerItem';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import {
   getDrawerSxTransitionMixin,

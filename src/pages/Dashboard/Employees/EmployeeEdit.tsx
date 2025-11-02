@@ -200,14 +200,13 @@ export default function EmployeeEdit() {
         };
 
         setIsSubmitting(true);
-        console.log('updateData', updateData);
 
         await updateMutation.mutateAsync(updateData);
 
         navigate(`/employees/${employeeId}`);
       } catch (error) {
         // Error handling is done in mutation
-        console.error('Error:', error);
+        console.error('Submit error:', error);
       } finally {
         setIsSubmitting(false);
       }

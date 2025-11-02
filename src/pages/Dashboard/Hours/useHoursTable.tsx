@@ -214,7 +214,7 @@ const useHoursTable = (startWeek?: Date) => {
       });
     },
     onError: (error: Error) => {
-      console.error('Save error:', error);
+      console.error('Hours Table save error:', error);
       notifications.show('Błąd podczas zapisywania zmian', {
         severity: 'error',
         autoHideDuration: 5000,
@@ -675,12 +675,10 @@ const useHoursTable = (startWeek?: Date) => {
         employee?.name || workHour.employeeName || 'Nieznany pracownik';
 
       if (!construction && !workHour.constructionName) {
-        console.warn(`Pominięto workHour bez budowy: ${workHour.id}`);
         return;
       }
 
       if (!employee && !workHour.employeeName) {
-        console.warn(`Pominięto workHour bez pracownika: ${workHour.id}`);
         return;
       }
 

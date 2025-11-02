@@ -13,52 +13,37 @@ import type { Construction } from '../types';
 export async function createConstruction(
   data: Partial<Construction> & { name: string }
 ) {
-  try {
-    if (!data.name || !data.startDate) {
-      throw new Error('Nazwa i data rozpoczęcia są wymagane');
-    }
-
-    const constructionData: Omit<Construction, 'id'> = {
-      ...(data.note !== undefined && { note: data.note }),
-      name: data.name,
-      location: data.location ?? null,
-      contractor: data.contractor ?? null,
-      startDate: data.startDate,
-      endDate: data.endDate ?? null,
-    };
-
-    const docRef = await addDoc(
-      collection(db, 'constructions'),
-      constructionData
-    );
-    return docRef.id;
-  } catch (e) {
-    console.error('Błąd podczas dodawania dokumentu: ', e);
-    throw e;
+  if (!data.name || !data.startDate) {
+    throw new Error('Nazwa i data rozpoczęcia są wymagane');
   }
+
+  const constructionData: Omit<Construction, 'id'> = {
+    ...(data.note !== undefined && { note: data.note }),
+    name: data.name,
+    location: data.location ?? null,
+    contractor: data.contractor ?? null,
+    startDate: data.startDate,
+    endDate: data.endDate ?? null,
+  };
+
+  const docRef = await addDoc(
+    collection(db, 'constructions'),
+    constructionData
+  );
+  return docRef.id;
 }
 
 export async function updateConstruction(
   id: string,
   data: Partial<Construction>
 ): Promise<void> {
-  try {
-    const constructionRef = doc(db, 'constructions', id);
-    await updateDoc(constructionRef, data);
-  } catch (e) {
-    console.error('Błąd podczas aktualizacji dokumentu: ', e);
-    throw e;
-  }
+  const constructionRef = doc(db, 'constructions', id);
+  await updateDoc(constructionRef, data);
 }
 
 export async function removeConstruction(id: string): Promise<void> {
-  try {
-    const constructionRef = doc(db, 'constructions', id);
-    await deleteDoc(constructionRef);
-  } catch (e) {
-    console.error('Błąd podczas usuwania dokumentu: ', e);
-    throw e;
-  }
+  const constructionRef = doc(db, 'constructions', id);
+  await deleteDoc(constructionRef);
 }
 
 export async function getConstructionList(): Promise<Construction[]> {

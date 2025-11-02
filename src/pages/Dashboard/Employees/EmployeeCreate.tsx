@@ -117,7 +117,6 @@ export default function EmployeeCreate() {
           : (formState.values.contractEndDate ?? null),
       };
 
-      console.log('createPayload', payload);
       createMutation.mutate(payload);
     },
     [formState.values, createMutation, notifications]
