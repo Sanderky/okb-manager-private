@@ -19,6 +19,7 @@ import VacationCalendar from './pages/Dashboard/Calendar/Calendar';
 import Hours from './pages/Dashboard/Hours/Hours';
 import Schedule from './pages/Dashboard/Schedule/Schedule';
 import useEmployeesAlert from './hooks/useEmployeeAlert';
+import PageNotFound from './pages/PageNotFound/PageNotFound';
 
 // import AppTheme from './theme/AppTheme';
 // import {
@@ -78,6 +79,7 @@ export default function App() {
                     <Route path="schedule" element={<Schedule />} />
                     <Route path="calendar" element={<VacationCalendar />} />
                     <Route path="hours" element={<Hours />} />
+                    <Route path="*" element={<PageNotFound />} />
                   </Route>
                 </Route>
               </Routes>
