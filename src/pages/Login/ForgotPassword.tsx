@@ -14,7 +14,7 @@ import {
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { getRules, validateField } from './validation';
-import { useAuth } from '../../context/AuthContext';
+import useLoading from '../../hooks/useLoading';
 
 interface ForgotPasswordProps {
   open: boolean;
@@ -23,7 +23,11 @@ interface ForgotPasswordProps {
 
 const ForgotPassword = ({ open, handleClose }: ForgotPasswordProps) => {
   const { t } = useTranslation();
-  const { loading: authLoading } = useAuth();
+  const {
+    loading: actionLoading,
+    startLoading: startActionLoading,
+    stopLoading: stopActionLoading,
+  } = useLoading(false);
 
   const [email, setEmail] = useState('');
   const [emailError, setEmailError] = useState(false);
@@ -33,7 +37,6 @@ const ForgotPassword = ({ open, handleClose }: ForgotPasswordProps) => {
   const [toastSeverity, setToastSeverity] = useState<
     'success' | 'error' | undefined
   >(undefined);
-  const [actionLoading, setActionLoading] = useState(false);
 
   useEffect(() => {
     if (open) {
@@ -61,20 +64,18 @@ const ForgotPassword = ({ open, handleClose }: ForgotPasswordProps) => {
 
     if (!validateEmail()) return;
 
-    setActionLoading(true);
+    startActionLoading();
     try {
       await sendPasswordResetEmail(auth, email);
       setToastMsg(t('login.forgotPassword.resetSuccess'));
       setToastSeverity('success');
 
-      // Reset form after success
       setEmail('');
       setEmailError(false);
       setEmailErrorMessage('');
     } catch (error) {
       const firebaseError = error as { code?: string; message: string };
 
-      // console.error('Reset password error:', error);
       setToastMsg(
         firebaseError.code === 'auth/invalid-email'
           ? t('login.forgotPassword.invalidEmail')
@@ -83,12 +84,10 @@ const ForgotPassword = ({ open, handleClose }: ForgotPasswordProps) => {
       setToastSeverity('error');
     } finally {
       setToast(true);
-      setActionLoading(false);
+      stopActionLoading();
       handleClose();
     }
   };
-
-  if (authLoading) return null;
 
   return (
     <>
@@ -127,17 +126,19 @@ const ForgotPassword = ({ open, handleClose }: ForgotPasswordProps) => {
             />
           </DialogContent>
           <DialogActions className="mr-4 mb-4 font-semibold">
-            <button
-              type="button"
-              onClick={handleClose}
-              className="mr-4 cursor-pointer rounded-xl hover:underline"
-              disabled={actionLoading}
-            >
-              {t('login.forgotPassword.cancelButton')}
-            </button>
+            {!actionLoading && (
+              <button
+                type="button"
+                onClick={handleClose}
+                className="mr-4 cursor-pointer rounded-xl hover:underline"
+                disabled={actionLoading}
+              >
+                {t('login.forgotPassword.cancelButton')}
+              </button>
+            )}
             <button
               type="submit"
-              className="flex cursor-pointer items-center justify-center rounded-lg border border-indigo-500 px-5 py-2 text-indigo-500 hover:bg-indigo-500 hover:text-white"
+              className="flex cursor-pointer items-center justify-center rounded-lg border border-indigo-500 px-5 py-2 text-indigo-500 hover:bg-indigo-500 hover:text-white disabled:opacity-50"
               disabled={actionLoading}
             >
               {actionLoading ? (

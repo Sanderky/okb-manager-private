@@ -51,6 +51,7 @@ import { PrintableSchedule } from './SchedulePrint';
 import usePrintShortcut from '../../../hooks/usePrintShortcut';
 import { Print } from '@mui/icons-material';
 import PageContainer from '../../../components/PageContainer';
+import useLoading from '../../../hooks/useLoading';
 
 // dayjs.locale('pl');
 
@@ -91,6 +92,13 @@ const ScheduleComponent = () => {
 
   const notifications = useNotifications();
   const queryClient = useQueryClient();
+
+  // Hook do ładowania akcji
+  const {
+    loading: actionLoading,
+    startLoading: startActionLoading,
+    stopLoading: stopActionLoading,
+  } = useLoading(false);
 
   const printRef = useRef<HTMLDivElement>(null);
 
@@ -149,6 +157,30 @@ const ScheduleComponent = () => {
     queryFn: getScheduleList,
   });
 
+  const updateScheduleMutation = useMutation({
+    mutationFn: updateSchedule,
+    onMutate: () => {
+      startActionLoading();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['schedules'] });
+      notifications.show('Harmonogram został zaktualizowany.', {
+        severity: 'success',
+        autoHideDuration: 5000,
+      });
+    },
+    onError: (error: Error) => {
+      console.error('Update schedule error:', error);
+      notifications.show('Wystąpił błąd podczas zapisywania harmonogramu.', {
+        severity: 'error',
+        autoHideDuration: 5000,
+      });
+    },
+    onSettled: () => {
+      stopActionLoading();
+    },
+  });
+
   const weeks = useMemo(() => {
     const start = dayjs(fromWeek);
     const end = dayjs(toWeek);
@@ -166,24 +198,6 @@ const ScheduleComponent = () => {
     const ids = new Set(selectedEmployees.map((e) => e.id));
     return employees.filter((e) => ids.has(e.id));
   }, [employees, selectedEmployees]);
-
-  const updateScheduleMutation = useMutation({
-    mutationFn: updateSchedule,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['schedules'] });
-      notifications.show('Harmonogram został zaktualizowany.', {
-        severity: 'success',
-        autoHideDuration: 5000,
-      });
-    },
-    onError: (error: Error) => {
-      console.error('Update schedule error:', error);
-      notifications.show('Wystąpił błąd podczas zapisywania harmonogramu.', {
-        severity: 'error',
-        autoHideDuration: 5000,
-      });
-    },
-  });
 
   type NormalizedEntry = {
     constructionId: string | null;
@@ -341,10 +355,6 @@ const ScheduleComponent = () => {
       );
 
       if (!cell.isWeek && hasVacation) {
-        // notifications.show('Nie można zmienić przydziału w dniu urlopu.', {
-        //   severity: 'warning',
-        //   autoHideDuration: 3000,
-        // });
         return;
       }
 
@@ -480,26 +490,17 @@ const ScheduleComponent = () => {
     ]
   );
 
-  const isLoading =
-    isLoadingConstructions ||
-    isLoadingEmployees ||
-    isLoadingVacations ||
-    isLoadingSchedules;
-
-  const error =
-    isErrorConstructions ||
-    isErrorEmployees ||
-    isErrorVacations ||
-    isErrorSchedules;
+  // Agregacja stanów ładowania i błędów
+  const error = isErrorConstructions || isErrorEmployees || isErrorVacations || isErrorSchedules;
+  const loading = isLoadingConstructions || isLoadingEmployees || isLoadingVacations || isLoadingSchedules || actionLoading;
 
   if (error) {
     return (
-      <Box
-        sx={{ p: { xs: 1, sm: 2, md: 3 }, overflow: 'hidden' }}
-        className="relative"
-      >
-        <Alert severity="error">Wystąpił błąd podczas ładowania danych.</Alert>
-      </Box>
+      <PageContainer breadcrumbs={[{ title: 'Harmonogram pracowników' }]}>
+        <Box sx={{ p: { xs: 1, sm: 2, md: 3 }, overflow: 'hidden' }} className="relative">
+          <Alert severity="error">Wystąpił błąd podczas ładowania danych.</Alert>
+        </Box>
+      </PageContainer>
     );
   }
 
@@ -512,6 +513,7 @@ const ScheduleComponent = () => {
           onClick={handlePrint}
           variant="contained"
           startIcon={<Print />}
+          disabled={loading}
         >
           Drukuj
         </Button>
@@ -523,7 +525,7 @@ const ScheduleComponent = () => {
         }}
         className="relative"
       >
-        {isLoading && (
+        {loading && (
           <Box
             sx={{
               position: 'absolute',
@@ -844,6 +846,8 @@ const ScheduleComponent = () => {
                 );
                 handleCellMenuClose();
               }}
+              loading={actionLoading}
+              disabled={actionLoading}
               renderOption={(props, option) => {
                 const { key, ...optionProps } = props;
                 return (
@@ -862,7 +866,21 @@ const ScheduleComponent = () => {
                   </li>
                 );
               }}
-              renderInput={(params) => <TextField {...params} label="Budowa" />}
+              renderInput={(params) => (
+                <TextField 
+                  {...params} 
+                  label="Budowa" 
+                  InputProps={{
+                    ...params.InputProps,
+                    endAdornment: (
+                      <>
+                        {actionLoading ? <CircularProgress size={20} /> : null}
+                        {params.InputProps.endAdornment}
+                      </>
+                    ),
+                  }}
+                />
+              )}
             />
           )}
         </Menu>

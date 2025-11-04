@@ -33,6 +33,7 @@ import {
   type CalendarEvent,
 } from './CalendarHelpers';
 import PageContainer from '../../../components/PageContainer';
+import useLoading from '../../../hooks/useLoading';
 
 import ListAltIcon from '@mui/icons-material/ListAlt';
 
@@ -59,6 +60,13 @@ const Calendar: React.FC = () => {
   const notifications = useNotifications();
   const queryClient = useQueryClient();
 
+  // Hook do ładowania akcji
+  const {
+    loading: actionLoading,
+    startLoading: startActionLoading,
+    stopLoading: stopActionLoading,
+  } = useLoading(false);
+
   const {
     data: employees = [],
     isLoading: isLoadingEmployees,
@@ -77,8 +85,11 @@ const Calendar: React.FC = () => {
     queryFn: getVacationList,
   });
 
-  const { mutate: addMutation } = useMutation({
+  const { mutate: addMutation, isPending: isAdding } = useMutation({
     mutationFn: (payload: Vacation[]) => createVacation(payload),
+    onMutate: () => {
+      startActionLoading();
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['vacations'] });
       notifications.show('Urlop został pomyślnie utworzony.', {
@@ -94,10 +105,16 @@ const Calendar: React.FC = () => {
         autoHideDuration: 5000,
       });
     },
+    onSettled: () => {
+      stopActionLoading();
+    },
   });
 
-  const { mutate: deleteMutation } = useMutation({
+  const { mutate: deleteMutation, isPending: isDeleting } = useMutation({
     mutationFn: (id: string) => removeVacation(id),
+    onMutate: () => {
+      startActionLoading();
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['vacations'] });
       notifications.show('Urlop został pomyślnie usunięty.', {
@@ -112,6 +129,9 @@ const Calendar: React.FC = () => {
         severity: 'error',
         autoHideDuration: 5000,
       });
+    },
+    onSettled: () => {
+      stopActionLoading();
     },
   });
 
@@ -346,16 +366,22 @@ const Calendar: React.FC = () => {
     setCurrentEvent(ev);
   }, []);
 
-  if (isErrorEmployees || isErrorVacations) {
+  // Agregacja stanów ładowania i błędów
+  const error = isErrorEmployees || isErrorVacations;
+  const loading = isLoadingEmployees || isLoadingVacations;
+
+  if (error) {
     return (
-      <Box
-        sx={{ padding: { xs: 1, sm: 2, md: 3 }, pb: 4 }}
-        className="relative"
-      >
-        <Alert severity="error">
-          Wystąpił błąd podczas ładowania danych kalendarza.
-        </Alert>
-      </Box>
+      <PageContainer breadcrumbs={[{ title: 'Kalendarz urlopów' }]}>
+        <Box
+          sx={{ padding: { xs: 1, sm: 2, md: 3 }, pb: 4 }}
+          className="relative"
+        >
+          <Alert severity="error">
+            Wystąpił błąd podczas ładowania danych.
+          </Alert>
+        </Box>
+      </PageContainer>
     );
   }
 
@@ -374,7 +400,7 @@ const Calendar: React.FC = () => {
       }
     >
       <Box className="relative">
-        {(isLoadingEmployees || isLoadingVacations) && (
+        {loading && (
           <Box
             sx={{
               position: 'absolute',
@@ -454,6 +480,7 @@ const Calendar: React.FC = () => {
           handleModalClose={handleModalClose}
           handleEmployeeChange={handleEmployeeChange}
           handleAddEvent={handleAddEvent}
+          loading={actionLoading || isAdding}
         />
 
         <EventDetailsDialog
@@ -462,6 +489,7 @@ const Calendar: React.FC = () => {
           selectedEmployees={selectedEmployees}
           handleModalClose={handleModalClose}
           handleDeleteEvent={handleDeleteEvent}
+          loading={actionLoading || isDeleting}
         />
 
         <VacationReportDialog

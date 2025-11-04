@@ -2,7 +2,6 @@ import * as React from 'react';
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import CircularProgress from '@mui/material/CircularProgress';
 import { useNavigate, useParams } from 'react-router';
 import {
   getConstruction,
@@ -25,12 +24,19 @@ import useNotifications from '../../../hooks/useNotifications/useNotifications';
 import { validate } from './ConstructionHelpers';
 import { ConfirmationDialog } from '../../../components/BaseDialog';
 import { deleteFolderRecursive } from '../../../components/fileBrowser/FileBrowserHelpers';
+import Loading from '../../../components/Loading';
+import useLoading from '../../../hooks/useLoading';
 
 export default function ConstructionEdit() {
   const { constructionId } = useParams<{ constructionId: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const notifications = useNotifications();
+  const {
+    loading: actionLoading,
+    startLoading: startActionLoading,
+    stopLoading: stopActionLoading,
+  } = useLoading(false);
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -118,7 +124,6 @@ export default function ConstructionEdit() {
             behavior: 'smooth',
             block: 'center',
           });
-          // firstErrorInput.focus();
         }
         return;
       }
@@ -129,7 +134,6 @@ export default function ConstructionEdit() {
         if (field === 'id') return;
 
         if (formState.values[field] !== construction?.[field]) {
-          // Użyj type assertion z odpowiednim typem
           const constructionKey = field as keyof Omit<Construction, 'id'>;
           changedValues[constructionKey] = formState.values[field] as never;
         }
@@ -139,9 +143,21 @@ export default function ConstructionEdit() {
         return;
       }
 
-      updateMutation.mutate(changedValues);
+      startActionLoading();
+      try {
+        await updateMutation.mutateAsync(changedValues);
+      } finally {
+        stopActionLoading();
+      }
     },
-    [formState.values, construction, updateMutation, notifications]
+    [
+      formState.values,
+      construction,
+      updateMutation,
+      notifications,
+      startActionLoading,
+      stopActionLoading,
+    ]
   );
 
   const handleDeleteClick = useCallback(() => {
@@ -178,20 +194,8 @@ export default function ConstructionEdit() {
   }, []);
 
   const renderContent = () => {
-    if (isLoading || updateMutation.isPending) {
-      return (
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            width: '100%',
-            py: 4,
-          }}
-        >
-          <CircularProgress />
-        </Box>
-      );
+    if (isLoading || actionLoading) {
+      return <Loading message="Ładowanie danych budowy..." />;
     }
 
     if (error) {
@@ -222,7 +226,7 @@ export default function ConstructionEdit() {
                 formState={formState}
                 onFieldChange={handleFieldChange}
                 onSubmit={handleSubmit}
-                isSubmitting={updateMutation.isPending}
+                isSubmitting={actionLoading}
                 submitError={
                   updateMutation.isError
                     ? 'Wystąpił błąd podczas aktualizacji budowy.'
@@ -256,10 +260,10 @@ export default function ConstructionEdit() {
                 color="error"
                 sx={{ minWidth: 120 }}
                 onClick={handleDeleteClick}
-                disabled={isDeleting || isLoading || updateMutation.isPending}
+                loading={isDeleting || isLoading || actionLoading}
                 startIcon={<HighlightOffIcon />}
               >
-                {isDeleting ? 'Usuwanie...' : 'Usuń'}
+                Usuń
               </Button>
             </Stack>
           </Grid>

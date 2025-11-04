@@ -2,13 +2,13 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import CircularProgress from '@mui/material/CircularProgress';
 import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { useNavigate } from 'react-router';
 
 import PageContainer from '../../../components/PageContainer';
+import Loading from '../../../components/Loading';
 
 import { type Construction } from '../../../types';
 import {
@@ -43,6 +43,7 @@ import { getEmployeesByScheduledConstruction } from '../../../api/schedules';
 import { getEmployeeList } from '../../../api/employees';
 import BaseDialog, { ConfirmationDialog } from '../../../components/BaseDialog';
 import FirebaseFileBrowser from '../../../components/fileBrowser/FileBrowser';
+import useLoading from '../../../hooks/useLoading';
 
 const personalFields = [
   { key: 'name', label: 'Nazwa budowy' },
@@ -56,20 +57,21 @@ export default function ConstructionShow() {
   const { constructionId } = useParams<{ constructionId: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const {
+    loading: actionLoading,
+    startLoading: startActionLoading,
+    stopLoading: stopActionLoading,
+  } = useLoading(false);
 
   const [notFound, setNotFound] = useState(false);
-
   const [editNote, setEditNote] = useState(false);
-
   const notifications = useNotifications();
-
   const [tab, setTab] = useState(0);
+  const [note, setNote] = useState('');
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setTab(newValue);
   };
-
-  const [note, setNote] = useState('');
 
   const {
     data: construction,
@@ -136,9 +138,20 @@ export default function ConstructionShow() {
     if (currentNote === note) {
       return;
     }
-    updateNoteMutation.mutate(note);
-    setEditNote(false);
-  }, [construction?.note, note, updateNoteMutation]);
+    startActionLoading();
+    try {
+      await updateNoteMutation.mutateAsync(note);
+      setEditNote(false);
+    } finally {
+      stopActionLoading();
+    }
+  }, [
+    construction?.note,
+    note,
+    updateNoteMutation,
+    startActionLoading,
+    stopActionLoading,
+  ]);
 
   const handleConstructionEdit = useCallback(() => {
     navigate(`/constructions/${constructionId}/edit`);
@@ -161,7 +174,6 @@ export default function ConstructionShow() {
         queryKey: ['construction', constructionId],
       });
       queryClient.invalidateQueries({ queryKey: ['constructions'] });
-      // Powiadomienia są wyświetlane w handleFinish i handleResume
     },
     onError: (error: Error) => {
       console.error('Update construction status error:', error);
@@ -238,24 +250,7 @@ export default function ConstructionShow() {
 
   const renderShow = useMemo(() => {
     if (loading) {
-      return (
-        <Box
-          sx={{
-            flex: 1,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '100%',
-            m: 1,
-          }}
-        >
-          <CircularProgress />
-          <Typography variant="body2" sx={{ mt: 2, color: 'text.secondary' }}>
-            Ładowanie danych budowy…
-          </Typography>
-        </Box>
-      );
+      return <Loading message="Ładowanie danych budowy..." />;
     }
 
     if (error) {
@@ -479,7 +474,7 @@ export default function ConstructionShow() {
                           onClick={handleSaveNote}
                           color="success"
                           className="rounded-full border border-green-500 bg-green-50/50"
-                          disabled={updateNoteMutation.isPending || !editNote}
+                          disabled={actionLoading || !editNote}
                         >
                           <CheckIcon />
                         </IconButton>
@@ -513,7 +508,7 @@ export default function ConstructionShow() {
                     placeholder="..."
                     value={note}
                     onChange={(e) => setNote(e.target.value)}
-                    readOnly={updateNoteMutation.isPending || !editNote}
+                    readOnly={actionLoading || !editNote}
                   />
                 </Stack>
               </Box>
@@ -635,7 +630,7 @@ export default function ConstructionShow() {
     openEndDialog,
     editNote,
     handleSaveNote,
-    updateNoteMutation.isPending,
+    actionLoading,
     note,
     scheduleEmployees,
     employees,
@@ -664,7 +659,7 @@ export default function ConstructionShow() {
         <Stack direction="row" alignItems="center">
           {!error && !notFound ? (
             loading ? (
-              <CircularProgress size={24} />
+              <Loading size={24} message="" />
             ) : (
               <Chip
                 label={isInProgress ? 'W trakcie' : 'Zakończona'}

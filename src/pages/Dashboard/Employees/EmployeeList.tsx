@@ -29,7 +29,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs, { Dayjs } from 'dayjs';
 import { MRT_Localization_PL } from 'material-react-table/locales/pl';
-import { CircularProgress, Typography } from '@mui/material';
+import { Typography } from '@mui/material';
 import { useTableState } from '../../../hooks/useTableSettings';
 import {
   Dialog,
@@ -45,8 +45,6 @@ import {
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import CloseIcon from '@mui/icons-material/Close';
-import WarningIcon from '@mui/icons-material/Warning';
-import ErrorIcon from '@mui/icons-material/Error';
 import { useEmployeeAlert } from '../../../context/EmployeeAlertContext';
 
 interface EmployeeFilters {
@@ -80,7 +78,6 @@ export default function EmployeeList() {
     resetState,
   } = useTableState('employees');
 
-  // Użyj kontekstu alertów
   const { getEmployeeAlerts } = useEmployeeAlert();
 
   const [filtersModalOpen, setFiltersModalOpen] = useState(false);
@@ -114,7 +111,6 @@ export default function EmployeeList() {
     queryFn: () => getEmployeeList(),
   });
 
-  // Funkcja do sprawdzania alertów pracownika i zwracania odpowiedniego stylu
   const getEmployeeRowStyle = (employeeId: string) => {
     const alerts = getEmployeeAlerts(employeeId);
 
@@ -122,7 +118,6 @@ export default function EmployeeList() {
       return {};
     }
 
-    // Sprawdź czy są krytyczne alerty
     const hasCriticalAlert = alerts.some((alert) => alert.severity === 'error');
     const hasWarningAlert = alerts.some(
       (alert) => alert.severity === 'warning'
@@ -131,48 +126,11 @@ export default function EmployeeList() {
     if (hasCriticalAlert || hasWarningAlert) {
       return {
         backgroundColor: '#ffd85f2e',
-        // borderLeft: '4px solid #f44336',
       };
     }
-    // else if (hasWarningAlert) {
-    //   return {
-    //     backgroundColor: '#fff5d4',
-    //     // borderLeft: '4px solid #ff9800',
-    //   };
-    // }
 
     return {};
   };
-
-  // Funkcja do renderowania ikony alertu w kolumnie
-  // const renderAlertIcon = (employeeId: string) => {
-  //   const alerts = getEmployeeAlerts(employeeId);
-
-  //   if (alerts.length === 0) {
-  //     return null;
-  //   }
-
-  //   const hasCriticalAlert = alerts.some((alert) => alert.severity === 'error');
-  //   const hasWarningAlert = alerts.some(
-  //     (alert) => alert.severity === 'warning'
-  //   );
-
-  //   if (hasCriticalAlert) {
-  //     return (
-  //       <Tooltip title={`Krytyczne alerty: ${alerts.length}`}>
-  //         <ErrorIcon sx={{ color: '#f44336', fontSize: 20 }} />
-  //       </Tooltip>
-  //     );
-  //   } else if (hasWarningAlert) {
-  //     return (
-  //       <Tooltip title={`Ostrzeżenia: ${alerts.length}`}>
-  //         <WarningIcon sx={{ color: '#ff9800', fontSize: 20 }} />
-  //       </Tooltip>
-  //     );
-  //   }
-
-  //   return null;
-  // };
 
   const handleCreateClick = React.useCallback(() => {
     navigate('/employees/create');
@@ -227,7 +185,6 @@ export default function EmployeeList() {
       columnFilters.push({ id: 'isContractor', value: filters.isContractor });
     }
 
-    // Filtry zakresów dat
     if (filters.contractStartDateFrom || filters.contractStartDateTo) {
       columnFilters.push({
         id: 'contractStartDate',
@@ -287,7 +244,6 @@ export default function EmployeeList() {
     table.setColumnFilters([]);
   };
 
-  // Funkcja do filtrowania zakresów dat
   const dateBetweenFilterFn = (
     row: any,
     columnId: string,
@@ -315,16 +271,6 @@ export default function EmployeeList() {
 
   const columns = useMemo<MRT_ColumnDef<Employee>[]>(
     () => [
-      // {
-      //   id: 'alerts',
-      //   header: 'Alerty',
-      //   accessorFn: (row) => row.id,
-      //   Cell: ({ cell }) => renderAlertIcon(cell.getValue<string>()),
-      //   maxSize: 60,
-      //   enableResizing: false,
-      //   enableColumnFilter: false,
-      //   enableSorting: false,
-      // },
       {
         accessorKey: 'name',
         header: 'Imię',
@@ -494,7 +440,6 @@ export default function EmployeeList() {
       density: 'comfortable',
       columnOrder: [
         'mrt-row-numbers',
-        // 'alerts',
         'name',
         'email',
         'phone',
@@ -521,7 +466,7 @@ export default function EmployeeList() {
     state: {
       columnVisibility,
       density,
-      isLoading,
+      isLoading: isLoading,
     },
     onColumnVisibilityChange: setColumnVisibility,
     onDensityChange: setDensity,
@@ -558,8 +503,6 @@ export default function EmployeeList() {
         fontWeight: '600',
         color: '#374151',
         fontSize: '14px',
-        // '&:first-of-type .Mui-TableHeadCell-Content': {
-        // },
         '& .Mui-TableHeadCell-Content': {
           justifyContent: 'center',
           textAlign: 'center',
@@ -567,42 +510,12 @@ export default function EmployeeList() {
       },
       className: 'first:border-l-0',
     },
-    // muiTableBodyCellProps: ({ cell, row }) => {
-    //   // Tylko dla kolumny "Lp." (mrt-row-numbers) zastosuj styl alertu
-    //   if (cell.column.id === 'name') {
-    //     const employeeId = row.original.id;
-    //     const cellStyle = getEmployeeRowStyle(employeeId);
-    //     return {
-    //       sx: {
-    //         borderLeft: '1px solid #e0e0e0',
-    //         ...cellStyle,
-    //       },
-    //     };
-    //   }
-    //   return {
-    //     sx: {
-    //       borderLeft: '1px solid #e0e0e0',
-    //     },
-    //   };
-    // },
     muiTableBodyCellProps: {
       sx: {
         borderLeft: '1px solid #e0e0e0',
         justifyContent: 'center',
       },
     },
-    // muiTableBodyRowProps: ({ row }) => ({
-    //   onClick: () => handleRowClick(row),
-    //   sx: {
-    //     cursor: 'pointer',
-    //     '&:hover': {
-    //       background: '#ffd85f30 !important',
-    //     },
-    //     'td:after': {
-    //       display: 'none',
-    //     },
-    //   },
-    // }),
     muiTableBodyRowProps: ({ row }) => {
       const employeeId = row.original.id;
       const rowStyle = getEmployeeRowStyle(employeeId);
@@ -663,22 +576,6 @@ export default function EmployeeList() {
     },
   });
 
-  if (isLoading) {
-    return (
-      <PageContainer
-        title={t('employees.employeesList')}
-        breadcrumbs={[{ title: t('employees.employees') }]}
-      >
-        <Stack direction="row" alignItems="center" spacing={2}>
-          <CircularProgress />
-          <Typography variant="body2" color="text.secondary">
-            Trwa ładowanie listy pracowników...
-          </Typography>
-        </Stack>
-      </PageContainer>
-    );
-  }
-
   if (error) {
     return (
       <PageContainer
@@ -718,7 +615,6 @@ export default function EmployeeList() {
         <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pl">
           <MaterialReactTable table={table} />
 
-          {/* Modal z filtrami */}
           <Dialog
             open={filtersModalOpen}
             onClose={handleCloseFilters}
@@ -834,7 +730,6 @@ export default function EmployeeList() {
                   </FormControl>
                 </Grid>
 
-                {/* Data urodzenia */}
                 <Grid size={{ xs: 12, md: 6 }}>
                   <FormLabel className="mb-2 block">Data urodzenia</FormLabel>
                   <Stack
@@ -878,7 +773,6 @@ export default function EmployeeList() {
                   </Stack>
                 </Grid>
 
-                {/* Zakres daty umowy */}
                 <Grid size={{ xs: 12, md: 6 }}>
                   <FormLabel className="mb-2 block">
                     Data rozpoczęcia umowy
@@ -980,7 +874,6 @@ export default function EmployeeList() {
                   </Stack>
                 </Grid>
 
-                {/* Zakres daty A1 */}
                 <Grid size={{ xs: 12, md: 6 }}>
                   <FormLabel className="mb-2 block">
                     Data rozpoczęcia A1

@@ -171,8 +171,10 @@ export const AddEventDialog: React.FC<AddEventDialogProps> = ({
                   ? validationError
                   : ''
               }
+              disabled={loading}
             />
           )}
+          disabled={loading}
         />
 
         {currentEvent.startDate && currentEvent.endDate && (
@@ -240,7 +242,7 @@ export const EventDetailsDialog: React.FC<EventDetailsDialogProps> = ({
             variant="outlined"
             color="error"
             onClick={handleDelete}
-            disabled={loading}
+            loading={loading}
             startIcon={<DeleteIcon />}
           >
             Usuń urlop
@@ -266,7 +268,9 @@ export const EventDetailsDialog: React.FC<EventDetailsDialogProps> = ({
                 <Stack
                   key={event.id}
                   sx={{
-                    backgroundColor: getColorForEmployee(event.employee.id),
+                    backgroundColor: getColorForEmployee(
+                      event.employee?.id ?? '0'
+                    ),
                     borderRadius: 1,
                     cursor: 'pointer',
                     ':hover': { opacity: 0.9 },
@@ -291,7 +295,7 @@ export const EventDetailsDialog: React.FC<EventDetailsDialogProps> = ({
                       e.stopPropagation();
                       handleDeleteEvent(event.groupId);
                     }}
-                    disabled={loading}
+                    loading={loading}
                   >
                     <DeleteIcon />
                   </IconButton>

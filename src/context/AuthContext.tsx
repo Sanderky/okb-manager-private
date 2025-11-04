@@ -11,6 +11,7 @@ import { auth } from '../firebase';
 interface AuthContextType {
   user: User | null;
   loading: boolean;
+  initialLoading: boolean; // nowy stan dla początkowego ładowania
   logout: () => Promise<void>;
 }
 
@@ -30,21 +31,37 @@ export const useAuth = () => {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
-      setLoading(false);
+      // Tylko initialLoading powinno być ustawione na false po pierwszym renderze
+      if (initialLoading) {
+        setInitialLoading(false);
+      }
     });
     return () => unsubscribe();
-  }, []);
+  }, [initialLoading]);
 
   const logout = async () => {
-    await signOut(auth);
+    setLoading(true);
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const value = { user, loading, logout };
+  const value = { 
+    user, 
+    loading: initialLoading || loading, // łączymy oba stany ładowania
+    initialLoading,
+    logout 
+  };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

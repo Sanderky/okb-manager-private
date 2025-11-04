@@ -41,10 +41,10 @@ import {
   Grid,
   Typography,
   FormLabel,
+  Alert,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import CloseIcon from '@mui/icons-material/Close';
-// import { useConstructionAlert } from '../../../context/ConstructionAlertContext'; // Załóżmy, że masz podobny kontekst dla constructions
 
 interface Filters {
   name: string;
@@ -68,9 +68,6 @@ export default function ConstructionsList() {
     resetState,
   } = useTableState('constructions');
 
-  // Użyj kontekstu alertów dla constructions
-  // const { getConstructionAlerts } = useConstructionAlert();
-
   const [filtersModalOpen, setFiltersModalOpen] = useState(false);
   const [filters, setFilters] = useState<Filters>({
     name: '',
@@ -87,29 +84,6 @@ export default function ConstructionsList() {
     queryKey: ['constructions'],
     queryFn: () => getConstructionList(),
   });
-
-  // Funkcja do sprawdzania alertów budowy i zwracania odpowiedniego stylu
-  // const getConstructionRowStyle = (constructionId: string) => {
-  //   const alerts = getConstructionAlerts(constructionId);
-
-  //   if (alerts.length === 0) {
-  //     return {};
-  //   }
-
-  //   // Sprawdź czy są krytyczne alerty
-  //   const hasCriticalAlert = alerts.some((alert) => alert.severity === 'error');
-  //   const hasWarningAlert = alerts.some(
-  //     (alert) => alert.severity === 'warning'
-  //   );
-
-  //   if (hasCriticalAlert || hasWarningAlert) {
-  //     return {
-  //       backgroundColor: '#ffd85f2e',
-  //     };
-  //   }
-
-  //   return {};
-  // };
 
   const handleCreateClick = React.useCallback(() => {
     navigate('/constructions/create');
@@ -145,7 +119,6 @@ export default function ConstructionsList() {
       columnFilters.push({ id: 'location', value: filters.location });
     }
 
-    // Filtry zakresów dat
     if (filters.startDateFrom || filters.startDateTo) {
       columnFilters.push({
         id: 'startDate',
@@ -182,7 +155,6 @@ export default function ConstructionsList() {
     table.setColumnFilters([]);
   };
 
-  // Funkcja do filtrowania zakresów dat
   const dateBetweenFilterFn = (
     row: any,
     columnId: string,
@@ -315,7 +287,7 @@ export default function ConstructionsList() {
     state: {
       columnVisibility,
       density,
-      isLoading,
+      isLoading: isLoading,
     },
     onColumnVisibilityChange: setColumnVisibility,
     onDensityChange: setDensity,
@@ -365,14 +337,10 @@ export default function ConstructionsList() {
       },
     },
     muiTableBodyRowProps: ({ row }) => {
-      // const constructionId = row.original.id;
-      // const rowStyle = getConstructionRowStyle(constructionId);
-
       return {
         onClick: () => handleRowClick(row),
         sx: {
           cursor: 'pointer',
-          // ...rowStyle,
           '&:hover': {
             background: '#5fadff14 !important',
           },
@@ -423,6 +391,16 @@ export default function ConstructionsList() {
       variant: 'outlined',
     },
   });
+
+  if (error) {
+    return (
+      <PageContainer breadcrumbs={[{ title: 'Lista budów' }]}>
+        <Alert severity="error">
+          Wystąpił błąd podczas ładowania listy budów.
+        </Alert>
+      </PageContainer>
+    );
+  }
 
   return (
     <PageContainer

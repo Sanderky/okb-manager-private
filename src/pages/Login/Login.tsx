@@ -13,6 +13,8 @@ import { getRules, validateField } from './validation';
 import { useAuth } from '../../context/AuthContext';
 import { default as LogoIcon } from '@mui/icons-material/TokenOutlined';
 import { syncUserToFirestore } from '../../api/users';
+import Loading from '../../components/Loading';
+import useLoading from '../../hooks/useLoading';
 
 type FormValues = {
   email: string;
@@ -21,7 +23,12 @@ type FormValues = {
 
 const Login = () => {
   const navigate = useNavigate();
-  const { loading: authLoading, user } = useAuth();
+  const { initialLoading, user } = useAuth();
+  const {
+    loading: actionLoading,
+    startLoading: startActionLoading,
+    stopLoading: stopActionLoading,
+  } = useLoading(false);
 
   const [values, setValues] = useState<FormValues>({ email: '', password: '' });
   const [errors, setErrors] = useState<
@@ -29,13 +36,12 @@ const Login = () => {
   >({});
   const [credentialError, setCredentialError] = useState(false);
   const [forgotOpen, setForgotOpen] = useState(false);
-  const [actionLoading, setActionLoading] = useState(false);
 
   useEffect(() => {
-    if (!authLoading && user) {
+    if (!initialLoading && user) {
       navigate('/home');
     }
-  }, [user, authLoading, navigate]);
+  }, [user, initialLoading, navigate]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setValues({ ...values, [e.target.name]: e.target.value });
@@ -57,7 +63,7 @@ const Login = () => {
     e.preventDefault();
     if (!validateInputs()) return;
 
-    setActionLoading(true);
+    startActionLoading();
     try {
       await setPersistence(auth, browserLocalPersistence);
       const userCredential = await signInWithEmailAndPassword(
@@ -72,116 +78,117 @@ const Login = () => {
       setValues({ email: '', password: '' });
       setErrors({});
       setCredentialError(false);
-
-      navigate('/home');
     } catch (error) {
       const firebaseError = error as { code?: string; message: string };
       if (firebaseError.code === 'auth/invalid-credential') {
         setCredentialError(true);
       }
-      // console.error('Login error:', error);
     } finally {
-      setActionLoading(false);
+      stopActionLoading();
     }
   };
-
-  if (authLoading || user) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <CircularProgress />
-      </div>
-    );
-  }
 
   return (
     <section className="relative bg-(image:--primary-gradient)">
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute inset-0 -z-10 bg-[linear-gradient(to_right,#e4e4e7_1px,transparent_1px),linear-gradient(to_bottom,#e4e4e7_1px,transparent_1px)] bg-[size:6rem_4rem]"></div>
       </div>
-      <div className="flex h-screen flex-col items-center justify-center px-6 py-8">
-        <div className="relative w-full rounded-lg bg-white p-6 shadow sm:max-w-md">
-          <h1 className="text-dark absolute -top-8 left-1/2 mb-6 inline-flex -translate-x-1/2 flex-row items-end justify-center rounded-lg bg-white/50 px-4 py-2 font-medium shadow">
-            <LogoIcon className="text-4xl" />
-            <span className="text-darkYellow text-4xl text-shadow-sm/20">
-              OKB
-            </span>
-            <span className="text-2xl underline">manager</span>
-          </h1>
-          <h2 className="text-dark mt-6 mb-8 text-xl">
-            Zaloguj się do swojego konta
-          </h2>
-
-          <form
-            className="space-y-4 md:space-y-6"
-            noValidate
-            onSubmit={handleSubmit}
-          >
-            <TextField
-              size="small"
-              error={!!errors.email}
-              required
-              fullWidth
-              id="email"
-              label="Email"
-              name="email"
-              autoFocus
-              helperText={errors.email}
-              value={values.email}
-              onChange={handleChange}
-              disabled={actionLoading}
-              slotProps={{
-                input: { className: 'rounded-lg' },
-              }}
-            />
-            <TextField
-              size="small"
-              error={!!errors.password}
-              required
-              fullWidth
-              name="password"
-              label="Hasło"
-              type="password"
-              id="password"
-              helperText={errors.password}
-              value={values.password}
-              onChange={handleChange}
-              disabled={actionLoading}
-              slotProps={{
-                input: { className: 'rounded-lg' },
-              }}
-            />
-
-            {credentialError && (
-              <Alert severity="error">
-                Wprowadzono niepoprawny email lub hasło.
-              </Alert>
-            )}
-
-            <div>
-              <a
-                href="#"
-                className="text-md font-semibold text-indigo-500 hover:underline"
-                onClick={() => setForgotOpen(true)}
-              >
-                Nie pamiętasz hasła?
-              </a>
-            </div>
-
-            <button
-              type="submit"
-              className="hover:bg-darkYellow border-darkGray flex w-full cursor-pointer items-center justify-center rounded-lg border px-6 py-3"
-              disabled={actionLoading}
-            >
-              {actionLoading ? <CircularProgress size={24} /> : 'Zaloguj się'}
-            </button>
-          </form>
-
-          <ForgotPassword
-            open={forgotOpen}
-            handleClose={() => setForgotOpen(false)}
+      {user || initialLoading ? (
+        <div className="flex h-screen flex-col items-center justify-center px-6 py-8">
+          <Loading
+            message={
+              initialLoading
+                ? 'Sprawdzanie autoryzacji...'
+                : 'Przekierowywanie...'
+            }
           />
         </div>
-      </div>
+      ) : (
+        <div className="flex h-screen flex-col items-center justify-center px-6 py-8">
+          <div className="relative w-full rounded-lg bg-white p-6 shadow sm:max-w-md">
+            <h1 className="text-dark absolute -top-8 left-1/2 mb-6 inline-flex -translate-x-1/2 flex-row items-end justify-center rounded-lg bg-white/50 px-4 py-2 font-medium shadow">
+              <LogoIcon className="text-4xl" />
+              <span className="text-darkYellow text-4xl text-shadow-sm/20">
+                OKB
+              </span>
+              <span className="text-2xl underline">manager</span>
+            </h1>
+            <h2 className="text-dark mt-6 mb-8 text-xl">
+              Zaloguj się do swojego konta
+            </h2>
+
+            <form
+              className="space-y-4 md:space-y-6"
+              noValidate
+              onSubmit={handleSubmit}
+            >
+              <TextField
+                size="small"
+                error={!!errors.email}
+                required
+                fullWidth
+                id="email"
+                label="Email"
+                name="email"
+                autoFocus
+                helperText={errors.email}
+                value={values.email}
+                onChange={handleChange}
+                disabled={actionLoading}
+                slotProps={{
+                  input: { className: 'rounded-lg' },
+                }}
+              />
+              <TextField
+                size="small"
+                error={!!errors.password}
+                required
+                fullWidth
+                name="password"
+                label="Hasło"
+                type="password"
+                id="password"
+                helperText={errors.password}
+                value={values.password}
+                onChange={handleChange}
+                disabled={actionLoading}
+                slotProps={{
+                  input: { className: 'rounded-lg' },
+                }}
+              />
+
+              {credentialError && (
+                <Alert severity="error">
+                  Wprowadzono niepoprawny email lub hasło.
+                </Alert>
+              )}
+
+              <div>
+                <a
+                  href="#"
+                  className="text-md font-semibold text-indigo-500 hover:underline"
+                  onClick={() => setForgotOpen(true)}
+                >
+                  Nie pamiętasz hasła?
+                </a>
+              </div>
+
+              <button
+                type="submit"
+                className="hover:bg-darkYellow border-darkGray flex w-full cursor-pointer items-center justify-center rounded-lg border px-6 py-3 disabled:opacity-50"
+                disabled={actionLoading}
+              >
+                {actionLoading ? <CircularProgress size={24} /> : 'Zaloguj się'}
+              </button>
+            </form>
+
+            <ForgotPassword
+              open={forgotOpen}
+              handleClose={() => setForgotOpen(false)}
+            />
+          </div>
+        </div>
+      )}
     </section>
   );
 };

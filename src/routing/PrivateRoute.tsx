@@ -1,23 +1,12 @@
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { CircularProgress, Box } from '@mui/material';
+import Loading from '../components/Loading';
 
 const PrivateRoute = () => {
-  const { user, loading } = useAuth();
+  const { user, initialLoading } = useAuth();
 
-  if (loading) {
-    return (
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '100vh',
-        }}
-      >
-        <CircularProgress />
-      </Box>
-    );
+  if (initialLoading) {
+    return <Loading fullScreen />;
   }
 
   return user ? <Outlet /> : <Navigate to="/login" replace />;

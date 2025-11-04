@@ -8,15 +8,22 @@ import PageContainer from '../../../components/PageContainer';
 import type { Construction } from '../../../types';
 import { createConstruction } from '../../../api/constructions';
 import useNotifications from '../../../hooks/useNotifications/useNotifications';
-import { Box, CircularProgress, Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { validate } from './ConstructionHelpers';
+import Loading from '../../../components/Loading';
+import useLoading from '../../../hooks/useLoading';
 
 export default function ConstructionCreate() {
   const navigate = useNavigate();
   const notifications = useNotifications();
   const queryClient = useQueryClient();
+  const {
+    loading: actionLoading,
+    startLoading: startActionLoading,
+    stopLoading: stopActionLoading,
+  } = useLoading(false);
 
   const formRefs = React.useRef<Record<string, HTMLInputElement | null>>({});
 
@@ -78,35 +85,28 @@ export default function ConstructionCreate() {
             behavior: 'smooth',
             block: 'center',
           });
-          // firstErrorInput.focus();
         }
         return;
       }
 
-      createMutation.mutate(formState.values);
+      startActionLoading();
+      try {
+        await createMutation.mutateAsync(formState.values);
+      } finally {
+        stopActionLoading();
+      }
     },
-    [formState.values, createMutation, notifications]
+    [
+      formState.values,
+      createMutation,
+      notifications,
+      startActionLoading,
+      stopActionLoading,
+    ]
   );
 
-  if (createMutation.isPending) {
-    return (
-      <Box
-        sx={{
-          flex: 1,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          width: '100%',
-          m: 1,
-        }}
-      >
-        <CircularProgress />
-        <Typography variant="body2" sx={{ mt: 2, color: 'text.secondary' }}>
-          Trwa tworzenie nowej budowy...
-        </Typography>
-      </Box>
-    );
+  if (actionLoading) {
+    return <Loading message="Trwa tworzenie nowej budowy..." />;
   }
 
   return (
@@ -129,7 +129,7 @@ export default function ConstructionCreate() {
           formState={formState}
           onFieldChange={handleFieldChange}
           onSubmit={handleSubmit}
-          isSubmitting={createMutation.isPending}
+          isSubmitting={actionLoading}
           submitError={
             createMutation.isError
               ? 'Wystąpił błąd podczas tworzenia budowy.'

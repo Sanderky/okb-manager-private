@@ -2,13 +2,13 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import CircularProgress from '@mui/material/CircularProgress';
 import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { useNavigate, useParams } from 'react-router';
 
 import PageContainer from '../../../components/PageContainer';
+import Loading from '../../../components/Loading';
 
 import { type Employee, type FileItem } from '../../../types';
 import { getEmployee, updateEmployee } from '../../../api/employees';
@@ -32,6 +32,7 @@ import { EmployeeAlertRange } from '../../../hooks/useEmployeeAlert';
 import { getUpcomingVacationsForEmployee } from '../../../api/vacations';
 
 import InfoOutlineIcon from '@mui/icons-material/InfoOutline';
+import useLoading from '../../../hooks/useLoading';
 
 const personalFields = [
   { key: 'name', label: 'Imię i nazwisko' },
@@ -152,6 +153,11 @@ export default function EmployeeShow() {
   const { employeeId } = useParams<{ employeeId: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const {
+    loading: actionLoading,
+    startLoading: startActionLoading,
+    stopLoading: stopActionLoading,
+  } = useLoading(false);
 
   const [notFound, setNotFound] = useState(false);
   const [editNote, setEditNote] = useState(false);
@@ -176,8 +182,8 @@ export default function EmployeeShow() {
 
   const {
     data: employee,
-    isLoading,
-    error,
+    isLoading: isEmployeeLoading,
+    error: errorEmployee,
   } = useQuery({
     queryKey: ['employee', employeeId],
     queryFn: () => getEmployee(employeeId!),
@@ -198,10 +204,10 @@ export default function EmployeeShow() {
     if (employee) {
       setNote(employee.note ?? '');
       setNotFound(false);
-    } else if (!isLoading && !employee) {
+    } else if (!isEmployeeLoading) {
       setNotFound(true);
     }
-  }, [employee, isLoading]);
+  }, [employee, isEmployeeLoading]);
 
   const updateNoteMutation = useMutation({
     mutationFn: (newNote: string) =>
@@ -225,18 +231,24 @@ export default function EmployeeShow() {
   const handleSaveNote = useCallback(async () => {
     const currentNote = employee?.note ?? '';
     if (currentNote === note) {
-      // notifications.show('Nie wprowadzono żadnych zmian w notatce.', {
-      //   severity: 'info',
-      //   autoHideDuration: 5000,
-      // });
       setEditNote(false);
       return;
     }
 
+    startActionLoading();
+    try {
       await updateNoteMutation.mutateAsync(note);
       setEditNote(false);
-
-  }, [employee?.note, note, updateNoteMutation]);
+    } finally {
+      stopActionLoading();
+    }
+  }, [
+    employee?.note,
+    note,
+    updateNoteMutation,
+    startActionLoading,
+    stopActionLoading,
+  ]);
 
   const handleEmployeeEdit = useCallback(() => {
     navigate(`/employees/${employeeId}/edit`);
@@ -271,26 +283,12 @@ export default function EmployeeShow() {
     return String(value);
   };
 
+  const error = errorEmployee || errorEmployeeVacation;
+  const loading = isEmployeeLoading || isEmployeeVacationLoading;
+
   const renderShow = useMemo(() => {
-    if (isLoading) {
-      return (
-        <Box
-          sx={{
-            flex: 1,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '100%',
-            m: 1,
-          }}
-        >
-          <CircularProgress />
-          <Typography variant="body2" sx={{ mt: 2, color: 'text.secondary' }}>
-            Ładowanie danych pracownika...
-          </Typography>
-        </Box>
-      );
+    if (loading) {
+      return <Loading message="Ładowanie danych pracownika..." />;
     }
 
     if (error) {
@@ -406,7 +404,6 @@ export default function EmployeeShow() {
                           overflow: 'visible',
                           whiteSpace: 'normal',
                           wordBreak: 'break-word',
-                          // pr: 2,
                           textAlign: 'right',
                         }}
                       >
@@ -443,7 +440,7 @@ export default function EmployeeShow() {
                           onClick={handleSaveNote}
                           color="success"
                           className="rounded-full border border-green-500 bg-green-50/50"
-                          disabled={updateNoteMutation.isPending}
+                          disabled={actionLoading || !editNote}
                         >
                           <CheckIcon />
                         </IconButton>
@@ -470,7 +467,7 @@ export default function EmployeeShow() {
                     placeholder="..."
                     value={note}
                     onChange={(e) => setNote(e.target.value)}
-                    readOnly={updateNoteMutation.isPending || !editNote}
+                    readOnly={actionLoading || !editNote}
                   />
                 </Stack>
               </Box>
@@ -593,7 +590,7 @@ export default function EmployeeShow() {
       </Box>
     ) : null;
   }, [
-    isLoading,
+    loading,
     error,
     notFound,
     employee,
@@ -601,7 +598,7 @@ export default function EmployeeShow() {
     handleEmployeeEdit,
     editNote,
     handleSaveNote,
-    updateNoteMutation.isPending,
+    actionLoading,
     handleCancelEdit,
     note,
     employeeVacation,
@@ -621,8 +618,8 @@ export default function EmployeeShow() {
       actions={
         <Stack direction="row" alignItems="center">
           {!error && !notFound ? (
-            isLoading ? (
-              <CircularProgress size={24} />
+            loading ? (
+              <Loading size={24} message="" />
             ) : (
               <Chip
                 label={employee?.status ? 'Zatrudniony' : 'Niezatrudniony'}

@@ -2,7 +2,6 @@ import * as React from 'react';
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import CircularProgress from '@mui/material/CircularProgress';
 import { useNavigate, useParams } from 'react-router';
 import {
   getEmployee,
@@ -26,6 +25,8 @@ import useEmployeeAttachment from './useAttachment';
 import { validate } from './EmployeeEditHelpers';
 import { ConfirmationDialog } from '../../../components/BaseDialog';
 import { deleteFolderRecursive } from '../../../components/fileBrowser/FileBrowserHelpers';
+import Loading from '../../../components/Loading';
+import useLoading from '../../../hooks/useLoading';
 
 export type FileStateMap = {
   [K in EmployeeAttachment]: File | null;
@@ -36,8 +37,12 @@ export default function EmployeeEdit() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const notifications = useNotifications();
+  const {
+    loading: actionLoading,
+    startLoading: startActionLoading,
+    stopLoading: stopActionLoading,
+  } = useLoading(false);
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
@@ -150,7 +155,6 @@ export default function EmployeeEdit() {
             behavior: 'smooth',
             block: 'center',
           });
-          // firstErrorInput.focus();
         }
 
         return;
@@ -199,16 +203,13 @@ export default function EmployeeEdit() {
             : (formState.values.contractEndDate ?? null),
         };
 
-        setIsSubmitting(true);
-
+        startActionLoading();
         await updateMutation.mutateAsync(updateData);
-
         navigate(`/employees/${employeeId}`);
       } catch (error) {
-        // Error handling is done in mutation
         console.error('Submit error:', error);
       } finally {
-        setIsSubmitting(false);
+        stopActionLoading();
       }
     },
     [
@@ -221,6 +222,8 @@ export default function EmployeeEdit() {
       notifications,
       files,
       employee,
+      startActionLoading,
+      stopActionLoading,
     ]
   );
 
@@ -258,23 +261,11 @@ export default function EmployeeEdit() {
   }, []);
 
   const isFormLoading =
-    attachmentLoading !== false || isSubmitting || isDeleting;
+    isLoading || actionLoading || attachmentLoading !== false || isDeleting;
 
   const renderContent = () => {
     if (isLoading) {
-      return (
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            width: '100%',
-            py: 4,
-          }}
-        >
-          <CircularProgress />
-        </Box>
-      );
+      return <Loading message="Ładowanie danych pracownika..." />;
     }
 
     if (error) {
@@ -310,7 +301,7 @@ export default function EmployeeEdit() {
                 formState={formState}
                 onFieldChange={handleFieldChange}
                 onSubmit={handleSubmit}
-                isSubmitting={isSubmitting}
+                isSubmitting={actionLoading}
                 isFileLoading={attachmentLoading}
                 isEditForm={true}
                 registerFieldRef={registerFieldRef}

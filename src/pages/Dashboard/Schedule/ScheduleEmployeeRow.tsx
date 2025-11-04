@@ -6,6 +6,7 @@ import {
   Tooltip,
   useTheme,
   useMediaQuery,
+  CircularProgress,
 } from '@mui/material';
 import { Dayjs } from 'dayjs';
 import type { Employee } from '../../../types';
@@ -17,48 +18,51 @@ interface EmployeeRowProps {
   onCellClick: (e: React.MouseEvent<HTMLElement>, cell: ICell) => void;
   cellText: (cell: ICell) => React.ReactNode;
   activeTable: { type: number; week: Dayjs };
+  loading?: boolean;
 }
 
 interface ScheduleCellProps {
   cell: ICell;
   onClick: (e: React.MouseEvent<HTMLElement>, cell: ICell) => void;
   cellText: (cell: ICell) => React.ReactNode;
-  hasVacation?: boolean;
+  loading?: boolean;
 }
 
 // Komponent ScheduleCell
 const ScheduleCell: React.FC<ScheduleCellProps> = React.memo(
-  ({ cell, onClick, cellText }) => (
+  ({ cell, onClick, cellText, loading = false }) => (
     <TableCell
       sx={{
-        cursor: 'pointer',
+        cursor: loading ? 'default' : 'pointer',
         transition: '0.3s',
         padding: '6px 12px',
         textAlign: 'center',
-        // display: {
-        //   xs: index === 0 ? 'table-cell' : 'none',
-        //   sm: 'table-cell',
-        // },
+        position: 'relative',
       }}
       className="hover:bg-lightBlue border-l border-l-gray-300"
       onClick={(e) => {
-        // if (hasVacation) {
-        //   e.stopPropagation();
-        //   return;
-        // }
+        if (loading) {
+          e.stopPropagation();
+          return;
+        }
         onClick(e, cell);
       }}
     >
-      {cellText(cell)}
+      {loading ? <CircularProgress size={16} /> : cellText(cell)}
     </TableCell>
   )
 );
 
 // Główny komponent EmployeeRow
 export const EmployeeRow: React.FC<EmployeeRowProps> = React.memo(
-  ({ employee, weeks, onCellClick, cellText, activeTable }) => {
-    // Funkcja pomocnicza do sprawdzania urlopu
-
+  ({
+    employee,
+    weeks,
+    onCellClick,
+    cellText,
+    activeTable,
+    loading = false,
+  }) => {
     const theme = useTheme();
     const isXs = useMediaQuery(theme.breakpoints.only('xs'));
 
@@ -128,6 +132,7 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = React.memo(
                 cell={cell}
                 onClick={onCellClick}
                 cellText={cellText}
+                loading={loading}
               />
             );
           })}
@@ -146,7 +151,6 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = React.memo(
             position: 'sticky',
             left: 0,
             zIndex: 3,
-            // backgroundColor: '#f3f4f6',
             backgroundColor: '#f6faff',
             padding: '6px 12px',
             textAlign: 'center',
@@ -166,7 +170,7 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = React.memo(
           };
 
           if (isXs && i > 0) {
-            return;
+            return null;
           }
 
           return (
@@ -175,6 +179,7 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = React.memo(
               cell={cell}
               onClick={onCellClick}
               cellText={cellText}
+              loading={loading}
             />
           );
         })}

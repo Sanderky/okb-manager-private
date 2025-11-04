@@ -8,15 +8,22 @@ import PageContainer from '../../../components/PageContainer';
 import type { Employee, EmployeeAttachment } from '../../../types';
 import { createEmployee } from '../../../api/employees';
 import useNotifications from '../../../hooks/useNotifications/useNotifications';
-import { Box, CircularProgress, Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { validate } from './EmployeeEditHelpers';
 import type { FileStateMap } from './EmployeeEdit';
+import Loading from '../../../components/Loading';
+import useLoading from '../../../hooks/useLoading';
 
 export default function EmployeeCreate() {
   const navigate = useNavigate();
   const notifications = useNotifications();
   const queryClient = useQueryClient();
+  const {
+    loading: actionLoading,
+    startLoading: startActionLoading,
+    stopLoading: stopActionLoading,
+  } = useLoading(false);
 
   const formRefs = React.useRef<Record<string, HTMLInputElement | null>>({});
 
@@ -98,12 +105,7 @@ export default function EmployeeCreate() {
             behavior: 'smooth',
             block: 'center',
           });
-          // firstErrorInput.focus();
         }
-        // fieldRef.scrollIntoView({
-        //   behavior: 'smooth',
-        //   block: 'center'
-        // });
         return;
       }
 
@@ -117,30 +119,24 @@ export default function EmployeeCreate() {
           : (formState.values.contractEndDate ?? null),
       };
 
-      createMutation.mutate(payload);
+      startActionLoading();
+      try {
+        await createMutation.mutateAsync(payload);
+      } finally {
+        stopActionLoading();
+      }
     },
-    [formState.values, createMutation, notifications]
+    [
+      formState.values,
+      createMutation,
+      notifications,
+      startActionLoading,
+      stopActionLoading,
+    ]
   );
 
-  if (createMutation.isPending) {
-    return (
-      <Box
-        sx={{
-          flex: 1,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          width: '100%',
-          m: 1,
-        }}
-      >
-        <CircularProgress />
-        <Typography variant="body2" sx={{ mt: 2, color: 'text.secondary' }}>
-          Trwa tworzenie nowego pracownika...
-        </Typography>
-      </Box>
-    );
+  if (actionLoading) {
+    return <Loading message="Trwa tworzenie nowego pracownika..." />;
   }
 
   return (
@@ -163,7 +159,7 @@ export default function EmployeeCreate() {
           formState={formState}
           onFieldChange={handleFieldChange}
           onSubmit={handleSubmit}
-          isSubmitting={createMutation.isPending}
+          isSubmitting={actionLoading}
           isEditForm={false}
           onFileChange={handleFileChange}
           filesState={files}
