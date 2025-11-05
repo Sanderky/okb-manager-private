@@ -127,7 +127,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                             top: slot * 23,
                             left: 0,
                             right: 0,
-                            bgcolor: getColorForEmployee(ev.employee.id),
+                            bgcolor: getColorForEmployee(ev.employee?.id),
                             px: 1,
                             ml: isStart ? 1 : '-5px',
                             mr: isEnd ? 1 : '-5px',
@@ -135,31 +135,25 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
                             whiteSpace: 'nowrap',
-                            color: isStart || isEnd ? 'dark' : 'transparent',
+                            color: isStart || isEnd ? 'white' : 'transparent',
                             borderTopLeftRadius: isStart ? 10 : 0,
                             borderBottomLeftRadius: isStart ? 10 : 0,
                             borderTopRightRadius: isEnd ? 10 : 0,
                             borderBottomRightRadius: isEnd ? 10 : 0,
                             cursor: 'pointer',
-                            fontWeight: '400',
                             textAlign: isStart ? 'left' : 'right',
                           }}
                         >
                           <Typography
                             sx={{
                               fontSize: 'inherit',
-                              display: { xs: 'none', sm: 'block' },
+                              // display: { xs: 'none', sm: 'block' },
+                              fontWeight: 500,
+                              textOverflow: 'ellipsis',
+                              overflow: 'hidden',
                             }}
                           >
                             {ev.employee.name}
-                          </Typography>
-                          <Typography
-                            sx={{
-                              fontSize: 'inherit',
-                              display: { xs: 'block', sm: 'none' },
-                            }}
-                          >
-                            {getInitials(ev.employee.name)}
                           </Typography>
                         </Box>
                       </Tooltip>

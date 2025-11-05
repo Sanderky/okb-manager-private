@@ -19,10 +19,9 @@ import {
   TableCell,
   TableBody,
   Typography,
-  Button
+  Button,
+  Tooltip,
 } from '@mui/material';
-import CalendarViewWeekIcon from '@mui/icons-material/CalendarViewWeek';
-import CalendarViewMonthIcon from '@mui/icons-material/CalendarViewMonth';
 import dayjs, { Dayjs } from 'dayjs';
 import 'dayjs/locale/pl';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -51,7 +50,9 @@ import { PrintableSchedule } from './SchedulePrint';
 import usePrintShortcut from '../../../hooks/usePrintShortcut';
 import { Print } from '@mui/icons-material';
 import PageContainer from '../../../components/PageContainer';
-import useLoading from '../../../hooks/useLoading';
+import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
+import KeyboardReturnIcon from '@mui/icons-material/KeyboardReturn';
+import InfoOutlineIcon from '@mui/icons-material/InfoOutline';
 
 // dayjs.locale('pl');
 
@@ -89,16 +90,10 @@ const ScheduleComponent = () => {
   const [activeCell, setActiveCell] = useState<ICell | null>(null);
   const [showVacations, setShowVacations] = useState(true);
   const [showDates, setShowDates] = useState(true);
+  const [loadingCells, setLoadingCells] = useState<Set<string>>(new Set());
 
   const notifications = useNotifications();
   const queryClient = useQueryClient();
-
-  // Hook do ładowania akcji
-  const {
-    loading: actionLoading,
-    startLoading: startActionLoading,
-    stopLoading: stopActionLoading,
-  } = useLoading(false);
 
   const printRef = useRef<HTMLDivElement>(null);
 
@@ -157,11 +152,13 @@ const ScheduleComponent = () => {
     queryFn: getScheduleList,
   });
 
+  // Funkcja do generowania unikalnego klucza dla komórki
+  const getCellKey = useCallback((cell: ICell): string => {
+    return `${cell.empId}-${cell.weekKey}-${cell.date.format('YYYY-MM-DD')}-${cell.isWeek}`;
+  }, []);
+
   const updateScheduleMutation = useMutation({
     mutationFn: updateSchedule,
-    onMutate: () => {
-      startActionLoading();
-    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['schedules'] });
       notifications.show('Harmonogram został zaktualizowany.', {
@@ -175,9 +172,6 @@ const ScheduleComponent = () => {
         severity: 'error',
         autoHideDuration: 5000,
       });
-    },
-    onSettled: () => {
-      stopActionLoading();
     },
   });
 
@@ -249,10 +243,15 @@ const ScheduleComponent = () => {
       empId: string,
       weekStart: Date,
       constructionIds: (string | null)[],
-      existing: Schedule | null
+      existing: Schedule | null,
+      cellKey: string
     ) => {
-        const constructionsPayload: ScheduleConstruction[] =
-          constructionIds.map((cid, idx) => {
+      // Ustaw ładowanie dla konkretnej komórki
+      setLoadingCells(prev => new Set(prev).add(cellKey));
+
+      try {
+        const constructionsPayload: ScheduleConstruction[] = constructionIds.map(
+          (cid, idx) => {
             if (!cid) return null;
             const found = constructions.find((c) => c.id === cid);
             if (found) {
@@ -265,7 +264,8 @@ const ScheduleComponent = () => {
             const normalizedExisting = normalizeEntry(existingEntryRaw);
             const existingName = normalizedExisting?.constructionName ?? '';
             return { constructionId: cid, constructionName: existingName };
-          });
+          }
+        );
 
         const scheduleData: SchedulePayload = {
           employeeId: empId,
@@ -279,7 +279,14 @@ const ScheduleComponent = () => {
         };
 
         await updateScheduleMutation.mutateAsync(scheduleData);
-
+      } finally {
+        // Zatrzymaj ładowanie dla konkretnej komórki
+        setLoadingCells(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(cellKey);
+          return newSet;
+        });
+      }
     },
     [updateScheduleMutation, constructions, employees, normalizeEntry]
   );
@@ -289,8 +296,10 @@ const ScheduleComponent = () => {
       empId: string,
       date: Dayjs,
       value: Construction | null,
-      isWeek: boolean
+      isWeek: boolean,
+      cell: ICell
     ) => {
+      const cellKey = getCellKey(cell);
       const startOfWeek = date.isoWeekday(1);
       const weekStartDate = startOfWeek.toDate();
 
@@ -339,10 +348,11 @@ const ScheduleComponent = () => {
         empId,
         weekStartDate,
         newConstructions,
-        existingSchedule
+        existingSchedule,
+        cellKey
       );
     },
-    [schedules, vacations, saveScheduleToDatabase, normalizeEntry]
+    [schedules, vacations, saveScheduleToDatabase, normalizeEntry, getCellKey]
   );
 
   const handleShowInputConstruction = useCallback(
@@ -359,7 +369,7 @@ const ScheduleComponent = () => {
       }
 
       const target = event.currentTarget as HTMLElement;
-      target.style.backgroundColor = '#ffd85f80';
+      target.style.backgroundColor = '#d2e1fc';
 
       setCellAnchorEl(target);
       setActiveCell(cell);
@@ -491,14 +501,24 @@ const ScheduleComponent = () => {
   );
 
   // Agregacja stanów ładowania i błędów
-  const error = isErrorConstructions || isErrorEmployees || isErrorVacations || isErrorSchedules;
-  const loading = isLoadingConstructions || isLoadingEmployees || isLoadingVacations || isLoadingSchedules || actionLoading;
+  const error =
+    isErrorConstructions ||
+    isErrorEmployees ||
+    isErrorVacations ||
+    isErrorSchedules;
+  const loading =
+    isLoadingConstructions ||
+    isLoadingEmployees ||
+    isLoadingVacations ||
+    isLoadingSchedules;
 
   if (error) {
     return (
       <PageContainer breadcrumbs={[{ title: 'Harmonogram pracowników' }]}>
-        <Box sx={{ p: { xs: 1, sm: 2, md: 3 }, overflow: 'hidden' }} className="relative">
-          <Alert severity="error">Wystąpił błąd podczas ładowania danych.</Alert>
+        <Box className="relative">
+          <Alert severity="error">
+            Wystąpił błąd podczas ładowania danych.
+          </Alert>
         </Box>
       </PageContainer>
     );
@@ -545,17 +565,6 @@ const ScheduleComponent = () => {
           </Box>
         )}
 
-        <Alert
-          severity="info"
-          sx={{
-            mb: 1,
-          }}
-        >
-          Zmiany są zapisywane automatycznie w bazie danych. / Kliknij w datę
-          tygodnia w nagłówku tabeli, aby wyświetlić szczegółowy widok tego
-          tygodnia.
-        </Alert>
-
         <TableControls
           fromWeek={fromWeek}
           toWeek={toWeek}
@@ -599,7 +608,6 @@ const ScheduleComponent = () => {
                       position: 'sticky',
                       left: 0,
                       zIndex: 3,
-                      color: 'white',
                       width: {
                         xs: '45%',
                         sm: '40%',
@@ -607,26 +615,45 @@ const ScheduleComponent = () => {
                         lg: '20%',
                       },
                     }}
-                    className="bg-blue-400 px-3 py-2 text-center"
+                    className="bg-blue-200 px-3 py-2 text-center"
                   >
-                    <Typography className="font-semibold" variant="body2">
-                      Pracownik
-                    </Typography>
+                    <Tooltip
+                      title="Kliknij w datę tygodnia w nagłówku tabeli, aby wyświetlić szczegółowy widok tego tygodnia."
+                      placement="top"
+                      slotProps={{
+                        popper: {
+                          sx: {
+                            cursor: 'pointer',
+                          },
+                          modifiers: [
+                            {
+                              name: 'offset',
+                              options: {
+                                offset: [0, -14],
+                              },
+                            },
+                          ],
+                        },
+                      }}
+                    >
+                      <InfoOutlineIcon color="primary" />
+                    </Tooltip>
                   </TableCell>
 
                   {weeks.map((w, index) => {
                     const isBefor = w.isBefore(dayjs(), 'week');
                     const isAfter = w.isAfter(dayjs(), 'week');
+                    const weekIndex = w.week();
 
                     return (
                       <TableCell
                         key={index}
                         className={`relative cursor-pointer border-l border-l-gray-300 px-3 py-2 ${
                           isBefor
-                            ? 'bg-red-300'
+                            ? 'bg-red-600/20'
                             : isAfter
                               ? 'bg-gray-100'
-                              : 'bg-green-300'
+                              : 'bg-green-200'
                         }`}
                         sx={{
                           '&:hover svg, &:active svg, &:focus-within svg': {
@@ -647,13 +674,19 @@ const ScheduleComponent = () => {
                         onClick={() => setActiveTable({ type: 1, week: w })}
                       >
                         <Typography
+                          className="block text-center font-semibold text-gray-700/50"
+                          variant="caption"
+                        >
+                          [{weekIndex}]
+                        </Typography>
+                        <Typography
                           className="text-center font-semibold"
                           variant="body2"
                         >
                           {w.format('DD.MM')} -{' '}
                           {w.add(6, 'day').format('DD.MM')}
                         </Typography>
-                        <CalendarViewWeekIcon
+                        <UnfoldMoreIcon
                           sx={{
                             fontSize: '1rem',
                             fontWeight: '300',
@@ -680,6 +713,9 @@ const ScheduleComponent = () => {
                     onCellClick={handleShowInputConstruction}
                     cellText={cellText}
                     activeTable={activeTable}
+                    loadingCells={loadingCells}
+                    getCellKey={getCellKey}
+                    onCellChange={handleCellChange}
                   />
                 ))}
               </TableBody>
@@ -705,18 +741,17 @@ const ScheduleComponent = () => {
                       position: 'sticky',
                       left: 0,
                       zIndex: 3,
-                      color: 'white',
                       width: {
                         xs: '135px',
                         md: '200px',
                       },
                     }}
-                    className="cursor-pointer bg-blue-400 px-3 py-2 text-center"
+                    className="cursor-pointer bg-blue-200 px-3 py-2 text-center"
                     onClick={() =>
                       setActiveTable((prev) => ({ ...prev, type: 0 }))
                     }
                   >
-                    <CalendarViewMonthIcon />
+                    <KeyboardReturnIcon />
                   </TableCell>
                   {Array.from({ length: 7 }).map((_, i) => {
                     const day = activeTable.week.add(i, 'day');
@@ -727,7 +762,7 @@ const ScheduleComponent = () => {
                         sx={{
                           minWidth: '150px',
                         }}
-                        className={`border-l border-l-gray-300 bg-gray-100 px-3 py-2 ${isToday && 'bg-green-300'}`}
+                        className={`border-l border-l-gray-300 bg-gray-100 px-3 py-2 ${isToday && 'bg-green-100'}`}
                       >
                         <Typography
                           className="block text-center font-semibold"
@@ -755,6 +790,9 @@ const ScheduleComponent = () => {
                     onCellClick={handleShowInputConstruction}
                     cellText={cellText}
                     activeTable={activeTable}
+                    loadingCells={loadingCells}
+                    getCellKey={getCellKey}
+                    onCellChange={handleCellChange}
                   />
                 ))}
               </TableBody>
@@ -842,12 +880,13 @@ const ScheduleComponent = () => {
                   activeCell.empId,
                   activeCell.date,
                   valueToPass as Construction | null,
-                  activeCell.isWeek
+                  activeCell.isWeek,
+                  activeCell
                 );
                 handleCellMenuClose();
               }}
-              loading={actionLoading}
-              disabled={actionLoading}
+              loading={loadingCells.has(getCellKey(activeCell))}
+              disabled={loadingCells.has(getCellKey(activeCell))}
               renderOption={(props, option) => {
                 const { key, ...optionProps } = props;
                 return (
@@ -867,14 +906,16 @@ const ScheduleComponent = () => {
                 );
               }}
               renderInput={(params) => (
-                <TextField 
-                  {...params} 
-                  label="Budowa" 
+                <TextField
+                  {...params}
+                  label="Budowa"
                   InputProps={{
                     ...params.InputProps,
                     endAdornment: (
                       <>
-                        {actionLoading ? <CircularProgress size={20} /> : null}
+                        {loadingCells.has(getCellKey(activeCell)) ? (
+                          <CircularProgress size={20} />
+                        ) : null}
                         {params.InputProps.endAdornment}
                       </>
                     ),

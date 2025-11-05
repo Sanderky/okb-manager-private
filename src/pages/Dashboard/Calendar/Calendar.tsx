@@ -373,10 +373,7 @@ const Calendar: React.FC = () => {
   if (error) {
     return (
       <PageContainer breadcrumbs={[{ title: 'Kalendarz urlopów' }]}>
-        <Box
-          sx={{ padding: { xs: 1, sm: 2, md: 3 }, pb: 4 }}
-          className="relative"
-        >
+        <Box className="relative">
           <Alert severity="error">
             Wystąpił błąd podczas ładowania danych.
           </Alert>

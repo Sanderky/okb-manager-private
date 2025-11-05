@@ -297,7 +297,7 @@ export const EventDetailsDialog: React.FC<EventDetailsDialogProps> = ({
                     }}
                     loading={loading}
                   >
-                    <DeleteIcon />
+                    <DeleteIcon color={loading ? 'disabled' : 'error'} />
                   </IconButton>
                 </Stack>
               ))
@@ -341,14 +341,19 @@ interface VacationReportItem {
 const PrintableVacationReport: React.FC<{
   report: VacationReportItem[];
   dateRange: { start: Dayjs | null; end: Dayjs | null };
-  selectedEmployeesCount: number;
-}> = ({ report, dateRange, selectedEmployeesCount }) => {
+}> = ({ report, dateRange }) => {
   const effectiveDateRange = useMemo(() => {
     const start =
       dateRange.start || dayjs().subtract(1, 'month').startOf('day');
     const end = dateRange.end || dayjs().endOf('day');
     return { start, end };
   }, [dateRange.start, dateRange.end]);
+
+  // Oblicz liczbę unikalnych pracowników w raporcie
+  const uniqueEmployeesCount = useMemo(() => {
+    const uniqueEmployeeIds = new Set(report.map((item) => item.employee.id));
+    return uniqueEmployeeIds.size;
+  }, [report]);
 
   return (
     <Box sx={{ p: 2 }}>
@@ -363,7 +368,7 @@ const PrintableVacationReport: React.FC<{
           {effectiveDateRange.end.format('DD.MM.YYYY')}
         </Typography>
         <Typography variant="body2">
-          <strong>Liczba pracowników:</strong> {selectedEmployeesCount}
+          <strong>Liczba pracowników:</strong> {uniqueEmployeesCount}
         </Typography>
         <Typography variant="body2">
           <strong>Wygenerowano:</strong> {dayjs().format('DD.MM.YYYY HH:mm')}
@@ -786,7 +791,6 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
           <PrintableVacationReport
             report={generatedReport}
             dateRange={dateRange}
-            selectedEmployeesCount={selectedEmployees.length}
           />
         </div>
       </div>

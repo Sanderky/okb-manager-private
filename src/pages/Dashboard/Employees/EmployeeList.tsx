@@ -578,10 +578,7 @@ export default function EmployeeList() {
 
   if (error) {
     return (
-      <PageContainer
-        title={t('employees.employeesList')}
-        breadcrumbs={[{ title: t('employees.employees') }]}
-      >
+      <PageContainer breadcrumbs={[{ title: 'Lista pracowników' }]}>
         <Alert
           severity="error"
           action={
@@ -590,7 +587,7 @@ export default function EmployeeList() {
             </Button>
           }
         >
-          Nie udało się załadować listy pracowników: {error.message}
+          Nie udało się załadować listy pracowników.
         </Alert>
       </PageContainer>
     );

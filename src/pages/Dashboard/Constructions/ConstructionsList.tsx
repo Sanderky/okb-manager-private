@@ -80,7 +80,7 @@ export default function ConstructionsList() {
     inProgress: 'true',
   });
 
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['constructions'],
     queryFn: () => getConstructionList(),
   });
@@ -395,7 +395,14 @@ export default function ConstructionsList() {
   if (error) {
     return (
       <PageContainer breadcrumbs={[{ title: 'Lista budów' }]}>
-        <Alert severity="error">
+        <Alert
+          severity="error"
+          action={
+            <Button color="inherit" size="small" onClick={() => refetch()}>
+              Ponów próbę
+            </Button>
+          }
+        >
           Wystąpił błąd podczas ładowania listy budów.
         </Alert>
       </PageContainer>

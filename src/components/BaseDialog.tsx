@@ -62,9 +62,9 @@ export const BaseDialog: React.FC<BaseDialogProps> = ({
   showCloseButton = true,
   loading = false,
   disabled = false,
-  titleSx = { px: 3, py: 2 },
-  contentSx = { px: 3 },
-  actionsSx = { px: 3, py: 2 },
+  titleSx = { px: { xs: 2, md: 3 }, py: 2 },
+  contentSx = { px: { xs: 2, md: 3 } },
+  actionsSx = { px: { xs: 2, md: 3 }, py: 2 },
 }) => {
   const handleCancel = () => {
     onCancel?.();
@@ -121,9 +121,11 @@ export const BaseDialog: React.FC<BaseDialogProps> = ({
       onClose={loading ? undefined : onClose}
       maxWidth={maxWidth}
       fullWidth={fullWidth}
-      PaperProps={{
-        sx: {
-          borderRadius: 2,
+      slotProps={{
+        paper: {
+          sx: {
+            borderRadius: 2,
+          },
         },
       }}
     >

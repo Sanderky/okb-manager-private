@@ -472,7 +472,44 @@ export default function EmployeeShow() {
                 </Stack>
               </Box>
             </Grid>
-            <Grid size={{ xs: 12, lg: 6 }} sx={{ flexGrow: 1 }}>
+
+            <Grid size={{ xs: 12, lg: 6 }} sx={{ flexGrow: 1 }} spacing={2}>
+              {employeeVacation && employeeVacation.length > 0 && (
+                <Box className="border-lightGray mb-5 overflow-hidden rounded-lg border">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="bg-blue-50">
+                        <th className="px-4 py-3 text-left">
+                          <Stack direction={'row'} spacing={1}>
+                            <InfoOutlineIcon className="text-blue-600" />
+                            <Typography variant="subtitle2" fontWeight="600">
+                              Nadchodzące urlopy pracownika:
+                            </Typography>
+                          </Stack>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                      {employeeVacation.map((empV) => (
+                        <tr
+                          key={empV.id}
+                          className="cursor-pointer transition-colors hover:bg-blue-50/50 active:bg-blue-100"
+                        >
+                          <td className="px-4 py-3">
+                            <Typography
+                              variant="body2"
+                              className="text-gray-700"
+                            >
+                              {dayjs(empV.startDate).format('DD.MM.YYYY')} -{' '}
+                              {dayjs(empV.endDate).format('DD.MM.YYYY')}
+                            </Typography>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </Box>
+              )}
               <Box className="border-lightGray mb-3 rounded-lg border bg-white p-3 md:p-5 md:pb-3">
                 <Stack direction="row" justifyContent="space-between" mb={2}>
                   <Typography
@@ -538,45 +575,6 @@ export default function EmployeeShow() {
                 </Grid>
               </Box>
             </Grid>
-            {employeeVacation && employeeVacation.length > 0 && (
-              <Grid
-                size={{ xs: 12, lg: 6 }}
-                className="border-lightGray overflow-hidden rounded-lg border"
-                sx={{
-                  alignSelf: 'flex-start',
-                }}
-              >
-                <table className="w-full">
-                  <thead>
-                    <tr className="bg-blue-50">
-                      <th className="px-4 py-3 text-left">
-                        <Stack direction={'row'} spacing={1}>
-                          <InfoOutlineIcon className="text-blue-600" />
-                          <Typography variant="subtitle2" fontWeight="600">
-                            Nadchodzące urlopy pracownika:
-                          </Typography>
-                        </Stack>
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {employeeVacation.map((empV) => (
-                      <tr
-                        key={empV.id}
-                        className="cursor-pointer transition-colors hover:bg-blue-50/50 active:bg-blue-100"
-                      >
-                        <td className="px-4 py-3">
-                          <Typography variant="body2" className="text-gray-700">
-                            {dayjs(empV.startDate).format('DD.MM.YYYY')} -{' '}
-                            {dayjs(empV.endDate).format('DD.MM.YYYY')}
-                          </Typography>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </Grid>
-            )}
           </Grid>
         )}
 
