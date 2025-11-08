@@ -412,7 +412,9 @@ export default function EmployeeList() {
           <Box
             component="span"
             className={`rounded px-3 py-1 ${
-              cell.getValue<boolean>() ? 'bg-green-400/50' : 'bg-red-400/50'
+              cell.getValue<boolean>()
+                ? 'bg-green-400/50 text-green-800'
+                : 'bg-red-400/50 text-red-800'
             }`}
           >
             {cell.getValue<boolean>() ? 'Zatrudniony' : 'Niezatrudniony'}

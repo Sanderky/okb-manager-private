@@ -247,7 +247,9 @@ export default function ConstructionsList() {
           <Box
             component="span"
             className={`rounded px-3 py-1 ${
-              cell.getValue<boolean>() ? 'bg-blue-400/50' : 'bg-amber-400/50'
+              cell.getValue<boolean>()
+                ? 'bg-blue-400/50 text-blue-800'
+                : 'bg-amber-400/50 text-amber-800'
             }`}
           >
             {cell.getValue<boolean>() ? 'W trakcie' : 'Zakończona'}
@@ -324,7 +326,7 @@ export default function ConstructionsList() {
         fontWeight: '600',
         color: '#374151',
         fontSize: '14px',
-        '&:first-of-type .Mui-TableHeadCell-Content': {
+        '& .Mui-TableHeadCell-Content': {
           justifyContent: 'center',
           textAlign: 'center',
         },
@@ -334,6 +336,7 @@ export default function ConstructionsList() {
     muiTableBodyCellProps: {
       sx: {
         borderLeft: '1px solid #e0e0e0',
+        justifyContent: 'center',
       },
     },
     muiTableBodyRowProps: ({ row }) => {
