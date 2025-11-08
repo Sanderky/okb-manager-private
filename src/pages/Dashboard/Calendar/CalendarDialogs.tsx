@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom'; // DODAJ TEN IMPORT
 import {
   FormControl,
   TextField,
@@ -218,10 +219,16 @@ export const EventDetailsDialog: React.FC<EventDetailsDialogProps> = ({
   handleDeleteEvent,
   loading = false,
 }) => {
+  const navigate = useNavigate(); // DODAJ useNavigate
   const isMultipleEvents = activeDialog.type === 'moreEvents';
 
   const handleDelete = () => {
     handleDeleteEvent();
+  };
+
+  // Funkcja do przekierowania do profilu pracownika
+  const handleEmployeeProfileClick = (employeeId: string) => {
+    navigate(`/employees/${employeeId}`);
   };
 
   return (
@@ -279,6 +286,10 @@ export const EventDetailsDialog: React.FC<EventDetailsDialogProps> = ({
                   direction="row"
                   alignItems="center"
                   className="border border-gray-300 px-3 py-2"
+                  onClick={() =>
+                    event.employee &&
+                    handleEmployeeProfileClick(event.employee.id)
+                  } // DODAJ onClick
                 >
                   <Box sx={{ flexGrow: 1 }}>
                     <Typography variant="subtitle1" fontWeight="500">
@@ -292,7 +303,7 @@ export const EventDetailsDialog: React.FC<EventDetailsDialogProps> = ({
                   <IconButton
                     size="small"
                     onClick={(e) => {
-                      e.stopPropagation();
+                      e.stopPropagation(); // ZAPOBIEGA PRZEKIEROWANIU PRZY KLIKNIĘCIU IKONY USUWANIA
                       handleDeleteEvent(event.groupId);
                     }}
                     loading={loading}
@@ -308,8 +319,12 @@ export const EventDetailsDialog: React.FC<EventDetailsDialogProps> = ({
                     currentEvent.employee.id
                   ),
                   borderRadius: 1,
+                  cursor: 'pointer', // DODAJ cursor pointer
                 }}
                 className="border border-gray-300 px-3 py-2"
+                onClick={() =>
+                  handleEmployeeProfileClick(currentEvent.employee.id)
+                } // DODAJ onClick
               >
                 <Typography variant="subtitle1" fontWeight="500">
                   {currentEvent.employee?.name}
@@ -345,7 +360,7 @@ const PrintableVacationReport: React.FC<{
   const effectiveDateRange = useMemo(() => {
     const start =
       dateRange.start || dayjs().subtract(1, 'month').startOf('day');
-    const end = dateRange.end || dayjs().endOf('day');
+    const end = dateRange.end || start.add(1, 'month').endOf('day');
     return { start, end };
   }, [dateRange.start, dateRange.end]);
 
@@ -426,6 +441,7 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
   employees,
   vacations,
 }) => {
+  const navigate = useNavigate(); // DODAJ useNavigate
   const [selectedEmployees, setSelectedEmployees] = useState<Employee[]>([]);
   const [dateRange, setDateRange] = useState<{
     start: Dayjs | null;
@@ -452,6 +468,11 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
     `,
   });
 
+  // Funkcja do przekierowania do profilu pracownika
+  const handleEmployeeProfileClick = (employeeId: string) => {
+    navigate(`/employees/${employeeId}`);
+  };
+
   // Grupowanie urlopów - pobieramy tylko unikalne groupId
   const uniqueVacations = useMemo(() => {
     const grouped = vacations.reduce(
@@ -471,7 +492,7 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
   const effectiveDateRange = useMemo(() => {
     const start =
       dateRange.start || dayjs().subtract(1, 'month').startOf('day');
-    const end = dateRange.end || dayjs().endOf('day');
+    const end = dateRange.end || start.add(1, 'month').endOf('day');
     return { start, end };
   }, [dateRange.start, dateRange.end]);
 
@@ -706,6 +727,14 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
                   )}
                 </Box>
               </Stack>
+              <Typography variant="caption" className="text-gray-500">
+                {dateRange.start || dateRange.end
+                  ? 'Rzeczywisty zakres dat: '
+                  : 'Domyślny zakres dat: '}
+                {effectiveDateRange.start.format('DD.MM.YYYY')}
+                {' - '}
+                {effectiveDateRange.end.format('DD.MM.YYYY')}
+              </Typography>
               {hasDateError && (
                 <Typography variant="body2" color="error" sx={{ mt: 1 }}>
                   Data początkowa nie może być późniejsza niż data końcowa
@@ -742,6 +771,10 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
                       {generatedReport.map(({ employee, vacation }, index) => (
                         <TableRow
                           key={`${employee.id}-${vacation.groupId}-${index}`}
+                          sx={{ cursor: 'pointer' }} // DODAJ styl kursora
+                          onClick={() =>
+                            handleEmployeeProfileClick(employee.id)
+                          } // DODAJ onClick
                         >
                           <TableCell>{employee.name}</TableCell>
                           <TableCell>

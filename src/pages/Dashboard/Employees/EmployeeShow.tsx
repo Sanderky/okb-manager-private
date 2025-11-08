@@ -537,7 +537,7 @@ export default function EmployeeShow() {
                         {employeeVacation.map((empV) => (
                           <tr
                             key={empV.id}
-                            className="cursor-pointer transition-colors hover:bg-blue-50/50 active:bg-blue-100"
+                            className="transition-colors hover:bg-blue-50/50 active:bg-blue-100"
                           >
                             <td className="px-4 py-3">
                               <Typography
