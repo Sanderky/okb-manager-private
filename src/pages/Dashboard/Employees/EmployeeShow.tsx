@@ -16,7 +16,19 @@ import { getEmployee, updateEmployee } from '../../../api/employees';
 import EditIcon from '@mui/icons-material/Edit';
 import CloseIcon from '@mui/icons-material/Close';
 
-import { Chip, IconButton, Tab, Tabs, TextareaAutosize } from '@mui/material';
+import {
+  Chip,
+  IconButton,
+  Paper,
+  Tab,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableRow,
+  Tabs,
+  TextareaAutosize,
+} from '@mui/material';
 import dayjs from 'dayjs';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -99,7 +111,7 @@ const generateDateBox = (
       if (Math.abs(daysDiff) === 1) dayWord = 'dzień';
 
       if (daysDiff <= criticalRange) {
-        dateStyles = 'border-red-500/25! bg-red-600/10! text-red-800!';
+        dateStyles = 'border-red-500/25! bg-red-500/10! text-red-700!';
         severity = 'error';
         message =
           daysDiff < 0
@@ -126,11 +138,11 @@ const generateDateBox = (
         spacing={{ xs: 1, lg: 2 }}
         sx={{ width: '100%' }}
       >
-        <Typography variant="body1" className="font-medium">
+        <Typography variant="body2" className="font-medium">
           {label}:
         </Typography>
         <Typography
-          variant="body1"
+          variant="body2"
           className={`border-lightGray rounded border px-3 py-1 text-gray-700 ${dateStyles}`}
         >
           {displayValue}
@@ -141,7 +153,16 @@ const generateDateBox = (
         dateValue instanceof Date &&
         !isPermanent &&
         message && (
-          <Alert severity={severity} sx={{ width: '100%', mt: 2 }}>
+          <Alert
+            severity={severity}
+            // className={`border border-${severity}`}
+            sx={{
+              width: '100%',
+              mt: 2,
+              borderColor: `${severity}.main`,
+              borderWidth: '1px',
+            }}
+          >
             <Typography variant="body2">{message}</Typography>
           </Alert>
         )}
@@ -328,11 +349,7 @@ export default function EmployeeShow() {
           columns={12}
           sx={{ mb: 2 }}
         >
-          <Grid
-            size={{ xs: 12, sm: 8 }}
-            sx={{ width: '100%!important' }}
-            mb={1.5}
-          >
+          <Grid size={{ xs: 12, sm: 8 }} sx={{ width: '100%!important' }}>
             <Stack direction="row" alignItems="center" spacing={1}>
               <Tabs value={tab} onChange={handleTabChange}>
                 <Tab
@@ -373,207 +390,249 @@ export default function EmployeeShow() {
         {tab === 0 && (
           <Grid container spacing={{ xs: 2, lg: 3 }} columns={12}>
             <Grid size={{ xs: 12, lg: 6 }} sx={{ flexGrow: 1 }}>
-              <Stack
-                direction={'column'}
-                spacing={2}
-                className="border-lightGray overflow-hidden rounded-lg border p-4"
-              >
-                {personalFields.map(({ key, label }) => (
-                  <Box
-                    key={key}
-                    className="border-b border-gray-300 pb-3 last:border-b-0 last:pb-1"
+              <Stack direction={'column'} spacing={{ xs: 2, lg: 3 }}>
+                <TableContainer
+                  component={Paper}
+                  className="border-lightGray overflow-hidden rounded-lg border"
+                  sx={{ boxShadow: 'none' }}
+                >
+                  <Table>
+                    <TableBody>
+                      {personalFields.map(({ key, label }) => (
+                        <TableRow
+                          key={key}
+                          sx={{
+                            borderBottom: '1px solid',
+                            borderColor: 'grey.300',
+                            '&:last-child': {
+                              borderBottom: 'none',
+                            },
+                          }}
+                        >
+                          <TableCell
+                            sx={{
+                              minWidth: { xs: '135px', sm: '150px' },
+                              width: '30%',
+                              border: 'none',
+                            }}
+                            className="border-r-lightGray border-r bg-gray-50 p-2 sm:px-4"
+                          >
+                            <Typography
+                              variant="body1"
+                              className="text-sm font-medium text-gray-500"
+                            >
+                              {label}:
+                            </Typography>
+                          </TableCell>
+                          <TableCell
+                            sx={{
+                              border: 'none',
+                              maxWidth: '100%',
+                              overflow: 'visible',
+                              whiteSpace: 'normal',
+                              wordBreak: 'break-word',
+                              textAlign: 'right',
+                            }}
+                            className="p-2 sm:px-4"
+                          >
+                            <Typography
+                              variant="body1"
+                              className="text-dark text-sm font-semibold sm:text-base"
+                            >
+                              {formatFieldValue(key, employee[key])}
+                            </Typography>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+                <Box className="rounded-lg border border-dashed border-gray-300 p-4">
+                  <Stack
+                    spacing={1.5}
+                    direction={'column'}
+                    alignItems={'flex-start'}
                   >
                     <Stack
                       direction="row"
-                      alignItems="center"
-                      justifyContent={'space-between'}
+                      alignItems={'center'}
+                      sx={{ width: '100%' }}
                       spacing={2}
                     >
                       <Typography
                         variant="body1"
-                        className="font-medium text-gray-600"
-                        sx={{ minWidth: 120 }}
-                      >
-                        {label}:
-                      </Typography>
-                      <Typography
-                        variant="body1"
-                        className="text-dark font-semibold"
+                        className="font-medium"
                         sx={{
-                          maxWidth: '100%',
-                          overflow: 'visible',
-                          whiteSpace: 'normal',
-                          wordBreak: 'break-word',
-                          textAlign: 'right',
+                          alignSelf: 'flex-start',
                         }}
                       >
-                        {formatFieldValue(key, employee[key])}
+                        Notatka:
                       </Typography>
-                    </Stack>
-                  </Box>
-                ))}
-              </Stack>
-              <Box className="mt-6 rounded-lg border border-dashed border-gray-300 p-4">
-                <Stack
-                  spacing={1.5}
-                  direction={'column'}
-                  alignItems={'flex-start'}
-                >
-                  <Stack
-                    direction="row"
-                    alignItems={'center'}
-                    sx={{ width: '100%' }}
-                    spacing={2}
-                  >
-                    <Typography variant="body1" className="mb-2 font-medium">
-                      Notatka:
-                    </Typography>
-                    <Stack
-                      direction="row"
-                      sx={{ width: '100%' }}
-                      justifyContent={'flex-end'}
-                      alignItems="center"
-                      spacing={2}
-                    >
-                      {editNote && (
-                        <IconButton
-                          onClick={handleSaveNote}
-                          color="success"
-                          className="rounded-full border border-green-500 bg-green-50/50"
-                          disabled={actionLoading || !editNote}
-                        >
-                          <CheckIcon />
-                        </IconButton>
-                      )}
-                      <IconButton
-                        onClick={
-                          editNote ? handleCancelEdit : () => setEditNote(true)
-                        }
-                        color={!editNote ? 'primary' : 'inherit'}
-                        className={`rounded-lg border ${editNote ? 'border-red-500 bg-red-50/50' : 'border-blue-500'}`}
+                      <Stack
+                        direction="row"
+                        sx={{ width: '100%' }}
+                        justifyContent={'flex-end'}
+                        alignItems="center"
+                        spacing={2}
                       >
-                        {editNote ? (
-                          <CloseIcon className="text-red-400" />
-                        ) : (
-                          <EditNoteIcon />
+                        {editNote && (
+                          <IconButton
+                            onClick={handleSaveNote}
+                            color="success"
+                            className="rounded-full border border-green-500 bg-green-50/50"
+                            disabled={actionLoading || !editNote}
+                          >
+                            <CheckIcon />
+                          </IconButton>
                         )}
-                      </IconButton>
+                        <IconButton
+                          onClick={
+                            editNote
+                              ? handleCancelEdit
+                              : () => setEditNote(true)
+                          }
+                          color={!editNote ? 'primary' : 'inherit'}
+                          className={`rounded-lg border ${editNote ? 'border-red-500 bg-red-50/50' : 'border-blue-500'}`}
+                        >
+                          {editNote ? (
+                            <CloseIcon className="text-red-400" />
+                          ) : (
+                            <EditNoteIcon />
+                          )}
+                        </IconButton>
+                      </Stack>
                     </Stack>
+                    <TextareaAutosize
+                      minRows={3}
+                      className={`rounded-sm border border-gray-400 bg-white px-2 py-1 ${editNote ? '' : 'bg-gray-100! opacity-50'}`}
+                      style={{ width: '100%', minHeight: '50px' }}
+                      placeholder="..."
+                      value={note}
+                      onChange={(e) => setNote(e.target.value)}
+                      readOnly={actionLoading || !editNote}
+                    />
                   </Stack>
-                  <TextareaAutosize
-                    minRows={3}
-                    className={`rounded-sm border border-gray-400 bg-white px-2 py-1 ${editNote ? '' : 'bg-gray-100! opacity-50'}`}
-                    style={{ width: '100%', minHeight: '50px' }}
-                    placeholder="..."
-                    value={note}
-                    onChange={(e) => setNote(e.target.value)}
-                    readOnly={actionLoading || !editNote}
-                  />
-                </Stack>
-              </Box>
+                </Box>
+              </Stack>
             </Grid>
 
-            <Grid size={{ xs: 12, lg: 6 }} sx={{ flexGrow: 1 }} spacing={2}>
-              {employeeVacation && employeeVacation.length > 0 && (
-                <Box className="border-lightGray mb-5 overflow-hidden rounded-lg border">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="bg-blue-50">
-                        <th className="px-4 py-3 text-left">
-                          <Stack direction={'row'} spacing={1}>
-                            <InfoOutlineIcon className="text-blue-600" />
-                            <Typography variant="subtitle2" fontWeight="600">
-                              Nadchodzące urlopy pracownika:
-                            </Typography>
-                          </Stack>
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200">
-                      {employeeVacation.map((empV) => (
-                        <tr
-                          key={empV.id}
-                          className="cursor-pointer transition-colors hover:bg-blue-50/50 active:bg-blue-100"
-                        >
-                          <td className="px-4 py-3">
-                            <Typography
-                              variant="body2"
-                              className="text-gray-700"
-                            >
-                              {dayjs(empV.startDate).format('DD.MM.YYYY')} -{' '}
-                              {dayjs(empV.endDate).format('DD.MM.YYYY')}
-                            </Typography>
-                          </td>
+            <Grid size={{ xs: 12, lg: 6 }} sx={{ flexGrow: 1 }}>
+              <Stack direction={'column'} spacing={2}>
+                {employeeVacation && employeeVacation.length > 0 && (
+                  <Box className="border-lightGray overflow-hidden rounded-lg border">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="bg-blue-50">
+                          <th className="px-4 py-3 text-left">
+                            <Stack direction={'row'} spacing={1}>
+                              <InfoOutlineIcon className="text-blue-600" />
+                              <Typography variant="subtitle2" fontWeight="600">
+                                Nadchodzące urlopy pracownika:
+                              </Typography>
+                            </Stack>
+                          </th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody className="divide-y divide-gray-200">
+                        {employeeVacation.map((empV) => (
+                          <tr
+                            key={empV.id}
+                            className="cursor-pointer transition-colors hover:bg-blue-50/50 active:bg-blue-100"
+                          >
+                            <td className="px-4 py-3">
+                              <Typography
+                                variant="body2"
+                                className="text-gray-700"
+                              >
+                                {dayjs(empV.startDate).format('DD.MM.YYYY')} -{' '}
+                                {dayjs(empV.endDate).format('DD.MM.YYYY')}
+                              </Typography>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </Box>
+                )}
+                <Box className="rounded-lg border border-blue-700/25 bg-blue-50/50 p-3 md:p-5 md:pb-3">
+                  <Stack
+                    direction="row"
+                    justifyContent="space-between"
+                    mb={1.5}
+                  >
+                    <Typography
+                      variant="subtitle1"
+                      className="text-baseline font-semibold"
+                    >
+                      Dowód osobisty
+                    </Typography>
+                  </Stack>
+
+                  <AttachmentBox
+                    file={employee.idAttachment}
+                    onShow={() => handleOpenPreview(employee.idAttachment)}
+                    onDownload={() =>
+                      handleDownloadAttachment(employee.idAttachment)
+                    }
+                  />
                 </Box>
-              )}
-              <Box className="border-lightGray mb-3 rounded-lg border bg-white p-3 md:p-5 md:pb-3">
-                <Stack direction="row" justifyContent="space-between" mb={2}>
-                  <Typography
-                    variant="subtitle1"
-                    className="text-lg font-semibold"
+                <Box className="rounded-lg border border-blue-700/25 bg-blue-50/50 p-3 md:p-5 md:pb-3">
+                  <Stack
+                    direction="row"
+                    justifyContent="space-between"
+                    mb={1.5}
                   >
-                    Dowód osobisty
-                  </Typography>
-                </Stack>
+                    <Typography
+                      variant="subtitle1"
+                      className="text-baseline font-semibold"
+                    >
+                      Umowa zatrudnienia
+                    </Typography>
+                  </Stack>
 
-                <AttachmentBox
-                  file={employee.idAttachment}
-                  onShow={() => handleOpenPreview(employee.idAttachment)}
-                  onDownload={() =>
-                    handleDownloadAttachment(employee.idAttachment)
-                  }
-                />
-              </Box>
-              <Box className="border-lightGray mb-3 rounded-lg border bg-white p-3 md:p-5">
-                <Stack direction="row" justifyContent="space-between" mb={2}>
-                  <Typography
-                    variant="subtitle1"
-                    className="text-lg font-semibold"
+                  <AttachmentBox
+                    file={employee.contractAttachment}
+                    onShow={() =>
+                      handleOpenPreview(employee.contractAttachment)
+                    }
+                    onDownload={() =>
+                      handleDownloadAttachment(employee.contractAttachment)
+                    }
+                  />
+
+                  <Grid container spacing={2}>
+                    {contractFields.map(({ key, label }) => {
+                      return generateDateBox(key, label, employee);
+                    })}
+                  </Grid>
+                </Box>
+                <Box className="rounded-lg border border-blue-700/25 bg-blue-50/50 p-3 md:p-5 md:pb-3">
+                  <Stack
+                    direction="row"
+                    justifyContent="space-between"
+                    mb={1.5}
                   >
-                    Umowa zatrudnienia
-                  </Typography>
-                </Stack>
-
-                <AttachmentBox
-                  file={employee.contractAttachment}
-                  onShow={() => handleOpenPreview(employee.contractAttachment)}
-                  onDownload={() =>
-                    handleDownloadAttachment(employee.contractAttachment)
-                  }
-                />
-
-                <Grid container spacing={2}>
-                  {contractFields.map(({ key, label }) => {
-                    return generateDateBox(key, label, employee);
-                  })}
-                </Grid>
-              </Box>
-              <Box className="border-lightGray rounded-lg border bg-white p-3 md:p-5">
-                <Stack direction="row" justifyContent="space-between" mb={2}>
-                  <Typography
-                    variant="subtitle1"
-                    className="text-lg font-semibold"
-                  >
-                    A1
-                  </Typography>
-                </Stack>
-                <AttachmentBox
-                  file={employee.a1Attachment}
-                  onShow={() => handleOpenPreview(employee.a1Attachment)}
-                  onDownload={() =>
-                    handleDownloadAttachment(employee.a1Attachment)
-                  }
-                />
-                <Grid container spacing={2}>
-                  {a1Fields.map(({ key, label }) => {
-                    return generateDateBox(key, label, employee);
-                  })}
-                </Grid>
-              </Box>
+                    <Typography
+                      variant="subtitle1"
+                      className="text-baseline font-semibold"
+                    >
+                      A1
+                    </Typography>
+                  </Stack>
+                  <AttachmentBox
+                    file={employee.a1Attachment}
+                    onShow={() => handleOpenPreview(employee.a1Attachment)}
+                    onDownload={() =>
+                      handleDownloadAttachment(employee.a1Attachment)
+                    }
+                  />
+                  <Grid container spacing={2}>
+                    {a1Fields.map(({ key, label }) => {
+                      return generateDateBox(key, label, employee);
+                    })}
+                  </Grid>
+                </Box>
+              </Stack>
             </Grid>
           </Grid>
         )}

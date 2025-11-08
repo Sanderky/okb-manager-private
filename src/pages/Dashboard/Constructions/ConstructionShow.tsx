@@ -28,7 +28,13 @@ import {
   Chip,
   Divider,
   IconButton,
+  Paper,
   Tab,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableRow,
   Tabs,
   TextareaAutosize,
 } from '@mui/material';
@@ -290,11 +296,7 @@ export default function ConstructionShow() {
           columns={12}
           sx={{ mb: 2 }}
         >
-          <Grid
-            size={{ xs: 12, sm: 8 }}
-            sx={{ width: '100%!important' }}
-            mb={1.5}
-          >
+          <Grid size={{ xs: 12, sm: 8 }} sx={{ width: '100%!important' }}>
             <Stack direction="row" alignItems="center" spacing={1}>
               <Tabs value={tab} onChange={handleTabChange}>
                 <Tab
@@ -354,164 +356,187 @@ export default function ConstructionShow() {
         {tab === 0 && (
           <Grid container spacing={{ xs: 2 }} columns={12}>
             <Grid size={{ xs: 12, lg: 6 }} sx={{ flexGrow: 1 }}>
-              <Stack
-                direction={'column'}
-                spacing={2}
-                className="border-lightGray overflow-hidden rounded-lg border p-4"
-              >
-                {personalFields.map(({ key, label }) => (
-                  <Box
-                    key={key}
-                    className="border-b border-gray-300 pb-3 last:border-b-0 last:pb-1"
+              <Stack direction={'column'} spacing={{ xs: 2, lg: 3 }}>
+                <TableContainer
+                  component={Paper}
+                  className="border-lightGray overflow-hidden rounded-lg border"
+                  sx={{ boxShadow: 'none' }}
+                >
+                  <Table>
+                    <TableBody>
+                      {personalFields.map(({ key, label }) => (
+                        <TableRow
+                          key={key}
+                          sx={{
+                            borderBottom: '1px solid',
+                            borderColor: 'grey.300',
+                            '&:last-child': {
+                              borderBottom: 'none',
+                            },
+                          }}
+                        >
+                          <TableCell
+                            sx={{
+                              minWidth: { xs: '135px', sm: '150px' },
+                              width: '30%',
+                              border: 'none',
+                            }}
+                            className="border-r-lightGray border-r bg-gray-50 p-2 sm:px-4"
+                          >
+                            <Typography
+                              variant="body1"
+                              className="text-sm font-medium text-gray-500"
+                            >
+                              {label}:
+                            </Typography>
+                          </TableCell>
+
+                          <TableCell
+                            sx={{
+                              border: 'none',
+                              maxWidth: '100%',
+                              overflow: 'visible',
+                              whiteSpace: 'normal',
+                              wordBreak: 'break-word',
+                              textAlign: 'right',
+                            }}
+                            className="p-2 sm:px-4"
+                          >
+                            {key === 'location' ? (
+                              <Typography
+                                variant="body1"
+                                className="text-sm font-semibold sm:text-base"
+                                sx={{
+                                  cursor: construction?.location
+                                    ? 'pointer'
+                                    : 'default',
+                                  color: construction?.location
+                                    ? 'navy'
+                                    : 'inherit',
+                                }}
+                                onClick={() => {
+                                  if (construction?.location) {
+                                    const address = encodeURIComponent(
+                                      construction.location
+                                    );
+                                    window.open(
+                                      `https://www.google.com/maps/search/?api=1&query=${address}`,
+                                      '_blank'
+                                    );
+                                  }
+                                }}
+                              >
+                                {(() => {
+                                  const value =
+                                    construction[key as keyof Construction];
+                                  if (!value) {
+                                    return <em className="text-gray-400">-</em>;
+                                  }
+                                  return (
+                                    <>
+                                      {String(value)}{' '}
+                                      <LocationOnIcon fontSize="small" />
+                                    </>
+                                  );
+                                })()}
+                              </Typography>
+                            ) : (
+                              <Typography
+                                variant="body1"
+                                className="text-dark text-sm font-semibold sm:text-base"
+                              >
+                                {(() => {
+                                  const value =
+                                    construction[key as keyof Construction];
+                                  if (!value && key !== 'inProgress') {
+                                    return <em className="text-gray-400">-</em>;
+                                  }
+                                  if (
+                                    key === 'startDate' ||
+                                    key === 'endDate'
+                                  ) {
+                                    return dayjs(value).format('DD/MM/YYYY');
+                                  }
+                                  if (key === 'inProgress') {
+                                    return value ? 'Tak' : 'Nie';
+                                  }
+                                  return String(value);
+                                })()}
+                              </Typography>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+                <Box className="rounded-lg border border-dashed border-gray-300 p-4">
+                  <Stack
+                    spacing={1.5}
+                    direction={'column'}
+                    alignItems={'flex-start'}
                   >
                     <Stack
                       direction="row"
-                      alignItems="center"
-                      justifyContent={'space-between'}
+                      alignItems={'center'}
+                      sx={{ width: '100%' }}
                       spacing={2}
                     >
                       <Typography
                         variant="body1"
-                        className="font-medium text-gray-600"
-                        sx={{ minWidth: 120 }}
-                      >
-                        {label}:
-                      </Typography>
-                      {key === 'location' ? (
-                        <Typography
-                          variant="body1"
-                          sx={{
-                            maxWidth: '100%',
-                            overflow: 'visible',
-                            whiteSpace: 'normal',
-                            wordBreak: 'break-word',
-                            fontWeight: 600,
-                            cursor: construction?.location
-                              ? 'pointer'
-                              : 'default',
-                            color: construction?.location ? 'navy' : 'inherit',
-                          }}
-                          onClick={() => {
-                            if (construction?.location) {
-                              const address = encodeURIComponent(
-                                construction.location
-                              );
-                              window.open(
-                                `https://www.google.com/maps/search/?api=1&query=${address}`,
-                                '_blank'
-                              );
-                            }
-                          }}
-                        >
-                          {(() => {
-                            const value =
-                              construction[key as keyof Construction];
-                            if (!value) {
-                              return <em className="text-gray-400">-</em>;
-                            }
-                            return (
-                              <>
-                                {String(value)} {<LocationOnIcon />}
-                              </>
-                            );
-                          })()}
-                        </Typography>
-                      ) : (
-                        <Typography
-                          variant="body1"
-                          className="text-dark font-semibold"
-                          sx={{
-                            maxWidth: '100%',
-                            overflow: 'visible',
-                            whiteSpace: 'normal',
-                            wordBreak: 'break-word',
-                          }}
-                        >
-                          {(() => {
-                            const value =
-                              construction[key as keyof Construction];
-                            if (!value && key !== 'inProgress') {
-                              return <em className="text-gray-400">-</em>;
-                            }
-                            if (key === 'startDate' || key === 'endDate') {
-                              return dayjs(value).format('DD/MM/YYYY');
-                            }
-                            if (key === 'inProgress') {
-                              return value ? 'Tak' : 'Nie';
-                            }
-                            return String(value);
-                          })()}
-                        </Typography>
-                      )}
-                    </Stack>
-                  </Box>
-                ))}
-              </Stack>
-              <Box className="mt-6 rounded-lg border border-dashed border-gray-300 p-4">
-                <Stack
-                  spacing={1.5}
-                  direction={'column'}
-                  alignItems={'flex-start'}
-                >
-                  <Stack
-                    direction="row"
-                    alignItems={'center'}
-                    sx={{ width: '100%' }}
-                    spacing={2}
-                  >
-                    <Typography variant="body1" className="mb-2 font-medium">
-                      Notatka:
-                    </Typography>
-                    <Stack
-                      direction="row"
-                      sx={{ width: '100%' }}
-                      justifyContent={'flex-end'}
-                      alignItems="center"
-                      spacing={2}
-                    >
-                      {editNote && (
-                        <IconButton
-                          onClick={handleSaveNote}
-                          color="success"
-                          className="rounded-full border border-green-500 bg-green-50/50"
-                          disabled={actionLoading || !editNote}
-                        >
-                          <CheckIcon />
-                        </IconButton>
-                      )}
-                      <IconButton
-                        onClick={() => {
-                          setEditNote(!editNote);
-                          if (note !== (construction?.note ?? '')) {
-                            setNote(construction?.note ?? '');
-                          }
+                        className="font-medium"
+                        sx={{
+                          alignSelf: 'flex-start',
                         }}
-                        color={!editNote ? 'primary' : 'inherit'}
-                        className={`rounded-lg border ${
-                          editNote
-                            ? 'border-red-500 bg-red-50/50'
-                            : 'border-blue-500'
-                        }`}
                       >
-                        {editNote ? (
-                          <CloseIcon className="text-red-400" />
-                        ) : (
-                          <EditNoteIcon />
+                        Notatka:
+                      </Typography>
+                      <Stack
+                        direction="row"
+                        sx={{ width: '100%' }}
+                        justifyContent={'flex-end'}
+                        alignItems="center"
+                        spacing={2}
+                      >
+                        {editNote && (
+                          <IconButton
+                            onClick={handleSaveNote}
+                            color="success"
+                            className="rounded-full border border-green-500 bg-green-50/50"
+                            disabled={actionLoading || !editNote}
+                          >
+                            <CheckIcon />
+                          </IconButton>
                         )}
-                      </IconButton>
+                        <IconButton
+                          onClick={
+                            editNote
+                              ? handleCancelEdit
+                              : () => setEditNote(true)
+                          }
+                          color={!editNote ? 'primary' : 'inherit'}
+                          className={`rounded-lg border ${editNote ? 'border-red-500 bg-red-50/50' : 'border-blue-500'}`}
+                        >
+                          {editNote ? (
+                            <CloseIcon className="text-red-400" />
+                          ) : (
+                            <EditNoteIcon />
+                          )}
+                        </IconButton>
+                      </Stack>
                     </Stack>
+                    <TextareaAutosize
+                      minRows={3}
+                      className={`rounded-sm border border-gray-400 bg-white px-2 py-1 ${editNote ? '' : 'bg-gray-100! opacity-50'}`}
+                      style={{ width: '100%', minHeight: '50px' }}
+                      placeholder="..."
+                      value={note}
+                      onChange={(e) => setNote(e.target.value)}
+                      readOnly={actionLoading || !editNote}
+                    />
                   </Stack>
-                  <TextareaAutosize
-                    minRows={3}
-                    className={`rounded-sm border border-gray-400 bg-white px-2 py-1 ${editNote ? '' : 'bg-gray-100! opacity-50'}`}
-                    style={{ width: '100%', minHeight: '50px' }}
-                    placeholder="..."
-                    value={note}
-                    onChange={(e) => setNote(e.target.value)}
-                    readOnly={actionLoading || !editNote}
-                  />
-                </Stack>
-              </Box>
+                </Box>
+              </Stack>
             </Grid>
 
             <Grid

@@ -247,11 +247,11 @@ const ScheduleComponent = () => {
       cellKey: string
     ) => {
       // Ustaw ładowanie dla konkretnej komórki
-      setLoadingCells(prev => new Set(prev).add(cellKey));
+      setLoadingCells((prev) => new Set(prev).add(cellKey));
 
       try {
-        const constructionsPayload: ScheduleConstruction[] = constructionIds.map(
-          (cid, idx) => {
+        const constructionsPayload: ScheduleConstruction[] =
+          constructionIds.map((cid, idx) => {
             if (!cid) return null;
             const found = constructions.find((c) => c.id === cid);
             if (found) {
@@ -264,8 +264,7 @@ const ScheduleComponent = () => {
             const normalizedExisting = normalizeEntry(existingEntryRaw);
             const existingName = normalizedExisting?.constructionName ?? '';
             return { constructionId: cid, constructionName: existingName };
-          }
-        );
+          });
 
         const scheduleData: SchedulePayload = {
           employeeId: empId,
@@ -281,7 +280,7 @@ const ScheduleComponent = () => {
         await updateScheduleMutation.mutateAsync(scheduleData);
       } finally {
         // Zatrzymaj ładowanie dla konkretnej komórki
-        setLoadingCells(prev => {
+        setLoadingCells((prev) => {
           const newSet = new Set(prev);
           newSet.delete(cellKey);
           return newSet;

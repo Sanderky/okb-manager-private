@@ -534,6 +534,12 @@ export default function EmployeeList() {
         },
       };
     },
+    muiTableHeadRowProps: {
+      sx: {
+        boxShadow: 'none !important',
+        backgroundImage: 'none !important',
+      },
+    },
     enableRowNumbers: true,
     displayColumnDefOptions: {
       'mrt-row-numbers': {

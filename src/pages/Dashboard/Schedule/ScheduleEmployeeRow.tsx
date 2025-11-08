@@ -188,7 +188,6 @@
 //   }
 // );
 
-
 import React from 'react';
 import {
   TableRow,
@@ -287,10 +286,11 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = React.memo(
               position: 'sticky',
               left: 0,
               zIndex: 3,
-              backgroundColor: '#f6faff',
+              // backgroundColor: '#f6faff',
               padding: '6px 12px',
               textAlign: 'center',
             }}
+            className="bg-gray-100"
           >
             <Tooltip
               arrow
@@ -359,10 +359,11 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = React.memo(
             position: 'sticky',
             left: 0,
             zIndex: 3,
-            backgroundColor: '#f6faff',
+            // backgroundColor: '#f6faff',
             padding: '6px 12px',
             textAlign: 'center',
           }}
+          className="bg-gray-100"
         >
           <Typography noWrap sx={{ fontWeight: 600 }} variant="body2">
             {employee.name}
