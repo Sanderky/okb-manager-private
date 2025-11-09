@@ -58,14 +58,14 @@ export const updateSchedule = async (
 export const getEmployeesByScheduledConstruction = async (
   constructionId: string,
   date?: Date
-): Promise<string[][]> => {
+): Promise<string[]> => {
   const querySnapshot = await getDocs(collection(db, 'schedules'));
 
   const employeeIds = querySnapshot.docs
     .filter((doc) => {
       const data = doc.data();
       const hasConstruction = data.constructions?.some(
-        (c) => c && c.constructionId === constructionId
+        (c: string | null) => c === constructionId
       );
 
       if (!date) {
@@ -82,16 +82,13 @@ export const getEmployeesByScheduledConstruction = async (
           const dayIndex = targetDate.diff(weekStart, 'day');
 
           const constructionAtDay = data.constructions?.[dayIndex];
-          return (
-            constructionAtDay &&
-            constructionAtDay.constructionId === constructionId
-          );
+          return constructionAtDay === constructionId;
         }
       }
 
       return false;
     })
-    .map((doc) => [doc.data().employeeId, doc.data().employeeName]);
+    .map((doc) => doc.data().employeeId);
 
   const uniqueEmployeeIds = [...new Set(employeeIds)];
 

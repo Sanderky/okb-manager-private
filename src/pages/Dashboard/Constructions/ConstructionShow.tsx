@@ -559,22 +559,29 @@ export default function ConstructionShow() {
                   </thead>
                   <tbody className="divide-y divide-gray-200">
                     {scheduleEmployees &&
-                      scheduleEmployees.map((emp) => (
-                        <tr
-                          key={emp[0]}
-                          onClick={() => navigate(`/employees/${emp[0]}`)}
-                          className="cursor-pointer transition-colors hover:bg-blue-50 active:bg-blue-100"
-                        >
-                          <td className="px-4 py-3">
-                            <Typography
-                              variant="body2"
-                              className="text-gray-700"
-                            >
-                              {emp[1]}
-                            </Typography>
-                          </td>
-                        </tr>
-                      ))}
+                      scheduleEmployees.map((employeeId) => {
+                        const employee = employees.find(
+                          (e) => e.id === employeeId
+                        );
+                        return (
+                          <tr
+                            key={employeeId}
+                            onClick={() => navigate(`/employees/${employeeId}`)}
+                            className="cursor-pointer transition-colors hover:bg-blue-50 active:bg-blue-100"
+                          >
+                            <td className="px-4 py-3">
+                              <Typography
+                                variant="body2"
+                                className="text-gray-700"
+                              >
+                                {employee
+                                  ? employee.name
+                                  : 'Nieznany pracownik'}
+                              </Typography>
+                            </td>
+                          </tr>
+                        );
+                      })}
                   </tbody>
                 </table>
               )}

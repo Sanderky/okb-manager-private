@@ -57,14 +57,8 @@ import InfoOutlineIcon from '@mui/icons-material/InfoOutline';
 
 // dayjs.locale('pl');
 
-type ScheduleConstruction = {
-  constructionId: string;
-  constructionName: string;
-} | null;
-
-type SchedulePayload = Omit<Schedule, 'id' | 'constructions'> & {
+type SchedulePayload = Omit<Schedule, 'id'> & {
   id?: string;
-  constructions: ScheduleConstruction[];
 };
 
 const ScheduleComponent = () => {
@@ -194,51 +188,6 @@ const ScheduleComponent = () => {
     return employees.filter((e) => ids.has(e.id));
   }, [employees, selectedEmployees]);
 
-  type NormalizedEntry = {
-    constructionId: string | null;
-    constructionName: string | null;
-  } | null;
-
-  const normalizeEntry = useCallback(
-    (
-      raw:
-        | string
-        | {
-            constructionId?: string;
-            constructionName?: string;
-            id?: string;
-            name?: string;
-          }
-        | null
-        | undefined
-    ): NormalizedEntry => {
-      if (raw == null) return null;
-      if (typeof raw === 'string') {
-        return { constructionId: raw, constructionName: null };
-      }
-      if (typeof raw === 'object') {
-        return {
-          constructionId: raw.constructionId ?? raw.id ?? null,
-          constructionName: raw.constructionName ?? raw.name ?? null,
-        };
-      }
-      return null;
-    },
-    []
-  );
-
-  const resolveEntryName = useCallback(
-    (entryNormalized: NormalizedEntry) => {
-      if (!entryNormalized) return { name: null, notFound: false };
-      const cid = entryNormalized.constructionId;
-      if (!cid) return { name: null, notFound: false };
-      const found = constructions.find((c) => c.id === cid);
-      if (found) return { name: found.name, notFound: false };
-      return { name: entryNormalized.constructionName ?? null, notFound: true };
-    },
-    [constructions]
-  );
-
   const saveScheduleToDatabase = useCallback(
     async (
       empId: string,
@@ -251,29 +200,9 @@ const ScheduleComponent = () => {
       setLoadingCells((prev) => new Set(prev).add(cellKey));
 
       try {
-        const constructionsPayload: ScheduleConstruction[] =
-          constructionIds.map((cid, idx) => {
-            if (!cid) return null;
-            const found = constructions.find((c) => c.id === cid);
-            if (found) {
-              return {
-                constructionId: cid,
-                constructionName: found.name ?? '',
-              };
-            }
-            const existingEntryRaw = existing?.constructions?.[idx] ?? null;
-            const normalizedExisting = normalizeEntry(existingEntryRaw);
-            const existingName = normalizedExisting?.constructionName ?? '';
-            return { constructionId: cid, constructionName: existingName };
-          });
-
         const scheduleData: SchedulePayload = {
           employeeId: empId,
-          employeeName:
-            existing?.employeeName ??
-            employees.find((e) => e.id === empId)?.name ??
-            '',
-          constructions: constructionsPayload,
+          constructions: constructionIds,
           weekStart: weekStart,
           id: existing?.id,
         };
@@ -288,7 +217,7 @@ const ScheduleComponent = () => {
         });
       }
     },
-    [updateScheduleMutation, constructions, employees, normalizeEntry]
+    [updateScheduleMutation]
   );
 
   const handleCellChange = useCallback(
@@ -323,13 +252,8 @@ const ScheduleComponent = () => {
           return isVacation ? null : (value?.id ?? null);
         });
       } else {
-        const existingRaw =
+        const existingIds =
           existingSchedule?.constructions ?? Array(7).fill(null);
-
-        const existingIds = existingRaw.map((entry) => {
-          const normalized = normalizeEntry(entry);
-          return normalized?.constructionId ?? null;
-        });
 
         newConstructions = [...existingIds];
 
@@ -352,7 +276,7 @@ const ScheduleComponent = () => {
         cellKey
       );
     },
-    [schedules, vacations, saveScheduleToDatabase, normalizeEntry, getCellKey]
+    [schedules, vacations, saveScheduleToDatabase, getCellKey]
   );
 
   const handleShowInputConstruction = useCallback(
@@ -403,18 +327,18 @@ const ScheduleComponent = () => {
         Array.from({ length: 7 }, (_, i) => {
           const day = weekStart.add(i, 'day');
 
-          const rawEntry = schedule?.constructions?.[i] ?? null;
-          const normalized = normalizeEntry(rawEntry);
-          const resolved = resolveEntryName(normalized);
+          const constructionId = schedule?.constructions?.[i] ?? null;
+          const construction = constructionId
+            ? constructions.find((c) => c.id === constructionId)
+            : null;
           const isVacation = vacations?.some(
             (v) => v.employeeId === empId && day.isSame(dayjs(v.date), 'day')
           );
 
           return {
             day,
-            name: resolved.name,
+            name: construction?.name ?? null,
             isVacation,
-            notFound: resolved.notFound,
           };
         }) ?? [];
 
@@ -482,22 +406,11 @@ const ScheduleComponent = () => {
       }
       return (
         <Typography className="font-medium" variant="body2">
-          {dayData
-            ? dayData.notFound
-              ? `Archiwum: ${dayData.name ?? (renderEmptyCellIndicator && '')}`
-              : (dayData.name ?? (renderEmptyCellIndicator && ''))
-            : renderEmptyCellIndicator && ''}
+          {dayData?.name ?? (renderEmptyCellIndicator && '')}
         </Typography>
       );
     },
-    [
-      schedules,
-      vacations,
-      showVacations,
-      showDates,
-      normalizeEntry,
-      resolveEntryName,
-    ]
+    [schedules, vacations, constructions, showVacations, showDates]
   );
 
   // Agregacja stanów ładowania i błędów
@@ -608,7 +521,7 @@ const ScheduleComponent = () => {
                         left: 0,
                         zIndex: 3,
                         width: {
-                          xs: '45%',
+                          xs: '50%',
                           sm: '40%',
                           md: '30%',
                           lg: '20%',
@@ -663,7 +576,7 @@ const ScheduleComponent = () => {
                               sm: 'table-cell',
                             },
                             width: {
-                              xs: '55%',
+                              xs: '50%',
                               sm: `${60 / Math.min(weeks.length, 2)}%`,
                               md: `${70 / Math.min(weeks.length, 3)}%`,
                               lg: `${80 / Math.min(weeks.length, 4)}%`,
@@ -738,7 +651,7 @@ const ScheduleComponent = () => {
                         left: 0,
                         zIndex: 3,
                         width: {
-                          xs: '135px',
+                          xs: '150px',
                           md: '200px',
                         },
                       }}
@@ -756,7 +669,7 @@ const ScheduleComponent = () => {
                         <TableCell
                           key={i}
                           sx={{
-                            minWidth: '150px',
+                            width: '150px',
                           }}
                           className={`border-l border-l-gray-300 bg-gray-100 px-3 py-2 ${isToday && 'bg-green-100'}`}
                         >
@@ -887,24 +800,8 @@ const ScheduleComponent = () => {
                 );
 
                 if (activeCell.isWeek) {
-                  const firstRaw = schedule?.constructions?.find(
-                    (
-                      entry:
-                        | string
-                        | {
-                            constructionId?: string;
-                            constructionName?: string;
-                            id?: string;
-                            name?: string;
-                          }
-                        | null
-                    ) => {
-                      const norm = normalizeEntry(entry);
-                      return !!norm?.constructionId;
-                    }
-                  );
-                  const firstNorm = normalizeEntry(firstRaw ?? null);
-                  const firstId = firstNorm?.constructionId ?? null;
+                  const firstId =
+                    schedule?.constructions?.find((id) => id !== null) ?? null;
                   return (
                     constructions.find((c) => c.id === firstId) ?? {
                       id: null,
@@ -913,11 +810,10 @@ const ScheduleComponent = () => {
                   );
                 } else {
                   const index = dayjs(activeCell.date).diff(weekStart, 'day');
-                  const rawEntry = schedule?.constructions?.[index] ?? null;
-                  const norm = normalizeEntry(rawEntry);
-                  const cid = norm?.constructionId ?? null;
+                  const constructionId =
+                    schedule?.constructions?.[index] ?? null;
                   return (
-                    constructions.find((c) => c.id === cid) ?? {
+                    constructions.find((c) => c.id === constructionId) ?? {
                       id: null,
                       name: '— Brak —',
                     }

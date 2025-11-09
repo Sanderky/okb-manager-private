@@ -83,11 +83,7 @@ export interface Vacation {
 export interface Schedule {
   id?: string;
   employeeId: string;
-  employeeName: string;
-  constructions: ({
-    constructionId: string;
-    constructionName: string;
-  } | null)[];
+  constructions: string[] | null;
   weekStart: Date;
 }
 
