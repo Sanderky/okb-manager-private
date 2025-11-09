@@ -32,6 +32,12 @@ export type FileStateMap = {
   [K in EmployeeAttachment]: File | null;
 };
 
+const EmployeeAttachments: EmployeeAttachment[] = [
+  'idAttachment',
+  'contractAttachment',
+  'a1Attachment',
+];
+
 export default function EmployeeEdit() {
   const { employeeId } = useParams<{ employeeId: string }>();
   const navigate = useNavigate();
@@ -161,40 +167,38 @@ export default function EmployeeEdit() {
       }
 
       try {
-        const attachmentsConfig = [
-          {
-            file: files.contractAttachment,
-            currentValue: formState.values.contractAttachment ?? null,
-            employeeValue: employee?.contractAttachment ?? null,
-            type: 'contractAttachment' as const,
-          },
-          {
-            file: files.a1Attachment,
-            currentValue: formState.values.a1Attachment ?? null,
-            employeeValue: employee?.a1Attachment ?? null,
-            type: 'a1Attachment' as const,
-          },
-        ];
-
         const attachmentResults = await Promise.all(
-          attachmentsConfig.map(
-            async ({ file, currentValue, employeeValue, type }) => {
-              if (file) {
-                if (employeeValue) await handleDeleteAttachment(type);
-                return await handleUploadAttachment(file, type);
-              } else if (!currentValue && employeeValue) {
-                await handleDeleteAttachment(type);
-                return null;
-              }
-              return currentValue ?? null;
+          EmployeeAttachments.map(async (attachmentType) => {
+            const file = files[attachmentType];
+            const currentValue = formState.values[attachmentType] ?? null;
+            const employeeValue = employee?.[attachmentType] ?? null;
+            const type = attachmentType;
+
+            if (file) {
+              if (employeeValue) await handleDeleteAttachment(type);
+              return await handleUploadAttachment(file, type);
+            } else if (!currentValue && employeeValue) {
+              await handleDeleteAttachment(type);
+              return null;
             }
-          )
+            return currentValue ?? null;
+          })
         );
 
         const updateData: Partial<Employee> = {
           ...formState.values,
-          contractAttachment: attachmentResults[0],
-          a1Attachment: attachmentResults[1],
+          idAttachment:
+            attachmentResults.find(
+              (a) => a?.attachmentType === 'idAttachment'
+            ) ?? null,
+          contractAttachment:
+            attachmentResults.find(
+              (a) => a?.attachmentType === 'contractAttachment'
+            ) ?? null,
+          a1Attachment:
+            attachmentResults.find(
+              (a) => a?.attachmentType === 'a1Attachment'
+            ) ?? null,
           contractStartDate: formState.values.contractStartDate ?? null,
           a1StartDate: formState.values.a1StartDate ?? null,
           a1EndDate: formState.values.a1EndDate ?? null,

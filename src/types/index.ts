@@ -23,9 +23,9 @@ export interface Employee {
   contractISPermanent: boolean | null;
   a1StartDate: Date | null;
   a1EndDate: Date | null;
-  a1Attachment: FileItem | null;
-  contractAttachment: FileItem | null;
-  idAttachment: FileItem | null;
+  a1Attachment: Attachment | null;
+  contractAttachment: Attachment | null;
+  idAttachment: Attachment | null;
 }
 
 export type EmployeeAlertSeverity = 'error' | 'warning' | 'info';
@@ -62,6 +62,10 @@ export interface FileItem {
   timeCreated?: string;
   size?: number;
   contentType?: string;
+}
+
+export interface Attachment extends FileItem {
+  attachmentType: EmployeeAttachment;
 }
 
 export interface FolderItem {

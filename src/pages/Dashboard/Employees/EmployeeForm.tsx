@@ -8,8 +8,8 @@ import TextField from '@mui/material/TextField';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import dayjs, { type Dayjs } from 'dayjs';
-import type { Employee, EmployeeAttachment, FileItem } from '../../../types';
+import dayjs from 'dayjs';
+import type { Attachment, Employee, EmployeeAttachment, FileItem } from '../../../types';
 import Alert from '@mui/material/Alert';
 import DoneAllOutlinedIcon from '@mui/icons-material/DoneAllOutlined';
 import {
@@ -45,7 +45,8 @@ export type FormFieldValue =
   | boolean
   | null
   | DateWithPermanent
-  | number;
+  | number
+  | Attachment;
 
 export interface EmployeeFormProps {
   formId?: string;
@@ -125,11 +126,12 @@ const AttachmentField = ({
       name: file.name,
       type: 'file',
       fullPath: '',
+      attachmentType: attachmentType,
       url: URL.createObjectURL(file),
       contentType: file.type,
       size: file.size,
       timeCreated: new Date().toISOString(),
-    });
+    } as Attachment);
   };
 
   const handleDeleteFileForm = () => {

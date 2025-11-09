@@ -9,11 +9,11 @@ import {
   Button,
 } from '@mui/material';
 import { canOpenPreview } from '../../../components/fileBrowser/FileBrowserHelpers';
-import type { FileItem } from '../../../types';
+import type { Attachment } from '../../../types';
 import { useState } from 'react';
 
 interface AttachmentBoxProps {
-  file: FileItem | undefined | null;
+  file: Attachment | undefined | null;
   onDelete?: () => void;
   onDownload?: () => void;
   onShow?: () => void;

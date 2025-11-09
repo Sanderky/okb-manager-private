@@ -7,7 +7,7 @@ import {
   getStorage,
 } from 'firebase/storage';
 import { useCallback, useState } from 'react';
-import type { Employee, EmployeeAttachment, FileItem } from '../../../types';
+import type { Attachment, Employee, EmployeeAttachment } from '../../../types';
 
 export type LoadingState = 'uploading' | 'deleting';
 
@@ -26,7 +26,7 @@ const useEmployeeAttachment = (employee: Employee | null | undefined) => {
   );
 
   const handleUploadAttachment = useCallback(
-    async (file: File | null, attachmentType: EmployeeAttachment) => {
+    async (file: File | null, attachmentType: EmployeeAttachment): Promise<Attachment | null> => {
       if (!file || !employee) return null;
 
       setLoading('uploading');
@@ -46,13 +46,14 @@ const useEmployeeAttachment = (employee: Employee | null | undefined) => {
 
         const fileData = {
           name: file.name,
-          type: 'file',
+          type: 'file' as const,
           fullPath: filePath,
           url: downloadURL,
           contentType: file.type,
           size: file.size,
           timeCreated: metadata.timeCreated,
-        } as FileItem;
+          attachmentType: attachmentType
+        };
 
         return fileData;
       } catch (error) {
