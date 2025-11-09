@@ -282,7 +282,6 @@ export default function EmployeeList() {
       {
         accessorKey: 'phone',
         header: 'Telefon',
-        maxSize: 140,
       },
       {
         accessorKey: 'address',
@@ -291,7 +290,6 @@ export default function EmployeeList() {
       {
         accessorKey: 'pesel',
         header: 'Pesel',
-        maxSize: 140,
       },
       {
         accessorKey: 'accountNumber',
@@ -306,7 +304,6 @@ export default function EmployeeList() {
             {cell.getValue<boolean>() ? 'Tak' : 'Nie'}
           </Box>
         ),
-        maxSize: 140,
       },
       {
         accessorKey: 'birthDate',
@@ -323,7 +320,6 @@ export default function EmployeeList() {
           return dayjs(value).format('DD.MM.YYYY');
         },
         filterFn: dateBetweenFilterFn,
-        maxSize: 140,
       },
       {
         accessorKey: 'contractStartDate',
@@ -340,7 +336,6 @@ export default function EmployeeList() {
           return dayjs(value).format('DD.MM.YYYY');
         },
         filterFn: dateBetweenFilterFn,
-        maxSize: 140,
       },
       {
         accessorKey: 'contractEndDate',
@@ -357,7 +352,6 @@ export default function EmployeeList() {
           return dayjs(value).format('DD.MM.YYYY');
         },
         filterFn: dateBetweenFilterFn,
-        maxSize: 140,
       },
       {
         accessorKey: 'a1StartDate',
@@ -374,7 +368,6 @@ export default function EmployeeList() {
           return dayjs(value).format('DD.MM.YYYY');
         },
         filterFn: dateBetweenFilterFn,
-        maxSize: 140,
       },
       {
         accessorKey: 'a1EndDate',
@@ -391,7 +384,6 @@ export default function EmployeeList() {
           return dayjs(value).format('DD.MM.YYYY');
         },
         filterFn: dateBetweenFilterFn,
-        maxSize: 140,
       },
       {
         id: 'status',
@@ -420,7 +412,6 @@ export default function EmployeeList() {
             {cell.getValue<boolean>() ? 'Zatrudniony' : 'Niezatrudniony'}
           </Box>
         ),
-        maxSize: 150,
       },
     ],
     []
@@ -437,7 +428,7 @@ export default function EmployeeList() {
     localization,
     columns,
     data: tableData,
-    layoutMode: 'grid',
+    layoutMode: 'semantic',
     initialState: {
       density: 'comfortable',
       columnOrder: [
@@ -516,6 +507,7 @@ export default function EmployeeList() {
       sx: {
         borderLeft: '1px solid #e0e0e0',
         justifyContent: 'center',
+        textAlign: 'center',
       },
     },
     muiTableBodyRowProps: ({ row }) => {

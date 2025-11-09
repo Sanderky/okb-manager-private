@@ -81,7 +81,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                     pb: 0.5,
                   }}
                   variant="body2"
-                  className={`${isToday && 'font-bold text-blue-700'}`}
+                  className={`${isToday && 'font-bold text-blue-700 underline'}`}
                 >
                   {day.date()}
                 </Typography>

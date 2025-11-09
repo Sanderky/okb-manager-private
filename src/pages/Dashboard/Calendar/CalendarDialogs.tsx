@@ -209,6 +209,7 @@ interface EventDetailsDialogProps {
   handleModalClose: () => void;
   handleDeleteEvent: (id?: string) => void;
   loading?: boolean;
+  onEventClick?: (event: CalendarEvent) => void; // DODAJ TEN PROP
 }
 
 export const EventDetailsDialog: React.FC<EventDetailsDialogProps> = ({
@@ -218,8 +219,9 @@ export const EventDetailsDialog: React.FC<EventDetailsDialogProps> = ({
   handleModalClose,
   handleDeleteEvent,
   loading = false,
+  onEventClick, // DODAJ TEN PROP
 }) => {
-  const navigate = useNavigate(); // DODAJ useNavigate
+  const navigate = useNavigate();
   const isMultipleEvents = activeDialog.type === 'moreEvents';
 
   const handleDelete = () => {
@@ -229,6 +231,13 @@ export const EventDetailsDialog: React.FC<EventDetailsDialogProps> = ({
   // Funkcja do przekierowania do profilu pracownika
   const handleEmployeeProfileClick = (employeeId: string) => {
     navigate(`/employees/${employeeId}`);
+  };
+
+  // Funkcja do obsługi kliknięcia w event w moreEvents
+  const handleMoreEventsItemClick = (event: CalendarEvent) => {
+    if (onEventClick) {
+      onEventClick(event); // Otwórz szczegóły tego eventu
+    }
   };
 
   return (
@@ -286,10 +295,7 @@ export const EventDetailsDialog: React.FC<EventDetailsDialogProps> = ({
                   direction="row"
                   alignItems="center"
                   className="border border-gray-300 px-3 py-2"
-                  onClick={() =>
-                    event.employee &&
-                    handleEmployeeProfileClick(event.employee.id)
-                  } // DODAJ onClick
+                  onClick={() => handleMoreEventsItemClick(event)} // ZMIENIONE: otwiera szczegóły zamiast profil
                 >
                   <Box sx={{ flexGrow: 1 }}>
                     <Typography variant="subtitle1" fontWeight="500">
@@ -303,36 +309,104 @@ export const EventDetailsDialog: React.FC<EventDetailsDialogProps> = ({
                   <IconButton
                     size="small"
                     onClick={(e) => {
-                      e.stopPropagation(); // ZAPOBIEGA PRZEKIEROWANIU PRZY KLIKNIĘCIU IKONY USUWANIA
+                      e.stopPropagation();
                       handleDeleteEvent(event.groupId);
                     }}
                     loading={loading}
                   >
-                    <DeleteIcon color={loading ? 'disabled' : 'error'} />
+                    <DeleteIcon color={loading ? 'disabled' : 'action'} />
                   </IconButton>
                 </Stack>
               ))
           : currentEvent.employee && (
               <Box
+                className="border-lightGray rounded-lg border p-3"
                 sx={{
-                  backgroundColor: getColorForEmployee(
-                    currentEvent.employee.id
-                  ),
-                  borderRadius: 1,
-                  cursor: 'pointer', // DODAJ cursor pointer
+                  cursor: 'pointer',
+                  ':hover': {
+                    opacity: 0.8,
+                  },
+                  transition: '0.3s',
                 }}
-                className="border border-gray-300 px-3 py-2"
                 onClick={() =>
                   handleEmployeeProfileClick(currentEvent.employee.id)
-                } // DODAJ onClick
+                } // ZOSTAJE: przenosi do profilu
               >
-                <Typography variant="subtitle1" fontWeight="500">
-                  {currentEvent.employee?.name}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {currentEvent.startDate.format('DD.MM.YYYY')} –{' '}
-                  {currentEvent.endDate.format('DD.MM.YYYY')}
-                </Typography>
+                <Stack
+                  direction={'row'}
+                  justifyContent={'space-between'}
+                  alignItems={'flex-start'}
+                  className="mb-3"
+                >
+                  <Box
+                    sx={{
+                      flexGrow: 1,
+                    }}
+                  >
+                    <Typography variant="body1" fontWeight="600">
+                      {currentEvent.employee?.name}
+                    </Typography>
+                    <Typography variant="overline" className="text-gray-500">
+                      Pracownik
+                    </Typography>
+                  </Box>
+                  <Box
+                    sx={{
+                      px: 1.5,
+                      py: 0.75,
+                      fontSize: '0.7rem',
+                    }}
+                    className={`${currentEvent.employee?.status ? 'bg-green-600' : 'bg-amber-600'} rounded-lg font-semibold text-white uppercase`}
+                  >
+                    {currentEvent.employee?.status ? 'Aktywny' : 'Archiwalny'}
+                  </Box>
+                </Stack>
+                <Stack
+                  direction={{ xs: 'column', sm: 'row' }}
+                  spacing={{ xs: 1, sm: 2 }}
+                >
+                  <Box
+                    className="border-lightGray rounded-lg border bg-gray-50 p-2"
+                    sx={{
+                      flex: 1,
+                    }}
+                  >
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      fontWeight="500"
+                      sx={{ display: 'block', mb: 0.5 }}
+                    >
+                      Okres urlopu
+                    </Typography>
+                    <Typography variant="body2" fontWeight="500">
+                      {currentEvent.startDate.format('DD.MM.YYYY')} –{' '}
+                      {currentEvent.endDate.format('DD.MM.YYYY')}
+                    </Typography>
+                  </Box>
+                  <Box
+                    className="border-lightGray rounded-lg border bg-gray-50 p-2"
+                    sx={{
+                      flex: 1,
+                    }}
+                  >
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      fontWeight="500"
+                      sx={{ display: 'block', mb: 0.5 }}
+                    >
+                      Długość urlopu
+                    </Typography>
+                    <Typography variant="body2" fontWeight="500">
+                      {currentEvent.endDate.diff(
+                        currentEvent.startDate,
+                        'day'
+                      ) + 1}{' '}
+                      dni
+                    </Typography>
+                  </Box>
+                </Stack>
               </Box>
             )}
       </Stack>

@@ -21,6 +21,7 @@ import {
   Typography,
   Button,
   Tooltip,
+  Stack,
 } from '@mui/material';
 import dayjs, { Dayjs } from 'dayjs';
 import 'dayjs/locale/pl';
@@ -577,228 +578,282 @@ const ScheduleComponent = () => {
           setShowDates={setShowDates}
           activeTable={activeTable}
         />
-
-        {activeTable.type === 0 ? (
-          <TableContainer
-            component={Box}
-            className="rounded-lg border border-gray-300 bg-gray-50"
-            sx={{
-              overflowX: 'auto',
-              width: '100%',
-            }}
-          >
-            <Table
-              stickyHeader
+        <Box className="overflow-hidden rounded-lg border border-gray-300 bg-gray-50">
+          {activeTable.type === 0 ? (
+            <TableContainer
+              component={Box}
               sx={{
-                tableLayout: 'fixed',
-                minWidth: {
-                  xs: '100%',
-                  sm: `${40 + (60 / 2) * weeks.length}%`,
-                  md: `${30 + (70 / 3) * weeks.length}%`,
-                  lg: `${20 + (80 / 4) * weeks.length}%`,
-                  xl: `${20 + (80 / 7) * weeks.length}%`,
-                },
-              }}
-            >
-              <TableHead>
-                <TableRow>
-                  <TableCell
-                    sx={{
-                      position: 'sticky',
-                      left: 0,
-                      zIndex: 3,
-                      width: {
-                        xs: '45%',
-                        sm: '40%',
-                        md: '30%',
-                        lg: '20%',
-                      },
-                    }}
-                    className="bg-blue-200 px-3 py-2 text-center"
-                  >
-                    <Tooltip
-                      title="Kliknij w datę tygodnia w nagłówku tabeli, aby wyświetlić szczegółowy widok tego tygodnia."
-                      placement="top"
-                      slotProps={{
-                        popper: {
-                          sx: {
-                            cursor: 'pointer',
-                          },
-                          modifiers: [
-                            {
-                              name: 'offset',
-                              options: {
-                                offset: [0, -14],
-                              },
-                            },
-                          ],
-                        },
-                      }}
-                    >
-                      <InfoOutlineIcon color="primary" />
-                    </Tooltip>
-                  </TableCell>
-
-                  {weeks.map((w, index) => {
-                    const isBefor = w.isBefore(dayjs(), 'week');
-                    const isAfter = w.isAfter(dayjs(), 'week');
-                    const weekIndex = w.week();
-
-                    return (
-                      <TableCell
-                        key={index}
-                        className={`relative cursor-pointer border-l border-l-gray-300 px-3 py-2 ${
-                          isBefor
-                            ? 'bg-red-600/20'
-                            : isAfter
-                              ? 'bg-gray-100'
-                              : 'bg-green-200'
-                        }`}
-                        sx={{
-                          '&:hover svg, &:active svg, &:focus-within svg': {
-                            opacity: 1,
-                          },
-                          display: {
-                            xs: index === 0 ? 'table-cell' : 'none',
-                            sm: 'table-cell',
-                          },
-                          width: {
-                            xs: '55%',
-                            sm: `${60 / Math.min(weeks.length, 2)}%`,
-                            md: `${70 / Math.min(weeks.length, 3)}%`,
-                            lg: `${80 / Math.min(weeks.length, 4)}%`,
-                            xl: `${80 / Math.min(weeks.length, 7)}%`,
-                          },
-                        }}
-                        onClick={() => setActiveTable({ type: 1, week: w })}
-                      >
-                        <Typography
-                          className="block text-center font-semibold text-gray-700/50"
-                          variant="caption"
-                        >
-                          [{weekIndex}]
-                        </Typography>
-                        <Typography
-                          className="text-center font-semibold"
-                          variant="body2"
-                        >
-                          {w.format('DD.MM')} -{' '}
-                          {w.add(6, 'day').format('DD.MM')}
-                        </Typography>
-                        <UnfoldMoreIcon
-                          sx={{
-                            fontSize: '1rem',
-                            fontWeight: '300',
-                            position: 'absolute',
-                            top: '50%',
-                            right: 10,
-                            transform: 'translateY(-50%)',
-                            opacity: 0,
-                            transition: '0.3s',
-                          }}
-                        />
-                      </TableCell>
-                    );
-                  })}
-                </TableRow>
-              </TableHead>
-
-              <TableBody>
-                {filteredEmployees.map((emp) => (
-                  <EmployeeRow
-                    key={emp.id}
-                    employee={emp}
-                    weeks={weeks}
-                    onCellClick={handleShowInputConstruction}
-                    cellText={cellText}
-                    activeTable={activeTable}
-                    loadingCells={loadingCells}
-                    getCellKey={getCellKey}
-                    onCellChange={handleCellChange}
-                  />
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        ) : (
-          <TableContainer
-            component={Box}
-            className="rounded-lg border border-gray-300 bg-gray-50"
-          >
-            <Table
-              stickyHeader
-              sx={{
-                tableLayout: 'fixed',
-                minWidth: 800,
+                overflowX: 'auto',
                 width: '100%',
               }}
             >
-              <TableHead>
-                <TableRow>
-                  <TableCell
-                    sx={{
-                      position: 'sticky',
-                      left: 0,
-                      zIndex: 3,
-                      width: {
-                        xs: '135px',
-                        md: '200px',
-                      },
-                    }}
-                    className="cursor-pointer bg-blue-200 px-3 py-2 text-center"
-                    onClick={() =>
-                      setActiveTable((prev) => ({ ...prev, type: 0 }))
-                    }
-                  >
-                    <KeyboardReturnIcon />
-                  </TableCell>
-                  {Array.from({ length: 7 }).map((_, i) => {
-                    const day = activeTable.week.add(i, 'day');
-                    const isToday = day.isSame(dayjs(), 'day');
-                    return (
-                      <TableCell
-                        key={i}
-                        sx={{
-                          minWidth: '150px',
+              <Table
+                stickyHeader
+                sx={{
+                  tableLayout: 'fixed',
+                  minWidth: {
+                    xs: '100%',
+                    sm: `${40 + (60 / 2) * weeks.length}%`,
+                    md: `${30 + (70 / 3) * weeks.length}%`,
+                    lg: `${20 + (80 / 4) * weeks.length}%`,
+                    xl: `${20 + (80 / 7) * weeks.length}%`,
+                  },
+                }}
+              >
+                <TableHead>
+                  <TableRow>
+                    <TableCell
+                      sx={{
+                        position: 'sticky',
+                        left: 0,
+                        zIndex: 3,
+                        width: {
+                          xs: '45%',
+                          sm: '40%',
+                          md: '30%',
+                          lg: '20%',
+                        },
+                      }}
+                      className="bg-blue-200 px-3 py-2 text-center"
+                    >
+                      <Tooltip
+                        title="Kliknij w datę tygodnia w nagłówku tabeli, aby wyświetlić szczegółowy widok tego tygodnia."
+                        placement="top"
+                        slotProps={{
+                          popper: {
+                            sx: {
+                              cursor: 'pointer',
+                            },
+                            modifiers: [
+                              {
+                                name: 'offset',
+                                options: {
+                                  offset: [0, -14],
+                                },
+                              },
+                            ],
+                          },
                         }}
-                        className={`border-l border-l-gray-300 bg-gray-100 px-3 py-2 ${isToday && 'bg-green-100'}`}
                       >
-                        <Typography
-                          className="block text-center font-semibold"
-                          variant="caption"
-                        >
-                          {WEEK_DAYS[i]}
-                        </Typography>
-                        <Typography
-                          className="text-center font-semibold"
-                          variant="body2"
-                        >
-                          {day.format('DD.MM')}
-                        </Typography>
-                      </TableCell>
-                    );
-                  })}
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {filteredEmployees.map((emp) => (
-                  <EmployeeRow
-                    key={emp.id}
-                    employee={emp}
-                    weeks={weeks}
-                    onCellClick={handleShowInputConstruction}
-                    cellText={cellText}
-                    activeTable={activeTable}
-                    loadingCells={loadingCells}
-                    getCellKey={getCellKey}
-                    onCellChange={handleCellChange}
-                  />
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        )}
+                        <InfoOutlineIcon color="primary" />
+                      </Tooltip>
+                    </TableCell>
 
+                    {weeks.map((w, index) => {
+                      const isBefor = w.isBefore(dayjs(), 'week');
+                      const isAfter = w.isAfter(dayjs(), 'week');
+                      const weekIndex = w.week();
+
+                      return (
+                        <TableCell
+                          key={index}
+                          className={`relative cursor-pointer border-l border-l-gray-300 px-3 py-2 ${
+                            isBefor
+                              ? 'bg-red-600/20'
+                              : isAfter
+                                ? 'bg-gray-100'
+                                : 'bg-green-200'
+                          }`}
+                          sx={{
+                            '&:hover svg, &:active svg, &:focus-within svg': {
+                              opacity: 1,
+                            },
+                            display: {
+                              xs: index === 0 ? 'table-cell' : 'none',
+                              sm: 'table-cell',
+                            },
+                            width: {
+                              xs: '55%',
+                              sm: `${60 / Math.min(weeks.length, 2)}%`,
+                              md: `${70 / Math.min(weeks.length, 3)}%`,
+                              lg: `${80 / Math.min(weeks.length, 4)}%`,
+                              xl: `${80 / Math.min(weeks.length, 7)}%`,
+                            },
+                          }}
+                          onClick={() => setActiveTable({ type: 1, week: w })}
+                        >
+                          <Typography
+                            className="block text-center font-semibold text-gray-700/50"
+                            variant="caption"
+                          >
+                            [{weekIndex}]
+                          </Typography>
+                          <Typography
+                            className="text-center font-semibold"
+                            variant="body2"
+                          >
+                            {w.format('DD.MM')} -{' '}
+                            {w.add(6, 'day').format('DD.MM')}
+                          </Typography>
+                          <UnfoldMoreIcon
+                            sx={{
+                              fontSize: '1rem',
+                              fontWeight: '300',
+                              position: 'absolute',
+                              top: '50%',
+                              right: 10,
+                              transform: 'translateY(-50%)',
+                              opacity: 0,
+                              transition: '0.3s',
+                            }}
+                          />
+                        </TableCell>
+                      );
+                    })}
+                  </TableRow>
+                </TableHead>
+
+                <TableBody>
+                  {filteredEmployees.map((emp) => (
+                    <EmployeeRow
+                      key={emp.id}
+                      employee={emp}
+                      weeks={weeks}
+                      onCellClick={handleShowInputConstruction}
+                      cellText={cellText}
+                      activeTable={activeTable}
+                      loadingCells={loadingCells}
+                      getCellKey={getCellKey}
+                      onCellChange={handleCellChange}
+                    />
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          ) : (
+            <TableContainer component={Box}>
+              <Table
+                stickyHeader
+                sx={{
+                  tableLayout: 'fixed',
+                  minWidth: 800,
+                  width: '100%',
+                }}
+              >
+                <TableHead>
+                  <TableRow>
+                    <TableCell
+                      sx={{
+                        position: 'sticky',
+                        left: 0,
+                        zIndex: 3,
+                        width: {
+                          xs: '135px',
+                          md: '200px',
+                        },
+                      }}
+                      className="cursor-pointer bg-blue-200 px-3 py-2 text-center"
+                      onClick={() =>
+                        setActiveTable((prev) => ({ ...prev, type: 0 }))
+                      }
+                    >
+                      <KeyboardReturnIcon />
+                    </TableCell>
+                    {Array.from({ length: 7 }).map((_, i) => {
+                      const day = activeTable.week.add(i, 'day');
+                      const isToday = day.isSame(dayjs(), 'day');
+                      return (
+                        <TableCell
+                          key={i}
+                          sx={{
+                            minWidth: '150px',
+                          }}
+                          className={`border-l border-l-gray-300 bg-gray-100 px-3 py-2 ${isToday && 'bg-green-100'}`}
+                        >
+                          <Typography
+                            className="block text-center font-semibold"
+                            variant="caption"
+                          >
+                            {WEEK_DAYS[i]}
+                          </Typography>
+                          <Typography
+                            className="text-center font-semibold"
+                            variant="body2"
+                          >
+                            {day.format('DD.MM')}
+                          </Typography>
+                        </TableCell>
+                      );
+                    })}
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {filteredEmployees.map((emp) => (
+                    <EmployeeRow
+                      key={emp.id}
+                      employee={emp}
+                      weeks={weeks}
+                      onCellClick={handleShowInputConstruction}
+                      cellText={cellText}
+                      activeTable={activeTable}
+                      loadingCells={loadingCells}
+                      getCellKey={getCellKey}
+                      onCellChange={handleCellChange}
+                    />
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
+          <Box className="px-3 py-2">
+            <Stack
+              direction={'row'}
+              justifyContent={'space-between'}
+              spacing={2}
+              alignItems={'center'}
+            >
+              {activeTable.type === 0 ? (
+                <>
+                  <Typography
+                    variant="overline"
+                    className="font-medium text-gray-500"
+                  >
+                    {weeks.length} Tygodni
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    className="font-medium text-gray-500"
+                  >
+                    <Typography component={'span'} variant="inherit">
+                      {'Zakres: '}
+                    </Typography>
+                    {dayjs(fromWeek).format('DD.MM.YYYY')}
+                    <Typography
+                      component={'span'}
+                      variant="inherit"
+                      sx={{
+                        display: {
+                          xs: 'none',
+                          sm: 'inline',
+                        },
+                      }}
+                    >
+                      {' - '}
+                      {dayjs(toWeek).add(6, 'day').format('DD.MM.YYYY')}
+                    </Typography>
+                  </Typography>
+                </>
+              ) : (
+                <>
+                  <Typography
+                    variant="overline"
+                    className="font-medium text-gray-500"
+                  >
+                    {activeTable.week.week()} Tydzień
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    className="font-medium text-gray-500"
+                  >
+                    {activeTable.week.format('DD.MM.YYYY')}
+                    {' - '}
+                    {activeTable.week.add(6, 'day').format('DD.MM.YYYY')}
+                  </Typography>
+                </>
+              )}
+            </Stack>
+          </Box>
+        </Box>
         <Menu
           anchorEl={cellAnchorEl}
           open={openCellMenu}

@@ -487,6 +487,7 @@ const Calendar: React.FC = () => {
           handleModalClose={handleModalClose}
           handleDeleteEvent={handleDeleteEvent}
           loading={actionLoading || isDeleting}
+          onEventClick={handleEventClick} // DODAJ TEN PROP
         />
 
         <VacationReportDialog

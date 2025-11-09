@@ -141,8 +141,8 @@ export const TableControls: React.FC<TableControlsProps> = ({
               },
             }}
           >
-            {dayjs(fromWeek).format('DD.MM.YY')} -{' '}
-            {dayjs(toWeek).add(6, 'day').format('DD.MM.YY')}
+            {dayjs(fromWeek).format('DD.MM.YYYY')} -{' '}
+            {dayjs(toWeek).add(6, 'day').format('DD.MM.YYYY')}
           </Typography>
         </Stack>
       </Stack>
