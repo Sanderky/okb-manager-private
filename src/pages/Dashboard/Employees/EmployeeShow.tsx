@@ -45,6 +45,7 @@ import { getUpcomingVacationsForEmployee } from '../../../api/vacations';
 
 import InfoOutlineIcon from '@mui/icons-material/InfoOutline';
 import useLoading from '../../../hooks/useLoading';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 
 const personalFields = [
   { key: 'name', label: 'Imię i nazwisko' },
@@ -524,8 +525,12 @@ export default function EmployeeShow() {
                       <thead>
                         <tr className="bg-blue-50">
                           <th className="px-4 py-3 text-left">
-                            <Stack direction={'row'} spacing={1}>
-                              <InfoOutlineIcon className="text-blue-600" />
+                            <Stack
+                              direction={'row'}
+                              alignItems={'center'}
+                              spacing={1}
+                            >
+                              <CalendarMonthIcon className="text-blue-800" />
                               <Typography variant="subtitle2" fontWeight="600">
                                 Nadchodzące urlopy pracownika:
                               </Typography>

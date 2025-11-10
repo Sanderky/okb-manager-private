@@ -129,8 +129,8 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                             right: 0,
                             bgcolor: getColorForEmployee(ev.employee?.id),
                             px: 1,
-                            ml: isStart ? 1 : '-5px',
-                            mr: isEnd ? 1 : '-5px',
+                            ml: isStart ? 1 : '-1px',
+                            mr: isEnd ? 1 : '-1px',
                             fontSize: '0.7rem',
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
@@ -143,6 +143,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                             cursor: 'pointer',
                             textAlign: isStart ? 'left' : 'right',
                           }}
+                          className={`${!ev.employee.status && 'italic'}`}
                         >
                           <Typography
                             sx={{
@@ -154,6 +155,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                             }}
                           >
                             {ev.employee.name}
+                            {!ev.employee.status && '*'}
                           </Typography>
                         </Box>
                       </Tooltip>

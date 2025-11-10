@@ -46,7 +46,6 @@ import useNotifications from '../../../hooks/useNotifications/useNotifications';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { getEmployeesByScheduledConstruction } from '../../../api/schedules';
-import { getEmployeeList } from '../../../api/employees';
 import BaseDialog, { ConfirmationDialog } from '../../../components/BaseDialog';
 import FirebaseFileBrowser from '../../../components/fileBrowser/FileBrowser';
 import useLoading from '../../../hooks/useLoading';
@@ -87,15 +86,6 @@ export default function ConstructionShow() {
     queryKey: ['construction', constructionId],
     queryFn: () => getConstruction(constructionId!),
     enabled: !!constructionId,
-  });
-
-  const {
-    data: employees,
-    isLoading: isLoadingEmployees,
-    error: errorEmployees,
-  } = useQuery({
-    queryKey: ['employees'],
-    queryFn: () => getEmployeeList(),
   });
 
   const {
@@ -250,9 +240,8 @@ export default function ConstructionShow() {
     );
   }, [updateStatusMutation, notifications]);
 
-  const error = errorConstruction || errorEmployees || errorScheduleEmployees;
-  const loading =
-    isLoadingConstruction || isLoadingEmployees || isScheduleEmployeesLoading;
+  const error = errorConstruction || errorScheduleEmployees;
+  const loading = isLoadingConstruction || isScheduleEmployeesLoading;
 
   const renderShow = useMemo(() => {
     if (loading) {
@@ -546,45 +535,38 @@ export default function ConstructionShow() {
                 alignSelf: 'flex-start',
               }}
             >
-              {employees && (
-                <table className="w-full">
-                  <thead>
-                    <tr className="bg-gray-50">
-                      <th className="px-4 py-3 text-left">
-                        <Typography variant="subtitle2" fontWeight="600">
-                          Pracownicy na budowie ({scheduleEmployees?.length}):
-                        </Typography>
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {scheduleEmployees &&
-                      scheduleEmployees.map((employeeId) => {
-                        const employee = employees.find(
-                          (e) => e.id === employeeId
-                        );
-                        return (
-                          <tr
-                            key={employeeId}
-                            onClick={() => navigate(`/employees/${employeeId}`)}
-                            className="cursor-pointer transition-colors hover:bg-blue-50 active:bg-blue-100"
-                          >
-                            <td className="px-4 py-3">
-                              <Typography
-                                variant="body2"
-                                className="text-gray-700"
-                              >
-                                {employee
-                                  ? employee.name
-                                  : 'Nieznany pracownik'}
-                              </Typography>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                  </tbody>
-                </table>
-              )}
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-gray-50">
+                    <th className="px-4 py-3 text-left">
+                      <Typography variant="subtitle2" fontWeight="600">
+                        Pracownicy na budowie ({scheduleEmployees?.length}):
+                      </Typography>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {scheduleEmployees &&
+                    scheduleEmployees.map((employee) => {
+                      return (
+                        <tr
+                          key={employee.id}
+                          onClick={() => navigate(`/employees/${employee.id}`)}
+                          className="cursor-pointer transition-colors hover:bg-blue-50 active:bg-blue-100"
+                        >
+                          <td className="px-4 py-3">
+                            <Typography
+                              variant="body2"
+                              className="text-gray-700"
+                            >
+                              {employee.name}
+                            </Typography>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                </tbody>
+              </table>
             </Grid>
           </Grid>
         )}
@@ -665,7 +647,6 @@ export default function ConstructionShow() {
     actionLoading,
     note,
     scheduleEmployees,
-    employees,
     endDialogOpen,
     closeEndDialog,
     handleFinish,

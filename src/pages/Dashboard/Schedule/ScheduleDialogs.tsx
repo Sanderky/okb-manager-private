@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   FormControl,
   TextField,
@@ -7,6 +7,8 @@ import {
   Autocomplete,
   Typography,
   Stack,
+  Chip,
+  FormControlLabel,
 } from '@mui/material';
 import BaseDialog from '../../../components/BaseDialog';
 import type { Employee } from '../../../types';
@@ -26,8 +28,17 @@ export const FilterDialog: React.FC<FilterDialogProps> = ({
   selectedEmployees,
   setSelectedEmployees,
 }) => {
+  const [showInactive, setShowInactive] = useState<boolean>(false);
+
+  const filteredEmployees = useMemo(() => {
+    if (showInactive) {
+      return employees; // pokaż wszystkich
+    }
+    return employees.filter((emp) => emp.status); // tylko aktywni
+  }, [employees, showInactive]);
+
   const handleSelectAll = () => {
-    setSelectedEmployees([...employees]);
+    setSelectedEmployees([...filteredEmployees]);
   };
 
   const handleClear = () => {
@@ -35,7 +46,8 @@ export const FilterDialog: React.FC<FilterDialogProps> = ({
   };
 
   const isAllSelected =
-    selectedEmployees.length === employees.length && employees.length > 0;
+    selectedEmployees.length === filteredEmployees.length &&
+    filteredEmployees.length > 0;
 
   return (
     <BaseDialog
@@ -53,13 +65,13 @@ export const FilterDialog: React.FC<FilterDialogProps> = ({
       }
     >
       <Typography variant="overline" sx={{ mb: 1.5, display: 'block' }}>
-        {`Wybrane: ${selectedEmployees.length} z ${employees.length}`}
+        {`Wybrane: ${selectedEmployees.length} z ${filteredEmployees.length}`}
       </Typography>
       <FormControl sx={{ width: '100%', maxWidth: '100%' }}>
         <Autocomplete
           size="small"
           multiple
-          options={employees}
+          options={filteredEmployees}
           disableCloseOnSelect
           getOptionLabel={(opt) => opt.name}
           value={selectedEmployees}
@@ -71,12 +83,32 @@ export const FilterDialog: React.FC<FilterDialogProps> = ({
               <li key={key} {...optionProps}>
                 <Checkbox checked={selected} />
                 {option.name}
+                {!option.status && (
+                  <Chip
+                    label="Niezatrudniony"
+                    size="small"
+                    color="default"
+                    variant="outlined"
+                    sx={{ ml: 1, height: 20 }}
+                  />
+                )}
               </li>
             );
           }}
           renderInput={(params) => <TextField {...params} label="Pracownicy" />}
         />
       </FormControl>
+      <FormControlLabel
+        control={
+          <Checkbox
+            checked={showInactive}
+            onChange={(e) => setShowInactive(e.target.checked)}
+            size="small"
+          />
+        }
+        label="Pokaż niezatrudnionych"
+        className="mt-2"
+      />
     </BaseDialog>
   );
 };

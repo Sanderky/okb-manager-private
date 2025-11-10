@@ -116,8 +116,8 @@ const ScheduleComponent = () => {
     isLoading: isLoadingEmployees,
     isError: isErrorEmployees,
   } = useQuery<Employee[], Error>({
-    queryKey: ['employees', { status: true }],
-    queryFn: () => getEmployeeList(true),
+    queryKey: ['employees'],
+    queryFn: () => getEmployeeList(),
   });
 
   const {
@@ -183,7 +183,7 @@ const ScheduleComponent = () => {
   }, [fromWeek, toWeek]);
 
   const filteredEmployees = useMemo(() => {
-    if (!selectedEmployees.length) return employees;
+    if (!selectedEmployees.length) return employees.filter((e) => e.status);
     const ids = new Set(selectedEmployees.map((e) => e.id));
     return employees.filter((e) => ids.has(e.id));
   }, [employees, selectedEmployees]);
@@ -323,102 +323,104 @@ const ScheduleComponent = () => {
           s.employeeId === empId && dayjs(s.weekStart).isSame(weekStart, 'week')
       );
 
-      const weekConstructions =
-        Array.from({ length: 7 }, (_, i) => {
-          const day = weekStart.add(i, 'day');
-
-          const constructionId = schedule?.constructions?.[i] ?? null;
-          const construction = constructionId
-            ? constructions.find((c) => c.id === constructionId)
-            : null;
-          const isVacation = vacations?.some(
-            (v) => v.employeeId === empId && day.isSame(dayjs(v.date), 'day')
-          );
-
-          return {
-            day,
-            name: construction?.name ?? null,
-            isVacation,
-          };
-        }) ?? [];
-
-      if (isWeek) {
-        const constructionsMap: Record<string, dayjs.Dayjs[]> = {};
-        const vacationDays: dayjs.Dayjs[] = [];
-
-        weekConstructions.forEach((w) => {
-          if (w.isVacation) vacationDays.push(w.day);
-          else if (w.name) {
-            if (!constructionsMap[w.name]) constructionsMap[w.name] = [];
-            constructionsMap[w.name].push(w.day);
-          }
-        });
-
-        const hasNullDay = weekConstructions.some(
-          (w) => !w.name && !w.isVacation
+      if (!isWeek) {
+        const dayIndex = dayjs(date).diff(weekStart, 'day');
+        const constructionId = schedule?.constructions?.[dayIndex];
+        const isVacation = vacations?.some(
+          (v) =>
+            v.employeeId === empId && dayjs(date).isSame(dayjs(v.date), 'day')
         );
 
-        const parts: string[] = [];
-
-        if (showVacations && vacationDays.length > 0) {
-          const ranges = daysToRanges(vacationDays);
-          const label = showDates ? `Urlop (${ranges.join(', ')})` : `Urlop`;
-          parts.push(label);
+        if (isVacation) {
+          return (
+            <Typography className="font-medium text-amber-700" variant="body2">
+              Urlop
+            </Typography>
+          );
         }
 
-        const allConstructions = Object.entries(constructionsMap);
-
-        // Sprawdzamy czy cały tydzień ma tę samą budowę (6 lub 7 dni)
-        const hasSingleConstructionAllWeek =
-          allConstructions.length === 1 &&
-          (allConstructions[0][1].length === 6 ||
-            allConstructions[0][1].length === 7);
-
-        const shouldShowRanges =
-          !hasSingleConstructionAllWeek &&
-          (allConstructions.length > 1 ||
-            vacationDays.length > 0 ||
-            hasNullDay);
-
-        allConstructions.forEach(([name, days]) => {
-          if (!shouldShowRanges || !showDates) {
-            parts.push(name);
-          } else {
-            const ranges = daysToRanges(days);
-            parts.push(`${name} (${ranges.join(', ')})`);
-          }
-        });
+        const construction = constructionId
+          ? constructions.find((c) => c.id === constructionId)
+          : null;
 
         return (
           <Typography className="font-medium" variant="body2">
-            {parts.join(' / ') || (renderEmptyCellIndicator && '')}
+            {construction?.name ?? (renderEmptyCellIndicator && '')}
           </Typography>
         );
       }
 
-      const dayData = weekConstructions.find((w) => w.day.isSame(date, 'day'));
-      if (dayData?.isVacation) {
-        return (
-          <Typography className="font-medium text-amber-700" variant="body2">
-            Urlop
-          </Typography>
+      const weekData = Array.from({ length: 7 }, (_, i) => {
+        const day = weekStart.add(i, 'day');
+        const constructionId = schedule?.constructions?.[i];
+        const isVacation = vacations?.some(
+          (v) => v.employeeId === empId && day.isSame(dayjs(v.date), 'day')
         );
+
+        return {
+          day,
+          name: constructionId
+            ? constructions.find((c) => c.id === constructionId)?.name
+            : null,
+          isVacation,
+        };
+      });
+
+      const constructionsMap = new Map<string, dayjs.Dayjs[]>();
+      const vacationDays: dayjs.Dayjs[] = [];
+      let hasEmptyDays = false;
+
+      weekData.forEach(({ day, name, isVacation }) => {
+        if (isVacation) {
+          vacationDays.push(day);
+        } else if (name) {
+          if (!constructionsMap.has(name)) {
+            constructionsMap.set(name, []);
+          }
+          constructionsMap.get(name)!.push(day);
+        } else {
+          hasEmptyDays = true;
+        }
+      });
+
+      const parts: string[] = [];
+
+      if (showVacations && vacationDays.length > 0) {
+        const vacationText = showDates
+          ? `Urlop (${daysToRanges(vacationDays).join(', ')})`
+          : 'Urlop';
+        parts.push(vacationText);
       }
+
+      const shouldShowRanges =
+        constructionsMap.size > 1 || vacationDays.length > 0 || hasEmptyDays;
+
+      constructionsMap.forEach((days, name) => {
+        const isFullWeekConstruction =
+          days.length >= 6 && constructionsMap.size === 1;
+
+        if (!shouldShowRanges || !showDates || isFullWeekConstruction) {
+          parts.push(name);
+        } else {
+          parts.push(`${name} (${daysToRanges(days).join(', ')})`);
+        }
+      });
+
       return (
         <Typography className="font-medium" variant="body2">
-          {dayData?.name ?? (renderEmptyCellIndicator && '')}
+          {parts.join(' / ') || (renderEmptyCellIndicator && '')}
         </Typography>
       );
     },
     [schedules, vacations, constructions, showVacations, showDates]
   );
 
-  // Agregacja stanów ładowania i błędów
   const error =
     isErrorConstructions ||
     isErrorEmployees ||
     isErrorVacations ||
     isErrorSchedules;
+
   const loading =
     isLoadingConstructions ||
     isLoadingEmployees ||
@@ -788,7 +790,10 @@ const ScheduleComponent = () => {
           {activeCell && (
             <Autocomplete
               size="small"
-              options={[{ id: null, name: '— Brak —' }, ...constructions]}
+              options={[
+                { id: null, name: '— Brak —' },
+                ...constructions.filter((c) => !c.endDate),
+              ]}
               getOptionLabel={(opt) => opt?.name || ''}
               isOptionEqualToValue={(opt, val) => opt.id === val?.id}
               value={(() => {

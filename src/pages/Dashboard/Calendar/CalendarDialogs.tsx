@@ -24,6 +24,7 @@ import {
   TableHead,
   TableRow,
   Paper,
+  FormControlLabel,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -59,8 +60,17 @@ export const FilterDialog: React.FC<FilterDialogProps> = ({
   selectedEmployees,
   setSelectedEmployees,
 }) => {
+  const [showInactive, setShowInactive] = useState<boolean>(false);
+
+  const filteredEmployees = useMemo(() => {
+    if (showInactive) {
+      return employees; // pokaż wszystkich
+    }
+    return employees.filter((emp) => emp.status); // tylko aktywni
+  }, [employees, showInactive]);
+
   const handleSelectAll = () => {
-    setSelectedEmployees([...employees]);
+    setSelectedEmployees([...filteredEmployees]);
   };
 
   const handleClear = () => {
@@ -68,7 +78,8 @@ export const FilterDialog: React.FC<FilterDialogProps> = ({
   };
 
   const isAllSelected =
-    selectedEmployees.length === employees.length && employees.length > 0;
+    selectedEmployees.length === filteredEmployees.length &&
+    filteredEmployees.length > 0;
 
   return (
     <BaseDialog
@@ -86,13 +97,13 @@ export const FilterDialog: React.FC<FilterDialogProps> = ({
       }
     >
       <Typography variant="overline" sx={{ mb: 1.5, display: 'block' }}>
-        {`Wybrane: ${selectedEmployees.length} z ${employees.length}`}
+        {`Wybrane: ${selectedEmployees.length} z ${filteredEmployees.length}`}
       </Typography>
       <FormControl sx={{ width: '100%', maxWidth: '100%' }}>
         <Autocomplete
           size="small"
           multiple
-          options={employees}
+          options={filteredEmployees}
           disableCloseOnSelect
           getOptionLabel={(opt) => opt.name}
           value={selectedEmployees}
@@ -104,12 +115,32 @@ export const FilterDialog: React.FC<FilterDialogProps> = ({
               <li key={key} {...optionProps}>
                 <Checkbox checked={selected} />
                 {option.name}
+                {!option.status && (
+                  <Chip
+                    label="Niezatrudniony"
+                    size="small"
+                    color="default"
+                    variant="outlined"
+                    sx={{ ml: 1, height: 20 }}
+                  />
+                )}
               </li>
             );
           }}
           renderInput={(params) => <TextField {...params} label="Pracownicy" />}
         />
       </FormControl>
+      <FormControlLabel
+        control={
+          <Checkbox
+            checked={showInactive}
+            onChange={(e) => setShowInactive(e.target.checked)}
+            size="small"
+          />
+        }
+        label="Pokaż niezatrudnionych"
+        className="mt-2"
+      />
     </BaseDialog>
   );
 };
@@ -358,7 +389,9 @@ export const EventDetailsDialog: React.FC<EventDetailsDialogProps> = ({
                     }}
                     className={`${currentEvent.employee?.status ? 'bg-green-600' : 'bg-amber-600'} rounded-lg font-semibold text-white uppercase`}
                   >
-                    {currentEvent.employee?.status ? 'Aktywny' : 'Archiwalny'}
+                    {currentEvent.employee?.status
+                      ? 'Zatrudniony'
+                      : 'Niezatrudniony'}
                   </Box>
                 </Stack>
                 <Stack
@@ -484,7 +517,19 @@ const PrintableVacationReport: React.FC<{
         <TableBody>
           {report.map(({ employee, vacation }, index) => (
             <TableRow key={`${employee.id}-${vacation.groupId}-${index}`}>
-              <TableCell>{employee.name}</TableCell>
+              <TableCell>
+                {employee.name}
+                {!employee.status && (
+                  <Typography
+                    component={'span'}
+                    variant="inherit"
+                    className="ml-1"
+                    color="error"
+                  >
+                    (Niezatrudniony)
+                  </Typography>
+                )}
+              </TableCell>
               <TableCell>
                 {dayjs(vacation.startDate).format('DD.MM.YYYY')}
               </TableCell>
@@ -618,8 +663,17 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
     );
   }, [selectedEmployees, effectiveDateRange, uniqueVacations]);
 
+  const [showInactive, setShowInactive] = useState<boolean>(false);
+
+  const filteredEmployees = useMemo(() => {
+    if (showInactive) {
+      return employees; // pokaż wszystkich
+    }
+    return employees.filter((emp) => emp.status); // tylko aktywni
+  }, [employees, showInactive]);
+
   const handleSelectAll = () => {
-    setSelectedEmployees([...employees]);
+    setSelectedEmployees([...filteredEmployees]);
   };
 
   const handleClear = () => {
@@ -642,7 +696,8 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
   };
 
   const isAllSelected =
-    selectedEmployees.length === employees.length && employees.length > 0;
+    selectedEmployees.length === filteredEmployees.length &&
+    filteredEmployees.length > 0;
   const hasDateError =
     dateRange.start && dateRange.end && dateRange.start.isAfter(dateRange.end);
 
@@ -669,7 +724,12 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
             {/* Sekcja wyboru pracowników */}
             <Box>
               <FormLabel className="mb-2 block">Pracownicy</FormLabel>
-              <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
+              <Stack
+                direction="row"
+                alignItems={'center'}
+                spacing={1}
+                sx={{ mb: 1 }}
+              >
                 <Button
                   size="small"
                   onClick={handleSelectAll}
@@ -680,10 +740,20 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
                 <Button size="small" onClick={handleClear}>
                   Wyczyść
                 </Button>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={showInactive}
+                      onChange={(e) => setShowInactive(e.target.checked)}
+                      size="small"
+                    />
+                  }
+                  label="Pokaż niezatrudnionych"
+                />
               </Stack>
               <Autocomplete
                 multiple
-                options={employees}
+                options={filteredEmployees}
                 getOptionLabel={(opt) => opt.name}
                 value={selectedEmployees}
                 onChange={(_, newValue) => setSelectedEmployees(newValue)}
@@ -692,6 +762,15 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
                   <li {...props}>
                     <Checkbox checked={selected} />
                     {option.name}
+                    {!option.status && (
+                      <Chip
+                        label="Niezatrudniony"
+                        size="small"
+                        color="default"
+                        variant="outlined"
+                        sx={{ ml: 1, height: 20 }}
+                      />
+                    )}
                   </li>
                 )}
                 renderInput={(params) => (
@@ -712,7 +791,7 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
                 }
               />
               <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                Wybrano: {selectedEmployees.length} z {employees.length}
+                Wybrano: {selectedEmployees.length} z {filteredEmployees.length}
               </Typography>
             </Box>
 
@@ -850,7 +929,19 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
                             handleEmployeeProfileClick(employee.id)
                           } // DODAJ onClick
                         >
-                          <TableCell>{employee.name}</TableCell>
+                          <TableCell>
+                            {employee.name}
+                            {!employee.status && (
+                              <Typography
+                                component={'span'}
+                                variant="inherit"
+                                className="ml-1"
+                                color="error"
+                              >
+                                (Niezatrudniony)
+                              </Typography>
+                            )}
+                          </TableCell>
                           <TableCell>
                             {dayjs(vacation.startDate).format('DD.MM.YYYY')}
                           </TableCell>

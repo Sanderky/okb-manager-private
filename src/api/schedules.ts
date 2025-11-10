@@ -9,7 +9,7 @@ import {
   Timestamp,
 } from 'firebase/firestore';
 import { db } from '../firebase';
-import type { Schedule } from '../types';
+import type { Employee, Schedule } from '../types';
 import dayjs from 'dayjs';
 
 export const getScheduleList = async (): Promise<Schedule[]> => {
@@ -58,8 +58,19 @@ export const updateSchedule = async (
 export const getEmployeesByScheduledConstruction = async (
   constructionId: string,
   date?: Date
-): Promise<string[]> => {
+): Promise<Employee[]> => {
   const querySnapshot = await getDocs(collection(db, 'schedules'));
+
+  const employeesSnapshot = await getDocs(collection(db, 'employees'));
+  const employedEmployees = employeesSnapshot.docs
+    .filter((doc) => doc.data().status === true)
+    .map(
+      (doc) =>
+        ({
+          id: doc.id,
+          ...doc.data(),
+        }) as Employee
+    );
 
   const employeeIds = querySnapshot.docs
     .filter((doc) => {
@@ -92,5 +103,9 @@ export const getEmployeesByScheduledConstruction = async (
 
   const uniqueEmployeeIds = [...new Set(employeeIds)];
 
-  return uniqueEmployeeIds;
+  const employeesOnConstruction = employedEmployees.filter((employee) =>
+    uniqueEmployeeIds.includes(employee.id)
+  );
+
+  return employeesOnConstruction;
 };

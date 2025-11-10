@@ -35,11 +35,12 @@ interface ScheduleCellProps {
   cellText: (cell: ICell) => React.ReactNode;
   loadingCells: Set<string>;
   getCellKey: (cell: ICell) => string;
+  employee: Employee;
 }
 
 // Komponent ScheduleCell
 const ScheduleCell: React.FC<ScheduleCellProps> = React.memo(
-  ({ cell, onClick, cellText, loadingCells, getCellKey }) => {
+  ({ cell, onClick, cellText, loadingCells, getCellKey, employee }) => {
     const cellKey = getCellKey(cell);
     const isLoading = loadingCells.has(cellKey);
 
@@ -51,9 +52,9 @@ const ScheduleCell: React.FC<ScheduleCellProps> = React.memo(
           textAlign: 'center',
           position: 'relative',
         }}
-        className="hover:bg-lightBlue border-l border-l-gray-300 px-3 py-2"
+        className={`hover:bg-lightBlue border-l border-l-gray-300 px-3 py-2 ${!employee.status && 'bg-gray-100 text-gray-500 hover:!bg-gray-100'}`}
         onClick={(e) => {
-          if (isLoading) {
+          if (isLoading || !employee.status) {
             e.stopPropagation();
             return;
           }
@@ -118,6 +119,7 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = React.memo(
                   },
                   fontWeight: 600,
                 }}
+                className={`${!employee.status && 'text-red-400'}`}
                 noWrap
               >
                 {employee.name}
@@ -142,6 +144,7 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = React.memo(
                 cellText={cellText}
                 loadingCells={loadingCells}
                 getCellKey={getCellKey}
+                employee={employee}
               />
             );
           })}
@@ -186,6 +189,7 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = React.memo(
                 },
                 fontWeight: 600,
               }}
+              className={`${!employee.status && 'text-red-400'}`}
             >
               {employee.name}
             </Typography>
@@ -212,6 +216,7 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = React.memo(
               cellText={cellText}
               loadingCells={loadingCells}
               getCellKey={getCellKey}
+              employee={employee}
             />
           );
         })}
