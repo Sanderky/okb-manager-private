@@ -9,7 +9,12 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import dayjs from 'dayjs';
-import type { Attachment, Employee, EmployeeAttachment, FileItem } from '../../../types';
+import type {
+  Attachment,
+  Employee,
+  EmployeeAttachment,
+  FileItem,
+} from '../../../types';
 import Alert from '@mui/material/Alert';
 import DoneAllOutlinedIcon from '@mui/icons-material/DoneAllOutlined';
 import {
@@ -20,6 +25,7 @@ import {
   InputAdornment,
   InputLabel,
   OutlinedInput,
+  Switch,
   Typography,
 } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
@@ -468,7 +474,12 @@ export default function EmployeeForm(props: EmployeeFormProps) {
       sx={{ width: '100%', position: 'relative' }}
     >
       <FormGroup>
-        <Grid container columns={12} spacing={1} sx={{ position: 'relative' }}>
+        <Grid
+          container
+          columns={12}
+          spacing={2.5}
+          sx={{ position: 'relative' }}
+        >
           {isFormLoading && (
             <Box
               sx={{
@@ -487,136 +498,147 @@ export default function EmployeeForm(props: EmployeeFormProps) {
             />
           )}
 
-          <Typography variant="subtitle1" className="mb-2 font-medium">
-            Dane pracownika
-          </Typography>
-          <Grid container columns={12} spacing={{ xs: 2 }} width={'100%'}>
-            {employeeFields.map(renderField)}
-
-            {/* Checkbox dla isContractor */}
-            <Grid size={{ xs: 12 }} key="isContractor">
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={Boolean(formValues.isContractor)}
-                    onChange={(e) =>
-                      handleFieldChange('isContractor', e.target.checked)
-                    }
-                    name="isContractor"
-                  />
-                }
-                label="Kontraktor"
-              />
-            </Grid>
-          </Grid>
-
-          <Divider sx={{ width: '100%' }} className="my-3" />
-
-          <Typography variant="subtitle1" className="mb-2 font-medium">
-            Dowód osobisty
-          </Typography>
-          <Grid container columns={12} spacing={{ xs: 2 }} width={'100%'}>
-            <AttachmentField
-              handleFieldChange={handleFieldChange}
-              onFileChange={onFileChange}
-              formState={formState}
-              attachmentType="idAttachment"
-              onOpenPreview={handleOpenPreview}
-            />
-          </Grid>
-
-          <Divider sx={{ width: '100%' }} className="my-3" />
-
-          <Typography variant="subtitle1" className="mb-2 font-medium">
-            Umowa zatrudnienia
-          </Typography>
-          <Grid container columns={12} spacing={{ xs: 2 }} width={'100%'}>
-            <AttachmentField
-              handleFieldChange={handleFieldChange}
-              onFileChange={onFileChange}
-              formState={formState}
-              attachmentType="contractAttachment"
-              onOpenPreview={handleOpenPreview}
-            />
-            {contractFields.map(renderField)}
-            <Grid size={{ xs: 12 }} mt={-1}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={formValues.contractISPermanent ?? false}
-                    onChange={(e) => {
-                      const checked = e.target.checked;
-                      handleFieldChange('contractISPermanent', checked);
-                      if (checked) {
-                        handleFieldChange('contractEndDate', null);
+          <Grid width={'100%'}>
+            <Typography variant="subtitle1" className="mb-3 font-medium">
+              Dane pracownika
+            </Typography>
+            <Grid container columns={12} spacing={{ xs: 2 }} width={'100%'}>
+              {employeeFields.map(renderField)}
+              <Stack
+                direction={'row'}
+                spacing={2}
+                alignItems={'center'}
+                // className="border-lightGray w-full rounded-lg border p-2 px-4"
+              >
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={Boolean(formValues.isContractor)}
+                      onChange={(e) =>
+                        handleFieldChange('isContractor', e.target.checked)
                       }
-                    }}
-                  />
-                }
-                label="Na czas nieokreślony"
+                      name="isContractor"
+                    />
+                  }
+                  label="Kontraktor"
+                />
+                <Divider orientation="vertical" flexItem variant="middle" />
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={Boolean(formValues.status)}
+                      onChange={(e) =>
+                        handleFieldChange('status', e.target.checked)
+                      }
+                      name="status"
+                      color={formValues.status ? 'success' : 'error'}
+                    />
+                  }
+                  label="Zatrudniony"
+                />
+              </Stack>
+            </Grid>
+          </Grid>
+
+          <Divider sx={{ width: '100%' }} />
+
+          <Grid width={'100%'}>
+            <Typography variant="subtitle1" className="mb-3 font-medium">
+              Dowód osobisty
+            </Typography>
+            <Grid container columns={12} spacing={{ xs: 2 }}>
+              <AttachmentField
+                handleFieldChange={handleFieldChange}
+                onFileChange={onFileChange}
+                formState={formState}
+                attachmentType="idAttachment"
+                onOpenPreview={handleOpenPreview}
               />
             </Grid>
           </Grid>
 
-          <Divider sx={{ width: '100%' }} className="my-3" />
+          <Divider sx={{ width: '100%' }} />
 
-          <Typography variant="subtitle1" className="mb-2 font-medium">
-            A1
-          </Typography>
-          <Grid container columns={12} spacing={{ xs: 2 }} width={'100%'}>
-            <AttachmentField
-              handleFieldChange={handleFieldChange}
-              onFileChange={onFileChange}
-              formState={formState}
-              attachmentType="a1Attachment"
-              onOpenPreview={handleOpenPreview}
-            />
-            {a1Fields.map(renderField)}
+          <Grid width={'100%'}>
+            <Typography variant="subtitle1" className="mb-3 font-medium">
+              Umowa zatrudnienia
+            </Typography>
+            <Grid container columns={12} spacing={{ xs: 2 }}>
+              <AttachmentField
+                handleFieldChange={handleFieldChange}
+                onFileChange={onFileChange}
+                formState={formState}
+                attachmentType="contractAttachment"
+                onOpenPreview={handleOpenPreview}
+              />
+              {contractFields.map(renderField)}
+              <Grid size={{ xs: 12 }} mt={-1}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={formValues.contractISPermanent ?? false}
+                      onChange={(e) => {
+                        const checked = e.target.checked;
+                        handleFieldChange('contractISPermanent', checked);
+                        if (checked) {
+                          handleFieldChange('contractEndDate', null);
+                        }
+                      }}
+                    />
+                  }
+                  label="Na czas nieokreślony"
+                />
+              </Grid>
+            </Grid>
           </Grid>
 
-          <Divider sx={{ width: '100%' }} className="my-3" />
+          <Divider sx={{ width: '100%' }} />
+
+          <Grid width={'100%'}>
+            <Typography variant="subtitle1" className="mb-3 font-medium">
+              A1
+            </Typography>
+            <Grid container columns={12} spacing={{ xs: 2 }}>
+              <AttachmentField
+                handleFieldChange={handleFieldChange}
+                onFileChange={onFileChange}
+                formState={formState}
+                attachmentType="a1Attachment"
+                onOpenPreview={handleOpenPreview}
+              />
+              {a1Fields.map(renderField)}
+            </Grid>
+          </Grid>
 
           {!isEditForm && (
-            <Grid size={{ xs: 12 }} className="my-2">
-              <TextField
-                multiline
-                minRows={5}
-                maxRows={10}
-                fullWidth
-                label="Notatka"
-                value={formValues.note ?? ''}
-                onChange={(e) => handleFieldChange('note', e.target.value)}
-                error={Boolean(formErrors.note)}
-                helperText={formErrors.note}
-                inputRef={(el) => {
-                  if (props.registerFieldRef)
-                    props.registerFieldRef('note', el);
-                }}
-              />
-            </Grid>
+            <React.Fragment>
+              <Divider sx={{ width: '100%' }} />
+              <Grid size={{ xs: 12 }}>
+                <TextField
+                  multiline
+                  minRows={5}
+                  maxRows={10}
+                  fullWidth
+                  label="Notatka"
+                  value={formValues.note ?? ''}
+                  onChange={(e) => handleFieldChange('note', e.target.value)}
+                  error={Boolean(formErrors.note)}
+                  helperText={formErrors.note}
+                  inputRef={(el) => {
+                    if (props.registerFieldRef)
+                      props.registerFieldRef('note', el);
+                  }}
+                />
+              </Grid>
+            </React.Fragment>
           )}
 
-          <Grid size={{ xs: 12 }}>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={Boolean(formValues.status)}
-                  onChange={(e) =>
-                    handleFieldChange('status', e.target.checked)
-                  }
-                  name="status"
-                />
-              }
-              label="Zatrudniony"
-            />
-          </Grid>
-
-          <Divider sx={{ width: '100%' }} className="mt-3" />
+          <Divider sx={{ width: '100%' }} />
         </Grid>
         <Alert
           severity="info"
           // variant="outlined"
-          className="mt-3 px-3 py-0 font-medium"
+          className="mt-5 px-3 py-0 font-medium"
         >
           Pola oznaczone * są obowiązkowe.
         </Alert>
