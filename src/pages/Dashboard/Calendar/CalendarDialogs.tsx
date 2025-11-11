@@ -117,7 +117,7 @@ export const FilterDialog: React.FC<FilterDialogProps> = ({
                 {option.name}
                 {!option.status && (
                   <Chip
-                    label="Niezatrudniony"
+                    label="Nieaktywny"
                     size="small"
                     color="default"
                     variant="outlined"
@@ -138,7 +138,7 @@ export const FilterDialog: React.FC<FilterDialogProps> = ({
             size="small"
           />
         }
-        label="Pokaż niezatrudnionych"
+        label="Uwzględnij nieaktywnych"
         className="mt-2"
       />
     </BaseDialog>
@@ -330,7 +330,14 @@ export const EventDetailsDialog: React.FC<EventDetailsDialogProps> = ({
                 >
                   <Box sx={{ flexGrow: 1 }}>
                     <Typography variant="subtitle1" fontWeight="500">
-                      {event.employee?.name}
+                      {event.employee?.name}{' '}
+                      <Typography
+                        component={'span'}
+                        color="error"
+                        className="ml-1"
+                      >
+                        {!event.employee?.status && '(nieaktywny)'}
+                      </Typography>
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
                       {event.startDate.format('DD.MM.YYYY')} –{' '}
@@ -387,11 +394,9 @@ export const EventDetailsDialog: React.FC<EventDetailsDialogProps> = ({
                       py: 0.75,
                       fontSize: '0.7rem',
                     }}
-                    className={`${currentEvent.employee?.status ? 'bg-green-600' : 'bg-amber-600'} rounded-lg font-semibold text-white uppercase`}
+                    className={`${currentEvent.employee?.status ? 'bg-green-600' : 'bg-red-400'} rounded-lg font-semibold text-white uppercase`}
                   >
-                    {currentEvent.employee?.status
-                      ? 'Zatrudniony'
-                      : 'Niezatrudniony'}
+                    {currentEvent.employee?.status ? 'Aktywny' : 'Nieaktywny'}
                   </Box>
                 </Stack>
                 <Stack
@@ -526,7 +531,7 @@ const PrintableVacationReport: React.FC<{
                     className="ml-1"
                     color="error"
                   >
-                    (Niezatrudniony)
+                    (Nieaktywny)
                   </Typography>
                 )}
               </TableCell>
@@ -748,7 +753,7 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
                       size="small"
                     />
                   }
-                  label="Pokaż niezatrudnionych"
+                  label="Uwzględnij nieaktywnych"
                 />
               </Stack>
               <Autocomplete
@@ -764,7 +769,7 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
                     {option.name}
                     {!option.status && (
                       <Chip
-                        label="Niezatrudniony"
+                        label="Nieaktywny"
                         size="small"
                         color="default"
                         variant="outlined"
@@ -938,7 +943,7 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
                                 className="ml-1"
                                 color="error"
                               >
-                                (Niezatrudniony)
+                                (Nieaktywny)
                               </Typography>
                             )}
                           </TableCell>

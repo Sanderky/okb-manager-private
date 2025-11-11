@@ -143,7 +143,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                             cursor: 'pointer',
                             textAlign: isStart ? 'left' : 'right',
                           }}
-                          className={`${!ev.employee.status && 'italic'}`}
+                          className={`${!ev.employee.status && 'italic line-through'}`}
                         >
                           <Typography
                             sx={{
@@ -154,8 +154,8 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                               overflow: 'hidden',
                             }}
                           >
+                            {/* {!ev.employee.status && '*'} */}
                             {ev.employee.name}
-                            {!ev.employee.status && '*'}
                           </Typography>
                         </Box>
                       </Tooltip>

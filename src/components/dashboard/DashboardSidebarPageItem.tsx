@@ -125,8 +125,9 @@ export default function DashboardSidebarPageItem({
           disabled={disabled}
           sx={{
             height: mini ? 50 : 'auto',
-            bgcolor: selected ? '#ffd85f !important' : 'inherit',
+            // bgcolor: selected ? '#ffd85f !important' : 'inherit',
           }}
+          className={`${selected ? '!important bg-yellow-400/25 text-yellow-600' : 'hover:bg-blue-50'} `}
           {...(nestedNavigation && !mini
             ? {
                 onClick: handleClick,
@@ -193,7 +194,7 @@ export default function DashboardSidebarPageItem({
                     left: '50%',
                     transform: 'translateX(-50%)',
                     fontSize: 10,
-                    fontWeight: 500,
+                    fontWeight: selected ? 600 : 500,
                     textAlign: 'center',
                     whiteSpace: 'nowrap',
                     overflow: 'hidden',
@@ -214,6 +215,9 @@ export default function DashboardSidebarPageItem({
                 whiteSpace: 'nowrap',
                 zIndex: 1,
                 textTransform: 'uppercase',
+                '& .MuiListItemText-primary': {
+                  fontWeight: selected ? 500 : 400,
+                },
               }}
             />
           ) : null}

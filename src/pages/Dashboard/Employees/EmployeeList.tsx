@@ -391,8 +391,8 @@ export default function EmployeeList() {
         accessorFn: (row) => row.status,
         filterVariant: 'select',
         filterSelectOptions: [
-          { label: 'Zatrudnieni', value: 'true' },
-          { label: 'Niezatrudnieni', value: 'false' },
+          { label: 'Aaktywni', value: 'true' },
+          { label: 'Nieaktywni', value: 'false' },
           { label: 'Wszyscy', value: '' },
         ],
         filterFn: (row: any, _columnId: string, filterValue: string) => {
@@ -704,8 +704,8 @@ export default function EmployeeList() {
                       }
                     >
                       <MenuItem value="">Wszyscy</MenuItem>
-                      <MenuItem value="true">Zatrudnieni</MenuItem>
-                      <MenuItem value="false">Niezatrudnieni</MenuItem>
+                      <MenuItem value="true">Aktywni</MenuItem>
+                      <MenuItem value="false">Nieaktywni</MenuItem>
                     </Select>
                   </FormControl>
                 </Grid>

@@ -16,26 +16,30 @@ import type { Employee } from '../../../types';
 interface FilterDialogProps {
   isFilterOpen: boolean;
   setIsFilterOpen: (open: boolean) => void;
-  employees: Employee[];
+  filteredEmployees: Employee[];
   selectedEmployees: Employee[];
   setSelectedEmployees: (employees: Employee[]) => void;
+  showInactive: boolean;
+  setShowInactive: (show: boolean) => void;
 }
 
 export const FilterDialog: React.FC<FilterDialogProps> = ({
   isFilterOpen,
   setIsFilterOpen,
-  employees,
+  filteredEmployees,
   selectedEmployees,
   setSelectedEmployees,
+  showInactive,
+  setShowInactive,
 }) => {
-  const [showInactive, setShowInactive] = useState<boolean>(false);
+  // const [showInactive, setShowInactive] = useState<boolean>(false);
 
-  const filteredEmployees = useMemo(() => {
-    if (showInactive) {
-      return employees; // pokaż wszystkich
-    }
-    return employees.filter((emp) => emp.status); // tylko aktywni
-  }, [employees, showInactive]);
+  // const filteredEmployees = useMemo(() => {
+  //   if (showInactive) {
+  //     return employees; // pokaż wszystkich
+  //   }
+  //   return employees.filter((emp) => emp.status); // tylko aktywni
+  // }, [employees, showInactive]);
 
   const handleSelectAll = () => {
     setSelectedEmployees([...filteredEmployees]);
@@ -85,7 +89,7 @@ export const FilterDialog: React.FC<FilterDialogProps> = ({
                 {option.name}
                 {!option.status && (
                   <Chip
-                    label="Niezatrudniony"
+                    label="Nieaktywny"
                     size="small"
                     color="default"
                     variant="outlined"
@@ -106,7 +110,7 @@ export const FilterDialog: React.FC<FilterDialogProps> = ({
             size="small"
           />
         }
-        label="Pokaż niezatrudnionych"
+        label="Pokaż nieaktywnych"
         className="mt-2"
       />
     </BaseDialog>

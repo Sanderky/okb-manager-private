@@ -108,6 +108,11 @@ export default function ConstructionShow() {
     }
   }, [construction, isLoadingConstruction]);
 
+  const handleCancelEdit = useCallback(() => {
+    setEditNote(false);
+    setNote(construction?.note ?? '');
+  }, [construction?.note]);
+
   const updateNoteMutation = useMutation({
     mutationFn: (newNote: string) =>
       updateConstruction(constructionId!, { note: newNote }),

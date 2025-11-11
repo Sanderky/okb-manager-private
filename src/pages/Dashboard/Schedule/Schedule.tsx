@@ -86,6 +86,7 @@ const ScheduleComponent = () => {
   const [showVacations, setShowVacations] = useState(true);
   const [showDates, setShowDates] = useState(true);
   const [loadingCells, setLoadingCells] = useState<Set<string>>(new Set());
+  const [showInactive, setShowInactive] = useState<boolean>(false);
 
   const notifications = useNotifications();
   const queryClient = useQueryClient();
@@ -183,10 +184,16 @@ const ScheduleComponent = () => {
   }, [fromWeek, toWeek]);
 
   const filteredEmployees = useMemo(() => {
-    if (!selectedEmployees.length) return employees.filter((e) => e.status);
+    if (!selectedEmployees.length) {
+      if (showInactive) {
+        return employees;
+      } else {
+        return employees.filter((emp) => emp.status);
+      }
+    }
     const ids = new Set(selectedEmployees.map((e) => e.id));
     return employees.filter((e) => ids.has(e.id));
-  }, [employees, selectedEmployees]);
+  }, [employees, selectedEmployees, showInactive]);
 
   const saveScheduleToDatabase = useCallback(
     async (
@@ -884,9 +891,11 @@ const ScheduleComponent = () => {
         <FilterDialog
           isFilterOpen={isFilterOpen}
           setIsFilterOpen={setIsFilterOpen}
-          employees={employees}
+          filteredEmployees={filteredEmployees}
           selectedEmployees={selectedEmployees}
           setSelectedEmployees={setSelectedEmployees}
+          showInactive={showInactive}
+          setShowInactive={setShowInactive}
         />
 
         <div style={{ display: 'none' }}>
