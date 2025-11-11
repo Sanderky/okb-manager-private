@@ -126,7 +126,7 @@ const useHoursTable = (startWeek?: Date) => {
   }, [currentWeek]);
 
   const [selectedConstructionForEmployee, setSelectedConstructionForEmployee] =
-    useState<string>('');
+    useState<Construction | null>(null);
 
   const {
     data: employees,
@@ -426,7 +426,8 @@ const useHoursTable = (startWeek?: Date) => {
   };
 
   const onSelectedConstructionForEmployeeChange = (constructionId: string) => {
-    setSelectedConstructionForEmployee(constructionId);
+    const construction = constructions?.find(c => c.id === constructionId)
+    if(construction) setSelectedConstructionForEmployee(construction);
   };
 
   const handleToggleEditMode = async (editModeVal?: boolean) => {
@@ -767,6 +768,11 @@ const useHoursTable = (startWeek?: Date) => {
     );
   }, [constructions, constructionsWithWorkHours]);
 
+  const getActiveEmployees = useCallback(() => {
+  return employees?.filter((e) => e.status) ?? [];
+
+  },[employees])
+
   const isLoading =
     employeesLoading ||
     constructionsLoading ||
@@ -778,7 +784,7 @@ const useHoursTable = (startWeek?: Date) => {
   const weekDates = getWeekDates(currentWeek);
 
   const getAvailableEmployeesForConstruction = useCallback(
-    (constructionId: string) => {
+    (constructionId: string | undefined) => {
       if (!employees || !constructionId) return [];
 
       const constructionWithWorkHours = constructionsWithWorkHours.find(
@@ -823,8 +829,6 @@ const useHoursTable = (startWeek?: Date) => {
     onWeeekChange,
     isExpanded,
     isCoping: copyFromPreviousWeekMutation.isPending,
-    employees,
-    constructions,
     constructionsWithWorkHours,
     onSelectedConstructionForEmployeeChange,
     onSelectedConstructionsChange,
@@ -838,6 +842,7 @@ const useHoursTable = (startWeek?: Date) => {
     onSelectedEmployeesChange,
     getAvailableEmployeesForConstruction,
     getAvailableConstructions,
+    getActiveEmployees
   };
 };
 

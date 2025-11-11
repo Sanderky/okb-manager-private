@@ -149,33 +149,30 @@ export const AddConstructionWithEmployeeDialog: React.FC<
 interface AddEmployeeDialogProps {
   open: boolean;
   onClose: () => void;
-  constructionId: string;
+  selectedConstruction: Construction | null
   currentWeek: Date;
   onEmployeeAdded: (newWorkHours: WorkHours) => void;
   availableEmployees: Employee[];
-  constructions: Construction[];
 }
 
 export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
   open,
   onClose,
-  constructionId,
+  selectedConstruction,
   currentWeek,
   onEmployeeAdded,
   availableEmployees,
-  constructions,
 }) => {
   const [selectedEmployee, setSelectedEmployee] = useState<string>('');
 
   const handleAdd = () => {
-    if (!selectedEmployee) return;
+    if (!selectedEmployee || !selectedConstruction) return;
 
-    const construction = constructions?.find((c) => c.id === constructionId);
     const employee = availableEmployees?.find((e) => e.id === selectedEmployee);
 
     const workHoursData: Omit<WorkHours, 'id'> = {
-      constructionId: constructionId,
-      constructionName: construction?.name || 'Nieznana budowa',
+      constructionId: selectedConstruction.id,
+      constructionName: selectedConstruction.name || 'Nieznana budowa',
       employeeId: selectedEmployee,
       employeeName: employee?.name || 'Nieznany pracownik',
       weekStart: currentWeek,
@@ -192,13 +189,11 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
     onClose();
   };
 
-  const construction = constructions?.find((c) => c.id === constructionId);
-
   return (
     <BaseDialog
       open={open}
       onClose={onClose}
-      title={`Dodaj pracownika do budowy: ${construction?.name}`}
+      title={`Dodaj pracownika do budowy: ${selectedConstruction?.name}`}
       showConfirm={false}
       actions={
         <Stack direction="row" spacing={1}>
@@ -363,11 +358,6 @@ export const PrintReportDialog: React.FC<PrintReportDialogProps> = ({
     if (startWeek > endWeek) setIsError(true);
     else setIsError(false);
   }, [startWeek, endWeek]);
-
-  // useEffect(() => {
-  //   setSelectedConstructions([]);
-  //   setSelectedEmployees([])
-  // }, [startWeek, endWeek]);
 
   const reset = () => {
     setStartWeek(getStartOfWeek(new Date()));

@@ -426,8 +426,6 @@ const HoursTable = ({
     selectedConstructionForEmployee,
     loadingError,
     isCoping,
-    employees,
-    constructions,
     constructionsWithWorkHours,
     onSelectedConstructionForEmployeeChange,
     selectedConstructions,
@@ -440,6 +438,7 @@ const HoursTable = ({
     onSelectedEmployeesChange,
     getAvailableEmployeesForConstruction,
     getAvailableConstructions,
+    getActiveEmployees
   } = useHoursTable();
 
   useEffect(() => {
@@ -468,7 +467,6 @@ const HoursTable = ({
 
   const availableConstructions = getAvailableConstructions();
 
-  const activeEmployees = employees?.filter((e) => e.status) ?? [];
 
   return (
     <Box>
@@ -653,7 +651,7 @@ const HoursTable = ({
         onClose={() => setAddConstructionDialogOpen(false)}
         currentWeek={currentWeek}
         onSuccess={handleConstructionWithEmployeeAdded}
-        activeEmployees={activeEmployees}
+        activeEmployees={getActiveEmployees()}
         availableConstructions={getAvailableConstructions()}
       />
 
@@ -667,12 +665,11 @@ const HoursTable = ({
       <AddEmployeeDialog
         open={addEmployeeDialogOpen}
         onClose={() => setAddEmployeeDialogOpen(false)}
-        constructionId={selectedConstructionForEmployee}
+        selectedConstruction={selectedConstructionForEmployee}
         currentWeek={currentWeek}
         onEmployeeAdded={handleEmployeeAdded}
-        constructions={constructions ?? []}
         availableEmployees={getAvailableEmployeesForConstruction(
-          selectedConstructionForEmployee
+          selectedConstructionForEmployee?.id
         )}
       />
     </Box>
