@@ -125,6 +125,16 @@ const AttachmentField = ({
     }
   };
 
+  const handleOpenFileInNewTab = (file: Attachment | null | undefined) => {
+    if (!file) return;
+    const url = file.url;
+    const link = document.createElement('a');
+    link.href = url;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    link.click();
+  };
+
   const handleUploadFileForm = (file: File | null) => {
     if (!file) return;
     onFileChange(file, attachmentType);
@@ -176,6 +186,7 @@ const AttachmentField = ({
         onShow={() => onOpenPreview(attachment)}
         onDelete={handleDeleteFileForm}
         onDownload={() => handleDownloadAttachment(attachment)}
+        onNewCard={() => handleOpenFileInNewTab(attachment)}
       />
       {!attachment && (
         <Stack

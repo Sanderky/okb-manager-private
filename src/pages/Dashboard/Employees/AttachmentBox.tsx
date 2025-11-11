@@ -1,4 +1,12 @@
-import { AttachFile, HighlightOff, MoreHoriz } from '@mui/icons-material';
+import {
+  AttachFile,
+  Delete,
+  Download,
+  HighlightOff,
+  MoreHoriz,
+  OpenInNew,
+  Visibility,
+} from '@mui/icons-material';
 import {
   Typography,
   IconButton,
@@ -17,6 +25,7 @@ interface AttachmentBoxProps {
   onDelete?: () => void;
   onDownload?: () => void;
   onShow?: () => void;
+  onNewCard?: () => void;
 }
 
 const AttachmentBox = ({
@@ -24,6 +33,7 @@ const AttachmentBox = ({
   onDelete,
   onDownload,
   onShow,
+  onNewCard,
 }: AttachmentBoxProps) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -93,6 +103,9 @@ const AttachmentBox = ({
                   handleClose(e);
                 }}
               >
+                <Visibility
+                  sx={{ color: (theme) => theme.palette.text.secondary, mr: 1 }}
+                />
                 Pogląd
               </MenuItem>
             )}
@@ -103,7 +116,23 @@ const AttachmentBox = ({
                   handleClose(e);
                 }}
               >
+                <Download
+                  sx={{ color: (theme) => theme.palette.text.secondary, mr: 1 }}
+                />
                 Pobierz
+              </MenuItem>
+            )}
+            {onNewCard && (
+              <MenuItem
+                onClick={(e) => {
+                  onNewCard();
+                  handleClose(e);
+                }}
+              >
+                <OpenInNew
+                  sx={{ color: (theme) => theme.palette.text.secondary, mr: 1 }}
+                />
+                Otwórz w nowej karcie
               </MenuItem>
             )}
             {onDelete && (
@@ -113,6 +142,7 @@ const AttachmentBox = ({
                   handleClose(e);
                 }}
               >
+                <Delete color="error" sx={{ mr: 1 }} />
                 Usuń
               </MenuItem>
             )}

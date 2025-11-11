@@ -72,7 +72,7 @@ export default function EmployeeEdit() {
   } = useQuery({
     queryKey: ['employee', employeeId],
     queryFn: () => getEmployee(employeeId!),
-    enabled: !!employeeId,
+    enabled: false,
   });
 
   const [formState, setFormState] = useState<EmployeeFormState>({
@@ -237,6 +237,8 @@ export default function EmployeeEdit() {
       stopActionLoading,
     ]
   );
+
+
 
   const handleDeleteClick = useCallback(() => {
     setDeleteDialogOpen(true);

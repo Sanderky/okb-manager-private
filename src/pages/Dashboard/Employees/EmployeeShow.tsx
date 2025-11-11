@@ -43,7 +43,6 @@ import FirebaseFileBrowser from '../../../components/fileBrowser/FileBrowser';
 import { EmployeeAlertRange } from '../../../hooks/useEmployeeAlert';
 import { getUpcomingVacationsForEmployee } from '../../../api/vacations';
 
-import InfoOutlineIcon from '@mui/icons-material/InfoOutline';
 import useLoading from '../../../hooks/useLoading';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 
@@ -197,6 +196,19 @@ export default function EmployeeShow() {
     setPreviewFile(file);
     setIsPreviewOpen(true);
   }, []);
+
+  const handleOpenFileInNewTab = useCallback(
+    (file: FileItem | null | undefined) => {
+      if (!file) return;
+      const url = file.url;
+      const link = document.createElement('a');
+      link.href = url;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      link.click();
+    },
+    []
+  );
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setTab(newValue);
@@ -579,6 +591,9 @@ export default function EmployeeShow() {
                     onDownload={() =>
                       handleDownloadAttachment(employee.idAttachment)
                     }
+                    onNewCard={() =>
+                      handleOpenFileInNewTab(employee.idAttachment)
+                    }
                   />
                 </Box>
                 <Box className="rounded-lg border border-blue-700/25 bg-blue-50/50 p-3 md:p-5 md:pb-3">
@@ -602,6 +617,9 @@ export default function EmployeeShow() {
                     }
                     onDownload={() =>
                       handleDownloadAttachment(employee.contractAttachment)
+                    }
+                    onNewCard={() =>
+                      handleOpenFileInNewTab(employee.contractAttachment)
                     }
                   />
 
@@ -629,6 +647,9 @@ export default function EmployeeShow() {
                     onShow={() => handleOpenPreview(employee.a1Attachment)}
                     onDownload={() =>
                       handleDownloadAttachment(employee.a1Attachment)
+                    }
+                    onNewCard={() =>
+                      handleOpenFileInNewTab(employee.a1Attachment)
                     }
                   />
                   <Grid container spacing={2}>
