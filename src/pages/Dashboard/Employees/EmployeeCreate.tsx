@@ -8,7 +8,7 @@ import PageContainer from '../../../components/PageContainer';
 import type { Employee, EmployeeAttachment } from '../../../types';
 import { createEmployee } from '../../../api/employees';
 import useNotifications from '../../../hooks/useNotifications/useNotifications';
-import { Box, Typography } from '@mui/material';
+import { Box } from '@mui/material';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { validate } from './EmployeeEditHelpers';
 import type { FileStateMap } from './EmployeeEdit';

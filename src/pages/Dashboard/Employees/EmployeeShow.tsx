@@ -50,6 +50,7 @@ const personalFields = [
   { key: 'name', label: 'Imię i nazwisko' },
   { key: 'pesel', label: 'PESEL' },
   { key: 'birthDate', label: 'Data urodzenia' },
+  { key: 'birthPlace', label: 'Miejsce urodzenia' },
   { key: 'address', label: 'Adres' },
   { key: 'email', label: 'E-mail' },
   { key: 'phone', label: 'Telefon' },

@@ -277,6 +277,7 @@ export default function EmployeeForm(props: EmployeeFormProps) {
       type: 'date',
       required: false,
     },
+    { key: 'birthPlace', label: 'Miejsce urodzenia', type: 'text', required: false },
     { key: 'address', label: 'Adres', type: 'text', required: false },
     { key: 'email', label: 'E-mail', type: 'email', required: false },
     { key: 'phone', label: 'Telefon', type: 'text', required: false },

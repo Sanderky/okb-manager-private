@@ -16,6 +16,7 @@ export interface Employee {
   email: string | null;
   phone: string | null;
   status: boolean | null;
+  birthPlace: string | null;
   accountNumber: string | null;
   note: string | null;
   contractStartDate: Date | null;
