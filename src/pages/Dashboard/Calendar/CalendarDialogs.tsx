@@ -180,7 +180,7 @@ export const AddEventDialog: React.FC<AddEventDialogProps> = ({
       <Stack spacing={2}>
         <Autocomplete
           size="small"
-          options={employees}
+          options={employees.filter((e) => e.status)}
           getOptionLabel={(opt) => opt?.name}
           value={currentEvent.employee ?? null}
           onChange={(_, newValue) => handleEmployeeChange(newValue!)}

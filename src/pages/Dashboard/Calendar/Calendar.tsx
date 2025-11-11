@@ -60,7 +60,6 @@ const Calendar: React.FC = () => {
   const notifications = useNotifications();
   const queryClient = useQueryClient();
 
-  // Hook do ładowania akcji
   const {
     loading: actionLoading,
     startLoading: startActionLoading,
@@ -76,13 +75,15 @@ const Calendar: React.FC = () => {
     queryFn: () => getEmployeeList(),
   });
 
+  // OPTYMALIZACJA: Pobieranie urlopów tylko dla istniejących pracowników
   const {
     data: vacations = [],
     isLoading: isLoadingVacations,
     isError: isErrorVacations,
   } = useQuery<Vacation[], Error>({
-    queryKey: ['vacations'],
-    queryFn: getVacationList,
+    queryKey: ['vacations', employees.length],
+    queryFn: () => getVacationList(employees),
+    enabled: employees.length > 0, // Tylko jeśli mamy pracowników
   });
 
   const { mutate: addMutation, isPending: isAdding } = useMutation({
@@ -181,18 +182,22 @@ const Calendar: React.FC = () => {
             current.isSame(dayjs(event.date), 'day')
           );
 
-          const newDayEvents: CalendarEvent[] = filteredDayEvents.map(
-            ({ employeeId, ...ev }) => {
+          // OPTYMALIZACJA: Filtrowanie tylko dla istniejących pracowników
+          const newDayEvents: CalendarEvent[] = filteredDayEvents
+            .map(({ employeeId, ...ev }) => {
               const employee = employees.find((e) => e.id === employeeId);
+              // Jeśli nie znaleziono pracownika, pomiń ten urlop
+              if (!employee) return null;
+
               return {
                 ...ev,
                 endDate: dayjs(ev.endDate),
                 startDate: dayjs(ev.startDate),
                 date: dayjs(ev.date),
-                employee: employee!,
+                employee: employee,
               };
-            }
-          );
+            })
+            .filter(Boolean) as CalendarEvent[]; // Usuń null values
 
           const sortedDayEvents = newDayEvents.sort((a, b) => {
             const durationA = a.endDate.diff(a.startDate, 'day');
@@ -200,7 +205,7 @@ const Calendar: React.FC = () => {
             return durationB - durationA;
           });
 
-          sortedDayEvents.map((ev) => {
+          sortedDayEvents.forEach((ev) => {
             const gid = ev.groupId;
             if (
               current.isSame(ev.startDate, 'day') &&
@@ -218,7 +223,7 @@ const Calendar: React.FC = () => {
             slots: groupSlotMap,
           });
 
-          sortedDayEvents.map((ev) => {
+          sortedDayEvents.forEach((ev) => {
             const gid = ev.groupId;
             if (current.isSame(ev.endDate, 'day')) {
               delete activeSlots[groupSlotMap[gid]];
@@ -316,8 +321,21 @@ const Calendar: React.FC = () => {
 
     const { employee, startDate, endDate } = currentEvent;
 
+    // Sprawdź czy wybrano pracownika
+    if (!employee?.id) {
+      setValidationError('Wybierz pracownika');
+      return;
+    }
+
+    // Sprawdź czy pracownik istnieje na liście
+    const employeeExists = employees.some((emp) => emp.id === employee.id);
+    if (!employeeExists) {
+      setValidationError('Wybrany pracownik nie istnieje');
+      return;
+    }
+
     const validation = validateVacation(
-      employee?.id || '',
+      employee.id,
       startDate,
       endDate,
       vacations
@@ -366,7 +384,6 @@ const Calendar: React.FC = () => {
     setCurrentEvent(ev);
   }, []);
 
-  // Agregacja stanów ładowania i błędów
   const error = isErrorEmployees || isErrorVacations;
   const loading = isLoadingEmployees || isLoadingVacations;
 
@@ -487,7 +504,7 @@ const Calendar: React.FC = () => {
           handleModalClose={handleModalClose}
           handleDeleteEvent={handleDeleteEvent}
           loading={actionLoading || isDeleting}
-          onEventClick={handleEventClick} // DODAJ TEN PROP
+          onEventClick={handleEventClick}
         />
 
         <VacationReportDialog
