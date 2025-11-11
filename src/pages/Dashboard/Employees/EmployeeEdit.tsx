@@ -14,7 +14,7 @@ import EmployeeForm, {
   type EmployeeFormState,
 } from './EmployeeForm';
 import PageContainer from '../../../components/PageContainer';
-import { AlertTitle, Stack, Typography } from '@mui/material';
+import { AlertTitle, Chip, Stack, Typography } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
 import { Grid } from '@mui/system';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
@@ -27,6 +27,8 @@ import { ConfirmationDialog } from '../../../components/BaseDialog';
 import { deleteFolderRecursive } from '../../../components/fileBrowser/FileBrowserHelpers';
 import Loading from '../../../components/Loading';
 import useLoading from '../../../hooks/useLoading';
+import ArchiveIcon from '@mui/icons-material/Archive';
+import UnarchiveIcon from '@mui/icons-material/Unarchive';
 
 export type FileStateMap = {
   [K in EmployeeAttachment]: File | null;
@@ -50,6 +52,8 @@ export default function EmployeeEdit() {
   } = useLoading(false);
 
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isUpdatingEmployeeStatus, setIsUpdatingEmployeeStatus] =
+    useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const formRefs = React.useRef<Record<string, HTMLInputElement | null>>({});
@@ -264,8 +268,28 @@ export default function EmployeeEdit() {
     setDeleteDialogOpen(false);
   }, []);
 
+  const handleEmployeeStatus = useCallback(
+    async (status: boolean) => {
+      if (!employee) return;
+
+      setIsUpdatingEmployeeStatus(true);
+      try {
+        await updateMutation.mutateAsync({ status: status });
+        navigate(`/employees/${employeeId}`);
+      } catch (error) {
+        console.error('Employee status update error:', error);
+      } finally {
+        setIsUpdatingEmployeeStatus(false);
+      }
+    },
+    [employee, employeeId, navigate, updateMutation]
+  );
+
   const isFormLoading =
-    isLoading || actionLoading || attachmentLoading !== false || isDeleting;
+    actionLoading ||
+    attachmentLoading !== false ||
+    isDeleting ||
+    isUpdatingEmployeeStatus;
 
   const renderContent = () => {
     if (isLoading) {
@@ -313,6 +337,65 @@ export default function EmployeeEdit() {
             </Box>
           </Grid>
           <Grid size={{ xs: 12, lg: 4, xl: 3 }}>
+            {employee.status ? (
+              <Stack
+                direction={{ xs: 'column' }}
+                justifyContent={{ xs: 'flex-start' }}
+                alignItems={{ xs: 'stretch', sm: 'flex-start' }}
+                spacing={{ xs: 1, xl: 2 }}
+                className="mb-4 rounded-lg border border-amber-500/25 bg-amber-600/5! p-3"
+                maxWidth={'400px'}
+              >
+                <div>
+                  <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                    Archiwizuj pracownika
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                    Status pracownika zmienia się na nieaktywny.
+                  </Typography>
+                </div>
+                <Button
+                  variant="contained"
+                  color={'warning'}
+                  sx={{ minWidth: 120 }}
+                  onClick={() => handleEmployeeStatus(false)}
+                  disabled={isFormLoading}
+                  startIcon={<ArchiveIcon />}
+                >
+                  {isUpdatingEmployeeStatus
+                    ? 'Archiwizowanie...'
+                    : 'Archiwizuj'}
+                </Button>
+              </Stack>
+            ) : (
+              <Stack
+                direction={{ xs: 'column' }}
+                justifyContent={{ xs: 'flex-start' }}
+                alignItems={{ xs: 'stretch', sm: 'flex-start' }}
+                spacing={{ xs: 1, xl: 2 }}
+                className="mb-4 rounded-lg border border-green-500/25 bg-green-600/5! p-3"
+                maxWidth={'400px'}
+              >
+                <div>
+                  <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                    Aktywuj pracownika
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                    Status pracownika zmienia się na aktywny.
+                  </Typography>
+                </div>
+                <Button
+                  variant="contained"
+                  color={'success'}
+                  sx={{ minWidth: 120 }}
+                  onClick={() => handleEmployeeStatus(true)}
+                  disabled={isFormLoading}
+                  startIcon={<UnarchiveIcon />}
+                >
+                  {isUpdatingEmployeeStatus ? 'Aktywacja...' : 'Aktywuj'}
+                </Button>
+              </Stack>
+            )}
             <Stack
               direction={{ xs: 'column' }}
               justifyContent={{ xs: 'flex-start' }}
@@ -388,6 +471,32 @@ export default function EmployeeEdit() {
         { title: employee?.name || '...', path: `/employees/${employeeId}` },
         { title: 'Edytuj' },
       ]}
+      actions={
+        <Stack direction="row" alignItems="center">
+          {!error ? (
+            isLoading || isFormLoading ? (
+              <Loading size={24} message="" />
+            ) : (
+              <Chip
+                label={employee?.status ? 'Aktywny' : 'Nieaktywny'}
+                className={
+                  employee?.status
+                    ? 'bg-green-300/50 text-green-600'
+                    : 'bg-red-300/50 text-red-600'
+                }
+                variant="filled"
+                sx={{
+                  borderRadius: 1,
+                  p: 0.5,
+                  ml: 2,
+                  textTransform: 'uppercase',
+                  fontWeight: 600,
+                }}
+              />
+            )
+          ) : null}
+        </Stack>
+      }
     >
       <Box sx={{ display: 'flex', flex: 1, width: '100%' }}>
         {renderContent()}

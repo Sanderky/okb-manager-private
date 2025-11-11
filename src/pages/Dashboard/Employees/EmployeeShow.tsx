@@ -684,7 +684,7 @@ export default function EmployeeShow() {
               <Loading size={24} message="" />
             ) : (
               <Chip
-                label={employee?.status ? 'Zatrudniony' : 'Niezatrudniony'}
+                label={employee?.status ? 'Aktywny' : 'Nieaktywny'}
                 className={
                   employee?.status
                     ? 'bg-green-300/50 text-green-600'

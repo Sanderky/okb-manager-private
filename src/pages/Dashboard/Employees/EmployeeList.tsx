@@ -409,7 +409,7 @@ export default function EmployeeList() {
                 : 'bg-red-400/50 text-red-800'
             }`}
           >
-            {cell.getValue<boolean>() ? 'Zatrudniony' : 'Niezatrudniony'}
+            {cell.getValue<boolean>() ? 'Aktywny' : 'Nieaktywny'}
           </Box>
         ),
       },

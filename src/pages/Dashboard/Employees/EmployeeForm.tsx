@@ -522,7 +522,7 @@ export default function EmployeeForm(props: EmployeeFormProps) {
                   }
                   label="Kontraktor"
                 />
-                <Divider orientation="vertical" flexItem variant="middle" />
+                {/* <Divider orientation="vertical" flexItem variant="middle" />
                 <FormControlLabel
                   control={
                     <Switch
@@ -534,8 +534,8 @@ export default function EmployeeForm(props: EmployeeFormProps) {
                       color={formValues.status ? 'success' : 'error'}
                     />
                   }
-                  label="Zatrudniony"
-                />
+                  label="Aktywny"
+                /> */}
               </Stack>
             </Grid>
           </Grid>

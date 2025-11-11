@@ -122,22 +122,35 @@ export async function getVacationListForMonths(
   monthKeys: string[]
 ): Promise<Vacation[]> {
   if (!monthKeys.length) return [];
+
   // Firestore 'in' obsługuje max 10 elementów
-  const q = query(
-    collection(db, 'vacations'),
-    where('yearMonth', 'in', monthKeys)
-  );
-  const snapshot = await getDocs(q);
-  return snapshot.docs.map((doc) => {
-    const data = doc.data();
-    return {
-      id: doc.id,
-      ...data,
-      date: (data.date as Timestamp).toDate(),
-      startDate: (data.startDate as Timestamp).toDate(),
-      endDate: (data.endDate as Timestamp).toDate(),
-    } as Vacation;
-  });
+  const chunks = [];
+  for (let i = 0; i < monthKeys.length; i += 10) {
+    chunks.push(monthKeys.slice(i, i + 10));
+  }
+
+  const allVacations: Vacation[] = [];
+
+  for (const chunk of chunks) {
+    const q = query(
+      collection(db, 'vacations'),
+      where('yearMonth', 'in', chunk)
+    );
+    const snapshot = await getDocs(q);
+    const chunkVacations = snapshot.docs.map((doc) => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        ...data,
+        date: (data.date as Timestamp).toDate(),
+        startDate: (data.startDate as Timestamp).toDate(),
+        endDate: (data.endDate as Timestamp).toDate(),
+      } as Vacation;
+    });
+    allVacations.push(...chunkVacations);
+  }
+
+  return allVacations;
 }
 
 export const getUpcomingVacationsForEmployee = async (
@@ -157,8 +170,12 @@ export const getUpcomingVacationsForEmployee = async (
 
   const vacations = await getVacationListForMonths(monthKeys);
 
-  const uniqueVacations = vacations.reduce((acc, vacation) => {
-    if (vacation.employeeId === employeeId && !acc.has(vacation.groupId)) {
+  const employeeVacations = vacations.filter(
+    (vacation) => vacation.employeeId === employeeId
+  );
+
+  const uniqueVacations = employeeVacations.reduce((acc, vacation) => {
+    if (!acc.has(vacation.groupId)) {
       acc.set(vacation.groupId, vacation);
     }
     return acc;

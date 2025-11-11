@@ -57,55 +57,44 @@ export const updateSchedule = async (
 
 export const getEmployeesByScheduledConstruction = async (
   constructionId: string,
-  date?: Date
+  date: Date
 ): Promise<Employee[]> => {
-  const querySnapshot = await getDocs(collection(db, 'schedules'));
+  const weekStart = dayjs(date).startOf('week');
+  const weekStartTimestamp = Timestamp.fromDate(weekStart.toDate());
 
-  const employeesSnapshot = await getDocs(collection(db, 'employees'));
-  const employedEmployees = employeesSnapshot.docs
-    .filter((doc) => doc.data().status === true)
-    .map(
-      (doc) =>
-        ({
-          id: doc.id,
-          ...doc.data(),
-        }) as Employee
-    );
+  const schedulesQuery = query(
+    collection(db, 'schedules'),
+    where('constructions', 'array-contains', constructionId),
+    where('weekStart', '==', weekStartTimestamp)
+  );
+
+  const querySnapshot = await getDocs(schedulesQuery);
+
+  const employeesQuery = query(
+    collection(db, 'employees'),
+    where('status', '==', true)
+  );
+  const employeesSnapshot = await getDocs(employeesQuery);
 
   const employeeIds = querySnapshot.docs
     .filter((doc) => {
       const data = doc.data();
-      const hasConstruction = data.constructions?.some(
-        (c: string | null) => c === constructionId
-      );
+      const weekStart = dayjs(data.weekStart.toDate());
+      const targetDate = dayjs(date);
+      const dayIndex = targetDate.diff(weekStart, 'day');
 
-      if (!date) {
-        return hasConstruction;
-      }
-
-      if (hasConstruction) {
-        const weekStart = dayjs(data.weekStart.toDate());
-        const targetDate = dayjs(date);
-
-        if (
-          targetDate.isBetween(weekStart, weekStart.add(6, 'day'), 'day', '[]')
-        ) {
-          const dayIndex = targetDate.diff(weekStart, 'day');
-
-          const constructionAtDay = data.constructions?.[dayIndex];
-          return constructionAtDay === constructionId;
-        }
-      }
-
-      return false;
+      return data.constructions?.[dayIndex] === constructionId;
     })
     .map((doc) => doc.data().employeeId);
 
   const uniqueEmployeeIds = [...new Set(employeeIds)];
 
-  const employeesOnConstruction = employedEmployees.filter((employee) =>
-    uniqueEmployeeIds.includes(employee.id)
-  );
+  const employeesOnConstruction = employeesSnapshot.docs
+    .filter((doc) => uniqueEmployeeIds.includes(doc.id))
+    .map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as Employee[];
 
   return employeesOnConstruction;
 };
