@@ -29,6 +29,9 @@ import Loading from '../../../components/Loading';
 import useLoading from '../../../hooks/useLoading';
 import ArchiveIcon from '@mui/icons-material/Archive';
 import UnarchiveIcon from '@mui/icons-material/Unarchive';
+import { removeEmployeeWorkHours } from '../../../api/hours';
+import { removeEmployeeVacations } from '../../../api/vacations';
+import { removeEmployeeSchedules } from '../../../api/schedules';
 
 export type FileStateMap = {
   [K in EmployeeAttachment]: File | null;
@@ -245,6 +248,11 @@ export default function EmployeeEdit() {
     setIsDeleting(true);
     try {
       await deleteMutation.mutateAsync();
+      await Promise.all([
+      removeEmployeeWorkHours(employee.id),
+      removeEmployeeVacations(employee.id),
+      removeEmployeeSchedules(employee.id)
+    ]);
       await deleteFolderRecursive(`/employees/${employee.id}`);
       setDeleteDialogOpen(false);
       notifications.show('Pracownik został usunięty.', {

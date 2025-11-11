@@ -86,6 +86,75 @@ export const deleteConstructionWorkHours = async (
   await batch.commit();
 };
 
+export const removeWorkHoursByConstruction = async (
+  constructionId: string
+): Promise<void> => {
+  const workHoursRef = collection(db, 'workHours');
+  const workHoursQuery = query(
+    workHoursRef,
+    where('constructionId', '==', constructionId)
+  );
+  const workHoursSnapshot = await getDocs(workHoursQuery);
+
+  if (workHoursSnapshot.size <= 500) {
+    const batch = writeBatch(db);
+
+    workHoursSnapshot.docs.forEach((workHourDoc) => {
+      batch.delete(workHourDoc.ref);
+    });
+
+    const constructionRef = doc(db, 'constructions', constructionId);
+    batch.delete(constructionRef);
+
+    await batch.commit();
+  } else {
+    const batchSize = 500;
+    const workHoursDocs = workHoursSnapshot.docs;
+
+    for (let i = 0; i < workHoursDocs.length; i += batchSize) {
+      const batch = writeBatch(db);
+      const chunk = workHoursDocs.slice(i, i + batchSize);
+
+      chunk.forEach((workHourDoc) => {
+        batch.delete(workHourDoc.ref);
+      });
+
+      await batch.commit();
+    }
+  }
+};
+
+export const removeEmployeeWorkHours = async (
+  employeeId: string
+): Promise<number> => {
+  const workHoursRef = collection(db, 'workHours');
+  const workHoursQuery = query(
+    workHoursRef,
+    where('employeeId', '==', employeeId)
+  );
+  const workHoursSnapshot = await getDocs(workHoursQuery);
+
+  if (workHoursSnapshot.size === 0) return 0;
+
+  const batchSize = 500;
+  const workHoursDocs = workHoursSnapshot.docs;
+  let deletedCount = 0;
+
+  for (let i = 0; i < workHoursDocs.length; i += batchSize) {
+    const batch = writeBatch(db);
+    const chunk = workHoursDocs.slice(i, i + batchSize);
+
+    chunk.forEach((workHourDoc) => {
+      batch.delete(workHourDoc.ref);
+    });
+
+    await batch.commit();
+    deletedCount += chunk.length;
+  }
+
+  return deletedCount;
+};
+
 export const copyFromPreviousWeek = async (
   currentWeek: Date,
   previousWeek: Date

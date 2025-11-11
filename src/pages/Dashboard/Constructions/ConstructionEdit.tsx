@@ -26,6 +26,7 @@ import { ConfirmationDialog } from '../../../components/BaseDialog';
 import { deleteFolderRecursive } from '../../../components/fileBrowser/FileBrowserHelpers';
 import Loading from '../../../components/Loading';
 import useLoading from '../../../hooks/useLoading';
+import { removeWorkHoursByConstruction } from '../../../api/hours';
 
 export default function ConstructionEdit() {
   const { constructionId } = useParams<{ constructionId: string }>();
@@ -170,6 +171,7 @@ export default function ConstructionEdit() {
     setIsDeleting(true);
     try {
       await deleteMutation.mutateAsync();
+      await removeWorkHoursByConstruction(construction.id)
       await deleteFolderRecursive(`/constructions/${construction.id}`);
       setDeleteDialogOpen(false);
       notifications.show('Budowa została pomyślnie usunięta.', {

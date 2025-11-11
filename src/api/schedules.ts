@@ -7,6 +7,7 @@ import {
   query,
   where,
   Timestamp,
+  writeBatch,
 } from 'firebase/firestore';
 import { db } from '../firebase';
 import type { Employee, Schedule } from '../types';
@@ -97,4 +98,35 @@ export const getEmployeesByScheduledConstruction = async (
     })) as Employee[];
 
   return employeesOnConstruction;
+};
+
+export const removeEmployeeSchedules = async (
+  employeeId: string
+): Promise<number> => {
+  const schedulesRef = collection(db, 'schedules');
+  const schedulesQuery = query(
+    schedulesRef,
+    where('employeeId', '==', employeeId)
+  );
+  const schedulesSnapshot = await getDocs(schedulesQuery);
+
+  if (schedulesSnapshot.size === 0) return 0;
+
+  const batchSize = 500;
+  const schedulesDocs = schedulesSnapshot.docs;
+  let deletedCount = 0;
+
+  for (let i = 0; i < schedulesDocs.length; i += batchSize) {
+    const batch = writeBatch(db);
+    const chunk = schedulesDocs.slice(i, i + batchSize);
+
+    chunk.forEach((scheduleDoc) => {
+      batch.delete(scheduleDoc.ref);
+    });
+
+    await batch.commit();
+    deletedCount += chunk.length;
+  }
+
+  return deletedCount;
 };

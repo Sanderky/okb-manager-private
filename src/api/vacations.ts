@@ -219,3 +219,34 @@ export const getUpcomingVacationsForEmployee = async (
 
   return filteredVacations;
 };
+
+export const removeEmployeeVacations = async (
+  employeeId: string
+): Promise<number> => {
+  const vacationsRef = collection(db, 'vacations');
+  const vacationsQuery = query(
+    vacationsRef,
+    where('employeeId', '==', employeeId)
+  );
+  const vacationsSnapshot = await getDocs(vacationsQuery);
+
+  if (vacationsSnapshot.size === 0) return 0;
+
+  const batchSize = 500;
+  const vacationsDocs = vacationsSnapshot.docs;
+  let deletedCount = 0;
+
+  for (let i = 0; i < vacationsDocs.length; i += batchSize) {
+    const batch = writeBatch(db);
+    const chunk = vacationsDocs.slice(i, i + batchSize);
+
+    chunk.forEach((vacationDoc) => {
+      batch.delete(vacationDoc.ref);
+    });
+
+    await batch.commit();
+    deletedCount += chunk.length;
+  }
+
+  return deletedCount;
+};
