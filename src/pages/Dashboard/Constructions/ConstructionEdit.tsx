@@ -14,7 +14,7 @@ import ConstructionForm, {
   type ConstructionFormState,
 } from './ConstructionForm';
 import PageContainer from '../../../components/PageContainer';
-import { AlertTitle, Stack, Typography } from '@mui/material';
+import { AlertTitle, Stack, TextField, Typography } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
 import { Grid } from '@mui/system';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
@@ -22,7 +22,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import useNotifications from '../../../hooks/useNotifications/useNotifications';
 import { validate } from './ConstructionHelpers';
-import { ConfirmationDialog } from '../../../components/BaseDialog';
+import BaseDialog from '../../../components/BaseDialog';
 import { deleteFolderRecursive } from '../../../components/fileBrowser/FileBrowserHelpers';
 import Loading from '../../../components/Loading';
 import useLoading from '../../../hooks/useLoading';
@@ -39,6 +39,7 @@ export default function ConstructionEdit() {
     stopLoading: stopActionLoading,
   } = useLoading(false);
 
+  const [deleteConfirmation, setDeleteConfirmation] = useState('');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -171,7 +172,7 @@ export default function ConstructionEdit() {
     setIsDeleting(true);
     try {
       await deleteMutation.mutateAsync();
-      await removeWorkHoursByConstruction(construction.id)
+      await removeWorkHoursByConstruction(construction.id);
       await deleteFolderRecursive(`/constructions/${construction.id}`);
       setDeleteDialogOpen(false);
       notifications.show('Budowa została pomyślnie usunięta.', {
@@ -271,36 +272,66 @@ export default function ConstructionEdit() {
           </Grid>
         </Grid>
 
-        <ConfirmationDialog
+        <BaseDialog
           open={deleteDialogOpen}
           onClose={handleDeleteCancel}
-          onConfirm={handleDeleteConstruction}
           title={
             <Stack direction="row" spacing={1} alignItems="center">
               <WarningAmberIcon className="text-red-600" />
               <span>Usuwanie budowy</span>
             </Stack>
           }
-          message={
-            <Stack direction="column" spacing={2}>
-              <Typography variant="body1" className="text-gray-600">
-                Czy na pewno chcesz usunąć <strong>{construction.name}</strong>?
-              </Typography>
-              <Typography variant="body1" className="text-gray-600">
-                Budowa zostanie usunięta z bazy danych łącznie ze wszytkimi
-                plikami.
-              </Typography>
-              <Alert severity="error">
-                <AlertTitle>Uwaga!</AlertTitle>
-                Proszę zachować ostrożność, tej operacji nie można cofnąć.
-              </Alert>
+          actions={
+            <Stack direction="row" spacing={1}>
+              <Button
+                onClick={handleDeleteCancel}
+                variant="outlined"
+                loading={isDeleting}
+                color="primary"
+              >
+                Anuluj
+              </Button>
+              <Button
+                onClick={handleDeleteConstruction}
+                variant="contained"
+                loading={isDeleting}
+                color="error"
+                disabled={
+                  deleteConfirmation.toLocaleLowerCase() !==
+                  construction.name.trim().toLocaleLowerCase()
+                }
+              >
+                Usuń
+              </Button>
             </Stack>
           }
-          confirmText="Usuń"
-          cancelText="Anuluj"
-          confirmColor="error"
           loading={isDeleting}
-        />
+        >
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Typography variant="body1" className="text-gray-600">
+              Czy na pewno chcesz usunąć <strong>{construction.name}</strong>?
+            </Typography>
+            <Typography variant="body1" className="text-gray-600">
+              Budowa zostanie usunięta z bazy danych łącznie ze wszytkimi
+              plikami oraz powiązanymi informacjami.
+            </Typography>
+            <Alert severity="error">
+              <AlertTitle>Uwaga!</AlertTitle>
+              Tej operacji nie można cofnąć. Zamiast tego, proszę rozważyć
+              zakończenie budowy.
+            </Alert>
+            <Stack sx={{ mt: 2 }} direction={'column'} spacing={0.5}>
+              <Typography variant="subtitle2">
+                Aby usunąć budowę, wprowadź poniżej jej pełną nazwę:
+              </Typography>
+              <TextField
+                value={deleteConfirmation}
+                size="small"
+                onChange={(e) => setDeleteConfirmation(e.target.value)}
+              />
+            </Stack>
+          </Box>
+        </BaseDialog>
       </>
     );
   };

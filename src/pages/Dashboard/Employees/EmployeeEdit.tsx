@@ -14,7 +14,7 @@ import EmployeeForm, {
   type EmployeeFormState,
 } from './EmployeeForm';
 import PageContainer from '../../../components/PageContainer';
-import { AlertTitle, Chip, Stack, Typography } from '@mui/material';
+import { AlertTitle, Chip, Stack, TextField, Typography } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
 import { Grid } from '@mui/system';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
@@ -23,7 +23,7 @@ import useNotifications from '../../../hooks/useNotifications/useNotifications';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import useEmployeeAttachment from './useAttachment';
 import { validate } from './EmployeeEditHelpers';
-import { ConfirmationDialog } from '../../../components/BaseDialog';
+import BaseDialog from '../../../components/BaseDialog';
 import { deleteFolderRecursive } from '../../../components/fileBrowser/FileBrowserHelpers';
 import Loading from '../../../components/Loading';
 import useLoading from '../../../hooks/useLoading';
@@ -55,6 +55,7 @@ export default function EmployeeEdit() {
   } = useLoading(false);
 
   const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteConfirmation, setDeleteConfirmation] = useState('');
   const [isUpdatingEmployeeStatus, setIsUpdatingEmployeeStatus] =
     useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -238,8 +239,6 @@ export default function EmployeeEdit() {
     ]
   );
 
-
-
   const handleDeleteClick = useCallback(() => {
     setDeleteDialogOpen(true);
   }, []);
@@ -251,10 +250,10 @@ export default function EmployeeEdit() {
     try {
       await deleteMutation.mutateAsync();
       await Promise.all([
-      removeEmployeeWorkHours(employee.id),
-      removeEmployeeVacations(employee.id),
-      removeEmployeeSchedules(employee.id)
-    ]);
+        removeEmployeeWorkHours(employee.id),
+        removeEmployeeVacations(employee.id),
+        removeEmployeeSchedules(employee.id),
+      ]);
       await deleteFolderRecursive(`/employees/${employee.id}`);
       setDeleteDialogOpen(false);
       notifications.show('Pracownik został usunięty.', {
@@ -437,36 +436,66 @@ export default function EmployeeEdit() {
           </Grid>
         </Grid>
 
-        <ConfirmationDialog
+        <BaseDialog
           open={deleteDialogOpen}
           onClose={handleDeleteCancel}
-          onConfirm={handleDeleteEmployee}
           title={
             <Stack direction="row" spacing={1} alignItems="center">
               <WarningAmberIcon className="text-red-600" />
               <span>Usuwanie pracownika</span>
             </Stack>
           }
-          message={
-            <Stack direction="column" spacing={2}>
-              <Typography variant="body1" className="text-gray-600">
-                Czy na pewno chcesz usunąć <strong>{employee.name}</strong>?
-              </Typography>
-              <Typography variant="body1" className="text-gray-600">
-                Pracownik zostanie usunięty z bazy danych łącznie ze wszytkimi
-                jego plikami.
-              </Typography>
-              <Alert severity="error">
-                <AlertTitle>Uwaga!</AlertTitle>
-                Proszę zachować ostrożność, tej operacji nie można cofnąć.
-              </Alert>
+          actions={
+            <Stack direction="row" spacing={1}>
+              <Button
+                onClick={handleDeleteCancel}
+                variant="outlined"
+                loading={isDeleting}
+                color="primary"
+              >
+                Anuluj
+              </Button>
+              <Button
+                onClick={handleDeleteEmployee}
+                variant="contained"
+                loading={isDeleting}
+                color="error"
+                disabled={
+                  deleteConfirmation.toLocaleLowerCase() !==
+                  employee.name.trim().toLocaleLowerCase()
+                }
+              >
+                Usuń
+              </Button>
             </Stack>
           }
-          confirmText="Usuń"
-          cancelText="Anuluj"
-          confirmColor="error"
           loading={isDeleting}
-        />
+        >
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Typography variant="body1" className="text-gray-600">
+              Czy na pewno chcesz usunąć <strong>{employee.name}</strong>?
+            </Typography>
+            <Typography variant="body1" className="text-gray-600">
+              Pracownik zostanie usunięty z bazy danych łącznie ze wszytkimi
+              jego plikami oraz powiązanymi informacjami.
+            </Typography>
+            <Alert severity="error">
+              <AlertTitle>Uwaga!</AlertTitle>
+              Tej operacji nie można cofnąć. Zamiast tego, proszę rozważyć
+              archiwizację pracownika.
+            </Alert>
+            <Stack sx={{ mt: 2 }} direction={'column'} spacing={0.5}>
+              <Typography variant="subtitle2">
+                Aby usunąć pracownika, wprowadź poniżej jego pełną nazwę:
+              </Typography>
+              <TextField
+                value={deleteConfirmation}
+                size="small"
+                onChange={(e) => setDeleteConfirmation(e.target.value)}
+              />
+            </Stack>
+          </Box>
+        </BaseDialog>
       </>
     );
   };
