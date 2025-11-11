@@ -6,6 +6,7 @@ import {
   Badge,
   Switch,
   Button,
+  Tooltip,
 } from '@mui/material';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { ChevronLeft, ChevronRight } from '@mui/icons-material';
@@ -92,15 +93,17 @@ export const TableControls: React.FC<TableControlsProps> = ({
             }}
           />
         </Stack>
-        <Badge badgeContent={selectedEmployees.length} color="primary">
-          <IconButton
-            size="small"
-            className="rounded-lg border text-blue-500"
-            onClick={() => setIsFilterOpen(true)}
-          >
-            <FilterListIcon />
-          </IconButton>
-        </Badge>
+        <Tooltip title="Filtry">
+          <Badge badgeContent={selectedEmployees.length} color="primary">
+            <IconButton
+              size="small"
+              className="rounded-lg border text-blue-500"
+              onClick={() => setIsFilterOpen(true)}
+            >
+              <FilterListIcon />
+            </IconButton>
+          </Badge>
+        </Tooltip>
         <Stack direction={'row'} spacing={1}>
           <Stack direction="column" alignItems="center" justifyContent="center">
             <Switch

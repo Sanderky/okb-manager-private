@@ -10,6 +10,7 @@ import {
   Box,
   Popover,
   IconButton,
+  Tooltip,
 } from '@mui/material';
 import { CalendarMonth, ChevronLeft, ChevronRight } from '@mui/icons-material';
 
@@ -132,14 +133,16 @@ const WeekSelector: React.FC<WeekSelectorProps> = ({
 
   return (
     <>
-      <Button
-        variant="outlined"
-        startIcon={<CalendarMonth />}
-        onClick={handleClick}
-        disabled={disabled}
-      >
-        {`${formatDate(value)} - ${formatDate(getEndOfWeek(value))}`}
-      </Button>
+      <Tooltip title="Wybierz tydzień">
+        <Button
+          variant="outlined"
+          startIcon={<CalendarMonth />}
+          onClick={handleClick}
+          disabled={disabled}
+        >
+          {`${formatDate(value)} - ${formatDate(getEndOfWeek(value))}`}
+        </Button>
+      </Tooltip>
 
       <Popover
         id={id}

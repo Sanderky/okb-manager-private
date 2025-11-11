@@ -1,5 +1,12 @@
 import React from 'react';
-import { Stack, Typography, IconButton, Badge, Button } from '@mui/material';
+import {
+  Stack,
+  Typography,
+  IconButton,
+  Badge,
+  Button,
+  Tooltip,
+} from '@mui/material';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { ChevronLeft, ChevronRight } from '@mui/icons-material';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
@@ -90,16 +97,17 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
           onChange={handleDatePickerChange}
         />
       </LocalizationProvider>
-
-      <Badge badgeContent={selectedEmployees.length} color="primary">
-        <IconButton
-          size="small"
-          className="rounded-lg border text-blue-500"
-          onClick={() => setIsFilterOpen(true)}
-        >
-          <FilterListIcon />
-        </IconButton>
-      </Badge>
+      <Tooltip title="Filtry">
+        <Badge badgeContent={selectedEmployees.length} color="primary">
+          <IconButton
+            size="small"
+            className="rounded-lg border text-blue-500"
+            onClick={() => setIsFilterOpen(true)}
+          >
+            <FilterListIcon />
+          </IconButton>
+        </Badge>
+      </Tooltip>
 
       {/* <Stack
                 sx={{ flexGrow: 1 }}

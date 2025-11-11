@@ -28,6 +28,7 @@ import {
   TableRow,
   Tabs,
   TextareaAutosize,
+  Tooltip,
 } from '@mui/material';
 import dayjs from 'dayjs';
 
@@ -390,13 +391,15 @@ export default function EmployeeShow() {
                 spacing={{ xs: 1.5, sm: 3 }}
                 sx={{ pl: 1 }}
               >
-                <IconButton
-                  onClick={handleEmployeeEdit}
-                  color="primary"
-                  className="rounded-full border border-blue-300"
-                >
-                  <EditIcon />
-                </IconButton>
+                <Tooltip title="Edytuj budowę">
+                  <IconButton
+                    onClick={handleEmployeeEdit}
+                    color="primary"
+                    className="rounded-full border border-blue-300"
+                  >
+                    <EditIcon />
+                  </IconButton>
+                </Tooltip>
               </Stack>
             </Stack>
           </Grid>
@@ -490,30 +493,34 @@ export default function EmployeeShow() {
                         spacing={2}
                       >
                         {editNote && (
-                          <IconButton
-                            onClick={handleSaveNote}
-                            color="success"
-                            className="rounded-full border border-green-500 bg-green-50/50"
-                            disabled={actionLoading || !editNote}
-                          >
-                            <CheckIcon />
-                          </IconButton>
+                          <Tooltip title="Zapisz notatkę">
+                            <IconButton
+                              onClick={handleSaveNote}
+                              color="success"
+                              className="rounded-full border border-green-500 bg-green-50/50"
+                              disabled={actionLoading || !editNote}
+                            >
+                              <CheckIcon />
+                            </IconButton>
+                          </Tooltip>
                         )}
-                        <IconButton
-                          onClick={
-                            editNote
-                              ? handleCancelEdit
-                              : () => setEditNote(true)
-                          }
-                          color={!editNote ? 'primary' : 'inherit'}
-                          className={`rounded-lg border ${editNote ? 'border-red-500 bg-red-50/50' : 'border-blue-500'}`}
-                        >
-                          {editNote ? (
-                            <CloseIcon className="text-red-400" />
-                          ) : (
-                            <EditNoteIcon />
-                          )}
-                        </IconButton>
+                        <Tooltip title={editNote ? 'Anuluj' : 'Edytuj notatkę'}>
+                          <IconButton
+                            onClick={
+                              editNote
+                                ? handleCancelEdit
+                                : () => setEditNote(true)
+                            }
+                            color={!editNote ? 'primary' : 'inherit'}
+                            className={`rounded-lg border ${editNote ? 'border-red-500 bg-red-50/50' : 'border-blue-500'}`}
+                          >
+                            {editNote ? (
+                              <CloseIcon className="text-red-400" />
+                            ) : (
+                              <EditNoteIcon />
+                            )}
+                          </IconButton>
+                        </Tooltip>
                       </Stack>
                     </Stack>
                     <TextareaAutosize

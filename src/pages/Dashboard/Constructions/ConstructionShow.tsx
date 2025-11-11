@@ -26,7 +26,6 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 
 import {
   Chip,
-  Divider,
   IconButton,
   Paper,
   Tab,
@@ -37,6 +36,7 @@ import {
   TableRow,
   Tabs,
   TextareaAutosize,
+  Tooltip,
 } from '@mui/material';
 import { useParams } from 'react-router';
 import dayjs from 'dayjs';
@@ -317,31 +317,35 @@ export default function ConstructionShow() {
                 spacing={{ xs: 1.5, sm: 3 }}
                 sx={{ pl: 1 }}
               >
-                <IconButton
-                  onClick={handleConstructionEdit}
-                  color="primary"
-                  className="rounded-full border border-blue-300"
-                >
-                  <EditIcon />
-                </IconButton>
+                <Tooltip title="Edytuj pracownika">
+                  <IconButton
+                    onClick={handleConstructionEdit}
+                    color="primary"
+                    className="rounded-full border border-blue-300"
+                  >
+                    <EditIcon />
+                  </IconButton>
+                </Tooltip>
                 {isInProgress ? (
-                  <IconButton
-                    onClick={openEndDialog}
-                    color="warning"
-                    className="rounded-full border border-amber-500 bg-amber-50/50"
-                    title="Zakończ budowę"
-                  >
-                    <EventAvailableIcon />
-                  </IconButton>
+                  <Tooltip title="Zakończ budowę">
+                    <IconButton
+                      onClick={openEndDialog}
+                      color="warning"
+                      className="rounded-full border border-amber-500 bg-amber-50/50"
+                    >
+                      <EventAvailableIcon />
+                    </IconButton>
+                  </Tooltip>
                 ) : (
-                  <IconButton
-                    onClick={() => setResumeDialogOpen(true)}
-                    color="success"
-                    className="rounded-full border border-green-500 bg-green-50/50"
-                    title="Wznów budowę"
-                  >
-                    <EventRepeatIcon />
-                  </IconButton>
+                  <Tooltip title="Wznów budowę">
+                    <IconButton
+                      onClick={() => setResumeDialogOpen(true)}
+                      color="success"
+                      className="rounded-full border border-green-500 bg-green-50/50"
+                    >
+                      <EventRepeatIcon />
+                    </IconButton>
+                  </Tooltip>
                 )}
               </Stack>
             </Stack>
@@ -493,30 +497,34 @@ export default function ConstructionShow() {
                         spacing={2}
                       >
                         {editNote && (
-                          <IconButton
-                            onClick={handleSaveNote}
-                            color="success"
-                            className="rounded-full border border-green-500 bg-green-50/50"
-                            disabled={actionLoading || !editNote}
-                          >
-                            <CheckIcon />
-                          </IconButton>
+                          <Tooltip title={'Zapisz notatkę'}>
+                            <IconButton
+                              onClick={handleSaveNote}
+                              color="success"
+                              className="rounded-full border border-green-500 bg-green-50/50"
+                              disabled={actionLoading || !editNote}
+                            >
+                              <CheckIcon />
+                            </IconButton>
+                          </Tooltip>
                         )}
-                        <IconButton
-                          onClick={
-                            editNote
-                              ? handleCancelEdit
-                              : () => setEditNote(true)
-                          }
-                          color={!editNote ? 'primary' : 'inherit'}
-                          className={`rounded-lg border ${editNote ? 'border-red-500 bg-red-50/50' : 'border-blue-500'}`}
-                        >
-                          {editNote ? (
-                            <CloseIcon className="text-red-400" />
-                          ) : (
-                            <EditNoteIcon />
-                          )}
-                        </IconButton>
+                        <Tooltip title={editNote ? 'Anuluj' : 'Edytuj notatkę'}>
+                          <IconButton
+                            onClick={
+                              editNote
+                                ? handleCancelEdit
+                                : () => setEditNote(true)
+                            }
+                            color={!editNote ? 'primary' : 'inherit'}
+                            className={`rounded-lg border ${editNote ? 'border-red-500 bg-red-50/50' : 'border-blue-500'}`}
+                          >
+                            {editNote ? (
+                              <CloseIcon className="text-red-400" />
+                            ) : (
+                              <EditNoteIcon />
+                            )}
+                          </IconButton>
+                        </Tooltip>
                       </Stack>
                     </Stack>
                     <TextareaAutosize

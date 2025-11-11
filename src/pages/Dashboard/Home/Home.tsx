@@ -7,6 +7,7 @@ import {
   ListItem,
   IconButton,
   TextareaAutosize,
+  Tooltip,
 } from '@mui/material';
 import PageContainer from '../../../components/PageContainer';
 import { useCallback, useEffect, useState } from 'react';
@@ -146,7 +147,7 @@ const Note = () => {
         const data = docSnap.data();
         return {
           id: docSnap.id,
-          note: data.note
+          note: data.note,
         };
       }
       return null;
@@ -168,11 +169,11 @@ const Note = () => {
 
       if (docSnap.exists()) {
         await updateDoc(homeDocRef, {
-          note: newNote
+          note: newNote,
         });
       } else {
         const newHome = {
-          note: newNote
+          note: newNote,
         };
         await setDoc(homeDocRef, newHome);
       }
@@ -232,30 +233,34 @@ const Note = () => {
             spacing={2}
           >
             {editNote && (
-              <IconButton
-                onClick={handleSaveNote}
-                color="success"
-                className="rounded-full border border-green-500 bg-green-50/50"
-                disabled={updateNoteMutation.isPending || !editNote}
-              >
-                <Check />
-              </IconButton>
+              <Tooltip title="Zapisz notatkę">
+                <IconButton
+                  onClick={handleSaveNote}
+                  color="success"
+                  className="rounded-full border border-green-500 bg-green-50/50"
+                  disabled={updateNoteMutation.isPending || !editNote}
+                >
+                  <Check />
+                </IconButton>
+              </Tooltip>
             )}
-            <IconButton
-              onClick={() => {
-                if (editNote) {
-                  handleCancelEdit();
-                } else {
-                  setEditNote(true);
-                }
-              }}
-              color={!editNote ? 'primary' : 'inherit'}
-              className={`rounded-lg border ${
-                editNote ? 'border-red-500 bg-red-50/50' : 'border-blue-500'
-              }`}
-            >
-              {editNote ? <Close className="text-red-400" /> : <EditNote />}
-            </IconButton>
+            <Tooltip title={editNote ? 'Anuluj' : 'Edytuj notatkę'}>
+              <IconButton
+                onClick={() => {
+                  if (editNote) {
+                    handleCancelEdit();
+                  } else {
+                    setEditNote(true);
+                  }
+                }}
+                color={!editNote ? 'primary' : 'inherit'}
+                className={`rounded-lg border ${
+                  editNote ? 'border-red-500 bg-red-50/50' : 'border-blue-500'
+                }`}
+              >
+                {editNote ? <Close className="text-red-400" /> : <EditNote />}
+              </IconButton>
+            </Tooltip>
           </Stack>
         </Stack>
         <TextareaAutosize
