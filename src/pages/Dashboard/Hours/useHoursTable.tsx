@@ -105,31 +105,9 @@ const useHoursTable = (startWeek?: Date) => {
     setSelectedConstructions(constructions);
   };
 
-  // const handleSelectAllConstructions = () => {
-  //   if(!constructions) return
-  //   // const allConstructionIds = constructions.map((c) => c.id);
-  //   // if(!constructions) return
-  //   setSelectedConstructions(constructions);
-  // };
-
-  // const handleDeselectAllConstructions = () => {
-  //   setSelectedConstructions([]);
-  // };
-
   const onSelectedEmployeesChange = (employees: Employee[]) => {
     setSelectedEmployees(employees);
   };
-
-  // const handleSelectAllEmployees = () => {
-  //   if(!employees) return
-  //   // const allConstructionIds = employees.map((c) => c.id);
-  //   // if(!constructions) return
-  //   setSelectedEmployees(employees);
-  // };
-
-  // const handleDeselectAllEmployees = () => {
-  //   setSelectedEmployees([]);
-  // };
 
   useEffect(() => {
     if (startWeek) setCurrentWeek(startWeek);
@@ -199,7 +177,6 @@ const useHoursTable = (startWeek?: Date) => {
       if (!vacation.employeeId || !vacation.date) return;
 
       const dateObj = vacation.date;
-      // const dateObj = vacation.date.toDate();
       const dateString = dayjs(dateObj).format('YYYY-MM-DD');
 
       if (!map.has(vacation.employeeId)) {
@@ -829,8 +806,6 @@ const useHoursTable = (startWeek?: Date) => {
   return {
     isLoading,
     loadingError,
-    // getExistingEmployeeIdsForConstruction,
-    // existingConstructionIds,
     totalHoursData,
     handleEmployeeAdded,
     handleDeleteConstruction,

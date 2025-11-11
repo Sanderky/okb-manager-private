@@ -169,7 +169,7 @@ const TableRows = ({
                   >
                     {construction.isActive
                       ? construction.name
-                      : `${construction.name}*`}
+                      : `${construction.name} *`}
                   </span>
                 </TableCell>
               )}
@@ -204,7 +204,7 @@ const TableRows = ({
                 >
                   {workHour.isActive
                     ? workHour.employeeName
-                    : `${workHour.employeeName}*`}
+                    : `${workHour.employeeName} *`}
                 </span>
               </TableCell>
 
