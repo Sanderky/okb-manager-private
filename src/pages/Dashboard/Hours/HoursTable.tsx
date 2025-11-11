@@ -31,7 +31,9 @@ import {
   AddEmployeeDialog,
   CopyTableDialog,
 } from './HoursTableDialogs';
-import useHoursTable from './useHoursTable';
+import useHoursTable, {
+  type ConstructionsWithWorkHours,
+} from './useHoursTable';
 import HoursTableControls from './HoursTableControls';
 import { PrintableTable } from './PrintReport';
 import { formatToPolishDecimal } from './HoursHelpers';
@@ -47,36 +49,6 @@ const redAlert = 'bg-red-300';
 const orangeAlert = 'bg-amber-300';
 const sumColor = 'oklch(0.707 0.165 254.624)';
 const tableBorder = '1px solid rgb(224, 224, 224)';
-
-interface ConstructionsWithWorkHours {
-  id: string;
-  name: string;
-  workHours: {
-    id: string;
-    employeeId: string;
-    employeeName: string;
-    hours: number[];
-    total: number;
-    isOnVacation: boolean[];
-  }[];
-  totalHours: number;
-}
-
-const getAvailableEmployeesForConstruction = (
-  constructionWithWorkHours: ConstructionsWithWorkHours,
-  employees: Employee[] | undefined
-) => {
-  if (!employees || !constructionWithWorkHours) return [];
-  const existingEmployeeIds = constructionWithWorkHours.workHours.map(
-    (workHour) => workHour.employeeId
-  );
-
-  const availableEmployees = employees.filter(
-    (employee) => !existingEmployeeIds.includes(employee.id)
-  );
-
-  return availableEmployees;
-};
 
 interface TableRowsProps {
   constructionsWithWorkHours: ConstructionsWithWorkHours[];
@@ -98,10 +70,10 @@ interface TableRowsProps {
   handleOpenAddEmployeeDialog: (constructionId: string) => void;
   isLoading: boolean;
   error: Error | null;
-  employees: Employee[] | undefined;
   isFilling: boolean;
   handleFillWithSchedule: () => Promise<void>;
   handleCopyDataDialogOpen: () => void;
+  getAvailableEmployeesForConstruction: (constructionId: string) => Employee[];
 }
 
 const TableRows = ({
@@ -109,7 +81,6 @@ const TableRows = ({
   isLoading,
   constructionsWithWorkHours,
   editMode,
-  employees,
   handleDeleteConstruction,
   handleDeleteEmployee,
   handleHoursChange,
@@ -117,6 +88,7 @@ const TableRows = ({
   isFilling,
   handleFillWithSchedule,
   handleCopyDataDialogOpen,
+  getAvailableEmployeesForConstruction,
 }: TableRowsProps) => {
   if (error)
     return (
@@ -160,12 +132,10 @@ const TableRows = ({
     );
   else if (constructionsWithWorkHours.length > 0) {
     return constructionsWithWorkHours.map((construction) => {
-      const activeEmployees =
-        employees?.filter((employee) => employee.status) ?? [];
       const availableEmployees = getAvailableEmployeesForConstruction(
-        construction,
-        activeEmployees
+        construction.id
       );
+
       return (
         <React.Fragment key={construction.id}>
           {construction.workHours.map((workHour, employeeIndex) => (
@@ -194,9 +164,12 @@ const TableRows = ({
                     }
                     style={{
                       cursor: editMode ? 'pointer' : 'text',
+                      fontStyle: construction.isActive ? 'normal' : 'italic',
                     }}
                   >
-                    {construction.name}
+                    {construction.isActive
+                      ? construction.name
+                      : `${construction.name}*`}
                   </span>
                 </TableCell>
               )}
@@ -226,9 +199,12 @@ const TableRows = ({
                   }
                   style={{
                     cursor: editMode ? 'pointer' : 'text',
+                    fontStyle: workHour.isActive ? 'normal' : 'italic',
                   }}
                 >
-                  {workHour.employeeName}
+                  {workHour.isActive
+                    ? workHour.employeeName
+                    : `${workHour.employeeName}*`}
                 </span>
               </TableCell>
 
@@ -447,8 +423,6 @@ const HoursTable = ({
     handleConstructionWithEmployeeAdded,
     handleHoursChange,
     totalHoursData,
-    getExistingEmployeeIdsForConstruction,
-    existingConstructionIds,
     selectedConstructionForEmployee,
     loadingError,
     isCoping,
@@ -458,13 +432,14 @@ const HoursTable = ({
     onSelectedConstructionForEmployeeChange,
     selectedConstructions,
     onSelectedConstructionsChange,
-    availableConstructions,
-    handleDeselectAll,
-    handleSelectAll,
     isFilling,
     handleFillWithSchedule,
     isSaving,
     handleCancelEdit,
+    selectedEmployees,
+    onSelectedEmployeesChange,
+    getAvailableEmployeesForConstruction,
+    getAvailableConstructions,
   } = useHoursTable();
 
   useEffect(() => {
@@ -474,8 +449,6 @@ const HoursTable = ({
         constructionsWithWorkHours,
         weekDates,
         totalHoursData,
-        selectedConstructions,
-        availableConstructions: availableConstructions || [],
       });
     }
   }, [currentWeek, constructionsWithWorkHours, isLoading, loadingError]);
@@ -492,6 +465,10 @@ const HoursTable = ({
   const printContentRef = useRef<HTMLDivElement>(null);
 
   const isTableLoading = isCoping || isFilling || isLoading || isSaving;
+
+  const availableConstructions = getAvailableConstructions();
+
+  const activeEmployees = employees?.filter((e) => e.status) ?? [];
 
   return (
     <Box>
@@ -529,14 +506,12 @@ const HoursTable = ({
         onTableDelete={onTableDelete}
         tableBorder={tableBorder}
         contentRef={printContentRef}
-        availableConstructions={availableConstructions ?? []}
         selectedConstructions={selectedConstructions}
         onSelectedConstructionsChange={onSelectedConstructionsChange}
-        allConstructions={constructions ?? []}
-        handleDeselectAll={handleDeselectAll}
-        handleSelectAll={handleSelectAll}
         handleCancelEdit={handleCancelEdit}
         handleFillWithSchedule={handleFillWithSchedule}
+        onSelectedEmployeesChange={onSelectedEmployeesChange}
+        selectedEmployees={selectedEmployees}
       />
 
       <Collapse in={isExpanded} timeout="auto" unmountOnExit>
@@ -603,7 +578,6 @@ const HoursTable = ({
               <TableRows
                 isFilling={isFilling}
                 handleFillWithSchedule={handleFillWithSchedule}
-                employees={employees}
                 isLoading={isTableLoading}
                 handleDeleteConstruction={handleDeleteConstruction}
                 handleDeleteEmployee={handleDeleteEmployee}
@@ -613,6 +587,9 @@ const HoursTable = ({
                 editMode={editMode}
                 error={loadingError}
                 handleCopyDataDialogOpen={handleCopyDataDialogOpen}
+                getAvailableEmployeesForConstruction={
+                  getAvailableEmployeesForConstruction
+                }
               />
 
               <TableRow
@@ -629,8 +606,7 @@ const HoursTable = ({
                   {editMode && (
                     <Tooltip
                       title={
-                        existingConstructionIds.length ===
-                        (constructions?.length || 0)
+                        availableConstructions.length === 0
                           ? 'Wszystkie budowy zostały już dodane'
                           : ''
                       }
@@ -643,10 +619,7 @@ const HoursTable = ({
                           size="small"
                           variant="text"
                           color="primary"
-                          disabled={
-                            existingConstructionIds.length ===
-                            (constructions?.length || 0)
-                          }
+                          disabled={availableConstructions.length === 0}
                         >
                           Dodaj budowę
                         </Button>
@@ -680,7 +653,8 @@ const HoursTable = ({
         onClose={() => setAddConstructionDialogOpen(false)}
         currentWeek={currentWeek}
         onSuccess={handleConstructionWithEmployeeAdded}
-        existingConstructionIds={existingConstructionIds}
+        activeEmployees={activeEmployees}
+        availableConstructions={getAvailableConstructions()}
       />
 
       <CopyTableDialog
@@ -696,7 +670,8 @@ const HoursTable = ({
         constructionId={selectedConstructionForEmployee}
         currentWeek={currentWeek}
         onEmployeeAdded={handleEmployeeAdded}
-        existingEmployeeIds={getExistingEmployeeIdsForConstruction(
+        constructions={constructions ?? []}
+        availableEmployees={getAvailableEmployeesForConstruction(
           selectedConstructionForEmployee
         )}
       />

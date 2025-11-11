@@ -32,21 +32,28 @@ interface WeekReportData {
   employees: Employee[];
   constructions: Construction[];
 }
+
 interface UseWeekReportParams {
   weekStarts: Date[];
-  selectedConstructions?: string[];
+  selectedConstructions?: Construction[];
+  selectedEmployees?: Employee[];
 }
 
 const useWeekReport = ({
   weekStarts,
   selectedConstructions = [],
+  selectedEmployees = [],
 }: UseWeekReportParams): UseWeekReportResult => {
+  const selectedConstructionIds = selectedConstructions.map((c) => c.id);
+  const selectedEmployeeIds = selectedEmployees.map((e) => e.id);
+
   const weekQueries = useQueries({
     queries: weekStarts.map((weekStart) => ({
       queryKey: [
         'weekReport',
         weekStart.toISOString(),
-        selectedConstructions.join(','),
+        selectedConstructionIds.join(','),
+        selectedEmployeeIds.join(','),
       ],
       queryFn: async () => {
         const [workHours, vacations] = await Promise.all([
@@ -97,7 +104,6 @@ const useWeekReport = ({
       const vacationMap = new Map<string, Set<string>>();
       vacations.forEach((vacation) => {
         if (!vacation.employeeId || !vacation.date) return;
-        // const dateObj = vacation.date.toDate();
         const dateObj = vacation.date;
         const dateString = dayjs(dateObj).format('YYYY-MM-DD');
         if (!vacationMap.has(vacation.employeeId)) {
@@ -117,56 +123,56 @@ const useWeekReport = ({
         const dateString = dayjs(date).format('YYYY-MM-DD');
         return employeeVacations.has(dateString);
       };
+      const filteredWorkHours = workHours.filter((workHour) => {
+        const employeeMatch =
+          selectedEmployees.length === 0 ||
+          selectedEmployeeIds.includes(workHour.employeeId);
+        const constructionMatch =
+          selectedConstructions.length === 0 ||
+          selectedConstructionIds.includes(workHour.constructionId);
+        return employeeMatch && constructionMatch;
+      });
 
       const totalHoursData = (() => {
-        if (!workHours)
+        if (!filteredWorkHours)
           return { dailyTotals: [0, 0, 0, 0, 0, 0, 0], grandTotal: 0 };
 
         const dailyTotals = [0, 0, 0, 0, 0, 0, 0];
         let grandTotal = 0;
 
-        workHours.forEach((workHour) => {
-          const isConstructionSelected =
-            selectedConstructions.length === 0 ||
-            selectedConstructions.includes(workHour.constructionId);
+        filteredWorkHours.forEach((workHour) => {
+          workHour.hours.forEach((hours, dayIndex) => {
+            const parsedHours = Number(hours);
+            const numericHours = isNaN(parsedHours) ? 0 : parsedHours;
+            const date = weekDates[dayIndex];
 
-          if (isConstructionSelected) {
-            workHour.hours.forEach((hours, dayIndex) => {
-              const parsedHours = Number(hours);
-              const numericHours = isNaN(parsedHours) ? 0 : parsedHours;
-              const date = weekDates[dayIndex];
-
-              if (!isEmployeeOnVacation(workHour.employeeId, date)) {
-                dailyTotals[dayIndex] += numericHours;
-                grandTotal += numericHours;
-              }
-            });
-          }
+            if (!isEmployeeOnVacation(workHour.employeeId, date)) {
+              dailyTotals[dayIndex] += numericHours;
+              grandTotal += numericHours;
+            }
+          });
         });
 
         return { dailyTotals, grandTotal };
       })();
 
       const constructionsWithWorkHours = (() => {
-        if (!workHours || !constructions || !employees) return [];
+        if (!filteredWorkHours || !constructions || !employees) return [];
 
         const constructionMap = new Map<string, ConstructionsWithWorkHours>();
 
-        workHours.forEach((workHour) => {
+        filteredWorkHours.forEach((workHour) => {
           const construction = constructions.find(
             (c) => c.id === workHour.constructionId
           );
           const employee = employees.find((e) => e.id === workHour.employeeId);
 
-          const isConstructionSelected =
-            selectedConstructions.length === 0 ||
-            selectedConstructions.includes(workHour.constructionId);
-
-          if (construction && employee && isConstructionSelected) {
+          if (construction && employee) {
             if (!constructionMap.has(construction.id)) {
               constructionMap.set(construction.id, {
                 id: construction.id,
                 name: construction.name,
+                isActive: !construction.endDate,
                 workHours: [],
                 totalHours: 0,
               });
@@ -193,6 +199,7 @@ const useWeekReport = ({
               employeeId: workHour.employeeId,
               employeeName: employee.name,
               hours: numericHours,
+              isActive: employee.status ?? false,
               total: employeeTotalHours,
               isOnVacation,
             });
@@ -211,7 +218,14 @@ const useWeekReport = ({
         totalHoursData,
       };
     });
-  }, [weekQueries, isLoading, selectedConstructions]);
+  }, [
+    weekQueries,
+    isLoading,
+    selectedConstructions,
+    selectedEmployees,
+    selectedConstructionIds,
+    selectedEmployeeIds,
+  ]);
 
   return {
     weeksData,

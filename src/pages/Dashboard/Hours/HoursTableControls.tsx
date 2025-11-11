@@ -10,10 +10,6 @@ import {
   Divider,
   Grid,
   Menu,
-  Autocomplete,
-  Checkbox,
-  FormControl,
-  TextField,
   Badge,
 } from '@mui/material';
 import {
@@ -33,9 +29,9 @@ import 'dayjs/locale/pl';
 import WeekSelector from '../../../components/WeekSelector';
 import isoWeek from 'dayjs/plugin/isoWeek';
 import { useReactToPrint } from 'react-to-print';
-import type { Construction } from '../../../types';
+import type { Construction, Employee } from '../../../types';
 import FilterListIcon from '@mui/icons-material/FilterList';
-import BaseDialog from '../../../components/BaseDialog';
+import { FiltersDialog } from './HoursTableDialogs';
 
 dayjs.extend(isoWeek);
 dayjs.extend(isBetween);
@@ -55,12 +51,10 @@ interface HoursTableControlsProps {
   onTableDelete?: () => void;
   tableBorder: string;
   contentRef: React.RefObject<HTMLDivElement | null>;
-  allConstructions: Construction[];
-  availableConstructions: Construction[];
-  selectedConstructions: string[];
-  onSelectedConstructionsChange: (constructionIds: string[]) => void;
-  handleSelectAll: () => void;
-  handleDeselectAll: () => void;
+  selectedConstructions: Construction[];
+  onSelectedConstructionsChange: (constructions: Construction[]) => void;
+  selectedEmployees: Employee[];
+  onSelectedEmployeesChange: (employees: Employee[]) => void;
   handleCancelEdit: () => Promise<void>;
   handleFillWithSchedule: () => Promise<void>;
 }
@@ -80,11 +74,10 @@ const HoursTableControls = ({
   isCoping,
   tableBorder,
   contentRef,
-  availableConstructions,
   selectedConstructions,
   onSelectedConstructionsChange,
-  handleDeselectAll,
-  handleSelectAll,
+  selectedEmployees,
+  onSelectedEmployeesChange,
   handleCancelEdit,
   handleFillWithSchedule,
 }: HoursTableControlsProps) => {
@@ -97,18 +90,6 @@ const HoursTableControls = ({
   };
   const handleCloseMobileMenu = () => {
     setAnchorEl(null);
-  };
-
-  const selectedConstructionObjects = availableConstructions.filter(
-    (construction) => selectedConstructions.includes(construction.id)
-  );
-
-  const handleChange = (
-    _: React.SyntheticEvent<Element, Event>,
-    newValue: Construction[]
-  ) => {
-    const newIds = newValue.map((construction) => construction.id);
-    onSelectedConstructionsChange(newIds);
   };
 
   const reactToPrintFn = useReactToPrint({
@@ -228,7 +209,7 @@ const HoursTableControls = ({
             }}
             disableRipple
           >
-            {`Filtry (${selectedConstructions.length})`}
+            {`Filtry (${selectedConstructions.length + selectedEmployees.length})`}
           </MenuItem>
           <MenuItem
             key={7}
@@ -367,7 +348,9 @@ const HoursTableControls = ({
               <Tooltip title="Filtry">
                 <Badge
                   color="primary"
-                  badgeContent={selectedConstructions.length}
+                  badgeContent={
+                    selectedConstructions.length + selectedEmployees.length
+                  }
                 >
                   <IconButton
                     size="small"
@@ -477,44 +460,14 @@ const HoursTableControls = ({
         </Stack>
       </Box>
 
-      <BaseDialog
-        open={isFilterOpen}
+      <FiltersDialog
+        isOpen={isFilterOpen}
         onClose={() => setIsFilterOpen(false)}
-        title="Filtr budów"
-        showConfirm={false}
-        actions={
-          <Stack direction="row" spacing={1}>
-            <Button onClick={handleSelectAll}>Wszystkie</Button>
-            <Button onClick={handleDeselectAll}>Wyczyść</Button>
-          </Stack>
-        }
-      >
-        <Typography sx={{ mb: 2 }} component={'div'} variant="caption">
-          {`Wybrane: ${selectedConstructions.length} z ${availableConstructions.length}`}
-        </Typography>
-        <FormControl sx={{ width: '100%', maxWidth: '100%' }}>
-          <Autocomplete
-            size="small"
-            multiple
-            options={availableConstructions}
-            disableCloseOnSelect
-            getOptionLabel={(option) => option.name}
-            value={selectedConstructionObjects}
-            onChange={handleChange}
-            isOptionEqualToValue={(option, value) => option.id === value.id}
-            renderOption={(props, option, { selected }) => {
-              const { key, ...optionProps } = props;
-              return (
-                <li key={key} {...optionProps}>
-                  <Checkbox checked={selected} />
-                  {option.name}
-                </li>
-              );
-            }}
-            renderInput={(params) => <TextField {...params} label="Budowy" />}
-          />
-        </FormControl>
-      </BaseDialog>
+        onSelectedConstructionsChange={onSelectedConstructionsChange}
+        selectedEmployees={selectedEmployees}
+        onSelectedEmployeesChange={onSelectedEmployeesChange}
+        selectedConstructions={selectedConstructions}
+      />
     </>
   );
 };

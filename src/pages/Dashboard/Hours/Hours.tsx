@@ -4,7 +4,6 @@ import HoursTable from './HoursTable';
 import { Add, Print, Summarize } from '@mui/icons-material';
 import { PrintReportDialog } from './HoursTableDialogs';
 import type { ConstructionsWithWorkHours } from './useHoursTable';
-import type { Construction } from '../../../types';
 import { useReactToPrint } from 'react-to-print';
 import { MultiTablePrintReport } from './PrintReport';
 import usePrintShortcut from '../../../hooks/usePrintShortcut';
@@ -15,8 +14,6 @@ export interface TableData {
   constructionsWithWorkHours: ConstructionsWithWorkHours[];
   weekDates: Date[];
   totalHoursData: { dailyTotals: number[]; grandTotal: number };
-  selectedConstructions: string[];
-  availableConstructions: Construction[];
 }
 
 const Hours: React.FC = () => {
@@ -87,52 +84,6 @@ const Hours: React.FC = () => {
         </Button>,
       ]}
     >
-      {/* <Stack
-        mb={3}
-        direction={{ xs: 'column', sm: 'row' }}
-        spacing={3}
-        sx={{
-          justifyContent: 'space-between',
-          alignItems: { xs: 'flex-start', sm: 'center' },
-          rowGap: 2,
-        }}
-      >
-        <Typography
-          variant="h4"
-          className="text-2xl font-medium md:text-3xl"
-          sx={{ flexShrink: { xs: 1, sm: 0 } }}
-        >
-          Ewidencja godzin pracy
-        </Typography>
-        <Stack
-          direction={'row'}
-          spacing={2}
-          alignItems={'center'}
-          justifyContent={'flex-end'}
-          flexWrap={'wrap'}
-          sx={{ rowGap: 1 }}
-        >
-          <Button
-            onClick={reactToPrintFn}
-            startIcon={<Print />}
-            variant="contained"
-            sx={{
-              flexGrow: 0,
-            }}
-          >
-            Drukuj
-          </Button>
-          <Button
-            onClick={() => setPrintReportDialogOpen(true)}
-            startIcon={<Summarize />}
-            variant="contained"
-            sx={{ flexGrow: 0, whiteSpace: 'nowrap' }}
-          >
-            Generuj raport
-          </Button>
-        </Stack>
-      </Stack> */}
-
       <Stack direction="column" spacing={6}>
         <HoursTable
           readOnly={false}

@@ -24,6 +24,7 @@ import {
 import useWeekReport from './useWeeksReport';
 import { getReporTranslations, type LangCode } from './reportTranslations';
 import type { TableData } from './Hours';
+import type { Construction, Employee } from '../../../types';
 
 dayjs.extend(isoWeek);
 dayjs.extend(isBetween);
@@ -343,7 +344,8 @@ interface PrintReportProps {
   omitEmpty?: boolean;
   showVacation?: boolean;
   lang?: LangCode;
-  selectedConstructions?: string[];
+  selectedConstructions?: Construction[];
+  selectedEmployees?: Employee[];
 }
 
 export const PrintReport = forwardRef<HTMLDivElement, PrintReportProps>(
@@ -358,6 +360,7 @@ export const PrintReport = forwardRef<HTMLDivElement, PrintReportProps>(
       showVacation,
       lang = 'pl-PL',
       selectedConstructions = [],
+      selectedEmployees = []
     },
     ref
   ) => {
@@ -368,6 +371,7 @@ export const PrintReport = forwardRef<HTMLDivElement, PrintReportProps>(
     const { weeksData, isLoading, error } = useWeekReport({
       weekStarts: weeks,
       selectedConstructions,
+      selectedEmployees
     });
 
     const translations = getReporTranslations(lang);

@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
-import type { WorkHours } from '../../../types';
+import type { Construction, Employee, WorkHours } from '../../../types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getEmployeeList } from '../../../api/employees';
 import { getConstructionList } from '../../../api/constructions';
@@ -30,10 +30,12 @@ dayjs.extend(isBetween);
 export interface ConstructionsWithWorkHours {
   id: string;
   name: string;
+  isActive: boolean;
   workHours: {
     id: string;
     employeeId: string;
     employeeName: string;
+    isActive: boolean;
     hours: number[];
     total: number;
     isOnVacation: boolean[];
@@ -51,9 +53,11 @@ const useHoursTable = (startWeek?: Date) => {
   const [localWorkHours, setLocalWorkHours] = useState<WorkHours[]>([]);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
-  const [selectedConstructions, setSelectedConstructions] = useState<string[]>(
-    []
-  );
+  const [selectedConstructions, setSelectedConstructions] = useState<
+    Construction[]
+  >([]);
+
+  const [selectedEmployees, setSelectedEmployees] = useState<Employee[]>([]);
 
   useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
@@ -97,18 +101,35 @@ const useHoursTable = (startWeek?: Date) => {
     };
   }, [hasUnsavedChanges]);
 
-  const onSelectedConstructionsChange = (constructionIds: string[]) => {
-    setSelectedConstructions(constructionIds);
+  const onSelectedConstructionsChange = (constructions: Construction[]) => {
+    setSelectedConstructions(constructions);
   };
 
-  const handleSelectAll = () => {
-    const allConstructionIds = availableConstructions.map((c) => c.id);
-    setSelectedConstructions(allConstructionIds);
+  // const handleSelectAllConstructions = () => {
+  //   if(!constructions) return
+  //   // const allConstructionIds = constructions.map((c) => c.id);
+  //   // if(!constructions) return
+  //   setSelectedConstructions(constructions);
+  // };
+
+  // const handleDeselectAllConstructions = () => {
+  //   setSelectedConstructions([]);
+  // };
+
+  const onSelectedEmployeesChange = (employees: Employee[]) => {
+    setSelectedEmployees(employees);
   };
 
-  const handleDeselectAll = () => {
-    setSelectedConstructions([]);
-  };
+  // const handleSelectAllEmployees = () => {
+  //   if(!employees) return
+  //   // const allConstructionIds = employees.map((c) => c.id);
+  //   // if(!constructions) return
+  //   setSelectedEmployees(employees);
+  // };
+
+  // const handleDeselectAllEmployees = () => {
+  //   setSelectedEmployees([]);
+  // };
 
   useEffect(() => {
     if (startWeek) setCurrentWeek(startWeek);
@@ -134,7 +155,7 @@ const useHoursTable = (startWeek?: Date) => {
     isLoading: employeesLoading,
     error: employeesError,
   } = useQuery({
-    queryKey: ['employees', false],
+    queryKey: ['employees'],
     queryFn: () => getEmployeeList(),
   });
 
@@ -310,27 +331,14 @@ const useHoursTable = (startWeek?: Date) => {
       const DEFAULT_HOURS = 10;
 
       schedules.forEach((schedule) => {
-        const {
-          employeeId,
-          employeeName: scheduleEmployeeName,
-          constructions: scheduleConstructions,
-        } = schedule;
-        const constructionDays = new Map<
-          string,
-          { days: number[]; constructionName: string }
-        >();
+        const { employeeId, constructions: scheduleConstructions } = schedule;
+        const constructionDays = new Map<string, { days: number[] }>();
 
-        scheduleConstructions.forEach((constructionObj, dayIndex) => {
-          if (constructionObj && constructionObj.constructionId) {
-            const {
-              constructionId,
-              constructionName: scheduleConstructionName,
-            } = constructionObj;
-
+        scheduleConstructions?.forEach((constructionId, dayIndex) => {
+          if (constructionId) {
             if (!constructionDays.has(constructionId)) {
               constructionDays.set(constructionId, {
                 days: [],
-                constructionName: scheduleConstructionName,
               });
             }
 
@@ -339,15 +347,13 @@ const useHoursTable = (startWeek?: Date) => {
         });
 
         const employee = employees?.find((e) => e.id === employeeId);
-        const employeeName =
-          employee?.name || scheduleEmployeeName || 'Nieznany pracownik';
+        const employeeName = employee?.name || 'Nieznany pracownik';
 
         constructionDays.forEach((value, constructionId) => {
           const construction = constructions?.find(
             (c) => c.id === constructionId
           );
-          const constructionName =
-            construction?.name || value.constructionName || 'Nieznana budowa';
+          const constructionName = construction?.name || 'Nieznana budowa';
 
           const hours = Array(7).fill(0);
 
@@ -634,16 +640,31 @@ const useHoursTable = (startWeek?: Date) => {
     if (!displayedWorkHours)
       return { dailyTotals: [0, 0, 0, 0, 0, 0, 0], grandTotal: 0 };
 
+    const selectedEmployeeIds = selectedEmployees.map((emp) => emp.id);
+    const selectedConstructionIds = selectedConstructions.map(
+      (construction) => construction.id
+    );
+
+    const filteredWorkHours = displayedWorkHours.filter((workHour) => {
+      const employeeMatch =
+        selectedEmployees.length === 0 ||
+        selectedEmployeeIds.includes(workHour.employeeId);
+
+      const constructionMatch =
+        selectedConstructions.length === 0 ||
+        selectedConstructionIds.includes(workHour.constructionId);
+
+      return employeeMatch && constructionMatch;
+    });
+
     const dailyTotals = [0, 0, 0, 0, 0, 0, 0];
     let grandTotal = 0;
     const weekDates = getWeekDates(currentWeek);
 
-    displayedWorkHours.forEach((workHour) => {
+    filteredWorkHours.forEach((workHour) => {
       workHour.hours.forEach((hours, dayIndex) => {
         const parsedHours = Number(hours);
-
         const numericHours = isNaN(parsedHours) ? 0 : parsedHours;
-
         const date = weekDates[dayIndex];
 
         if (!isEmployeeOnVacation(workHour.employeeId, date)) {
@@ -654,16 +675,33 @@ const useHoursTable = (startWeek?: Date) => {
     });
 
     return { dailyTotals, grandTotal };
-  }, [displayedWorkHours, vacations, currentWeek]);
+  }, [
+    displayedWorkHours,
+    vacations,
+    currentWeek,
+    selectedEmployees,
+    selectedConstructions,
+  ]);
 
   const constructionsWithWorkHours = useMemo(() => {
     if (!displayedWorkHours || !constructions || !employees) return [];
 
     const constructionMap = new Map<string, ConstructionsWithWorkHours>();
-
     const weekDates = getWeekDates(currentWeek);
 
+    const selectedEmployeeIds = selectedEmployees.map((emp) => emp.id);
+    const selectedConstructionIds = selectedConstructions.map(
+      (construction) => construction.id
+    );
+
     displayedWorkHours.forEach((workHour) => {
+      if (
+        selectedEmployees.length > 0 &&
+        !selectedEmployeeIds.includes(workHour.employeeId)
+      ) {
+        return;
+      }
+
       const construction = constructions.find(
         (c) => c.id === workHour.constructionId
       );
@@ -686,6 +724,7 @@ const useHoursTable = (startWeek?: Date) => {
         constructionMap.set(workHour.constructionId, {
           id: workHour.constructionId,
           name: constructionName,
+          isActive: !construction?.endDate,
           workHours: [],
           totalHours: 0,
         });
@@ -709,6 +748,7 @@ const useHoursTable = (startWeek?: Date) => {
         id: workHour.id,
         employeeId: workHour.employeeId,
         employeeName: employeeName,
+        isActive: employee?.status ?? false,
         hours: numericHours,
         total: employeeTotalHours,
         isOnVacation,
@@ -718,13 +758,15 @@ const useHoursTable = (startWeek?: Date) => {
     });
 
     const constructionArray = Array.from(constructionMap.values());
-    if (selectedConstructions.length === 0) {
-      return constructionArray;
-    } else {
-      return constructionArray.filter((construction) =>
-        selectedConstructions.includes(construction.id)
+
+    let filteredConstructions = constructionArray;
+    if (selectedConstructions.length > 0) {
+      filteredConstructions = constructionArray.filter((construction) =>
+        selectedConstructionIds.includes(construction.id)
       );
     }
+
+    return filteredConstructions;
   }, [
     displayedWorkHours,
     constructions,
@@ -732,42 +774,21 @@ const useHoursTable = (startWeek?: Date) => {
     vacations,
     currentWeek,
     selectedConstructions,
+    selectedEmployees,
   ]);
 
-  const availableConstructions = useMemo(() => {
-    if (!displayedWorkHours || !constructions) return [];
-
-    const constructionIdsInWorkHours = new Set(
-      displayedWorkHours.map((wh) => wh.constructionId)
+  const getAvailableConstructions = useCallback(() => {
+    const existingConstructionIds = constructionsWithWorkHours.map(
+      (construction) => construction.id
     );
-
-    return constructions.filter((construction) =>
-      constructionIdsInWorkHours.has(construction.id)
+    return (
+      constructions?.filter(
+        (construction) =>
+          !existingConstructionIds.includes(construction.id) &&
+          !construction.endDate
+      ) || []
     );
-  }, [displayedWorkHours, constructions]);
-
-  useEffect(() => {
-    setSelectedConstructions([]);
-  }, [currentWeek]);
-
-  const existingConstructionIds = useMemo(() => {
-    return constructionsWithWorkHours.map((construction) => construction.id);
-  }, [constructionsWithWorkHours]);
-
-  const getExistingEmployeeIdsForConstruction = useMemo(() => {
-    const constructionMap = new Map<string, string[]>();
-
-    constructionsWithWorkHours.forEach((construction) => {
-      const employeeIds = construction.workHours.map(
-        (workHour) => workHour.employeeId
-      );
-      constructionMap.set(construction.id, employeeIds);
-    });
-
-    return (constructionId: string) => {
-      return constructionMap.get(constructionId) || [];
-    };
-  }, [constructionsWithWorkHours]);
+  }, [constructions, constructionsWithWorkHours]);
 
   const isLoading =
     employeesLoading ||
@@ -779,11 +800,37 @@ const useHoursTable = (startWeek?: Date) => {
 
   const weekDates = getWeekDates(currentWeek);
 
+  const getAvailableEmployeesForConstruction = useCallback(
+    (constructionId: string) => {
+      if (!employees || !constructionId) return [];
+
+      const constructionWithWorkHours = constructionsWithWorkHours.find(
+        (c) => c.id === constructionId
+      );
+
+      if (!constructionWithWorkHours) return [];
+
+      const activeEmployees =
+        employees?.filter((employee) => employee.status) ?? [];
+
+      const existingEmployeeIds = constructionWithWorkHours.workHours.map(
+        (workHour) => workHour.employeeId
+      );
+
+      const availableEmployees = activeEmployees.filter(
+        (employee) => !existingEmployeeIds.includes(employee.id)
+      );
+
+      return availableEmployees;
+    },
+    [employees, constructionsWithWorkHours]
+  );
+
   return {
     isLoading,
     loadingError,
-    getExistingEmployeeIdsForConstruction,
-    existingConstructionIds,
+    // getExistingEmployeeIdsForConstruction,
+    // existingConstructionIds,
     totalHoursData,
     handleEmployeeAdded,
     handleDeleteConstruction,
@@ -807,14 +854,15 @@ const useHoursTable = (startWeek?: Date) => {
     onSelectedConstructionForEmployeeChange,
     onSelectedConstructionsChange,
     selectedConstructions,
-    availableConstructions,
-    handleSelectAll,
-    handleDeselectAll,
     handleFillWithSchedule,
     isFilling: fillWithScheduleMutation.isPending,
     hasUnsavedChanges,
     isSaving: saveWorkHoursMutation.isPending,
     handleCancelEdit,
+    selectedEmployees,
+    onSelectedEmployeesChange,
+    getAvailableEmployeesForConstruction,
+    getAvailableConstructions,
   };
 };
 
