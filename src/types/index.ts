@@ -96,9 +96,7 @@ export type File = FileItem | FolderItem;
 export interface WorkHours {
   id: string;
   constructionId: string;
-  constructionName: string;
   employeeId: string;
-  employeeName: string;
   weekStart: Date;
   hours: number[];
 }

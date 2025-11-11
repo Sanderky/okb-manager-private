@@ -141,6 +141,15 @@ const useWeekReport = ({
         let grandTotal = 0;
 
         filteredWorkHours.forEach((workHour) => {
+          const construction = constructions?.find(
+            (c) => c.id === workHour.constructionId
+          );
+          const employee = employees?.find((e) => e.id === workHour.employeeId);
+
+          if (!construction || !employee) {
+            return;
+          }
+
           workHour.hours.forEach((hours, dayIndex) => {
             const parsedHours = Number(hours);
             const numericHours = isNaN(parsedHours) ? 0 : parsedHours;
@@ -167,45 +176,47 @@ const useWeekReport = ({
           );
           const employee = employees.find((e) => e.id === workHour.employeeId);
 
-          if (construction && employee) {
-            if (!constructionMap.has(construction.id)) {
-              constructionMap.set(construction.id, {
-                id: construction.id,
-                name: construction.name,
-                isActive: !construction.endDate,
-                workHours: [],
-                totalHours: 0,
-              });
-            }
-
-            const constructionData = constructionMap.get(construction.id)!;
-            const numericHours = workHour.hours.map((h) =>
-              typeof h === 'string' ? parseFloat(h as string) || 0 : h
-            );
-
-            const isOnVacation = weekDates.map((date) =>
-              isEmployeeOnVacation(workHour.employeeId, date)
-            );
-
-            const employeeTotalHours = numericHours.reduce(
-              (sum, current, index) => {
-                return isOnVacation[index] ? sum : sum + current;
-              },
-              0
-            );
-
-            constructionData.workHours.push({
-              id: workHour.id,
-              employeeId: workHour.employeeId,
-              employeeName: employee.name,
-              hours: numericHours,
-              isActive: employee.status ?? false,
-              total: employeeTotalHours,
-              isOnVacation,
-            });
-
-            constructionData.totalHours += employeeTotalHours;
+          if (!construction || !employee) {
+            return;
           }
+
+          if (!constructionMap.has(construction.id)) {
+            constructionMap.set(construction.id, {
+              id: construction.id,
+              name: construction.name,
+              isActive: !construction.endDate,
+              workHours: [],
+              totalHours: 0,
+            });
+          }
+
+          const constructionData = constructionMap.get(construction.id)!;
+          const numericHours = workHour.hours.map((h) =>
+            typeof h === 'string' ? parseFloat(h as string) || 0 : h
+          );
+
+          const isOnVacation = weekDates.map((date) =>
+            isEmployeeOnVacation(workHour.employeeId, date)
+          );
+
+          const employeeTotalHours = numericHours.reduce(
+            (sum, current, index) => {
+              return isOnVacation[index] ? sum : sum + current;
+            },
+            0
+          );
+
+          constructionData.workHours.push({
+            id: workHour.id,
+            employeeId: workHour.employeeId,
+            employeeName: employee.name,
+            hours: numericHours,
+            isActive: employee.status ?? false,
+            total: employeeTotalHours,
+            isOnVacation,
+          });
+
+          constructionData.totalHours += employeeTotalHours;
         });
 
         return Array.from(constructionMap.values());

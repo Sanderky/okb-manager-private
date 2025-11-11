@@ -224,24 +224,24 @@ const useHoursTable = (startWeek?: Date) => {
     mutationFn: async (sourceWeek: Date) => {
       const sourceWorkHours = await getWorkHoursList(sourceWeek);
 
-      const newWorkHours: WorkHours[] = sourceWorkHours.map((sourceWh) => {
-        const construction = constructions?.find(
-          (c) => c.id === sourceWh.constructionId
-        );
-        const employee = employees?.find((e) => e.id === sourceWh.employeeId);
+      const newWorkHours: WorkHours[] = sourceWorkHours
+        .map((sourceWh) => {
+          const construction = constructions?.find(
+            (c) => c.id === sourceWh.constructionId
+          );
+          const employee = employees?.find((e) => e.id === sourceWh.employeeId);
 
-        return {
-          ...sourceWh,
-          id: `${sourceWh.constructionId}_${sourceWh.employeeId}_${currentWeek.getTime()}`,
-          weekStart: currentWeek,
-          constructionName:
-            construction?.name ||
-            sourceWh.constructionName ||
-            'Nieznana budowa',
-          employeeName:
-            employee?.name || sourceWh.employeeName || 'Nieznany pracownik',
-        };
-      });
+          if (!construction || !employee) {
+            return null;
+          }
+
+          return {
+            ...sourceWh,
+            id: `${sourceWh.constructionId}_${sourceWh.employeeId}_${currentWeek.getTime()}`,
+            weekStart: currentWeek,
+          };
+        })
+        .filter(Boolean) as WorkHours[];
 
       return newWorkHours;
     },
@@ -309,10 +309,23 @@ const useHoursTable = (startWeek?: Date) => {
 
       schedules.forEach((schedule) => {
         const { employeeId, constructions: scheduleConstructions } = schedule;
+
+        const employee = employees?.find((e) => e.id === employeeId);
+        if (!employee) {
+          return;
+        }
+
         const constructionDays = new Map<string, { days: number[] }>();
 
         scheduleConstructions?.forEach((constructionId, dayIndex) => {
           if (constructionId) {
+            const construction = constructions?.find(
+              (c) => c.id === constructionId
+            );
+            if (!construction) {
+              return;
+            }
+
             if (!constructionDays.has(constructionId)) {
               constructionDays.set(constructionId, {
                 days: [],
@@ -323,14 +336,13 @@ const useHoursTable = (startWeek?: Date) => {
           }
         });
 
-        const employee = employees?.find((e) => e.id === employeeId);
-        const employeeName = employee?.name || 'Nieznany pracownik';
-
         constructionDays.forEach((value, constructionId) => {
           const construction = constructions?.find(
             (c) => c.id === constructionId
           );
-          const constructionName = construction?.name || 'Nieznana budowa';
+          if (!construction) {
+            return;
+          }
 
           const hours = Array(7).fill(0);
 
@@ -342,9 +354,7 @@ const useHoursTable = (startWeek?: Date) => {
           newWorkHours.push({
             id: workHoursId,
             constructionId,
-            constructionName,
             employeeId,
-            employeeName,
             hours,
             weekStart: currentWeek,
           });
@@ -426,8 +436,8 @@ const useHoursTable = (startWeek?: Date) => {
   };
 
   const onSelectedConstructionForEmployeeChange = (constructionId: string) => {
-    const construction = constructions?.find(c => c.id === constructionId)
-    if(construction) setSelectedConstructionForEmployee(construction);
+    const construction = constructions?.find((c) => c.id === constructionId);
+    if (construction) setSelectedConstructionForEmployee(construction);
   };
 
   const handleToggleEditMode = async (editModeVal?: boolean) => {
@@ -632,7 +642,17 @@ const useHoursTable = (startWeek?: Date) => {
         selectedConstructions.length === 0 ||
         selectedConstructionIds.includes(workHour.constructionId);
 
-      return employeeMatch && constructionMatch;
+      const constructionExists =
+        constructions?.some((c) => c.id === workHour.constructionId) ?? true;
+      const employeeExists =
+        employees?.some((e) => e.id === workHour.employeeId) ?? true;
+
+      return (
+        employeeMatch &&
+        constructionMatch &&
+        constructionExists &&
+        employeeExists
+      );
     });
 
     const dailyTotals = [0, 0, 0, 0, 0, 0, 0];
@@ -655,6 +675,8 @@ const useHoursTable = (startWeek?: Date) => {
     return { dailyTotals, grandTotal };
   }, [
     displayedWorkHours,
+    constructions,
+    employees,
     vacations,
     currentWeek,
     selectedEmployees,
@@ -683,20 +705,14 @@ const useHoursTable = (startWeek?: Date) => {
       const construction = constructions.find(
         (c) => c.id === workHour.constructionId
       );
-      const constructionName =
-        construction?.name || workHour.constructionName || 'Nieznana budowa';
-
       const employee = employees.find((e) => e.id === workHour.employeeId);
-      const employeeName =
-        employee?.name || workHour.employeeName || 'Nieznany pracownik';
 
-      if (!construction && !workHour.constructionName) {
+      if (!construction || !employee) {
         return;
       }
 
-      if (!employee && !workHour.employeeName) {
-        return;
-      }
+      const constructionName = construction.name;
+      const employeeName = employee.name;
 
       if (!constructionMap.has(workHour.constructionId)) {
         constructionMap.set(workHour.constructionId, {
@@ -751,8 +767,8 @@ const useHoursTable = (startWeek?: Date) => {
     employees,
     vacations,
     currentWeek,
-    selectedConstructions,
     selectedEmployees,
+    selectedConstructions,
   ]);
 
   const getAvailableConstructions = useCallback(() => {
@@ -769,9 +785,8 @@ const useHoursTable = (startWeek?: Date) => {
   }, [constructions, constructionsWithWorkHours]);
 
   const getActiveEmployees = useCallback(() => {
-  return employees?.filter((e) => e.status) ?? [];
-
-  },[employees])
+    return employees?.filter((e) => e.status) ?? [];
+  }, [employees]);
 
   const isLoading =
     employeesLoading ||
@@ -842,7 +857,7 @@ const useHoursTable = (startWeek?: Date) => {
     onSelectedEmployeesChange,
     getAvailableEmployeesForConstruction,
     getAvailableConstructions,
-    getActiveEmployees
+    getActiveEmployees,
   };
 };
 
