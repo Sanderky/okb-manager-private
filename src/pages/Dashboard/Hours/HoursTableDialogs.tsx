@@ -62,16 +62,9 @@ export const AddConstructionWithEmployeeDialog: React.FC<
   const handleAdd = () => {
     if (!selectedConstruction || !selectedEmployee) return;
 
-    const construction = availableConstructions?.find(
-      (c) => c.id === selectedConstruction
-    );
-    const employee = employees?.find((e) => e.id === selectedEmployee);
-
     const workHoursData: Omit<WorkHours, 'id'> = {
       constructionId: selectedConstruction,
-      constructionName: construction?.name || 'Nieznana budowa',
       employeeId: selectedEmployee,
-      employeeName: employee?.name || 'Nieznany pracownik',
       weekStart: currentWeek,
       hours: [0, 0, 0, 0, 0, 0, 0],
     };
@@ -168,13 +161,9 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
   const handleAdd = () => {
     if (!selectedEmployee || !selectedConstruction) return;
 
-    const employee = availableEmployees?.find((e) => e.id === selectedEmployee);
-
     const workHoursData: Omit<WorkHours, 'id'> = {
       constructionId: selectedConstruction.id,
-      constructionName: selectedConstruction.name || 'Nieznana budowa',
       employeeId: selectedEmployee,
-      employeeName: employee?.name || 'Nieznany pracownik',
       weekStart: currentWeek,
       hours: [0, 0, 0, 0, 0, 0, 0],
     };
