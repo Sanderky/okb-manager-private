@@ -33,46 +33,55 @@ import type { HomeDocument } from '../../../types';
 interface CountCardProps {
   data: number;
   title: string;
+  tooltipTitle: string;
   onClick?: () => void;
   icon?: React.ReactNode;
 }
 
-const CountCard = ({ data, title, onClick, icon }: CountCardProps) => {
+const CountCard = ({
+  data,
+  title,
+  onClick,
+  icon,
+  tooltipTitle,
+}: CountCardProps) => {
   return (
-    <Card
-      variant="outlined"
-      sx={{
-        borderRadius: '20px',
-        p: 2,
-        width: '250px',
-        transition: 'box-shadow 0.2s ease-in-out',
-        '&:hover': {
-          boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.1)',
-        },
-        cursor: 'pointer',
-      }}
-      onClick={onClick}
-    >
-      <Stack direction="row" sx={{ alignItems: 'center' }} spacing={2}>
-        <Stack direction={'row'} spacing={0.5}>
-          {icon && icon}
+    <Tooltip title={tooltipTitle}>
+      <Card
+        variant="outlined"
+        sx={{
+          borderRadius: '20px',
+          p: 2,
+          width: '250px',
+          transition: 'border 0.2s ease-in-out',
+          '&:hover': {
+            border: '1px solid #000',
+          },
+          cursor: 'pointer',
+        }}
+        onClick={onClick}
+      >
+        <Stack direction="row" sx={{ alignItems: 'center' }} spacing={2}>
+          <Stack direction={'row'} spacing={0.5}>
+            {icon && icon}
+            <Typography
+              gutterBottom
+              variant="h5"
+              component="div"
+              sx={{ p: 0, m: 0, lineHeight: 1 }}
+            >
+              {title}
+            </Typography>
+          </Stack>
           <Typography
-            gutterBottom
-            variant="h5"
-            component="div"
-            sx={{ p: 0, m: 0, lineHeight: 1 }}
+            variant="body1"
+            sx={{ color: '#ffd85f', fontSize: '2rem', lineHeight: 1 }}
           >
-            {title}
+            {data ?? '-'}
           </Typography>
         </Stack>
-        <Typography
-          variant="body1"
-          sx={{ color: '#ffd85f', fontSize: '2rem', lineHeight: 1 }}
-        >
-          {data ?? '-'}
-        </Typography>
-      </Stack>
-    </Card>
+      </Card>
+    </Tooltip>
   );
 };
 
@@ -96,31 +105,34 @@ const EmployeeAlerts = () => {
           </Stack>
         ) : (
           alerts.map((alert) => (
-            <ListItem
-              key={alert.id}
-              onClick={() => navigate(`/employees/${alert.employeeId}`)}
-              sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                cursor: 'pointer',
-                borderRadius: '4px',
-                borderLeft:
-                  alert.severity === 'warning'
-                    ? '8px #ffa503 solid'
-                    : '8px #ff4858 solid',
-                alignItems: 'flex-start',
-                background: alert.severity === 'error' ? '#ffe0e3' : '#ffdb9b',
-                mb: 2,
-                '&:hover': {
+            <Tooltip title="Przejdź do pracownika aby wyświetlić szczegóły">
+              <ListItem
+                key={alert.id}
+                onClick={() => navigate(`/employees/${alert.employeeId}`)}
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  cursor: 'pointer',
+                  borderRadius: '4px',
+                  borderLeft:
+                    alert.severity === 'warning'
+                      ? '8px #ffa503 solid'
+                      : '8px #ff4858 solid',
+                  alignItems: 'flex-start',
                   background:
-                    alert.severity === 'warning' ? '#ffa503' : '#ff4858',
-                },
-                transition: 'background 0.2s ease-in-out',
-              }}
-            >
-              <Typography variant="subtitle2">{alert.title}</Typography>
-              <Typography variant="body2">{alert.message}</Typography>
-            </ListItem>
+                    alert.severity === 'error' ? '#ffe0e3' : '#ffdb9b',
+                  mb: 2,
+                  '&:hover': {
+                    background:
+                      alert.severity === 'warning' ? '#ffa503' : '#ff4858',
+                  },
+                  transition: 'background 0.2s ease-in-out',
+                }}
+              >
+                <Typography variant="subtitle2">{alert.title}</Typography>
+                <Typography variant="body2">{alert.message}</Typography>
+              </ListItem>
+            </Tooltip>
           ))
         )}
       </List>
@@ -314,12 +326,14 @@ const Home = () => {
           data={employees?.length ?? 0}
           title="Pracownicy:"
           onClick={handleEmployeesClick}
+          tooltipTitle="Przejdź do listy pracowników"
         />
         <CountCard
           icon={<Construction />}
           data={constructions?.filter((c) => !c.endDate).length ?? 0}
           title="Budowy:"
           onClick={handleConstructionsClick}
+          tooltipTitle="Przejdź do listy budów"
         />
       </Stack>
       <EmployeeAlerts />
