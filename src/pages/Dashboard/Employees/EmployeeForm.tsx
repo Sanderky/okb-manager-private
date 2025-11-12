@@ -16,7 +16,6 @@ import type {
   FileItem,
 } from '../../../types';
 import Alert from '@mui/material/Alert';
-import DoneAllOutlinedIcon from '@mui/icons-material/DoneAllOutlined';
 import {
   Checkbox,
   Divider,
@@ -29,7 +28,7 @@ import {
   Typography,
 } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
-import { FileUpload } from '@mui/icons-material';
+import { CheckCircleOutline, FileUpload } from '@mui/icons-material';
 import AttachmentBox from './AttachmentBox';
 import { PreviewDialog } from '../../../components/fileBrowser/FilePreviewDialog';
 import type { FileStateMap } from './EmployeeEdit';
@@ -669,7 +668,7 @@ export default function EmployeeForm(props: EmployeeFormProps) {
         >
           <Button
             variant="contained"
-            startIcon={<DoneAllOutlinedIcon />}
+            startIcon={<CheckCircleOutline/>}
             type="submit"
             disabled={isFormLoading}
           >
