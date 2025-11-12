@@ -24,6 +24,7 @@ import {
   Stack,
 } from '@mui/material';
 import dayjs, { Dayjs } from 'dayjs';
+import weekOfYear from 'dayjs/plugin/weekOfYear';
 import 'dayjs/locale/pl';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getEmployeeList } from '../../../api/employees';
@@ -54,6 +55,8 @@ import PageContainer from '../../../components/PageContainer';
 import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
 import KeyboardReturnIcon from '@mui/icons-material/KeyboardReturn';
 import InfoOutlineIcon from '@mui/icons-material/InfoOutline';
+
+dayjs.extend(weekOfYear);
 
 type SchedulePayload = Omit<Schedule, 'id'> & {
   id?: string;
