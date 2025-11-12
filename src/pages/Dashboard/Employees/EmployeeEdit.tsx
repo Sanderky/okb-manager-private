@@ -368,12 +368,10 @@ export default function EmployeeEdit() {
                   color={'warning'}
                   sx={{ minWidth: 120 }}
                   onClick={() => handleEmployeeStatus(false)}
-                  disabled={isFormLoading}
+                  loading={isFormLoading}
                   startIcon={<ArchiveIcon />}
                 >
-                  {isUpdatingEmployeeStatus
-                    ? 'Archiwizowanie...'
-                    : 'Archiwizuj'}
+                  Archiwizuj
                 </Button>
               </Stack>
             ) : (
@@ -398,10 +396,10 @@ export default function EmployeeEdit() {
                   color={'success'}
                   sx={{ minWidth: 120 }}
                   onClick={() => handleEmployeeStatus(true)}
-                  disabled={isFormLoading}
+                  loading={isFormLoading}
                   startIcon={<UnarchiveIcon />}
                 >
-                  {isUpdatingEmployeeStatus ? 'Aktywacja...' : 'Aktywuj'}
+                  Aktywuj
                 </Button>
               </Stack>
             )}
@@ -427,10 +425,10 @@ export default function EmployeeEdit() {
                 color="error"
                 sx={{ minWidth: 120 }}
                 onClick={handleDeleteClick}
-                disabled={isFormLoading}
+                loading={isFormLoading || isDeleting}
                 startIcon={<HighlightOffIcon />}
               >
-                {isDeleting ? 'Usuwanie...' : 'Usuń'}
+                Usuń
               </Button>
             </Stack>
           </Grid>
@@ -513,26 +511,32 @@ export default function EmployeeEdit() {
       actions={
         <Stack direction="row" alignItems="center">
           {!error ? (
-            isLoading || isFormLoading ? (
-              <Loading size={24} message="" />
-            ) : (
-              <Chip
-                label={employee?.status ? 'Aktywny' : 'Nieaktywny'}
-                className={
-                  employee?.status
+            <Chip
+              label={
+                isLoading || isFormLoading ? (
+                  <Loading size={20} message="" />
+                ) : employee?.status ? (
+                  'Aktywny'
+                ) : (
+                  'Nieaktywny'
+                )
+              }
+              className={
+                isLoading || isFormLoading
+                  ? 'bg-gray-300/50 text-gray-600'
+                  : employee?.status
                     ? 'bg-green-300/50 text-green-600'
                     : 'bg-red-300/50 text-red-600'
-                }
-                variant="filled"
-                sx={{
-                  borderRadius: 1,
-                  p: 0.5,
-                  ml: 2,
-                  textTransform: 'uppercase',
-                  fontWeight: 600,
-                }}
-              />
-            )
+              }
+              variant="filled"
+              sx={{
+                borderRadius: 1,
+                p: 0.5,
+                ml: 2,
+                textTransform: 'uppercase',
+                fontWeight: 600,
+              }}
+            />
           ) : null}
         </Stack>
       }

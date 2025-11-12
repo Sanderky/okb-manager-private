@@ -76,7 +76,6 @@ export async function getEmployeeList(activeOnly = false): Promise<Employee[]> {
     return {
       ...data,
       id: doc.id,
-      name: data.name ?? '',
       birthDate: data.birthDate?.toDate() ?? null,
       contractStartDate: data.contractStartDate?.toDate() ?? null,
       contractEndDate: data.contractEndDate?.toDate() ?? null,
@@ -96,7 +95,6 @@ export async function getEmployee(id: string): Promise<Employee | null> {
     return {
       ...data,
       id: employeeDoc.id,
-      name: data.name ?? '',
       birthDate: data.birthDate?.toDate() ?? null,
       contractStartDate: data.contractStartDate?.toDate() ?? null,
       contractEndDate: data.contractEndDate?.toDate() ?? null,

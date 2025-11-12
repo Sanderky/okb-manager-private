@@ -55,8 +55,6 @@ import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
 import KeyboardReturnIcon from '@mui/icons-material/KeyboardReturn';
 import InfoOutlineIcon from '@mui/icons-material/InfoOutline';
 
-// dayjs.locale('pl');
-
 type SchedulePayload = Omit<Schedule, 'id'> & {
   id?: string;
 };
@@ -104,14 +102,13 @@ const ScheduleComponent = () => {
 
   usePrintShortcut(handlePrint);
 
+  // Optymalizacja: Zapisz do localStorage tylko gdy wartości się zmieniają
   useEffect(() => {
     localStorage.setItem('scheduleFromWeek', fromWeek.toISOString());
-  }, [fromWeek]);
-
-  useEffect(() => {
     localStorage.setItem('scheduleToWeek', toWeek.toISOString());
-  }, [toWeek]);
+  }, [fromWeek, toWeek]);
 
+  // Optymalizacja: Pobierz tylko aktywne dane
   const {
     data: employees = [],
     isLoading: isLoadingEmployees,
@@ -148,7 +145,6 @@ const ScheduleComponent = () => {
     queryFn: getScheduleList,
   });
 
-  // Funkcja do generowania unikalnego klucza dla komórki
   const getCellKey = useCallback((cell: ICell): string => {
     return `${cell.empId}-${cell.weekKey}-${cell.date.format('YYYY-MM-DD')}-${cell.isWeek}`;
   }, []);
@@ -185,14 +181,11 @@ const ScheduleComponent = () => {
 
   const filteredEmployees = useMemo(() => {
     if (!selectedEmployees.length) {
-      if (showInactive) {
-        return employees;
-      } else {
-        return employees.filter((emp) => emp.status);
-      }
+      return showInactive ? employees : employees.filter((emp) => emp.status);
     }
     const ids = new Set(selectedEmployees.map((e) => e.id));
-    return employees.filter((e) => ids.has(e.id));
+    const filtered = employees.filter((e) => ids.has(e.id));
+    return showInactive ? filtered : filtered.filter((emp) => emp.status);
   }, [employees, selectedEmployees, showInactive]);
 
   const saveScheduleToDatabase = useCallback(
@@ -203,7 +196,6 @@ const ScheduleComponent = () => {
       existing: Schedule | null,
       cellKey: string
     ) => {
-      // Ustaw ładowanie dla konkretnej komórki
       setLoadingCells((prev) => new Set(prev).add(cellKey));
 
       try {
@@ -215,8 +207,10 @@ const ScheduleComponent = () => {
         };
 
         await updateScheduleMutation.mutateAsync(scheduleData);
+      } catch (error) {
+        console.error('Error saving schedule:', error);
+        throw error; // Przekaż błąd dalej
       } finally {
-        // Zatrzymaj ładowanie dla konkretnej komórki
         setLoadingCells((prev) => {
           const newSet = new Set(prev);
           newSet.delete(cellKey);
@@ -236,7 +230,7 @@ const ScheduleComponent = () => {
       cell: ICell
     ) => {
       const cellKey = getCellKey(cell);
-      const startOfWeek = date.isoWeekday(1);
+      const startOfWeek = date.startOf('week'); // Poprawione: użyj startOf('week')
       const weekStartDate = startOfWeek.toDate();
 
       const existingSchedule = getScheduleByEmployeeAndWeek(
@@ -254,7 +248,7 @@ const ScheduleComponent = () => {
             (v) => v.employeeId === empId && day.isSame(dayjs(v.date), 'day')
           );
 
-          if (i === 6) return null;
+          if (i === 6) return null; // Niedziela zawsze pusta
 
           return isVacation ? null : (value?.id ?? null);
         });
@@ -265,7 +259,6 @@ const ScheduleComponent = () => {
         newConstructions = [...existingIds];
 
         const dayOfWeek = date.day();
-
         const index = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
 
         const isVacation = vacations?.some(
@@ -308,13 +301,13 @@ const ScheduleComponent = () => {
     [vacations]
   );
 
-  const handleCellMenuClose = () => {
+  const handleCellMenuClose = useCallback(() => {
     if (cellAnchorEl) {
-      cellAnchorEl.style = '';
+      cellAnchorEl.style.backgroundColor = '';
     }
     setCellAnchorEl(null);
     setActiveCell(null);
-  };
+  }, [cellAnchorEl]);
 
   const openCellMenu = Boolean(cellAnchorEl);
 
@@ -331,11 +324,10 @@ const ScheduleComponent = () => {
       );
 
       if (!isWeek) {
-        const dayIndex = dayjs(date).diff(weekStart, 'day');
+        const dayIndex = date.diff(weekStart, 'day'); // Poprawione: użyj bezpośrednio date
         const constructionId = schedule?.constructions?.[dayIndex];
         const isVacation = vacations?.some(
-          (v) =>
-            v.employeeId === empId && dayjs(date).isSame(dayjs(v.date), 'day')
+          (v) => v.employeeId === empId && date.isSame(dayjs(v.date), 'day')
         );
 
         if (isVacation) {
@@ -357,6 +349,7 @@ const ScheduleComponent = () => {
         );
       }
 
+      // Logika dla komórek tygodnia pozostaje bez zmian
       const weekData = Array.from({ length: 7 }, (_, i) => {
         const day = weekStart.add(i, 'day');
         const constructionId = schedule?.constructions?.[i];

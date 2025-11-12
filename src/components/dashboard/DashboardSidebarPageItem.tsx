@@ -127,7 +127,7 @@ export default function DashboardSidebarPageItem({
             height: mini ? 50 : 'auto',
             // bgcolor: selected ? '#ffd85f !important' : 'inherit',
           }}
-          className={`${selected ? '!important bg-yellow-400/25 text-yellow-600' : 'hover:bg-blue-50'} `}
+          className={`${selected ? '!important bg-yellow-300/35 text-yellow-700' : 'hover:bg-yellow-200/35'} `}
           {...(nestedNavigation && !mini
             ? {
                 onClick: handleClick,

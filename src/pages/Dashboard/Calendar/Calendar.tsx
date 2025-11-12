@@ -60,6 +60,7 @@ const Calendar: React.FC = () => {
   const notifications = useNotifications();
   const queryClient = useQueryClient();
 
+  // Hook do ładowania akcji
   const {
     loading: actionLoading,
     startLoading: startActionLoading,
@@ -75,15 +76,13 @@ const Calendar: React.FC = () => {
     queryFn: () => getEmployeeList(),
   });
 
-  // OPTYMALIZACJA: Pobieranie urlopów tylko dla istniejących pracowników
   const {
     data: vacations = [],
     isLoading: isLoadingVacations,
     isError: isErrorVacations,
   } = useQuery<Vacation[], Error>({
-    queryKey: ['vacations', employees.length],
-    queryFn: () => getVacationList(employees),
-    enabled: employees.length > 0, // Tylko jeśli mamy pracowników
+    queryKey: ['vacations'],
+    queryFn: getVacationList,
   });
 
   const { mutate: addMutation, isPending: isAdding } = useMutation({
@@ -321,21 +320,8 @@ const Calendar: React.FC = () => {
 
     const { employee, startDate, endDate } = currentEvent;
 
-    // Sprawdź czy wybrano pracownika
-    if (!employee?.id) {
-      setValidationError('Wybierz pracownika');
-      return;
-    }
-
-    // Sprawdź czy pracownik istnieje na liście
-    const employeeExists = employees.some((emp) => emp.id === employee.id);
-    if (!employeeExists) {
-      setValidationError('Wybrany pracownik nie istnieje');
-      return;
-    }
-
     const validation = validateVacation(
-      employee.id,
+      employee?.id || '',
       startDate,
       endDate,
       vacations
@@ -384,6 +370,7 @@ const Calendar: React.FC = () => {
     setCurrentEvent(ev);
   }, []);
 
+  // Agregacja stanów ładowania i błędów
   const error = isErrorEmployees || isErrorVacations;
   const loading = isLoadingEmployees || isLoadingVacations;
 
@@ -504,7 +491,7 @@ const Calendar: React.FC = () => {
           handleModalClose={handleModalClose}
           handleDeleteEvent={handleDeleteEvent}
           loading={actionLoading || isDeleting}
-          onEventClick={handleEventClick}
+          onEventClick={handleEventClick} // DODAJ TEN PROP
         />
 
         <VacationReportDialog

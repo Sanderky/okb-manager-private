@@ -391,7 +391,7 @@ export default function EmployeeShow() {
                 spacing={{ xs: 1.5, sm: 3 }}
                 sx={{ pl: 1 }}
               >
-                <Tooltip title="Edytuj budowę">
+                <Tooltip title="Edytuj pracownika">
                   <IconButton
                     onClick={handleEmployeeEdit}
                     color="primary"

@@ -1,3 +1,4 @@
+// api/vacations.ts
 import {
   collection,
   getDocs,
@@ -88,26 +89,18 @@ export async function removeVacation(id: string) {
   await Promise.all(batchDeletions);
 }
 
-export async function getVacationList(employees?: any[]): Promise<Vacation[]> {
+export async function getVacationList(): Promise<Vacation[]> {
   const vacationSnapshot = await getDocs(collection(db, 'vacations'));
-  const vacations = vacationSnapshot.docs.map((doc) => {
+  return vacationSnapshot.docs.map((doc) => {
     const data = doc.data();
     return {
       id: doc.id,
       ...data,
       date: (data.date as Timestamp).toDate(),
-      startDate: (data.startDate as Timestamp)?.toDate(),
-      endDate: (data.endDate as Timestamp)?.toDate(),
+      startDate: (data.startDate as Timestamp).toDate(),
+      endDate: (data.endDate as Timestamp).toDate(),
     } as Vacation;
   });
-
-  // Filtruj urlopie dla których istnieją pracownicy
-  if (employees && employees.length > 0) {
-    const employeeIds = new Set(employees.map((emp) => emp.id));
-    return vacations.filter((vacation) => employeeIds.has(vacation.employeeId));
-  }
-
-  return vacations;
 }
 
 export async function getVacation(id: string): Promise<Vacation | null> {
@@ -118,19 +111,19 @@ export async function getVacation(id: string): Promise<Vacation | null> {
       id: vacationDoc.id,
       ...data,
       date: (data.date as Timestamp).toDate(),
-      startDate: (data.startDate as Timestamp)?.toDate(),
-      endDate: (data.endDate as Timestamp)?.toDate(),
+      startDate: (data.startDate as Timestamp).toDate(),
+      endDate: (data.endDate as Timestamp).toDate(),
     } as Vacation;
   }
   return null;
 }
 
 export async function getVacationListForMonths(
-  monthKeys: string[],
-  employees?: any[]
+  monthKeys: string[]
 ): Promise<Vacation[]> {
   if (!monthKeys.length) return [];
 
+  // Firestore 'in' obsługuje max 10 elementów
   const chunks = [];
   for (let i = 0; i < monthKeys.length; i += 10) {
     chunks.push(monthKeys.slice(i, i + 10));
@@ -150,35 +143,19 @@ export async function getVacationListForMonths(
         id: doc.id,
         ...data,
         date: (data.date as Timestamp).toDate(),
-        startDate: (data.startDate as Timestamp)?.toDate(),
-        endDate: (data.endDate as Timestamp)?.toDate(),
+        startDate: (data.startDate as Timestamp).toDate(),
+        endDate: (data.endDate as Timestamp).toDate(),
       } as Vacation;
     });
     allVacations.push(...chunkVacations);
-  }
-
-  // Filtruj urlopie dla których istnieją pracownicy
-  if (employees && employees.length > 0) {
-    const employeeIds = new Set(employees.map((emp) => emp.id));
-    return allVacations.filter((vacation) =>
-      employeeIds.has(vacation.employeeId)
-    );
   }
 
   return allVacations;
 }
 
 export const getUpcomingVacationsForEmployee = async (
-  employeeId: string,
-  employees?: any[]
+  employeeId: string
 ): Promise<Vacation[]> => {
-  if (employees && employees.length > 0) {
-    const employeeExists = employees.some((emp) => emp.id === employeeId);
-    if (!employeeExists) {
-      return [];
-    }
-  }
-
   const now = dayjs();
   const oneMonthFromNow = now.add(1, 'month').endOf('day');
 
@@ -191,7 +168,7 @@ export const getUpcomingVacationsForEmployee = async (
     monthKeys.push(monthKey);
   }
 
-  const vacations = await getVacationListForMonths(monthKeys, employees);
+  const vacations = await getVacationListForMonths(monthKeys);
 
   const employeeVacations = vacations.filter(
     (vacation) => vacation.employeeId === employeeId
