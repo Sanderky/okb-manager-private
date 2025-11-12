@@ -10,7 +10,7 @@ import {
   DialogTitle,
   Snackbar,
   TextField,
-  CircularProgress,
+  Button,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { getRules, validateField } from './validation';
@@ -127,26 +127,17 @@ const ForgotPassword = ({ open, handleClose }: ForgotPasswordProps) => {
           </DialogContent>
           <DialogActions className="mr-4 mb-4 font-semibold">
             {!actionLoading && (
-              <button
-                type="button"
+              <Button
                 onClick={handleClose}
-                className="mr-4 cursor-pointer rounded-xl hover:underline"
-                disabled={actionLoading}
+                loading={actionLoading}
+                color="inherit"
               >
                 {t('login.forgotPassword.cancelButton')}
-              </button>
+              </Button>
             )}
-            <button
-              type="submit"
-              className="flex cursor-pointer items-center justify-center rounded-lg border border-indigo-500 px-5 py-2 text-indigo-500 hover:bg-indigo-500 hover:text-white disabled:opacity-50"
-              disabled={actionLoading}
-            >
-              {actionLoading ? (
-                <CircularProgress size={20} />
-              ) : (
-                t('login.forgotPassword.continueButton')
-              )}
-            </button>
+            <Button type="submit" loading={actionLoading} variant="contained">
+              {t('login.forgotPassword.continueButton')}
+            </Button>
           </DialogActions>
         </form>
       </Dialog>

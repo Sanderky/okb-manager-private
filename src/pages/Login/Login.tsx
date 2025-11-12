@@ -7,7 +7,7 @@ import {
 } from 'firebase/auth';
 import { auth } from '../../firebase';
 import TextField from '@mui/material/TextField';
-import { Alert, CircularProgress } from '@mui/material';
+import { Alert, Button, Typography } from '@mui/material';
 import ForgotPassword from './ForgotPassword';
 import { getRules, validateField } from './validation';
 import { useAuth } from '../../context/AuthContext';
@@ -108,10 +108,21 @@ const Login = () => {
           <div className="relative w-full rounded-lg bg-white p-6 shadow sm:max-w-md">
             <h1 className="text-dark absolute -top-8 left-1/2 mb-6 inline-flex -translate-x-1/2 flex-row items-end justify-center rounded-lg bg-white/50 px-4 py-2 font-medium shadow">
               <LogoIcon className="text-4xl" />
-              <span className="text-darkYellow text-4xl text-shadow-sm/20">
+              <Typography
+                component={'span'}
+                className="text-4xl font-medium text-shadow-sm/20"
+                sx={(theme) => ({
+                  color: theme.palette.secondary.main,
+                })}
+              >
                 OKB
-              </span>
-              <span className="text-2xl underline">manager</span>
+              </Typography>
+              <Typography
+                component={'span'}
+                className="text-2xl font-medium underline"
+              >
+                manager
+              </Typography>
             </h1>
             <h2 className="text-dark mt-6 mb-8 text-xl">
               Zaloguj się do swojego konta
@@ -164,22 +175,40 @@ const Login = () => {
               )}
 
               <div>
-                <a
-                  href="#"
-                  className="text-md font-semibold text-indigo-500 hover:underline"
+                <Button
                   onClick={() => setForgotOpen(true)}
+                  variant="text"
+                  sx={(theme) => ({
+                    color: theme.palette.primary.main,
+                    p: 0,
+                    '&:hover': {
+                      textDecoration: 'underline',
+                      background: 'transparent',
+                    },
+                  })}
                 >
                   Nie pamiętasz hasła?
-                </a>
+                </Button>
               </div>
 
-              <button
+              <Button
                 type="submit"
-                className="hover:bg-darkYellow border-darkGray flex w-full cursor-pointer items-center justify-center rounded-lg border px-6 py-3 disabled:opacity-50"
-                disabled={actionLoading}
+                loading={actionLoading}
+                variant="contained"
+                sx={(theme) => ({
+                  width: '100%',
+                  border: `1px solid darkGray`,
+                  background: '#fff',
+                  color: theme.palette.text.primary,
+                  py: 1.5,
+                  '&:hover': {
+                    boxShadow: 'none',
+                    background: theme.palette.secondary.main,
+                  },
+                })}
               >
-                {actionLoading ? <CircularProgress size={24} /> : 'Zaloguj się'}
-              </button>
+                Zaloguj się
+              </Button>
             </form>
 
             <ForgotPassword
