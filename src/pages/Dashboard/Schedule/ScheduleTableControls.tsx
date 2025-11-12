@@ -113,23 +113,27 @@ export const TableControls: React.FC<TableControlsProps> = ({
         </Tooltip>
         <Stack direction={'row'} spacing={1}>
           <Stack direction="column" alignItems="center" justifyContent="center">
-            <Switch
-              size="small"
-              checked={showVacations}
-              onChange={(e) => setShowVacations(e.target.checked)}
-              color="primary"
-            />
+            <Tooltip title="Ukrywanie informacji o urlopach">
+              <Switch
+                size="small"
+                checked={showVacations}
+                onChange={(e) => setShowVacations(e.target.checked)}
+                color="primary"
+              />
+            </Tooltip>
             <Typography variant="caption" sx={{ textAlign: 'center' }}>
               Urlopy
             </Typography>
           </Stack>
           <Stack direction="column" alignItems="center" justifyContent="center">
-            <Switch
-              size="small"
-              checked={showDates}
-              onChange={(e) => setShowDates(e.target.checked)}
-              color="primary"
-            />
+            <Tooltip title="Ukrywanie szczegółowych dat">
+              <Switch
+                size="small"
+                checked={showDates}
+                onChange={(e) => setShowDates(e.target.checked)}
+                color="primary"
+              />
+            </Tooltip>
             <Typography variant="caption" sx={{ textAlign: 'center' }}>
               Daty
             </Typography>

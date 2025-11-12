@@ -255,49 +255,55 @@ const HoursTableControls = ({
           mb: 1,
         }}
       >
-        <IconButton
-          size="small"
-          className="rounded-l-lg rounded-r-none border"
-          color="primary"
-          onClick={() => handleWeekChange('prev')}
-          sx={(theme) => ({
-            borderColor: theme.palette.primary.light,
-            '&:hover': {
-              borderColor: theme.palette.primary.main,
-            },
-          })}
-        >
-          <ChevronLeft />
-        </IconButton>
-        <Button
-          variant="outlined"
-          color="primary"
-          className="rounded-none border-x-0"
-          onClick={() => handleWeekChange('current')}
-          sx={(theme) => ({
-            borderColor: theme.palette.primary.light,
-            width: '100%',
-            '&:hover': {
-              borderColor: theme.palette.primary.main,
-            },
-          })}
-        >
-          Dziś
-        </Button>
-        <IconButton
-          size="small"
-          className="rounded-l-none rounded-r-lg border"
-          color="primary"
-          onClick={() => handleWeekChange('next')}
-          sx={(theme) => ({
-            borderColor: theme.palette.primary.light,
-            '&:hover': {
-              borderColor: theme.palette.primary.main,
-            },
-          })}
-        >
-          <ChevronRight />
-        </IconButton>
+        <Tooltip title={'Poprzedni tydzień'}>
+          <IconButton
+            size="small"
+            className="rounded-l-lg rounded-r-none border"
+            color="primary"
+            onClick={() => handleWeekChange('prev')}
+            sx={(theme) => ({
+              borderColor: theme.palette.primary.light,
+              '&:hover': {
+                borderColor: theme.palette.primary.main,
+              },
+            })}
+          >
+            <ChevronLeft />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title={'Obecny tydzień'}>
+          <Button
+            variant="outlined"
+            color="primary"
+            className="rounded-none border-x-0"
+            onClick={() => handleWeekChange('current')}
+            sx={(theme) => ({
+              borderColor: theme.palette.primary.light,
+              width: '100%',
+              '&:hover': {
+                borderColor: theme.palette.primary.main,
+              },
+            })}
+          >
+            Dziś
+          </Button>
+        </Tooltip>
+        <Tooltip title={'Następny tydzień'}>
+          <IconButton
+            size="small"
+            className="rounded-l-none rounded-r-lg border"
+            color="primary"
+            onClick={() => handleWeekChange('next')}
+            sx={(theme) => ({
+              borderColor: theme.palette.primary.light,
+              '&:hover': {
+                borderColor: theme.palette.primary.main,
+              },
+            })}
+          >
+            <ChevronRight />
+          </IconButton>
+        </Tooltip>
       </Stack>
       <Box
         className="border-lightGray mb-2 rounded-lg border bg-gray-50 p-2"
@@ -318,48 +324,54 @@ const HoursTableControls = ({
         >
           <Grid>
             <Stack direction={'row'}>
-              <IconButton
-                size="small"
-                className="rounded-l-lg rounded-r-none border"
-                color="primary"
-                onClick={() => handleWeekChange('prev')}
-                sx={(theme) => ({
-                  borderColor: theme.palette.primary.light,
-                  '&:hover': {
-                    borderColor: theme.palette.primary.main,
-                  },
-                })}
-              >
-                <ChevronLeft />
-              </IconButton>
-              <Button
-                variant="outlined"
-                color="primary"
-                className="rounded-none border-x-0"
-                onClick={() => handleWeekChange('current')}
-                sx={(theme) => ({
-                  borderColor: theme.palette.primary.light,
-                  '&:hover': {
-                    borderColor: theme.palette.primary.main,
-                  },
-                })}
-              >
-                Dziś
-              </Button>
-              <IconButton
-                size="small"
-                className="rounded-l-none rounded-r-lg border"
-                color="primary"
-                onClick={() => handleWeekChange('next')}
-                sx={(theme) => ({
-                  borderColor: theme.palette.primary.light,
-                  '&:hover': {
-                    borderColor: theme.palette.primary.main,
-                  },
-                })}
-              >
-                <ChevronRight />
-              </IconButton>
+              <Tooltip title={'Poprzedni tydzień'}>
+                <IconButton
+                  size="small"
+                  className="rounded-l-lg rounded-r-none border"
+                  color="primary"
+                  onClick={() => handleWeekChange('prev')}
+                  sx={(theme) => ({
+                    borderColor: theme.palette.primary.light,
+                    '&:hover': {
+                      borderColor: theme.palette.primary.main,
+                    },
+                  })}
+                >
+                  <ChevronLeft />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title={'Obecny tydzień'}>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  className="rounded-none border-x-0"
+                  onClick={() => handleWeekChange('current')}
+                  sx={(theme) => ({
+                    borderColor: theme.palette.primary.light,
+                    '&:hover': {
+                      borderColor: theme.palette.primary.main,
+                    },
+                  })}
+                >
+                  Dziś
+                </Button>
+              </Tooltip>
+              <Tooltip title={'Następny tydzień'}>
+                <IconButton
+                  size="small"
+                  className="rounded-l-none rounded-r-lg border"
+                  color="primary"
+                  onClick={() => handleWeekChange('next')}
+                  sx={(theme) => ({
+                    borderColor: theme.palette.primary.light,
+                    '&:hover': {
+                      borderColor: theme.palette.primary.main,
+                    },
+                  })}
+                >
+                  <ChevronRight />
+                </IconButton>
+              </Tooltip>
             </Stack>
           </Grid>
 

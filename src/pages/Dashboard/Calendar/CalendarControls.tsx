@@ -43,57 +43,60 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
       }
     >
       <Stack direction={'row'}>
-        <IconButton
-          size="small"
-          className="rounded-l-lg rounded-r-none border"
-          color="primary"
-          onClick={() => handleMonthChange('prev')}
-          sx={(theme) => ({
-            borderColor: theme.palette.primary.light,
-            '&:hover': {
-              borderColor: theme.palette.primary.main,
-            },
-          })}
-        >
-          <ChevronLeft />
-        </IconButton>
-        <Button
-          variant="outlined"
-          className="rounded-none border-x-0"
-          color="primary"
-          onClick={() => handleMonthChange('today')}
-          sx={(theme) => ({
-            borderColor: theme.palette.primary.light,
-            '&:hover': {
-              borderColor: theme.palette.primary.main,
-            },
-          })}
-        >
-          Dziś
-        </Button>
-        <IconButton
-          size="small"
-          color="primary"
-          className="rounded-l-none rounded-r-lg border"
-          onClick={() => handleMonthChange('next')}
-          sx={(theme) => ({
-            borderColor: theme.palette.primary.light,
-            '&:hover': {
-              borderColor: theme.palette.primary.main,
-            },
-          })}
-        >
-          <ChevronRight />
-        </IconButton>
+        <Tooltip title={'Poprzedni miesiąc'}>
+          <IconButton
+            size="small"
+            className="rounded-l-lg rounded-r-none border"
+            color="primary"
+            onClick={() => handleMonthChange('prev')}
+            sx={(theme) => ({
+              borderColor: theme.palette.primary.light,
+              '&:hover': {
+                borderColor: theme.palette.primary.main,
+              },
+            })}
+          >
+            <ChevronLeft />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title={'Obecy miesiąc'}>
+          <Button
+            variant="outlined"
+            className="rounded-none border-x-0"
+            color="primary"
+            onClick={() => handleMonthChange('today')}
+            sx={(theme) => ({
+              borderColor: theme.palette.primary.light,
+              '&:hover': {
+                borderColor: theme.palette.primary.main,
+              },
+            })}
+          >
+            Dziś
+          </Button>
+        </Tooltip>
+        <Tooltip title={'Następny miesiąc'}>
+          <IconButton
+            size="small"
+            color="primary"
+            className="rounded-l-none rounded-r-lg border"
+            onClick={() => handleMonthChange('next')}
+            sx={(theme) => ({
+              borderColor: theme.palette.primary.light,
+              '&:hover': {
+                borderColor: theme.palette.primary.main,
+              },
+            })}
+          >
+            <ChevronRight />
+          </IconButton>
+        </Tooltip>
       </Stack>
 
       <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pl">
         <DatePicker
           openTo="month"
           views={['year', 'month']}
-          // slotProps={{
-          //   textField: { size: 'small' },
-          // }}
           sx={(theme) => ({
             minWidth: 200,
             '& .MuiPickersSectionList-root': {
