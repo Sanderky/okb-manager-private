@@ -55,6 +55,9 @@ const customTheme = createTheme({
           boxShadow: 'none',
           borderRadius: '8px',
           textTransform: 'none',
+          '&:hover': {
+            boxShadow: 'none',
+          }
         },
       },
     },
