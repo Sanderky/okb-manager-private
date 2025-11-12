@@ -553,7 +553,7 @@ const ScheduleComponent = () => {
                           },
                         }}
                       >
-                        <InfoOutlineIcon color="primary" />
+                        <InfoOutlineIcon />
                       </Tooltip>
                     </TableCell>
 

@@ -425,7 +425,10 @@ const HoursTableControls = ({
           </Grid>
 
           <Grid display={'flex'} alignItems="center">
-            <Typography component={'div'} variant="body1">
+            <Typography
+              textTransform={'capitalize'}
+              className="rounded-full border border-gray-700 px-3 py-1 font-semibold"
+            >
               Tydzień {dayjs(currentWeek).isoWeek()}
             </Typography>
           </Grid>

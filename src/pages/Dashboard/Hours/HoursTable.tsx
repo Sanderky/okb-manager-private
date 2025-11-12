@@ -12,7 +12,7 @@ import {
   Typography,
   CircularProgress,
   Tooltip,
-  Collapse,
+  Collapse
 } from '@mui/material';
 import {
   Add,
@@ -47,7 +47,7 @@ const numberCellMaxWidth = '20px';
 const numberCellPadding = 0.5;
 const redAlert = 'bg-red-300';
 const orangeAlert = 'bg-amber-300';
-const sumColor = 'oklch(0.707 0.165 254.624)';
+// const sumColor = 'oklch(0.707 0.165 254.624)';
 const tableBorder = '1px solid rgb(224, 224, 224)';
 
 interface TableRowsProps {
@@ -329,12 +329,11 @@ const TableRows = ({
             </TableCell>
             <TableCell
               align="center"
+              className='bg-blue-200'
               sx={{
-                color: '#fff',
                 borderBottom: borderBold,
                 p: 0.5,
                 fontWeight: 'bold',
-                backgroundColor: sumColor,
               }}
             >
               {formatToPolishDecimal(construction.totalHours)}
