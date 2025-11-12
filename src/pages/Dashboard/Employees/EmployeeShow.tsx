@@ -344,7 +344,7 @@ export default function EmployeeShow() {
             Nie znaleziono pracownika. Mógł zostać usunięty lub nie istnieje.
           </Alert>
           <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
-            <Button variant="contained" onClick={handleBack}>
+            <Button color="inherit" variant="contained" onClick={handleBack}>
               Wróć
             </Button>
           </Stack>
@@ -395,7 +395,8 @@ export default function EmployeeShow() {
                   <IconButton
                     onClick={handleEmployeeEdit}
                     color="primary"
-                    className="rounded-full border border-blue-300"
+                    className="rounded-full border"
+                    size="small"
                   >
                     <EditIcon />
                   </IconButton>
@@ -496,6 +497,7 @@ export default function EmployeeShow() {
                           <Tooltip title="Zapisz notatkę">
                             <IconButton
                               onClick={handleSaveNote}
+                              size="small"
                               color="success"
                               className="rounded-full border border-green-500 bg-green-50/50"
                               disabled={actionLoading || !editNote}
@@ -506,13 +508,14 @@ export default function EmployeeShow() {
                         )}
                         <Tooltip title={editNote ? 'Anuluj' : 'Edytuj notatkę'}>
                           <IconButton
+                            size="small"
                             onClick={
                               editNote
                                 ? handleCancelEdit
                                 : () => setEditNote(true)
                             }
                             color={!editNote ? 'primary' : 'inherit'}
-                            className={`rounded-lg border ${editNote ? 'border-red-500 bg-red-50/50' : 'border-blue-500'}`}
+                            className={`rounded-lg border ${editNote ? 'border-red-500 bg-red-50/50' : ''}`}
                           >
                             {editNote ? (
                               <CloseIcon className="text-red-400" />

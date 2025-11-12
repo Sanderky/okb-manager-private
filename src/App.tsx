@@ -1,5 +1,10 @@
 import CssBaseline from '@mui/material/CssBaseline';
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  Navigate,
+} from 'react-router-dom';
 import DashboardLayout from './components/dashboard/DashboardLayout';
 import Login from './pages/Login/Login';
 import { AuthProvider } from './context/AuthContext';
@@ -20,32 +25,39 @@ import Hours from './pages/Dashboard/Hours/Hours';
 import Schedule from './pages/Dashboard/Schedule/Schedule';
 import useEmployeesAlert from './hooks/useEmployeeAlert';
 import PageNotFound from './pages/PageNotFound/PageNotFound';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 
-// import AppTheme from './theme/AppTheme';
-// import {
-//   dataGridCustomizations,
-//   datePickersCustomizations,
-//   sidebarCustomizations,
-//   formInputCustomizations,
-// } from './theme/customizations';
-
-// const themeComponents = {
-//   ...dataGridCustomizations,
-//   ...datePickersCustomizations,
-//   ...sidebarCustomizations,
-//   ...formInputCustomizations,
-// };
+const customTheme = createTheme({
+  palette: {
+    primary: {
+      main: '#6366F1',
+      light: '#8184F5',
+      dark: '#4548A8',
+      contrastText: '#FFFFFF',
+    },
+  },
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          boxShadow: 'none',
+          borderRadius: '8px',
+          textTransform: 'none',
+        },
+      },
+    },
+  },
+});
 
 export default function App() {
-
-  useEmployeesAlert()
+  useEmployeesAlert();
 
   return (
     <AuthProvider>
-      {/* <AppTheme {...props} themeComponents={themeComponents}> */}
-      <CssBaseline enableColorScheme />
-      <NotificationsProvider>
-        <DialogsProvider>
+      <ThemeProvider theme={customTheme}>
+        <CssBaseline enableColorScheme />
+        <NotificationsProvider>
+          <DialogsProvider>
             <Router>
               <Routes>
                 <Route path="/login" element={<Login />} />
@@ -62,8 +74,14 @@ export default function App() {
                       path="employees/:employeeId/edit"
                       element={<EmployeeEdit />}
                     />
-                    <Route path="employees/create" element={<EmployeeCreate />} />
-                    <Route path="constructions" element={<ConstructionsList />} />
+                    <Route
+                      path="employees/create"
+                      element={<EmployeeCreate />}
+                    />
+                    <Route
+                      path="constructions"
+                      element={<ConstructionsList />}
+                    />
                     <Route
                       path="constructions/:constructionId"
                       element={<ConstructionShow />}
@@ -84,9 +102,9 @@ export default function App() {
                 </Route>
               </Routes>
             </Router>
-        </DialogsProvider>
-      </NotificationsProvider>
-      {/* </AppTheme> */}
+          </DialogsProvider>
+        </NotificationsProvider>
+      </ThemeProvider>
     </AuthProvider>
   );
 }

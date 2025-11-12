@@ -449,7 +449,7 @@ export default function EmployeeEdit() {
                 onClick={handleDeleteCancel}
                 variant="outlined"
                 loading={isDeleting}
-                color="primary"
+                color="inherit"
               >
                 Anuluj
               </Button>

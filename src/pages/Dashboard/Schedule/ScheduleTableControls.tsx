@@ -97,8 +97,15 @@ export const TableControls: React.FC<TableControlsProps> = ({
           <Badge badgeContent={selectedEmployees.length} color="primary">
             <IconButton
               size="small"
-              className="rounded-lg border text-blue-500"
+              color="primary"
+              className="rounded-lg border"
               onClick={() => setIsFilterOpen(true)}
+              sx={(theme) => ({
+                borderColor: theme.palette.primary.light,
+                '&:hover': {
+                  borderColor: theme.palette.primary.main,
+                },
+              })}
             >
               <FilterListIcon />
             </IconButton>

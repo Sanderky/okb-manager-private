@@ -257,25 +257,44 @@ const HoursTableControls = ({
       >
         <IconButton
           size="small"
-          className="rounded-l-lg rounded-r-none border text-blue-300"
+          className="rounded-l-lg rounded-r-none border"
+          color="primary"
           onClick={() => handleWeekChange('prev')}
+          sx={(theme) => ({
+            borderColor: theme.palette.primary.light,
+            '&:hover': {
+              borderColor: theme.palette.primary.main,
+            },
+          })}
         >
           <ChevronLeft />
         </IconButton>
         <Button
           variant="outlined"
+          color="primary"
           className="rounded-none border-x-0"
           onClick={() => handleWeekChange('current')}
-          sx={{
+          sx={(theme) => ({
+            borderColor: theme.palette.primary.light,
             width: '100%',
-          }}
+            '&:hover': {
+              borderColor: theme.palette.primary.main,
+            },
+          })}
         >
           Dziś
         </Button>
         <IconButton
           size="small"
-          className="rounded-l-none rounded-r-lg border text-blue-300"
+          className="rounded-l-none rounded-r-lg border"
+          color="primary"
           onClick={() => handleWeekChange('next')}
+          sx={(theme) => ({
+            borderColor: theme.palette.primary.light,
+            '&:hover': {
+              borderColor: theme.palette.primary.main,
+            },
+          })}
         >
           <ChevronRight />
         </IconButton>
@@ -301,22 +320,43 @@ const HoursTableControls = ({
             <Stack direction={'row'}>
               <IconButton
                 size="small"
-                className="rounded-l-lg rounded-r-none border text-blue-300"
+                className="rounded-l-lg rounded-r-none border"
+                color="primary"
                 onClick={() => handleWeekChange('prev')}
+                sx={(theme) => ({
+                  borderColor: theme.palette.primary.light,
+                  '&:hover': {
+                    borderColor: theme.palette.primary.main,
+                  },
+                })}
               >
                 <ChevronLeft />
               </IconButton>
               <Button
                 variant="outlined"
+                color="primary"
                 className="rounded-none border-x-0"
                 onClick={() => handleWeekChange('current')}
+                sx={(theme) => ({
+                  borderColor: theme.palette.primary.light,
+                  '&:hover': {
+                    borderColor: theme.palette.primary.main,
+                  },
+                })}
               >
                 Dziś
               </Button>
               <IconButton
                 size="small"
-                className="rounded-l-none rounded-r-lg border text-blue-300"
+                className="rounded-l-none rounded-r-lg border"
+                color="primary"
                 onClick={() => handleWeekChange('next')}
+                sx={(theme) => ({
+                  borderColor: theme.palette.primary.light,
+                  '&:hover': {
+                    borderColor: theme.palette.primary.main,
+                  },
+                })}
               >
                 <ChevronRight />
               </IconButton>
@@ -354,11 +394,16 @@ const HoursTableControls = ({
                 >
                   <IconButton
                     size="small"
-                    className="rounded-lg border text-blue-500"
+                    className="rounded-lg border"
+                    color="primary"
                     onClick={() => setIsFilterOpen(true)}
-                    sx={{
+                    sx={(theme) => ({
+                      borderColor: theme.palette.primary.light,
                       ml: 1,
-                    }}
+                      '&:hover': {
+                        borderColor: theme.palette.primary.main,
+                      },
+                    })}
                   >
                     <FilterListIcon />
                   </IconButton>

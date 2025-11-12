@@ -45,22 +45,43 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
       <Stack direction={'row'}>
         <IconButton
           size="small"
-          className="rounded-l-lg rounded-r-none border text-blue-600"
+          className="rounded-l-lg rounded-r-none border"
+          color="primary"
           onClick={() => handleMonthChange('prev')}
+          sx={(theme) => ({
+            borderColor: theme.palette.primary.light,
+            '&:hover': {
+              borderColor: theme.palette.primary.main,
+            },
+          })}
         >
           <ChevronLeft />
         </IconButton>
         <Button
           variant="outlined"
-          className="rounded-none border-x-0 border-blue-600 text-blue-600"
+          className="rounded-none border-x-0"
+          color="primary"
           onClick={() => handleMonthChange('today')}
+          sx={(theme) => ({
+            borderColor: theme.palette.primary.light,
+            '&:hover': {
+              borderColor: theme.palette.primary.main,
+            },
+          })}
         >
           Dziś
         </Button>
         <IconButton
           size="small"
-          className="rounded-l-none rounded-r-lg border text-blue-600"
+          color="primary"
+          className="rounded-l-none rounded-r-lg border"
           onClick={() => handleMonthChange('next')}
+          sx={(theme) => ({
+            borderColor: theme.palette.primary.light,
+            '&:hover': {
+              borderColor: theme.palette.primary.main,
+            },
+          })}
         >
           <ChevronRight />
         </IconButton>
@@ -73,26 +94,26 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
           // slotProps={{
           //   textField: { size: 'small' },
           // }}
-          sx={{
+          sx={(theme) => ({
             minWidth: 200,
             '& .MuiPickersSectionList-root': {
               padding: '7px 0',
               width: 'auto',
             },
             '&:hover .MuiPickersOutlinedInput-notchedOutline': {
-              borderColor: '#1976d2 !important',
+              borderColor: `${theme.palette.primary.main} !important`,
             },
             '& .MuiPickersOutlinedInput-notchedOutline': {
-              borderColor: '#1976d2',
+              borderColor: theme.palette.primary.light,
             },
             '& .MuiPickersInputBase-root': {
-              color: '#1976d2',
+              color: theme.palette.primary.main,
               fontWeight: 500,
             },
             '& .MuiButtonBase-root': {
-              color: '#1976d2',
+              color: theme.palette.primary.main,
             },
-          }}
+          })}
           value={currentMonth}
           onChange={handleDatePickerChange}
         />
@@ -101,8 +122,15 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
         <Badge badgeContent={selectedEmployees.length} color="primary">
           <IconButton
             size="small"
-            className="rounded-lg border text-blue-500"
+            color="primary"
+            className="rounded-lg border"
             onClick={() => setIsFilterOpen(true)}
+            sx={(theme) => ({
+              borderColor: theme.palette.primary.light,
+              '&:hover': {
+                borderColor: theme.palette.primary.main,
+              },
+            })}
           >
             <FilterListIcon />
           </IconButton>

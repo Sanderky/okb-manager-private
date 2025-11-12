@@ -8,7 +8,7 @@ import PageContainer from '../../../components/PageContainer';
 import type { Construction } from '../../../types';
 import { createConstruction } from '../../../api/constructions';
 import useNotifications from '../../../hooks/useNotifications/useNotifications';
-import { Box, Typography } from '@mui/material';
+import { Box } from '@mui/material';
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { validate } from './ConstructionHelpers';

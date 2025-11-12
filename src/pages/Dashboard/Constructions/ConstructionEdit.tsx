@@ -287,7 +287,7 @@ export default function ConstructionEdit() {
                 onClick={handleDeleteCancel}
                 variant="outlined"
                 loading={isDeleting}
-                color="primary"
+                color="inherit"
               >
                 Anuluj
               </Button>

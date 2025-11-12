@@ -270,7 +270,7 @@ export default function ConstructionShow() {
             Nie znaleziono budowy. Mogła zostać usunięta lub nie istnieje.
           </Alert>
           <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
-            <Button variant="contained" onClick={handleBack}>
+            <Button variant="contained" onClick={handleBack} color="inherit">
               Wróć
             </Button>
           </Stack>
@@ -321,7 +321,8 @@ export default function ConstructionShow() {
                   <IconButton
                     onClick={handleConstructionEdit}
                     color="primary"
-                    className="rounded-full border border-blue-300"
+                    className="rounded-full border"
+                    size="small"
                   >
                     <EditIcon />
                   </IconButton>
@@ -331,6 +332,7 @@ export default function ConstructionShow() {
                     <IconButton
                       onClick={openEndDialog}
                       color="warning"
+                      size="small"
                       className="rounded-full border border-amber-500 bg-amber-50/50"
                     >
                       <EventAvailableIcon />
@@ -341,6 +343,7 @@ export default function ConstructionShow() {
                     <IconButton
                       onClick={() => setResumeDialogOpen(true)}
                       color="success"
+                      size="small"
                       className="rounded-full border border-green-500 bg-green-50/50"
                     >
                       <EventRepeatIcon />
@@ -499,6 +502,7 @@ export default function ConstructionShow() {
                         {editNote && (
                           <Tooltip title={'Zapisz notatkę'}>
                             <IconButton
+                              size="small"
                               onClick={handleSaveNote}
                               color="success"
                               className="rounded-full border border-green-500 bg-green-50/50"
@@ -510,13 +514,14 @@ export default function ConstructionShow() {
                         )}
                         <Tooltip title={editNote ? 'Anuluj' : 'Edytuj notatkę'}>
                           <IconButton
+                            size="small"
                             onClick={
                               editNote
                                 ? handleCancelEdit
                                 : () => setEditNote(true)
                             }
                             color={!editNote ? 'primary' : 'inherit'}
-                            className={`rounded-lg border ${editNote ? 'border-red-500 bg-red-50/50' : 'border-blue-500'}`}
+                            className={`rounded-lg border ${editNote ? 'border-red-500 bg-red-50/50' : ''}`}
                           >
                             {editNote ? (
                               <CloseIcon className="text-red-400" />

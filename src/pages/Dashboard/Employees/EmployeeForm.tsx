@@ -196,6 +196,7 @@ const AttachmentField = ({
           sx={{ flexWrap: 'wrap' }}
         >
           <Button
+            size="small"
             component="label"
             variant="contained"
             startIcon={<FileUpload />}
@@ -277,7 +278,12 @@ export default function EmployeeForm(props: EmployeeFormProps) {
       type: 'date',
       required: false,
     },
-    { key: 'birthPlace', label: 'Miejsce urodzenia', type: 'text', required: false },
+    {
+      key: 'birthPlace',
+      label: 'Miejsce urodzenia',
+      type: 'text',
+      required: false,
+    },
     { key: 'address', label: 'Adres', type: 'text', required: false },
     { key: 'email', label: 'E-mail', type: 'email', required: false },
     { key: 'phone', label: 'Telefon', type: 'text', required: false },
@@ -683,6 +689,7 @@ export default function EmployeeForm(props: EmployeeFormProps) {
             onClick={handleBack}
             startIcon={<ArrowBackIcon />}
             type="reset"
+            color="inherit"
             disabled={isFormLoading}
           >
             Anuluj

@@ -235,6 +235,7 @@ const Note = () => {
             {editNote && (
               <Tooltip title="Zapisz notatkę">
                 <IconButton
+                  size="small"
                   onClick={handleSaveNote}
                   color="success"
                   className="rounded-full border border-green-500 bg-green-50/50"
@@ -246,6 +247,7 @@ const Note = () => {
             )}
             <Tooltip title={editNote ? 'Anuluj' : 'Edytuj notatkę'}>
               <IconButton
+                size="small"
                 onClick={() => {
                   if (editNote) {
                     handleCancelEdit();
@@ -255,7 +257,7 @@ const Note = () => {
                 }}
                 color={!editNote ? 'primary' : 'inherit'}
                 className={`rounded-lg border ${
-                  editNote ? 'border-red-500 bg-red-50/50' : 'border-blue-500'
+                  editNote ? 'border-red-500 bg-red-50/50' : ''
                 }`}
               >
                 {editNote ? <Close className="text-red-400" /> : <EditNote />}

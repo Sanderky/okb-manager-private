@@ -259,6 +259,7 @@ export default function ConstructionForm(props: ConstructionFormProps) {
             onClick={handleBack}
             startIcon={<ArrowBackIcon />}
             type="reset"
+            color='inherit'
           >
             Anuluj
           </Button>

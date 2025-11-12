@@ -463,6 +463,7 @@ const FirebaseFileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
           startIcon={<FileUpload />}
           sx={{
             display: { xs: 'none', md: 'inline-flex' },
+            height: 'min-content'
           }}
         >
           Prześlij pliki
@@ -706,6 +707,7 @@ const FirebaseFileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
               display: { xs: 'none', sm: 'flex' },
               columnGap: 1,
               flexWrap: 'wrap',
+              alignItems: 'center'
             }}
           >
             {renderToolbarButtons(selectedRows)}
