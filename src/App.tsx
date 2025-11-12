@@ -35,6 +35,18 @@ const customTheme = createTheme({
       dark: '#4548A8',
       contrastText: '#FFFFFF',
     },
+    secondary: {
+      main: '#ffd85f',
+      light: '#FEEA84',
+      dark: '#A16207',
+      contrastText: '#000000',
+    }
+    // secondary: {
+    //   main: 'rgba(253, 224, 71, 0.35)',
+    //   light: 'rgba(254, 234, 132, 0.35)',
+    //   dark: 'rgba(161, 98, 7, 1)',
+    //   contrastText: '#000000',
+    // }
   },
   components: {
     MuiButton: {

@@ -12,7 +12,7 @@ const PageNotFound = () => {
           textAlign={'center'}
           variant="h5"
           component={'div'}
-          sx={{ fontSize: '8rem', fontWeight: 'bold', color: '#ffd85f' }}
+          sx={(theme) => ({ fontSize: '8rem', fontWeight: 'bold', color: theme.palette.secondary.main })}
         >
           404
         </Typography>
@@ -40,10 +40,10 @@ const PageNotFound = () => {
             mt: 3,
           }}
         >
-          <Button variant="outlined" onClick={() => navigate(-1)}>
+          <Button variant="outlined" onClick={() => navigate(-1)} color="inherit">
             Wróć
           </Button>
-          <Button variant="contained" onClick={() => navigate('/home')}>
+          <Button variant="contained" onClick={() => navigate('/home')} color="secondary">
             Strona główna
           </Button>
         </Stack>

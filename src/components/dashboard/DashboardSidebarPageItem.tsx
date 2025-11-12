@@ -123,11 +123,15 @@ export default function DashboardSidebarPageItem({
         <ListItemButton
           selected={selected}
           disabled={disabled}
-          sx={{
+          sx={(theme) => ({
             height: mini ? 50 : 'auto',
-            // bgcolor: selected ? '#ffd85f !important' : 'inherit',
-          }}
-          className={`${selected ? '!important bg-yellow-300/35 text-yellow-700' : 'hover:bg-yellow-200/35'} `}
+            bgcolor: selected ? `${theme.palette.secondary.main} !important` : 'none',
+            '&:hover': {
+            background: selected ? 'none' : theme.palette.secondary.light,
+            },
+            color: selected ? theme.palette.secondary.dark : theme.palette.text.primary,
+          })}
+          // className={`${selected ? '!important bg-yellow-300/35 text-yellow-700' : 'hover:bg-yellow-200/35'} `}
           {...(nestedNavigation && !mini
             ? {
                 onClick: handleClick,

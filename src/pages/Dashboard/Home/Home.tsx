@@ -75,7 +75,7 @@ const CountCard = ({
           </Stack>
           <Typography
             variant="body1"
-            sx={{ color: '#ffd85f', fontSize: '2rem', lineHeight: 1 }}
+            sx={(theme) => ({ color: theme.palette.secondary.main, fontSize: '2rem', lineHeight: 1 })}
           >
             {data ?? '-'}
           </Typography>

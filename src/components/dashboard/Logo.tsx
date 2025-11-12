@@ -1,14 +1,26 @@
 import { default as LogoIcon } from '@mui/icons-material/TokenOutlined';
+import { Typography } from '@mui/material';
 
-export default function SitemarkIcon() {
+export default function Logo() {
   return (
     <h1 className="text-dark inline-flex flex-row items-center justify-center font-medium">
       <LogoIcon className="text-3xl" />
       <div>
-        <span className="text-darkYellow text-3xl text-shadow-sm/20">
+        <Typography
+          component={'span'}
+          className="text-3xl font-medium text-shadow-sm/20"
+          sx={(theme) => ({
+            color: theme.palette.secondary.main,
+          })}
+        >
           OKB
-        </span>
-        <span className="text-xl underline">manager</span>
+        </Typography>
+        <Typography
+          component={'span'}
+          className="text-xl font-medium underline"
+        >
+          manager
+        </Typography>
       </div>
     </h1>
   );
