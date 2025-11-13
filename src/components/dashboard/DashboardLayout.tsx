@@ -92,7 +92,7 @@ export default function DashboardLayout() {
               flexGrow: 1,
               overflowY: 'auto',
             }}
-            className="bg-stone-300/25"
+            className="bg-stone-100"
           >
             <Outlet />
           </Box>

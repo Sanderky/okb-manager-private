@@ -123,8 +123,9 @@ export default function DashboardHeader({
       sx={{
         displayPrint: 'none',
         overflowX: 'hidden',
-        // backgroundColor: '#ffd85f',
+        // backgroundColor: 'transparent',
       }}
+      // className="bg-stone-100"
       // className="bg-darkYellow"
     >
       <Toolbar sx={{ backgroundColor: 'inherit', mx: { xs: -0.75, sm: -1 } }}>
@@ -182,7 +183,11 @@ export default function DashboardHeader({
                   <AccountCircleIcon className="text-dark text-3xl" />
                   <Typography
                     variant="body2"
-                    sx={{ ml: 1, display: { xs: 'none', sm: 'block' }, textTransform: 'none', }}
+                    sx={{
+                      ml: 1,
+                      display: { xs: 'none', sm: 'block' },
+                      textTransform: 'none',
+                    }}
                     className="text-dark font-medium"
                   >
                     {user?.displayName ?? user?.email ?? 'Użytkownik'}

@@ -7,6 +7,7 @@ import Tooltip from '@mui/material/Tooltip';
 import AddIcon from '@mui/icons-material/Add';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import FilterListIcon from '@mui/icons-material/FilterList';
+import WarningIcon from '@mui/icons-material/Warning';
 import { useNavigate } from 'react-router';
 import PageContainer from '../../../components/PageContainer';
 import { getEmployeeList } from '../../../api/employees';
@@ -115,27 +116,6 @@ export default function EmployeeList() {
     queryKey: ['employees'],
     queryFn: () => getEmployeeList(),
   });
-
-  const getEmployeeRowStyle = (employeeId: string) => {
-    const alerts = getEmployeeAlerts(employeeId);
-
-    if (alerts.length === 0) {
-      return {};
-    }
-
-    const hasCriticalAlert = alerts.some((alert) => alert.severity === 'error');
-    const hasWarningAlert = alerts.some(
-      (alert) => alert.severity === 'warning'
-    );
-
-    if (hasCriticalAlert || hasWarningAlert) {
-      return {
-        backgroundColor: '#ffd85f2e',
-      };
-    }
-
-    return {};
-  };
 
   const handleCreateClick = React.useCallback(() => {
     navigate('/employees/create');
@@ -295,6 +275,17 @@ export default function EmployeeList() {
       {
         accessorKey: 'name',
         header: 'Nazwa',
+        Cell: ({ row }) => {
+          const employeeId = row.original.id;
+          const alerts = getEmployeeAlerts(employeeId);
+          const hasAlert = alerts.length > 0;
+
+          return (
+            <Box className={`${hasAlert && 'text-amber-500'}`}>
+              {row.original.name}
+            </Box>
+          );
+        },
       },
       {
         accessorKey: 'email',
@@ -357,7 +348,7 @@ export default function EmployeeList() {
         },
         Cell: ({ cell }) => {
           const value = cell.getValue();
-          if (!value || !dayjs(value).isValid()) return '-';
+          if (!value || !dayjs.isDayjs(value) || !value.isValid()) return '-';
           return dayjs(value).format('DD.MM.YYYY');
         },
         filterFn: dateBetweenFilterFn,
@@ -373,7 +364,7 @@ export default function EmployeeList() {
         },
         Cell: ({ cell }) => {
           const value = cell.getValue();
-          if (!value || !dayjs(value).isValid()) return '-';
+          if (!value || !dayjs.isDayjs(value) || !value.isValid()) return '-';
           return dayjs(value).format('DD.MM.YYYY');
         },
         filterFn: dateBetweenFilterFn,
@@ -389,7 +380,7 @@ export default function EmployeeList() {
         },
         Cell: ({ cell }) => {
           const value = cell.getValue();
-          if (!value || !dayjs(value).isValid()) return '-';
+          if (!value || !dayjs.isDayjs(value) || !value.isValid()) return '-';
           return dayjs(value).format('DD.MM.YYYY');
         },
         filterFn: dateBetweenFilterFn,
@@ -405,7 +396,7 @@ export default function EmployeeList() {
         },
         Cell: ({ cell }) => {
           const value = cell.getValue();
-          if (!value || !dayjs(value).isValid()) return '-';
+          if (!value || !dayjs.isDayjs(value) || !value.isValid()) return '-';
           return dayjs(value).format('DD.MM.YYYY');
         },
         filterFn: dateBetweenFilterFn,
@@ -421,7 +412,7 @@ export default function EmployeeList() {
         },
         Cell: ({ cell }) => {
           const value = cell.getValue();
-          if (!value || !dayjs(value).isValid()) return '-';
+          if (!value || !dayjs.isDayjs(value) || !value.isValid()) return '-';
           return dayjs(value).format('DD.MM.YYYY');
         },
         filterFn: dateBetweenFilterFn,
@@ -566,24 +557,19 @@ export default function EmployeeList() {
         textAlign: 'center',
       },
     },
-    muiTableBodyRowProps: ({ row }) => {
-      const employeeId = row.original.id;
-      const rowStyle = getEmployeeRowStyle(employeeId);
-
-      return {
-        onClick: () => handleRowClick(row),
-        sx: {
-          cursor: 'pointer',
-          ...rowStyle,
-          '&:hover': {
-            background: '#5fadff14 !important',
-          },
-          'td:after': {
-            display: 'none',
-          },
+    muiTableBodyRowProps: ({ row }) => ({
+      onClick: () => handleRowClick(row),
+      sx: {
+        // height: '100%',
+        cursor: 'pointer',
+        '&:hover': {
+          background: '#5fadff14 !important',
         },
-      };
-    },
+        'td:after': {
+          display: 'none',
+        },
+      },
+    }),
     muiTableHeadRowProps: {
       sx: {
         boxShadow: 'none !important',
@@ -595,10 +581,51 @@ export default function EmployeeList() {
       'mrt-row-numbers': {
         muiTableBodyCellProps: {
           align: 'center',
-          sx: { borderLeft: 'none' },
+          sx: {
+            borderLeft: 'none',
+            padding: 0,
+            // height: '100%',
+            // '& .MuiBox-root': {
+            //   height: '100%',
+            // },
+          },
         },
-        size: 50,
+        size: 70,
         enableResizing: false,
+        Cell: ({ row }) => {
+          const employeeId = row.original.id;
+          const alerts = getEmployeeAlerts(employeeId);
+          const hasAlert = alerts.length > 0;
+
+          return (
+            <Box>
+              <Typography
+                // sx={{
+                //   height: '100%',
+                //   display: 'flex',
+                //   alignItems: 'center',
+                //   justifyContent: 'center',
+                // }}
+                className={`${hasAlert && 'text-amber-500'}`}
+              >
+                {row.index + 1}
+              </Typography>
+              {hasAlert && (
+                <Tooltip
+                  title={`Alerty: ${alerts.length}`}
+                  sx={{
+                    position: 'absolute',
+                    right: 5,
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                  }}
+                >
+                  <WarningIcon color="warning" fontSize="small" />
+                </Tooltip>
+              )}
+            </Box>
+          );
+        },
       },
     },
     renderBottomToolbar: ({ table }) => (

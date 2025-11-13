@@ -40,7 +40,7 @@ const customTheme = createTheme({
       light: '#FEEA84',
       dark: '#A16207',
       contrastText: '#000000',
-    }
+    },
     // secondary: {
     //   main: 'rgba(253, 224, 71, 0.35)',
     //   light: 'rgba(254, 234, 132, 0.35)',
@@ -57,7 +57,7 @@ const customTheme = createTheme({
           textTransform: 'none',
           '&:hover': {
             boxShadow: 'none',
-          }
+          },
         },
       },
     },

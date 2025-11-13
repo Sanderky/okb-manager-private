@@ -125,11 +125,15 @@ export default function DashboardSidebarPageItem({
           disabled={disabled}
           sx={(theme) => ({
             height: mini ? 50 : 'auto',
-            bgcolor: selected ? `${theme.palette.secondary.main} !important` : 'none',
+            bgcolor: selected
+              ? `${theme.palette.secondary.main} !important`
+              : 'none',
             '&:hover': {
-            background: selected ? 'none' : theme.palette.secondary.light,
+              background: selected ? 'none' : theme.palette.secondary.light,
             },
-            color: selected ? theme.palette.secondary.dark : theme.palette.text.primary,
+            color: selected
+              ? theme.palette.secondary.dark
+              : theme.palette.text.primary,
           })}
           // className={`${selected ? '!important bg-yellow-300/35 text-yellow-700' : 'hover:bg-yellow-200/35'} `}
           {...(nestedNavigation && !mini
@@ -191,7 +195,7 @@ export default function DashboardSidebarPageItem({
               </ListItemIcon>
               {mini ? (
                 <Typography
-                  variant="caption"
+                  // variant="caption"
                   sx={{
                     position: 'absolute',
                     bottom: -18,
@@ -205,7 +209,7 @@ export default function DashboardSidebarPageItem({
                     textOverflow: 'ellipsis',
                     maxWidth: MINI_DRAWER_WIDTH - 28,
                   }}
-                  textTransform={'uppercase'}
+                  // textTransform={'uppercase'}
                 >
                   {title}
                 </Typography>
