@@ -105,7 +105,7 @@ const EmployeeAlerts = () => {
           </Stack>
         ) : (
           alerts.map((alert) => (
-            <Tooltip title="Przejdź do pracownika aby wyświetlić szczegóły" key={alert.id}>
+            // <Tooltip title="Przejdź do pracownika aby wyświetlić szczegóły" key={alert.id}>
               <ListItem
                 key={alert.id}
                 onClick={() => navigate(`/employees/${alert.employeeId}`)}
@@ -132,7 +132,7 @@ const EmployeeAlerts = () => {
                 <Typography variant="subtitle2">{alert.title}</Typography>
                 <Typography variant="body2">{alert.message}</Typography>
               </ListItem>
-            </Tooltip>
+            // </Tooltip>
           ))
         )}
       </List>
