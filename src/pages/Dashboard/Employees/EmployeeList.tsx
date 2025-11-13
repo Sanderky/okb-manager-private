@@ -461,6 +461,13 @@ export default function EmployeeList() {
       density,
       isLoading: isLoading,
     },
+    muiTableContainerProps: {
+        sx: {
+            '& *': {
+                transition: 'none !important',
+            },
+        },
+    },
     onColumnVisibilityChange: setColumnVisibility,
     onDensityChange: setDensity,
     enableColumnFilters: false,

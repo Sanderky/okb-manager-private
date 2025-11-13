@@ -312,6 +312,13 @@ export default function ConstructionsList() {
         </Tooltip>
       </Stack>
     ),
+    muiTableContainerProps: {
+      sx: {
+        '& *': {
+          transition: 'none !important',
+        },
+      },
+    },
     muiTablePaperProps: {
       sx: {
         boxShadow: 'none',
