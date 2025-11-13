@@ -115,7 +115,7 @@ export const AddConstructionWithEmployeeDialog: React.FC<
             </MenuItem>
           ))}
           {availableConstructions.length === 0 && (
-            <MenuItem disabled>
+            <MenuItem disabled key={"noConstructions"}>
               Wszystkie budowy są już dodane do tabeli
             </MenuItem>
           )}
@@ -209,7 +209,7 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
             </MenuItem>
           ))}
           {availableEmployees.length === 0 && (
-            <MenuItem disabled>
+            <MenuItem disabled key={'noEmployees'}>
               Wszyscy pracownicy są już dodani do tej budowy
             </MenuItem>
           )}

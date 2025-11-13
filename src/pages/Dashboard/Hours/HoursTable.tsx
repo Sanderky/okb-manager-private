@@ -212,7 +212,7 @@ const TableRows = ({
                 const isVacation = workHour.isOnVacation[dayIndex];
                 return (
                   <TableCell
-                    key={dayIndex}
+                    key={`${workHour.id}-${dayIndex}`}
                     align="center"
                     className={
                       hour > 24 ? redAlert : hour > 10 ? orangeAlert : ''
@@ -546,7 +546,7 @@ const HoursTable = ({
                 </TableCell>
                 {weekDates.map((date, index) => (
                   <TableCell
-                    key={index}
+                    key={`${date.getTime()}-${index}`}
                     align="center"
                     sx={{
                       fontWeight: 'bold',

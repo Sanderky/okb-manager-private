@@ -764,7 +764,7 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
                 onChange={(_, newValue) => setSelectedEmployees(newValue)}
                 isOptionEqualToValue={(option, value) => option.id === value.id}
                 renderOption={(props, option, { selected }) => (
-                  <li {...props}>
+                  <li {...props} key={option.id}>
                     <Checkbox checked={selected} />
                     {option.name}
                     {!option.status && (

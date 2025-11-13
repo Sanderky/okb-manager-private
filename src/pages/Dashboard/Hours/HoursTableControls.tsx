@@ -145,7 +145,7 @@ const HoursTableControls = ({
           <MenuItem
             disableRipple
             sx={{ fontWeight: 'bold', cursor: 'default' }}
-            key={1}
+            key={'weekNumber'}
           >
             Tydzień {dayjs(currentWeek).isoWeek()}
           </MenuItem>
@@ -153,7 +153,7 @@ const HoursTableControls = ({
 
           {!readOnly && (
             <MenuItem
-              key={2}
+              key={'editMode'}
               onClick={() => {
                 if (!isExpanded) handleToggleExpand();
                 handleCloseMobileMenu();
@@ -166,7 +166,7 @@ const HoursTableControls = ({
           )}
           {!readOnly && editMode && (
             <MenuItem
-              key={3}
+              key={'cancel'}
               onClick={() => {
                 handleCloseMobileMenu();
                 handleCancelEdit();
@@ -178,7 +178,7 @@ const HoursTableControls = ({
           )}
           {!readOnly && editMode && (
             <MenuItem
-              key={4}
+              key={'copy'}
               onClick={() => {
                 handleCloseMobileMenu();
                 handleCopyDataDialogOpen();
@@ -190,7 +190,7 @@ const HoursTableControls = ({
           )}
           {!readOnly && editMode && (
             <MenuItem
-              key={5}
+              key={'fill'}
               onClick={() => {
                 handleFillWithSchedule();
                 handleCopyDataDialogOpen();
@@ -202,7 +202,7 @@ const HoursTableControls = ({
           )}
           <Divider />
           <MenuItem
-            key={6}
+            key={'filters'}
             onClick={() => {
               setIsFilterOpen(true);
               handleCloseMobileMenu();
@@ -212,7 +212,7 @@ const HoursTableControls = ({
             {`Filtry (${selectedConstructions.length + selectedEmployees.length})`}
           </MenuItem>
           <MenuItem
-            key={7}
+            key={'print'}
             onClick={() => {
               reactToPrintFn();
               handleCloseMobileMenu();
@@ -222,7 +222,7 @@ const HoursTableControls = ({
             Drukuj
           </MenuItem>
           <MenuItem
-            key={8}
+            key={'expand'}
             onClick={() => {
               handleCloseMobileMenu();
               handleToggleExpand();
@@ -233,7 +233,7 @@ const HoursTableControls = ({
           </MenuItem>
           {readOnly && onTableDelete && (
             <MenuItem
-              key={9}
+              key={'close'}
               onClick={() => {
                 handleCloseMobileMenu();
                 onTableDelete();
