@@ -9,7 +9,6 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { useNavigate } from 'react-router';
 import PageContainer from '../../../components/PageContainer';
-import { useTranslation } from 'react-i18next';
 import { getConstructionList } from '../../../api/constructions';
 import { useQuery } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
@@ -42,6 +41,7 @@ import {
   Typography,
   FormLabel,
   Alert,
+  Badge,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import CloseIcon from '@mui/icons-material/Close';
@@ -59,7 +59,6 @@ interface Filters {
 
 export default function ConstructionsList() {
   const navigate = useNavigate();
-  const { t } = useTranslation();
   const {
     setColumnVisibility,
     setDensity,
@@ -69,6 +68,8 @@ export default function ConstructionsList() {
   } = useTableState('constructions');
 
   const [filtersModalOpen, setFiltersModalOpen] = useState(false);
+  const [filtersActive, setFiltersActive] = useState(false);
+
   const [filters, setFilters] = useState<Filters>({
     name: '',
     contractor: '',
@@ -106,6 +107,7 @@ export default function ConstructionsList() {
 
   const handleApplyFilters = () => {
     const columnFilters = [];
+    setFiltersActive(true);
 
     if (filters.name) {
       columnFilters.push({ id: 'name', value: filters.name });
@@ -142,6 +144,8 @@ export default function ConstructionsList() {
   };
 
   const handleResetFilters = () => {
+    setFiltersActive(false);
+
     setFilters({
       name: '',
       contractor: '',
@@ -278,11 +282,11 @@ export default function ConstructionsList() {
       columnOrder: [
         'mrt-row-numbers',
         'name',
+        'inProgress',
         'contractor',
         'location',
         'startDate',
         'endDate',
-        'inProgress',
       ],
       columnFilters: [{ id: 'inProgress', value: 'true' }],
     },
@@ -299,9 +303,15 @@ export default function ConstructionsList() {
       <Stack direction="row" alignItems="center" spacing={1}>
         <MRT_ToggleGlobalFilterButton table={table} />
         <Tooltip title="Filtry">
-          <IconButton onClick={handleOpenFilters}>
-            <FilterListIcon />
-          </IconButton>
+          <Badge
+            variant="dot"
+            badgeContent={filtersActive ? 1 : 0}
+            color="primary"
+          >
+            <IconButton onClick={handleOpenFilters}>
+              <FilterListIcon />
+            </IconButton>
+          </Badge>
         </Tooltip>
         <MRT_ShowHideColumnsButton table={table} />
         <MRT_ToggleDensePaddingButton table={table} />
@@ -471,7 +481,6 @@ export default function ConstructionsList() {
                   <TextField
                     size="small"
                     fullWidth
-                    placeholder="Nazwa"
                     value={filters.name}
                     onChange={(e) =>
                       setFilters({ ...filters, name: e.target.value })
@@ -483,7 +492,6 @@ export default function ConstructionsList() {
                   <TextField
                     size="small"
                     fullWidth
-                    placeholder="Wykonawca"
                     value={filters.contractor}
                     onChange={(e) =>
                       setFilters({ ...filters, contractor: e.target.value })
@@ -495,7 +503,6 @@ export default function ConstructionsList() {
                   <TextField
                     size="small"
                     fullWidth
-                    placeholder="Adres"
                     value={filters.location}
                     onChange={(e) =>
                       setFilters({ ...filters, location: e.target.value })

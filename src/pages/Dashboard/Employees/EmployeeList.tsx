@@ -9,7 +9,6 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { useNavigate } from 'react-router';
 import PageContainer from '../../../components/PageContainer';
-import { useTranslation } from 'react-i18next';
 import { getEmployeeList } from '../../../api/employees';
 import { useQuery } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
@@ -29,7 +28,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs, { Dayjs } from 'dayjs';
 import { MRT_Localization_PL } from 'material-react-table/locales/pl';
-import { Typography } from '@mui/material';
+import { Badge, Typography } from '@mui/material';
 import { useTableState } from '../../../hooks/useTableSettings';
 import {
   Dialog,
@@ -53,6 +52,9 @@ interface EmployeeFilters {
   phone: string;
   address: string;
   pesel: string;
+  birthPlace: string;
+  hourRateFrom: string;
+  hourRateTo: string;
   birthDateFrom: Dayjs | null;
   birthDateTo: Dayjs | null;
   isContractor: string;
@@ -69,7 +71,6 @@ interface EmployeeFilters {
 
 export default function EmployeeList() {
   const navigate = useNavigate();
-  const { t } = useTranslation();
   const {
     setColumnVisibility,
     setDensity,
@@ -81,12 +82,16 @@ export default function EmployeeList() {
   const { getEmployeeAlerts } = useEmployeeAlert();
 
   const [filtersModalOpen, setFiltersModalOpen] = useState(false);
+  const [filtersActive, setFiltersActive] = useState(false);
   const [filters, setFilters] = useState<EmployeeFilters>({
     name: '',
     email: '',
     phone: '',
     address: '',
     pesel: '',
+    birthPlace: '',
+    hourRateFrom: '',
+    hourRateTo: '',
     birthDateFrom: null,
     birthDateTo: null,
     isContractor: '',
@@ -152,6 +157,7 @@ export default function EmployeeList() {
   };
 
   const handleApplyFilters = () => {
+    setFiltersActive(true);
     const columnFilters = [];
 
     if (filters.name) {
@@ -166,6 +172,10 @@ export default function EmployeeList() {
       columnFilters.push({ id: 'phone', value: filters.phone });
     }
 
+    if (filters.birthPlace) {
+      columnFilters.push({ id: 'birthPlace', value: filters.birthPlace });
+    }
+
     if (filters.address) {
       columnFilters.push({ id: 'address', value: filters.address });
     }
@@ -178,6 +188,13 @@ export default function EmployeeList() {
       columnFilters.push({
         id: 'birthDate',
         value: [filters.birthDateFrom, filters.birthDateTo],
+      });
+    }
+
+    if (filters.hourRateFrom || filters.hourRateTo) {
+      columnFilters.push({
+        id: 'hourRate',
+        value: [filters.hourRateFrom, filters.hourRateTo],
       });
     }
 
@@ -228,6 +245,9 @@ export default function EmployeeList() {
       phone: '',
       address: '',
       pesel: '',
+      birthPlace: '',
+      hourRateFrom: '',
+      hourRateTo: '',
       birthDateFrom: null,
       birthDateTo: null,
       isContractor: '',
@@ -242,6 +262,7 @@ export default function EmployeeList() {
       status: '',
     });
     table.setColumnFilters([]);
+    setFiltersActive(false);
   };
 
   const dateBetweenFilterFn = (
@@ -273,7 +294,7 @@ export default function EmployeeList() {
     () => [
       {
         accessorKey: 'name',
-        header: 'Imię',
+        header: 'Nazwa',
       },
       {
         accessorKey: 'email',
@@ -292,6 +313,22 @@ export default function EmployeeList() {
         header: 'Pesel',
       },
       {
+        accessorKey: 'hourRate',
+        header: 'Stawka',
+        filterVariant: 'range',
+        filterFn: 'betweenInclusive',
+        Cell: ({ cell }) => {
+          const value = cell.getValue<number>();
+          if (value === null || value === undefined) return '-';
+          return value.toLocaleString('pl-PL', {
+            // minimumFractionDigits: 2,
+            // maximumFractionDigits: 2
+            style: 'currency',
+            currency: 'EUR',
+          });
+        },
+      },
+      {
         accessorKey: 'accountNumber',
         header: 'Numer konta',
       },
@@ -304,6 +341,10 @@ export default function EmployeeList() {
             {cell.getValue<boolean>() ? 'Tak' : 'Nie'}
           </Box>
         ),
+      },
+      {
+        accessorKey: 'birthPlace',
+        header: 'Miejsce urodzenia',
       },
       {
         accessorKey: 'birthDate',
@@ -434,18 +475,20 @@ export default function EmployeeList() {
       columnOrder: [
         'mrt-row-numbers',
         'name',
-        'email',
+        'status',
         'phone',
-        'pesel',
+        'email',
         'address',
+        'pesel',
+        'isContractor',
+        'hourRate',
+        'birthPlace',
         'birthDate',
         'accountNumber',
-        'isContractor',
         'contractStartDate',
         'contractEndDate',
         'a1StartDate',
         'a1EndDate',
-        'status',
       ],
       columnFilters: [{ id: 'status', value: 'true' }],
       columnVisibility: {
@@ -462,11 +505,11 @@ export default function EmployeeList() {
       isLoading: isLoading,
     },
     muiTableContainerProps: {
-        sx: {
-            '& *': {
-                transition: 'none !important',
-            },
+      sx: {
+        '& *': {
+          transition: 'none !important',
         },
+      },
     },
     onColumnVisibilityChange: setColumnVisibility,
     onDensityChange: setDensity,
@@ -476,9 +519,15 @@ export default function EmployeeList() {
       <Stack direction="row" alignItems="center" spacing={1}>
         <MRT_ToggleGlobalFilterButton table={table} />
         <Tooltip title="Filtry">
-          <IconButton onClick={handleOpenFilters}>
-            <FilterListIcon />
-          </IconButton>
+          <Badge
+            variant="dot"
+            badgeContent={filtersActive ? 1 : 0}
+            color="primary"
+          >
+            <IconButton onClick={handleOpenFilters}>
+              <FilterListIcon />
+            </IconButton>
+          </Badge>
         </Tooltip>
         <MRT_ShowHideColumnsButton table={table} />
         <MRT_ToggleDensePaddingButton table={table} />
@@ -640,11 +689,10 @@ export default function EmployeeList() {
             <DialogContent dividers className="p-3 sm:p-5">
               <Grid container spacing={2}>
                 <Grid size={{ xs: 12, sm: 6 }}>
-                  <FormLabel className="mb-2 block">Imię</FormLabel>
+                  <FormLabel className="mb-2 block">Imię i nazwisko</FormLabel>
                   <TextField
                     size="small"
                     fullWidth
-                    placeholder="Imię"
                     value={filters.name}
                     onChange={(e) =>
                       setFilters({ ...filters, name: e.target.value })
@@ -656,7 +704,6 @@ export default function EmployeeList() {
                   <TextField
                     size="small"
                     fullWidth
-                    placeholder="E-mail"
                     value={filters.email}
                     onChange={(e) =>
                       setFilters({ ...filters, email: e.target.value })
@@ -668,7 +715,6 @@ export default function EmployeeList() {
                   <TextField
                     size="small"
                     fullWidth
-                    placeholder="Telefon"
                     value={filters.phone}
                     onChange={(e) =>
                       setFilters({ ...filters, phone: e.target.value })
@@ -680,7 +726,6 @@ export default function EmployeeList() {
                   <TextField
                     size="small"
                     fullWidth
-                    placeholder="Pesel"
                     value={filters.pesel}
                     onChange={(e) =>
                       setFilters({ ...filters, pesel: e.target.value })
@@ -692,7 +737,6 @@ export default function EmployeeList() {
                   <TextField
                     size="small"
                     fullWidth
-                    placeholder="Adres"
                     value={filters.address}
                     onChange={(e) =>
                       setFilters({ ...filters, address: e.target.value })
@@ -734,6 +778,66 @@ export default function EmployeeList() {
                   </FormControl>
                 </Grid>
 
+                <Grid size={{ xs: 12, md: 6 }}>
+                  <FormLabel className="mb-2 block">Stawka</FormLabel>
+                  <Stack
+                    direction={{
+                      xs: 'column',
+                      sm: 'row',
+                    }}
+                    alignItems={'center'}
+                    spacing={1}
+                  >
+                    <TextField
+                      size="small"
+                      type="number"
+                      value={filters.hourRateFrom}
+                      label="Od"
+                      onChange={(e) => {
+                        setFilters({
+                          ...filters,
+                          hourRateFrom: e.target.value,
+                        });
+                      }}
+                    />
+                    <Typography
+                      sx={{
+                        display: {
+                          xs: 'none',
+                          sm: 'block',
+                        },
+                      }}
+                    >
+                      -
+                    </Typography>
+                    <TextField
+                      type="number"
+                      value={filters.hourRateTo}
+                      label="Do"
+                      size="small"
+                      onChange={(e) =>
+                        setFilters({
+                          ...filters,
+                          hourRateTo: e.target.value,
+                        })
+                      }
+                    />
+                  </Stack>
+                </Grid>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <FormLabel className="mb-2 block">
+                    Miejsce urodzenia
+                  </FormLabel>
+                  <TextField
+                    size="small"
+                    fullWidth
+                    // placeholder="Miejsce urodzenia"
+                    value={filters.birthPlace}
+                    onChange={(e) =>
+                      setFilters({ ...filters, birthPlace: e.target.value })
+                    }
+                  />
+                </Grid>
                 <Grid size={{ xs: 12, md: 6 }}>
                   <FormLabel className="mb-2 block">Data urodzenia</FormLabel>
                   <Stack
