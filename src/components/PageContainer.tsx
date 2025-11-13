@@ -60,7 +60,7 @@ export default function PageContainer(props: PageContainerProps) {
           pt: 2,
           pb: 8,
           px: { xs: 2, sm: 3 },
-          maxWidth: '1500px',
+          maxWidth: '1300px',
           overflow: 'hidden',
         }}
         spacing={0}
