@@ -11,7 +11,7 @@ import { getEmployeeList } from '../../../api/employees';
 import type { Employee, Vacation } from '../../../types';
 import {
   createVacation,
-  getVacationList,
+  getVacationListForMonths, // Zmieniamy na getVacationListForMonths
   removeVacation,
 } from '../../../api/vacations';
 import { Close as CloseIcon } from '@mui/icons-material';
@@ -76,13 +76,26 @@ const Calendar: React.FC = () => {
     queryFn: () => getEmployeeList(),
   });
 
+  // Oblicz klucze miesięcy do załadowania (poprzedni, obecny, następny)
+  const monthKeys = useMemo(() => {
+    const prevMonth = currentMonth.subtract(1, 'month');
+    const nextMonth = currentMonth.add(1, 'month');
+
+    return [
+      prevMonth.format('YYYY-MM'),
+      currentMonth.format('YYYY-MM'),
+      nextMonth.format('YYYY-MM'),
+    ];
+  }, [currentMonth]);
+
+  // Zmieniamy na getVacationListForMonths z ograniczoną liczbą miesięcy
   const {
     data: vacations = [],
     isLoading: isLoadingVacations,
     isError: isErrorVacations,
   } = useQuery<Vacation[], Error>({
-    queryKey: ['vacations'],
-    queryFn: getVacationList,
+    queryKey: ['vacations', monthKeys], // Dodajemy monthKeys do queryKey
+    queryFn: () => getVacationListForMonths(monthKeys),
   });
 
   const { mutate: addMutation, isPending: isAdding } = useMutation({
@@ -91,7 +104,7 @@ const Calendar: React.FC = () => {
       startActionLoading();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['vacations'] });
+      queryClient.invalidateQueries({ queryKey: ['vacations', monthKeys] });
       notifications.show('Urlop został pomyślnie utworzony.', {
         severity: 'success',
         autoHideDuration: 5000,
@@ -116,7 +129,7 @@ const Calendar: React.FC = () => {
       startActionLoading();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['vacations'] });
+      queryClient.invalidateQueries({ queryKey: ['vacations', monthKeys] });
       notifications.show('Urlop został pomyślnie usunięty.', {
         severity: 'info',
         autoHideDuration: 5000,
@@ -491,7 +504,7 @@ const Calendar: React.FC = () => {
           handleModalClose={handleModalClose}
           handleDeleteEvent={handleDeleteEvent}
           loading={actionLoading || isDeleting}
-          onEventClick={handleEventClick} // DODAJ TEN PROP
+          onEventClick={handleEventClick}
         />
 
         <VacationReportDialog

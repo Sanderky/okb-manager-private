@@ -1,4 +1,3 @@
-// api/vacations.ts
 import {
   collection,
   getDocs,
@@ -123,7 +122,6 @@ export async function getVacationListForMonths(
 ): Promise<Vacation[]> {
   if (!monthKeys.length) return [];
 
-  // Firestore 'in' obsługuje max 10 elementów
   const chunks = [];
   for (let i = 0; i < monthKeys.length; i += 10) {
     chunks.push(monthKeys.slice(i, i + 10));

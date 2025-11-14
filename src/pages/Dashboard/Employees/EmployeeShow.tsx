@@ -528,8 +528,11 @@ export default function EmployeeShow() {
                     </Stack>
                     <TextareaAutosize
                       minRows={3}
-                      className={`rounded-sm border border-gray-400 bg-white px-2 py-1 ${editNote ? '' : 'bg-gray-100! opacity-50'}`}
-                      style={{ width: '100%', minHeight: '50px' }}
+                      className={`rounded-sm border border-gray-300 bg-white px-2 py-1 ${editNote ? '' : 'bg-gray-50! opacity-75'}`}
+                      style={{
+                        width: '100%',
+                        minHeight: '100px',
+                      }}
                       placeholder="..."
                       value={note}
                       onChange={(e) => setNote(e.target.value)}

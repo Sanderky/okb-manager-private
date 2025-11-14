@@ -32,6 +32,7 @@ import UnarchiveIcon from '@mui/icons-material/Unarchive';
 import { removeEmployeeWorkHours } from '../../../api/hours';
 import { removeEmployeeVacations } from '../../../api/vacations';
 import { removeEmployeeSchedules } from '../../../api/schedules';
+import { useScroll } from '../../../context/ScrollContext';
 
 export type FileStateMap = {
   [K in EmployeeAttachment]: File | null;
@@ -61,6 +62,8 @@ export default function EmployeeEdit() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const formRefs = React.useRef<Record<string, HTMLInputElement | null>>({});
+
+  const { scrollToTop } = useScroll();
 
   const registerFieldRef = (name: string, el: HTMLInputElement | null) => {
     formRefs.current[name] = el;
@@ -103,6 +106,8 @@ export default function EmployeeEdit() {
         severity: 'success',
         autoHideDuration: 5000,
       });
+      navigate(`/employees/${employeeId}`);
+      scrollToTop();
     },
     onError: (error: Error) => {
       console.error('Update employee error:', error);
@@ -217,7 +222,6 @@ export default function EmployeeEdit() {
 
         startActionLoading();
         await updateMutation.mutateAsync(updateData);
-        navigate(`/employees/${employeeId}`);
       } catch (error) {
         console.error('Submit error:', error);
       } finally {
@@ -229,8 +233,6 @@ export default function EmployeeEdit() {
       updateMutation,
       handleDeleteAttachment,
       handleUploadAttachment,
-      employeeId,
-      navigate,
       notifications,
       files,
       employee,

@@ -886,9 +886,7 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
                 </Box>
               </Stack>
               <Typography variant="caption" className="text-gray-500">
-                {dateRange.start || dateRange.end
-                  ? 'Rzeczywisty zakres dat: '
-                  : 'Domyślny zakres dat: '}
+                {'Efektywny zakres dat: '}
                 {effectiveDateRange.start.format('DD.MM.YYYY')}
                 {' - '}
                 {effectiveDateRange.end.format('DD.MM.YYYY')}

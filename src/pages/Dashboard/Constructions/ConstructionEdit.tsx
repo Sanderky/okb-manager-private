@@ -27,6 +27,7 @@ import { deleteFolderRecursive } from '../../../components/fileBrowser/FileBrows
 import Loading from '../../../components/Loading';
 import useLoading from '../../../hooks/useLoading';
 import { removeWorkHoursByConstruction } from '../../../api/hours';
+import { useScroll } from '../../../context/ScrollContext';
 
 export default function ConstructionEdit() {
   const { constructionId } = useParams<{ constructionId: string }>();
@@ -44,6 +45,8 @@ export default function ConstructionEdit() {
   const [isDeleting, setIsDeleting] = useState(false);
 
   const formRefs = React.useRef<Record<string, HTMLInputElement | null>>({});
+
+  const { scrollToTop } = useScroll();
 
   const registerFieldRef = (name: string, el: HTMLInputElement | null) => {
     formRefs.current[name] = el;
@@ -83,6 +86,7 @@ export default function ConstructionEdit() {
         autoHideDuration: 3000,
       });
       navigate(`/constructions/${constructionId}`);
+      scrollToTop();
     },
     onError: (error: Error) => {
       console.error('Update construction error:', error);

@@ -1,3 +1,4 @@
+// DashboardLayout.tsx
 import * as React from 'react';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
@@ -7,6 +8,7 @@ import { Outlet } from 'react-router';
 import DashboardHeader from './DashboardHeader';
 import DashboardSidebar from './DashboardSidebar';
 import Logo from './Logo';
+import { ScrollContext } from '../../context/ScrollContext';
 
 export default function DashboardLayout() {
   const theme = useTheme();
@@ -46,58 +48,86 @@ export default function DashboardLayout() {
 
   const layoutRef = React.useRef<HTMLDivElement>(null);
 
-  return (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        height: '100vh',
-        overflow: 'hidden',
-      }}
-      // className="bg-gray-50"
-    >
-      <DashboardHeader
-        logo={<Logo />}
-        title=""
-        menuOpen={isNavigationExpanded}
-        onToggleMenu={handleToggleHeaderMenu}
-      />
+  // Ref do scrollowanego elementu
+  const scrollableRef = React.useRef<HTMLDivElement>(null);
 
+  // Funkcja do scrollowania na górę
+  const scrollToTop = React.useCallback(() => {
+    if (scrollableRef.current) {
+      scrollableRef.current.scrollTo({
+        top: 0,
+        behavior: 'smooth',
+      });
+    } else {
+      // Fallback na window
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth',
+      });
+    }
+  }, []);
+
+  const scrollContextValue = React.useMemo(
+    () => ({
+      scrollToTop,
+    }),
+    [scrollToTop]
+  );
+
+  return (
+    <ScrollContext.Provider value={scrollContextValue}>
       <Box
         sx={{
           display: 'flex',
-          flexGrow: 1,
+          flexDirection: 'column',
+          height: '100vh',
           overflow: 'hidden',
-          minHeight: 0,
         }}
       >
-        <DashboardSidebar
-          expanded={isNavigationExpanded}
-          setExpanded={setIsNavigationExpanded}
-          container={layoutRef?.current ?? undefined}
+        <DashboardHeader
+          logo={<Logo />}
+          title=""
+          menuOpen={isNavigationExpanded}
+          onToggleMenu={handleToggleHeaderMenu}
         />
 
         <Box
-          component="main"
           sx={{
             display: 'flex',
-            flexDirection: 'column',
             flexGrow: 1,
-            minWidth: 0,
+            overflow: 'hidden',
+            minHeight: 0,
           }}
         >
-          <Toolbar sx={{ displayPrint: 'none', flexShrink: 0 }} />
+          <DashboardSidebar
+            expanded={isNavigationExpanded}
+            setExpanded={setIsNavigationExpanded}
+            container={layoutRef?.current ?? undefined}
+          />
+
           <Box
+            component="main"
             sx={{
+              display: 'flex',
+              flexDirection: 'column',
               flexGrow: 1,
-              overflowY: 'auto',
+              minWidth: 0,
             }}
-            className="bg-stone-100"
           >
-            <Outlet />
+            <Toolbar sx={{ displayPrint: 'none', flexShrink: 0 }} />
+            <Box
+              ref={scrollableRef}
+              sx={{
+                flexGrow: 1,
+                overflowY: 'auto',
+              }}
+              className="bg-stone-100"
+            >
+              <Outlet />
+            </Box>
           </Box>
         </Box>
       </Box>
-    </Box>
+    </ScrollContext.Provider>
   );
 }

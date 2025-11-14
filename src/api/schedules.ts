@@ -1,4 +1,3 @@
-// api/schedule.ts
 import {
   collection,
   doc,

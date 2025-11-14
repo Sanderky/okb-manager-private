@@ -478,7 +478,7 @@ const Note = () => {
         <TextareaAutosize
           minRows={3}
           className={`rounded-sm border border-gray-300 bg-white px-2 py-1 ${editNote ? '' : 'bg-gray-50! opacity-75'}`}
-          style={{ width: '100%', minHeight: '50px', maxHeight: '500px' }}
+          style={{ width: '100%', minHeight: '150px', maxHeight: '500px' }}
           placeholder="..."
           value={note}
           onChange={(e) => setNote(e.target.value)}
