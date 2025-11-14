@@ -105,13 +105,11 @@ const ScheduleComponent = () => {
 
   usePrintShortcut(handlePrint);
 
-  // Optymalizacja: Zapisz do localStorage tylko gdy wartości się zmieniają
   useEffect(() => {
     localStorage.setItem('scheduleFromWeek', fromWeek.toISOString());
     localStorage.setItem('scheduleToWeek', toWeek.toISOString());
   }, [fromWeek, toWeek]);
 
-  // Optymalizacja: Pobierz tylko aktywne dane
   const {
     data: employees = [],
     isLoading: isLoadingEmployees,
@@ -212,7 +210,7 @@ const ScheduleComponent = () => {
         await updateScheduleMutation.mutateAsync(scheduleData);
       } catch (error) {
         console.error('Error saving schedule:', error);
-        throw error; // Przekaż błąd dalej
+        throw error;
       } finally {
         setLoadingCells((prev) => {
           const newSet = new Set(prev);
@@ -233,7 +231,7 @@ const ScheduleComponent = () => {
       cell: ICell
     ) => {
       const cellKey = getCellKey(cell);
-      const startOfWeek = date.startOf('week'); // Poprawione: użyj startOf('week')
+      const startOfWeek = date.startOf('week'); 
       const weekStartDate = startOfWeek.toDate();
 
       const existingSchedule = getScheduleByEmployeeAndWeek(
@@ -251,7 +249,7 @@ const ScheduleComponent = () => {
             (v) => v.employeeId === empId && day.isSame(dayjs(v.date), 'day')
           );
 
-          if (i === 6) return null; // Niedziela zawsze pusta
+          if (i === 6) return null;
 
           return isVacation ? null : (value?.id ?? null);
         });
@@ -327,7 +325,7 @@ const ScheduleComponent = () => {
       );
 
       if (!isWeek) {
-        const dayIndex = date.diff(weekStart, 'day'); // Poprawione: użyj bezpośrednio date
+        const dayIndex = date.diff(weekStart, 'day');
         const constructionId = schedule?.constructions?.[dayIndex];
         const isVacation = vacations?.some(
           (v) => v.employeeId === empId && date.isSame(dayjs(v.date), 'day')
@@ -352,7 +350,6 @@ const ScheduleComponent = () => {
         );
       }
 
-      // Logika dla komórek tygodnia pozostaje bez zmian
       const weekData = Array.from({ length: 7 }, (_, i) => {
         const day = weekStart.add(i, 'day');
         const constructionId = schedule?.constructions?.[i];
@@ -632,7 +629,6 @@ const ScheduleComponent = () => {
                       activeTable={activeTable}
                       loadingCells={loadingCells}
                       getCellKey={getCellKey}
-                      onCellChange={handleCellChange}
                     />
                   ))}
                 </TableBody>
@@ -706,7 +702,6 @@ const ScheduleComponent = () => {
                       activeTable={activeTable}
                       loadingCells={loadingCells}
                       getCellKey={getCellKey}
-                      onCellChange={handleCellChange}
                     />
                   ))}
                 </TableBody>

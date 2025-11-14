@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom'; // DODAJ TEN IMPORT
+import { useNavigate } from 'react-router-dom';
 import {
   FormControl,
   TextField,
@@ -64,9 +64,9 @@ export const FilterDialog: React.FC<FilterDialogProps> = ({
 
   const filteredEmployees = useMemo(() => {
     if (showInactive) {
-      return employees; // pokaż wszystkich
+      return employees;
     }
-    return employees.filter((emp) => emp.status); // tylko aktywni
+    return employees.filter((emp) => emp.status);
   }, [employees, showInactive]);
 
   const handleSelectAll = () => {
@@ -240,7 +240,7 @@ interface EventDetailsDialogProps {
   handleModalClose: () => void;
   handleDeleteEvent: (id?: string) => void;
   loading?: boolean;
-  onEventClick?: (event: CalendarEvent) => void; // DODAJ TEN PROP
+  onEventClick?: (event: CalendarEvent) => void;
 }
 
 export const EventDetailsDialog: React.FC<EventDetailsDialogProps> = ({
@@ -250,7 +250,7 @@ export const EventDetailsDialog: React.FC<EventDetailsDialogProps> = ({
   handleModalClose,
   handleDeleteEvent,
   loading = false,
-  onEventClick, // DODAJ TEN PROP
+  onEventClick,
 }) => {
   const navigate = useNavigate();
   const isMultipleEvents = activeDialog.type === 'moreEvents';
@@ -259,15 +259,13 @@ export const EventDetailsDialog: React.FC<EventDetailsDialogProps> = ({
     handleDeleteEvent();
   };
 
-  // Funkcja do przekierowania do profilu pracownika
   const handleEmployeeProfileClick = (employeeId: string) => {
     navigate(`/employees/${employeeId}`);
   };
 
-  // Funkcja do obsługi kliknięcia w event w moreEvents
   const handleMoreEventsItemClick = (event: CalendarEvent) => {
     if (onEventClick) {
-      onEventClick(event); // Otwórz szczegóły tego eventu
+      onEventClick(event);
     }
   };
 
@@ -326,7 +324,7 @@ export const EventDetailsDialog: React.FC<EventDetailsDialogProps> = ({
                   direction="row"
                   alignItems="center"
                   className="border border-gray-300 px-3 py-2"
-                  onClick={() => handleMoreEventsItemClick(event)} // ZMIENIONE: otwiera szczegóły zamiast profil
+                  onClick={() => handleMoreEventsItemClick(event)}
                 >
                   <Box sx={{ flexGrow: 1 }}>
                     <Typography variant="subtitle1" fontWeight="500">
@@ -368,7 +366,7 @@ export const EventDetailsDialog: React.FC<EventDetailsDialogProps> = ({
                 }}
                 onClick={() =>
                   handleEmployeeProfileClick(currentEvent.employee.id)
-                } // ZOSTAJE: przenosi do profilu
+                }
               >
                 <Stack
                   direction={'row'}
@@ -464,7 +462,6 @@ interface VacationReportItem {
   vacation: Vacation;
 }
 
-// Komponent do drukowania
 const PrintableVacationReport: React.FC<{
   report: VacationReportItem[];
   dateRange: { start: Dayjs | null; end: Dayjs | null };
@@ -476,7 +473,6 @@ const PrintableVacationReport: React.FC<{
     return { start, end };
   }, [dateRange.start, dateRange.end]);
 
-  // Oblicz liczbę unikalnych pracowników w raporcie
   const uniqueEmployeesCount = useMemo(() => {
     const uniqueEmployeeIds = new Set(report.map((item) => item.employee.id));
     return uniqueEmployeeIds.size;
@@ -565,7 +561,7 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
   employees,
   vacations,
 }) => {
-  const navigate = useNavigate(); // DODAJ useNavigate
+  const navigate = useNavigate();
   const [selectedEmployees, setSelectedEmployees] = useState<Employee[]>([]);
   const [dateRange, setDateRange] = useState<{
     start: Dayjs | null;
@@ -592,12 +588,10 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
     `,
   });
 
-  // Funkcja do przekierowania do profilu pracownika
   const handleEmployeeProfileClick = (employeeId: string) => {
     navigate(`/employees/${employeeId}`);
   };
 
-  // Grupowanie urlopów - pobieramy tylko unikalne groupId
   const uniqueVacations = useMemo(() => {
     const grouped = vacations.reduce(
       (acc, vacation) => {
@@ -612,7 +606,6 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
     return Object.values(grouped);
   }, [vacations]);
 
-  // Obliczanie rzeczywistego zakresu dat z domyślnymi wartościami
   const effectiveDateRange = useMemo(() => {
     const start =
       dateRange.start || dayjs().subtract(1, 'month').startOf('day');
@@ -620,7 +613,6 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
     return { start, end };
   }, [dateRange.start, dateRange.end]);
 
-  // Generowanie raportu - teraz jako płaska lista z sortowaniem
   const generatedReport = useMemo((): VacationReportItem[] => {
     if (selectedEmployees.length === 0) {
       return [];
@@ -637,7 +629,6 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
         const vacationStart = dayjs(vacation.startDate).startOf('day');
         // const vacationEnd = dayjs(vacation.endDate).endOf('day');
 
-        // Filtruj tylko urlopy, które ZACZYNAJĄ SIĘ w wybranym zakresie dat
         return vacationStart.isBetween(
           effectiveStart,
           effectiveEnd,
@@ -646,12 +637,10 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
         );
       });
 
-      // Sortowanie urlopów pracownika po dacie rozpoczęcia
       const sortedVacations = employeeVacations.sort(
         (a, b) => dayjs(a.startDate).valueOf() - dayjs(b.startDate).valueOf()
       );
 
-      // Dodaj do płaskiej listy
       sortedVacations.forEach((vacation) => {
         reportItems.push({
           employee,
@@ -660,7 +649,6 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
       });
     });
 
-    // Sortowanie całej listy po dacie rozpoczęcia urlopu
     return reportItems.sort(
       (a, b) =>
         dayjs(a.vacation.startDate).valueOf() -
@@ -672,9 +660,9 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
 
   const filteredEmployees = useMemo(() => {
     if (showInactive) {
-      return employees; // pokaż wszystkich
+      return employees; 
     }
-    return employees.filter((emp) => emp.status); // tylko aktywni
+    return employees.filter((emp) => emp.status);
   }, [employees, showInactive]);
 
   const handleSelectAll = () => {
@@ -726,7 +714,7 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
       <DialogContent dividers>
         <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pl">
           <Stack spacing={3}>
-            {/* Sekcja wyboru pracowników */}
+         
             <Box>
               <FormLabel className="mb-2 block">Pracownicy</FormLabel>
               <Stack
@@ -800,7 +788,6 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
               </Typography>
             </Box>
 
-            {/* Sekcja zakresu dat */}
             <Box>
               <Stack
                 direction="row"
@@ -898,7 +885,6 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
               )}
             </Box>
 
-            {/* Wygenerowany raport */}
             {generatedReport.length > 0 && (
               <Box>
                 <Stack
@@ -927,10 +913,10 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
                       {generatedReport.map(({ employee, vacation }, index) => (
                         <TableRow
                           key={`${employee.id}-${vacation.groupId}-${index}`}
-                          sx={{ cursor: 'pointer' }} // DODAJ styl kursora
+                          sx={{ cursor: 'pointer' }}
                           onClick={() =>
                             handleEmployeeProfileClick(employee.id)
-                          } // DODAJ onClick
+                          }
                         >
                           <TableCell>
                             {employee.name}
@@ -986,7 +972,7 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
         )}
       </DialogActions>
 
-      {/* Ukryty komponent do drukowania */}
+
       <div style={{ display: 'none' }}>
         <div ref={printRef}>
           <PrintableVacationReport

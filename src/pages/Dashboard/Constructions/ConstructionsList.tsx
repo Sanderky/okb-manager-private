@@ -455,7 +455,6 @@ export default function ConstructionsList() {
         <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pl">
           <MaterialReactTable table={table} />
 
-          {/* Modal z filtrami */}
           <Dialog
             open={filtersModalOpen}
             onClose={handleCloseFilters}
@@ -510,7 +509,6 @@ export default function ConstructionsList() {
                   />
                 </Grid>
 
-                {/* Zakres daty rozpoczęcia */}
                 <Grid size={{ xs: 12, md: 6 }}>
                   <FormLabel className="mb-2 block">Data rozpoczęcia</FormLabel>
                   <Stack

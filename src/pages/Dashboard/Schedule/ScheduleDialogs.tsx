@@ -36,9 +36,9 @@ export const FilterDialog: React.FC<FilterDialogProps> = ({
 
   // const filteredEmployees = useMemo(() => {
   //   if (showInactive) {
-  //     return employees; // pokaż wszystkich
+  //     return employees;
   //   }
-  //   return employees.filter((emp) => emp.status); // tylko aktywni
+  //   return employees.filter((emp) => emp.status);
   // }, [employees, showInactive]);
 
   const handleSelectAll = () => {

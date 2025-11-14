@@ -1,4 +1,3 @@
-// DashboardLayout.tsx
 import * as React from 'react';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
@@ -48,10 +47,8 @@ export default function DashboardLayout() {
 
   const layoutRef = React.useRef<HTMLDivElement>(null);
 
-  // Ref do scrollowanego elementu
   const scrollableRef = React.useRef<HTMLDivElement>(null);
 
-  // Funkcja do scrollowania na górę
   const scrollToTop = React.useCallback(() => {
     if (scrollableRef.current) {
       scrollableRef.current.scrollTo({
@@ -59,7 +56,6 @@ export default function DashboardLayout() {
         behavior: 'smooth',
       });
     } else {
-      // Fallback na window
       window.scrollTo({
         top: 0,
         behavior: 'smooth',

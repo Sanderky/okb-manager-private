@@ -13,13 +13,11 @@ import {
 import { Close as CloseIcon } from '@mui/icons-material';
 
 export interface BaseDialogProps {
-  // Podstawowe props
   open: boolean;
   onClose: () => void;
   title: React.ReactNode;
   children: React.ReactNode;
 
-  // Akcje
   actions?: React.ReactNode;
   onConfirm?: () => void;
   onCancel?: () => void;
@@ -29,7 +27,6 @@ export interface BaseDialogProps {
   showConfirm?: boolean;
   showCancel?: boolean;
 
-  // Konfiguracja
   maxWidth?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | false;
   fullWidth?: boolean;
   dividers?: boolean;
@@ -37,7 +34,6 @@ export interface BaseDialogProps {
   loading?: boolean;
   disabled?: boolean;
 
-  // Styling
   titleSx?: object;
   contentSx?: object;
   actionsSx?: object;
@@ -155,7 +151,6 @@ export const BaseDialog: React.FC<BaseDialogProps> = ({
   );
 };
 
-// Helper components dla często używanych typów dialogów
 export const ConfirmationDialog: React.FC<
   Omit<BaseDialogProps, 'children'> & {
     message: React.ReactNode;

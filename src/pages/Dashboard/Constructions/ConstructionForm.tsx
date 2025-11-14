@@ -1,4 +1,3 @@
-// ConstructionForm.tsx
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -259,7 +258,7 @@ export default function ConstructionForm(props: ConstructionFormProps) {
             onClick={handleBack}
             startIcon={<ArrowBackIcon />}
             type="reset"
-            color='inherit'
+            color="inherit"
           >
             Anuluj
           </Button>

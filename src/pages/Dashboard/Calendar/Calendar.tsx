@@ -11,7 +11,7 @@ import { getEmployeeList } from '../../../api/employees';
 import type { Employee, Vacation } from '../../../types';
 import {
   createVacation,
-  getVacationListForMonths, // Zmieniamy na getVacationListForMonths
+  getVacationListForMonths,
   removeVacation,
 } from '../../../api/vacations';
 import { Close as CloseIcon } from '@mui/icons-material';
@@ -34,7 +34,6 @@ import {
 } from './CalendarHelpers';
 import PageContainer from '../../../components/PageContainer';
 import useLoading from '../../../hooks/useLoading';
-
 import ListAltIcon from '@mui/icons-material/ListAlt';
 
 dayjs.locale('pl');
@@ -60,7 +59,6 @@ const Calendar: React.FC = () => {
   const notifications = useNotifications();
   const queryClient = useQueryClient();
 
-  // Hook do ładowania akcji
   const {
     loading: actionLoading,
     startLoading: startActionLoading,
@@ -76,7 +74,6 @@ const Calendar: React.FC = () => {
     queryFn: () => getEmployeeList(),
   });
 
-  // Oblicz klucze miesięcy do załadowania (poprzedni, obecny, następny)
   const monthKeys = useMemo(() => {
     const prevMonth = currentMonth.subtract(1, 'month');
     const nextMonth = currentMonth.add(1, 'month');
@@ -88,13 +85,12 @@ const Calendar: React.FC = () => {
     ];
   }, [currentMonth]);
 
-  // Zmieniamy na getVacationListForMonths z ograniczoną liczbą miesięcy
   const {
     data: vacations = [],
     isLoading: isLoadingVacations,
     isError: isErrorVacations,
   } = useQuery<Vacation[], Error>({
-    queryKey: ['vacations', monthKeys], // Dodajemy monthKeys do queryKey
+    queryKey: ['vacations', monthKeys],
     queryFn: () => getVacationListForMonths(monthKeys),
   });
 
@@ -194,11 +190,9 @@ const Calendar: React.FC = () => {
             current.isSame(dayjs(event.date), 'day')
           );
 
-          // OPTYMALIZACJA: Filtrowanie tylko dla istniejących pracowników
           const newDayEvents: CalendarEvent[] = filteredDayEvents
             .map(({ employeeId, ...ev }) => {
               const employee = employees.find((e) => e.id === employeeId);
-              // Jeśli nie znaleziono pracownika, pomiń ten urlop
               if (!employee) return null;
 
               return {
@@ -209,7 +203,7 @@ const Calendar: React.FC = () => {
                 employee: employee,
               };
             })
-            .filter(Boolean) as CalendarEvent[]; // Usuń null values
+            .filter(Boolean) as CalendarEvent[];
 
           const sortedDayEvents = newDayEvents.sort((a, b) => {
             const durationA = a.endDate.diff(a.startDate, 'day');
@@ -383,7 +377,6 @@ const Calendar: React.FC = () => {
     setCurrentEvent(ev);
   }, []);
 
-  // Agregacja stanów ładowania i błędów
   const error = isErrorEmployees || isErrorVacations;
   const loading = isLoadingEmployees || isLoadingVacations;
 

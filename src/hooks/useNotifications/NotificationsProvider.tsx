@@ -137,10 +137,6 @@ const generateId = () => {
   return id;
 };
 
-/**
- * Provider for Notifications. The subtree of this component can use the `useNotifications` hook to
- * access the notifications API. The notifications are shown in the same order they are requested.
- */
 export default function NotificationsProvider(props: NotificationsProviderProps) {
   const { children } = props;
   const [state, setState] = React.useState<NotificationsState>({ queue: [] });
@@ -150,7 +146,6 @@ export default function NotificationsProvider(props: NotificationsProviderProps)
       options.key ?? `::toolpad-internal::notification::${generateId()}`;
     setState((prev) => {
       if (prev.queue.some((n) => n.notificationKey === notificationKey)) {
-        // deduplicate by key
         return prev;
       }
       return {

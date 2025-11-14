@@ -1,4 +1,3 @@
-// ScrollContext.tsx
 import React from 'react';
 
 interface ScrollContextType {

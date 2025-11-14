@@ -278,7 +278,7 @@ export default function DashboardSidebar({
         open={expanded}
         onClose={handleSetSidebarExpanded(false)}
         ModalProps={{
-          keepMounted: true, // Better open performance on mobile.
+          keepMounted: true,
         }}
         sx={{
           display: {

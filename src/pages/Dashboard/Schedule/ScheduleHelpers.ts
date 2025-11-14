@@ -1,7 +1,6 @@
 import dayjs, { Dayjs } from 'dayjs';
 import type { Schedule } from '../../../types';
 
-// ScheduleHelpers.ts - POPRAWIONA FUNKCJA
 export const getScheduleByEmployeeAndWeek = (
   schedules: Schedule[],
   employeeId: string,

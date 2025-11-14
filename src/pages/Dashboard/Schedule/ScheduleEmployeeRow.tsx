@@ -20,13 +20,6 @@ interface EmployeeRowProps {
   activeTable: { type: number; week: Dayjs };
   loadingCells: Set<string>;
   getCellKey: (cell: ICell) => string;
-  onCellChange: (
-    empId: string,
-    date: Dayjs,
-    value: any,
-    isWeek: boolean,
-    cell: ICell
-  ) => Promise<void>;
 }
 
 interface ScheduleCellProps {
@@ -38,7 +31,6 @@ interface ScheduleCellProps {
   employee: Employee;
 }
 
-// Komponent ScheduleCell
 const ScheduleCell: React.FC<ScheduleCellProps> = React.memo(
   ({ cell, onClick, cellText, loadingCells, getCellKey, employee }) => {
     const cellKey = getCellKey(cell);
@@ -67,7 +59,6 @@ const ScheduleCell: React.FC<ScheduleCellProps> = React.memo(
   }
 );
 
-// Główny komponent EmployeeRow
 export const EmployeeRow: React.FC<EmployeeRowProps> = React.memo(
   ({
     employee,
@@ -77,7 +68,6 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = React.memo(
     activeTable,
     loadingCells,
     getCellKey,
-    onCellChange,
   }) => {
     const theme = useTheme();
     const isXs = useMediaQuery(theme.breakpoints.only('xs'));

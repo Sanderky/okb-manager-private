@@ -1,7 +1,11 @@
 import * as React from 'react';
 import useEventCallback from '@mui/utils/useEventCallback';
 import DialogsContext from './DialogsContext';
-import type { DialogComponent, OpenDialog, OpenDialogOptions } from './useDialogs';
+import type {
+  DialogComponent,
+  OpenDialog,
+  OpenDialogOptions,
+} from './useDialogs';
 
 interface DialogStackEntry<P, R> {
   key: string;
@@ -28,13 +32,13 @@ export default function DialogsProvider(props: DialogProviderProps) {
   const keyPrefix = React.useId();
   const nextId = React.useRef(0);
   const dialogMetadata = React.useRef(
-    new WeakMap<Promise<any>, DialogStackEntry<any, any>>(),
+    new WeakMap<Promise<any>, DialogStackEntry<any, any>>()
   );
 
   const requestDialog = useEventCallback<OpenDialog>(function open<P, R>(
     Component: DialogComponent<P, R>,
     payload: P,
-    options: OpenDialogOptions<R> = {},
+    options: OpenDialogOptions<R> = {}
   ) {
     const { onClose = async () => {} } = options;
     let resolve: ((result: R) => void) | undefined;
@@ -67,23 +71,25 @@ export default function DialogsProvider(props: DialogProviderProps) {
   });
 
   const closeDialogUi = useEventCallback(function closeDialogUi<R>(
-    dialog: Promise<R>,
+    dialog: Promise<R>
   ) {
     setStack((prevStack) =>
       prevStack.map((entry) =>
-        entry.promise === dialog ? { ...entry, open: false } : entry,
-      ),
+        entry.promise === dialog ? { ...entry, open: false } : entry
+      )
     );
     setTimeout(() => {
       // wait for closing animation
-      setStack((prevStack) => prevStack.filter((entry) => entry.promise !== dialog));
+      setStack((prevStack) =>
+        prevStack.filter((entry) => entry.promise !== dialog)
+      );
       // WeakMap automatically cleans up when promise is garbage collected
     }, unmountAfter);
   });
 
   const closeDialog = useEventCallback(async function closeDialog<R>(
     dialog: Promise<R>,
-    result: R,
+    result: R
   ) {
     const entryToClose = dialogMetadata.current.get(dialog);
     if (!entryToClose) {
@@ -101,7 +107,7 @@ export default function DialogsProvider(props: DialogProviderProps) {
 
   const contextValue = React.useMemo(
     () => ({ open: requestDialog, close: closeDialog }),
-    [requestDialog, closeDialog],
+    [requestDialog, closeDialog]
   );
 
   return (
