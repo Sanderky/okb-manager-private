@@ -83,6 +83,8 @@ export interface Vacation {
   groupId: string;
   startDate: Date;
   endDate: Date;
+  color: string;
+  description?: string;
 }
 
 export interface Schedule {

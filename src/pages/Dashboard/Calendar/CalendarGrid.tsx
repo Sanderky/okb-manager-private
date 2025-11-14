@@ -2,7 +2,6 @@ import React from 'react';
 import { Grid, Box, Typography, Tooltip, Link } from '@mui/material';
 import dayjs from 'dayjs';
 import { WEEK_DAYS, type CalendarGridProps } from './CalendarHelpers';
-import { getColorForEmployee, getInitials } from './CalendarHelpers';
 
 export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
   ({
@@ -54,21 +53,6 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                   },
                   position: 'relative',
                   cursor: 'pointer',
-                  // '&::after': {
-                  //   content: '""',
-                  //   display: isToday ? 'block' : 'none',
-                  //   width: { xs: '5px', md: '10px' },
-                  //   height: { xs: '5px', md: '10px' },
-                  //   right: { xs: '5px', md: '10px' },
-                  //   top: { xs: '5px', md: '10px' },
-                  //   position: 'absolute',
-                  //   borderRadius: '50%',
-                  //   border: '1px solid #777',
-                  //   bgcolor: '#ffd85f',
-                  //   boxSizing: 'content-box',
-                  //   zIndex: 5,
-                  //   pointerEvents: 'none',
-                  // },
                 }}
                 onClick={() => onDayClick(day)}
               >
@@ -103,7 +87,22 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                         arrow
                         placement="top"
                         key={index}
-                        title={ev.employee?.name}
+                        title={
+                          <Box>
+                            <Typography variant="subtitle2">
+                              {ev.employee?.name}
+                            </Typography>
+                            <Typography variant="body2">
+                              {ev.startDate.format('DD.MM.YYYY')} –{' '}
+                              {ev.endDate.format('DD.MM.YYYY')}
+                            </Typography>
+                            {ev.description && (
+                              <Typography variant="body2" sx={{ mt: 0.5 }}>
+                                {ev.description}
+                              </Typography>
+                            )}
+                          </Box>
+                        }
                         onClick={(e) => {
                           e.stopPropagation();
                           handleEventClick(ev);
@@ -127,7 +126,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                             top: slot * 23,
                             left: 0,
                             right: 0,
-                            bgcolor: getColorForEmployee(ev.employee?.id),
+                            bgcolor: ev.color,
                             px: 1,
                             ml: isStart ? 1 : '-1px',
                             mr: isEnd ? 1 : '-1px',
@@ -148,13 +147,11 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                           <Typography
                             sx={{
                               fontSize: 'inherit',
-                              // display: { xs: 'none', sm: 'block' },
                               fontWeight: 500,
                               textOverflow: 'ellipsis',
                               overflow: 'hidden',
                             }}
                           >
-                            {/* {!ev.employee.status && '*'} */}
                             {ev.employee.name}
                           </Typography>
                         </Box>

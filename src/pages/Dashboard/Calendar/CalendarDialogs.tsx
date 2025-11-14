@@ -31,7 +31,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import BaseDialog from '../../../components/BaseDialog';
 import {
-  getColorForEmployee,
+  pastelColors,
   type ActiveDialog,
   type CalendarEvent,
 } from './CalendarHelpers';
@@ -42,6 +42,7 @@ import {
   Clear as ClearIcon,
   Print as PrintIcon,
 } from '@mui/icons-material';
+import EditIcon from '@mui/icons-material/Edit';
 import dayjs, { Dayjs } from 'dayjs';
 import { useReactToPrint } from 'react-to-print';
 
@@ -148,6 +149,7 @@ export const FilterDialog: React.FC<FilterDialogProps> = ({
 interface AddEventDialogProps {
   activeDialog: ActiveDialog;
   currentEvent: CalendarEvent;
+  setCurrentEvent: (event: CalendarEvent) => void;
   validationError: string;
   employees: Employee[];
   handleModalClose: () => void;
@@ -159,6 +161,7 @@ interface AddEventDialogProps {
 export const AddEventDialog: React.FC<AddEventDialogProps> = ({
   activeDialog,
   currentEvent,
+  setCurrentEvent,
   validationError,
   employees,
   handleModalClose,
@@ -166,6 +169,42 @@ export const AddEventDialog: React.FC<AddEventDialogProps> = ({
   handleAddEvent,
   loading = false,
 }) => {
+  const handleDescriptionChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setCurrentEvent({
+      ...currentEvent,
+      description: event.target.value,
+    });
+  };
+
+  const handleColorChange = (color: string) => {
+    setCurrentEvent({
+      ...currentEvent,
+      color: color,
+    });
+  };
+
+  const handleStartDateChange = (date: Dayjs | null) => {
+    if (date) {
+      setCurrentEvent({
+        ...currentEvent,
+        startDate: date,
+      });
+    }
+  };
+
+  const handleEndDateChange = (date: Dayjs | null) => {
+    if (date) {
+      setCurrentEvent({
+        ...currentEvent,
+        endDate: date,
+      });
+    }
+  };
+
+  const isFormValid = currentEvent.employee && currentEvent.color;
+
   return (
     <BaseDialog
       open={activeDialog.type === 'addEvent'}
@@ -174,7 +213,7 @@ export const AddEventDialog: React.FC<AddEventDialogProps> = ({
       title="Dodaj urlop"
       confirmText="Zapisz urlop"
       loading={loading}
-      disabled={!currentEvent.employee}
+      disabled={!isFormValid}
       showCancel={false}
     >
       <Stack spacing={2}>
@@ -196,7 +235,7 @@ export const AddEventDialog: React.FC<AddEventDialogProps> = ({
           renderInput={(params) => (
             <TextField
               {...params}
-              label="Pracownik"
+              label="Pracownik *"
               error={!!validationError && !currentEvent.employee?.id}
               helperText={
                 validationError && !currentEvent.employee?.id
@@ -209,25 +248,243 @@ export const AddEventDialog: React.FC<AddEventDialogProps> = ({
           disabled={loading}
         />
 
-        {currentEvent.startDate && currentEvent.endDate && (
-          <Stack direction="row" alignItems="center" spacing={1}>
-            <Chip
-              label={currentEvent.startDate.format('DD.MM.YYYY')}
-              color="primary"
-              variant="outlined"
+        <TextField
+          label="Opis"
+          multiline
+          rows={4}
+          value={currentEvent.description || ''}
+          onChange={handleDescriptionChange}
+          disabled={loading}
+        />
+
+        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pl">
+          <Stack direction="row" spacing={2}>
+            <DatePicker
+              label="Data rozpoczęcia *"
+              value={currentEvent.startDate}
+              onChange={handleStartDateChange}
+              slotProps={{
+                textField: {
+                  size: 'small',
+                  fullWidth: true,
+                },
+              }}
             />
-            <Typography variant="body2">–</Typography>
-            <Chip
-              label={currentEvent.endDate.format('DD.MM.YYYY')}
-              color="primary"
-              variant="outlined"
+            <DatePicker
+              label="Data zakończenia *"
+              value={currentEvent.endDate}
+              onChange={handleEndDateChange}
+              slotProps={{
+                textField: {
+                  size: 'small',
+                  fullWidth: true,
+                },
+              }}
             />
           </Stack>
-        )}
+        </LocalizationProvider>
+
+        <Box>
+          <FormLabel>Wybierz kolor *</FormLabel>
+          {!currentEvent.color && validationError && (
+            <Typography
+              variant="caption"
+              color="error"
+              sx={{ display: 'block', mt: 0.5 }}
+            >
+              {validationError}
+            </Typography>
+          )}
+          <Stack direction="row" gap={1} sx={{ mt: 1 }} flexWrap="wrap">
+            {pastelColors.map((color) => (
+              <Box
+                key={color}
+                sx={{
+                  width: 25,
+                  height: 25,
+                  backgroundColor: color,
+                  cursor: 'pointer',
+                  borderRadius: 1,
+                  border: currentEvent.color === color ? '2px solid #000' : '',
+                }}
+                onClick={() => handleColorChange(color)}
+              />
+            ))}
+          </Stack>
+        </Box>
 
         {validationError && validationError.includes('urlop w dniach') && (
           <Alert severity="error">{validationError}</Alert>
         )}
+      </Stack>
+    </BaseDialog>
+  );
+};
+
+interface EditEventDialogProps {
+  activeDialog: ActiveDialog;
+  currentEvent: CalendarEvent;
+  setCurrentEvent: (event: CalendarEvent) => void;
+  validationError: string;
+  employees: Employee[];
+  handleModalClose: () => void;
+  handleEmployeeChange: (employee: Employee) => void;
+  handleEditEvent: () => void;
+  loading?: boolean;
+}
+
+export const EditEventDialog: React.FC<EditEventDialogProps> = ({
+  activeDialog,
+  currentEvent,
+  setCurrentEvent,
+  validationError,
+  employees,
+  handleModalClose,
+  handleEmployeeChange,
+  handleEditEvent,
+  loading = false,
+}) => {
+  const handleDescriptionChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setCurrentEvent({
+      ...currentEvent,
+      description: event.target.value,
+    });
+  };
+
+  const handleColorChange = (color: string) => {
+    setCurrentEvent({
+      ...currentEvent,
+      color: color,
+    });
+  };
+
+  const handleStartDateChange = (date: Dayjs | null) => {
+    if (date) {
+      setCurrentEvent({
+        ...currentEvent,
+        startDate: date,
+      });
+    }
+  };
+
+  const handleEndDateChange = (date: Dayjs | null) => {
+    if (date) {
+      setCurrentEvent({
+        ...currentEvent,
+        endDate: date,
+      });
+    }
+  };
+
+  const isFormValid = currentEvent.color;
+
+  return (
+    <BaseDialog
+      open={activeDialog.type === 'editEvent'}
+      onClose={handleModalClose}
+      onConfirm={handleEditEvent}
+      title="Edytuj urlop"
+      confirmText="Zapisz zmiany"
+      loading={loading}
+      disabled={!isFormValid}
+      showCancel={false}
+    >
+      <Stack spacing={2}>
+        <Autocomplete
+          size="small"
+          options={employees.filter((e) => e.status)}
+          getOptionLabel={(opt) => opt?.name}
+          value={currentEvent.employee ?? null}
+          onChange={(_, newValue) => handleEmployeeChange(newValue!)}
+          isOptionEqualToValue={(option, value) => option.id === value.id}
+          renderOption={(props, option) => {
+            const { key, ...optionProps } = props;
+            return (
+              <li key={key} {...optionProps}>
+                {option.name}
+              </li>
+            );
+          }}
+          renderInput={(params) => (
+            <TextField {...params} label="Pracownik" disabled />
+          )}
+          disabled={true}
+        />
+
+        <TextField
+          label="Opis"
+          multiline
+          rows={4}
+          value={currentEvent.description || ''}
+          onChange={handleDescriptionChange}
+          disabled={loading}
+        />
+
+        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pl">
+          <Stack direction="row" spacing={2}>
+            <DatePicker
+              label="Data rozpoczęcia *"
+              value={currentEvent.startDate}
+              onChange={handleStartDateChange}
+              slotProps={{
+                textField: {
+                  size: 'small',
+                  fullWidth: true,
+                },
+              }}
+            />
+            <DatePicker
+              label="Data zakończenia *"
+              value={currentEvent.endDate}
+              onChange={handleEndDateChange}
+              slotProps={{
+                textField: {
+                  size: 'small',
+                  fullWidth: true,
+                },
+              }}
+            />
+          </Stack>
+        </LocalizationProvider>
+
+        <Box>
+          <FormLabel>Wybierz kolor *</FormLabel>
+          {!currentEvent.color && validationError && (
+            <Typography
+              variant="caption"
+              color="error"
+              sx={{ display: 'block', mt: 0.5 }}
+            >
+              {validationError}
+            </Typography>
+          )}
+          <Stack
+            direction="row"
+            // spacing={1}
+            gap={1}
+            sx={{ mt: 1 }}
+            flexWrap="wrap"
+          >
+            {pastelColors.map((color) => (
+              <Box
+                key={color}
+                sx={{
+                  width: 25,
+                  height: 25,
+                  backgroundColor: color,
+                  cursor: 'pointer',
+                  borderRadius: 1,
+                  border: currentEvent.color === color ? '2px solid #000' : '',
+                }}
+                onClick={() => handleColorChange(color)}
+              />
+            ))}
+          </Stack>
+        </Box>
+
+        {validationError && <Alert severity="error">{validationError}</Alert>}
       </Stack>
     </BaseDialog>
   );
@@ -239,6 +496,7 @@ interface EventDetailsDialogProps {
   selectedEmployees: Employee[];
   handleModalClose: () => void;
   handleDeleteEvent: (id?: string) => void;
+  setActiveDialog: (dialog: ActiveDialog) => void;
   loading?: boolean;
   onEventClick?: (event: CalendarEvent) => void;
 }
@@ -249,6 +507,7 @@ export const EventDetailsDialog: React.FC<EventDetailsDialogProps> = ({
   selectedEmployees,
   handleModalClose,
   handleDeleteEvent,
+  setActiveDialog,
   loading = false,
   onEventClick,
 }) => {
@@ -257,6 +516,10 @@ export const EventDetailsDialog: React.FC<EventDetailsDialogProps> = ({
 
   const handleDelete = () => {
     handleDeleteEvent();
+  };
+
+  const handleEdit = () => {
+    setActiveDialog({ type: 'editEvent' });
   };
 
   const handleEmployeeProfileClick = (employeeId: string) => {
@@ -283,15 +546,24 @@ export const EventDetailsDialog: React.FC<EventDetailsDialogProps> = ({
       cancelText="Zamknij"
       actions={
         !isMultipleEvents ? (
-          <Button
-            variant="outlined"
-            color="error"
-            onClick={handleDelete}
-            loading={loading}
-            startIcon={<DeleteIcon />}
-          >
-            Usuń urlop
-          </Button>
+          <>
+            <Button
+              variant="outlined"
+              onClick={handleEdit}
+              startIcon={<EditIcon />}
+            >
+              Edytuj
+            </Button>
+            <Button
+              variant="outlined"
+              color="error"
+              onClick={handleDelete}
+              loading={loading}
+              startIcon={<DeleteIcon />}
+            >
+              Usuń urlop
+            </Button>
+          </>
         ) : undefined
       }
     >
@@ -313,9 +585,7 @@ export const EventDetailsDialog: React.FC<EventDetailsDialogProps> = ({
                 <Stack
                   key={event.id}
                   sx={{
-                    backgroundColor: getColorForEmployee(
-                      event.employee?.id ?? '0'
-                    ),
+                    backgroundColor: event.color,
                     borderRadius: 1,
                     cursor: 'pointer',
                     ':hover': { opacity: 0.9 },
@@ -341,17 +611,12 @@ export const EventDetailsDialog: React.FC<EventDetailsDialogProps> = ({
                       {event.startDate.format('DD.MM.YYYY')} –{' '}
                       {event.endDate.format('DD.MM.YYYY')}
                     </Typography>
+                    {event.description && (
+                      <Typography variant="body2" sx={{ mt: 0.5 }}>
+                        {event.description}
+                      </Typography>
+                    )}
                   </Box>
-                  <IconButton
-                    size="small"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeleteEvent(event.groupId);
-                    }}
-                    loading={loading}
-                  >
-                    <DeleteIcon color={loading ? 'disabled' : 'action'} />
-                  </IconButton>
                 </Stack>
               ))
           : currentEvent.employee && (
@@ -397,6 +662,23 @@ export const EventDetailsDialog: React.FC<EventDetailsDialogProps> = ({
                     {currentEvent.employee?.status ? 'Aktywny' : 'Nieaktywny'}
                   </Box>
                 </Stack>
+
+                {currentEvent.description && (
+                  <Box className="border-lightGray mb-2 rounded-lg border bg-gray-50 p-2">
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      fontWeight="500"
+                      sx={{ display: 'block', mb: 0.5 }}
+                    >
+                      Opis
+                    </Typography>
+                    <Typography variant="body2">
+                      {currentEvent.description}
+                    </Typography>
+                  </Box>
+                )}
+
                 <Stack
                   direction={{ xs: 'column', sm: 'row' }}
                   spacing={{ xs: 1, sm: 2 }}
@@ -442,6 +724,30 @@ export const EventDetailsDialog: React.FC<EventDetailsDialogProps> = ({
                       dni
                     </Typography>
                   </Box>
+                </Stack>
+
+                <Stack
+                  direction="row"
+                  alignItems="center"
+                  spacing={1}
+                  sx={{ mt: 2 }}
+                >
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    fontWeight="500"
+                  >
+                    Kolor:
+                  </Typography>
+                  <Box
+                    sx={{
+                      width: 20,
+                      height: 20,
+                      backgroundColor: currentEvent.color,
+                      borderRadius: 1,
+                      border: '1px solid #ddd',
+                    }}
+                  />
                 </Stack>
               </Box>
             )}
@@ -660,7 +966,7 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
 
   const filteredEmployees = useMemo(() => {
     if (showInactive) {
-      return employees; 
+      return employees;
     }
     return employees.filter((emp) => emp.status);
   }, [employees, showInactive]);
@@ -714,7 +1020,6 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
       <DialogContent dividers>
         <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pl">
           <Stack spacing={3}>
-         
             <Box>
               <FormLabel className="mb-2 block">Pracownicy</FormLabel>
               <Stack
@@ -773,14 +1078,18 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
                     size="small"
                   />
                 )}
-                renderTags={(value, getTagProps) =>
-                  value.map((option, index) => (
-                    <Chip
-                      label={option.name}
-                      size="small"
-                      {...getTagProps({ index })}
-                    />
-                  ))
+                renderValue={(value, getTagProps) =>
+                  value.map((option, index) => {
+                    const { key, ...chipProps } = getTagProps({ index });
+                    return (
+                      <Chip
+                        key={key}
+                        label={option.name}
+                        size="small"
+                        {...chipProps}
+                      />
+                    );
+                  })
                 }
               />
               <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
@@ -971,7 +1280,6 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
           </Button>
         )}
       </DialogActions>
-
 
       <div style={{ display: 'none' }}>
         <div ref={printRef}>

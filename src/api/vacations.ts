@@ -18,7 +18,9 @@ export const batchCreateVacations = async (
   employeeId: string,
   startDate: Date,
   endDate: Date,
-  groupId: string
+  groupId: string,
+  color: string, // kolor jest teraz obowiązkowy
+  description?: string
 ) => {
   const batch = writeBatch(db);
   const vacationRef = collection(db, 'vacations');
@@ -35,6 +37,10 @@ export const batchCreateVacations = async (
       date: Timestamp.fromDate(new Date(currentDate)),
       yearMonth: yearMonth,
       groupId: groupId,
+      startDate: Timestamp.fromDate(startDate),
+      endDate: Timestamp.fromDate(endDate),
+      description: description || '',
+      color: color, // obowiązkowe
     };
 
     const newDocRef = doc(vacationRef);
@@ -60,9 +66,11 @@ export async function createVacation(
   const createdIds: string[] = [];
 
   dataArray.forEach((vacationData) => {
-    const cleanedData = Object.fromEntries(
-      Object.entries(vacationData).filter(([_, value]) => value !== undefined)
-    );
+    const cleanedData = {
+      ...vacationData,
+      description: vacationData.description || '',
+      color: vacationData.color,
+    };
     const newDocRef = doc(vacationRef);
     batch.set(newDocRef, cleanedData);
     createdIds.push(newDocRef.id);
@@ -73,9 +81,19 @@ export async function createVacation(
   return Array.isArray(data) ? createdIds : createdIds[0];
 }
 
-export async function updateVacation(id: string, data: Partial<Vacation>) {
-  const vacationRef = doc(db, 'vacations', id);
-  await updateDoc(vacationRef, data);
+export async function updateVacationGroup(
+  groupId: string,
+  data: Partial<Vacation>
+) {
+  const q = query(collection(db, 'vacations'), where('groupId', '==', groupId));
+  const snapshot = await getDocs(q);
+
+  const batch = writeBatch(db);
+  snapshot.docs.forEach((doc) => {
+    batch.update(doc.ref, data);
+  });
+
+  await batch.commit();
 }
 
 export async function removeVacation(id: string) {

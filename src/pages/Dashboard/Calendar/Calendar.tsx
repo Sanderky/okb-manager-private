@@ -13,6 +13,7 @@ import {
   createVacation,
   getVacationListForMonths,
   removeVacation,
+  updateVacationGroup,
 } from '../../../api/vacations';
 import { Close as CloseIcon } from '@mui/icons-material';
 import type { Dayjs } from 'dayjs';
@@ -24,6 +25,7 @@ import {
   FilterDialog,
   AddEventDialog,
   EventDetailsDialog,
+  EditEventDialog,
   VacationReportDialog,
 } from './CalendarDialogs';
 import {
@@ -31,6 +33,7 @@ import {
   type ActiveDialog,
   type CalendarDay,
   type CalendarEvent,
+  pastelColors,
 } from './CalendarHelpers';
 import PageContainer from '../../../components/PageContainer';
 import useLoading from '../../../hooks/useLoading';
@@ -110,6 +113,37 @@ const Calendar: React.FC = () => {
     onError: (err: Error) => {
       console.error('Create vacation error:', err);
       notifications.show('Wystąpił błąd podczas tworzenia urlopu.', {
+        severity: 'error',
+        autoHideDuration: 5000,
+      });
+    },
+    onSettled: () => {
+      stopActionLoading();
+    },
+  });
+
+  const { mutate: updateMutation, isPending: isUpdating } = useMutation({
+    mutationFn: ({
+      groupId,
+      data,
+    }: {
+      groupId: string;
+      data: Partial<Vacation>;
+    }) => updateVacationGroup(groupId, data),
+    onMutate: () => {
+      startActionLoading();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['vacations', monthKeys] });
+      notifications.show('Urlop został pomyślnie zaktualizowany.', {
+        severity: 'success',
+        autoHideDuration: 5000,
+      });
+      handleModalClose();
+    },
+    onError: (err: Error) => {
+      console.error('Update vacation error:', err);
+      notifications.show('Wystąpił błąd podczas aktualizacji urlopu.', {
         severity: 'error',
         autoHideDuration: 5000,
       });
@@ -201,6 +235,8 @@ const Calendar: React.FC = () => {
                 startDate: dayjs(ev.startDate),
                 date: dayjs(ev.date),
                 employee: employee,
+                description: ev.description,
+                color: ev.color,
               };
             })
             .filter(Boolean) as CalendarEvent[];
@@ -269,6 +305,8 @@ const Calendar: React.FC = () => {
         setCurrentEvent((prev) => ({
           ...prev,
           startDate: day,
+          endDate: day,
+          color: pastelColors[0],
         }));
       } else {
         const start = selectDay.isBefore(day) ? selectDay : day;
@@ -277,6 +315,7 @@ const Calendar: React.FC = () => {
           ...prev,
           startDate: start,
           endDate: end,
+          color: prev.color || pastelColors[0],
         }));
         setActiveDialog({ type: 'addEvent' });
       }
@@ -325,7 +364,12 @@ const Calendar: React.FC = () => {
   const handleAddEvent = () => {
     if (!currentEvent) return;
 
-    const { employee, startDate, endDate } = currentEvent;
+    const { employee, startDate, endDate, description, color } = currentEvent;
+
+    if (!color) {
+      setValidationError('Wybierz kolor urlopu');
+      return;
+    }
 
     const validation = validateVacation(
       employee?.id || '',
@@ -353,11 +397,33 @@ const Calendar: React.FC = () => {
         groupId: groupId,
         date: currentDate.toDate(),
         yearMonth: currentDate.format('YYYY-MM'),
+        description: description,
+        color: color,
       });
       currentDate = currentDate.add(1, 'day');
     }
 
     addMutation(eventList);
+  };
+
+  const handleEditEvent = () => {
+    if (!currentEvent.groupId) return;
+
+    const { startDate, endDate, description, color } = currentEvent;
+
+    if (!color) {
+      setValidationError('Wybierz kolor urlopu');
+      return;
+    }
+
+    const updateData: Partial<Vacation> = {
+      startDate: startDate.toDate(),
+      endDate: endDate.toDate(),
+      description: description,
+      color: color,
+    };
+
+    updateMutation({ groupId: currentEvent.groupId, data: updateData });
   };
 
   const handleDeleteEvent = (id?: string) => {
@@ -482,6 +548,7 @@ const Calendar: React.FC = () => {
         <AddEventDialog
           activeDialog={activeDialog}
           currentEvent={currentEvent}
+          setCurrentEvent={setCurrentEvent}
           validationError={validationError}
           employees={employees}
           handleModalClose={handleModalClose}
@@ -490,12 +557,25 @@ const Calendar: React.FC = () => {
           loading={actionLoading || isAdding}
         />
 
+        <EditEventDialog
+          activeDialog={activeDialog}
+          currentEvent={currentEvent}
+          setCurrentEvent={setCurrentEvent}
+          validationError={validationError}
+          employees={employees}
+          handleModalClose={handleModalClose}
+          handleEmployeeChange={handleEmployeeChange}
+          handleEditEvent={handleEditEvent}
+          loading={actionLoading || isUpdating}
+        />
+
         <EventDetailsDialog
           activeDialog={activeDialog}
           currentEvent={currentEvent}
           selectedEmployees={selectedEmployees}
           handleModalClose={handleModalClose}
           handleDeleteEvent={handleDeleteEvent}
+          setActiveDialog={setActiveDialog}
           loading={actionLoading || isDeleting}
           onEventClick={handleEventClick}
         />

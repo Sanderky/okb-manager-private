@@ -12,7 +12,7 @@ import {
   Typography,
   CircularProgress,
   Tooltip,
-  Collapse
+  Collapse,
 } from '@mui/material';
 import {
   Add,
@@ -329,7 +329,7 @@ const TableRows = ({
             </TableCell>
             <TableCell
               align="center"
-              className='bg-blue-200'
+              className="bg-blue-200"
               sx={{
                 borderBottom: borderBold,
                 p: 0.5,
@@ -437,7 +437,7 @@ const HoursTable = ({
     onSelectedEmployeesChange,
     getAvailableEmployeesForConstruction,
     getAvailableConstructions,
-    getActiveEmployees
+    getActiveEmployees,
   } = useHoursTable();
 
   useEffect(() => {
@@ -466,7 +466,6 @@ const HoursTable = ({
 
   const availableConstructions = getAvailableConstructions();
 
-
   return (
     <Box>
       <Box sx={{ display: 'none' }}>
@@ -487,7 +486,6 @@ const HoursTable = ({
           />
         </Box>
       </Box>
-
       <HoursTableControls
         isLoading={isTableLoading}
         currentWeek={currentWeek}

@@ -18,6 +18,8 @@ export interface CalendarEvent {
   startDate: Dayjs;
   endDate: Dayjs;
   groupId: string;
+  color: string;
+  description?: string;
 }
 
 export interface CalendarGridProps {
@@ -40,6 +42,7 @@ export type ActiveDialog =
   | { type: 'none' }
   | { type: 'addEvent' }
   | { type: 'eventDetails' }
+  | { type: 'editEvent' }
   | { type: 'moreEvents'; day: CalendarDay };
 
 export const pastelColors = [
@@ -64,21 +67,6 @@ export const pastelColors = [
   '#8CA3A3',
   '#A4A9B1',
 ];
-
-export const getColorForEmployee = (id: string): string => {
-  if (!id) return pastelColors[0];
-
-  let hash = 2166136261;
-  for (let i = 0; i < id.length; i++) {
-    hash ^= id.charCodeAt(i);
-    hash = Math.imul(hash, 16777619);
-    hash ^= hash >>> 1;
-    hash |= 0;
-  }
-
-  const index = Math.abs(hash) % pastelColors.length;
-  return pastelColors[index];
-};
 
 export const validateVacation = (
   employeeId: string,

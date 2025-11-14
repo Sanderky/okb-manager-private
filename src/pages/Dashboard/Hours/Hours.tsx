@@ -61,28 +61,30 @@ const Hours: React.FC = () => {
   return (
     <PageContainer
       breadcrumbs={[{ title: 'Ewidencja godzin pracy' }]}
-      actions={[
-        <Button
-          size="small"
-          onClick={reactToPrintFn}
-          startIcon={<Print />}
-          variant="contained"
-          sx={{
-            flexGrow: 0,
-          }}
-        >
-          Drukuj
-        </Button>,
-        <Button
-          size="small"
-          onClick={() => setPrintReportDialogOpen(true)}
-          startIcon={<Summarize />}
-          variant="contained"
-          sx={{ flexGrow: 0, whiteSpace: 'nowrap' }}
-        >
-          Generuj raport
-        </Button>,
-      ]}
+      actions={
+        <>
+          <Button
+            size="small"
+            onClick={reactToPrintFn}
+            startIcon={<Print />}
+            variant="contained"
+            sx={{
+              flexGrow: 0,
+            }}
+          >
+            Drukuj
+          </Button>
+          <Button
+            size="small"
+            onClick={() => setPrintReportDialogOpen(true)}
+            startIcon={<Summarize />}
+            variant="contained"
+            sx={{ flexGrow: 0, whiteSpace: 'nowrap' }}
+          >
+            Generuj raport
+          </Button>
+        </>
+      }
     >
       <Stack direction="column" spacing={6}>
         <HoursTable
@@ -91,7 +93,7 @@ const Hours: React.FC = () => {
           tableId="main"
         />
 
-        {comparisionTables.map((key, index) => (
+        {/* {comparisionTables.map((key, index) => (
           <Box key={index}>
             <Typography
               variant="h5"
@@ -110,10 +112,10 @@ const Hours: React.FC = () => {
               tableId={`comparison-${key}`}
             />
           </Box>
-        ))}
+        ))} */}
       </Stack>
 
-      <Divider sx={{ mt: 5, mb: 5 }}>
+      {/* <Divider sx={{ mt: 5, mb: 5 }}>
         <Button
           variant="contained"
           size="small"
@@ -131,7 +133,7 @@ const Hours: React.FC = () => {
 
       <Box sx={{ display: 'none' }}>
         <MultiTablePrintReport tablesData={tablesData} ref={printContentRef} />
-      </Box>
+      </Box> */}
     </PageContainer>
   );
 };

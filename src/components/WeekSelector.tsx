@@ -134,14 +134,16 @@ const WeekSelector: React.FC<WeekSelectorProps> = ({
   return (
     <>
       <Tooltip title="Wybierz tydzień">
-        <Button
-          variant="outlined"
-          startIcon={<CalendarMonth />}
-          onClick={handleClick}
-          disabled={disabled}
-        >
-          {`${formatDate(value)} - ${formatDate(getEndOfWeek(value))}`}
-        </Button>
+        <span>
+          <Button
+            variant="outlined"
+            startIcon={<CalendarMonth />}
+            onClick={handleClick}
+            disabled={disabled}
+          >
+            {`${formatDate(value)} - ${formatDate(getEndOfWeek(value))}`}
+          </Button>
+        </span>
       </Tooltip>
 
       <Popover
