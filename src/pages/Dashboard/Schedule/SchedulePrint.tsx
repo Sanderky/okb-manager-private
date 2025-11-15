@@ -40,7 +40,7 @@ export const PrintableSchedule = ({
             sx={{
               tableLayout: 'fixed',
               width: '100%',
-            //   width: 'fit-content',
+              //   width: 'fit-content',
               border: '1px solid black',
               '& .MuiTableCell-root': {
                 border: '1px solid black',
@@ -86,7 +86,7 @@ export const PrintableSchedule = ({
                     <Typography
                       sx={{
                         fontWeight: 'bold',
-                        textAlign: 'center'
+                        textAlign: 'center',
                       }}
                     >
                       {employee.name}
@@ -105,8 +105,8 @@ export const PrintableSchedule = ({
                         sx={{
                           textAlign: 'center',
                           '& p': {
-                            color: '#000 !important'
-                          }
+                            color: '#000 !important',
+                          },
                         }}
                       >
                         {cellText(cellData, false)}
@@ -124,7 +124,7 @@ export const PrintableSchedule = ({
             sx={{
               tableLayout: 'fixed',
               width: '100%',
-            //   width: 'fit-content',
+              //   width: 'fit-content',
               border: '1px solid black',
               '& .MuiTableCell-root': {
                 border: '1px solid black',
@@ -179,7 +179,7 @@ export const PrintableSchedule = ({
                     <Typography
                       sx={{
                         fontWeight: 'bold',
-                        textAlign: 'center'
+                        textAlign: 'center',
                       }}
                     >
                       {employee.name}
@@ -199,8 +199,8 @@ export const PrintableSchedule = ({
                         sx={{
                           textAlign: 'center',
                           '& p': {
-                            color: '#000 !important'
-                          }
+                            color: '#000 !important',
+                          },
                         }}
                       >
                         {day ? cellText(cellData, false) : ''}

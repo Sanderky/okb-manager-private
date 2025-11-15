@@ -231,7 +231,7 @@ const ScheduleComponent = () => {
       cell: ICell
     ) => {
       const cellKey = getCellKey(cell);
-      const startOfWeek = date.startOf('week'); 
+      const startOfWeek = date.startOf('week');
       const weekStartDate = startOfWeek.toDate();
 
       const existingSchedule = getScheduleByEmployeeAndWeek(

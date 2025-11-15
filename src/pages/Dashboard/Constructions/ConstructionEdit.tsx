@@ -59,7 +59,7 @@ export default function ConstructionEdit() {
   } = useQuery({
     queryKey: ['construction', constructionId],
     queryFn: () => getConstruction(constructionId!),
-    enabled: false,
+    refetchOnWindowFocus: false,
   });
 
   const [formState, setFormState] = React.useState<ConstructionFormState>({

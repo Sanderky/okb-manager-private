@@ -593,13 +593,20 @@ export const EventDetailsDialog: React.FC<EventDetailsDialogProps> = ({
                     ':hover': { opacity: 0.9 },
                     overflow: 'hidden',
                   }}
+                  spacing={1}
                   direction="row"
                   alignItems="center"
                   className="border border-gray-300 px-3 py-2"
                   onClick={() => handleMoreEventsItemClick(event)}
                 >
-                  <Box sx={{ flexGrow: 1 }}>
-                    <Typography variant="subtitle1" fontWeight="500">
+                  <Box sx={{ flexGrow: 1, overflow: 'hidden' }}>
+                    <Typography
+                      variant="subtitle1"
+                      fontWeight="500"
+                      sx={{
+                        whiteSpace: 'wrap',
+                      }}
+                    >
                       {event.employee?.name}{' '}
                       <Typography
                         component={'span'}
@@ -627,11 +634,13 @@ export const EventDetailsDialog: React.FC<EventDetailsDialogProps> = ({
                   direction={'row'}
                   justifyContent={'space-between'}
                   alignItems={'flex-start'}
+                  spacing={1}
                   className="mb-3"
                 >
                   <Box
                     sx={{
                       flexGrow: 1,
+                      overflow: 'hidden',
                     }}
                   >
                     <Typography
@@ -641,6 +650,9 @@ export const EventDetailsDialog: React.FC<EventDetailsDialogProps> = ({
                         handleEmployeeProfileClick(currentEvent.employee.id)
                       }
                       sx={{
+                        // overflow: 'hidden',
+                        // textOverflow: 'ellipsis',
+                        whiteSpace: 'wrap',
                         cursor: 'pointer',
                         ':hover': {
                           opacity: 0.8,

@@ -76,7 +76,7 @@ export default function EmployeeEdit() {
   } = useQuery({
     queryKey: ['employee', employeeId],
     queryFn: () => getEmployee(employeeId!),
-    enabled: false,
+    refetchOnWindowFocus: false,
   });
 
   const [formState, setFormState] = useState<EmployeeFormState>({
@@ -309,15 +309,33 @@ export default function EmployeeEdit() {
 
     if (error) {
       return (
-        <Alert severity="error">
-          Wystąpił błąd podczas ładowania danych pracownika.
-        </Alert>
+        <Grid
+          container
+          columns={12}
+          alignItems={'flex-start'}
+          className="w-full"
+        >
+          <Grid size={{ xs: 12 }} className="w-full">
+            <Alert severity="error">
+              Wystąpił błąd podczas ładowania danych pracownika.
+            </Alert>
+          </Grid>
+        </Grid>
       );
     }
 
     if (!employee) {
       return (
-        <Alert severity="warning">Nie znaleziono danych pracownika.</Alert>
+        <Grid
+          container
+          columns={12}
+          alignItems={'flex-start'}
+          className="w-full"
+        >
+          <Grid size={{ xs: 12 }} className="w-full">
+            <Alert severity="warning">Nie znaleziono danych pracownika.</Alert>
+          </Grid>
+        </Grid>
       );
     }
 

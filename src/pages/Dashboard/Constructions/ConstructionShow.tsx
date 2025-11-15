@@ -666,6 +666,7 @@ export default function ConstructionShow() {
     editNote,
     handleSaveNote,
     actionLoading,
+    handleCancelEdit,
     note,
     scheduleEmployees,
     endDialogOpen,

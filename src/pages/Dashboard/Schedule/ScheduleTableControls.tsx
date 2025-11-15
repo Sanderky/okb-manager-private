@@ -60,12 +60,12 @@ export const TableControls: React.FC<TableControlsProps> = ({
           direction={'row'}
           flexWrap={'wrap'}
           gap={2}
-          sx={{
-            display: {
-              xs: 'none',
-              sm: 'flex',
-            },
-          }}
+          // sx={{
+          //   display: {
+          //     xs: 'none',
+          //     sm: 'flex',
+          //   },
+          // }}
         >
           <WeekSelector
             value={fromWeek}
