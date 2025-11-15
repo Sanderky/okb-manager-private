@@ -93,7 +93,7 @@ const Hours: React.FC = () => {
           tableId="main"
         />
 
-        {/* {comparisionTables.map((key, index) => (
+        {comparisionTables.map((key, index) => (
           <Box key={index}>
             <Typography
               variant="h5"
@@ -112,10 +112,10 @@ const Hours: React.FC = () => {
               tableId={`comparison-${key}`}
             />
           </Box>
-        ))} */}
+        ))}
       </Stack>
 
-      {/* <Divider sx={{ mt: 5, mb: 5 }}>
+      <Divider sx={{ mt: 5, mb: 5 }}>
         <Button
           variant="contained"
           size="small"
@@ -133,7 +133,7 @@ const Hours: React.FC = () => {
 
       <Box sx={{ display: 'none' }}>
         <MultiTablePrintReport tablesData={tablesData} ref={printContentRef} />
-      </Box> */}
+      </Box>
     </PageContainer>
   );
 };

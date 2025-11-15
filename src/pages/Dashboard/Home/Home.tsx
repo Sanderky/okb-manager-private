@@ -383,7 +383,7 @@ const Home = () => {
 
   return (
     <PageContainer breadcrumbs={[{ title: 'Strona główna' }]}>
-      <Box className="border-lightGray mb-3 rounded-lg border bg-white pl-3">
+      <Box className="border-lightGray mb-3 overflow-hidden rounded-lg border bg-white px-2">
         <Tabs value={tab} onChange={handleTabChange}>
           <Tab
             label="Informacje"
