@@ -61,6 +61,7 @@ export default function PageContainer(props: PageContainerProps) {
           pb: 8,
           px: { xs: 2, sm: 3 },
           maxWidth: '1300px',
+          overflow: 'auto',
         }}
         spacing={0}
       >

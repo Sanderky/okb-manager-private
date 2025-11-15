@@ -12,6 +12,7 @@ import {
   CardContent,
   Avatar,
   Chip,
+  Divider,
 } from '@mui/material';
 import PageContainer from '../../../components/PageContainer';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -493,8 +494,8 @@ const Home = () => {
   const navigate = useNavigate();
 
   const { data: employees } = useQuery({
-    queryKey: ['employees', { status: true }],
-    queryFn: () => getEmployeeList(true),
+    queryKey: ['employees'],
+    queryFn: () => getEmployeeList(),
   });
 
   const { data: constructions } = useQuery({
@@ -510,6 +511,16 @@ const Home = () => {
     navigate('/constructions');
   }, [navigate]);
 
+  const activeEmployees = useMemo(() => {
+    const active = employees?.filter((e) => e.status);
+    return active;
+  }, [employees]);
+
+  const activeConstructions = useMemo(() => {
+    const active = constructions?.filter((c) => !c.endDate);
+    return active;
+  }, [constructions]);
+
   return (
     <PageContainer breadcrumbs={[{ title: 'Strona główna' }]}>
       <Grid container columns={12} spacing={{ xs: 2, lg: 3 }}>
@@ -522,44 +533,84 @@ const Home = () => {
         >
           <Grid size={{ xs: 12, sm: 6 }}>
             <Card
-              sx={{ boxShadow: 1, cursor: 'pointer' }}
+              sx={{ boxShadow: 0, cursor: 'pointer' }}
               onClick={handleEmployeesClick}
-              className="hover:shadow-sm"
+              className="border-lightGray rounded-lg border hover:shadow-sm"
             >
-              <CardContent>
+              <CardContent className="p-4">
                 <Stack direction="row" spacing={2} alignItems="center">
                   <Avatar sx={{ bgcolor: 'primary.main' }}>
                     <Person />
                   </Avatar>
                   <Box>
-                    <Typography variant="body1">Pracownicy</Typography>
+                    <Typography variant="body1" className="text-gray-600">
+                      Pracownicy
+                    </Typography>
                     <Typography variant="h4">
-                      {employees?.length || 0}
+                      {activeEmployees?.length || 0}
                     </Typography>
                   </Box>
                 </Stack>
               </CardContent>
+              <Divider />
+              <Box className="px-4 py-2">
+                <Stack direction={'column'}>
+                  <Typography variant="overline" className="text-gray-600">
+                    Zarchiwizowani:{' '}
+                    <Typography component={'span'} className="text-gray-800">
+                      {Number(employees?.length) -
+                        Number(activeEmployees?.length) || 0}
+                    </Typography>
+                  </Typography>
+                  <Typography variant="overline" className="text-gray-600">
+                    Wszyscy:{' '}
+                    <Typography component={'span'} className="text-gray-800">
+                      {Number(employees?.length) || 0}
+                    </Typography>
+                  </Typography>
+                </Stack>
+              </Box>
             </Card>
           </Grid>
           <Grid size={{ xs: 12, sm: 6 }}>
             <Card
-              sx={{ boxShadow: 1, cursor: 'pointer' }}
+              sx={{ boxShadow: 0, cursor: 'pointer' }}
               onClick={handleConstructionsClick}
-              className="hover:shadow-sm"
+              className="border-lightGray rounded-lg border hover:shadow-sm"
             >
-              <CardContent>
+              <CardContent className="p-4">
                 <Stack direction="row" spacing={2} alignItems="center">
                   <Avatar sx={{ bgcolor: 'secondary.main' }}>
                     <Construction />
                   </Avatar>
                   <Box>
-                    <Typography variant="body1">Aktywne budowy</Typography>
+                    <Typography variant="body1" className="text-gray-600">
+                      Aktywne budowy
+                    </Typography>
                     <Typography variant="h4">
-                      {constructions?.filter((c) => !c.endDate).length || 0}
+                      {activeConstructions?.length || 0}
                     </Typography>
                   </Box>
                 </Stack>
               </CardContent>
+              <Divider />
+              <Box className="px-4 py-2">
+                <Stack direction={'column'}>
+                  <Typography variant="overline" className="text-gray-600">
+                    Zakończone:{' '}
+                    <Typography component={'span'} className="text-gray-800">
+                      {Number(constructions?.length) -
+                        Number(activeConstructions?.length) || 0}
+                    </Typography>
+                  </Typography>
+                  <Typography variant="overline" className="text-gray-600">
+                    Wszystkie:{' '}
+                    <Typography component={'span'} className="text-gray-800">
+                      {Number(constructions?.length) || 0}
+                    </Typography>
+                  </Typography>
+                </Stack>
+              </Box>
             </Card>
           </Grid>
           <Grid
@@ -580,14 +631,20 @@ const Home = () => {
           alignContent={'flex-start'}
         >
           <Grid size={{ xs: 12 }}>
-            <Card sx={{ boxShadow: 1 }} className="hover:shadow-sm">
+            <Card
+              sx={{ boxShadow: 0 }}
+              className="border-lightGray rounded-lg border"
+            >
               <CardContent className="pb-0">
                 <EmployeeAlerts />
               </CardContent>
             </Card>
           </Grid>
           <Grid size={{ xs: 12 }}>
-            <Card sx={{ boxShadow: 1 }}>
+            <Card
+              sx={{ boxShadow: 0 }}
+              className="border-lightGray rounded-lg border"
+            >
               <CardContent className="pb-0">
                 <UpcomingVacation />
               </CardContent>
