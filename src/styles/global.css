@@ -38,6 +38,25 @@
   font-family: 'Barlow', sans-serif !important;
 }
 
+.note {
+  resize: vertical;
+  overflow: auto;
+  min-height: 150px;
+  height: 200px;
+
+  h1 {
+    font-size: 1.4rem;
+  }
+
+  h2 {
+    font-size: 1.2rem;
+  }
+
+  h3 {
+    font-size: 1.1rem;
+  }
+}
+
 /* * {
   color: var(--color-dark);
 } */

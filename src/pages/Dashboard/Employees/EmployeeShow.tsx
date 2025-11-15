@@ -14,7 +14,6 @@ import { type Employee, type FileItem } from '../../../types';
 import { getEmployee, updateEmployee } from '../../../api/employees';
 
 import EditIcon from '@mui/icons-material/Edit';
-import CloseIcon from '@mui/icons-material/Close';
 
 import {
   Chip,
@@ -27,7 +26,6 @@ import {
   TableContainer,
   TableRow,
   Tabs,
-  TextareaAutosize,
   Tooltip,
 } from '@mui/material';
 import dayjs from 'dayjs';
@@ -38,14 +36,13 @@ import AttachmentBox from './AttachmentBox';
 import { PreviewDialog } from '../../../components/fileBrowser/FilePreviewDialog';
 import { handleDownloadAttachment } from './EmployeeEditHelpers';
 
-import EditNoteIcon from '@mui/icons-material/EditNote';
-import CheckIcon from '@mui/icons-material/Check';
 import FirebaseFileBrowser from '../../../components/fileBrowser/FileBrowser';
 import { EmployeeAlertRange } from '../../../hooks/useEmployeeAlert';
 import { getUpcomingVacationsForEmployee } from '../../../api/vacations';
 
 import useLoading from '../../../hooks/useLoading';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import { Note } from '../../../components/Note';
 
 const personalFields = [
   { key: 'name', label: 'Imię i nazwisko' },
@@ -183,14 +180,12 @@ export default function EmployeeShow() {
   } = useLoading(false);
 
   const [notFound, setNotFound] = useState(false);
-  const [editNote, setEditNote] = useState(false);
 
   const notifications = useNotifications();
 
   const [previewFile, setPreviewFile] = useState<FileItem | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState<boolean>(false);
 
-  const [note, setNote] = useState('');
   const [tab, setTab] = useState(0);
 
   const handleOpenPreview = useCallback((file: FileItem | null | undefined) => {
@@ -238,7 +233,6 @@ export default function EmployeeShow() {
 
   useEffect(() => {
     if (employee) {
-      setNote(employee.note ?? '');
       setNotFound(false);
     } else if (!isEmployeeLoading) {
       setNotFound(true);
@@ -264,27 +258,17 @@ export default function EmployeeShow() {
     },
   });
 
-  const handleSaveNote = useCallback(async () => {
-    const currentNote = employee?.note ?? '';
-    if (currentNote === note) {
-      setEditNote(false);
-      return;
-    }
-
-    startActionLoading();
-    try {
-      await updateNoteMutation.mutateAsync(note);
-      setEditNote(false);
-    } finally {
-      stopActionLoading();
-    }
-  }, [
-    employee?.note,
-    note,
-    updateNoteMutation,
-    startActionLoading,
-    stopActionLoading,
-  ]);
+  const handleSaveNote = useCallback(
+    async (note: string) => {
+      startActionLoading();
+      try {
+        await updateNoteMutation.mutateAsync(note);
+      } finally {
+        stopActionLoading();
+      }
+    },
+    [updateNoteMutation, startActionLoading, stopActionLoading]
+  );
 
   const handleEmployeeEdit = useCallback(() => {
     navigate(`/employees/${employeeId}/edit`);
@@ -293,11 +277,6 @@ export default function EmployeeShow() {
   const handleBack = useCallback(() => {
     navigate('/employees');
   }, [navigate]);
-
-  const handleCancelEdit = useCallback(() => {
-    setEditNote(false);
-    setNote(employee?.note ?? '');
-  }, [employee?.note]);
 
   const formatFieldValue = (key: string, value: any) => {
     if (value === null || value === undefined || value === '') {
@@ -465,81 +444,7 @@ export default function EmployeeShow() {
                     </TableBody>
                   </Table>
                 </TableContainer>
-                <Box className="rounded-lg border border-dashed border-gray-300 p-4">
-                  <Stack
-                    spacing={1.5}
-                    direction={'column'}
-                    alignItems={'flex-start'}
-                  >
-                    <Stack
-                      direction="row"
-                      alignItems={'center'}
-                      sx={{ width: '100%' }}
-                      spacing={2}
-                    >
-                      <Typography
-                        variant="body1"
-                        className="font-medium"
-                        sx={{
-                          alignSelf: 'flex-start',
-                        }}
-                      >
-                        Notatka:
-                      </Typography>
-                      <Stack
-                        direction="row"
-                        sx={{ width: '100%' }}
-                        justifyContent={'flex-end'}
-                        alignItems="center"
-                        spacing={2}
-                      >
-                        {editNote && (
-                          <Tooltip title="Zapisz notatkę">
-                            <IconButton
-                              onClick={handleSaveNote}
-                              size="small"
-                              color="success"
-                              className="rounded-full border border-green-500 bg-green-50/50"
-                              disabled={actionLoading || !editNote}
-                            >
-                              <CheckIcon />
-                            </IconButton>
-                          </Tooltip>
-                        )}
-                        <Tooltip title={editNote ? 'Anuluj' : 'Edytuj notatkę'}>
-                          <IconButton
-                            size="small"
-                            onClick={
-                              editNote
-                                ? handleCancelEdit
-                                : () => setEditNote(true)
-                            }
-                            color={!editNote ? 'primary' : 'inherit'}
-                            className={`rounded-lg border ${editNote ? 'border-red-500 bg-red-50/50' : ''}`}
-                          >
-                            {editNote ? (
-                              <CloseIcon className="text-red-400" />
-                            ) : (
-                              <EditNoteIcon />
-                            )}
-                          </IconButton>
-                        </Tooltip>
-                      </Stack>
-                    </Stack>
-                    <TextareaAutosize
-                      minRows={3}
-                      className={`rounded-sm border border-gray-300 bg-white px-2 py-1 ${editNote ? '' : 'bg-gray-50! opacity-75'}`}
-                      style={{
-                        width: '100%',
-                        minHeight: '100px',
-                      }}
-                      placeholder="..."
-                      value={note}
-                      onChange={(e) => setNote(e.target.value)}
-                      readOnly={actionLoading || !editNote}
-                    />
-                  </Stack>
-                </Box>
+                <Note content={employee?.note ?? ''} onSave={handleSaveNote} />
               </Stack>
             </Grid>
 
@@ -693,11 +598,8 @@ export default function EmployeeShow() {
     employee,
     tab,
     handleEmployeeEdit,
-    editNote,
     handleSaveNote,
     actionLoading,
-    handleCancelEdit,
-    note,
     employeeVacation,
     handleBack,
     handleOpenPreview,

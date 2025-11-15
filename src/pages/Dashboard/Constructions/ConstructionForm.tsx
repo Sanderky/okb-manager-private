@@ -16,6 +16,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { NoteBase } from '../../../components/Note';
 
 export interface ConstructionFormState {
   values: Partial<Omit<Construction, 'id'>>;
@@ -211,21 +212,16 @@ export default function ConstructionForm(props: ConstructionFormProps) {
             <React.Fragment>
               <Divider sx={{ width: '100%' }} />
               <Grid size={{ xs: 12 }}>
-                <TextField
-                  multiline
-                  minRows={5}
-                  maxRows={10}
-                  fullWidth
-                  label="Notatka"
-                  value={formValues.note ?? ''}
-                  onChange={(e) => handleFieldChange('note', e.target.value)}
-                  error={Boolean(formErrors.note)}
-                  helperText={formErrors.note}
-                  inputRef={(el) => {
-                    if (props.registerFieldRef)
-                      props.registerFieldRef('note', el);
-                  }}
-                />
+                <Typography variant="subtitle1" className="mb-3 font-medium">
+                  Notatka
+                </Typography>
+                <Box sx={{ px: 0.2 }}>
+                  <NoteBase
+                    content={formValues.note ?? ''}
+                    onChange={(note) => handleFieldChange('note', note)}
+                    editable={true}
+                  />
+                </Box>
               </Grid>
             </React.Fragment>
           )}

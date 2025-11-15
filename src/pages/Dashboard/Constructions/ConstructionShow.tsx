@@ -17,11 +17,8 @@ import {
 } from '../../../api/constructions';
 
 import EditIcon from '@mui/icons-material/Edit';
-import CloseIcon from '@mui/icons-material/Close';
 import EventAvailableIcon from '@mui/icons-material/EventAvailable';
 import EventRepeatIcon from '@mui/icons-material/EventRepeat';
-import EditNoteIcon from '@mui/icons-material/EditNote';
-import CheckIcon from '@mui/icons-material/Check';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 
 import {
@@ -35,7 +32,6 @@ import {
   TableContainer,
   TableRow,
   Tabs,
-  TextareaAutosize,
   Tooltip,
 } from '@mui/material';
 import { useParams } from 'react-router';
@@ -49,6 +45,7 @@ import { getEmployeesByScheduledConstruction } from '../../../api/schedules';
 import BaseDialog, { ConfirmationDialog } from '../../../components/BaseDialog';
 import FirebaseFileBrowser from '../../../components/fileBrowser/FileBrowser';
 import useLoading from '../../../hooks/useLoading';
+import { Note } from '../../../components/Note';
 
 const personalFields = [
   { key: 'name', label: 'Nazwa budowy' },
@@ -69,10 +66,8 @@ export default function ConstructionShow() {
   } = useLoading(false);
 
   const [notFound, setNotFound] = useState(false);
-  const [editNote, setEditNote] = useState(false);
   const notifications = useNotifications();
   const [tab, setTab] = useState(0);
-  const [note, setNote] = useState('');
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setTab(newValue);
@@ -101,17 +96,11 @@ export default function ConstructionShow() {
 
   useEffect(() => {
     if (construction) {
-      setNote(construction.note ?? '');
       setNotFound(false);
     } else if (!isLoadingConstruction) {
       setNotFound(true);
     }
   }, [construction, isLoadingConstruction]);
-
-  const handleCancelEdit = useCallback(() => {
-    setEditNote(false);
-    setNote(construction?.note ?? '');
-  }, [construction?.note]);
 
   const updateNoteMutation = useMutation({
     mutationFn: (newNote: string) =>
@@ -134,25 +123,17 @@ export default function ConstructionShow() {
     },
   });
 
-  const handleSaveNote = useCallback(async () => {
-    const currentNote = construction?.note ?? '';
-    if (currentNote === note) {
-      return;
-    }
-    startActionLoading();
-    try {
-      await updateNoteMutation.mutateAsync(note);
-      setEditNote(false);
-    } finally {
-      stopActionLoading();
-    }
-  }, [
-    construction?.note,
-    note,
-    updateNoteMutation,
-    startActionLoading,
-    stopActionLoading,
-  ]);
+  const handleSaveNote = useCallback(
+    async (note: string) => {
+      startActionLoading();
+      try {
+        await updateNoteMutation.mutateAsync(note);
+      } finally {
+        stopActionLoading();
+      }
+    },
+    [updateNoteMutation, startActionLoading, stopActionLoading]
+  );
 
   const handleConstructionEdit = useCallback(() => {
     navigate(`/constructions/${constructionId}/edit`);
@@ -471,81 +452,11 @@ export default function ConstructionShow() {
                     </TableBody>
                   </Table>
                 </TableContainer>
-                <Box className="rounded-lg border border-dashed border-gray-300 p-4">
-                  <Stack
-                    spacing={1.5}
-                    direction={'column'}
-                    alignItems={'flex-start'}
-                  >
-                    <Stack
-                      direction="row"
-                      alignItems={'center'}
-                      sx={{ width: '100%' }}
-                      spacing={2}
-                    >
-                      <Typography
-                        variant="body1"
-                        className="font-medium"
-                        sx={{
-                          alignSelf: 'flex-start',
-                        }}
-                      >
-                        Notatka:
-                      </Typography>
-                      <Stack
-                        direction="row"
-                        sx={{ width: '100%' }}
-                        justifyContent={'flex-end'}
-                        alignItems="center"
-                        spacing={2}
-                      >
-                        {editNote && (
-                          <Tooltip title={'Zapisz notatkę'}>
-                            <IconButton
-                              size="small"
-                              onClick={handleSaveNote}
-                              color="success"
-                              className="rounded-full border border-green-500 bg-green-50/50"
-                              disabled={actionLoading || !editNote}
-                            >
-                              <CheckIcon />
-                            </IconButton>
-                          </Tooltip>
-                        )}
-                        <Tooltip title={editNote ? 'Anuluj' : 'Edytuj notatkę'}>
-                          <IconButton
-                            size="small"
-                            onClick={
-                              editNote
-                                ? handleCancelEdit
-                                : () => setEditNote(true)
-                            }
-                            color={!editNote ? 'primary' : 'inherit'}
-                            className={`rounded-lg border ${editNote ? 'border-red-500 bg-red-50/50' : ''}`}
-                          >
-                            {editNote ? (
-                              <CloseIcon className="text-red-400" />
-                            ) : (
-                              <EditNoteIcon />
-                            )}
-                          </IconButton>
-                        </Tooltip>
-                      </Stack>
-                    </Stack>
-                    <TextareaAutosize
-                      minRows={3}
-                      className={`rounded-sm border border-gray-300 bg-white px-2 py-1 ${editNote ? '' : 'bg-gray-50! opacity-75'}`}
-                      style={{
-                        width: '100%',
-                        minHeight: '100px',
-                      }}
-                      placeholder="..."
-                      value={note}
-                      onChange={(e) => setNote(e.target.value)}
-                      readOnly={actionLoading || !editNote}
-                    />
-                  </Stack>
-                </Box>
+                <Note
+                  content={construction?.note ?? ''}
+                  onSave={handleSaveNote}
+                  loading={updateNoteMutation.isPending}
+                />
               </Stack>
             </Grid>
 
@@ -663,11 +574,8 @@ export default function ConstructionShow() {
     handleConstructionEdit,
     isInProgress,
     openEndDialog,
-    editNote,
     handleSaveNote,
     actionLoading,
-    handleCancelEdit,
-    note,
     scheduleEmployees,
     endDialogOpen,
     closeEndDialog,

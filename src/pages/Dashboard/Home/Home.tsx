@@ -6,8 +6,6 @@ import {
   List,
   ListItem,
   IconButton,
-  TextareaAutosize,
-  Tooltip,
   Grid,
   CardContent,
   Avatar,
@@ -15,7 +13,7 @@ import {
   Divider,
 } from '@mui/material';
 import PageContainer from '../../../components/PageContainer';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getEmployeeList } from '../../../api/employees';
@@ -27,74 +25,13 @@ import useNotifications from '../../../hooks/useNotifications/useNotifications';
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../../../firebase';
 import type { HomeDocument } from '../../../types';
-import CheckIcon from '@mui/icons-material/Check';
-import CloseIcon from '@mui/icons-material/Close';
-import EditNoteIcon from '@mui/icons-material/EditNote';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import ReportProblemIcon from '@mui/icons-material/ReportProblem';
 import dayjs from 'dayjs';
 import { getVacationListForMonths } from '../../../api/vacations';
 import Loading from '../../../components/Loading';
 import { ExpandMore, ExpandLess } from '@mui/icons-material';
-
-// interface CountCardProps {
-//   data: number;
-//   title: string;
-//   tooltipTitle: string;
-//   onClick?: () => void;
-//   icon?: React.ReactNode;
-// }
-
-// const CountCard = ({
-//   data,
-//   title,
-//   onClick,
-//   icon,
-//   tooltipTitle,
-// }: CountCardProps) => {
-//   return (
-//     <Tooltip title={tooltipTitle}>
-//       <Card
-//         variant="outlined"
-//         sx={{
-//           borderRadius: '20px',
-//           p: 2,
-//           width: '250px',
-//           transition: 'border 0.2s ease-in-out',
-//           '&:hover': {
-//             border: '1px solid #000',
-//           },
-//           cursor: 'pointer',
-//         }}
-//         onClick={onClick}
-//       >
-//         <Stack direction="row" sx={{ alignItems: 'center' }} spacing={2}>
-//           <Stack direction={'row'} spacing={0.5}>
-//             {icon && icon}
-//             <Typography
-//               gutterBottom
-//               variant="h5"
-//               component="div"
-//               sx={{ p: 0, m: 0, lineHeight: 1 }}
-//             >
-//               {title}
-//             </Typography>
-//           </Stack>
-//           <Typography
-//             variant="body1"
-//             sx={(theme) => ({
-//               color: theme.palette.secondary.main,
-//               fontSize: '2rem',
-//               lineHeight: 1,
-//             })}
-//           >
-//             {data ?? '-'}
-//           </Typography>
-//         </Stack>
-//       </Card>
-//     </Tooltip>
-//   );
-// };
+import { Note } from '../../../components/Note';
 
 const EmployeeAlerts = () => {
   const { alerts } = useEmployeeAlert();
@@ -340,15 +277,11 @@ const UpcomingVacation = () => {
   );
 };
 
-const Note = () => {
+const HomeNote = () => {
   const notifications = useNotifications();
   const queryClient = useQueryClient();
 
-  const [editNote, setEditNote] = useState(false);
-  const [note, setNote] = useState('');
-
   const HOME_DOC_ID = 'home';
-
   const { data: home } = useQuery({
     queryKey: ['home', HOME_DOC_ID],
     queryFn: async (): Promise<HomeDocument | null> => {
@@ -365,14 +298,6 @@ const Note = () => {
       return null;
     },
   });
-
-  useEffect(() => {
-    if (home?.note !== undefined) {
-      setNote(home.note || '');
-    } else {
-      setNote('');
-    }
-  }, [home]);
 
   const updateNoteMutation = useMutation({
     mutationFn: async (newNote: string) => {
@@ -408,85 +333,12 @@ const Note = () => {
     },
   });
 
-  const handleSaveNote = useCallback(async () => {
-    const currentNote = home?.note ?? '';
-    if (currentNote === note) {
-      return;
-    }
-    updateNoteMutation.mutate(note);
-    setEditNote(false);
-  }, [home?.note, note, updateNoteMutation]);
-
-  const handleCancelEdit = () => {
-    setEditNote(false);
-    setNote(home?.note ?? '');
-  };
-
   return (
-    <Box className="rounded-lg border border-dashed border-gray-300 bg-white p-4">
-      <Stack spacing={1.5} direction={'column'} alignItems={'flex-start'}>
-        <Stack
-          direction="row"
-          alignItems={'center'}
-          sx={{ width: '100%' }}
-          spacing={2}
-        >
-          <Typography
-            variant="body1"
-            className="font-medium"
-            sx={{
-              alignSelf: 'flex-start',
-            }}
-          >
-            Notatka:
-          </Typography>
-          <Stack
-            direction="row"
-            sx={{ width: '100%' }}
-            justifyContent={'flex-end'}
-            alignItems="center"
-            spacing={2}
-          >
-            {editNote && (
-              <Tooltip title="Zapisz notatkę">
-                <IconButton
-                  onClick={handleSaveNote}
-                  size="small"
-                  color="success"
-                  className="rounded-full border border-green-500 bg-green-50/50"
-                  disabled={updateNoteMutation.isPending || !editNote}
-                >
-                  <CheckIcon />
-                </IconButton>
-              </Tooltip>
-            )}
-            <Tooltip title={editNote ? 'Anuluj' : 'Edytuj notatkę'}>
-              <IconButton
-                size="small"
-                onClick={editNote ? handleCancelEdit : () => setEditNote(true)}
-                color={!editNote ? 'primary' : 'inherit'}
-                className={`rounded-lg border ${editNote ? 'border-red-500 bg-red-50/50' : ''}`}
-              >
-                {editNote ? (
-                  <CloseIcon className="text-red-400" />
-                ) : (
-                  <EditNoteIcon />
-                )}
-              </IconButton>
-            </Tooltip>
-          </Stack>
-        </Stack>
-        <TextareaAutosize
-          minRows={3}
-          className={`rounded-sm border border-gray-300 bg-white px-2 py-1 ${editNote ? '' : 'bg-gray-50! opacity-75'}`}
-          style={{ width: '100%', minHeight: '150px', maxHeight: '500px' }}
-          placeholder="..."
-          value={note}
-          onChange={(e) => setNote(e.target.value)}
-          readOnly={updateNoteMutation.isPending || !editNote}
-        />
-      </Stack>
-    </Box>
+    <Note
+      content={home?.note ?? ''}
+      onSave={(note) => updateNoteMutation.mutate(note)}
+      loading={updateNoteMutation.isPending}
+    />
   );
 };
 
@@ -619,7 +471,9 @@ const Home = () => {
               display: { xs: 'none', lg: 'block' },
             }}
           >
-            <Note />
+            {/* <Note />
+             */}
+            <HomeNote />
           </Grid>
         </Grid>
 
@@ -656,7 +510,8 @@ const Home = () => {
               display: { xs: 'block', lg: 'none' },
             }}
           >
-            <Note />
+            {/* <Note /> */}
+            <HomeNote />
           </Grid>
         </Grid>
         <Grid size={{ xs: 12 }}>
