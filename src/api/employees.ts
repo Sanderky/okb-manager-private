@@ -39,6 +39,7 @@ export async function createEmployee(
     a1Attachment: data.a1Attachment ?? null,
     contractAttachment: data.contractAttachment ?? null,
     idAttachment: data.idAttachment ?? null,
+    birthPlace: data.birthPlace ?? null,
   };
 
   const docRef = await addDoc(collection(db, 'employees'), employeeData);

@@ -366,16 +366,12 @@ const Calendar: React.FC = () => {
 
     const { employee, startDate, endDate, description, color } = currentEvent;
 
-    if (!color) {
-      setValidationError('Wybierz kolor urlopu');
-      return;
-    }
-
     const validation = validateVacation(
       employee?.id || '',
       startDate,
       endDate,
-      vacations
+      vacations,
+      color
     );
 
     if (!validation.isValid) {
@@ -409,14 +405,27 @@ const Calendar: React.FC = () => {
   const handleEditEvent = () => {
     if (!currentEvent.groupId) return;
 
-    const { startDate, endDate, description, color } = currentEvent;
+    const { employee, startDate, endDate, description, color } = currentEvent;
 
-    if (!color) {
-      setValidationError('Wybierz kolor urlopu');
+    const otherVacations = vacations.filter(
+      (v) => v.groupId !== currentEvent.groupId
+    );
+
+    const validation = validateVacation(
+      employee?.id || '',
+      startDate,
+      endDate,
+      otherVacations,
+      color
+    );
+
+    if (!validation.isValid) {
+      setValidationError(validation.error || 'Wystąpił błąd walidacji');
       return;
     }
 
     const updateData: Partial<Vacation> = {
+      employeeId: employee.id,
       startDate: startDate.toDate(),
       endDate: endDate.toDate(),
       description: description,

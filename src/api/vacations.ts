@@ -3,7 +3,6 @@ import {
   getDocs,
   getDoc,
   doc,
-  updateDoc,
   deleteDoc,
   writeBatch,
   Timestamp,
@@ -85,15 +84,22 @@ export async function updateVacationGroup(
   groupId: string,
   data: Partial<Vacation>
 ) {
-  const q = query(collection(db, 'vacations'), where('groupId', '==', groupId));
-  const snapshot = await getDocs(q);
+  const { startDate, endDate, employeeId, color, description } = data;
 
-  const batch = writeBatch(db);
-  snapshot.docs.forEach((doc) => {
-    batch.update(doc.ref, data);
-  });
+  if (!startDate || !endDate || !employeeId || !color) {
+    throw new Error('Missing required fields');
+  }
 
-  await batch.commit();
+  await removeVacation(groupId);
+
+  await batchCreateVacations(
+    employeeId,
+    startDate,
+    endDate,
+    groupId,
+    color,
+    description
+  );
 }
 
 export async function removeVacation(id: string) {

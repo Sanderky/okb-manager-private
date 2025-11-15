@@ -280,6 +280,7 @@ export const AddEventDialog: React.FC<AddEventDialogProps> = ({
                   fullWidth: true,
                 },
               }}
+              minDate={currentEvent.startDate}
             />
           </Stack>
         </LocalizationProvider>
@@ -445,6 +446,7 @@ export const EditEventDialog: React.FC<EditEventDialogProps> = ({
                   fullWidth: true,
                 },
               }}
+              minDate={currentEvent.startDate}
             />
           </Stack>
         </LocalizationProvider>
@@ -620,19 +622,7 @@ export const EventDetailsDialog: React.FC<EventDetailsDialogProps> = ({
                 </Stack>
               ))
           : currentEvent.employee && (
-              <Box
-                className="border-lightGray rounded-lg border p-3"
-                sx={{
-                  cursor: 'pointer',
-                  ':hover': {
-                    opacity: 0.8,
-                  },
-                  transition: '0.3s',
-                }}
-                onClick={() =>
-                  handleEmployeeProfileClick(currentEvent.employee.id)
-                }
-              >
+              <Box className="border-lightGray rounded-lg border p-3">
                 <Stack
                   direction={'row'}
                   justifyContent={'space-between'}
@@ -644,7 +634,21 @@ export const EventDetailsDialog: React.FC<EventDetailsDialogProps> = ({
                       flexGrow: 1,
                     }}
                   >
-                    <Typography variant="body1" fontWeight="600">
+                    <Typography
+                      variant="body1"
+                      fontWeight="600"
+                      onClick={() =>
+                        handleEmployeeProfileClick(currentEvent.employee.id)
+                      }
+                      sx={{
+                        cursor: 'pointer',
+                        ':hover': {
+                          opacity: 0.8,
+                          textDecoration: 'underline',
+                        },
+                        transition: '0.3s',
+                      }}
+                    >
                       {currentEvent.employee?.name}
                     </Typography>
                     <Typography variant="overline" className="text-gray-500">

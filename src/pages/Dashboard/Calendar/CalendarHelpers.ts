@@ -72,7 +72,8 @@ export const validateVacation = (
   employeeId: string,
   startDate: Dayjs,
   endDate: Dayjs,
-  vacations: Vacation[]
+  vacations: Vacation[],
+  color: string
 ): { isValid: boolean; error?: string } => {
   if (!employeeId) {
     return { isValid: false, error: 'Wybierz pracownika' };
@@ -80,6 +81,17 @@ export const validateVacation = (
 
   if (!startDate || !endDate) {
     return { isValid: false, error: 'Wybierz zakres dat' };
+  }
+
+  if (!color) {
+    return { isValid: false, error: 'Wybierz kolor urlopu' };
+  }
+
+  if (endDate.isBefore(startDate)) {
+    return {
+      isValid: false,
+      error: 'Data zakończenia nie może być wcześniejsza niż data rozpoczęcia',
+    };
   }
 
   let currentDate = startDate;
