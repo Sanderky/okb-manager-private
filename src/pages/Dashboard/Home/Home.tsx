@@ -421,10 +421,12 @@ const Home = () => {
                   className="border-lightGray rounded-lg border hover:shadow-sm"
                 >
                   <CardContent className="p-4">
-                    <Stack direction="row" spacing={2} alignItems="center">
-                      <Avatar sx={{ bgcolor: 'primary.main' }}>
-                        <Person />
-                      </Avatar>
+                    <Stack
+                      direction="row"
+                      spacing={2}
+                      alignItems="center"
+                      justifyContent={'space-between'}
+                    >
                       <Box>
                         <Typography variant="body1" className="text-gray-600">
                           Pracownicy
@@ -433,6 +435,9 @@ const Home = () => {
                           {activeEmployees?.length || 0}
                         </Typography>
                       </Box>
+                      <Avatar sx={{ bgcolor: 'primary.main' }}>
+                        <Person />
+                      </Avatar>
                     </Stack>
                   </CardContent>
                   <Divider />
@@ -468,10 +473,12 @@ const Home = () => {
                   className="border-lightGray rounded-lg border hover:shadow-sm"
                 >
                   <CardContent className="p-4">
-                    <Stack direction="row" spacing={2} alignItems="center">
-                      <Avatar sx={{ bgcolor: 'secondary.main' }}>
-                        <Construction />
-                      </Avatar>
+                    <Stack
+                      direction="row"
+                      spacing={2}
+                      alignItems="center"
+                      justifyContent={'space-between'}
+                    >
                       <Box>
                         <Typography variant="body1" className="text-gray-600">
                           Aktywne budowy
@@ -480,6 +487,9 @@ const Home = () => {
                           {activeConstructions?.length || 0}
                         </Typography>
                       </Box>
+                      <Avatar sx={{ bgcolor: 'secondary.main' }}>
+                        <Construction />
+                      </Avatar>
                     </Stack>
                   </CardContent>
                   <Divider />

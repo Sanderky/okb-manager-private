@@ -174,7 +174,14 @@ export const TableControls: React.FC<TableControlsProps> = ({
         >
           <IconButton
             size="small"
-            className="rounded-l-lg rounded-r-none border text-blue-600"
+            color="primary"
+            className="rounded-l-lg rounded-r-none border"
+            sx={(theme) => ({
+              borderColor: theme.palette.primary.light,
+              '&:hover': {
+                borderColor: theme.palette.primary.main,
+              },
+            })}
             onClick={() => {
               const prevWeek = dayjs(fromWeek)
                 .subtract(1, 'week')
@@ -189,10 +196,14 @@ export const TableControls: React.FC<TableControlsProps> = ({
           </IconButton>
           <Button
             variant="outlined"
-            className="rounded-none border-x-0 border-blue-600 text-blue-600"
-            sx={{
+            className="rounded-none border-x-0"
+            sx={(theme) => ({
               flexGrow: 1,
-            }}
+              borderColor: theme.palette.primary.light,
+              '&:hover': {
+                borderColor: theme.palette.primary.main,
+              },
+            })}
             onClick={() => {
               const currentWeek = dayjs().startOf('week').toDate();
               setFromWeek(currentWeek);
@@ -201,11 +212,18 @@ export const TableControls: React.FC<TableControlsProps> = ({
               }
             }}
           >
-            Bierzący tydzień
+            Bieżący tydzień
           </Button>
           <IconButton
+            color="primary"
             size="small"
-            className="rounded-l-none rounded-r-lg border text-blue-600"
+            className="rounded-l-none rounded-r-lg border"
+            sx={(theme) => ({
+              borderColor: theme.palette.primary.light,
+              '&:hover': {
+                borderColor: theme.palette.primary.main,
+              },
+            })}
             onClick={() => {
               const nextWeek = dayjs(fromWeek)
                 .add(1, 'week')
