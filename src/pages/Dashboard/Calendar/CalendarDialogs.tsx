@@ -261,7 +261,7 @@ export const AddEventDialog: React.FC<AddEventDialogProps> = ({
           <Stack direction="row" spacing={2}>
             <DatePicker
               label="Data rozpoczęcia *"
-              value={currentEvent.startDate}
+              value={currentEvent.startDate || null}
               onChange={handleStartDateChange}
               slotProps={{
                 textField: {
@@ -272,7 +272,7 @@ export const AddEventDialog: React.FC<AddEventDialogProps> = ({
             />
             <DatePicker
               label="Data zakończenia *"
-              value={currentEvent.endDate}
+              value={currentEvent.endDate || null}
               onChange={handleEndDateChange}
               slotProps={{
                 textField: {
@@ -280,7 +280,7 @@ export const AddEventDialog: React.FC<AddEventDialogProps> = ({
                   fullWidth: true,
                 },
               }}
-              minDate={currentEvent.startDate}
+              minDate={currentEvent.startDate || null}
             />
           </Stack>
         </LocalizationProvider>
@@ -427,7 +427,7 @@ export const EditEventDialog: React.FC<EditEventDialogProps> = ({
           <Stack direction="row" spacing={2}>
             <DatePicker
               label="Data rozpoczęcia *"
-              value={currentEvent.startDate}
+              value={currentEvent.startDate || null}
               onChange={handleStartDateChange}
               slotProps={{
                 textField: {
@@ -438,7 +438,7 @@ export const EditEventDialog: React.FC<EditEventDialogProps> = ({
             />
             <DatePicker
               label="Data zakończenia *"
-              value={currentEvent.endDate}
+              value={currentEvent.endDate || null}
               onChange={handleEndDateChange}
               slotProps={{
                 textField: {
@@ -446,7 +446,7 @@ export const EditEventDialog: React.FC<EditEventDialogProps> = ({
                   fullWidth: true,
                 },
               }}
-              minDate={currentEvent.startDate}
+              minDate={currentEvent.startDate || null}
             />
           </Stack>
         </LocalizationProvider>
@@ -1117,7 +1117,7 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
                 <Box sx={{ position: 'relative', flex: 1 }}>
                   <DatePicker
                     label="Data od (opcjonalnie)"
-                    value={dateRange.start}
+                    value={dateRange.start || null}
                     onChange={(newValue) =>
                       setDateRange((prev) => ({ ...prev, start: newValue }))
                     }
@@ -1131,7 +1131,7 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
                         actions: ['clear'],
                       },
                     }}
-                    maxDate={dateRange.end!}
+                    maxDate={dateRange.end || undefined}
                   />
                   {dateRange.start && (
                     <IconButton
@@ -1152,7 +1152,7 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
                 <Box sx={{ position: 'relative', flex: 1 }}>
                   <DatePicker
                     label="Data do (opcjonalnie)"
-                    value={dateRange.end}
+                    value={dateRange.end || null}
                     onChange={(newValue) =>
                       setDateRange((prev) => ({ ...prev, end: newValue }))
                     }
@@ -1166,7 +1166,7 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
                         actions: ['clear'],
                       },
                     }}
-                    minDate={dateRange.start!}
+                    minDate={dateRange.start || undefined}
                   />
                   {dateRange.end && (
                     <IconButton
