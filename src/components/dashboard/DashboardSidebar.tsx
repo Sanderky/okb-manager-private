@@ -127,7 +127,7 @@ export default function DashboardSidebar({
             dense
             sx={{
               width: mini ? MINI_DRAWER_WIDTH : 'auto',
-              px: mini ? 0 : 2,
+              // px: mini ? 0 : 2,
               py: 2,
             }}
           >

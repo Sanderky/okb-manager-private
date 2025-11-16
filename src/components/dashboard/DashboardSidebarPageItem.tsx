@@ -114,28 +114,29 @@ export default function DashboardSidebarPageItem({
           : {})}
         sx={{
           display: 'block',
-          py: 0,
           overflowX: 'hidden',
-          borderRadius: 1,
-          mb: 1,
+          // borderRadius: 1,
+          // py: 0,
+          // mb: 1,
         }}
       >
         <ListItemButton
           selected={selected}
           disabled={disabled}
           sx={(theme) => ({
-            height: mini ? 50 : 'auto',
+            height: mini ? 70 : 'auto',
+            py: 1,
             bgcolor: selected
-              ? `${theme.palette.secondary.main} !important`
+              ? `${theme.palette.secondary.light} !important`
               : 'none',
             '&:hover': {
               background: selected ? 'none' : theme.palette.secondary.light,
             },
             color: selected
               ? theme.palette.secondary.dark
-              : theme.palette.text.primary,
+              : theme.palette.text.secondary,
           })}
-          // className={`${selected ? '!important bg-yellow-300/35 text-yellow-700' : 'hover:bg-yellow-200/35'} `}
+          // className={`${selected ? '!important bg-indigo-100 text-indigo-500' : 'text-gray-700 hover:bg-indigo-50'} `}
           {...(nestedNavigation && !mini
             ? {
                 onClick: handleClick,
@@ -162,7 +163,7 @@ export default function DashboardSidebarPageItem({
                   ? {
                       position: 'absolute',
                       left: '50%',
-                      top: 'calc(50% - 6px)',
+                      top: 'calc(50% - 8px)',
                       transform: 'translate(-50%, -50%)',
                     }
                   : {}
@@ -176,6 +177,7 @@ export default function DashboardSidebarPageItem({
                   minWidth: mini ? 'auto' : 40,
                   color: selected ? 'inherit' : 'lightSlateGray',
                 }}
+                // className={`${selected ? 'inherit' : 'text-gray-500'}`}
               >
                 {icon ?? null}
                 {!icon && mini ? (
