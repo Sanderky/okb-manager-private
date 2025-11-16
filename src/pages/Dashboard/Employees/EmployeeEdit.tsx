@@ -287,13 +287,14 @@ export default function EmployeeEdit() {
       try {
         await updateMutation.mutateAsync({ status: status });
         navigate(`/employees/${employeeId}`);
+        scrollToTop();
       } catch (error) {
         console.error('Employee status update error:', error);
       } finally {
         setIsUpdatingEmployeeStatus(false);
       }
     },
-    [employee, employeeId, navigate, updateMutation]
+    [employee, employeeId, navigate, scrollToTop, updateMutation]
   );
 
   const isFormLoading =

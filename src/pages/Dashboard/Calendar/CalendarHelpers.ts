@@ -58,7 +58,6 @@ export const employeeColors = [
   '#4DB6AC', // Turkus
   '#4DD0E1', // Cyjan pastel
   '#81D4FA', // Jasny niebieski
-  '#90CAF9', // Niebieski
   '#64B5F6', // Niebieski mocniejszy
   '#9FA8DA', // Lawendowy
   '#7986CB', // Pastelowy indygo

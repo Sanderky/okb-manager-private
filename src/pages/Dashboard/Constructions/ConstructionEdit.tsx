@@ -138,20 +138,21 @@ export default function ConstructionEdit() {
         return;
       }
 
-      const changedValues: Partial<Omit<Construction, 'id'>> = {};
-      Object.keys(formState.values).forEach((key) => {
-        const field = key as keyof Construction;
-        if (field === 'id') return;
+      const changedValues: Partial<Omit<Construction, 'id'>> = formState.values;
 
-        if (formState.values[field] !== construction?.[field]) {
-          const constructionKey = field as keyof Omit<Construction, 'id'>;
-          changedValues[constructionKey] = formState.values[field] as never;
-        }
-      });
+      // Object.keys(formState.values).forEach((key) => {
+      //   const field = key as keyof Construction;
+      //   if (field === 'id') return;
 
-      if (Object.keys(changedValues).length === 0) {
-        return;
-      }
+      //   if (formState.values[field] !== construction?.[field]) {
+      //     const constructionKey = field as keyof Omit<Construction, 'id'>;
+      //     changedValues[constructionKey] = formState.values[field] as never;
+      //   }
+      // });
+
+      // if (Object.keys(changedValues).length === 0) {
+      //   return;
+      // }
 
       startActionLoading();
       try {
@@ -162,7 +163,6 @@ export default function ConstructionEdit() {
     },
     [
       formState.values,
-      construction,
       updateMutation,
       notifications,
       startActionLoading,
@@ -212,13 +212,14 @@ export default function ConstructionEdit() {
       try {
         await updateMutation.mutateAsync({ status: status });
         navigate(`/constructions/${constructionId}`);
+        scrollToTop();
       } catch (error) {
         console.error('Construction status update error:', error);
       } finally {
         setIsUpdatingConstructionStatus(false);
       }
     },
-    [construction, constructionId, navigate, updateMutation]
+    [construction, constructionId, navigate, scrollToTop, updateMutation]
   );
 
   const isFormLoading =

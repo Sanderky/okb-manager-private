@@ -80,7 +80,7 @@ const MenuBar = ({ editor }: { editor: Editor }) => {
       }}
     >
       {/* Headers */}
-      <Tooltip title="Nagłówek 1">
+      <Tooltip placement="top" title="Nagłówek 1">
         <ToggleButton
           size="small"
           value="h1"
@@ -94,7 +94,7 @@ const MenuBar = ({ editor }: { editor: Editor }) => {
         </ToggleButton>
       </Tooltip>
 
-      <Tooltip title="Nagłówek 2">
+      <Tooltip placement="top" title="Nagłówek 2">
         <ToggleButton
           size="small"
           value="h2"
@@ -108,7 +108,7 @@ const MenuBar = ({ editor }: { editor: Editor }) => {
         </ToggleButton>
       </Tooltip>
 
-      <Tooltip title="Nagłówek 3">
+      <Tooltip placement="top" title="Nagłówek 3">
         <ToggleButton
           size="small"
           value="h3"
@@ -125,7 +125,7 @@ const MenuBar = ({ editor }: { editor: Editor }) => {
       <Divider flexItem orientation="vertical" sx={{ mx: 0.5 }} />
 
       {/* Text Formatting */}
-      <Tooltip title="Pogrubienie">
+      <Tooltip placement="top" title="Pogrubienie">
         <span>
           <ToggleButton
             size="small"
@@ -140,7 +140,7 @@ const MenuBar = ({ editor }: { editor: Editor }) => {
         </span>
       </Tooltip>
 
-      <Tooltip title="Kursywa">
+      <Tooltip placement="top" title="Kursywa">
         <span>
           <ToggleButton
             size="small"
@@ -155,7 +155,7 @@ const MenuBar = ({ editor }: { editor: Editor }) => {
         </span>
       </Tooltip>
 
-      <Tooltip title="Przekreślenie">
+      <Tooltip placement="top" title="Przekreślenie">
         <span>
           <ToggleButton
             size="small"
@@ -170,7 +170,7 @@ const MenuBar = ({ editor }: { editor: Editor }) => {
         </span>
       </Tooltip>
 
-      <Tooltip title="Podkreślenie">
+      <Tooltip placement="top" title="Podkreślenie">
         <span>
           <ToggleButton
             size="small"
@@ -185,7 +185,7 @@ const MenuBar = ({ editor }: { editor: Editor }) => {
         </span>
       </Tooltip>
 
-      <Tooltip title="Wyróżnienie">
+      <Tooltip placement="top" title="Wyróżnienie">
         <span>
           <ToggleButton
             size="small"
@@ -203,7 +203,7 @@ const MenuBar = ({ editor }: { editor: Editor }) => {
       <Divider flexItem orientation="vertical" sx={{ mx: 0.5 }} />
 
       {/* Text Alignment */}
-      <Tooltip title="Wyrównaj do lewej">
+      <Tooltip placement="top" title="Wyrównaj do lewej">
         <ToggleButton
           size="small"
           value="alignLeft"
@@ -215,7 +215,7 @@ const MenuBar = ({ editor }: { editor: Editor }) => {
         </ToggleButton>
       </Tooltip>
 
-      <Tooltip title="Wyśrodkuj">
+      <Tooltip placement="top" title="Wyśrodkuj">
         <ToggleButton
           size="small"
           value="alignCenter"
@@ -227,7 +227,7 @@ const MenuBar = ({ editor }: { editor: Editor }) => {
         </ToggleButton>
       </Tooltip>
 
-      <Tooltip title="Wyrównaj do prawej">
+      <Tooltip placement="top" title="Wyrównaj do prawej">
         <ToggleButton
           size="small"
           value="alignRight"
@@ -242,7 +242,7 @@ const MenuBar = ({ editor }: { editor: Editor }) => {
       <Divider flexItem orientation="vertical" sx={{ mx: 0.5 }} />
 
       {/* Lists */}
-      <Tooltip title="Lista punktowana">
+      <Tooltip placement="top" title="Lista punktowana">
         <ToggleButton
           size="small"
           value="bulletList"
@@ -254,7 +254,7 @@ const MenuBar = ({ editor }: { editor: Editor }) => {
         </ToggleButton>
       </Tooltip>
 
-      <Tooltip title="Lista numerowana">
+      <Tooltip placement="top" title="Lista numerowana">
         <ToggleButton
           size="small"
           value="orderedList"
@@ -266,7 +266,7 @@ const MenuBar = ({ editor }: { editor: Editor }) => {
         </ToggleButton>
       </Tooltip>
 
-      <Tooltip title="Linia pozioma">
+      <Tooltip placement="top" title="Linia pozioma">
         <ToggleButton
           size="small"
           value="line"
@@ -280,7 +280,7 @@ const MenuBar = ({ editor }: { editor: Editor }) => {
       <Divider flexItem orientation="vertical" sx={{ mx: 0.5 }} />
 
       {/* History */}
-      <Tooltip title="Cofnij">
+      <Tooltip placement="top" title="Cofnij">
         <span>
           <ToggleButton
             size="small"
@@ -294,7 +294,7 @@ const MenuBar = ({ editor }: { editor: Editor }) => {
         </span>
       </Tooltip>
 
-      <Tooltip title="Ponów">
+      <Tooltip placement="top" title="Ponów">
         <span>
           <ToggleButton
             size="small"
