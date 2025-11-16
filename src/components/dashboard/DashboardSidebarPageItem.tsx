@@ -135,8 +135,11 @@ export default function DashboardSidebarPageItem({
             color: selected
               ? theme.palette.secondary.dark
               : theme.palette.text.secondary,
+            borderRight: `2px solid ${
+              selected ? theme.palette.secondary.dark : 'transparent'
+            }`,
           })}
-          // className={`${selected ? '!important bg-indigo-100 text-indigo-500' : 'text-gray-700 hover:bg-indigo-50'} `}
+          // className={`${selected ? '!important bg-amber-100 text-amber-500' : 'text-gray-700 hover:bg-amber-50'} `}
           {...(nestedNavigation && !mini
             ? {
                 onClick: handleClick,
