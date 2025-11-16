@@ -73,7 +73,7 @@ const EmployeeAlerts = () => {
       </Stack>
       <Box
         sx={{
-          maxHeight: isExpanded ? 'none' : 200,
+          maxHeight: isExpanded ? 'none' : 220,
           overflow: 'auto',
         }}
       >
@@ -524,7 +524,14 @@ const Home = () => {
                   display: { xs: 'none', lg: 'block' },
                 }}
               >
-                <HomeNote />
+                <Card
+                  sx={{ boxShadow: 0 }}
+                  className="border-lightGray rounded-lg border"
+                >
+                  <CardContent className="pb-0">
+                    <UpcomingVacation />
+                  </CardContent>
+                </Card>
               </Grid>
             </Grid>
 
@@ -545,7 +552,13 @@ const Home = () => {
                   </CardContent>
                 </Card>
               </Grid>
-              <Grid size={{ xs: 12 }}>
+              <Grid size={{ xs: 12 }}></Grid>
+              <Grid
+                size={{ xs: 12 }}
+                sx={{
+                  display: { xs: 'block', lg: 'none' },
+                }}
+              >
                 <Card
                   sx={{ boxShadow: 0 }}
                   className="border-lightGray rounded-lg border"
@@ -555,15 +568,9 @@ const Home = () => {
                   </CardContent>
                 </Card>
               </Grid>
-              <Grid
-                size={{ xs: 12 }}
-                sx={{
-                  display: { xs: 'block', lg: 'none' },
-                }}
-              >
-                {/* <Note /> */}
-                <HomeNote />
-              </Grid>
+            </Grid>
+            <Grid size={{ xs: 12 }}>
+              <HomeNote />
             </Grid>
           </>
         )}
