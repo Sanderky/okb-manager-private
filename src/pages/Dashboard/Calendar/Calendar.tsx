@@ -33,7 +33,7 @@ import {
   type ActiveDialog,
   type CalendarDay,
   type CalendarEvent,
-  pastelColors,
+  employeeColors,
 } from './CalendarHelpers';
 import PageContainer from '../../../components/PageContainer';
 import useLoading from '../../../hooks/useLoading';
@@ -306,7 +306,7 @@ const Calendar: React.FC = () => {
           ...prev,
           startDate: day,
           endDate: day,
-          color: pastelColors[0],
+          color: employeeColors[0],
         }));
       } else {
         const start = selectDay.isBefore(day) ? selectDay : day;
@@ -315,7 +315,7 @@ const Calendar: React.FC = () => {
           ...prev,
           startDate: start,
           endDate: end,
-          color: prev.color || pastelColors[0],
+          color: prev.color || employeeColors[0],
         }));
         setActiveDialog({ type: 'addEvent' });
       }

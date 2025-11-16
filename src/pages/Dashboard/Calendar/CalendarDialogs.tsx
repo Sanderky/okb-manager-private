@@ -31,7 +31,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import BaseDialog from '../../../components/BaseDialog';
 import {
-  pastelColors,
+  employeeColors,
   type ActiveDialog,
   type CalendarEvent,
 } from './CalendarHelpers';
@@ -297,7 +297,7 @@ export const AddEventDialog: React.FC<AddEventDialogProps> = ({
             </Typography>
           )}
           <Stack direction="row" gap={1} sx={{ mt: 1 }} flexWrap="wrap">
-            {pastelColors.map((color) => (
+            {employeeColors.map((color) => (
               <Box
                 key={color}
                 sx={{
@@ -469,7 +469,7 @@ export const EditEventDialog: React.FC<EditEventDialogProps> = ({
             sx={{ mt: 1 }}
             flexWrap="wrap"
           >
-            {pastelColors.map((color) => (
+            {employeeColors.map((color) => (
               <Box
                 key={color}
                 sx={{

@@ -45,28 +45,44 @@ export type ActiveDialog =
   | { type: 'editEvent' }
   | { type: 'moreEvents'; day: CalendarDay };
 
-export const pastelColors = [
-  '#E4B7A0',
-  '#D9B48F',
-  '#D1C38E',
-  '#A8C49A',
-  '#91B6A4',
-  '#8CBAC9',
-  '#9BAFD9',
-  '#A59ACB',
-  '#B69FC8',
-  '#C3A6A0',
-  '#CFA77A',
-  '#B8C09F',
-  '#8AA6A3',
-  '#7FA1B2',
-  '#9CA0B8',
-  '#A6989E',
-  '#C2A78C',
-  '#B5B68F',
-  '#8CA3A3',
-  '#A4A9B1',
+export const employeeColors = [
+  '#EF9A9A', // Czerwony
+  '#FFAB91', // Pomarańczowy
+  '#FFCC80', // Jasny pomarańcz
+  '#FFD54F', // Żółty pastel
+  '#DCE775', // Żółto-zielony
+  '#C5E1A5', // Zielony
+  '#AED581', // Jasny zielony
+  '#81C784', // Zielony neutralny
+  '#80CBC4', // Szmaragdowy
+  '#4DB6AC', // Turkus
+  '#4DD0E1', // Cyjan pastel
+  '#81D4FA', // Jasny niebieski
+  '#90CAF9', // Niebieski
+  '#64B5F6', // Niebieski mocniejszy
+  '#9FA8DA', // Lawendowy
+  '#7986CB', // Pastelowy indygo
+  '#B39DDB', // Fioletowy
+  '#CE93D8', // Różowy-fiolet
+  '#F48FB1', // Różowy
+  '#F06292', // Głęboki róż
+  '#A1887F', // Brązowy
+  '#BCAAA4', // Beżowy
 ];
+
+// '#EF9A9A', // Czerwony
+// '#FFAB91', // Pomarańczowy
+// '#FFCC80', // Jasny pomarańcz
+// '#C5E1A5', // Zielony
+// '#AED581', // Jasny zielony
+// '#80CBC4', // Szmaragdowy
+// '#81D4FA', // Jasny niebieski
+// '#90CAF9', // Niebieski
+// '#9FA8DA', // Lawendowy
+// '#B39DDB', // Fioletowy
+// '#CE93D8', // Różowy-fiolet
+// '#F48FB1', // Różowy
+// '#A1887F', // Brązowy
 
 export const validateVacation = (
   employeeId: string,
