@@ -443,7 +443,7 @@ export default function ConstructionEdit() {
                 isLoading || isFormLoading ? (
                   <Loading size={20} message="" />
                 ) : construction?.status ? (
-                  'Aktywna'
+                  'W trakcie'
                 ) : (
                   'Zakończona'
                 )
