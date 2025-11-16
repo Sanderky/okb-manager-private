@@ -11,7 +11,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import dayjs, { type Dayjs } from 'dayjs';
 import type { Construction } from '../../../types';
 import Alert from '@mui/material/Alert';
-import { Divider, Typography } from '@mui/material';
+import { Divider, FormControlLabel, Switch, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
@@ -23,7 +23,7 @@ export interface ConstructionFormState {
   errors: Partial<Record<keyof ConstructionFormState['values'], string>>;
 }
 
-export type FormFieldValue = string | Date | number | boolean | File | null;
+export type FormFieldValue = string | Date | number | boolean | null;
 
 export interface ConstructionFormProps {
   formId?: string;
@@ -165,6 +165,23 @@ export default function ConstructionForm(props: ConstructionFormProps) {
                   />
                 </Grid>
               ))}
+              {!isEditForm && (
+                <Grid size={{ xs: 12 }}>
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={formValues.status ?? true}
+                        onChange={(e) =>
+                          handleFieldChange('status', e.target.checked)
+                        }
+                        name="status"
+                        color="primary"
+                      />
+                    }
+                    label="Aktywna budowa"
+                  />
+                </Grid>
+              )}
             </Grid>
           </Grid>
           <Divider sx={{ width: '100%' }} />
@@ -227,11 +244,7 @@ export default function ConstructionForm(props: ConstructionFormProps) {
           )}
           <Divider sx={{ width: '100%' }} />
         </Grid>
-        <Alert
-          severity="info"
-          // variant="outlined"
-          className="mt-5 px-3 py-0 font-medium"
-        >
+        <Alert severity="info" className="mt-5 px-3 py-0 font-medium">
           Pola oznaczone * są obowiązkowe.
         </Alert>
         <Stack

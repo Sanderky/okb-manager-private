@@ -377,7 +377,7 @@ const Home = () => {
   }, [employees]);
 
   const activeConstructions = useMemo(() => {
-    const active = constructions?.filter((c) => !c.endDate);
+    const active = constructions?.filter((c) => c.status);
     return active;
   }, [constructions]);
 

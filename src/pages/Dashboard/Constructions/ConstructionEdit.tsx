@@ -14,7 +14,7 @@ import ConstructionForm, {
   type ConstructionFormState,
 } from './ConstructionForm';
 import PageContainer from '../../../components/PageContainer';
-import { AlertTitle, Stack, TextField, Typography } from '@mui/material';
+import { AlertTitle, Chip, Stack, TextField, Typography } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
 import { Grid } from '@mui/system';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
@@ -28,6 +28,8 @@ import Loading from '../../../components/Loading';
 import useLoading from '../../../hooks/useLoading';
 import { removeWorkHoursByConstruction } from '../../../api/hours';
 import { useScroll } from '../../../context/ScrollContext';
+import ArchiveIcon from '@mui/icons-material/Archive';
+import UnarchiveIcon from '@mui/icons-material/Unarchive';
 
 export default function ConstructionEdit() {
   const { constructionId } = useParams<{ constructionId: string }>();
@@ -43,6 +45,8 @@ export default function ConstructionEdit() {
   const [deleteConfirmation, setDeleteConfirmation] = useState('');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isUpdatingConstructionStatus, setIsUpdatingConstructionStatus] =
+    useState(false);
 
   const formRefs = React.useRef<Record<string, HTMLInputElement | null>>({});
 
@@ -200,6 +204,26 @@ export default function ConstructionEdit() {
     setDeleteDialogOpen(false);
   }, []);
 
+  const handleConstructionStatus = useCallback(
+    async (status: boolean) => {
+      if (!construction) return;
+
+      setIsUpdatingConstructionStatus(true);
+      try {
+        await updateMutation.mutateAsync({ status: status });
+        navigate(`/constructions/${constructionId}`);
+      } catch (error) {
+        console.error('Construction status update error:', error);
+      } finally {
+        setIsUpdatingConstructionStatus(false);
+      }
+    },
+    [construction, constructionId, navigate, updateMutation]
+  );
+
+  const isFormLoading =
+    actionLoading || isDeleting || isUpdatingConstructionStatus;
+
   const renderContent = () => {
     if (isLoading || actionLoading) {
       return <Loading message="Ładowanie danych budowy..." />;
@@ -245,6 +269,63 @@ export default function ConstructionEdit() {
             </Box>
           </Grid>
           <Grid size={{ xs: 12, lg: 4, xl: 3 }}>
+            {construction.status ? (
+              <Stack
+                direction={{ xs: 'column' }}
+                justifyContent={{ xs: 'flex-start' }}
+                alignItems={{ xs: 'stretch', sm: 'flex-start' }}
+                spacing={{ xs: 1, xl: 2 }}
+                className="mb-4 rounded-lg border border-amber-500/25 bg-amber-600/5! p-3"
+                maxWidth={'400px'}
+              >
+                <div>
+                  <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                    Zakończ budowę
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                    Status budowy zmienia się na "Zakończona".
+                  </Typography>
+                </div>
+                <Button
+                  variant="contained"
+                  color={'warning'}
+                  sx={{ minWidth: 120 }}
+                  onClick={() => handleConstructionStatus(false)}
+                  loading={isFormLoading}
+                  startIcon={<ArchiveIcon />}
+                >
+                  Zakończ
+                </Button>
+              </Stack>
+            ) : (
+              <Stack
+                direction={{ xs: 'column' }}
+                justifyContent={{ xs: 'flex-start' }}
+                alignItems={{ xs: 'stretch', sm: 'flex-start' }}
+                spacing={{ xs: 1, xl: 2 }}
+                className="mb-4 rounded-lg border border-green-500/25 bg-green-600/5! p-3"
+                maxWidth={'400px'}
+              >
+                <div>
+                  <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                    Aktywuj budowę
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                    Status budowy zmienia się na "W trakcie".
+                  </Typography>
+                </div>
+                <Button
+                  variant="contained"
+                  color={'success'}
+                  sx={{ minWidth: 120 }}
+                  onClick={() => handleConstructionStatus(true)}
+                  loading={isFormLoading}
+                  startIcon={<UnarchiveIcon />}
+                >
+                  Aktywuj
+                </Button>
+              </Stack>
+            )}
             <Stack
               direction={{ xs: 'column' }}
               justifyContent={{ xs: 'flex-start' }}
@@ -353,6 +434,38 @@ export default function ConstructionEdit() {
         },
         { title: 'Edytuj' },
       ]}
+      actions={
+        <Stack direction="row" alignItems="center">
+          {!error ? (
+            <Chip
+              label={
+                isLoading || isFormLoading ? (
+                  <Loading size={20} message="" />
+                ) : construction?.status ? (
+                  'Aktywna'
+                ) : (
+                  'Zakończona'
+                )
+              }
+              className={
+                isLoading || isFormLoading
+                  ? 'bg-gray-300/50 text-gray-600'
+                  : construction?.status
+                    ? 'bg-blue-300/50 text-blue-600'
+                    : 'bg-amber-300/50 text-amber-600'
+              }
+              variant="filled"
+              sx={{
+                borderRadius: 1,
+                p: 0.5,
+                ml: 2,
+                textTransform: 'uppercase',
+                fontWeight: 600,
+              }}
+            />
+          ) : null}
+        </Stack>
+      }
     >
       <Box sx={{ display: 'flex', flex: 1, width: '100%' }}>
         {renderContent()}

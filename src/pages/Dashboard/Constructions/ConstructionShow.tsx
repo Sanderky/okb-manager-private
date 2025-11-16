@@ -149,7 +149,7 @@ export default function ConstructionShow() {
   const [resumeDialogOpen, setResumeDialogOpen] = useState(false);
 
   const updateStatusMutation = useMutation({
-    mutationFn: (payload: { endDate: Date | null }) =>
+    mutationFn: (payload: { status: boolean; endDate: Date | null }) =>
       updateConstruction(constructionId!, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -166,13 +166,21 @@ export default function ConstructionShow() {
     },
   });
 
-  const isInProgress = !!construction && !construction.endDate;
+  const isInProgress = construction?.status ?? false;
 
   const openEndDialog = useCallback(() => {
     setEndDateError(null);
-    setEndDateValue(dayjs());
+
+    let initialEndDate;
+    if (construction?.endDate) {
+      initialEndDate = dayjs(construction.endDate);
+    } else {
+      initialEndDate = dayjs();
+    }
+
+    setEndDateValue(initialEndDate);
     setEndDialogOpen(true);
-  }, []);
+  }, [construction]);
 
   const closeEndDialog = useCallback(() => {
     setEndDialogOpen(false);
@@ -193,7 +201,10 @@ export default function ConstructionShow() {
 
     closeEndDialog();
     updateStatusMutation.mutate(
-      { endDate: chosen ? chosen.toDate() : null },
+      {
+        status: false,
+        endDate: chosen ? chosen.toDate() : new Date(),
+      },
       {
         onSuccess: () => {
           notifications.show('Budowa została oznaczona jako zakończona.', {
@@ -214,7 +225,10 @@ export default function ConstructionShow() {
   const handleResume = useCallback(() => {
     setResumeDialogOpen(false);
     updateStatusMutation.mutate(
-      { endDate: null },
+      {
+        status: true,
+        endDate: null,
+      },
       {
         onSuccess: () => {
           notifications.show('Budowa została wznowiona.', {
@@ -298,7 +312,7 @@ export default function ConstructionShow() {
                 spacing={{ xs: 1.5, sm: 3 }}
                 sx={{ pl: 1 }}
               >
-                <Tooltip title="Edytuj pracownika">
+                <Tooltip title="Edytuj budowę">
                   <IconButton
                     onClick={handleConstructionEdit}
                     color="primary"
@@ -430,7 +444,7 @@ export default function ConstructionShow() {
                                 {(() => {
                                   const value =
                                     construction[key as keyof Construction];
-                                  if (!value && key !== 'inProgress') {
+                                  if (!value && key !== 'status') {
                                     return <em className="text-gray-400">-</em>;
                                   }
                                   if (
@@ -438,9 +452,6 @@ export default function ConstructionShow() {
                                     key === 'endDate'
                                   ) {
                                     return dayjs(value).format('DD/MM/YYYY');
-                                  }
-                                  if (key === 'inProgress') {
-                                    return value ? 'Tak' : 'Nie';
                                   }
                                   return String(value);
                                 })()}
@@ -575,7 +586,7 @@ export default function ConstructionShow() {
     isInProgress,
     openEndDialog,
     handleSaveNote,
-    actionLoading,
+    updateNoteMutation.isPending,
     scheduleEmployees,
     endDialogOpen,
     closeEndDialog,

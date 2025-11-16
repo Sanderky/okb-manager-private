@@ -11,7 +11,7 @@ import { db } from '../firebase';
 import type { Construction } from '../types';
 
 export async function createConstruction(
-  data: Partial<Construction> & { name: string }
+  data: Partial<Construction> & { name: string; status: boolean }
 ) {
   if (!data.name || !data.startDate) {
     throw new Error('Nazwa i data rozpoczęcia są wymagane');
@@ -20,6 +20,7 @@ export async function createConstruction(
   const constructionData: Omit<Construction, 'id'> = {
     ...(data.note !== undefined && { note: data.note }),
     name: data.name,
+    status: data.status,
     location: data.location ?? null,
     contractor: data.contractor ?? null,
     startDate: data.startDate,
@@ -30,6 +31,7 @@ export async function createConstruction(
     collection(db, 'constructions'),
     constructionData
   );
+
   return docRef.id;
 }
 
@@ -55,6 +57,7 @@ export async function getConstructionList(): Promise<Construction[]> {
     return {
       id: doc.id,
       name: data.name,
+      status: data.status,
       location: data.location ?? null,
       contractor: data.contractor ?? null,
       startDate: data.startDate?.toDate(),
@@ -75,6 +78,7 @@ export async function getConstruction(
     return {
       id: constructionDoc.id,
       name: data.name,
+      status: data.status,
       location: data.location ?? null,
       contractor: data.contractor ?? null,
       startDate: data.startDate?.toDate(),

@@ -790,7 +790,7 @@ const ScheduleComponent = () => {
               size="small"
               options={[
                 { id: null, name: '— Brak —' },
-                ...constructions.filter((c) => !c.endDate),
+                ...constructions.filter((c) => c.status),
               ]}
               getOptionLabel={(opt) => opt?.name || ''}
               isOptionEqualToValue={(opt, val) => opt.id === val?.id}

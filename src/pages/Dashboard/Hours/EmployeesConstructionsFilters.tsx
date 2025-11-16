@@ -43,7 +43,7 @@ const useEmployeesConstructionsFilter = (
     : (employees?.filter((e) => e.status) ?? []);
   const filteredConstructions = showInactiveConstructions
     ? (constructions ?? [])
-    : (constructions?.filter((c) => !c.endDate) ?? []);
+    : (constructions?.filter((c) => c.status) ?? []);
 
   const handleSelectConstructions = (constructions: Construction[]) => {
     onSelectedConstructionsChange(constructions);
@@ -168,7 +168,7 @@ const EmployeesContructionsFilters = ({
               <li key={key} {...optionProps}>
                 <Checkbox checked={selected} />
                 {option.name}
-                {option.endDate && (
+                {!option.status && (
                   <Chip
                     label="Zakończona"
                     size="small"

@@ -13,7 +13,7 @@ import { db } from '../firebase';
 import type { Employee } from '../types';
 
 export async function createEmployee(
-  data: Partial<Employee> & { name: string }
+  data: Partial<Employee> & { name: string; status: boolean }
 ) {
   if (!data.name) {
     throw new Error('Imię jest wymagane');
@@ -21,6 +21,7 @@ export async function createEmployee(
 
   const employeeData: Omit<Employee, 'id'> = {
     name: data.name,
+    status: data.status,
     isContractor: data.isContractor ?? null,
     pesel: data.pesel ?? null,
     birthDate: data.birthDate ?? null,
@@ -28,7 +29,6 @@ export async function createEmployee(
     hourRate: data.hourRate ?? null,
     email: data.email ?? null,
     phone: data.phone ?? null,
-    status: data.status ?? true,
     accountNumber: data.accountNumber ?? null,
     note: data.note ?? null,
     contractStartDate: data.contractStartDate ?? null,

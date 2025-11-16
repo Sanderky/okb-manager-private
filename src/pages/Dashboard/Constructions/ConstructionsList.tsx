@@ -54,7 +54,7 @@ interface Filters {
   startDateTo: Dayjs | null;
   endDateFrom: Dayjs | null;
   endDateTo: Dayjs | null;
-  inProgress: string;
+  status: string;
 }
 
 export default function ConstructionsList() {
@@ -78,7 +78,7 @@ export default function ConstructionsList() {
     startDateTo: null,
     endDateFrom: null,
     endDateTo: null,
-    inProgress: 'true',
+    status: '',
   });
 
   const { data, isLoading, error, refetch } = useQuery({
@@ -135,8 +135,8 @@ export default function ConstructionsList() {
       });
     }
 
-    if (filters.inProgress) {
-      columnFilters.push({ id: 'inProgress', value: filters.inProgress });
+    if (filters.status) {
+      columnFilters.push({ id: 'status', value: filters.status });
     }
 
     table.setColumnFilters(columnFilters);
@@ -154,7 +154,7 @@ export default function ConstructionsList() {
       startDateTo: null,
       endDateFrom: null,
       endDateTo: null,
-      inProgress: '',
+      status: '',
     });
     table.setColumnFilters([]);
   };
@@ -233,9 +233,9 @@ export default function ConstructionsList() {
         maxSize: 140,
       },
       {
-        id: 'inProgress',
+        id: 'status',
         header: 'Status',
-        accessorFn: (row) => !row.endDate,
+        accessorFn: (row) => row.status,
         filterVariant: 'select',
         filterSelectOptions: [
           { label: 'W trakcie', value: 'true' },
@@ -244,8 +244,8 @@ export default function ConstructionsList() {
         ],
         filterFn: (row: any, _columnId: string, filterValue: string) => {
           if (!filterValue) return true;
-          const isInProgress = !row.original.endDate;
-          return String(isInProgress) === filterValue;
+          const isActive = row.original.status;
+          return String(isActive) === filterValue;
         },
         Cell: ({ cell }) => (
           <Box
@@ -259,7 +259,6 @@ export default function ConstructionsList() {
             {cell.getValue<boolean>() ? 'W trakcie' : 'Zakończona'}
           </Box>
         ),
-        maxSize: 140,
       },
     ],
     []
@@ -282,13 +281,13 @@ export default function ConstructionsList() {
       columnOrder: [
         'mrt-row-numbers',
         'name',
-        'inProgress',
+        'status',
         'contractor',
         'location',
         'startDate',
         'endDate',
       ],
-      columnFilters: [{ id: 'inProgress', value: 'true' }],
+      columnFilters: [{ id: 'status', value: 'true' }],
     },
     state: {
       columnVisibility,
@@ -600,10 +599,10 @@ export default function ConstructionsList() {
                     <FormLabel className="mb-2 block">Status</FormLabel>
                     <Select
                       size="small"
-                      value={filters.inProgress}
+                      value={filters.status}
                       displayEmpty
                       onChange={(e) =>
-                        setFilters({ ...filters, inProgress: e.target.value })
+                        setFilters({ ...filters, status: e.target.value })
                       }
                     >
                       <MenuItem value="">Wszystkie</MenuItem>

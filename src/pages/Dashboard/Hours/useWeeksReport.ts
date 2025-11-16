@@ -184,7 +184,7 @@ const useWeekReport = ({
             constructionMap.set(construction.id, {
               id: construction.id,
               name: construction.name,
-              isActive: !construction.endDate,
+              isActive: construction.status,
               workHours: [],
               totalHours: 0,
             });

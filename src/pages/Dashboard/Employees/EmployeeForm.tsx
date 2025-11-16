@@ -522,25 +522,26 @@ export default function EmployeeForm(props: EmployeeFormProps) {
             </Typography>
             <Grid container columns={12} spacing={{ xs: 2 }} width={'100%'}>
               {employeeFields.map(renderField)}
-              <Stack
-                direction={'row'}
-                spacing={2}
-                alignItems={'center'}
-                // className="border-lightGray w-full rounded-lg border p-2 px-4"
-              >
-                <FormControlLabel
-                  control={
-                    <Switch
-                      checked={Boolean(formValues.isContractor)}
-                      onChange={(e) =>
-                        handleFieldChange('isContractor', e.target.checked)
-                      }
-                      name="isContractor"
-                    />
-                  }
-                  label="Kontraktor"
-                />
-                {/* <Divider orientation="vertical" flexItem variant="middle" />
+              <Grid size={{ xs: 12 }}>
+                <Stack
+                  direction={'row'}
+                  spacing={2}
+                  alignItems={'center'}
+                  // className="border-lightGray w-full rounded-lg border p-2 px-4"
+                >
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={Boolean(formValues.isContractor)}
+                        onChange={(e) =>
+                          handleFieldChange('isContractor', e.target.checked)
+                        }
+                        name="isContractor"
+                      />
+                    }
+                    label="Kontraktor"
+                  />
+                  {/* <Divider orientation="vertical" flexItem variant="middle" />
                 <FormControlLabel
                   control={
                     <Switch
@@ -554,7 +555,8 @@ export default function EmployeeForm(props: EmployeeFormProps) {
                   }
                   label="Aktywny"
                 /> */}
-              </Stack>
+                </Stack>
+              </Grid>
             </Grid>
           </Grid>
 

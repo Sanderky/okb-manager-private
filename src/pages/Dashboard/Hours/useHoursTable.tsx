@@ -718,7 +718,7 @@ const useHoursTable = (startWeek?: Date) => {
         constructionMap.set(workHour.constructionId, {
           id: workHour.constructionId,
           name: constructionName,
-          isActive: !construction?.endDate,
+          isActive: construction.status,
           workHours: [],
           totalHours: 0,
         });
@@ -779,7 +779,7 @@ const useHoursTable = (startWeek?: Date) => {
       constructions?.filter(
         (construction) =>
           !existingConstructionIds.includes(construction.id) &&
-          !construction.endDate
+          construction.status
       ) || []
     );
   }, [constructions, constructionsWithWorkHours]);

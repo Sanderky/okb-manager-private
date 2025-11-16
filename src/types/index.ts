@@ -8,6 +8,7 @@ export type FileCustom = FileItem | FolderItem;
 export interface Employee {
   id: string;
   name: string;
+  status: boolean;
   isContractor: boolean | null;
   pesel: string | null;
   birthDate: Date | null;
@@ -15,7 +16,6 @@ export interface Employee {
   hourRate: number | null;
   email: string | null;
   phone: string | null;
-  status: boolean | null;
   birthPlace: string | null;
   accountNumber: string | null;
   note: string | null;
@@ -48,6 +48,7 @@ export interface HomeDocument {
 export interface Construction {
   id: string;
   name: string;
+  status: boolean;
   location: string | null;
   contractor: string | null;
   startDate: Date;

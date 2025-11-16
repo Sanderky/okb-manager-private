@@ -76,6 +76,7 @@ const MenuBar = ({ editor }: { editor: Editor }) => {
         mb: 0.5,
         flexWrap: 'wrap',
         columnGap: 0.2,
+        rowGap: 0.5,
       }}
     >
       {/* Headers */}

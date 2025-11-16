@@ -25,5 +25,9 @@ export const validate = (
     errors.contractor = 'Wykonawca nie może być dłuższy niż 100 znaków.';
   }
 
+  if (values.status === undefined) {
+    errors.status = 'Status jest wymagany.';
+  }
+
   return errors;
 };

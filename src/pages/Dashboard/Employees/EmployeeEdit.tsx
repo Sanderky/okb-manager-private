@@ -380,7 +380,7 @@ export default function EmployeeEdit() {
                     Archiwizuj pracownika
                   </Typography>
                   <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                    Status pracownika zmienia się na nieaktywny.
+                    Status pracownika zmienia się na "Nieaktywny".
                   </Typography>
                 </div>
                 <Button
@@ -408,7 +408,7 @@ export default function EmployeeEdit() {
                     Aktywuj pracownika
                   </Typography>
                   <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                    Status pracownika zmienia się na aktywny.
+                    Status pracownika zmienia się na "Aktywny".
                   </Typography>
                 </div>
                 <Button

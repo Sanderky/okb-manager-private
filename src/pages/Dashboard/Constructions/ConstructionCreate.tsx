@@ -32,7 +32,7 @@ export default function ConstructionCreate() {
   };
 
   const [formState, setFormState] = React.useState<ConstructionFormState>({
-    values: {},
+    values: { status: true },
     errors: {},
   });
 

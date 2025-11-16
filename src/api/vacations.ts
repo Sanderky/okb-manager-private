@@ -18,7 +18,7 @@ export const batchCreateVacations = async (
   startDate: Date,
   endDate: Date,
   groupId: string,
-  color: string, // kolor jest teraz obowiązkowy
+  color: string,
   description?: string
 ) => {
   const batch = writeBatch(db);
@@ -39,7 +39,7 @@ export const batchCreateVacations = async (
       startDate: Timestamp.fromDate(startDate),
       endDate: Timestamp.fromDate(endDate),
       description: description || '',
-      color: color, // obowiązkowe
+      color: color,
     };
 
     const newDocRef = doc(vacationRef);
