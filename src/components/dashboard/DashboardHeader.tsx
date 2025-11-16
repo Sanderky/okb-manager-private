@@ -11,7 +11,6 @@ import MenuOpenIcon from '@mui/icons-material/MenuOpen';
 import Stack from '@mui/material/Stack';
 import { Link, useNavigate } from 'react-router';
 import { useAuth } from '../../context/AuthContext';
-import { useTranslation } from 'react-i18next';
 import { Button, Divider, ListItemIcon, Menu, MenuItem } from '@mui/material';
 
 import Logout from '@mui/icons-material/Logout';
@@ -54,7 +53,6 @@ export default function DashboardHeader({
 }: DashboardHeaderProps) {
   const theme = useTheme();
   const { user, logout } = useAuth();
-  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const handleMenuOpen = React.useCallback(() => {
@@ -91,8 +89,8 @@ export default function DashboardHeader({
 
   const getMenuIcon = React.useCallback(
     (isExpanded: boolean) => {
-      const expandMenuActionText = t('menu.expand');
-      const collapseMenuActionText = t('menu.collapse');
+      const expandMenuActionText = 'Rozszerz';
+      const collapseMenuActionText = 'Zwiń';
 
       return (
         <Tooltip
@@ -111,7 +109,7 @@ export default function DashboardHeader({
         </Tooltip>
       );
     },
-    [handleMenuOpen, t]
+    [handleMenuOpen]
   );
 
   // const open = Boolean(anchorEl);

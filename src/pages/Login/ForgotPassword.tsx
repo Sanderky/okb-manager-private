@@ -12,7 +12,6 @@ import {
   TextField,
   Button,
 } from '@mui/material';
-import { useTranslation } from 'react-i18next';
 import { getRules, validateField } from './validation';
 import useLoading from '../../hooks/useLoading';
 
@@ -22,7 +21,6 @@ interface ForgotPasswordProps {
 }
 
 const ForgotPassword = ({ open, handleClose }: ForgotPasswordProps) => {
-  const { t } = useTranslation();
   const {
     loading: actionLoading,
     startLoading: startActionLoading,
@@ -67,7 +65,9 @@ const ForgotPassword = ({ open, handleClose }: ForgotPasswordProps) => {
     startActionLoading();
     try {
       await sendPasswordResetEmail(auth, email);
-      setToastMsg(t('login.forgotPassword.resetSuccess'));
+      setToastMsg(
+        'Link do resetowania hasła został wysłany na Twój adres e-mail.'
+      );
       setToastSeverity('success');
 
       setEmail('');
@@ -78,8 +78,8 @@ const ForgotPassword = ({ open, handleClose }: ForgotPasswordProps) => {
 
       setToastMsg(
         firebaseError.code === 'auth/invalid-email'
-          ? t('login.forgotPassword.invalidEmail')
-          : t('login.forgotPassword.error')
+          ? 'Nieprawidłowy adres e-mail.'
+          : 'Wystąpił błąd podczas próby zresetowania hasła.'
       );
       setToastSeverity('error');
     } finally {
@@ -104,10 +104,11 @@ const ForgotPassword = ({ open, handleClose }: ForgotPasswordProps) => {
 
       <Dialog open={open} onClose={handleClose}>
         <form noValidate onSubmit={handleSubmit}>
-          <DialogTitle>{t('login.forgotPassword.title')}</DialogTitle>
+          <DialogTitle>Zresetuj hasło</DialogTitle>
           <DialogContent>
             <DialogContentText className="mb-2">
-              {t('login.forgotPassword.description')}
+              Wprowadź swój adres e-mail poniżej, a my wyślemy Ci link do
+              zresetowania hasła.
             </DialogContentText>
             <TextField
               size="small"
@@ -115,7 +116,7 @@ const ForgotPassword = ({ open, handleClose }: ForgotPasswordProps) => {
               required
               id="email"
               name="email"
-              label={t('login.forgotPassword.emailLabel')}
+              label={'Adres e-mail'}
               type="email"
               fullWidth
               value={email}
@@ -132,11 +133,11 @@ const ForgotPassword = ({ open, handleClose }: ForgotPasswordProps) => {
                 loading={actionLoading}
                 color="inherit"
               >
-                {t('login.forgotPassword.cancelButton')}
+                Anuluj
               </Button>
             )}
             <Button type="submit" loading={actionLoading} variant="contained">
-              {t('login.forgotPassword.continueButton')}
+              Kontynuuj
             </Button>
           </DialogActions>
         </form>
