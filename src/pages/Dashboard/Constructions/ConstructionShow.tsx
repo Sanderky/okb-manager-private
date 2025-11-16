@@ -60,7 +60,7 @@ export default function ConstructionShow() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const {
-    loading: actionLoading,
+    // loading: actionLoading,
     startLoading: startActionLoading,
     stopLoading: stopActionLoading,
   } = useLoading(false);

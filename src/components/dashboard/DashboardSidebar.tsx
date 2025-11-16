@@ -93,6 +93,7 @@ export default function DashboardSidebar({
               )
             : [...previousValue, itemId]
         );
+        console.log(expandedItemIds);
       } else if (!isOverSmViewport && !hasNestedNavigation) {
         setExpanded(false);
       }

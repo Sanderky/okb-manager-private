@@ -4,8 +4,6 @@ import {
   TableCell,
   Typography,
   Tooltip,
-  useTheme,
-  useMediaQuery,
   CircularProgress,
 } from '@mui/material';
 import { Dayjs } from 'dayjs';
@@ -69,7 +67,7 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = React.memo(
     loadingCells,
     getCellKey,
   }) => {
-    const theme = useTheme();
+    // const theme = useTheme();
     // const isXs = useMediaQuery(theme.breakpoints.only('xs'));
 
     if (activeTable.type === 1) {
@@ -186,7 +184,7 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = React.memo(
           </Tooltip>
         </TableCell>
 
-        {weeks.map((week, i) => {
+        {weeks.map((week) => {
           const cell: ICell = {
             empId: employee.id,
             weekKey: week.format('YYYY-MM-DD'),

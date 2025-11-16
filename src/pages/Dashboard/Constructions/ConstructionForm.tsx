@@ -209,7 +209,7 @@ export default function ConstructionForm(props: ConstructionFormProps) {
               Terminy
             </Typography>
             <Grid container columns={12} spacing={{ xs: 2 }}>
-              {DateFields.map(({ key, label, type, required }) => (
+              {DateFields.map(({ key, label, required }) => (
                 <Grid size={{ xs: 12, md: 6 }} key={key}>
                   <LocalizationProvider
                     dateAdapter={AdapterDayjs}

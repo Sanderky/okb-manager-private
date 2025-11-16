@@ -17,7 +17,7 @@ import type {
 } from './useNotifications';
 
 const RootPropsContext = React.createContext<NotificationsProviderProps | null>(
-  null,
+  null
 );
 
 interface NotificationProps {
@@ -47,10 +47,11 @@ function Notification({
     (event: unknown, reason?: CloseReason | SnackbarCloseReason) => {
       if (reason === 'clickaway') {
         return;
+        console.log(event);
       }
       close(notificationKey);
     },
-    [notificationKey, close],
+    [notificationKey, close]
   );
 
   const action = (
@@ -86,7 +87,11 @@ function Notification({
   });
 
   return (
-    <Snackbar key={notificationKey} {...snackbarSlotProps} anchorOrigin={{horizontal: 'right', vertical: 'bottom'}}>
+    <Snackbar
+      key={notificationKey}
+      {...snackbarSlotProps}
+      anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+    >
       <Badge badgeContent={badge} color="primary" sx={{ width: '100%' }}>
         {severity ? (
           <Alert severity={severity} sx={{ width: '100%' }} action={action}>
@@ -137,7 +142,9 @@ const generateId = () => {
   return id;
 };
 
-export default function NotificationsProvider(props: NotificationsProviderProps) {
+export default function NotificationsProvider(
+  props: NotificationsProviderProps
+) {
   const { children } = props;
   const [state, setState] = React.useState<NotificationsState>({ queue: [] });
 
@@ -150,7 +157,10 @@ export default function NotificationsProvider(props: NotificationsProviderProps)
       }
       return {
         ...prev,
-        queue: [...prev.queue, { message, options, notificationKey, open: true }],
+        queue: [
+          ...prev.queue,
+          { message, options, notificationKey, open: true },
+        ],
       };
     });
     return notificationKey;
