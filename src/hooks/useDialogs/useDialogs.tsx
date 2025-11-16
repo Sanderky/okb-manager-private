@@ -111,9 +111,13 @@ export function AlertDialog({ open, payload, onClose }: AlertDialogProps) {
       fullWidth
       open={open}
       onClose={() => onClose()}
-      PaperProps={{
-        sx: {
-          borderRadius: 2,
+      slotProps={{
+        paper: {
+          sx: {
+            borderRadius: 2,
+            width: '95%',
+            m: 0,
+          },
         },
       }}
     >
@@ -145,9 +149,13 @@ export function ConfirmDialog({ open, payload, onClose }: ConfirmDialogProps) {
       fullWidth
       open={open}
       onClose={() => onClose(false)}
-      PaperProps={{
-        sx: {
-          borderRadius: 2,
+      slotProps={{
+        paper: {
+          sx: {
+            borderRadius: 2,
+            width: '95%',
+            m: 0,
+          },
         },
       }}
     >
@@ -194,11 +202,6 @@ export function PromptDialog({ open, payload, onClose }: PromptDialogProps) {
   return (
     <Dialog
       maxWidth="xs"
-      PaperProps={{
-        sx: {
-          borderRadius: 2,
-        },
-      }}
       fullWidth
       open={open}
       onClose={() => onClose(null)}
@@ -220,6 +223,11 @@ export function PromptDialog({ open, payload, onClose }: PromptDialogProps) {
             } finally {
               setLoading(false);
             }
+          },
+          sx: {
+            borderRadius: 2,
+            width: '95%',
+            m: 0,
           },
         },
       }}

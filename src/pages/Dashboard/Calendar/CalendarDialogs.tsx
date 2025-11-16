@@ -258,7 +258,7 @@ export const AddEventDialog: React.FC<AddEventDialogProps> = ({
         />
 
         <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pl">
-          <Stack direction="row" spacing={2}>
+          <Stack direction="row" spacing={{ xs: 1, sm: 2 }}>
             <DatePicker
               label="Data rozpoczęcia *"
               value={currentEvent.startDate || null}
@@ -424,7 +424,7 @@ export const EditEventDialog: React.FC<EditEventDialogProps> = ({
         />
 
         <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pl">
-          <Stack direction="row" spacing={2}>
+          <Stack direction="row" spacing={{ xs: 1, sm: 2 }}>
             <DatePicker
               label="Data rozpoczęcia *"
               value={currentEvent.startDate || null}

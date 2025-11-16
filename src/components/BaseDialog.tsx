@@ -59,8 +59,8 @@ export const BaseDialog: React.FC<BaseDialogProps> = ({
   loading = false,
   disabled = false,
   titleSx = { px: { xs: 2, md: 3 }, py: 2 },
-  contentSx = { px: { xs: 2, md: 3 } },
-  actionsSx = { px: { xs: 2, md: 3 }, py: 2 },
+  contentSx = { px: { xs: 1.5, md: 3 } },
+  actionsSx = { px: { xs: 1.5, md: 3 }, py: 2 },
 }) => {
   const handleCancel = () => {
     onCancel?.();
@@ -121,6 +121,8 @@ export const BaseDialog: React.FC<BaseDialogProps> = ({
         paper: {
           sx: {
             borderRadius: 2,
+            width: '95%',
+            m: 0,
           },
         },
       }}
