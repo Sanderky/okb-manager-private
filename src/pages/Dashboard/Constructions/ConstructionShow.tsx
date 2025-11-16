@@ -149,7 +149,7 @@ export default function ConstructionShow() {
   const [resumeDialogOpen, setResumeDialogOpen] = useState(false);
 
   const updateStatusMutation = useMutation({
-    mutationFn: (payload: { status: boolean; endDate: Date | null }) =>
+    mutationFn: (payload: { status: boolean; endDate?: Date | null }) =>
       updateConstruction(constructionId!, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -227,7 +227,6 @@ export default function ConstructionShow() {
     updateStatusMutation.mutate(
       {
         status: true,
-        endDate: null,
       },
       {
         onSuccess: () => {
@@ -451,7 +450,13 @@ export default function ConstructionShow() {
                                     key === 'startDate' ||
                                     key === 'endDate'
                                   ) {
-                                    return dayjs(value).format('DD/MM/YYYY');
+                                    if (
+                                      !value ||
+                                      !dayjs.isDayjs(value) ||
+                                      !value.isValid()
+                                    )
+                                      return '-';
+                                    return dayjs(value).format('DD.MM.YYYY');
                                   }
                                   return String(value);
                                 })()}
@@ -530,11 +535,19 @@ export default function ConstructionShow() {
           showCancel={false}
           loading={updateStatusMutation.isPending}
         >
-          <Stack spacing={3}>
+          <Stack spacing={2}>
             <Typography variant="body1">
               Wybierz datę zakończenia budowy{' '}
               <strong>{construction?.name}</strong>:
             </Typography>
+            {construction?.startDate && (
+              <Typography variant="body1" className="mb-2">
+                Data rozpoczęcia:{' '}
+                <strong>
+                  {dayjs(construction?.startDate).format('DD.MM.YYYY')}
+                </strong>
+              </Typography>
+            )}
 
             <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pl">
               <DatePicker

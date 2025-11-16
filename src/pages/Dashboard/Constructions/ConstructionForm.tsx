@@ -123,6 +123,25 @@ export default function ConstructionForm(props: ConstructionFormProps) {
     }
   }, [navigate, constructionId]);
 
+  const getDateValue = (value: any): Dayjs | null => {
+    if (!value) return null;
+
+    if (value instanceof Date) {
+      return dayjs(value);
+    }
+
+    if (dayjs.isDayjs(value)) {
+      return value;
+    }
+
+    if (typeof value === 'string' || typeof value === 'number') {
+      const parsed = dayjs(value);
+      return parsed.isValid() ? parsed : null;
+    }
+
+    return null;
+  };
+
   return (
     <Box
       id={formId}
@@ -198,7 +217,7 @@ export default function ConstructionForm(props: ConstructionFormProps) {
                   >
                     <DatePicker
                       label={label}
-                      value={formValues[key] ? dayjs(formValues[key]) : null}
+                      value={getDateValue(formValues[key])}
                       onChange={(newValue) => handleFieldChange(key, newValue)}
                       slotProps={{
                         textField: {

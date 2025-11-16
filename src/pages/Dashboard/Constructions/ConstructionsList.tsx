@@ -209,7 +209,7 @@ export default function ConstructionsList() {
         },
         Cell: ({ cell }) => {
           const value = cell.getValue();
-          if (!value) return '-';
+          if (!value || !dayjs.isDayjs(value) || !value.isValid()) return '-';
           return dayjs(value).format('DD.MM.YYYY');
         },
         filterFn: dateBetweenFilterFn,
@@ -226,7 +226,7 @@ export default function ConstructionsList() {
         },
         Cell: ({ cell }) => {
           const value = cell.getValue();
-          if (!value || !dayjs(value).isValid()) return '-';
+          if (!value || !dayjs.isDayjs(value) || !value.isValid()) return '-';
           return dayjs(value).format('DD.MM.YYYY');
         },
         filterFn: dateBetweenFilterFn,
