@@ -340,11 +340,11 @@ export const Note = ({ content, onSave, loading = false }: NoteProps) => {
   };
 
   return (
-    <Box className="rounded-lg border border-dashed border-gray-300 bg-white p-4">
+    <Box className="rounded-lg border border-dashed border-gray-300 bg-white">
       <Stack
         direction="row"
         alignItems={'center'}
-        sx={{ width: '100%', mb: 2 }}
+        sx={{ width: '100%', mb: 2, pt: 2, px: 2 }}
         spacing={2}
       >
         <Typography
@@ -392,12 +392,19 @@ export const Note = ({ content, onSave, loading = false }: NoteProps) => {
           </Tooltip>
         </Stack>
       </Stack>
-      <NoteBase
-        renderToolbar={editNote}
-        content={note}
-        onChange={(newNote) => setNote(newNote)}
-        editable={editNote}
-      />
+      <Box
+        sx={{
+          pb: 2,
+          px: { xs: 0.5, sm: 2 },
+        }}
+      >
+        <NoteBase
+          renderToolbar={editNote}
+          content={note}
+          onChange={(newNote) => setNote(newNote)}
+          editable={editNote}
+        />
+      </Box>
     </Box>
   );
 };

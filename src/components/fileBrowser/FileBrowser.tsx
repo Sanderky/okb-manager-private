@@ -148,10 +148,8 @@ const FileBreadcrumps = ({
         sx={{
           display: 'flex',
           gap: 1,
-          flexWrap: 'nowrap',
-          flexShrink: 0,
-          maxWidth: '100%',
-          overflow: 'hidden',
+          overflowX: 'scroll',
+          py: 1.5,
         }}
       >
         {pathParts.map((part, index) => {
@@ -165,11 +163,9 @@ const FileBreadcrumps = ({
               {index < pathParts.length - 1 ? (
                 <Typography
                   color="text.primary"
-                  variant="body2"
+                  variant="subtitle2"
                   sx={{
-                    maxWidth: '150px',
-                    textOverflow: 'ellipsis',
-                    overflow: 'hidden',
+                    flexShrink: 0,
                     cursor: 'pointer',
                     '&:hover': { textDecoration: 'underline' },
                   }}
@@ -182,9 +178,7 @@ const FileBreadcrumps = ({
                   color="text.secondary"
                   variant="body2"
                   sx={{
-                    maxWidth: '150px',
-                    textOverflow: 'ellipsis',
-                    overflow: 'hidden',
+                    flexShrink: 0,
                   }}
                 >
                   {part}
@@ -463,7 +457,7 @@ const FirebaseFileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
           startIcon={<FileUpload />}
           sx={{
             display: { xs: 'none', md: 'inline-flex' },
-            height: 'min-content'
+            height: 'min-content',
           }}
         >
           Prześlij pliki
@@ -707,7 +701,7 @@ const FirebaseFileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
               display: { xs: 'none', sm: 'flex' },
               columnGap: 1,
               flexWrap: 'wrap',
-              alignItems: 'center'
+              alignItems: 'center',
             }}
           >
             {renderToolbarButtons(selectedRows)}
@@ -743,9 +737,7 @@ const FirebaseFileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
               alignItems: 'center',
               paddingRight: '10px',
               gap: 1,
-              overflow: 'hidden',
               maxWidth: '100%',
-              padding: '5px',
             }}
           >
             <Tooltip title="Wróć">

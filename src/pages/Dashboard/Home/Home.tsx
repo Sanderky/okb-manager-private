@@ -552,7 +552,6 @@ const Home = () => {
                   </CardContent>
                 </Card>
               </Grid>
-              <Grid size={{ xs: 12 }}></Grid>
               <Grid
                 size={{ xs: 12 }}
                 sx={{

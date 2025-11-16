@@ -42,7 +42,7 @@
   resize: vertical;
   overflow: auto;
   min-height: 150px;
-  height: 200px;
+  height: 300px;
 
   h1 {
     font-size: 1.4rem;
