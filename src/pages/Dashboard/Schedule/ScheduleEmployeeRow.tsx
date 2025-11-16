@@ -70,7 +70,7 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = React.memo(
     getCellKey,
   }) => {
     const theme = useTheme();
-    const isXs = useMediaQuery(theme.breakpoints.only('xs'));
+    // const isXs = useMediaQuery(theme.breakpoints.only('xs'));
 
     if (activeTable.type === 1) {
       return (
@@ -194,9 +194,9 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = React.memo(
             isWeek: true,
           };
 
-          if (isXs && i > 0) {
-            return null;
-          }
+          // if (isXs && i > 0) {
+          //   return null;
+          // }
 
           return (
             <ScheduleCell

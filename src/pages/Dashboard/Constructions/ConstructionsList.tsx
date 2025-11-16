@@ -252,8 +252,8 @@ export default function ConstructionsList() {
             component="span"
             className={`rounded px-3 py-1 ${
               cell.getValue<boolean>()
-                ? 'bg-blue-400/50 text-blue-800'
-                : 'bg-amber-400/50 text-amber-800'
+                ? 'bg-blue-300/50 text-blue-600'
+                : 'bg-amber-300/50 text-amber-600'
             }`}
           >
             {cell.getValue<boolean>() ? 'W trakcie' : 'Zakończona'}

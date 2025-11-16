@@ -437,8 +437,8 @@ export default function EmployeeList() {
             component="span"
             className={`rounded px-3 py-1 ${
               cell.getValue<boolean>()
-                ? 'bg-green-400/50 text-green-800'
-                : 'bg-red-400/50 text-red-800'
+                ? 'bg-green-300/50 text-green-600'
+                : 'bg-red-300/50 text-red-600'
             }`}
           >
             {cell.getValue<boolean>() ? 'Aktywny' : 'Nieaktywny'}

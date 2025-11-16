@@ -507,7 +507,7 @@ const ScheduleComponent = () => {
                 sx={{
                   tableLayout: 'fixed',
                   minWidth: {
-                    xs: '100%',
+                    xs: `${50 + (50 / 1) * weeks.length}%`,
                     sm: `${40 + (60 / 2) * weeks.length}%`,
                     md: `${30 + (70 / 3) * weeks.length}%`,
                     lg: `${20 + (80 / 4) * weeks.length}%`,
@@ -573,12 +573,12 @@ const ScheduleComponent = () => {
                             '&:hover svg, &:active svg, &:focus-within svg': {
                               opacity: 1,
                             },
-                            display: {
-                              xs: index === 0 ? 'table-cell' : 'none',
-                              sm: 'table-cell',
-                            },
+                            // display: {
+                            //   xs: index === 0 ? 'table-cell' : 'none',
+                            //   sm: 'table-cell',
+                            // },
                             width: {
-                              xs: '50%',
+                              xs: `${50 / Math.min(weeks.length, 1)}%`,
                               sm: `${60 / Math.min(weeks.length, 2)}%`,
                               md: `${70 / Math.min(weeks.length, 3)}%`,
                               lg: `${80 / Math.min(weeks.length, 4)}%`,
@@ -734,12 +734,12 @@ const ScheduleComponent = () => {
                     <Typography
                       component={'span'}
                       variant="inherit"
-                      sx={{
-                        display: {
-                          xs: 'none',
-                          sm: 'inline',
-                        },
-                      }}
+                      // sx={{
+                      //   display: {
+                      //     xs: 'none',
+                      //     sm: 'inline',
+                      //   },
+                      // }}
                     >
                       {' - '}
                       {dayjs(toWeek).add(6, 'day').format('DD.MM.YYYY')}
