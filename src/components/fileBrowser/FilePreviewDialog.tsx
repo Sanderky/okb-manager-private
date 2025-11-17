@@ -14,7 +14,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { FileItem, FolderItem } from '../../types';
 import { getFileType } from './FileBrowserHelpers';
-import { Add, CropFree, Remove } from '@mui/icons-material';
+import { Add, CropFree, Error, Remove } from '@mui/icons-material';
 
 const ZoomStep = 0.2;
 const MaxZoom = 2.0;
@@ -28,12 +28,22 @@ interface PreviewDialogProps {
 
 export const PreviewDialog = ({ open, onClose, file }: PreviewDialogProps) => {
   const [isLoading, setIsLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
   const [scale, setScale] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const dragStartRef = useRef({ x: 0, y: 0 });
   const positionStartRef = useRef({ x: 0, y: 0 });
   const imageRef = useRef<HTMLImageElement>(null);
+
+  useEffect(() => {
+    if (open && file) {
+      setIsLoading(true);
+      setIsError(false);
+      setScale(1);
+      setPosition({ x: 0, y: 0 });
+    }
+  }, [open, file]);
 
   const handleScaleUp = () => {
     setScale((prev) => {
@@ -109,6 +119,7 @@ export const PreviewDialog = ({ open, onClose, file }: PreviewDialogProps) => {
   }, [isDragging, handleMouseMove, handleMouseUp]);
 
   const handleClose = () => {
+    setIsError(false);
     setIsLoading(true);
     setScale(1);
     setPosition({ x: 0, y: 0 });
@@ -120,6 +131,16 @@ export const PreviewDialog = ({ open, onClose, file }: PreviewDialogProps) => {
   const fileType = getFileType(file.name);
 
   const renderPreview = () => {
+    if (isError) {
+      return (
+        <Stack direction={'column'} alignItems={'center'} spacing={1}>
+          <Error color="error" fontSize="large" />
+          <Typography color="error">
+            Wystąpił błąd podczas wczytywania pliku
+          </Typography>
+        </Stack>
+      );
+    }
     switch (fileType) {
       case 'image':
         return (
@@ -138,6 +159,7 @@ export const PreviewDialog = ({ open, onClose, file }: PreviewDialogProps) => {
             <img
               ref={imageRef}
               src={file.url}
+              // src={'123'}
               alt={file.name}
               style={{
                 scale: scale,
@@ -154,6 +176,8 @@ export const PreviewDialog = ({ open, onClose, file }: PreviewDialogProps) => {
               onLoad={() => setIsLoading(false)}
               onMouseDown={handleMouseDown}
               onDoubleClick={handleReset}
+              onErrorCapture={() => setIsError(true)}
+              onError={() => setIsError(true)}
             />
           </>
         );
@@ -163,6 +187,8 @@ export const PreviewDialog = ({ open, onClose, file }: PreviewDialogProps) => {
             src={file.url}
             title={file.name}
             style={{ width: '100%', height: '100%', border: 'none' }}
+            onErrorCapture={() => setIsError(true)}
+            onError={() => setIsError(true)}
           />
         );
       default:

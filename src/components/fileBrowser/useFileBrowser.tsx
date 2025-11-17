@@ -391,7 +391,7 @@ const useFileView = (baseDirectory: string, onFetch: () => void) => {
               reject(error);
             },
             async () => {
-              await getDownloadURL(uploadTask.snapshot.ref);
+              // await getDownloadURL(uploadTask.snapshot.ref);
               resolve();
             }
           );
