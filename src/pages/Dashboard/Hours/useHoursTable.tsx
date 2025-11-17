@@ -391,7 +391,7 @@ const useHoursTable = (startWeek?: Date) => {
     },
   });
 
-  const handleFillWithSchedule = async () => {
+  const handleFillWithSchedule = useCallback(async () => {
     const hasExistingLocalData = localWorkHours && localWorkHours.length > 0;
 
     let confirmation = true;
@@ -410,7 +410,7 @@ const useHoursTable = (startWeek?: Date) => {
     if (confirmation) {
       fillWithScheduleMutation.mutate();
     }
-  };
+  }, [dialogs, fillWithScheduleMutation, localWorkHours]);
 
   const onWeeekChange = (weekStart: Date) => {
     if (hasUnsavedChanges) {

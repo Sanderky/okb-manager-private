@@ -160,12 +160,14 @@ const HoursTableControls = ({
                 handleToggleEditMode();
               }}
               disableRipple
+              disabled={isLoading}
             >
               {editMode ? 'Zapisz' : 'Edytuj'}
             </MenuItem>
           )}
           {!readOnly && editMode && (
             <MenuItem
+              disabled={isLoading}
               key={'cancel'}
               onClick={() => {
                 handleCloseMobileMenu();
@@ -184,6 +186,7 @@ const HoursTableControls = ({
                 handleCopyDataDialogOpen();
               }}
               disableRipple
+              disabled={isLoading}
             >
               Kopiuj z innego tygodnia
             </MenuItem>
@@ -196,6 +199,7 @@ const HoursTableControls = ({
                 handleCopyDataDialogOpen();
               }}
               disableRipple
+              disabled={isLoading}
             >
               Uzupełnij proponowane
             </MenuItem>
@@ -208,6 +212,7 @@ const HoursTableControls = ({
               handleCloseMobileMenu();
             }}
             disableRipple
+            disabled={isLoading}
           >
             {`Filtry (${selectedConstructions.length + selectedEmployees.length})`}
           </MenuItem>
@@ -218,6 +223,7 @@ const HoursTableControls = ({
               handleCloseMobileMenu();
             }}
             disableRipple
+            disabled={isLoading}
           >
             Drukuj
           </MenuItem>
@@ -439,6 +445,7 @@ const HoursTableControls = ({
             {!readOnly && (
               <>
                 <Button
+                  disabled={isLoading}
                   size="small"
                   onClick={() => {
                     if (!isExpanded) handleToggleExpand();
@@ -451,6 +458,7 @@ const HoursTableControls = ({
 
                 {editMode && (
                   <Button
+                    disabled={isLoading}
                     size="small"
                     onClick={() => handleCancelEdit()}
                     sx={{
