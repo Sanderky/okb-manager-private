@@ -697,6 +697,15 @@ export default function EmployeeList() {
             onClose={handleCloseFilters}
             maxWidth="md"
             fullWidth
+            slotProps={{
+              paper: {
+                sx: {
+                  borderRadius: 2,
+                  width: '95%',
+                  m: 0,
+                },
+              },
+            }}
           >
             <DialogTitle className="p-3 sm:p-5">
               <Stack
@@ -874,6 +883,8 @@ export default function EmployeeList() {
                   >
                     <DatePicker
                       label="Od"
+                      openTo="month"
+                      views={['year', 'month', 'day']}
                       value={filters.birthDateFrom}
                       onChange={(newValue) =>
                         setFilters({ ...filters, birthDateFrom: newValue })
@@ -893,6 +904,8 @@ export default function EmployeeList() {
                       -
                     </Typography>
                     <DatePicker
+                      openTo="month"
+                      views={['year', 'month', 'day']}
                       label="Do"
                       value={filters.birthDateTo}
                       onChange={(newValue) =>
@@ -919,6 +932,8 @@ export default function EmployeeList() {
                   >
                     <DatePicker
                       label="Od"
+                      openTo="month"
+                      views={['year', 'month', 'day']}
                       value={filters.contractStartDateFrom}
                       onChange={(newValue) =>
                         setFilters({
@@ -942,6 +957,8 @@ export default function EmployeeList() {
                     </Typography>
                     <DatePicker
                       label="Do"
+                      openTo="month"
+                      views={['year', 'month', 'day']}
                       value={filters.contractStartDateTo}
                       onChange={(newValue) =>
                         setFilters({
@@ -969,6 +986,8 @@ export default function EmployeeList() {
                   >
                     <DatePicker
                       label="Od"
+                      openTo="month"
+                      views={['year', 'month', 'day']}
                       value={filters.contractEndDateFrom}
                       onChange={(newValue) =>
                         setFilters({
@@ -992,6 +1011,8 @@ export default function EmployeeList() {
                     </Typography>
                     <DatePicker
                       label="Do"
+                      openTo="month"
+                      views={['year', 'month', 'day']}
                       value={filters.contractEndDateTo}
                       onChange={(newValue) =>
                         setFilters({
@@ -1020,6 +1041,8 @@ export default function EmployeeList() {
                   >
                     <DatePicker
                       label="Od"
+                      openTo="month"
+                      views={['year', 'month', 'day']}
                       value={filters.a1StartDateFrom}
                       onChange={(newValue) =>
                         setFilters({ ...filters, a1StartDateFrom: newValue })
@@ -1040,6 +1063,8 @@ export default function EmployeeList() {
                     </Typography>
                     <DatePicker
                       label="Do"
+                      openTo="month"
+                      views={['year', 'month', 'day']}
                       value={filters.a1StartDateTo}
                       onChange={(newValue) =>
                         setFilters({ ...filters, a1StartDateTo: newValue })
@@ -1064,6 +1089,8 @@ export default function EmployeeList() {
                   >
                     <DatePicker
                       label="Od"
+                      openTo="month"
+                      views={['year', 'month', 'day']}
                       value={filters.a1EndDateFrom}
                       onChange={(newValue) =>
                         setFilters({ ...filters, a1EndDateFrom: newValue })
@@ -1084,6 +1111,8 @@ export default function EmployeeList() {
                     </Typography>
                     <DatePicker
                       label="Do"
+                      openTo="month"
+                      views={['year', 'month', 'day']}
                       value={filters.a1EndDateTo}
                       onChange={(newValue) =>
                         setFilters({ ...filters, a1EndDateTo: newValue })

@@ -459,6 +459,15 @@ export default function ConstructionsList() {
             onClose={handleCloseFilters}
             maxWidth="md"
             fullWidth
+            slotProps={{
+              paper: {
+                sx: {
+                  borderRadius: 2,
+                  width: '95%',
+                  m: 0,
+                },
+              },
+            }}
           >
             <DialogTitle className="p-3 sm:p-5">
               <Stack
@@ -520,6 +529,8 @@ export default function ConstructionsList() {
                   >
                     <DatePicker
                       label="Od"
+                      openTo="month"
+                      views={['year', 'month', 'day']}
                       value={filters.startDateFrom}
                       onChange={(newValue) =>
                         setFilters({ ...filters, startDateFrom: newValue })
@@ -540,6 +551,8 @@ export default function ConstructionsList() {
                     </Typography>
                     <DatePicker
                       label="Do"
+                      openTo="month"
+                      views={['year', 'month', 'day']}
                       value={filters.startDateTo}
                       onChange={(newValue) =>
                         setFilters({ ...filters, startDateTo: newValue })
@@ -563,6 +576,8 @@ export default function ConstructionsList() {
                   >
                     <DatePicker
                       label="Od"
+                      openTo="month"
+                      views={['year', 'month', 'day']}
                       value={filters.endDateFrom}
                       onChange={(newValue) =>
                         setFilters({ ...filters, endDateFrom: newValue })
@@ -583,6 +598,8 @@ export default function ConstructionsList() {
                     </Typography>
                     <DatePicker
                       label="Do"
+                      openTo="month"
+                      views={['year', 'month', 'day']}
                       value={filters.endDateTo}
                       onChange={(newValue) =>
                         setFilters({ ...filters, endDateTo: newValue })
