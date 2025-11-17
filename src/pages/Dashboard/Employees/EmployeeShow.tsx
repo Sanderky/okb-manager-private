@@ -91,7 +91,7 @@ const generateDateBox = (
 
   if (isContractEndDate && isPermanent) {
     displayValue = 'Umowa na czas nieokreślony';
-    dateStyles = 'border-amber-500/25! bg-amber-500/10! text-amber-600!';
+    dateStyles = 'text-gray-400';
   } else if (dateValue instanceof Date) {
     displayValue = dayjs(dateValue).format('DD.MM.YYYY');
 
