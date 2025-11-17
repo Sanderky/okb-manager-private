@@ -517,6 +517,9 @@ export default function EmployeeForm(props: EmployeeFormProps) {
           )}
 
           <Grid width={'100%'}>
+            <Alert severity="info" className="mb-3 px-3 py-0 font-medium">
+              Pola oznaczone * są obowiązkowe.
+            </Alert>
             <Typography variant="subtitle1" className="mb-3 font-medium">
               Dane pracownika
             </Typography>
@@ -650,13 +653,6 @@ export default function EmployeeForm(props: EmployeeFormProps) {
 
           <Divider sx={{ width: '100%' }} />
         </Grid>
-        <Alert
-          severity="info"
-          // variant="outlined"
-          className="mt-5 px-3 py-0 font-medium"
-        >
-          Pola oznaczone * są obowiązkowe.
-        </Alert>
         <Stack
           direction="row"
           alignItems="center"

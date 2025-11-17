@@ -152,8 +152,15 @@ export default function ConstructionForm(props: ConstructionFormProps) {
       onReset={onReset}
       sx={{ width: '100%', overflowY: 'auto' }}
     >
+      <Alert severity="info" className="mb-3 px-3 py-0 font-medium">
+        Pola oznaczone * są obowiązkowe.
+      </Alert>
       {submitError && (
-        <Alert severity="error" sx={{ mb: 2 }}>
+        <Alert
+          severity="error"
+          sx={{ mb: 2 }}
+          className="mb-3 px-3 py-0 font-medium"
+        >
           {submitError}
         </Alert>
       )}
@@ -263,9 +270,6 @@ export default function ConstructionForm(props: ConstructionFormProps) {
           )}
           <Divider sx={{ width: '100%' }} />
         </Grid>
-        <Alert severity="info" className="mt-5 px-3 py-0 font-medium">
-          Pola oznaczone * są obowiązkowe.
-        </Alert>
         <Stack
           direction="row"
           alignItems="center"
