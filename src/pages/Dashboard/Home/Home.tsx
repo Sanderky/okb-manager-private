@@ -404,13 +404,13 @@ const Home = () => {
         </Tabs>
       </Box>
 
-      <Grid container columns={12} spacing={{ xs: 2, lg: 3 }}>
+      <Grid container columns={12} spacing={{ xs: 1.5, md: 2, lg: 3 }}>
         {tab === 0 && (
           <>
             <Grid
               container
               columns={12}
-              spacing={{ xs: 2, lg: 3 }}
+              spacing={{ xs: 1.5, md: 2, lg: 3 }}
               size={{ xs: 12, lg: 6 }}
               alignContent={'flex-start'}
             >
@@ -538,7 +538,7 @@ const Home = () => {
             <Grid
               container
               columns={12}
-              spacing={{ xs: 2, lg: 3 }}
+              spacing={{ xs: 1.5, md: 2, lg: 3 }}
               size={{ xs: 12, lg: 6 }}
               alignContent={'flex-start'}
             >

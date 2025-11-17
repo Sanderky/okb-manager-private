@@ -123,7 +123,7 @@ export default function ConstructionCreate() {
           maxWidth: { sm: '100%', md: '1790px' },
           boxShadow: 1,
         }}
-        className="rounded-lg bg-white px-3 pt-4 pb-6 md:px-6"
+        className="rounded-lg bg-white p-3 md:p-4"
       >
         <ConstructionForm
           formState={formState}

@@ -395,7 +395,7 @@ export const Note = ({ content, onSave, loading = false }: NoteProps) => {
       <Box
         sx={{
           pb: 2,
-          px: { xs: 0.5, sm: 2 },
+          px: { xs: 1, sm: 2 },
         }}
       >
         <NoteBase

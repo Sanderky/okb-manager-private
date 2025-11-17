@@ -1019,7 +1019,21 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
   // const { start: effectiveStart, end: effectiveEnd } = effectiveDateRange;
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="sm"
+      fullWidth
+      slotProps={{
+        paper: {
+          sx: {
+            borderRadius: 2,
+            width: '95%',
+            m: 0,
+          },
+        },
+      }}
+    >
       <DialogTitle>
         <Stack
           direction="row"

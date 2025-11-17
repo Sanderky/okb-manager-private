@@ -102,7 +102,19 @@ const ForgotPassword = ({ open, handleClose }: ForgotPasswordProps) => {
         </Alert>
       </Snackbar>
 
-      <Dialog open={open} onClose={handleClose}>
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        slotProps={{
+          paper: {
+            sx: {
+              borderRadius: 2,
+              width: '95%',
+              m: 0,
+            },
+          },
+        }}
+      >
         <form noValidate onSubmit={handleSubmit}>
           <DialogTitle>Zresetuj hasło</DialogTitle>
           <DialogContent>

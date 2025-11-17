@@ -334,7 +334,7 @@ export default function EmployeeShow() {
     return employee ? (
       <Box
         sx={{ width: '100%', boxShadow: 1 }}
-        className="rounded-lg bg-white p-4 md:p-6 md:pt-4"
+        className="rounded-lg bg-white p-2 md:p-4 md:pt-2 lg:p-6 lg:pt-2"
       >
         <Grid
           container
