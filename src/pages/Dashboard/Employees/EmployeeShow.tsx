@@ -279,16 +279,16 @@ export default function EmployeeShow() {
   }, [navigate]);
 
   const formatFieldValue = (key: string, value: any) => {
+    if (key === 'isContractor') {
+      return value ? 'Tak' : 'Nie';
+    }
+
     if (value === null || value === undefined || value === '') {
       return <em className="text-gray-400">-</em>;
     }
 
     if (key === 'birthDate' && value instanceof Date) {
       return dayjs(value).format('DD.MM.YYYY');
-    }
-
-    if (key === 'isContractor') {
-      return value ? 'Tak' : 'Nie';
     }
 
     if (key === 'hourRate' && typeof value === 'number') {
