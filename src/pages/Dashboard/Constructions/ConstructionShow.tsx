@@ -455,7 +455,9 @@ export default function ConstructionShow() {
                                       !dayjs.isDayjs(value) ||
                                       !value.isValid()
                                     )
-                                      return '-';
+                                      return (
+                                        <em className="text-gray-400">-</em>
+                                      );
                                     return dayjs(value).format('DD.MM.YYYY');
                                   }
                                   return String(value);
