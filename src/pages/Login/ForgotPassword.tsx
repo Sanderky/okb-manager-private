@@ -118,7 +118,7 @@ const ForgotPassword = ({ open, handleClose }: ForgotPasswordProps) => {
         <form noValidate onSubmit={handleSubmit}>
           <DialogTitle>Zresetuj hasło</DialogTitle>
           <DialogContent>
-            <DialogContentText className="mb-2">
+            <DialogContentText className="mb-6">
               Wprowadź swój adres e-mail poniżej, a my wyślemy Ci link do
               zresetowania hasła.
             </DialogContentText>

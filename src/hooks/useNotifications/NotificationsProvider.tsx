@@ -94,7 +94,7 @@ function Notification({
     >
       <Badge badgeContent={badge} color="primary" sx={{ width: '100%' }}>
         {severity ? (
-          <Alert severity={severity} sx={{ width: '100%' }} action={action}>
+          <Alert severity={severity} variant='filled' sx={{ width: '100%' }} action={action}>
             {message}
           </Alert>
         ) : (
