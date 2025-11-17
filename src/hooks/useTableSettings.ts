@@ -11,11 +11,13 @@ interface PaginationState {
   pageSize: number;
 }
 
+const DensityDefault: MRT_DensityState = 'compact';
+
 export const useTableState = (tableName: string) => {
   const [columnVisibility, setColumnVisibility] = useState<MRT_VisibilityState>(
     {}
   );
-  const [density, setDensity] = useState<MRT_DensityState>('comfortable');
+  const [density, setDensity] = useState<MRT_DensityState>(DensityDefault);
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
@@ -31,7 +33,7 @@ export const useTableState = (tableName: string) => {
         if (saved) {
           const preferences = JSON.parse(saved);
           setColumnVisibility(preferences.columnVisibility || {});
-          setDensity(preferences.density || 'comfortable');
+          setDensity(preferences.density || DensityDefault);
           setPagination(
             preferences.pagination || { pageIndex: 0, pageSize: 10 }
           );
@@ -107,7 +109,7 @@ export const useTableState = (tableName: string) => {
 
   const resetState = () => {
     setColumnVisibility({});
-    setDensity('comfortable');
+    setDensity(DensityDefault);
     setPagination({ pageIndex: 0, pageSize: 10 });
     localStorage.removeItem(`table-preferences-${tableName}`);
   };
@@ -130,7 +132,7 @@ export const useTableStateFirebase = (tableName: string) => {
   const [columnVisibility, setColumnVisibility] = useState<MRT_VisibilityState>(
     {}
   );
-  const [density, setDensity] = useState<MRT_DensityState>('comfortable');
+  const [density, setDensity] = useState<MRT_DensityState>(DensityDefault);
 
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
@@ -152,7 +154,7 @@ export const useTableStateFirebase = (tableName: string) => {
 
           if (tablePrefs) {
             setColumnVisibility(tablePrefs.columnVisibility || {});
-            setDensity(tablePrefs.density || 'comfortable');
+            setDensity(tablePrefs.density || DensityDefault);
           }
         }
       } catch (error) {
@@ -220,7 +222,7 @@ export const useTableStateFirebase = (tableName: string) => {
 
   const resetState = () => {
     setColumnVisibility({});
-    setDensity('comfortable');
+    setDensity(DensityDefault);
   };
 
   return {
