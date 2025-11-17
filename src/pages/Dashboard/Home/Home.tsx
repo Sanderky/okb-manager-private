@@ -34,6 +34,7 @@ import { getVacationListForMonths } from '../../../api/vacations';
 import Loading from '../../../components/Loading';
 import { ExpandMore, ExpandLess } from '@mui/icons-material';
 import { Note } from '../../../components/Note';
+import { useScroll } from '../../../context/ScrollContext';
 
 const EmployeeAlerts = () => {
   const { alerts } = useEmployeeAlert();
@@ -185,9 +186,12 @@ const UpcomingVacation = () => {
     setIsExpanded(!isExpanded);
   };
 
+  const { scrollToTop } = useScroll();
+
   const handleVacationClick = (vacation: any) => {
     const startMonth = dayjs(vacation.startDate).format('YYYY-MM');
     navigate(`/calendar?month=${startMonth}`);
+    scrollToTop();
   };
 
   return (
