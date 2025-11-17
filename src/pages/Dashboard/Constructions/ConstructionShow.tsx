@@ -553,6 +553,8 @@ export default function ConstructionShow() {
 
             <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pl">
               <DatePicker
+                openTo='month'
+                views={['year', 'month', 'day']}
                 label="Data zakończenia"
                 value={endDateValue}
                 onChange={(v) => {

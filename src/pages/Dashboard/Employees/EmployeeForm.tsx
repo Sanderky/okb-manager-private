@@ -382,6 +382,8 @@ export default function EmployeeForm(props: EmployeeFormProps) {
             <DatePicker
               label={label}
               value={val}
+              openTo='month'
+              views={['year', 'month', 'day']}
               onChange={(newValue) => {
                 handleFieldChange(key, newValue);
               }}
