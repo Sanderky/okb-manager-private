@@ -3,7 +3,6 @@ import {
   TextField,
   Button,
   Box,
-  Alert,
   Typography,
   Divider,
   IconButton,
@@ -21,6 +20,7 @@ import {
 } from 'firebase/auth';
 import { auth } from '../../firebase';
 import BaseDialog from '../BaseDialog';
+import useNotifications from '../../hooks/useNotifications/useNotifications';
 
 interface UserSettingsDialogProps {
   open: boolean;
@@ -32,6 +32,7 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
   onClose,
 }) => {
   const user = auth.currentUser;
+  const notifications = useNotifications();
 
   const [editMode, setEditMode] = useState(false);
 
@@ -43,9 +44,7 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
   const [confirmPassword, setConfirmPassword] = useState('');
 
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
   const [fieldsErrors, setFieldsError] = useState<Record<string, string>>({});
-  const [success, setSuccess] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -59,9 +58,9 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
-      setError('');
+      // setError('');
       setEditMode(false);
-      setSuccess('');
+      // setSuccess('');
       setFieldsError({});
     }
   }, [user, open]);
@@ -186,13 +185,14 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
 
   const handleSave = async (): Promise<void> => {
     if (!user) {
-      setError('Użytkownik nie jest zalogowany');
+      notifications.show('Użytkownik nie jest zalogowany', {
+        severity: 'error',
+        autoHideDuration: 5000,
+      });
       return;
     }
 
     setLoading(true);
-    setError('');
-    setSuccess('');
     setFieldsError({});
 
     try {
@@ -202,7 +202,6 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
       let result = false;
 
       if (!hasDisplayNameChanged && !hasEmailChanged && !hasPasswordChanged) {
-        setSuccess('Brak zmian do zapisania');
         return;
       }
 
@@ -211,13 +210,20 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
       if (hasEmailChanged && (await updateUserEmail())) result = true;
 
       if (result) {
-        setSuccess('Pomyślnie zaktualizowano dane użytkownika');
+        notifications.show('Pomyślnie zaktualizowano dane użytkownika', {
+          severity: 'success',
+          autoHideDuration: 5000,
+        });
         setPassword('');
         setEditMode(false);
+        handleClose();
       }
     } catch (error) {
       console.error('Error updating user:', error);
-      setError('Wystąpił błąd podczas aktualizacji danych');
+      notifications.show('Wystąpił błąd podczas aktualizacji danych', {
+        severity: 'error',
+        autoHideDuration: 5000,
+      });
     } finally {
       setLoading(false);
     }
@@ -225,28 +231,35 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
 
   const handleResetPassword = async (): Promise<void> => {
     if (!user) {
-      setError('Użytkownik nie jest zalogowany');
+      notifications.show('Użytkownik nie jest zalogowany', {
+        severity: 'error',
+        autoHideDuration: 5000,
+      });
       return;
     }
 
     setLoading(true);
-    setError('');
-    setSuccess('');
     setFieldsError({});
 
     try {
       if (await updateUserPassword()) {
-        await updateUserPassword();
-
-        setSuccess('Hasło zostało zresetowane');
+        notifications.show('Hasło zostało zresetowane', {
+          severity: 'success',
+          autoHideDuration: 5000,
+        });
 
         setCurrentPassword('');
         setNewPassword('');
         setConfirmPassword('');
+        handleClose();
       }
     } catch (error) {
       console.error('Error updating user:', error);
-      setError('Wystąpił błąd podczas aktualizacji danych');
+
+      notifications.show('Użytkownik nie jest zalogowany', {
+        severity: 'error',
+        autoHideDuration: 5000,
+      });
     } finally {
       setLoading(false);
     }
@@ -267,18 +280,6 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
       title="Ustawienia konta"
       showConfirm={false}
     >
-      {error && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {error}
-        </Alert>
-      )}
-
-      {success && (
-        <Alert severity="success" sx={{ mb: 2 }}>
-          {success}
-        </Alert>
-      )}
-
       <Box component="form" sx={{ mt: 1 }}>
         <Typography variant="body1" gutterBottom>
           Informacje podstawowe
@@ -329,17 +330,19 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
             margin="normal"
             disabled={loading}
             helperText={fieldsErrors['password']}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton
-                    onClick={() => setShowPassword((prev) => !prev)}
-                    edge="end"
-                  >
-                    {showPassword ? <VisibilityOff /> : <Visibility />}
-                  </IconButton>
-                </InputAdornment>
-              ),
+            slotProps={{
+              input: {
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() => setShowPassword((prev) => !prev)}
+                      edge="end"
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              },
             }}
           />
 
@@ -397,17 +400,19 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
           margin="normal"
           disabled={loading}
           helperText={fieldsErrors['currentPassword']}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton
-                  onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                  edge="end"
-                >
-                  {showCurrentPassword ? <VisibilityOff /> : <Visibility />}
-                </IconButton>
-              </InputAdornment>
-            ),
+          slotProps={{
+            input: {
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                    edge="end"
+                  >
+                    {showCurrentPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            },
           }}
         />
 
@@ -422,17 +427,19 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
           fullWidth
           margin="normal"
           disabled={loading}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton
-                  onClick={() => setShowNewPassword(!showNewPassword)}
-                  edge="end"
-                >
-                  {showNewPassword ? <VisibilityOff /> : <Visibility />}
-                </IconButton>
-              </InputAdornment>
-            ),
+          slotProps={{
+            input: {
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    onClick={() => setShowNewPassword(!showNewPassword)}
+                    edge="end"
+                  >
+                    {showNewPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            },
           }}
         />
 
@@ -447,17 +454,19 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
           fullWidth
           margin="normal"
           disabled={loading}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  edge="end"
-                >
-                  {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
-                </IconButton>
-              </InputAdornment>
-            ),
+          slotProps={{
+            input: {
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    edge="end"
+                  >
+                    {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            },
           }}
         />
 

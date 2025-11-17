@@ -7,7 +7,13 @@ import {
 } from 'firebase/auth';
 import { auth } from '../../firebase';
 import TextField from '@mui/material/TextField';
-import { Alert, Button, Typography } from '@mui/material';
+import {
+  Alert,
+  Button,
+  IconButton,
+  InputAdornment,
+  Typography,
+} from '@mui/material';
 import ForgotPassword from './ForgotPassword';
 import { getRules, validateField } from './validation';
 import { useAuth } from '../../context/AuthContext';
@@ -15,6 +21,7 @@ import { default as LogoIcon } from '@mui/icons-material/TokenOutlined';
 import { syncUserToFirestore } from '../../api/users';
 import Loading from '../../components/Loading';
 import useLoading from '../../hooks/useLoading';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 
 type FormValues = {
   email: string;
@@ -36,6 +43,7 @@ const Login = () => {
   >({});
   const [credentialError, setCredentialError] = useState(false);
   const [forgotOpen, setForgotOpen] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     if (!initialLoading && user) {
@@ -157,14 +165,26 @@ const Login = () => {
                 fullWidth
                 name="password"
                 label="Hasło"
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 id="password"
                 helperText={errors.password}
                 value={values.password}
                 onChange={handleChange}
                 disabled={actionLoading}
                 slotProps={{
-                  input: { className: 'rounded-lg' },
+                  input: {
+                    className: 'rounded-lg',
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={() => setShowPassword((prev) => !prev)}
+                          edge="end"
+                        >
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  },
                 }}
               />
 

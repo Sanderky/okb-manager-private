@@ -264,12 +264,14 @@ const TableRows = ({
                         }}
                         variant="standard"
                         size="small"
-                        inputProps={{
-                          min: 0,
-                          max: 24,
-                          step: 0.5,
-                          style: {
-                            textAlign: 'center',
+                        slotProps={{
+                          htmlInput: {
+                            min: 0,
+                            max: 24,
+                            step: 0.5,
+                            style: {
+                              textAlign: 'center',
+                            },
                           },
                         }}
                       />
