@@ -45,6 +45,7 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import dayjs, { Dayjs } from 'dayjs';
 import { useReactToPrint } from 'react-to-print';
+import { plPL } from '@mui/x-date-pickers/locales';
 
 interface FilterDialogProps {
   isFilterOpen: boolean;
@@ -257,7 +258,13 @@ export const AddEventDialog: React.FC<AddEventDialogProps> = ({
           disabled={loading}
         />
 
-        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pl">
+        <LocalizationProvider
+          localeText={
+            plPL.components.MuiLocalizationProvider.defaultProps.localeText
+          }
+          dateAdapter={AdapterDayjs}
+          adapterLocale="pl"
+        >
           <Stack direction="row" spacing={{ xs: 1, sm: 2 }}>
             <DatePicker
               label="Data rozpoczęcia *"
@@ -423,7 +430,13 @@ export const EditEventDialog: React.FC<EditEventDialogProps> = ({
           disabled={loading}
         />
 
-        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pl">
+        <LocalizationProvider
+          localeText={
+            plPL.components.MuiLocalizationProvider.defaultProps.localeText
+          }
+          dateAdapter={AdapterDayjs}
+          adapterLocale="pl"
+        >
           <Stack direction="row" spacing={{ xs: 1, sm: 2 }}>
             <DatePicker
               label="Data rozpoczęcia *"
@@ -1048,7 +1061,13 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
       </DialogTitle>
 
       <DialogContent dividers>
-        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pl">
+        <LocalizationProvider
+          localeText={
+            plPL.components.MuiLocalizationProvider.defaultProps.localeText
+          }
+          dateAdapter={AdapterDayjs}
+          adapterLocale="pl"
+        >
           <Stack spacing={3}>
             <Box>
               <FormLabel className="mb-2 block">Pracownicy</FormLabel>

@@ -13,6 +13,7 @@ import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import type { Dayjs } from 'dayjs';
 import type { Employee } from '../../../types';
+import { plPL } from '@mui/x-date-pickers/locales';
 
 interface CalendarControlsProps {
   currentMonth: Dayjs;
@@ -93,7 +94,13 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
         </Tooltip>
       </Stack>
 
-      <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pl">
+      <LocalizationProvider
+        localeText={
+          plPL.components.MuiLocalizationProvider.defaultProps.localeText
+        }
+        dateAdapter={AdapterDayjs}
+        adapterLocale="pl"
+      >
         <DatePicker
           openTo="month"
           views={['year', 'month']}

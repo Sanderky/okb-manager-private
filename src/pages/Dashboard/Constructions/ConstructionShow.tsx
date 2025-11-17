@@ -47,6 +47,9 @@ import FirebaseFileBrowser from '../../../components/fileBrowser/FileBrowser';
 import useLoading from '../../../hooks/useLoading';
 import { Note } from '../../../components/Note';
 
+import PeopleIcon from '@mui/icons-material/People';
+import { plPL } from '@mui/x-date-pickers/locales';
+
 const personalFields = [
   { key: 'name', label: 'Nazwa budowy' },
   { key: 'location', label: 'Lokalizacja' },
@@ -483,11 +486,18 @@ export default function ConstructionShow() {
             >
               <table className="w-full">
                 <thead>
-                  <tr className="bg-gray-50">
+                  <tr className="bg-blue-100">
                     <th className="px-4 py-3 text-left">
-                      <Typography variant="subtitle2" fontWeight="600">
-                        Pracownicy na budowie ({scheduleEmployees?.length}):
-                      </Typography>
+                      <Stack
+                        direction={'row'}
+                        alignItems={'center'}
+                        spacing={1}
+                      >
+                        <PeopleIcon />
+                        <Typography variant="subtitle2" fontWeight="600">
+                          Pracownicy na budowie ({scheduleEmployees?.length}):
+                        </Typography>
+                      </Stack>
                     </th>
                   </tr>
                 </thead>
@@ -501,12 +511,21 @@ export default function ConstructionShow() {
                           className="cursor-pointer transition-colors hover:bg-blue-50 active:bg-blue-100"
                         >
                           <td className="px-4 py-3">
-                            <Typography
-                              variant="body2"
-                              className="text-gray-700"
+                            <Stack
+                              direction={'row'}
+                              alignItems={'center'}
+                              spacing={1}
                             >
-                              {employee.name}
-                            </Typography>
+                              <Typography
+                                variant="body2"
+                                className="font-medium text-gray-800"
+                              >
+                                {employee.name}
+                              </Typography>
+                              {employee.isContractor && (
+                                <Chip label={'Kontraktor'} size="small" />
+                              )}
+                            </Stack>
                           </td>
                         </tr>
                       );
@@ -547,7 +566,13 @@ export default function ConstructionShow() {
               </Typography>
             )}
 
-            <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pl">
+            <LocalizationProvider
+              localeText={
+                plPL.components.MuiLocalizationProvider.defaultProps.localeText
+              }
+              dateAdapter={AdapterDayjs}
+              adapterLocale="pl"
+            >
               <DatePicker
                 openTo="month"
                 views={['year', 'month', 'day']}

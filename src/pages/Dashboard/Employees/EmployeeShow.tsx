@@ -43,6 +43,7 @@ import { getUpcomingVacationsForEmployee } from '../../../api/vacations';
 import useLoading from '../../../hooks/useLoading';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import { Note } from '../../../components/Note';
+import { useScroll } from '../../../context/ScrollContext';
 
 const personalFields = [
   { key: 'name', label: 'Imię i nazwisko' },
@@ -91,7 +92,7 @@ const generateDateBox = (
 
   if (isContractEndDate && isPermanent) {
     displayValue = 'Umowa na czas nieokreślony';
-    dateStyles = 'text-gray-400';
+    dateStyles = '!text-gray-700';
   } else if (dateValue instanceof Date) {
     displayValue = dayjs(dateValue).format('DD.MM.YYYY');
 
@@ -298,6 +299,14 @@ export default function EmployeeShow() {
     return String(value);
   };
 
+  const { scrollToTop } = useScroll();
+
+  const handleVacationClick = (vacation: any) => {
+    const startMonth = dayjs(vacation.startDate).format('YYYY-MM');
+    navigate(`/calendar?month=${startMonth}`);
+    scrollToTop();
+  };
+
   const error = errorEmployee || errorEmployeeVacation;
   const loading = isEmployeeLoading || isEmployeeVacationLoading;
 
@@ -454,7 +463,7 @@ export default function EmployeeShow() {
                   <Box className="border-lightGray overflow-hidden rounded-lg border">
                     <table className="w-full">
                       <thead>
-                        <tr className="bg-blue-50">
+                        <tr className="bg-blue-100">
                           <th className="px-4 py-3 text-left">
                             <Stack
                               direction={'row'}
@@ -473,7 +482,8 @@ export default function EmployeeShow() {
                         {employeeVacation.map((empV) => (
                           <tr
                             key={empV.id}
-                            className="transition-colors hover:bg-blue-50/50 active:bg-blue-100"
+                            onClick={() => handleVacationClick(empV)}
+                            className="cursor-pointer transition-colors hover:bg-blue-50/50 active:bg-blue-100"
                           >
                             <td className="px-4 py-3">
                               <Typography

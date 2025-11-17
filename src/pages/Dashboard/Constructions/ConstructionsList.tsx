@@ -45,6 +45,7 @@ import {
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import CloseIcon from '@mui/icons-material/Close';
+import { plPL } from '@mui/x-date-pickers/locales';
 
 interface Filters {
   name: string;
@@ -455,7 +456,13 @@ export default function ConstructionsList() {
       }
     >
       <Box sx={{ flex: 1, width: '100%' }}>
-        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pl">
+        <LocalizationProvider
+          localeText={
+            plPL.components.MuiLocalizationProvider.defaultProps.localeText
+          }
+          dateAdapter={AdapterDayjs}
+          adapterLocale="pl"
+        >
           <MaterialReactTable table={table} />
 
           <Dialog

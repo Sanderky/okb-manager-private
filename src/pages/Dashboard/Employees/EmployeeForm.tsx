@@ -37,6 +37,7 @@ import { useNavigate, useParams } from 'react-router';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import type { LoadingState } from './useAttachment';
 import { NoteBase } from '../../../components/Note';
+import { plPL } from '@mui/x-date-pickers/locales';
 
 export interface EmployeeFormState {
   values: Partial<Omit<Employee, 'id'>>;
@@ -378,7 +379,13 @@ export default function EmployeeForm(props: EmployeeFormProps) {
 
       return (
         <Grid size={{ xs: 12, md: 6 }} key={key}>
-          <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pl">
+          <LocalizationProvider
+            localeText={
+              plPL.components.MuiLocalizationProvider.defaultProps.localeText
+            }
+            dateAdapter={AdapterDayjs}
+            adapterLocale="pl"
+          >
             <DatePicker
               label={label}
               value={val}

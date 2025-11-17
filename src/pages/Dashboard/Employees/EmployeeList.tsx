@@ -46,6 +46,7 @@ import {
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import CloseIcon from '@mui/icons-material/Close';
 import { useEmployeeAlert } from '../../../context/EmployeeAlertContext';
+import { plPL } from '@mui/x-date-pickers/locales';
 
 interface EmployeeFilters {
   name: string;
@@ -693,7 +694,13 @@ export default function EmployeeList() {
       }
     >
       <Box sx={{ flex: 1, width: '100%' }}>
-        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pl">
+        <LocalizationProvider
+          localeText={
+            plPL.components.MuiLocalizationProvider.defaultProps.localeText
+          }
+          dateAdapter={AdapterDayjs}
+          adapterLocale="pl"
+        >
           <MaterialReactTable table={table} />
 
           <Dialog
