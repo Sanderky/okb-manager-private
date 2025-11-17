@@ -47,11 +47,11 @@ import { Note } from '../../../components/Note';
 const personalFields = [
   { key: 'name', label: 'Imię i nazwisko' },
   { key: 'pesel', label: 'PESEL' },
-  { key: 'birthDate', label: 'Data urodzenia' },
-  { key: 'birthPlace', label: 'Miejsce urodzenia' },
   { key: 'address', label: 'Adres' },
   { key: 'email', label: 'E-mail' },
   { key: 'phone', label: 'Telefon' },
+  { key: 'birthDate', label: 'Data urodzenia' },
+  { key: 'birthPlace', label: 'Miejsce urodzenia' },
   { key: 'hourRate', label: 'Stawka' },
   { key: 'accountNumber', label: 'Numer konta' },
   { key: 'isContractor', label: 'Kontraktor' },

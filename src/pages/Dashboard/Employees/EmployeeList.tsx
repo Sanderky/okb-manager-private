@@ -592,23 +592,20 @@ export default function EmployeeList() {
         },
         size: 70,
         enableResizing: false,
-        Cell: ({ row }) => {
+        Cell: ({ row, table }) => {
           const employeeId = row.original.id;
           const alerts = getEmployeeAlerts(employeeId);
           const hasAlert = alerts.length > 0;
 
+          const visibleRows = table.getRowModel().rows;
+
+          const globalIndex =
+            visibleRows.findIndex((visibleRow) => visibleRow.id === row.id) + 1;
+
           return (
             <Box>
-              <Typography
-                // sx={{
-                //   height: '100%',
-                //   display: 'flex',
-                //   alignItems: 'center',
-                //   justifyContent: 'center',
-                // }}
-                className={`${hasAlert && 'text-amber-500'}`}
-              >
-                {row.index + 1}
+              <Typography className={`${hasAlert && 'text-amber-500'}`}>
+                {globalIndex}
               </Typography>
               {hasAlert && (
                 <Tooltip

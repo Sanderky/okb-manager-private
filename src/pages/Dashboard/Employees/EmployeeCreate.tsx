@@ -111,6 +111,8 @@ export default function EmployeeCreate() {
 
       const payload: Partial<Employee> = {
         ...formState.values,
+        status: formState.values.status ?? true,
+        isContractor: formState.values.isContractor ?? false,
         contractStartDate: formState.values.contractStartDate ?? null,
         a1StartDate: formState.values.a1StartDate ?? null,
         a1EndDate: formState.values.a1EndDate ?? null,
