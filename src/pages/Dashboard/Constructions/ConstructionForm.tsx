@@ -223,11 +223,11 @@ export default function ConstructionForm(props: ConstructionFormProps) {
                     adapterLocale="pl"
                   >
                     <DatePicker
-                      openTo='month'
+                      openTo="month"
                       views={['year', 'month', 'day']}
                       label={label}
                       value={getDateValue(formValues[key])}
-                      onChange={(newValue) => handleFieldChange(key, newValue)}
+                      onAccept={(newValue) => handleFieldChange(key, newValue)}
                       slotProps={{
                         textField: {
                           size: 'small',

@@ -382,9 +382,9 @@ export default function EmployeeForm(props: EmployeeFormProps) {
             <DatePicker
               label={label}
               value={val}
-              openTo='month'
+              openTo="month"
               views={['year', 'month', 'day']}
-              onChange={(newValue) => {
+              onAccept={(newValue) => {
                 handleFieldChange(key, newValue);
               }}
               slotProps={{

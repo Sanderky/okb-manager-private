@@ -63,7 +63,7 @@ const EmployeeAlerts = () => {
         </Typography>
         {hasMoreItems && (
           <Chip
-            label={`${alerts.length} uwag`}
+            label={`${alerts.length} ${alerts.length === 4 ? 'uwagi' : 'uwag'}`}
             size="small"
             color="primary"
             variant="outlined"
@@ -185,6 +185,11 @@ const UpcomingVacation = () => {
     setIsExpanded(!isExpanded);
   };
 
+  const handleVacationClick = (vacation: any) => {
+    const startMonth = dayjs(vacation.startDate).format('YYYY-MM');
+    navigate(`/calendar?month=${startMonth}`);
+  };
+
   return (
     <Box>
       <Stack
@@ -205,7 +210,7 @@ const UpcomingVacation = () => {
         </Typography>
         {hasMoreItems && (
           <Chip
-            label={`${groupedVacations.length} urlopów`}
+            label={`${groupedVacations.length} ${groupedVacations.length > 4 ? 'urlopów' : 'urlopy'}`}
             size="small"
             color="primary"
             variant="outlined"
@@ -238,9 +243,7 @@ const UpcomingVacation = () => {
                 groupedVacations.map((vacation) => (
                   <ListItem
                     key={vacation.groupId}
-                    onClick={() =>
-                      navigate(`/employees/${vacation.employeeId}`)
-                    }
+                    onClick={() => handleVacationClick(vacation)}
                     sx={{
                       display: 'flex',
                       flexDirection: 'column',

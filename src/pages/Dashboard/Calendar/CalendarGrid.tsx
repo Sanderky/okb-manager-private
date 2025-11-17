@@ -1,7 +1,11 @@
 import React from 'react';
 import { Grid, Box, Typography, Tooltip, Link } from '@mui/material';
 import dayjs from 'dayjs';
-import { WEEK_DAYS, type CalendarGridProps } from './CalendarHelpers';
+import {
+  getInitials,
+  WEEK_DAYS,
+  type CalendarGridProps,
+} from './CalendarHelpers';
 
 export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
   ({
@@ -150,9 +154,19 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                               fontWeight: 500,
                               textOverflow: 'ellipsis',
                               overflow: 'hidden',
+                              display: { xs: 'none', sm: 'block' },
                             }}
                           >
                             {ev.employee.name}
+                          </Typography>
+                          <Typography
+                            sx={{
+                              fontSize: 'inherit',
+                              fontWeight: 500,
+                              display: { xs: 'block', sm: 'none' },
+                            }}
+                          >
+                            {getInitials(ev.employee.name)}
                           </Typography>
                         </Box>
                       </Tooltip>

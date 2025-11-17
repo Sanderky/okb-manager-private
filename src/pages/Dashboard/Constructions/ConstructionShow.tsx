@@ -275,7 +275,7 @@ export default function ConstructionShow() {
     return construction ? (
       <Box
         sx={{ width: '100%', boxShadow: 1 }}
-        className="rounded-lg bg-white p-2 md:p-4 md:pt-2 lg:p-6 lg:pt-2"
+        className="rounded-lg bg-white p-2 pb-4 md:p-4 md:pt-2 lg:p-6 lg:pt-2"
       >
         <Grid
           container
@@ -450,11 +450,7 @@ export default function ConstructionShow() {
                                     key === 'startDate' ||
                                     key === 'endDate'
                                   ) {
-                                    if (
-                                      !value ||
-                                      !dayjs.isDayjs(value) ||
-                                      !value.isValid()
-                                    )
+                                    if (value instanceof Date === false)
                                       return (
                                         <em className="text-gray-400">-</em>
                                       );
@@ -553,7 +549,7 @@ export default function ConstructionShow() {
 
             <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pl">
               <DatePicker
-                openTo='month'
+                openTo="month"
                 views={['year', 'month', 'day']}
                 label="Data zakończenia"
                 value={endDateValue}

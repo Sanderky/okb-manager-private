@@ -38,10 +38,12 @@ import {
 import PageContainer from '../../../components/PageContainer';
 import useLoading from '../../../hooks/useLoading';
 import ListAltIcon from '@mui/icons-material/ListAlt';
+import { useSearchParams } from 'react-router-dom';
 
 dayjs.locale('pl');
 
 const Calendar: React.FC = () => {
+  const [searchParams] = useSearchParams();
   const [currentMonth, setCurrentMonth] = useState<Dayjs>(
     dayjs().startOf('month')
   );
@@ -61,6 +63,14 @@ const Calendar: React.FC = () => {
 
   const notifications = useNotifications();
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    const monthFromUrl = searchParams.get('month');
+    if (monthFromUrl) {
+      const month = dayjs(monthFromUrl).startOf('month');
+      setCurrentMonth(month);
+    }
+  }, [searchParams]);
 
   const {
     loading: actionLoading,
