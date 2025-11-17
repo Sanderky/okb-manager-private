@@ -6,11 +6,20 @@ import type {
   MRT_DensityState,
 } from 'material-react-table';
 
+interface PaginationState {
+  pageIndex: number;
+  pageSize: number;
+}
+
 export const useTableState = (tableName: string) => {
   const [columnVisibility, setColumnVisibility] = useState<MRT_VisibilityState>(
     {}
   );
   const [density, setDensity] = useState<MRT_DensityState>('comfortable');
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
   const [isLoading, setIsLoading] = useState(true);
 
   const isInitialLoad = useRef(true);
@@ -23,6 +32,9 @@ export const useTableState = (tableName: string) => {
           const preferences = JSON.parse(saved);
           setColumnVisibility(preferences.columnVisibility || {});
           setDensity(preferences.density || 'comfortable');
+          setPagination(
+            preferences.pagination || { pageIndex: 0, pageSize: 10 }
+          );
         }
       } catch (error) {
         console.error(
@@ -46,6 +58,7 @@ export const useTableState = (tableName: string) => {
         const preferencesData = {
           columnVisibility,
           density,
+          pagination,
           lastUpdated: new Date().toISOString(),
         };
         localStorage.setItem(
@@ -62,7 +75,7 @@ export const useTableState = (tableName: string) => {
 
     const timeoutId = setTimeout(savePreferences, 300);
     return () => clearTimeout(timeoutId);
-  }, [columnVisibility, density, tableName, isLoading]);
+  }, [columnVisibility, density, pagination, tableName, isLoading]);
 
   const handleSetColumnVisibility = (
     visibility: React.SetStateAction<MRT_VisibilityState>
@@ -82,23 +95,35 @@ export const useTableState = (tableName: string) => {
     });
   };
 
+  const handleSetPagination = (
+    newPagination: React.SetStateAction<PaginationState>
+  ) => {
+    setPagination((prev) => {
+      return typeof newPagination === 'function'
+        ? newPagination(prev)
+        : newPagination;
+    });
+  };
+
   const resetState = () => {
     setColumnVisibility({});
     setDensity('comfortable');
+    setPagination({ pageIndex: 0, pageSize: 10 });
     localStorage.removeItem(`table-preferences-${tableName}`);
   };
 
   return {
     setColumnVisibility: handleSetColumnVisibility,
     setDensity: handleSetDensity,
+    setPagination: handleSetPagination,
     columnVisibility,
     density,
+    pagination,
     resetState,
     isLoading,
     isError: false,
   };
 };
-
 export const useTableStateFirebase = (tableName: string) => {
   const userId = auth.currentUser?.uid;
 

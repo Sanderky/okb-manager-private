@@ -65,6 +65,8 @@ export default function ConstructionsList() {
     columnVisibility,
     density,
     resetState,
+    pagination,
+    setPagination,
   } = useTableState('constructions');
 
   const [filtersModalOpen, setFiltersModalOpen] = useState(false);
@@ -293,7 +295,9 @@ export default function ConstructionsList() {
       columnVisibility,
       density,
       isLoading: isLoading,
+      pagination,
     },
+    onPaginationChange: setPagination,
     onColumnVisibilityChange: setColumnVisibility,
     onDensityChange: setDensity,
     enableColumnFilters: false,

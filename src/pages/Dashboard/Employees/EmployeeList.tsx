@@ -78,6 +78,8 @@ export default function EmployeeList() {
     columnVisibility,
     density,
     resetState,
+    pagination,
+    setPagination,
   } = useTableState('employees');
 
   const { getEmployeeAlerts } = useEmployeeAlert();
@@ -494,6 +496,7 @@ export default function EmployeeList() {
       columnVisibility,
       density,
       isLoading: isLoading,
+      pagination,
     },
     muiTableContainerProps: {
       sx: {
@@ -502,6 +505,7 @@ export default function EmployeeList() {
         },
       },
     },
+    onPaginationChange: setPagination,
     onColumnVisibilityChange: setColumnVisibility,
     onDensityChange: setDensity,
     enableColumnFilters: false,
