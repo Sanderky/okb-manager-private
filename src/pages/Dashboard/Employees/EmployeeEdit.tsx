@@ -33,6 +33,7 @@ import { removeEmployeeWorkHours } from '../../../api/hours';
 import { removeEmployeeVacations } from '../../../api/vacations';
 import { removeEmployeeSchedules } from '../../../api/schedules';
 import { useScroll } from '../../../context/ScrollContext';
+import { useDialogs } from '../../../hooks/useDialogs/useDialogs';
 
 export type FileStateMap = {
   [K in EmployeeAttachment]: File | null;
@@ -49,6 +50,8 @@ export default function EmployeeEdit() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const notifications = useNotifications();
+  const dialogs = useDialogs();
+
   const {
     loading: actionLoading,
     startLoading: startActionLoading,
@@ -283,18 +286,32 @@ export default function EmployeeEdit() {
     async (status: boolean) => {
       if (!employee) return;
 
-      setIsUpdatingEmployeeStatus(true);
-      try {
-        await updateMutation.mutateAsync({ status: status });
-        navigate(`/employees/${employeeId}`);
-        scrollToTop();
-      } catch (error) {
-        console.error('Employee status update error:', error);
-      } finally {
-        setIsUpdatingEmployeeStatus(false);
+      const confirmation = await dialogs.confirm(
+        status
+          ? `Czy na pewno chcesz aktywować pracownika?`
+          : `Czy na pewno chcesz archiwizować pracownika?`,
+        {
+          title: status ? `Aktywowanie pracownika` : `Archiwizacja pracownika`,
+          severity: 'warning',
+          okText: 'Tak',
+          cancelText: 'Anuluj',
+        }
+      );
+
+      if (confirmation) {
+        setIsUpdatingEmployeeStatus(true);
+        try {
+          await updateMutation.mutateAsync({ status: status });
+          navigate(`/employees/${employeeId}`);
+          scrollToTop();
+        } catch (error) {
+          console.error('Employee status update error:', error);
+        } finally {
+          setIsUpdatingEmployeeStatus(false);
+        }
       }
     },
-    [employee, employeeId, navigate, scrollToTop, updateMutation]
+    [employee, employeeId, navigate, scrollToTop, updateMutation, dialogs]
   );
 
   const isFormLoading =
