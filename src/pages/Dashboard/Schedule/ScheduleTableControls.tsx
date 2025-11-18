@@ -84,7 +84,7 @@ export const TableControls: React.FC<TableControlsProps> = ({
           open={openMobileMenu}
           onClose={handleCloseMobileMenu}
         >
-          <MenuItem disableRipple key={'weekNumber'}>
+          <MenuItem disableRipple key={'weekFrom'}>
             <Stack>
               <Typography sx={{ mr: 1 }}>Od: </Typography>
               <WeekSelector
@@ -101,7 +101,7 @@ export const TableControls: React.FC<TableControlsProps> = ({
               />
             </Stack>
           </MenuItem>
-          <MenuItem disableRipple key={'weekNumber'}>
+          <MenuItem disableRipple key={'weekTo'}>
             <Stack>
               <Typography sx={{ mr: 1 }}>Do: </Typography>
               <WeekSelector
@@ -119,7 +119,7 @@ export const TableControls: React.FC<TableControlsProps> = ({
             </Stack>
           </MenuItem>
           <Divider />
-          <MenuItem disableRipple key={'weekNumber'}>
+          <MenuItem disableRipple key={'vacations'}>
             <Stack direction="row" alignItems="center" justifyContent="center">
               <Typography sx={{ textAlign: 'center' }}>Urlopy</Typography>
               <Tooltip title="Ukrywanie informacji o urlopach">
@@ -132,7 +132,7 @@ export const TableControls: React.FC<TableControlsProps> = ({
               </Tooltip>
             </Stack>
           </MenuItem>
-          <MenuItem disableRipple key={'weekNumber'}>
+          <MenuItem disableRipple key={'dates'}>
             <Stack direction="row" alignItems="center" justifyContent="center">
               <Typography sx={{ textAlign: 'center' }}>Daty</Typography>
               <Tooltip title="Ukrywanie szczegółowych dat">
@@ -145,7 +145,7 @@ export const TableControls: React.FC<TableControlsProps> = ({
               </Tooltip>
             </Stack>
           </MenuItem>
-          <MenuItem disableRipple key={'weekNumber'}>
+          <MenuItem disableRipple key={'filters'}>
             <Badge
               badgeContent={selectedEmployees.length}
               color="primary"
