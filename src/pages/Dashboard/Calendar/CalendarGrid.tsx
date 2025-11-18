@@ -1,5 +1,13 @@
 import React from 'react';
-import { Grid, Box, Typography, Tooltip, Link } from '@mui/material';
+import {
+  Grid,
+  Box,
+  Typography,
+  Tooltip,
+  Link,
+  useTheme,
+  darken,
+} from '@mui/material';
 import dayjs from 'dayjs';
 import {
   getInitials,
@@ -17,6 +25,8 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
     handleEventClick,
     setActiveDialog,
   }) => {
+    const theme = useTheme();
+
     return (
       <Grid container className="bg-gray-50">
         {WEEK_DAYS.map((day, index) => (
@@ -66,7 +76,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                     opacity: isCurrentMonth ? 1 : 0.4,
                     fontWeight: '500',
                     pt: 1,
-                    pb: 0.5,
+                    pb: '5px',
                   }}
                   variant="body2"
                   className={`${isToday && 'font-bold text-blue-700 underline'}`}
@@ -76,13 +86,21 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                 <Box
                   sx={{
                     position: 'relative',
-                    height: 4 * 23,
+                    height: 4 * 24 + 23,
                   }}
                 >
                   {events.map((ev, index) => {
                     const isStart = ev.date.isSame(ev.startDate);
                     const isEnd = ev.date.isSame(ev.endDate);
+                    const isWeekStart = ev.date.day() === 1;
                     const slot = slots[ev.groupId];
+                    const isLightColor =
+                      theme.palette.getContrastText(ev.color) !== '#fff';
+                    const textColor = isLightColor
+                      ? darken(ev.color, 0.55)
+                      : '#ffffff';
+
+                    const showName = isStart || isWeekStart;
 
                     if (slot > 3 || !ev.employee) return null;
 
@@ -127,7 +145,8 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                         <Box
                           sx={{
                             position: 'absolute',
-                            top: slot * 23,
+                            top: slot * 24,
+                            height: 20,
                             left: 0,
                             right: 0,
                             bgcolor: ev.color,
@@ -138,13 +157,13 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
                             whiteSpace: 'nowrap',
-                            color: isStart || isEnd ? 'white' : 'transparent',
+                            color: showName ? textColor : 'transparent',
                             borderTopLeftRadius: isStart ? 10 : 0,
                             borderBottomLeftRadius: isStart ? 10 : 0,
                             borderTopRightRadius: isEnd ? 10 : 0,
                             borderBottomRightRadius: isEnd ? 10 : 0,
                             cursor: 'pointer',
-                            textAlign: isStart ? 'left' : 'right',
+                            textAlign: showName ? 'left' : 'right',
                           }}
                           className={`${!ev.employee.status && 'italic line-through'}`}
                         >
@@ -154,7 +173,12 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                               fontWeight: 500,
                               textOverflow: 'ellipsis',
                               overflow: 'hidden',
-                              display: { xs: 'none', sm: 'block' },
+                              display: {
+                                xs: 'none',
+                                sm: showName ? 'block' : 'none',
+                              },
+                              color: 'inherit',
+                              lineHeight: '20px',
                             }}
                           >
                             {ev.employee.name}
@@ -162,12 +186,33 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                           <Typography
                             sx={{
                               fontSize: 'inherit',
-                              fontWeight: 500,
-                              display: { xs: 'block', sm: 'none' },
+                              fontWeight: 600,
+                              display: {
+                                xs: showName ? 'block' : 'none',
+                                sm: 'none',
+                              },
+                              color: 'inherit',
+                              lineHeight: '20px',
                             }}
                           >
                             {getInitials(ev.employee.name)}
                           </Typography>
+
+                          {isWeekStart && !isStart && (
+                            <Box
+                              sx={{
+                                position: 'absolute',
+                                left: 2,
+                                top: '50%',
+                                transform: 'translateY(-50%)',
+                                width: 3,
+                                height: 12,
+                                backgroundColor: textColor,
+                                opacity: 0.6,
+                                borderRadius: 1,
+                              }}
+                            />
+                          )}
                         </Box>
                       </Tooltip>
                     );
@@ -187,9 +232,10 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                       width: '100%',
                       display: 'block',
                       position: 'absolute',
-                      bottom: 2,
+                      bottom: 3,
                       left: 0,
                       right: 0,
+                      height: 20,
                     }}
                   >
                     więcej

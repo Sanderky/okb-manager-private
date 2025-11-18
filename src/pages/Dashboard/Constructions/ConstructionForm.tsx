@@ -166,7 +166,12 @@ export default function ConstructionForm(props: ConstructionFormProps) {
         </Alert>
       )}
       <FormGroup>
-        <Grid container columns={12} spacing={2.5}>
+        <Grid
+          container
+          columns={12}
+          spacing={2.5}
+          sx={{ position: 'relative', maxWidth: '100%' }}
+        >
           <Grid width={'100%'}>
             <Typography variant="subtitle1" className="mb-3 font-medium">
               Dane budowy

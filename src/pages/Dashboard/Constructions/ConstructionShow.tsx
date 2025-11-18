@@ -242,6 +242,10 @@ export default function ConstructionShow() {
     );
   }, [updateStatusMutation, notifications]);
 
+  const activeScheduleEmployees = useMemo(() => {
+    return scheduleEmployees?.filter((e) => e.status);
+  }, [scheduleEmployees]);
+
   const error = errorConstruction || errorScheduleEmployees;
   const loading = isLoadingConstruction || isScheduleEmployeesLoading;
 
@@ -495,15 +499,17 @@ export default function ConstructionShow() {
                       >
                         <PeopleIcon />
                         <Typography variant="subtitle2" fontWeight="600">
-                          Pracownicy na budowie ({scheduleEmployees?.length}):
+                          Pracownicy na budowie (
+                          {activeScheduleEmployees?.length}):
                         </Typography>
                       </Stack>
                     </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {scheduleEmployees && scheduleEmployees.length > 0 ? (
-                    scheduleEmployees.map((employee) => {
+                  {activeScheduleEmployees &&
+                  activeScheduleEmployees.length > 0 ? (
+                    activeScheduleEmployees.map((employee) => {
                       return (
                         <tr
                           key={employee.id}

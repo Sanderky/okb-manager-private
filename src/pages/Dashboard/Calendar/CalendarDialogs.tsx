@@ -25,6 +25,7 @@ import {
   TableRow,
   Paper,
   FormControlLabel,
+  darken,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -552,9 +553,20 @@ export const EventDetailsDialog: React.FC<EventDetailsDialogProps> = ({
       open={isMultipleEvents || activeDialog.type === 'eventDetails'}
       onClose={handleModalClose}
       title={
-        isMultipleEvents
-          ? `Urlopy - ${activeDialog.day.date.format('DD.MM.YYYY')}`
-          : 'Szczegóły urlopu'
+        isMultipleEvents ? (
+          <Stack direction={'row'} alignItems={'center'} spacing={1}>
+            <Typography variant="h6">
+              Urlopy ({activeDialog.day.events.length})
+            </Typography>
+            <span>-</span>
+            <Chip
+              color="primary"
+              label={activeDialog.day.date.format('DD.MM.YYYY')}
+            />
+          </Stack>
+        ) : (
+          'Szczegóły urlopu'
+        )
       }
       showConfirm={false}
       showCancel={!isMultipleEvents}
@@ -587,14 +599,8 @@ export const EventDetailsDialog: React.FC<EventDetailsDialogProps> = ({
           ? activeDialog.day.events
               .filter(
                 (e) =>
-                  activeDialog.day.date.isBetween(
-                    e.startDate,
-                    e.endDate,
-                    'day',
-                    '[]'
-                  ) &&
-                  (selectedEmployees.length === 0 ||
-                    selectedEmployees.some((emp) => emp.id === e.employee.id))
+                  selectedEmployees.length === 0 ||
+                  selectedEmployees.some((emp) => emp.id === e.employee.id)
               )
               .map((event) => (
                 <Stack
@@ -605,11 +611,13 @@ export const EventDetailsDialog: React.FC<EventDetailsDialogProps> = ({
                     cursor: 'pointer',
                     ':hover': { opacity: 0.9 },
                     overflow: 'hidden',
+                    borderWidth: '1px',
+                    borderColor: darken(event.color, 0.3),
                   }}
                   spacing={1}
                   direction="row"
                   alignItems="center"
-                  className="border border-gray-300 px-3 py-2"
+                  className="px-3 py-2"
                   onClick={() => handleMoreEventsItemClick(event)}
                 >
                   <Box sx={{ flexGrow: 1, overflow: 'hidden' }}>
@@ -618,6 +626,7 @@ export const EventDetailsDialog: React.FC<EventDetailsDialogProps> = ({
                       fontWeight="500"
                       sx={{
                         whiteSpace: 'wrap',
+                        // color: darken(event.color, 0.85),
                       }}
                     >
                       {event.employee?.name}{' '}

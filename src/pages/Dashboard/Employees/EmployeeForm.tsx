@@ -545,7 +545,7 @@ export default function EmployeeForm(props: EmployeeFormProps) {
           container
           columns={12}
           spacing={2.5}
-          sx={{ position: 'relative' }}
+          sx={{ position: 'relative', maxWidth: '100%' }}
         >
           {isFormLoading && (
             <Box

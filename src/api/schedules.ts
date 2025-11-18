@@ -7,6 +7,7 @@ import {
   where,
   Timestamp,
   writeBatch,
+  documentId,
 } from 'firebase/firestore';
 import { db } from '../firebase';
 import type { Employee, Schedule } from '../types';
@@ -70,12 +71,6 @@ export const getEmployeesByScheduledConstruction = async (
 
   const querySnapshot = await getDocs(schedulesQuery);
 
-  const employeesQuery = query(
-    collection(db, 'employees'),
-    where('status', '==', true)
-  );
-  const employeesSnapshot = await getDocs(employeesQuery);
-
   const employeeIds = querySnapshot.docs
     .filter((doc) => {
       const data = doc.data();
@@ -87,24 +82,31 @@ export const getEmployeesByScheduledConstruction = async (
     })
     .map((doc) => doc.data().employeeId);
 
-  const current = dayjs(date).startOf('day').toDate();
+  const uniqueEmployeeIds = [...new Set(employeeIds)];
 
+  if (uniqueEmployeeIds.length === 0) return [];
+
+  const employeesQuery = query(
+    collection(db, 'employees'),
+    // where('status', '==', true),
+    where(documentId(), 'in', uniqueEmployeeIds)
+  );
+  const employeesSnapshot = await getDocs(employeesQuery);
+
+  const current = dayjs(date).startOf('day').toDate();
   const vacationQuery = query(
     collection(db, 'vacations'),
     where('date', '==', Timestamp.fromDate(current)),
-    where('employeeId', 'in', employeeIds)
+    where('employeeId', 'in', uniqueEmployeeIds)
   );
 
   const vacationSnapshot = await getDocs(vacationQuery);
-
-  if (vacationSnapshot.docs.length > 0) {
-    return [];
-  }
-
-  const uniqueEmployeeIds = [...new Set(employeeIds)];
+  const vacationEmployeeIds = vacationSnapshot.docs.map(
+    (doc) => doc.data().employeeId
+  );
 
   const employeesOnConstruction = employeesSnapshot.docs
-    .filter((doc) => uniqueEmployeeIds.includes(doc.id))
+    .filter((doc) => !vacationEmployeeIds.includes(doc.id))
     .map((doc) => ({
       id: doc.id,
       ...doc.data(),
