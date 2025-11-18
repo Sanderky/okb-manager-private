@@ -2,11 +2,11 @@ import { FirebaseError } from 'firebase/app';
 import {
   ref,
   getMetadata,
-  getDownloadURL,
   uploadBytes,
   deleteObject,
   listAll,
   getStorage,
+  getBlob,
 } from 'firebase/storage';
 import type { FileCustom } from '../../types';
 
@@ -30,19 +30,25 @@ export const getFileType = (fileName: string) => {
   return 'unsupported';
 };
 
-export const forceDownloadFile = async (url: string, fileName: string) => {
-  const response = await fetch(url);
-  const blob = await response.blob();
-  const blobUrl = window.URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = blobUrl;
-  link.setAttribute('download', fileName);
-  document.body.appendChild(link);
-  link.click();
-  if (link.parentNode) link.parentNode.removeChild(link);
-  window.URL.revokeObjectURL(blobUrl);
-};
+export const forceDownloadFile = async (fullPath: string, fileName: string) => {
+  try {
+    const fileRef = ref(storage, fullPath);
 
+    const blob = await getBlob(fileRef);
+
+    const blobUrl = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = blobUrl;
+    link.setAttribute('download', fileName);
+    document.body.appendChild(link);
+    link.click();
+    if (link.parentNode) link.parentNode.removeChild(link);
+    window.URL.revokeObjectURL(blobUrl);
+  } catch (error) {
+    console.error('Error downloading file:', error);
+    throw error;
+  }
+};
 export function formatBytes(bytes: number, decimals = 2): string {
   if (!bytes) return '0 Bytes';
   const k = 1024;
@@ -105,10 +111,11 @@ export const moveFile = async (
   try {
     const oldRef = ref(storage, sourcePath);
     const newRef = ref(storage, destPath);
-    const url = await getDownloadURL(oldRef);
-    const response = await fetch(url);
-    const blob = await response.blob();
+
+    const blob = await getBlob(oldRef);
+
     await uploadBytes(newRef, blob);
+
     await deleteObject(oldRef);
   } catch (e) {
     console.error('Error moving file:', e);

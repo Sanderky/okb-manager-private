@@ -1,11 +1,4 @@
-import {
-  ref,
-  deleteObject,
-  uploadBytesResumable,
-  getDownloadURL,
-  getMetadata,
-  getStorage,
-} from 'firebase/storage';
+import { ref, deleteObject, getStorage, uploadBytes } from 'firebase/storage';
 import { useCallback, useState } from 'react';
 import type { Attachment, Employee, EmployeeAttachment } from '../../../types';
 
@@ -26,8 +19,11 @@ const useEmployeeAttachment = (employee: Employee | null | undefined) => {
   );
 
   const handleUploadAttachment = useCallback(
-    async (file: File | null, attachmentType: EmployeeAttachment): Promise<Attachment | null> => {
-      if (!file || !employee) return null;
+    async (
+      file: File | null,
+      attachmentType: EmployeeAttachment
+    ): Promise<Attachment | null> => {
+      if (!file || !employee || !attachmentType) return null;
 
       setLoading('uploading');
 
@@ -36,23 +32,16 @@ const useEmployeeAttachment = (employee: Employee | null | undefined) => {
           storage,
           `employees/${employee.id}/${attachmentType}/${file.name}`
         );
-        const uploadTask = uploadBytesResumable(storageRef, file);
+        const snapshot = await uploadBytes(storageRef, file);
 
-        await uploadTask;
-
-        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-        const filePath = uploadTask.snapshot.ref.fullPath;
-        const metadata = await getMetadata(uploadTask.snapshot.ref);
-
-        const fileData = {
+        const fileData: Attachment = {
           name: file.name,
           type: 'file' as const,
-          fullPath: filePath,
-          url: downloadURL,
+          fullPath: snapshot.ref.fullPath,
           contentType: file.type,
           size: file.size,
-          timeCreated: metadata.timeCreated,
-          attachmentType: attachmentType
+          timeCreated: snapshot.metadata.timeCreated,
+          attachmentType: attachmentType,
         };
 
         return fileData;

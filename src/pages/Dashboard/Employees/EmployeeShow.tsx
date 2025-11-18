@@ -44,6 +44,8 @@ import useLoading from '../../../hooks/useLoading';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import { Note } from '../../../components/Note';
 import { useScroll } from '../../../context/ScrollContext';
+import { getDownloadURL, ref } from 'firebase/storage';
+import { storage } from '../../../firebase';
 
 const personalFields = [
   { key: 'name', label: 'Imię i nazwisko' },
@@ -196,14 +198,16 @@ export default function EmployeeShow() {
   }, []);
 
   const handleOpenFileInNewTab = useCallback(
-    (file: FileItem | null | undefined) => {
-      if (!file) return;
-      const url = file.url;
-      const link = document.createElement('a');
-      link.href = url;
-      link.target = '_blank';
-      link.rel = 'noopener noreferrer';
-      link.click();
+    async (filePath: string | undefined) => {
+      if (!filePath) return;
+
+      try {
+        const fileRef = ref(storage, filePath);
+        const downloadURL = await getDownloadURL(fileRef);
+        window.open(downloadURL, '_blank');
+      } catch (error) {
+        console.error('Error opening file in new tab:', error);
+      }
     },
     []
   );
@@ -521,7 +525,7 @@ export default function EmployeeShow() {
                       handleDownloadAttachment(employee.idAttachment)
                     }
                     onNewCard={() =>
-                      handleOpenFileInNewTab(employee.idAttachment)
+                      handleOpenFileInNewTab(employee.idAttachment?.fullPath)
                     }
                   />
                 </Box>
@@ -548,7 +552,9 @@ export default function EmployeeShow() {
                       handleDownloadAttachment(employee.contractAttachment)
                     }
                     onNewCard={() =>
-                      handleOpenFileInNewTab(employee.contractAttachment)
+                      handleOpenFileInNewTab(
+                        employee.contractAttachment?.fullPath
+                      )
                     }
                   />
 
@@ -578,7 +584,7 @@ export default function EmployeeShow() {
                       handleDownloadAttachment(employee.a1Attachment)
                     }
                     onNewCard={() =>
-                      handleOpenFileInNewTab(employee.a1Attachment)
+                      handleOpenFileInNewTab(employee.a1Attachment?.fullPath)
                     }
                   />
                   <Grid container spacing={2}>

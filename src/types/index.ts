@@ -60,7 +60,6 @@ export interface FileItem {
   name: string;
   type: 'file';
   fullPath: string;
-  url: string;
   timeCreated?: string;
   size?: number;
   contentType?: string;

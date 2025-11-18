@@ -15,6 +15,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { FileItem, FolderItem } from '../../types';
 import { getFileType } from './FileBrowserHelpers';
 import { Add, CropFree, Error, Remove } from '@mui/icons-material';
+import { getDownloadURL, ref } from 'firebase/storage';
+import { storage } from '../../firebase'
 
 const ZoomStep = 0.2;
 const MaxZoom = 2.0;
@@ -23,23 +25,64 @@ const MinZoom = 0.2;
 interface PreviewDialogProps {
   open: boolean;
   onClose: () => void;
-  file: FileItem | FolderItem | null;
+  file: FileItem | FolderItem | File | null;
 }
-
 export const PreviewDialog = ({ open, onClose, file }: PreviewDialogProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   const [scale, setScale] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const dragStartRef = useRef({ x: 0, y: 0 });
   const positionStartRef = useRef({ x: 0, y: 0 });
   const imageRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
+    if (open && file && file.type !== 'folder') {
+      const createPreviewUrl = async () => {
+        try {
+          setIsLoading(true);
+          setIsError(false);
+
+          let url: string;
+
+          if (isFileObject(file)) {
+
+            url = URL.createObjectURL(file);
+          } else {
+
+            const fileRef = ref(storage, file.fullPath);
+            url = await getDownloadURL(fileRef);
+          }
+
+          setPreviewUrl(url);
+        } catch (error) {
+          console.error('Error creating preview URL:', error);
+          setIsError(true);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      createPreviewUrl();
+    }
+
+
+    return () => {
+      if (previewUrl) {
+
+        if (isFileObject(file)) {
+          URL.revokeObjectURL(previewUrl);
+        }
+        setPreviewUrl(null);
+      }
+    };
+  }, [open, file]);
+
+
+  useEffect(() => {
     if (open && file) {
-      setIsLoading(true);
-      setIsError(false);
       setScale(1);
       setPosition({ x: 0, y: 0 });
     }
@@ -123,6 +166,13 @@ export const PreviewDialog = ({ open, onClose, file }: PreviewDialogProps) => {
     setIsLoading(true);
     setScale(1);
     setPosition({ x: 0, y: 0 });
+    if (previewUrl) {
+
+      if (isFileObject(file)) {
+        URL.revokeObjectURL(previewUrl);
+      }
+      setPreviewUrl(null);
+    }
     onClose();
   };
 
@@ -134,13 +184,12 @@ export const PreviewDialog = ({ open, onClose, file }: PreviewDialogProps) => {
     if (isError) {
       return (
         <Stack direction={'column'} alignItems={'center'} spacing={1}>
-          <Error color="error" fontSize="large" />
-          <Typography color="error">
-            Wystąpił błąd podczas wczytywania pliku
-          </Typography>
+          <Error color='error' fontSize="large"/>
+          <Typography color="error">Wystąpił błąd podczas wczytywania pliku</Typography>
         </Stack>
       );
     }
+    
     switch (fileType) {
       case 'image':
         return (
@@ -156,43 +205,49 @@ export const PreviewDialog = ({ open, onClose, file }: PreviewDialogProps) => {
                 <CircularProgress />
               </Box>
             )}
-            <img
-              ref={imageRef}
-              src={file.url}
-              // src={'123'}
-              alt={file.name}
-              style={{
-                scale: scale,
-                transform: `translate(${position.x}px, ${position.y}px)`,
-                transformOrigin: 'center center',
-                maxHeight: '100%',
-                maxWidth: 'auto',
-                display: isLoading ? 'none' : 'block',
-                cursor:
-                  scale > 1 ? (isDragging ? 'grabbing' : 'grab') : 'default',
-                transition: isDragging ? 'none' : 'transform 0.1s ease',
-                userSelect: 'none',
-              }}
-              onLoad={() => setIsLoading(false)}
-              onMouseDown={handleMouseDown}
-              onDoubleClick={handleReset}
-              onErrorCapture={() => setIsError(true)}
-              onError={() => setIsError(true)}
-            />
+            {previewUrl && (
+              <img
+                ref={imageRef}
+                src={previewUrl}
+                alt={file.name}
+                style={{
+                  scale: scale,
+                  transform: `translate(${position.x}px, ${position.y}px)`,
+                  transformOrigin: 'center center',
+                  maxHeight: '100%',
+                  maxWidth: 'auto',
+                  display: isLoading ? 'none' : 'block',
+                  cursor:
+                    scale > 1 ? (isDragging ? 'grabbing' : 'grab') : 'default',
+                  transition: isDragging ? 'none' : 'transform 0.1s ease',
+                  userSelect: 'none',
+                }}
+                onLoad={() => setIsLoading(false)}
+                onMouseDown={handleMouseDown}
+                onDoubleClick={handleReset}
+                onError={() => setIsError(true)}
+              />
+            )}
           </>
         );
       case 'pdf':
         return (
-          <iframe
-            src={file.url}
-            title={file.name}
-            style={{ width: '100%', height: '100%', border: 'none' }}
-            onErrorCapture={() => setIsError(true)}
-            onError={() => setIsError(true)}
-          />
+          previewUrl && (
+            <iframe
+              src={previewUrl}
+              title={file.name}
+              style={{ width: '100%', height: '100%', border: 'none' }}
+              onError={() => setIsError(true)}
+            />
+          )
         );
       default:
-        return <p>Podgląd dla tego typu pliku nie jest obsługiwany.</p>;
+        return (
+          <Stack direction={'column'} alignItems={'center'} spacing={1}>
+            <Error color='error' fontSize="large"/>
+            <Typography color="error">Podgląd dla tego typu pliku nie jest obsługiwany.</Typography>
+          </Stack>
+        );
     }
   };
 
@@ -279,3 +334,7 @@ export const PreviewDialog = ({ open, onClose, file }: PreviewDialogProps) => {
     </Dialog>
   );
 };
+
+function isFileObject(file: File | FileItem | FolderItem | null): file is File {
+  return file instanceof File;
+}

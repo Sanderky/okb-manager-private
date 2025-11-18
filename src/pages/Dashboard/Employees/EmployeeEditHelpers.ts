@@ -51,7 +51,7 @@ export const validate = (
 export const handleDownloadAttachment = async (file: FileItem | null) => {
   if (!file) return;
   try {
-    forceDownloadFile(file.url, file.name);
+    forceDownloadFile(file.fullPath, file.name);
   } catch (error) {
     console.error('Download error: ', error);
   }

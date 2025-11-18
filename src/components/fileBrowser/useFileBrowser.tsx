@@ -1,6 +1,5 @@
 import {
   deleteObject,
-  getDownloadURL,
   getMetadata,
   getStorage,
   listAll,
@@ -43,9 +42,9 @@ const useFileView = (baseDirectory: string, onFetch: () => void) => {
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState<boolean>(false);
 
   const downloadFile = useCallback(
-    (url: string, fileName: string): void => {
+    (filePath: string, fileName: string): void => {
       try {
-        forceDownloadFile(url, fileName);
+        forceDownloadFile(filePath, fileName);
       } catch (e) {
         console.error('Download error:', e);
         notifications.show('Błąd podczas pobierania pliku', {
@@ -105,7 +104,7 @@ const useFileView = (baseDirectory: string, onFetch: () => void) => {
   const handleDownload = useCallback(
     (items: FileCustom[]) => {
       if (items.length === 1 && items[0].type === 'file') {
-        downloadFile(items[0].url, items[0].name);
+        downloadFile(items[0].fullPath, items[0].name);
       } else {
         handleDownloadZip(items);
       }
@@ -129,15 +128,11 @@ const useFileView = (baseDirectory: string, onFetch: () => void) => {
           res.items
             .filter((item) => !item.name.endsWith('.placeholder'))
             .map(async (itemRef) => {
-              const [url, metadata] = await Promise.all([
-                getDownloadURL(itemRef),
-                getMetadata(itemRef),
-              ]);
+              const [metadata] = await Promise.all([getMetadata(itemRef)]);
               return {
                 name: itemRef.name,
                 type: 'file',
                 fullPath: itemRef.fullPath,
-                url,
                 timeCreated: metadata.timeCreated,
                 size: metadata.size,
                 contentType: metadata.contentType,

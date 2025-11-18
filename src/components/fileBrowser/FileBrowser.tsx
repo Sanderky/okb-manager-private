@@ -53,6 +53,8 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { MRT_Localization_PL } from 'material-react-table/locales/pl';
 import BaseDialog from '../BaseDialog';
+import { getDownloadURL, ref } from 'firebase/storage';
+import { storage } from '../../firebase';
 
 // const BASE_DIRECTORY = 'files';
 
@@ -297,12 +299,16 @@ const FirebaseFileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
     };
   }, [handleDragEnter, handleDragLeave, handleDragOver, handleDrop]);
 
-  const handleOpenFileInNewTab = useCallback((url: string) => {
-    const link = document.createElement('a');
-    link.href = url;
-    link.target = '_blank';
-    link.rel = 'noopener noreferrer';
-    link.click();
+  const handleOpenFileInNewTab = useCallback(async (filePath: string) => {
+    if (!filePath) return;
+
+    try {
+      const fileRef = ref(storage, filePath);
+      const downloadURL = await getDownloadURL(fileRef);
+      window.open(downloadURL, '_blank');
+    } catch (error) {
+      console.error('Error opening file in new tab:', error);
+    }
   }, []);
 
   const handleClikOnName = useCallback(
@@ -312,7 +318,7 @@ const FirebaseFileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
       } else if (canOpenPreview(item)) {
         handleOpenPreview(item);
       } else {
-        handleOpenFileInNewTab(item.url);
+        handleOpenFileInNewTab(item.fullPath);
       }
     },
     [changeCurrentPath, handleOpenPreview, handleOpenFileInNewTab]
@@ -637,7 +643,7 @@ const FirebaseFileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
               key="newTab"
               label="Otwórz w nowej karcie"
               onClick={() => {
-                handleOpenFileInNewTab((row.original as FileItem).url);
+                handleOpenFileInNewTab((row.original as FileItem).fullPath);
                 closeMenu();
               }}
               table={table}

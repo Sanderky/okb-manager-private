@@ -38,6 +38,8 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import type { LoadingState } from './useAttachment';
 import { NoteBase } from '../../../components/Note';
 import { plPL } from '@mui/x-date-pickers/locales';
+import { getDownloadURL, ref } from 'firebase/storage';
+import { storage } from '../../../firebase';
 
 export interface EmployeeFormState {
   values: Partial<Omit<Employee, 'id'>>;
@@ -83,13 +85,14 @@ interface EmployeeField {
 
 interface AttachmentFieldProps {
   attachmentType: EmployeeAttachment;
-  onOpenPreview: (file: FileItem | null | undefined) => void;
+  onOpenPreview: (file: FileItem | File | null | undefined) => void;
   onFileChange: (file: File | null, attachmentType: EmployeeAttachment) => void;
   handleFieldChange: (
     name: keyof EmployeeFormState['values'],
     value: FormFieldValue | object | null
   ) => void;
   formState: EmployeeFormState;
+  filesState: FileStateMap;
 }
 
 const AttachmentField = ({
@@ -98,6 +101,7 @@ const AttachmentField = ({
   formState,
   onFileChange,
   handleFieldChange,
+  filesState,
 }: AttachmentFieldProps) => {
   const [isDragging, setIsDragging] = useState(false);
 
@@ -126,14 +130,23 @@ const AttachmentField = ({
     }
   };
 
-  const handleOpenFileInNewTab = (file: Attachment | null | undefined) => {
-    if (!file) return;
-    const url = file.url;
-    const link = document.createElement('a');
-    link.href = url;
-    link.target = '_blank';
-    link.rel = 'noopener noreferrer';
-    link.click();
+  const handleOpenFileInNewTab = async (
+    file: Attachment | null | undefined
+  ) => {
+    if (!file?.fullPath) return;
+
+    try {
+      const fileRef = ref(storage, file.fullPath);
+      const downloadURL = await getDownloadURL(fileRef);
+
+      const link = document.createElement('a');
+      link.href = downloadURL;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      link.click();
+    } catch (error) {
+      console.error('Error opening file in new tab:', error);
+    }
   };
 
   const handleUploadFileForm = (file: File | null) => {
@@ -144,7 +157,6 @@ const AttachmentField = ({
       type: 'file',
       fullPath: '',
       attachmentType: attachmentType,
-      url: URL.createObjectURL(file),
       contentType: file.type,
       size: file.size,
       timeCreated: new Date().toISOString(),
@@ -178,16 +190,29 @@ const AttachmentField = ({
         Załącznik
       </Typography>
       {attachment && (
-        <Alert severity="info" sx={{ marginBottom: 2 }}>
+        <Alert severity="info" className="mb-3 px-3 py-0">
           Tylko jeden plik może być dodany. Usuń stary aby dodać nowy.
+        </Alert>
+      )}
+      {filesState[attachmentType] && (
+        <Alert severity="warning" className="mb-3 px-3 py-0">
+          Plik zostanie przesłany dopiero po zapisaniu formularza.
         </Alert>
       )}
       <AttachmentBox
         file={attachment}
-        onShow={() => onOpenPreview(attachment)}
+        onShow={() => onOpenPreview(filesState[attachmentType] ?? attachment)}
         onDelete={handleDeleteFileForm}
-        onDownload={() => handleDownloadAttachment(attachment)}
-        onNewCard={() => handleOpenFileInNewTab(attachment)}
+        onDownload={
+          filesState[attachmentType]
+            ? undefined
+            : () => handleDownloadAttachment(attachment)
+        }
+        onNewCard={
+          filesState[attachmentType]
+            ? undefined
+            : () => handleOpenFileInNewTab(attachment)
+        }
       />
       {!attachment && (
         <Stack
@@ -222,6 +247,7 @@ export default function EmployeeForm(props: EmployeeFormProps) {
   const {
     formId,
     formState,
+    filesState,
     onFieldChange,
     onSubmit,
     onReset,
@@ -234,7 +260,7 @@ export default function EmployeeForm(props: EmployeeFormProps) {
   const formValues = formState.values;
   const formErrors = formState.errors;
 
-  const [previewFile, setPreviewFile] = useState<FileItem | null>(null);
+  const [previewFile, setPreviewFile] = useState<FileItem | File | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState<boolean>(false);
 
   const isFormLoading = isFileLoading !== false || isSubmitting;
@@ -256,11 +282,14 @@ export default function EmployeeForm(props: EmployeeFormProps) {
     [onFieldChange]
   );
 
-  const handleOpenPreview = useCallback((file: FileItem | null | undefined) => {
-    if (!file) return;
-    setPreviewFile(file);
-    setIsPreviewOpen(true);
-  }, []);
+  const handleOpenPreview = useCallback(
+    (file: FileItem | File | null | undefined) => {
+      if (!file) return;
+      setPreviewFile(file);
+      setIsPreviewOpen(true);
+    },
+    []
+  );
 
   const handleBack = React.useCallback(() => {
     if (employeeId) {
@@ -596,6 +625,7 @@ export default function EmployeeForm(props: EmployeeFormProps) {
                 formState={formState}
                 attachmentType="idAttachment"
                 onOpenPreview={handleOpenPreview}
+                filesState={filesState}
               />
             </Grid>
           </Grid>
@@ -613,6 +643,7 @@ export default function EmployeeForm(props: EmployeeFormProps) {
                 formState={formState}
                 attachmentType="contractAttachment"
                 onOpenPreview={handleOpenPreview}
+                filesState={filesState}
               />
               {contractFields.map(renderField)}
               <Grid size={{ xs: 12 }} mt={-1}>
@@ -648,6 +679,7 @@ export default function EmployeeForm(props: EmployeeFormProps) {
                 formState={formState}
                 attachmentType="a1Attachment"
                 onOpenPreview={handleOpenPreview}
+                filesState={filesState}
               />
               {a1Fields.map(renderField)}
             </Grid>
