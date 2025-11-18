@@ -212,7 +212,7 @@ const FirebaseFileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
     useState<boolean>(false);
   const [isDragOver, setIsDragOver] = useState<boolean>(false);
   const dropRef = useRef<HTMLDivElement>(null);
-
+ const dragCounter = useRef<number>(0);
   const onFetch = useCallback(() => {
     setRowSelection({});
   }, []);
@@ -249,26 +249,38 @@ const FirebaseFileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
   const handleDragEnter = useCallback((e: DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setIsDragOver(true);
+    dragCounter.current++;
+    if (dragCounter.current === 1) {
+      setIsDragOver(true);
+    }
   }, []);
-
   const handleDragLeave = useCallback((e: DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    dragCounter.current--;
+    
     const currentTarget = e.currentTarget as HTMLElement;
-    if (currentTarget.contains(e.relatedTarget as Node)) return;
-    setIsDragOver(false);
+    const relatedTarget = e.relatedTarget as HTMLElement;
+    
+    if (!currentTarget.contains(relatedTarget) && dragCounter.current <= 0) {
+      dragCounter.current = 0;
+      setIsDragOver(false);
+    }
   }, []);
 
   const handleDragOver = useCallback((e: DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-  }, []);
+    if (!isDragOver && dragCounter.current > 0) {
+      setIsDragOver(true);
+    }
+  }, [isDragOver]);
 
   const handleDrop = useCallback(
     (e: DragEvent) => {
       e.preventDefault();
       e.stopPropagation();
+      dragCounter.current = 0;
       setIsDragOver(false);
 
       if (e.dataTransfer) {
@@ -818,6 +830,7 @@ const FirebaseFileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
               backgroundColor: 'rgba(25, 118, 210, 0.1)',
               border: '2px dashed #1976d2',
               borderRadius: '4px',
+              pointerEvents: 'none'
             }}
           >
             <Box
