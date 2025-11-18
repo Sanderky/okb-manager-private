@@ -9,6 +9,7 @@ import { auth } from '../../firebase';
 import TextField from '@mui/material/TextField';
 import {
   Alert,
+  Box,
   Button,
   IconButton,
   InputAdornment,
@@ -112,8 +113,20 @@ const Login = () => {
           />
         </div>
       ) : (
-        <div className="flex h-screen flex-col items-center justify-center px-6 py-8">
-          <div className="relative w-full rounded-lg bg-white p-6 shadow sm:max-w-md">
+        <Box
+          className="flex h-screen flex-col items-center justify-center py-8"
+          sx={{
+            px: { xs: 2, sm: 4 },
+          }}
+        >
+          <Box
+            className="relative w-full rounded-lg bg-white shadow"
+            sx={{
+              maxWidth: { xs: '100%', sm: '450px' },
+              py: 3,
+              px: { xs: 2, sm: 3 },
+            }}
+          >
             <h1 className="text-dark absolute -top-8 left-1/2 mb-6 inline-flex -translate-x-1/2 flex-row items-end justify-center rounded-lg bg-white/50 px-4 py-2 font-medium shadow">
               <LogoIcon className="text-4xl" />
               <Typography
@@ -136,11 +149,7 @@ const Login = () => {
               Zaloguj się do swojego konta
             </h2>
 
-            <form
-              className="space-y-4 md:space-y-6"
-              noValidate
-              onSubmit={handleSubmit}
-            >
+            <form className="space-y-6" noValidate onSubmit={handleSubmit}>
               <TextField
                 size="small"
                 error={!!errors.email}
@@ -235,8 +244,8 @@ const Login = () => {
               open={forgotOpen}
               handleClose={() => setForgotOpen(false)}
             />
-          </div>
-        </div>
+          </Box>
+        </Box>
       )}
     </section>
   );
