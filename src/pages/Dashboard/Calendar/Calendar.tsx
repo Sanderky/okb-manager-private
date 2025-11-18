@@ -40,6 +40,7 @@ import useLoading from '../../../hooks/useLoading';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import { useSearchParams } from 'react-router-dom';
 import useContainerBreakpoint from '../../../hooks/useContainerWidth';
+import { useDialogs } from '../../../hooks/useDialogs/useDialogs';
 
 dayjs.locale('pl');
 
@@ -65,6 +66,8 @@ const Calendar: React.FC = () => {
     useState<boolean>(false);
 
   const notifications = useNotifications();
+  const dialogs = useDialogs();
+
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -448,15 +451,26 @@ const Calendar: React.FC = () => {
     updateMutation({ groupId: currentEvent.groupId, data: updateData });
   };
 
-  const handleDeleteEvent = (id?: string) => {
+  const handleDeleteEvent = async (id?: string) => {
     const { groupId } = currentEvent;
 
     if (!groupId && !id) return;
 
-    if (id) {
-      deleteMutation(id);
-    } else {
-      deleteMutation(groupId);
+    const confirmation = await dialogs.confirm(
+      `Czy na pewno chcesz usunąć urlop?`,
+      {
+        title: `Usuwanie urlopu`,
+        severity: 'error',
+        okText: 'Usuń',
+        cancelText: 'Anuluj',
+      }
+    );
+    if (confirmation) {
+      if (id) {
+        deleteMutation(id);
+      } else {
+        deleteMutation(groupId);
+      }
     }
   };
 
