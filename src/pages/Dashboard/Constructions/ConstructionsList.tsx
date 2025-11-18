@@ -571,6 +571,7 @@ export default function ConstructionsList() {
                       slotProps={{
                         textField: { fullWidth: true, size: 'small' },
                       }}
+                      minDate={dayjs(filters.startDateFrom) || null}
                     />
                   </Stack>
                 </Grid>
@@ -618,6 +619,7 @@ export default function ConstructionsList() {
                       slotProps={{
                         textField: { fullWidth: true, size: 'small' },
                       }}
+                      minDate={dayjs(filters.endDateFrom) || null}
                     />
                   </Stack>
                 </Grid>

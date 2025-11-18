@@ -292,7 +292,7 @@ export default function EmployeeEdit() {
           : `Czy na pewno chcesz archiwizować pracownika?`,
         {
           title: status ? `Aktywowanie pracownika` : `Archiwizacja pracownika`,
-          severity: 'warning',
+          severity: status ? 'success' : 'warning',
           okText: 'Tak',
           cancelText: 'Anuluj',
         }

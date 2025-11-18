@@ -377,6 +377,16 @@ export default function EmployeeForm(props: EmployeeFormProps) {
         val = null;
       }
 
+      // let minD = undefined;
+
+      // if (key === 'a1EndDate') {
+      //   minD = dayjs(formValues.a1StartDate);
+      // }
+
+      // if (key === 'contractEndDate') {
+      //   minD = dayjs(formValues.contractStartDate);
+      // }
+
       return (
         <Grid size={{ xs: 12, md: 6 }} key={key}>
           <LocalizationProvider
@@ -417,6 +427,7 @@ export default function EmployeeForm(props: EmployeeFormProps) {
                 if (props.registerFieldRef)
                   props.registerFieldRef(key as string, el);
               }}
+              // minDate={minD}
             />
           </LocalizationProvider>
         </Grid>

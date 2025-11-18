@@ -925,6 +925,7 @@ export default function EmployeeList() {
                       slotProps={{
                         textField: { fullWidth: true, size: 'small' },
                       }}
+                      minDate={dayjs(filters.birthDateFrom) || null}
                     />
                   </Stack>
                 </Grid>
@@ -980,6 +981,7 @@ export default function EmployeeList() {
                       slotProps={{
                         textField: { fullWidth: true, size: 'small' },
                       }}
+                      minDate={dayjs(filters.contractStartDateFrom) || null}
                     />
                   </Stack>
                 </Grid>
@@ -1034,6 +1036,7 @@ export default function EmployeeList() {
                       slotProps={{
                         textField: { fullWidth: true, size: 'small' },
                       }}
+                      minDate={dayjs(filters.contractEndDateFrom) || null}
                     />
                   </Stack>
                 </Grid>
@@ -1083,6 +1086,7 @@ export default function EmployeeList() {
                       slotProps={{
                         textField: { fullWidth: true, size: 'small' },
                       }}
+                      minDate={dayjs(filters.a1StartDateFrom) || null}
                     />
                   </Stack>
                 </Grid>
@@ -1131,6 +1135,7 @@ export default function EmployeeList() {
                       slotProps={{
                         textField: { fullWidth: true, size: 'small' },
                       }}
+                      minDate={dayjs(filters.a1EndDateFrom) || null}
                     />
                   </Stack>
                 </Grid>

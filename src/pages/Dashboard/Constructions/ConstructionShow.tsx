@@ -502,7 +502,7 @@ export default function ConstructionShow() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {scheduleEmployees &&
+                  {scheduleEmployees && scheduleEmployees.length > 0 ? (
                     scheduleEmployees.map((employee) => {
                       return (
                         <tr
@@ -529,7 +529,16 @@ export default function ConstructionShow() {
                           </td>
                         </tr>
                       );
-                    })}
+                    })
+                  ) : (
+                    <tr>
+                      <td className="px-4 py-3">
+                        <Typography variant="body2" className="text-gray-500">
+                          Brak pracowników na budowie
+                        </Typography>
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </Grid>
@@ -591,6 +600,7 @@ export default function ConstructionShow() {
                   },
                   field: { clearable: false },
                 }}
+                minDate={dayjs(construction.startDate) || null}
               />
             </LocalizationProvider>
           </Stack>

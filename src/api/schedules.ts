@@ -87,6 +87,20 @@ export const getEmployeesByScheduledConstruction = async (
     })
     .map((doc) => doc.data().employeeId);
 
+  const current = dayjs(date).startOf('day').toDate();
+
+  const vacationQuery = query(
+    collection(db, 'vacations'),
+    where('date', '==', Timestamp.fromDate(current)),
+    where('employeeId', 'in', employeeIds)
+  );
+
+  const vacationSnapshot = await getDocs(vacationQuery);
+
+  if (vacationSnapshot.docs.length > 0) {
+    return [];
+  }
+
   const uniqueEmployeeIds = [...new Set(employeeIds)];
 
   const employeesOnConstruction = employeesSnapshot.docs

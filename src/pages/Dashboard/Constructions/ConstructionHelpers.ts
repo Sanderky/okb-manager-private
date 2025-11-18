@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import type { Construction } from '../../../types';
 import type { ConstructionFormState } from './ConstructionForm';
 
@@ -15,6 +16,15 @@ export const validate = (
 
   if (!values.startDate) {
     errors.startDate = 'Data rozpoczęcia jest wymagana.';
+  }
+
+  if (
+    values.startDate &&
+    values.endDate &&
+    dayjs(values.endDate).isBefore(dayjs(values.startDate))
+  ) {
+    errors.endDate =
+      'Data zakończenia nie może być wcześniejsza niż data rozpoczęcia.';
   }
 
   if (values.location && values.location.length > 100) {

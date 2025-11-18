@@ -389,7 +389,7 @@ const Calendar: React.FC = () => {
       return;
     }
 
-    const groupId = `${employee.id}${startDate.format('DDMMYYYY')}`;
+    const groupId = `${employee.id}${dayjs().unix()}`;
 
     let currentDate = dayjs(startDate);
 

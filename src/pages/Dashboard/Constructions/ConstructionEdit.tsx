@@ -232,14 +232,34 @@ export default function ConstructionEdit() {
 
     if (error) {
       return (
-        <Alert severity="error">
-          Wystąpił błąd podczas ładowania danych budowy.
-        </Alert>
+        <Grid
+          container
+          columns={12}
+          alignItems={'flex-start'}
+          className="w-full"
+        >
+          <Grid size={{ xs: 12 }} className="w-full">
+            <Alert severity="error">
+              Wystąpił błąd podczas ładowania danych budowy.
+            </Alert>
+          </Grid>
+        </Grid>
       );
     }
 
     if (!construction) {
-      return <Alert severity="warning">Nie znaleziono danych budowy.</Alert>;
+      return (
+        <Grid
+          container
+          columns={12}
+          alignItems={'flex-start'}
+          className="w-full"
+        >
+          <Grid size={{ xs: 12 }} className="w-full">
+            <Alert severity="warning">Nie znaleziono danych budowy.</Alert>
+          </Grid>
+        </Grid>
+      );
     }
 
     return (

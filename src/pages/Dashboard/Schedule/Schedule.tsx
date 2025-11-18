@@ -708,12 +708,30 @@ const ScheduleComponent = () => {
               </Table>
             </TableContainer>
           )}
-          <Box className="px-3 py-2">
+          <Box>
+            {filteredEmployees.length === 0 && (
+              <Stack
+                direction={'column'}
+                justifyContent={'center'}
+                alignItems={'center'}
+                sx={{ py: 5 }}
+                className="border-b border-gray-300"
+              >
+                <Typography
+                  variant="body1"
+                  align="center"
+                  className="px-4 font-normal text-gray-500"
+                >
+                  Nie znaleziono pracowników
+                </Typography>
+              </Stack>
+            )}
             <Stack
               direction={'row'}
               justifyContent={'space-between'}
               spacing={2}
               alignItems={'center'}
+              className="px-3 py-2"
             >
               {activeTable.type === 0 ? (
                 <>
