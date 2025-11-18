@@ -232,7 +232,7 @@ export default function ConstructionForm(props: ConstructionFormProps) {
                       views={['year', 'month', 'day']}
                       label={label}
                       value={getDateValue(formValues[key])}
-                      onAccept={(newValue) => handleFieldChange(key, newValue)}
+                      onChange={(newValue) => handleFieldChange(key, newValue)}
                       slotProps={{
                         textField: {
                           size: 'small',

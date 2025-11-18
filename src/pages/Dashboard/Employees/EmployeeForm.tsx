@@ -430,7 +430,7 @@ export default function EmployeeForm(props: EmployeeFormProps) {
               value={val}
               openTo="month"
               views={['year', 'month', 'day']}
-              onAccept={(newValue) => {
+              onChange={(newValue) => {
                 handleFieldChange(key, newValue);
               }}
               slotProps={{
