@@ -7,9 +7,14 @@ import {
   Switch,
   Button,
   Tooltip,
+  useTheme,
+  useMediaQuery,
+  Menu,
+  MenuItem,
+  Divider,
 } from '@mui/material';
 import FilterListIcon from '@mui/icons-material/FilterList';
-import { ChevronLeft, ChevronRight } from '@mui/icons-material';
+import { ChevronLeft, ChevronRight, MoreHoriz } from '@mui/icons-material';
 import WeekSelector from '../../../components/WeekSelector';
 import dayjs from 'dayjs';
 import type { Employee } from '../../../types';
@@ -41,131 +46,140 @@ export const TableControls: React.FC<TableControlsProps> = ({
   setShowDates,
   activeTable,
 }) => {
-  return (
-    <>
+  const theme = useTheme();
+  const isPhone = useMediaQuery(theme.breakpoints.down('sm'));
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const openMobileMenu = Boolean(anchorEl);
+  const handleClickMobileMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleCloseMobileMenu = () => {
+    setAnchorEl(null);
+  };
+
+  const phone = (
+    <Stack
+      direction={'column'}
+      flexWrap={'wrap'}
+      gap={2}
+      mb={1}
+      width={'100%'}
+      className={
+        'border-lightGray rounded-lg border bg-gray-50 px-3 py-3 md:py-2'
+      }
+    >
       <Stack
+        sx={{ flexGrow: 1 }}
         alignItems={'center'}
         direction={'row'}
-        flexWrap={'wrap'}
-        justifyContent={'flex-start'}
-        gap={2}
-        mb={1}
-        width={'100%'}
-        className={
-          'border-lightGray rounded-lg border bg-gray-50 px-3 py-3 md:py-2'
-        }
+        justifyContent={'space-between'}
       >
-        <Stack
-          alignItems={'center'}
-          direction={'row'}
-          flexWrap={'wrap'}
-          gap={2}
-          // sx={{
-          //   display: {
-          //     xs: 'none',
-          //     sm: 'flex',
-          //   },
-          // }}
+        <Typography className="rounded-full border border-gray-700 px-3 py-1 font-semibold">
+          {dayjs(fromWeek).format('DD.MM.YYYY')} -{' '}
+          {dayjs(toWeek).add(6, 'day').format('DD.MM.YYYY')}
+        </Typography>
+        <IconButton onClick={handleClickMobileMenu}>
+          <MoreHoriz />
+        </IconButton>
+        <Menu
+          anchorEl={anchorEl}
+          open={openMobileMenu}
+          onClose={handleCloseMobileMenu}
         >
-          <WeekSelector
-            value={fromWeek}
-            onChange={(val) => {
-              if (!val) return;
+          <MenuItem disableRipple key={'weekNumber'}>
+            <Stack>
+              <Typography sx={{ mr: 1 }}>Od: </Typography>
+              <WeekSelector
+                value={fromWeek}
+                onChange={(val) => {
+                  if (!val) return;
 
-              if (toWeek && dayjs(val).isAfter(toWeek, 'week')) {
-                return;
-              }
+                  if (toWeek && dayjs(val).isAfter(toWeek, 'week')) {
+                    return;
+                  }
 
-              setFromWeek(val);
-            }}
-          />
-          <Typography>-</Typography>
-          <WeekSelector
-            value={toWeek}
-            onChange={(val) => {
-              if (!val) return;
+                  setFromWeek(val);
+                }}
+              />
+            </Stack>
+          </MenuItem>
+          <MenuItem disableRipple key={'weekNumber'}>
+            <Stack>
+              <Typography sx={{ mr: 1 }}>Do: </Typography>
+              <WeekSelector
+                value={toWeek}
+                onChange={(val) => {
+                  if (!val) return;
 
-              if (fromWeek && dayjs(val).isBefore(fromWeek, 'week')) {
-                return;
-              }
+                  if (fromWeek && dayjs(val).isBefore(fromWeek, 'week')) {
+                    return;
+                  }
 
-              setToWeek(val);
-            }}
-          />
-        </Stack>
-        <Tooltip title="Filtry">
-          <Badge badgeContent={selectedEmployees.length} color="primary">
-            <IconButton
-              size="small"
+                  setToWeek(val);
+                }}
+              />
+            </Stack>
+          </MenuItem>
+          <Divider />
+          <MenuItem disableRipple key={'weekNumber'}>
+            <Stack direction="row" alignItems="center" justifyContent="center">
+              <Typography sx={{ textAlign: 'center' }}>Urlopy</Typography>
+              <Tooltip title="Ukrywanie informacji o urlopach">
+                <Switch
+                  size="small"
+                  checked={showVacations}
+                  onChange={(e) => setShowVacations(e.target.checked)}
+                  color="primary"
+                />
+              </Tooltip>
+            </Stack>
+          </MenuItem>
+          <MenuItem disableRipple key={'weekNumber'}>
+            <Stack direction="row" alignItems="center" justifyContent="center">
+              <Typography sx={{ textAlign: 'center' }}>Daty</Typography>
+              <Tooltip title="Ukrywanie szczegółowych dat">
+                <Switch
+                  size="small"
+                  checked={showDates}
+                  onChange={(e) => setShowDates(e.target.checked)}
+                  color="primary"
+                />
+              </Tooltip>
+            </Stack>
+          </MenuItem>
+          <MenuItem disableRipple key={'weekNumber'}>
+            <Badge
+              badgeContent={selectedEmployees.length}
               color="primary"
-              className="rounded-lg border"
-              onClick={() => setIsFilterOpen(true)}
-              sx={(theme) => ({
-                borderColor: theme.palette.primary.light,
-                '&:hover': {
-                  borderColor: theme.palette.primary.main,
-                },
-              })}
+              sx={{ width: '100%' }}
             >
-              <FilterListIcon />
-            </IconButton>
-          </Badge>
-        </Tooltip>
-        <Stack direction={'row'} spacing={1}>
-          <Stack direction="column" alignItems="center" justifyContent="center">
-            <Tooltip title="Ukrywanie informacji o urlopach">
-              <Switch
+              <Button
+                startIcon={<FilterListIcon />}
                 size="small"
-                checked={showVacations}
-                onChange={(e) => setShowVacations(e.target.checked)}
+                fullWidth
                 color="primary"
-              />
-            </Tooltip>
-            <Typography variant="caption" sx={{ textAlign: 'center' }}>
-              Urlopy
-            </Typography>
-          </Stack>
-          <Stack direction="column" alignItems="center" justifyContent="center">
-            <Tooltip title="Ukrywanie szczegółowych dat">
-              <Switch
-                size="small"
-                checked={showDates}
-                onChange={(e) => setShowDates(e.target.checked)}
-                color="primary"
-              />
-            </Tooltip>
-            <Typography variant="caption" sx={{ textAlign: 'center' }}>
-              Daty
-            </Typography>
-          </Stack>
-        </Stack>
-        <Stack
-          sx={{ flexGrow: 1 }}
-          alignItems={'center'}
-          direction={'row'}
-          flexWrap={'wrap'}
-          justifyContent={{ xs: 'flex-start', md: 'flex-end' }}
-        >
-          <Typography
-            className="rounded-full border border-gray-700 px-3 py-1 font-semibold"
-            sx={{
-              display: {
-                xs: 'none',
-                sm: 'block',
-              },
-            }}
-          >
-            {dayjs(fromWeek).format('DD.MM.YYYY')} -{' '}
-            {dayjs(toWeek).add(6, 'day').format('DD.MM.YYYY')}
-          </Typography>
-        </Stack>
+                className="rounded-lg border"
+                onClick={() => {
+                  setIsFilterOpen(true);
+                }}
+                sx={(theme) => ({
+                  borderColor: theme.palette.primary.light,
+                  '&:hover': {
+                    borderColor: theme.palette.primary.main,
+                  },
+                })}
+              >
+                Filtry
+              </Button>
+            </Badge>
+          </MenuItem>
+        </Menu>
       </Stack>
 
       {activeTable.type === 0 && (
         <Stack
           direction={'row'}
           sx={{
-            mb: 1,
             display: {
               xs: 'flex',
               sm: 'none',
@@ -239,6 +253,117 @@ export const TableControls: React.FC<TableControlsProps> = ({
           </IconButton>
         </Stack>
       )}
-    </>
+    </Stack>
   );
+
+  const desktop = (
+    <Stack
+      alignItems={'center'}
+      direction={'row'}
+      flexWrap={'wrap'}
+      justifyContent={'flex-start'}
+      gap={2}
+      mb={1}
+      width={'100%'}
+      className={
+        'border-lightGray rounded-lg border bg-gray-50 px-3 py-3 md:py-2'
+      }
+    >
+      <Stack alignItems={'center'} direction={'row'} flexWrap={'wrap'} gap={2}>
+        <WeekSelector
+          value={fromWeek}
+          onChange={(val) => {
+            if (!val) return;
+
+            if (toWeek && dayjs(val).isAfter(toWeek, 'week')) {
+              return;
+            }
+
+            setFromWeek(val);
+          }}
+        />
+        <Typography>-</Typography>
+        <WeekSelector
+          value={toWeek}
+          onChange={(val) => {
+            if (!val) return;
+
+            if (fromWeek && dayjs(val).isBefore(fromWeek, 'week')) {
+              return;
+            }
+
+            setToWeek(val);
+          }}
+        />
+      </Stack>
+      <Tooltip title="Filtry">
+        <Badge badgeContent={selectedEmployees.length} color="primary">
+          <IconButton
+            size="small"
+            color="primary"
+            className="rounded-lg border"
+            onClick={() => setIsFilterOpen(true)}
+            sx={(theme) => ({
+              borderColor: theme.palette.primary.light,
+              '&:hover': {
+                borderColor: theme.palette.primary.main,
+              },
+            })}
+          >
+            <FilterListIcon />
+          </IconButton>
+        </Badge>
+      </Tooltip>
+      <Stack direction={'row'} spacing={1}>
+        <Stack direction="column" alignItems="center" justifyContent="center">
+          <Tooltip title="Ukrywanie informacji o urlopach">
+            <Switch
+              size="small"
+              checked={showVacations}
+              onChange={(e) => setShowVacations(e.target.checked)}
+              color="primary"
+            />
+          </Tooltip>
+          <Typography variant="caption" sx={{ textAlign: 'center' }}>
+            Urlopy
+          </Typography>
+        </Stack>
+        <Stack direction="column" alignItems="center" justifyContent="center">
+          <Tooltip title="Ukrywanie szczegółowych dat">
+            <Switch
+              size="small"
+              checked={showDates}
+              onChange={(e) => setShowDates(e.target.checked)}
+              color="primary"
+            />
+          </Tooltip>
+          <Typography variant="caption" sx={{ textAlign: 'center' }}>
+            Daty
+          </Typography>
+        </Stack>
+      </Stack>
+      <Stack
+        sx={{ flexGrow: 1 }}
+        alignItems={'center'}
+        direction={'row'}
+        flexWrap={'wrap'}
+        justifyContent={{ xs: 'flex-start', md: 'flex-end' }}
+      >
+        <Typography
+          className="rounded-full border border-gray-700 px-3 py-1 font-semibold"
+          sx={{
+            display: {
+              xs: 'none',
+              sm: 'block',
+            },
+          }}
+        >
+          {dayjs(fromWeek).format('DD.MM.YYYY')} -{' '}
+          {dayjs(toWeek).add(6, 'day').format('DD.MM.YYYY')}
+        </Typography>
+      </Stack>
+    </Stack>
+  );
+
+  return isPhone ? phone : desktop;
 };
