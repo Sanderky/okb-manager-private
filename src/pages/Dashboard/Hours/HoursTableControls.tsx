@@ -11,6 +11,8 @@ import {
   Grid,
   Menu,
   Badge,
+  useTheme,
+  useMediaQuery,
 } from '@mui/material';
 import {
   ContentCopy,
@@ -81,6 +83,8 @@ const HoursTableControls = ({
   handleCancelEdit,
   handleFillWithSchedule,
 }: HoursTableControlsProps) => {
+  const theme = useTheme();
+  const isPhone = useMediaQuery(theme.breakpoints.down('sm'));
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -101,39 +105,30 @@ const HoursTableControls = ({
     }`,
   });
 
-  return (
-    <>
+  const phone = (
+    <Stack
+      spacing={1}
+      direction={'column'}
+      className="border-lightGray rounded-lg border bg-gray-50 p-2"
+      sx={{
+        border: tableBorder,
+        mb: 1,
+      }}
+    >
       <Stack
         spacing={1}
         direction={'row'}
         justifyContent={'space-between'}
-        className="border-lightGray rounded-lg border bg-gray-50 p-2"
         sx={{
-          border: tableBorder,
-          display: { xs: 'flex', sm: 'none' },
           alignItems: 'center',
         }}
       >
-        <Stack
-          alignItems="center"
-          direction="row"
-          spacing={1}
-          sx={{ flexShrink: 0 }}
-        >
-          <Typography
-            sx={{
-              display: { xs: 'none', sm: 'none', md: 'none', lg: 'block' },
-            }}
-            variant="body2"
-          >
-            Wybrany tydzień:
-          </Typography>
-          <WeekSelector
-            disabled={isLoading}
-            value={currentWeek}
-            onChange={onWeeekChange}
-          />
-        </Stack>
+        <WeekSelector
+          disabled={isLoading}
+          value={currentWeek}
+          onChange={onWeeekChange}
+        />
+
         <IconButton onClick={handleClickMobileMenu}>
           <MoreHoriz />
         </IconButton>
@@ -251,276 +246,282 @@ const HoursTableControls = ({
           )}
         </Menu>
       </Stack>
-      <Stack
-        direction={'row'}
-        sx={{
-          mt: 1,
-          mb: 1,
-          display: {
-            xs: 'flex',
-            sm: 'none',
-          },
-        }}
-      >
-        <IconButton
-          size="small"
-          color="primary"
-          className="rounded-l-lg rounded-r-none border"
-          sx={(theme) => ({
-            borderColor: theme.palette.primary.light,
-            '&:hover': {
-              borderColor: theme.palette.primary.main,
-            },
-          })}
-          onClick={() => handleWeekChange('prev')}
-        >
-          <ChevronLeft />
-        </IconButton>
-        <Button
-          variant="outlined"
-          className="rounded-none border-x-0"
-          sx={(theme) => ({
-            flexGrow: 1,
-            borderColor: theme.palette.primary.light,
-            '&:hover': {
-              borderColor: theme.palette.primary.main,
-            },
-          })}
-          onClick={() => handleWeekChange('current')}
-        >
-          Dziś
-        </Button>
-        <IconButton
-          color="primary"
-          size="small"
-          className="rounded-l-none rounded-r-lg border"
-          sx={(theme) => ({
-            borderColor: theme.palette.primary.light,
-            '&:hover': {
-              borderColor: theme.palette.primary.main,
-            },
-          })}
-          onClick={() => handleWeekChange('next')}
-        >
-          <ChevronRight />
-        </IconButton>
-      </Stack>
-      <Box
-        className="border-lightGray mb-2 rounded-lg border bg-gray-50 p-2"
-        sx={{
-          display: { xs: 'none', sm: 'flex' },
-
-          flexDirection: { sm: 'column-reverse', md: 'row' },
-          gap: 2,
-        }}
-      >
-        <Grid
-          container
-          spacing={2}
-          justifyContent="space-between"
-          sx={{
-            alignItems: 'center',
-          }}
-        >
-          <Grid>
-            <Stack direction={'row'}>
-              <Tooltip title={'Poprzedni tydzień'}>
-                <IconButton
-                  size="small"
-                  className="rounded-l-lg rounded-r-none border"
-                  color="primary"
-                  onClick={() => handleWeekChange('prev')}
-                  sx={(theme) => ({
-                    borderColor: theme.palette.primary.light,
-                    '&:hover': {
-                      borderColor: theme.palette.primary.main,
-                    },
-                  })}
-                >
-                  <ChevronLeft />
-                </IconButton>
-              </Tooltip>
-              <Tooltip title={'Obecny tydzień'}>
-                <Button
-                  variant="outlined"
-                  color="primary"
-                  className="rounded-none border-x-0"
-                  onClick={() => handleWeekChange('current')}
-                  sx={(theme) => ({
-                    borderColor: theme.palette.primary.light,
-                    '&:hover': {
-                      borderColor: theme.palette.primary.main,
-                    },
-                  })}
-                >
-                  Dziś
-                </Button>
-              </Tooltip>
-              <Tooltip title={'Następny tydzień'}>
-                <IconButton
-                  size="small"
-                  className="rounded-l-none rounded-r-lg border"
-                  color="primary"
-                  onClick={() => handleWeekChange('next')}
-                  sx={(theme) => ({
-                    borderColor: theme.palette.primary.light,
-                    '&:hover': {
-                      borderColor: theme.palette.primary.main,
-                    },
-                  })}
-                >
-                  <ChevronRight />
-                </IconButton>
-              </Tooltip>
-            </Stack>
-          </Grid>
-
-          <Grid>
-            <Stack
-              alignItems="center"
-              direction="row"
-              // spacing={1}
-              sx={{ flexShrink: 0 }}
-            >
-              <Typography
-                sx={{
-                  display: { xs: 'none', sm: 'none', md: 'none', lg: 'block' },
-                  mr: 1,
-                }}
-                variant="body2"
-              >
-                Wybrany tydzień:
-              </Typography>
-              <WeekSelector
-                disabled={isLoading}
-                value={currentWeek}
-                onChange={onWeeekChange}
-              />
-
-              <Tooltip title="Filtry">
-                <Badge
-                  color="primary"
-                  badgeContent={
-                    selectedConstructions.length + selectedEmployees.length
-                  }
-                >
-                  <IconButton
-                    size="small"
-                    className="rounded-lg border"
-                    color="primary"
-                    onClick={() => setIsFilterOpen(true)}
-                    sx={(theme) => ({
-                      borderColor: theme.palette.primary.light,
-                      ml: 1,
-                      '&:hover': {
-                        borderColor: theme.palette.primary.main,
-                      },
-                    })}
-                  >
-                    <FilterListIcon />
-                  </IconButton>
-                </Badge>
-              </Tooltip>
-            </Stack>
-          </Grid>
-
-          <Grid display={'flex'} alignItems="center">
-            <Typography
-              textTransform={'capitalize'}
-              className="rounded-full border border-gray-700 px-3 py-1 font-semibold"
-            >
-              Tydzień {dayjs(currentWeek).isoWeek()}
-            </Typography>
-          </Grid>
-        </Grid>
-        <Stack direction={'row'} sx={{ marginLeft: 'auto', alignItems: 'top' }}>
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'row',
-              alignItems: 'center',
-              height: 'min-content',
-            }}
+      <Stack direction={'row'}>
+        <Tooltip title={'Poprzedni tydzień'}>
+          <IconButton
+            size="small"
+            className="rounded-l-lg rounded-r-none border"
+            color="primary"
+            onClick={() => handleWeekChange('prev')}
+            sx={(theme) => ({
+              borderColor: theme.palette.primary.light,
+              '&:hover': {
+                borderColor: theme.palette.primary.main,
+              },
+            })}
           >
-            {!readOnly && (
-              <>
-                <Button
-                  disabled={isLoading}
-                  size="small"
-                  onClick={() => {
-                    if (!isExpanded) handleToggleExpand();
+            <ChevronLeft />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title={'Obecny tydzień'}>
+          <Button
+            variant="outlined"
+            color="primary"
+            className="rounded-none border-x-0"
+            onClick={() => handleWeekChange('current')}
+            sx={(theme) => ({
+              flexGrow: 1,
+              borderColor: theme.palette.primary.light,
+              '&:hover': {
+                borderColor: theme.palette.primary.main,
+              },
+            })}
+          >
+            Dziś
+          </Button>
+        </Tooltip>
+        <Tooltip title={'Następny tydzień'}>
+          <IconButton
+            size="small"
+            className="rounded-l-none rounded-r-lg border"
+            color="primary"
+            onClick={() => handleWeekChange('next')}
+            sx={(theme) => ({
+              borderColor: theme.palette.primary.light,
+              '&:hover': {
+                borderColor: theme.palette.primary.main,
+              },
+            })}
+          >
+            <ChevronRight />
+          </IconButton>
+        </Tooltip>
+      </Stack>
+    </Stack>
+  );
 
-                    handleToggleEditMode();
-                  }}
-                >
-                  {editMode ? 'Zapisz' : 'Edytuj'}
-                </Button>
+  const desktop = (
+    <Box
+      className="border-lightGray mb-2 rounded-lg border bg-gray-50 p-2"
+      sx={{
+        display: { xs: 'none', sm: 'flex' },
 
-                {editMode && (
-                  <Button
-                    disabled={isLoading}
-                    size="small"
-                    onClick={() => handleCancelEdit()}
-                    sx={{
-                      color: 'inherit',
-                    }}
-                  >
-                    Anuluj
-                  </Button>
-                )}
-
-                <Tooltip title="Kopiuj z innego tygodnia">
-                  <span>
-                    <IconButton
-                      disabled={isLoading || !editMode}
-                      onClick={handleCopyDataDialogOpen}
-                      loading={isCoping}
-                    >
-                      <ContentCopy />
-                    </IconButton>
-                  </span>
-                </Tooltip>
-                <Tooltip title="Uzupełnij proponowane">
-                  <span>
-                    <IconButton
-                      disabled={isLoading || !editMode}
-                      onClick={handleFillWithSchedule}
-                      loading={isCoping}
-                    >
-                      <AutoFixHigh />
-                    </IconButton>
-                  </span>
-                </Tooltip>
-              </>
-            )}
-            <Tooltip title="Drukuj tabelkę">
-              <span>
-                <IconButton
-                  disabled={isLoading}
-                  onClick={reactToPrintFn}
-                  loading={isLoading}
-                >
-                  <Print />
-                </IconButton>
-              </span>
-            </Tooltip>
-            <Tooltip title={isExpanded ? 'Zwiń' : 'Rozwiń'}>
-              <IconButton onClick={handleToggleExpand}>
-                {isExpanded ? <ExpandLess /> : <ExpandMore />}
+        flexDirection: { sm: 'column-reverse', md: 'row' },
+        gap: 2,
+      }}
+    >
+      <Grid
+        container
+        spacing={2}
+        justifyContent="space-between"
+        sx={{
+          alignItems: 'center',
+        }}
+      >
+        <Grid>
+          <Stack direction={'row'}>
+            <Tooltip title={'Poprzedni tydzień'}>
+              <IconButton
+                size="small"
+                className="rounded-l-lg rounded-r-none border"
+                color="primary"
+                onClick={() => handleWeekChange('prev')}
+                sx={(theme) => ({
+                  borderColor: theme.palette.primary.light,
+                  '&:hover': {
+                    borderColor: theme.palette.primary.main,
+                  },
+                })}
+              >
+                <ChevronLeft />
               </IconButton>
             </Tooltip>
-            {readOnly && onTableDelete && (
-              <Tooltip title="Usuń tabelę porównawczą">
+            <Tooltip title={'Obecny tydzień'}>
+              <Button
+                variant="outlined"
+                color="primary"
+                className="rounded-none border-x-0"
+                onClick={() => handleWeekChange('current')}
+                sx={(theme) => ({
+                  borderColor: theme.palette.primary.light,
+                  '&:hover': {
+                    borderColor: theme.palette.primary.main,
+                  },
+                })}
+              >
+                Dziś
+              </Button>
+            </Tooltip>
+            <Tooltip title={'Następny tydzień'}>
+              <IconButton
+                size="small"
+                className="rounded-l-none rounded-r-lg border"
+                color="primary"
+                onClick={() => handleWeekChange('next')}
+                sx={(theme) => ({
+                  borderColor: theme.palette.primary.light,
+                  '&:hover': {
+                    borderColor: theme.palette.primary.main,
+                  },
+                })}
+              >
+                <ChevronRight />
+              </IconButton>
+            </Tooltip>
+          </Stack>
+        </Grid>
+
+        <Grid>
+          <Stack
+            alignItems="center"
+            direction="row"
+            // spacing={1}
+            sx={{ flexShrink: 0 }}
+          >
+            <Typography
+              sx={{
+                display: { xs: 'none', sm: 'none', md: 'none', lg: 'block' },
+                mr: 1,
+              }}
+              variant="body2"
+            >
+              Wybrany tydzień:
+            </Typography>
+            <WeekSelector
+              disabled={isLoading}
+              value={currentWeek}
+              onChange={onWeeekChange}
+            />
+
+            <Tooltip title="Filtry">
+              <Badge
+                color="primary"
+                badgeContent={
+                  selectedConstructions.length + selectedEmployees.length
+                }
+              >
+                <IconButton
+                  size="small"
+                  className="rounded-lg border"
+                  color="primary"
+                  onClick={() => setIsFilterOpen(true)}
+                  sx={(theme) => ({
+                    borderColor: theme.palette.primary.light,
+                    ml: 1,
+                    '&:hover': {
+                      borderColor: theme.palette.primary.main,
+                    },
+                  })}
+                >
+                  <FilterListIcon />
+                </IconButton>
+              </Badge>
+            </Tooltip>
+          </Stack>
+        </Grid>
+
+        <Grid display={'flex'} alignItems="center">
+          <Typography
+            textTransform={'capitalize'}
+            className="rounded-full border border-gray-700 px-3 py-1 font-semibold"
+          >
+            Tydzień {dayjs(currentWeek).isoWeek()}
+          </Typography>
+        </Grid>
+      </Grid>
+      <Stack direction={'row'} sx={{ marginLeft: 'auto', alignItems: 'top' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            height: 'min-content',
+          }}
+        >
+          {!readOnly && (
+            <>
+              <Button
+                disabled={isLoading}
+                size="small"
+                onClick={() => {
+                  if (!isExpanded) handleToggleExpand();
+
+                  handleToggleEditMode();
+                }}
+              >
+                {editMode ? 'Zapisz' : 'Edytuj'}
+              </Button>
+
+              {editMode && (
+                <Button
+                  disabled={isLoading}
+                  size="small"
+                  onClick={() => handleCancelEdit()}
+                  sx={{
+                    color: 'inherit',
+                  }}
+                >
+                  Anuluj
+                </Button>
+              )}
+
+              <Tooltip title="Kopiuj z innego tygodnia">
                 <span>
-                  <IconButton disabled={isLoading} onClick={onTableDelete}>
-                    <Clear />
+                  <IconButton
+                    disabled={isLoading || !editMode}
+                    onClick={handleCopyDataDialogOpen}
+                    loading={isCoping}
+                  >
+                    <ContentCopy />
                   </IconButton>
                 </span>
               </Tooltip>
-            )}
-          </Box>
-        </Stack>
-      </Box>
+              <Tooltip title="Uzupełnij proponowane">
+                <span>
+                  <IconButton
+                    disabled={isLoading || !editMode}
+                    onClick={handleFillWithSchedule}
+                    loading={isCoping}
+                  >
+                    <AutoFixHigh />
+                  </IconButton>
+                </span>
+              </Tooltip>
+            </>
+          )}
+          <Tooltip title="Drukuj tabelkę">
+            <span>
+              <IconButton
+                disabled={isLoading}
+                onClick={reactToPrintFn}
+                loading={isLoading}
+              >
+                <Print />
+              </IconButton>
+            </span>
+          </Tooltip>
+          <Tooltip title={isExpanded ? 'Zwiń' : 'Rozwiń'}>
+            <IconButton onClick={handleToggleExpand}>
+              {isExpanded ? <ExpandLess /> : <ExpandMore />}
+            </IconButton>
+          </Tooltip>
+          {readOnly && onTableDelete && (
+            <Tooltip title="Usuń tabelę porównawczą">
+              <span>
+                <IconButton disabled={isLoading} onClick={onTableDelete}>
+                  <Clear />
+                </IconButton>
+              </span>
+            </Tooltip>
+          )}
+        </Box>
+      </Stack>
+    </Box>
+  );
+
+  return (
+    <>
+      {isPhone ? phone : desktop}
 
       <FiltersDialog
         isOpen={isFilterOpen}
