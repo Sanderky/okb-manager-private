@@ -56,6 +56,7 @@ import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
 import KeyboardReturnIcon from '@mui/icons-material/KeyboardReturn';
 import InfoOutlineIcon from '@mui/icons-material/InfoOutline';
 import useContainerBreakpoint from '../../../hooks/useContainerWidth';
+import { formatWeeksString } from '../Hours/HoursHelpers';
 
 dayjs.extend(weekOfYear);
 
@@ -744,7 +745,7 @@ const ScheduleComponent = () => {
                     variant="overline"
                     className="font-medium text-gray-500"
                   >
-                    {weeks.length} Tygodni
+                    {`${weeks.length} ${formatWeeksString(weeks.length, 'pl-PL')}`}
                   </Typography>
                   <Typography
                     variant="body2"
