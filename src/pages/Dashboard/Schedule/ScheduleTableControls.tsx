@@ -7,8 +7,6 @@ import {
   Switch,
   Button,
   Tooltip,
-  useTheme,
-  useMediaQuery,
   Menu,
   MenuItem,
   Divider,
@@ -31,6 +29,7 @@ interface TableControlsProps {
   showDates: boolean;
   setShowDates: (show: boolean) => void;
   activeTable: { type: number; week: dayjs.Dayjs };
+  containerWidth: number;
 }
 
 export const TableControls: React.FC<TableControlsProps> = ({
@@ -45,9 +44,8 @@ export const TableControls: React.FC<TableControlsProps> = ({
   showDates,
   setShowDates,
   activeTable,
+  containerWidth,
 }) => {
-  const theme = useTheme();
-  const isPhone = useMediaQuery(theme.breakpoints.down('sm'));
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const openMobileMenu = Boolean(anchorEl);
   const handleClickMobileMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -177,15 +175,7 @@ export const TableControls: React.FC<TableControlsProps> = ({
       </Stack>
 
       {activeTable.type === 0 && (
-        <Stack
-          direction={'row'}
-          sx={{
-            display: {
-              xs: 'flex',
-              sm: 'none',
-            },
-          }}
-        >
+        <Stack direction={'row'}>
           <IconButton
             size="small"
             color="primary"
@@ -365,5 +355,5 @@ export const TableControls: React.FC<TableControlsProps> = ({
     </Stack>
   );
 
-  return isPhone ? phone : desktop;
+  return containerWidth < 600 ? phone : desktop;
 };

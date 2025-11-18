@@ -6,8 +6,6 @@ import {
   Badge,
   Button,
   Tooltip,
-  useTheme,
-  useMediaQuery,
   Menu,
   MenuItem,
 } from '@mui/material';
@@ -25,6 +23,7 @@ interface CalendarControlsProps {
   setIsFilterOpen: (open: boolean) => void;
   handleMonthChange: (action: 'prev' | 'next' | 'today') => void;
   handleDatePickerChange: (value: Dayjs | null) => void;
+  containerWidth: number;
 }
 
 export const CalendarControls: React.FC<CalendarControlsProps> = ({
@@ -33,9 +32,8 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
   setIsFilterOpen,
   handleMonthChange,
   handleDatePickerChange,
+  containerWidth,
 }) => {
-  const theme = useTheme();
-  const isPhone = useMediaQuery(theme.breakpoints.down('sm'));
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const openMobileMenu = Boolean(anchorEl);
   const handleClickMobileMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -335,5 +333,5 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
     </Stack>
   );
 
-  return isPhone ? phone : desktop;
+  return containerWidth < 600 ? phone : desktop;
 };

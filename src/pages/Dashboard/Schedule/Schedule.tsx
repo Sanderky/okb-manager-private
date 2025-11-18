@@ -55,6 +55,7 @@ import PageContainer from '../../../components/PageContainer';
 import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
 import KeyboardReturnIcon from '@mui/icons-material/KeyboardReturn';
 import InfoOutlineIcon from '@mui/icons-material/InfoOutline';
+import useContainerBreakpoint from '../../../hooks/useContainerWidth';
 
 dayjs.extend(weekOfYear);
 
@@ -63,6 +64,8 @@ type SchedulePayload = Omit<Schedule, 'id'> & {
 };
 
 const ScheduleComponent = () => {
+  const [containerRef, width] = useContainerBreakpoint();
+
   const [fromWeek, setFromWeek] = useState<Date>(() => {
     const saved = localStorage.getItem('scheduleFromWeek');
     return saved ? new Date(saved) : dayjs().startOf('week').toDate();
@@ -455,6 +458,7 @@ const ScheduleComponent = () => {
       }
     >
       <Box
+        ref={containerRef}
         sx={{
           overflow: 'hidden',
         }}
@@ -481,6 +485,7 @@ const ScheduleComponent = () => {
         )}
 
         <TableControls
+          containerWidth={width}
           fromWeek={fromWeek}
           toWeek={toWeek}
           setFromWeek={setFromWeek}

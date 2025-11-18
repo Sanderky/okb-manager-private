@@ -39,10 +39,13 @@ import PageContainer from '../../../components/PageContainer';
 import useLoading from '../../../hooks/useLoading';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import { useSearchParams } from 'react-router-dom';
+import useContainerBreakpoint from '../../../hooks/useContainerWidth';
 
 dayjs.locale('pl');
 
 const Calendar: React.FC = () => {
+  const [containerRef, width] = useContainerBreakpoint();
+
   const [searchParams] = useSearchParams();
   const [currentMonth, setCurrentMonth] = useState<Dayjs>(
     dayjs().startOf('month')
@@ -491,7 +494,7 @@ const Calendar: React.FC = () => {
         </Button>
       }
     >
-      <Box className="relative">
+      <Box className="relative" ref={containerRef}>
         {loading && (
           <Box
             sx={{
@@ -539,6 +542,7 @@ const Calendar: React.FC = () => {
           setIsFilterOpen={setIsFilterOpen}
           handleMonthChange={handleMonthChange}
           handleDatePickerChange={handleDatePickerChange}
+          containerWidth={width}
         />
 
         <Box

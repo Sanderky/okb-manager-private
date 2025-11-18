@@ -8,6 +8,7 @@ import { useReactToPrint } from 'react-to-print';
 import { MultiTablePrintReport } from './PrintReport';
 import usePrintShortcut from '../../../hooks/usePrintShortcut';
 import PageContainer from '../../../components/PageContainer';
+import useContainerBreakpoint from '../../../hooks/useContainerWidth';
 
 export interface TableData {
   weekStart: Date;
@@ -17,6 +18,8 @@ export interface TableData {
 }
 
 const Hours: React.FC = () => {
+  const [containerRef, width] = useContainerBreakpoint();
+
   const [comparisionTables, setComparisionTables] = useState<number[]>([]);
   const [tablesData, setTablesData] = useState<{ [key: string]: TableData }>(
     {}
@@ -86,53 +89,60 @@ const Hours: React.FC = () => {
         </>
       }
     >
-      <Stack direction="column" spacing={6}>
-        <HoursTable
-          readOnly={false}
-          onTableDataUpdate={(data) => handleTableDataUpdate('main', data)}
-          tableId="main"
+      <Box ref={containerRef}>
+        <Stack direction="column" spacing={6}>
+          <HoursTable
+            containerWidth={width}
+            readOnly={false}
+            onTableDataUpdate={(data) => handleTableDataUpdate('main', data)}
+            tableId="main"
+          />
+
+          {comparisionTables.map((key, index) => (
+            <Box key={index}>
+              <Typography
+                variant="h5"
+                component={'div'}
+                mb={1}
+                sx={{ fontSize: '1.2rem' }}
+              >
+                Tabela porównawcza {index + 1}
+              </Typography>
+
+              <HoursTable
+                containerWidth={width}
+                onTableDelete={() => handleDeleteTable(key)}
+                onTableDataUpdate={(data) =>
+                  handleTableDataUpdate(`comparison-${key}`, data)
+                }
+                tableId={`comparison-${key}`}
+              />
+            </Box>
+          ))}
+        </Stack>
+
+        <Divider sx={{ mt: 5, mb: 5 }}>
+          <Button
+            variant="contained"
+            size="small"
+            startIcon={<Add />}
+            onClick={handleAddComparisonTable}
+          >
+            Dodaj tabelkę porównawczą
+          </Button>
+        </Divider>
+
+        <PrintReportDialog
+          open={printReportDialogOpen}
+          onClose={() => setPrintReportDialogOpen(false)}
         />
 
-        {comparisionTables.map((key, index) => (
-          <Box key={index}>
-            <Typography
-              variant="h5"
-              component={'div'}
-              mb={1}
-              sx={{ fontSize: '1.2rem' }}
-            >
-              Tabela porównawcza {index + 1}
-            </Typography>
-
-            <HoursTable
-              onTableDelete={() => handleDeleteTable(key)}
-              onTableDataUpdate={(data) =>
-                handleTableDataUpdate(`comparison-${key}`, data)
-              }
-              tableId={`comparison-${key}`}
-            />
-          </Box>
-        ))}
-      </Stack>
-
-      <Divider sx={{ mt: 5, mb: 5 }}>
-        <Button
-          variant="contained"
-          size="small"
-          startIcon={<Add />}
-          onClick={handleAddComparisonTable}
-        >
-          Dodaj tabelkę porównawczą
-        </Button>
-      </Divider>
-
-      <PrintReportDialog
-        open={printReportDialogOpen}
-        onClose={() => setPrintReportDialogOpen(false)}
-      />
-
-      <Box sx={{ display: 'none' }}>
-        <MultiTablePrintReport tablesData={tablesData} ref={printContentRef} />
+        <Box sx={{ display: 'none' }}>
+          <MultiTablePrintReport
+            tablesData={tablesData}
+            ref={printContentRef}
+          />
+        </Box>
       </Box>
     </PageContainer>
   );

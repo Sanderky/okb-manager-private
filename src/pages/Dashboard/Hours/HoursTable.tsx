@@ -528,6 +528,7 @@ const NoTable = ({
 };
 
 interface HoursTableProps {
+  containerWidth: number;
   readOnly?: boolean;
   onTableDelete?: () => void;
   onTableDataUpdate?: (data: TableData) => void;
@@ -535,6 +536,7 @@ interface HoursTableProps {
 }
 
 const HoursTable = ({
+  containerWidth,
   readOnly = true,
   onTableDelete,
   onTableDataUpdate,
@@ -626,6 +628,7 @@ const HoursTable = ({
         </Box>
       </Box>
       <HoursTableControls
+        containerWidth={containerWidth}
         isLoading={isTableLoading}
         currentWeek={currentWeek}
         handleWeekChange={handleWeekChange}

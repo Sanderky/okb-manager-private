@@ -11,8 +11,6 @@ import {
   Grid,
   Menu,
   Badge,
-  useTheme,
-  useMediaQuery,
 } from '@mui/material';
 import {
   ContentCopy,
@@ -39,6 +37,7 @@ dayjs.extend(isoWeek);
 dayjs.extend(isBetween);
 
 interface HoursTableControlsProps {
+  containerWidth: number;
   isLoading: boolean;
   currentWeek: Date;
   handleWeekChange: (week: 'next' | 'current' | 'prev') => void;
@@ -62,6 +61,7 @@ interface HoursTableControlsProps {
 }
 
 const HoursTableControls = ({
+  containerWidth,
   isLoading,
   currentWeek,
   handleWeekChange,
@@ -83,8 +83,6 @@ const HoursTableControls = ({
   handleCancelEdit,
   handleFillWithSchedule,
 }: HoursTableControlsProps) => {
-  const theme = useTheme();
-  const isPhone = useMediaQuery(theme.breakpoints.down('sm'));
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -521,7 +519,7 @@ const HoursTableControls = ({
 
   return (
     <>
-      {isPhone ? phone : desktop}
+      {containerWidth < 600 ? phone : desktop}
 
       <FiltersDialog
         isOpen={isFilterOpen}
