@@ -138,7 +138,7 @@ export const useTableState = (
     setColumnVisibility({});
     setDensity(DensityDefault);
     setPagination({ pageIndex: 0, pageSize: 10 });
-    setColumnFilters([]);
+    setColumnFilters(defaultFilters);
     localStorage.removeItem(`table-preferences-${tableName}`);
   };
 

@@ -108,7 +108,7 @@ export default function EmployeeList() {
     setPagination,
     columnFilters,
     setColumnFilters,
-  } = useTableState('employees');
+  } = useTableState('employees', DefaultColumnFilters);
 
   const { getEmployeeAlerts } = useEmployeeAlert();
 
