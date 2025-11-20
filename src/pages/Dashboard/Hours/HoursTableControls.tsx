@@ -22,6 +22,7 @@ import {
   MoreHoriz,
   Print,
   AutoFixHigh,
+  Close,
 } from '@mui/icons-material';
 import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
@@ -105,9 +106,9 @@ const HoursTableControls = ({
 
   const phone = (
     <Stack
-      spacing={1}
+      gap={2}
       direction={'column'}
-      className="border-lightGray rounded-lg border bg-gray-50 p-2"
+      className="border-lightGray rounded-lg border bg-gray-50 px-3 py-3 md:py-2"
       sx={{
         border: tableBorder,
         mb: 1,
@@ -135,111 +136,161 @@ const HoursTableControls = ({
           open={openMobileMenu}
           onClose={handleCloseMobileMenu}
         >
-          <MenuItem
-            disableRipple
-            sx={{ fontWeight: 'bold', cursor: 'default' }}
-            key={'weekNumber'}
-          >
-            Tydzień {dayjs(currentWeek).isoWeek()}
+          <MenuItem disableRipple sx={{ cursor: 'default' }} key={'weekNumber'}>
+            <Typography className="w-full px-3 py-1 font-semibold">
+              Tydzień {dayjs(currentWeek).isoWeek()}
+            </Typography>
           </MenuItem>
           <Divider />
 
           {!readOnly && (
-            <MenuItem
-              key={'editMode'}
-              onClick={() => {
-                if (!isExpanded) handleToggleExpand();
-                handleCloseMobileMenu();
-                handleToggleEditMode();
-              }}
-              disableRipple
-              disabled={isLoading}
-            >
-              {editMode ? 'Zapisz' : 'Edytuj'}
+            <MenuItem key={'editMode'} disableRipple>
+              <Button
+                size="small"
+                fullWidth
+                loading={isLoading}
+                color="primary"
+                className="rounded-lg border"
+                onClick={() => {
+                  if (!isExpanded) handleToggleExpand();
+                  handleCloseMobileMenu();
+                  handleToggleEditMode();
+                }}
+              >
+                {editMode ? 'Zapisz' : 'Edytuj'}
+              </Button>
             </MenuItem>
           )}
           {!readOnly && editMode && (
-            <MenuItem
-              disabled={isLoading}
-              key={'cancel'}
-              onClick={() => {
-                handleCloseMobileMenu();
-                handleCancelEdit();
-              }}
-              disableRipple
-            >
-              Anuluj
+            <MenuItem key={'cancel'} disableRipple>
+              <Button
+                size="small"
+                fullWidth
+                loading={isLoading}
+                color="inherit"
+                className="rounded-lg border"
+                onClick={() => {
+                  handleCloseMobileMenu();
+                  handleCancelEdit();
+                }}
+              >
+                Anuluj
+              </Button>
             </MenuItem>
           )}
-          {!readOnly && editMode && (
-            <MenuItem
-              key={'copy'}
-              onClick={() => {
-                handleCloseMobileMenu();
-                handleCopyDataDialogOpen();
-              }}
-              disableRipple
-              disabled={isLoading}
-            >
-              Kopiuj z innego tygodnia
+          {!readOnly && (
+            <MenuItem key={'copy'} disableRipple>
+              <Button
+                startIcon={<ContentCopy />}
+                size="small"
+                fullWidth
+                disabled={!editMode}
+                loading={isLoading}
+                color="primary"
+                className="rounded-lg border"
+                onClick={() => {
+                  handleCloseMobileMenu();
+                  handleCopyDataDialogOpen();
+                }}
+              >
+                Kopiuj z innego tygodnia
+              </Button>
             </MenuItem>
           )}
-          {!readOnly && editMode && (
-            <MenuItem
-              key={'fill'}
-              onClick={() => {
-                handleFillWithSchedule();
-                handleCopyDataDialogOpen();
-              }}
-              disableRipple
-              disabled={isLoading}
-            >
-              Uzupełnij proponowane
+          {!readOnly && (
+            <MenuItem key={'fill'} disableRipple>
+              <Button
+                startIcon={<AutoFixHigh />}
+                size="small"
+                fullWidth
+                disabled={!editMode}
+                loading={isLoading}
+                color="primary"
+                className="rounded-lg border"
+                onClick={() => {
+                  handleCloseMobileMenu();
+                  handleFillWithSchedule();
+                }}
+              >
+                Uzupełnij proponowane
+              </Button>
             </MenuItem>
           )}
           <Divider />
-          <MenuItem
-            key={'filters'}
-            onClick={() => {
-              setIsFilterOpen(true);
-              handleCloseMobileMenu();
-            }}
-            disableRipple
-            disabled={isLoading}
-          >
-            {`Filtry (${selectedConstructions.length + selectedEmployees.length})`}
+          <MenuItem key={'filters'} disableRipple>
+            <Badge
+              badgeContent={selectedEmployees.length}
+              color="primary"
+              sx={{ width: '100%' }}
+            >
+              <Button
+                startIcon={<FilterListIcon />}
+                size="small"
+                fullWidth
+                loading={isLoading}
+                color="primary"
+                className="rounded-lg border"
+                onClick={() => {
+                  setIsFilterOpen(true);
+                  handleCloseMobileMenu();
+                }}
+              >
+                Filtry
+              </Button>
+            </Badge>
           </MenuItem>
-          <MenuItem
-            key={'print'}
-            onClick={() => {
-              reactToPrintFn();
-              handleCloseMobileMenu();
-            }}
-            disableRipple
-            disabled={isLoading}
-          >
-            Drukuj
+          <MenuItem key={'print'} disableRipple>
+            <Button
+              startIcon={<Print />}
+              size="small"
+              fullWidth
+              loading={isLoading}
+              color="primary"
+              className="rounded-lg border"
+              onClick={() => {
+                reactToPrintFn();
+                handleCloseMobileMenu();
+              }}
+            >
+              Drukuj
+            </Button>
           </MenuItem>
-          <MenuItem
-            key={'expand'}
-            onClick={() => {
-              handleCloseMobileMenu();
-              handleToggleExpand();
-            }}
-            disableRipple
-          >
-            {isExpanded ? 'Zwiń tabelę' : 'Rozwiń tabelę'}
-          </MenuItem>
-          {readOnly && onTableDelete && (
-            <MenuItem
-              key={'close'}
+          <MenuItem key={'expand'} disableRipple>
+            <Button
+              startIcon={isExpanded ? <ExpandLess /> : <ExpandMore />}
+              size="small"
+              fullWidth
+              color="primary"
+              className="rounded-lg border"
               onClick={() => {
                 handleCloseMobileMenu();
-                onTableDelete();
+                handleToggleExpand();
               }}
-              disableRipple
             >
-              Zamknij tabelę
+              {isExpanded ? 'Zwiń tabelę' : 'Rozwiń tabelę'}
+            </Button>
+          </MenuItem>
+          {readOnly && onTableDelete && (
+            <MenuItem key={'close'} disableRipple>
+              <Button
+                startIcon={<Close />}
+                size="small"
+                fullWidth
+                color="primary"
+                className="rounded-lg border"
+                onClick={() => {
+                  handleCloseMobileMenu();
+                  onTableDelete();
+                }}
+                sx={(theme) => ({
+                  borderColor: theme.palette.primary.light,
+                  '&:hover': {
+                    borderColor: theme.palette.primary.main,
+                  },
+                })}
+              >
+                Zamknij tabelkę
+              </Button>
             </MenuItem>
           )}
         </Menu>
@@ -300,7 +351,7 @@ const HoursTableControls = ({
 
   const desktop = (
     <Box
-      className="border-lightGray mb-2 rounded-lg border bg-gray-50 p-2"
+      className="border-lightGray mb-2 rounded-lg border bg-gray-50 px-3 py-3 md:py-2"
       sx={{
         display: { xs: 'none', sm: 'flex' },
 
@@ -441,6 +492,7 @@ const HoursTableControls = ({
               <Button
                 disabled={isLoading}
                 size="small"
+                variant="outlined"
                 onClick={() => {
                   if (!isExpanded) handleToggleExpand();
 
@@ -454,9 +506,12 @@ const HoursTableControls = ({
                 <Button
                   disabled={isLoading}
                   size="small"
+                  variant="outlined"
+                  color="inherit"
                   onClick={() => handleCancelEdit()}
                   sx={{
                     color: 'inherit',
+                    ml: 1,
                   }}
                 >
                   Anuluj
@@ -469,6 +524,7 @@ const HoursTableControls = ({
                     disabled={isLoading || !editMode}
                     onClick={handleCopyDataDialogOpen}
                     loading={isCoping}
+                    sx={{ ml: 1 }}
                   >
                     <ContentCopy />
                   </IconButton>

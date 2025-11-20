@@ -579,6 +579,7 @@ const HoursTable = ({
     getAvailableEmployeesForConstruction,
     getAvailableConstructions,
     getActiveEmployees,
+    hasUnsavedChanges,
   } = useHoursTable();
 
   useEffect(() => {
@@ -654,137 +655,155 @@ const HoursTable = ({
         {!loadingError &&
         !isTableLoading &&
         constructionsWithWorkHours.length > 0 ? (
-          <TableContainer
-            className="border-lightGray rounded-lg border bg-white"
-            sx={{
-              position: 'relative',
-              '& th': {
-                backgroundColor: 'oklch(0.967 0.003 264.542)',
-              },
-            }}
-          >
-            <Table size="small">
-              <TableHead>
-                <TableRow>
-                  <TableCell
-                    sx={{
-                      fontWeight: 'bold',
-                      borderRight: tableBorder,
-                      borderBottom: borderBold,
-                    }}
-                    align="center"
-                  >
-                    Budowa
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      fontWeight: 'bold',
-                      borderRight: tableBorder,
-                      borderBottom: borderBold,
-                    }}
-                    align="center"
-                  >
-                    Pracownik
-                  </TableCell>
-                  {weekDates.map((date, index) => (
+          <>
+            <TableContainer
+              className="border-lightGray rounded-lg border bg-white"
+              sx={(theme) => ({
+                position: 'relative',
+                '& th': {
+                  backgroundColor: 'oklch(0.967 0.003 264.542)',
+                },
+                outline: editMode
+                  ? `2px solid ${theme.palette.primary.main} !important`
+                  : '',
+              })}
+            >
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
                     <TableCell
-                      key={`${date.getTime()}-${index}`}
-                      align="center"
                       sx={{
                         fontWeight: 'bold',
                         borderRight: tableBorder,
                         borderBottom: borderBold,
                       }}
+                      align="center"
                     >
-                      <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
-                        {date.toLocaleDateString('pl-PL', { weekday: 'short' })}
-                      </Typography>
-                      <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
-                        {date.getDate().toString().padStart(2, '0')}.
-                        {(date.getMonth() + 1).toString().padStart(2, '0')}
-                      </Typography>
+                      Budowa
                     </TableCell>
-                  ))}
-                  <TableCell
-                    align="center"
-                    sx={{ fontWeight: 'bold', borderBottom: borderBold }}
-                  >
-                    Suma
-                  </TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                <TableRows
-                  isFilling={isFilling}
-                  handleFillWithSchedule={handleFillWithSchedule}
-                  isLoading={isTableLoading}
-                  handleDeleteConstruction={handleDeleteConstruction}
-                  handleDeleteEmployee={handleDeleteEmployee}
-                  handleHoursChange={handleHoursChange}
-                  handleOpenAddEmployeeDialog={handleOpenAddEmployeeDialog}
-                  constructionsWithWorkHours={constructionsWithWorkHours}
-                  editMode={editMode}
-                  error={loadingError}
-                  handleCopyDataDialogOpen={handleCopyDataDialogOpen}
-                  getAvailableEmployeesForConstruction={
-                    getAvailableEmployeesForConstruction
-                  }
-                />
-
-                <TableRow
-                  sx={{
-                    borderTop: 'none',
-                    borderBottom: 'none',
-                    background: '#fff',
-                  }}
-                >
-                  <TableCell
-                    colSpan={7}
-                    sx={{ borderTop: 'none', p: 0.5, borderBottom: 'none' }}
-                  >
-                    {editMode && (
-                      <Tooltip
-                        title={
-                          availableConstructions.length === 0
-                            ? 'Wszystkie budowy zostały już dodane'
-                            : ''
-                        }
+                    <TableCell
+                      sx={{
+                        fontWeight: 'bold',
+                        borderRight: tableBorder,
+                        borderBottom: borderBold,
+                      }}
+                      align="center"
+                    >
+                      Pracownik
+                    </TableCell>
+                    {weekDates.map((date, index) => (
+                      <TableCell
+                        key={`${date.getTime()}-${index}`}
+                        align="center"
+                        sx={{
+                          fontWeight: 'bold',
+                          borderRight: tableBorder,
+                          borderBottom: borderBold,
+                        }}
                       >
-                        <span>
-                          <Button
-                            startIcon={<Add />}
-                            sx={{ visibility: editMode ? 'visible' : 'hidden' }}
-                            onClick={() => setAddConstructionDialogOpen(true)}
-                            size="small"
-                            variant="text"
-                            color="primary"
-                            disabled={availableConstructions.length === 0}
-                          >
-                            Dodaj budowę
-                          </Button>
-                        </span>
-                      </Tooltip>
-                    )}
-                  </TableCell>
-                  <TableCell
-                    sx={{ borderTop: 'none', p: 0.5, borderBottom: 'none' }}
-                    colSpan={2}
-                    align="right"
+                        <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                          {date.toLocaleDateString('pl-PL', {
+                            weekday: 'short',
+                          })}
+                        </Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                          {date.getDate().toString().padStart(2, '0')}.
+                          {(date.getMonth() + 1).toString().padStart(2, '0')}
+                        </Typography>
+                      </TableCell>
+                    ))}
+                    <TableCell
+                      align="center"
+                      sx={{ fontWeight: 'bold', borderBottom: borderBold }}
+                    >
+                      Suma
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  <TableRows
+                    isFilling={isFilling}
+                    handleFillWithSchedule={handleFillWithSchedule}
+                    isLoading={isTableLoading}
+                    handleDeleteConstruction={handleDeleteConstruction}
+                    handleDeleteEmployee={handleDeleteEmployee}
+                    handleHoursChange={handleHoursChange}
+                    handleOpenAddEmployeeDialog={handleOpenAddEmployeeDialog}
+                    constructionsWithWorkHours={constructionsWithWorkHours}
+                    editMode={editMode}
+                    error={loadingError}
+                    handleCopyDataDialogOpen={handleCopyDataDialogOpen}
+                    getAvailableEmployeesForConstruction={
+                      getAvailableEmployeesForConstruction
+                    }
+                  />
+
+                  <TableRow
+                    sx={{
+                      borderTop: 'none',
+                      borderBottom: 'none',
+                      background: '#fff',
+                    }}
                   >
-                    Suma całkowita:
-                  </TableCell>
-                  <TableCell
-                    sx={{ borderTop: 'none', p: 0.5, borderBottom: 'none' }}
-                    align="center"
-                  >
-                    {constructionsWithWorkHours.length > 0
-                      ? formatToPolishDecimal(totalHoursData.grandTotal)
-                      : '-'}
-                  </TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-          </TableContainer>
+                    <TableCell
+                      colSpan={7}
+                      sx={{ borderTop: 'none', p: 0.5, borderBottom: 'none' }}
+                    >
+                      {editMode && (
+                        <Tooltip
+                          title={
+                            availableConstructions.length === 0
+                              ? 'Wszystkie budowy zostały już dodane'
+                              : ''
+                          }
+                        >
+                          <span>
+                            <Button
+                              startIcon={<Add />}
+                              sx={{
+                                visibility: editMode ? 'visible' : 'hidden',
+                              }}
+                              onClick={() => setAddConstructionDialogOpen(true)}
+                              size="small"
+                              variant="text"
+                              color="primary"
+                              disabled={availableConstructions.length === 0}
+                            >
+                              Dodaj budowę
+                            </Button>
+                          </span>
+                        </Tooltip>
+                      )}
+                    </TableCell>
+                    <TableCell
+                      sx={{ borderTop: 'none', p: 0.5, borderBottom: 'none' }}
+                      colSpan={2}
+                      align="right"
+                    >
+                      Suma całkowita:
+                    </TableCell>
+                    <TableCell
+                      sx={{ borderTop: 'none', p: 0.5, borderBottom: 'none' }}
+                      align="center"
+                    >
+                      {constructionsWithWorkHours.length > 0
+                        ? formatToPolishDecimal(totalHoursData.grandTotal)
+                        : '-'}
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </TableContainer>
+            {hasUnsavedChanges && (
+              <Typography
+                variant="caption"
+                sx={{ fontWeight: 500 }}
+                color="primary"
+              >
+                Masz niezapisane zmiany*
+              </Typography>
+            )}
+          </>
         ) : (
           <NoTable
             isFilling={isFilling}

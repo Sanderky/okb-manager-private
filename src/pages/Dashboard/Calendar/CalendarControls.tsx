@@ -74,38 +74,6 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
           open={openMobileMenu}
           onClose={handleCloseMobileMenu}
         >
-          <MenuItem
-            disableRipple
-            key={'filters'}
-            onClick={() => {
-              setIsFilterOpen(true);
-            }}
-          >
-            <Badge
-              badgeContent={selectedEmployees.length}
-              color="primary"
-              sx={{ width: '100%' }}
-            >
-              <Button
-                startIcon={<FilterListIcon />}
-                size="small"
-                fullWidth
-                color="primary"
-                className="rounded-lg border"
-                onClick={() => {
-                  setIsFilterOpen(true);
-                }}
-                sx={(theme) => ({
-                  borderColor: theme.palette.primary.light,
-                  '&:hover': {
-                    borderColor: theme.palette.primary.main,
-                  },
-                })}
-              >
-                Filtry
-              </Button>
-            </Badge>
-          </MenuItem>
           <MenuItem disableRipple key={'datePicker'}>
             <LocalizationProvider
               localeText={
@@ -141,6 +109,32 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
                 onChange={handleDatePickerChange}
               />
             </LocalizationProvider>
+          </MenuItem>
+          <MenuItem
+            disableRipple
+            key={'filters'}
+            onClick={() => {
+              setIsFilterOpen(true);
+            }}
+          >
+            <Badge
+              badgeContent={selectedEmployees.length}
+              color="primary"
+              sx={{ width: '100%' }}
+            >
+              <Button
+                startIcon={<FilterListIcon />}
+                size="small"
+                fullWidth
+                color="primary"
+                className="rounded-lg border"
+                onClick={() => {
+                  setIsFilterOpen(true);
+                }}
+              >
+                Filtry
+              </Button>
+            </Badge>
           </MenuItem>
         </Menu>
       </Stack>
