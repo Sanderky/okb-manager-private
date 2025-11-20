@@ -116,12 +116,9 @@ export default function EmployeeList() {
   const [filters, setFilters] = useState<EmployeesFilters>(DefaultFiltersState);
 
   const isFilterActive = useMemo(() => {
-    if (columnFilters.length > 0) {
-      return (
-        JSON.stringify(columnFilters) !== JSON.stringify(DefaultColumnFilters)
-      );
-    }
-    return false;
+    return (
+      JSON.stringify(columnFilters) !== JSON.stringify(DefaultColumnFilters)
+    );
   }, [columnFilters]);
 
   const {

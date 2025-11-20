@@ -96,12 +96,9 @@ export default function ConstructionsList() {
     useState<ConstructionsFilters>(DefaultFiltersState);
 
   const isFilterActive = useMemo(() => {
-    if (columnFilters.length > 0) {
-      return (
-        JSON.stringify(columnFilters) !== JSON.stringify(DefaultColumnFilters)
-      );
-    }
-    return false;
+    return (
+      JSON.stringify(columnFilters) !== JSON.stringify(DefaultColumnFilters)
+    );
   }, [columnFilters]);
 
   const {
