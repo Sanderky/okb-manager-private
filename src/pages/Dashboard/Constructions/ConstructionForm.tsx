@@ -11,13 +11,21 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import dayjs, { type Dayjs } from 'dayjs';
 import type { Construction } from '../../../types';
 import Alert from '@mui/material/Alert';
-import { Divider, FormControlLabel, Switch, Typography } from '@mui/material';
-import { useEffect, useState } from 'react';
+import {
+  Autocomplete,
+  Divider,
+  FormControlLabel,
+  Switch,
+  Typography,
+} from '@mui/material';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { NoteBase } from '../../../components/Note';
 import { plPL } from '@mui/x-date-pickers/locales';
+import { getConstructionList } from '../../../api/constructions';
+import { useQuery } from '@tanstack/react-query';
 
 export interface ConstructionFormState {
   values: Partial<Omit<Construction, 'id'>>;
@@ -61,6 +69,21 @@ export default function ConstructionForm(props: ConstructionFormProps) {
     submitError,
     isEditForm,
   } = props;
+
+  const { data: constructions } = useQuery({
+    queryKey: ['constructions'],
+    queryFn: () => getConstructionList(),
+  });
+
+  const contractorOptions = useMemo(() => {
+    if (!constructions || constructions.length === 0) return [];
+
+    const contractors = constructions.flatMap((construction) =>
+      construction.contractor ? [construction.contractor] : []
+    );
+
+    return [...new Set(contractors)];
+  }, [constructions]);
 
   const formValues = formState.values;
   const formErrors = formState.errors;
@@ -179,22 +202,45 @@ export default function ConstructionForm(props: ConstructionFormProps) {
             <Grid container columns={12} spacing={{ xs: 2 }}>
               {constructionFields.map(({ key, label, type, required }) => (
                 <Grid size={{ xs: 12, md: 6 }} key={key}>
-                  <TextField
-                    size="small"
-                    required={required}
-                    fullWidth
-                    label={label}
-                    type={type}
-                    value={formValues[key] ?? ''}
-                    onChange={(e) => handleFieldChange(key, e.target.value)}
-                    name={key}
-                    error={Boolean(formErrors[key])}
-                    helperText={formErrors[key]}
-                    inputRef={(el) => {
-                      if (props.registerFieldRef)
-                        props.registerFieldRef(key as string, el);
-                    }}
-                  />
+                  {key === 'contractor' ? (
+                    <Autocomplete
+                      onInputChange={(_, newVal) =>
+                        handleFieldChange(key, newVal)
+                      }
+                      autoComplete={false}
+                      inputValue={formValues[key] ?? ''}
+                      freeSolo
+                      size="small"
+                      options={contractorOptions ?? []}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          size="small"
+                          fullWidth
+                          label={label}
+                          name={key}
+                          helperText={formErrors[key]}
+                        />
+                      )}
+                    />
+                  ) : (
+                    <TextField
+                      size="small"
+                      required={required}
+                      fullWidth
+                      label={label}
+                      type={type}
+                      value={formValues[key] ?? ''}
+                      onChange={(e) => handleFieldChange(key, e.target.value)}
+                      name={key}
+                      error={Boolean(formErrors[key])}
+                      helperText={formErrors[key]}
+                      inputRef={(el) => {
+                        if (props.registerFieldRef)
+                          props.registerFieldRef(key as string, el);
+                      }}
+                    />
+                  )}
                 </Grid>
               ))}
               {!isEditForm && (
