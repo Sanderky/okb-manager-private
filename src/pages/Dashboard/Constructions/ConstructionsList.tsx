@@ -48,7 +48,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import { plPL } from '@mui/x-date-pickers/locales';
 import { getEmployeesByScheduledConstruction } from '../../../api/schedules';
 
-interface Filters {
+interface ConstructionsFilters {
   name: string;
   contractor: string;
   location: string;
@@ -61,6 +61,21 @@ interface Filters {
   employeeCountMax: string;
 }
 
+const DefaultFiltersState: ConstructionsFilters = {
+  name: '',
+  contractor: '',
+  location: '',
+  startDateFrom: null,
+  startDateTo: null,
+  endDateFrom: null,
+  endDateTo: null,
+  status: 'true',
+  employeeCountMin: '',
+  employeeCountMax: '',
+};
+
+const DefaultColumnFilters = [{ id: 'status', value: 'true' }];
+
 export default function ConstructionsList() {
   const navigate = useNavigate();
   const {
@@ -71,23 +86,23 @@ export default function ConstructionsList() {
     resetState,
     pagination,
     setPagination,
-  } = useTableState('constructions');
+    columnFilters,
+    setColumnFilters,
+  } = useTableState('constructions', DefaultColumnFilters);
 
   const [filtersModalOpen, setFiltersModalOpen] = useState(false);
-  const [filtersActive, setFiltersActive] = useState(false);
 
-  const [filters, setFilters] = useState<Filters>({
-    name: '',
-    contractor: '',
-    location: '',
-    startDateFrom: null,
-    startDateTo: null,
-    endDateFrom: null,
-    endDateTo: null,
-    status: 'true',
-    employeeCountMin: '',
-    employeeCountMax: '',
-  });
+  const [filters, setFilters] =
+    useState<ConstructionsFilters>(DefaultFiltersState);
+
+  const isFilterActive = useMemo(() => {
+    if (columnFilters.length > 0) {
+      return (
+        JSON.stringify(columnFilters) !== JSON.stringify(DefaultColumnFilters)
+      );
+    }
+    return false;
+  }, [columnFilters]);
 
   const {
     data: constructions,
@@ -152,7 +167,6 @@ export default function ConstructionsList() {
 
   const handleApplyFilters = () => {
     const columnFilters = [];
-    setFiltersActive(true);
 
     if (filters.name) {
       columnFilters.push({ id: 'name', value: filters.name });
@@ -198,26 +212,14 @@ export default function ConstructionsList() {
       });
     }
 
-    table.setColumnFilters(columnFilters);
+    setColumnFilters(columnFilters);
     handleCloseFilters();
   };
 
   const handleResetFilters = () => {
-    setFiltersActive(false);
-
-    setFilters({
-      name: '',
-      contractor: '',
-      location: '',
-      startDateFrom: null,
-      startDateTo: null,
-      endDateFrom: null,
-      endDateTo: null,
-      status: '',
-      employeeCountMin: '',
-      employeeCountMax: '',
-    });
-    table.setColumnFilters([]);
+    setFilters(DefaultFiltersState);
+    setColumnFilters(DefaultColumnFilters);
+    handleCloseFilters();
   };
 
   const dateBetweenFilterFn = (
@@ -402,9 +404,9 @@ export default function ConstructionsList() {
         'startDate',
         'endDate',
       ],
-      columnFilters: [{ id: 'status', value: 'true' }],
     },
     state: {
+      columnFilters,
       columnVisibility,
       density,
       isLoading: isLoading,
@@ -421,7 +423,7 @@ export default function ConstructionsList() {
         <Tooltip title="Filtry">
           <Badge
             variant="dot"
-            badgeContent={filtersActive ? 1 : 0}
+            badgeContent={isFilterActive ? 1 : 0}
             color="primary"
           >
             <IconButton onClick={handleOpenFilters}>

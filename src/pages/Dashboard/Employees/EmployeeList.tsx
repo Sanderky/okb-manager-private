@@ -48,7 +48,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import { useEmployeeAlert } from '../../../context/EmployeeAlertContext';
 import { plPL } from '@mui/x-date-pickers/locales';
 
-interface EmployeeFilters {
+interface EmployeesFilters {
   name: string;
   email: string;
   phone: string;
@@ -71,6 +71,31 @@ interface EmployeeFilters {
   status: string;
 }
 
+const DefaultFiltersState: EmployeesFilters = {
+  name: '',
+  email: '',
+  phone: '',
+  address: '',
+  pesel: '',
+  birthPlace: '',
+  hourRateFrom: '',
+  hourRateTo: '',
+  birthDateFrom: null,
+  birthDateTo: null,
+  isContractor: '',
+  contractStartDateFrom: null,
+  contractStartDateTo: null,
+  contractEndDateFrom: null,
+  contractEndDateTo: null,
+  a1StartDateFrom: null,
+  a1StartDateTo: null,
+  a1EndDateFrom: null,
+  a1EndDateTo: null,
+  status: 'true',
+};
+
+const DefaultColumnFilters = [{ id: 'status', value: 'true' }];
+
 export default function EmployeeList() {
   const navigate = useNavigate();
   const {
@@ -81,34 +106,23 @@ export default function EmployeeList() {
     resetState,
     pagination,
     setPagination,
+    columnFilters,
+    setColumnFilters,
   } = useTableState('employees');
 
   const { getEmployeeAlerts } = useEmployeeAlert();
 
   const [filtersModalOpen, setFiltersModalOpen] = useState(false);
-  const [filtersActive, setFiltersActive] = useState(false);
-  const [filters, setFilters] = useState<EmployeeFilters>({
-    name: '',
-    email: '',
-    phone: '',
-    address: '',
-    pesel: '',
-    birthPlace: '',
-    hourRateFrom: '',
-    hourRateTo: '',
-    birthDateFrom: null,
-    birthDateTo: null,
-    isContractor: '',
-    contractStartDateFrom: null,
-    contractStartDateTo: null,
-    contractEndDateFrom: null,
-    contractEndDateTo: null,
-    a1StartDateFrom: null,
-    a1StartDateTo: null,
-    a1EndDateFrom: null,
-    a1EndDateTo: null,
-    status: 'true',
-  });
+  const [filters, setFilters] = useState<EmployeesFilters>(DefaultFiltersState);
+
+  const isFilterActive = useMemo(() => {
+    if (columnFilters.length > 0) {
+      return (
+        JSON.stringify(columnFilters) !== JSON.stringify(DefaultColumnFilters)
+      );
+    }
+    return false;
+  }, [columnFilters]);
 
   const {
     data: employees,
@@ -140,7 +154,6 @@ export default function EmployeeList() {
   };
 
   const handleApplyFilters = () => {
-    setFiltersActive(true);
     const columnFilters = [];
 
     if (filters.name) {
@@ -216,36 +229,16 @@ export default function EmployeeList() {
     if (filters.status) {
       columnFilters.push({ id: 'status', value: filters.status });
     }
-
-    table.setColumnFilters(columnFilters);
+    // table.setColumnFilters(columnFilters);
+    setColumnFilters(columnFilters);
+    console.log(columnFilters);
     handleCloseFilters();
   };
 
   const handleResetFilters = () => {
-    setFilters({
-      name: '',
-      email: '',
-      phone: '',
-      address: '',
-      pesel: '',
-      birthPlace: '',
-      hourRateFrom: '',
-      hourRateTo: '',
-      birthDateFrom: null,
-      birthDateTo: null,
-      isContractor: '',
-      contractStartDateFrom: null,
-      contractStartDateTo: null,
-      contractEndDateFrom: null,
-      contractEndDateTo: null,
-      a1StartDateFrom: null,
-      a1StartDateTo: null,
-      a1EndDateFrom: null,
-      a1EndDateTo: null,
-      status: '',
-    });
-    table.setColumnFilters([]);
-    setFiltersActive(false);
+    setFilters(DefaultFiltersState);
+    setColumnFilters(DefaultColumnFilters);
+    handleCloseFilters();
   };
 
   const dateBetweenFilterFn = (
@@ -426,7 +419,7 @@ export default function EmployeeList() {
         accessorFn: (row) => row.status,
         filterVariant: 'select',
         filterSelectOptions: [
-          { label: 'Aaktywni', value: 'true' },
+          { label: 'Aktywni', value: 'true' },
           { label: 'Nieaktywni', value: 'false' },
           { label: 'Wszyscy', value: '' },
         ],
@@ -484,7 +477,6 @@ export default function EmployeeList() {
         'a1StartDate',
         'a1EndDate',
       ],
-      columnFilters: [{ id: 'status', value: 'true' }],
       columnVisibility: {
         address: false,
         birthDate: false,
@@ -494,6 +486,7 @@ export default function EmployeeList() {
       },
     },
     state: {
+      columnFilters,
       columnVisibility,
       density,
       isLoading: isLoading,
@@ -506,6 +499,7 @@ export default function EmployeeList() {
         },
       },
     },
+    onColumnFiltersChange: setColumnFilters,
     onPaginationChange: setPagination,
     onColumnVisibilityChange: setColumnVisibility,
     onDensityChange: setDensity,
@@ -517,7 +511,7 @@ export default function EmployeeList() {
         <Tooltip title="Filtry">
           <Badge
             variant="dot"
-            badgeContent={filtersActive ? 1 : 0}
+            badgeContent={isFilterActive ? 1 : 0}
             color="primary"
           >
             <IconButton onClick={handleOpenFilters}>

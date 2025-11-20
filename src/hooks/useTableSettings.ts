@@ -11,9 +11,17 @@ interface PaginationState {
   pageSize: number;
 }
 
+interface ColumnFilter {
+  id: string;
+  value: any;
+}
+
 const DensityDefault: MRT_DensityState = 'compact';
 
-export const useTableState = (tableName: string) => {
+export const useTableState = (
+  tableName: string,
+  defaultFilters: ColumnFilter[] = []
+) => {
   const [columnVisibility, setColumnVisibility] = useState<MRT_VisibilityState>(
     {}
   );
@@ -22,6 +30,8 @@ export const useTableState = (tableName: string) => {
     pageIndex: 0,
     pageSize: 10,
   });
+  const [columnFilters, setColumnFilters] =
+    useState<ColumnFilter[]>(defaultFilters);
   const [isLoading, setIsLoading] = useState(true);
 
   const isInitialLoad = useRef(true);
@@ -37,6 +47,7 @@ export const useTableState = (tableName: string) => {
           setPagination(
             preferences.pagination || { pageIndex: 0, pageSize: 10 }
           );
+          setColumnFilters(preferences.columnFilters || []);
         }
       } catch (error) {
         console.error(
@@ -61,6 +72,7 @@ export const useTableState = (tableName: string) => {
           columnVisibility,
           density,
           pagination,
+          columnFilters,
           lastUpdated: new Date().toISOString(),
         };
         localStorage.setItem(
@@ -77,7 +89,14 @@ export const useTableState = (tableName: string) => {
 
     const timeoutId = setTimeout(savePreferences, 300);
     return () => clearTimeout(timeoutId);
-  }, [columnVisibility, density, pagination, tableName, isLoading]);
+  }, [
+    columnVisibility,
+    density,
+    pagination,
+    columnFilters,
+    tableName,
+    isLoading,
+  ]);
 
   const handleSetColumnVisibility = (
     visibility: React.SetStateAction<MRT_VisibilityState>
@@ -107,10 +126,19 @@ export const useTableState = (tableName: string) => {
     });
   };
 
+  const handleSetColumnFilters = (
+    filters: React.SetStateAction<ColumnFilter[]>
+  ) => {
+    setColumnFilters((prev) => {
+      return typeof filters === 'function' ? filters(prev) : filters;
+    });
+  };
+
   const resetState = () => {
     setColumnVisibility({});
     setDensity(DensityDefault);
     setPagination({ pageIndex: 0, pageSize: 10 });
+    setColumnFilters([]);
     localStorage.removeItem(`table-preferences-${tableName}`);
   };
 
@@ -118,14 +146,17 @@ export const useTableState = (tableName: string) => {
     setColumnVisibility: handleSetColumnVisibility,
     setDensity: handleSetDensity,
     setPagination: handleSetPagination,
+    setColumnFilters: handleSetColumnFilters,
     columnVisibility,
     density,
     pagination,
+    columnFilters,
     resetState,
     isLoading,
     isError: false,
   };
 };
+
 export const useTableStateFirebase = (tableName: string) => {
   const userId = auth.currentUser?.uid;
 
