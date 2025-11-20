@@ -46,6 +46,7 @@ import {
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import CloseIcon from '@mui/icons-material/Close';
 import { plPL } from '@mui/x-date-pickers/locales';
+import { getEmployeesByScheduledConstruction } from '../../../api/schedules';
 
 interface Filters {
   name: string;
@@ -56,6 +57,8 @@ interface Filters {
   endDateFrom: Dayjs | null;
   endDateTo: Dayjs | null;
   status: string;
+  employeeCountMin: string;
+  employeeCountMax: string;
 }
 
 export default function ConstructionsList() {
@@ -82,11 +85,50 @@ export default function ConstructionsList() {
     endDateFrom: null,
     endDateTo: null,
     status: '',
+    employeeCountMin: '',
+    employeeCountMax: '',
   });
 
-  const { data, isLoading, error, refetch } = useQuery({
+  const {
+    data: constructions,
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
     queryKey: ['constructions'],
     queryFn: () => getConstructionList(),
+  });
+
+  const { data: employeesData } = useQuery({
+    queryKey: ['constructionEmployees'],
+    queryFn: async () => {
+      if (!constructions) return {};
+
+      const employeeCounts: Record<string, number> = {};
+
+      const consIds: string[] = constructions.map((c) => c.id);
+
+      const employeesByConstruction = await getEmployeesByScheduledConstruction(
+        consIds,
+        dayjs().toDate()
+      );
+
+      employeesByConstruction.forEach((item) => {
+        const activeEmployees = item.employees.filter(
+          (employee) => employee.status
+        );
+        employeeCounts[item.constructionId] = activeEmployees.length;
+      });
+
+      constructions.forEach((construction) => {
+        if (employeeCounts[construction.id] === undefined) {
+          employeeCounts[construction.id] = 0;
+        }
+      });
+
+      return employeeCounts;
+    },
+    enabled: !!constructions,
   });
 
   const handleCreateClick = React.useCallback(() => {
@@ -142,6 +184,20 @@ export default function ConstructionsList() {
       columnFilters.push({ id: 'status', value: filters.status });
     }
 
+    if (filters.employeeCountMin || filters.employeeCountMax) {
+      columnFilters.push({
+        id: 'employeeCount',
+        value: {
+          min: filters.employeeCountMin
+            ? parseInt(filters.employeeCountMin)
+            : null,
+          max: filters.employeeCountMax
+            ? parseInt(filters.employeeCountMax)
+            : null,
+        },
+      });
+    }
+
     table.setColumnFilters(columnFilters);
     handleCloseFilters();
   };
@@ -158,6 +214,8 @@ export default function ConstructionsList() {
       endDateFrom: null,
       endDateTo: null,
       status: '',
+      employeeCountMin: '',
+      employeeCountMax: '',
     });
     table.setColumnFilters([]);
   };
@@ -187,7 +245,31 @@ export default function ConstructionsList() {
     return true;
   };
 
-  const columns = useMemo<MRT_ColumnDef<Construction>[]>(
+  const employeeCountFilterFn = (
+    row: any,
+    columnId: string,
+    filterValue: any
+  ) => {
+    if (!filterValue || typeof filterValue !== 'object') return true;
+
+    const { min, max } = filterValue;
+    const rowValue = row.getValue(columnId);
+    const employeeCount = rowValue || 0;
+
+    if (min !== null && max !== null) {
+      return employeeCount >= min && employeeCount <= max;
+    } else if (min !== null) {
+      return employeeCount >= min;
+    } else if (max !== null) {
+      return employeeCount <= max;
+    }
+
+    return true;
+  };
+
+  const columns = useMemo<
+    MRT_ColumnDef<Construction & { employeeCount?: number }>[]
+  >(
     () => [
       {
         accessorKey: 'name',
@@ -236,6 +318,28 @@ export default function ConstructionsList() {
         maxSize: 140,
       },
       {
+        id: 'employeeCount',
+        header: 'Pracownicy dziś',
+        accessorFn: (row) => employeesData?.[row.id] || 0,
+        filterVariant: 'range',
+        filterFn: employeeCountFilterFn,
+        Cell: ({ cell }) => {
+          const count = cell.getValue<number>();
+          return (
+            <Box
+              component="span"
+              className={`rounded-full px-2 py-1 font-medium ${
+                count > 0
+                  ? 'bg-green-100 text-green-800'
+                  : 'bg-gray-100 text-gray-600'
+              }`}
+            >
+              {count}
+            </Box>
+          );
+        },
+      },
+      {
         id: 'status',
         header: 'Status',
         accessorFn: (row) => row.status,
@@ -264,7 +368,7 @@ export default function ConstructionsList() {
         ),
       },
     ],
-    []
+    [employeesData]
   );
 
   const localization = React.useMemo(
@@ -272,7 +376,14 @@ export default function ConstructionsList() {
     []
   );
 
-  const tableData = useMemo(() => data || [], [data]);
+  const tableData = useMemo(() => {
+    if (!constructions) return [];
+
+    return constructions.map((construction) => ({
+      ...construction,
+      employeeCount: employeesData?.[construction.id] || 0,
+    }));
+  }, [constructions, employeesData]);
 
   const table = useMaterialReactTable({
     localization,
@@ -285,6 +396,7 @@ export default function ConstructionsList() {
         'mrt-row-numbers',
         'name',
         'status',
+        'employeeCount',
         'contractor',
         'location',
         'startDate',
@@ -640,6 +752,50 @@ export default function ConstructionsList() {
                       <MenuItem value="false">Zakończone</MenuItem>
                     </Select>
                   </FormControl>
+                </Grid>
+
+                {/* Nowy filtr: Liczba pracowników */}
+                <Grid size={{ xs: 12 }}>
+                  <Typography
+                    variant="subtitle1"
+                    sx={{ mb: 2, fontWeight: 600 }}
+                  >
+                    Liczba pracowników na budowie dziś
+                  </Typography>
+                </Grid>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <FormLabel className="mb-2 block">Minimalna liczba</FormLabel>
+                  <TextField
+                    size="small"
+                    fullWidth
+                    type="number"
+                    value={filters.employeeCountMin}
+                    onChange={(e) =>
+                      setFilters({
+                        ...filters,
+                        employeeCountMin: e.target.value,
+                      })
+                    }
+                    inputProps={{ min: 0 }}
+                  />
+                </Grid>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <FormLabel className="mb-2 block">
+                    Maksymalna liczba
+                  </FormLabel>
+                  <TextField
+                    size="small"
+                    fullWidth
+                    type="number"
+                    value={filters.employeeCountMax}
+                    onChange={(e) =>
+                      setFilters({
+                        ...filters,
+                        employeeCountMax: e.target.value,
+                      })
+                    }
+                    inputProps={{ min: 0 }}
+                  />
                 </Grid>
               </Grid>
             </DialogContent>

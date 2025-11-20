@@ -57,62 +57,93 @@ export const updateSchedule = async (
 };
 
 export const getEmployeesByScheduledConstruction = async (
-  constructionId: string,
+  constructionIds: string[],
   date: Date
-): Promise<Employee[]> => {
+): Promise<{ constructionId: string; employees: Employee[] }[]> => {
   const weekStart = dayjs(date).startOf('week');
   const weekStartTimestamp = Timestamp.fromDate(weekStart.toDate());
+  const targetDate = dayjs(date);
 
   const schedulesQuery = query(
     collection(db, 'schedules'),
-    where('constructions', 'array-contains', constructionId),
     where('weekStart', '==', weekStartTimestamp)
   );
 
   const querySnapshot = await getDocs(schedulesQuery);
 
-  const employeeIds = querySnapshot.docs
-    .filter((doc) => {
-      const data = doc.data();
-      const weekStart = dayjs(data.weekStart.toDate());
-      const targetDate = dayjs(date);
-      const dayIndex = targetDate.diff(weekStart, 'day');
+  const constructionEmployeeMap: Record<string, Set<string>> = {};
+  const allEmployeeIds = new Set<string>();
 
-      return data.constructions?.[dayIndex] === constructionId;
-    })
-    .map((doc) => doc.data().employeeId);
+  constructionIds.forEach((cid) => {
+    constructionEmployeeMap[cid] = new Set();
+  });
 
-  const uniqueEmployeeIds = [...new Set(employeeIds)];
+  querySnapshot.docs.forEach((doc) => {
+    const data = doc.data();
+    const scheduleWeekStart = dayjs(data.weekStart.toDate());
+    const dayIndex = targetDate.diff(scheduleWeekStart, 'day');
+    const todayConstructionId = data.constructions?.[dayIndex];
 
-  if (uniqueEmployeeIds.length === 0) return [];
+    if (todayConstructionId && constructionEmployeeMap[todayConstructionId]) {
+      constructionEmployeeMap[todayConstructionId].add(data.employeeId);
+      allEmployeeIds.add(data.employeeId);
+    }
+  });
 
-  const employeesQuery = query(
-    collection(db, 'employees'),
-    // where('status', '==', true),
-    where(documentId(), 'in', uniqueEmployeeIds)
+  if (allEmployeeIds.size === 0) {
+    return constructionIds.map((cid) => ({
+      constructionId: cid,
+      employees: [],
+    }));
+  }
+
+  const uniqueEmployeeIds = Array.from(allEmployeeIds);
+
+  const [employeesSnapshot, vacationSnapshot] = await Promise.all([
+    getDocs(
+      query(
+        collection(db, 'employees'),
+        where(documentId(), 'in', uniqueEmployeeIds)
+      )
+    ),
+    getDocs(
+      query(
+        collection(db, 'vacations'),
+        where(
+          'date',
+          '==',
+          Timestamp.fromDate(dayjs(date).startOf('day').toDate())
+        ),
+        where('employeeId', 'in', uniqueEmployeeIds)
+      )
+    ),
+  ]);
+
+  const employeesMap = new Map(
+    employeesSnapshot.docs.map((doc) => [
+      doc.id,
+      { id: doc.id, ...doc.data() } as Employee,
+    ])
   );
-  const employeesSnapshot = await getDocs(employeesQuery);
 
-  const current = dayjs(date).startOf('day').toDate();
-  const vacationQuery = query(
-    collection(db, 'vacations'),
-    where('date', '==', Timestamp.fromDate(current)),
-    where('employeeId', 'in', uniqueEmployeeIds)
+  const vacationEmployeeIds = new Set(
+    vacationSnapshot.docs.map((doc) => doc.data().employeeId)
   );
 
-  const vacationSnapshot = await getDocs(vacationQuery);
-  const vacationEmployeeIds = vacationSnapshot.docs.map(
-    (doc) => doc.data().employeeId
-  );
+  const result = constructionIds.map((cid) => {
+    const employeeIds = Array.from(constructionEmployeeMap[cid] || []);
 
-  const employeesOnConstruction = employeesSnapshot.docs
-    .filter((doc) => !vacationEmployeeIds.includes(doc.id))
-    .map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    })) as Employee[];
+    const employees = employeeIds
+      .filter((id) => !vacationEmployeeIds.has(id) && employeesMap.has(id))
+      .map((id) => employeesMap.get(id)!);
 
-  return employeesOnConstruction;
+    return {
+      constructionId: cid,
+      employees,
+    };
+  });
+
+  return result;
 };
 
 export const removeEmployeeSchedules = async (

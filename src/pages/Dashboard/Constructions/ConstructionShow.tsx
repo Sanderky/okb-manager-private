@@ -93,7 +93,7 @@ export default function ConstructionShow() {
   } = useQuery({
     queryKey: ['employeesByConstruction', constructionId],
     queryFn: () =>
-      getEmployeesByScheduledConstruction(constructionId!, dayjs().toDate()),
+      getEmployeesByScheduledConstruction([constructionId!], dayjs().toDate()),
     enabled: !!constructionId,
   });
 
@@ -243,7 +243,11 @@ export default function ConstructionShow() {
   }, [updateStatusMutation, notifications]);
 
   const activeScheduleEmployees = useMemo(() => {
-    return scheduleEmployees?.filter((e) => e.status);
+    if (scheduleEmployees) {
+      return scheduleEmployees[0].employees?.filter((e) => e.status);
+    } else {
+      return [];
+    }
   }, [scheduleEmployees]);
 
   const error = errorConstruction || errorScheduleEmployees;
@@ -499,7 +503,7 @@ export default function ConstructionShow() {
                       >
                         <PeopleIcon />
                         <Typography variant="subtitle2" fontWeight="600">
-                          Pracownicy na budowie (
+                          Pracownicy na budowie dziś (
                           {activeScheduleEmployees?.length}):
                         </Typography>
                       </Stack>
