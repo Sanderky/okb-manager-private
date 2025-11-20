@@ -103,3 +103,10 @@ export interface WorkHours {
   weekStart: Date;
   hours: number[];
 }
+
+export interface AlertsSettings {
+  a1Warning: number;
+  a1Critical: number;
+  contractWarning: number;
+  contractCritical: number;
+}

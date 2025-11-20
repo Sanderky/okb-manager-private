@@ -10,7 +10,7 @@ import { useNavigate, useParams } from 'react-router';
 import PageContainer from '../../../components/PageContainer';
 import Loading from '../../../components/Loading';
 
-import { type Employee, type FileItem } from '../../../types';
+import { type AlertsSettings, type Employee, type FileItem } from '../../../types';
 import { getEmployee, updateEmployee } from '../../../api/employees';
 
 import EditIcon from '@mui/icons-material/Edit';
@@ -37,7 +37,6 @@ import { PreviewDialog } from '../../../components/fileBrowser/FilePreviewDialog
 import { handleDownloadAttachment } from './EmployeeEditHelpers';
 
 import FirebaseFileBrowser from '../../../components/fileBrowser/FileBrowser';
-import { EmployeeAlertRange } from '../../../hooks/useEmployeeAlert';
 import { getUpcomingVacationsForEmployee } from '../../../api/vacations';
 
 import useLoading from '../../../hooks/useLoading';
@@ -46,6 +45,8 @@ import { Note } from '../../../components/Note';
 import { useScroll } from '../../../context/ScrollContext';
 import { getDownloadURL, ref } from 'firebase/storage';
 import { storage } from '../../../firebase';
+import { fetchAlertsSettings } from '../../../api/settings';
+import { EmployeeAlertDefault } from '../../../hooks/useEmployeeAlert';
 
 const personalFields = [
   { key: 'name', label: 'Imię i nazwisko' },
@@ -73,7 +74,8 @@ const a1Fields = [
 const generateDateBox = (
   key: keyof Employee,
   label: string,
-  employeeData: Employee | null
+  employeeData: Employee | null,
+  alertsSettings: AlertsSettings
 ) => {
   if (!employeeData) return null;
 
@@ -104,11 +106,11 @@ const generateDateBox = (
       const daysDiff = endDate.diff(today, 'day');
       const itemName = isA1EndDate ? 'A1' : 'Umowa';
       const warningRange = isA1EndDate
-        ? EmployeeAlertRange.a1.warning
-        : EmployeeAlertRange.contract.warning;
+        ? alertsSettings.a1Warning
+        : alertsSettings.contractWarning;
       const criticalRange = isA1EndDate
-        ? EmployeeAlertRange.a1.critical
-        : EmployeeAlertRange.contract.critical;
+        ? alertsSettings.a1Critical
+        : alertsSettings.contractCritical;
 
       if (Math.abs(daysDiff) === 1) dayWord = 'dzień';
 
@@ -235,6 +237,13 @@ export default function EmployeeShow() {
     queryFn: () => getUpcomingVacationsForEmployee(employeeId!),
     enabled: !!employeeId,
   });
+
+  const {
+        data: alertsSettings,
+      } = useQuery({
+        queryKey: ['alertsSettings'],
+        queryFn: fetchAlertsSettings,
+      });
 
   useEffect(() => {
     if (employee) {
@@ -560,7 +569,7 @@ export default function EmployeeShow() {
 
                   <Grid container spacing={2}>
                     {contractFields.map(({ key, label }) => {
-                      return generateDateBox(key, label, employee);
+                      return generateDateBox(key, label, employee, alertsSettings ?? EmployeeAlertDefault);
                     })}
                   </Grid>
                 </Box>
@@ -589,7 +598,7 @@ export default function EmployeeShow() {
                   />
                   <Grid container spacing={2}>
                     {a1Fields.map(({ key, label }) => {
-                      return generateDateBox(key, label, employee);
+                      return generateDateBox(key, label, employee, alertsSettings ?? EmployeeAlertDefault);
                     })}
                   </Grid>
                 </Box>
@@ -619,6 +628,7 @@ export default function EmployeeShow() {
     employeeVacation,
     handleBack,
     handleOpenPreview,
+    alertsSettings
   ]);
 
   const pageTitle = employee?.name || 'Szczegóły Pracownika';

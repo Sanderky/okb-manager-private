@@ -3,21 +3,19 @@ import dayjs from 'dayjs';
 import { useEffect } from 'react';
 import { getEmployeeList } from '../api/employees';
 import { useEmployeeAlert } from '../context/EmployeeAlertContext';
-import type { Employee, EmployeeAlertSeverity } from '../types';
+import type { AlertsSettings, Employee, EmployeeAlertSeverity } from '../types';
+import { fetchAlertsSettings } from '../api/settings';
 
-export const EmployeeAlertRange = {
-  a1: {
-    warning: 30,
-    critical: 14,
-  },
-  contract: {
-    warning: 7,
-    critical: 2,
-  },
+export const EmployeeAlertDefault = {
+  a1Warning: 30,
+  a1Critical: 14,
+  contractWarning: 7,
+  contractCritical: 2,
 };
 
 const generateAgreementAlert = (
-  employee: Employee
+  employee: Employee,
+  alertsSettings: AlertsSettings
 ): {
   severity: EmployeeAlertSeverity;
   title: string;
@@ -50,14 +48,14 @@ const generateAgreementAlert = (
       };
     }
 
-    if (daysDiff <= EmployeeAlertRange.contract.critical) {
+    if (daysDiff <= alertsSettings.contractCritical) {
       return {
         severity: 'error',
         title: `Pracownik ${employee.name}`,
         message: `Umowa kończy się za ${daysDiff} ${dayWord}.`,
       };
     }
-    if (daysDiff <= EmployeeAlertRange.contract.warning) {
+    if (daysDiff <= alertsSettings.contractWarning) {
       return {
         severity: 'warning',
         title: `Pracownik ${employee.name}`,
@@ -70,7 +68,8 @@ const generateAgreementAlert = (
 };
 
 const generateA1Alert = (
-  employee: Employee
+  employee: Employee,
+  alertsSettings: AlertsSettings
 ): {
   severity: EmployeeAlertSeverity;
   title: string;
@@ -100,14 +99,14 @@ const generateA1Alert = (
       };
     }
 
-    if (daysDiff <= EmployeeAlertRange.a1.critical) {
+    if (daysDiff <= alertsSettings.a1Critical) {
       return {
         severity: 'error',
         title: `Pracownik ${employee.name}`,
         message: `A1 kończy się za ${daysDiff} ${dayWord}.`,
       };
     }
-    if (daysDiff <= EmployeeAlertRange.a1.warning) {
+    if (daysDiff <= alertsSettings.a1Warning) {
       return {
         severity: 'warning',
         title: `Pracownik ${employee.name}`,
@@ -127,12 +126,23 @@ const useEmployeesAlert = () => {
     queryFn: () => getEmployeeList(),
   });
 
+  const { data: alertsSettings } = useQuery({
+    queryKey: ['alertsSettings'],
+    queryFn: fetchAlertsSettings,
+  });
+
   useEffect(() => {
     if (employees) {
       resetAlerts();
       employees.forEach((employee) => {
-        const a1Alert = generateA1Alert(employee);
-        const agreementAlert = generateAgreementAlert(employee);
+        const a1Alert = generateA1Alert(
+          employee,
+          alertsSettings ?? EmployeeAlertDefault
+        );
+        const agreementAlert = generateAgreementAlert(
+          employee,
+          alertsSettings ?? EmployeeAlertDefault
+        );
 
         if (a1Alert)
           addAlert({
@@ -153,7 +163,7 @@ const useEmployeesAlert = () => {
           });
       });
     }
-  }, [employees]);
+  }, [employees, alertsSettings]);
 };
 
 export default useEmployeesAlert;
