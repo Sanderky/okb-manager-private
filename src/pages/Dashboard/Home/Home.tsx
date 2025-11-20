@@ -74,7 +74,7 @@ const EmployeeAlerts = () => {
       </Stack>
       <Box
         sx={{
-          maxHeight: isExpanded ? 'none' : 220,
+          maxHeight: isExpanded ? 'none' : hasMoreItems ? 265 : 230,
           overflow: 'auto',
         }}
       >
@@ -108,7 +108,7 @@ const EmployeeAlerts = () => {
         </List>
       </Box>
       {hasMoreItems && (
-        <Box sx={{ textAlign: 'center', mb: 1 }}>
+        <Box sx={{ textAlign: 'center', mb: 1}}>
           <IconButton
             onClick={toggleExpanded}
             size="small"
@@ -230,7 +230,7 @@ const UpcomingVacation = () => {
         <Box>
           <Box
             sx={{
-              maxHeight: isExpanded ? 'none' : 200,
+              maxHeight: isExpanded ? 'none' : 180,
               overflow: 'auto',
               position: 'relative',
             }}
