@@ -377,7 +377,7 @@ export default function EmployeeShow() {
                   }}
                 />
                 <Tab
-                  label="Pliki"
+                  label="Inne pliki"
                   sx={{
                     fontSize: { xs: '0.8rem', sm: '.85rem' },
                     padding: 2,
