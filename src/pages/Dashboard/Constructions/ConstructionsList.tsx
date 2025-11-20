@@ -737,6 +737,57 @@ export default function ConstructionsList() {
                 </Grid>
 
                 <Grid size={{ xs: 12, sm: 6 }}>
+                  <FormLabel className="mb-2 block">
+                    Liczba pracowników
+                  </FormLabel>
+                  <Stack
+                    direction={{
+                      xs: 'column',
+                      sm: 'row',
+                    }}
+                    alignItems={'center'}
+                    spacing={1}
+                  >
+                    <TextField
+                      size="small"
+                      fullWidth
+                      type="number"
+                      value={filters.employeeCountMin}
+                      onChange={(e) =>
+                        setFilters({
+                          ...filters,
+                          employeeCountMin: e.target.value,
+                        })
+                      }
+                      slotProps={{
+                        htmlInput: {
+                          min: 0,
+                        },
+                      }}
+                      label="Min."
+                    />
+                    <TextField
+                      size="small"
+                      fullWidth
+                      type="number"
+                      value={filters.employeeCountMax}
+                      onChange={(e) =>
+                        setFilters({
+                          ...filters,
+                          employeeCountMax: e.target.value,
+                        })
+                      }
+                      slotProps={{
+                        htmlInput: {
+                          min: 0,
+                        },
+                      }}
+                      label="Max."
+                    />
+                  </Stack>
+                </Grid>
+
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <FormControl fullWidth>
                     <FormLabel className="mb-2 block">Status</FormLabel>
                     <Select
@@ -752,50 +803,6 @@ export default function ConstructionsList() {
                       <MenuItem value="false">Zakończone</MenuItem>
                     </Select>
                   </FormControl>
-                </Grid>
-
-                {/* Nowy filtr: Liczba pracowników */}
-                <Grid size={{ xs: 12 }}>
-                  <Typography
-                    variant="subtitle1"
-                    sx={{ mb: 2, fontWeight: 600 }}
-                  >
-                    Liczba pracowników na budowie dziś
-                  </Typography>
-                </Grid>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <FormLabel className="mb-2 block">Minimalna liczba</FormLabel>
-                  <TextField
-                    size="small"
-                    fullWidth
-                    type="number"
-                    value={filters.employeeCountMin}
-                    onChange={(e) =>
-                      setFilters({
-                        ...filters,
-                        employeeCountMin: e.target.value,
-                      })
-                    }
-                    inputProps={{ min: 0 }}
-                  />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <FormLabel className="mb-2 block">
-                    Maksymalna liczba
-                  </FormLabel>
-                  <TextField
-                    size="small"
-                    fullWidth
-                    type="number"
-                    value={filters.employeeCountMax}
-                    onChange={(e) =>
-                      setFilters({
-                        ...filters,
-                        employeeCountMax: e.target.value,
-                      })
-                    }
-                    inputProps={{ min: 0 }}
-                  />
                 </Grid>
               </Grid>
             </DialogContent>
