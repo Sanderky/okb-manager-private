@@ -11,7 +11,14 @@ import MenuOpenIcon from '@mui/icons-material/MenuOpen';
 import Stack from '@mui/material/Stack';
 import { Link, useNavigate } from 'react-router';
 import { useAuth } from '../../context/AuthContext';
-import { Button, Divider, ListItemIcon, Menu, MenuItem } from '@mui/material';
+import {
+  Avatar,
+  Button,
+  Divider,
+  ListItemIcon,
+  Menu,
+  MenuItem,
+} from '@mui/material';
 
 import Logout from '@mui/icons-material/Logout';
 
@@ -221,22 +228,49 @@ export default function DashboardHeader({
                 transformOrigin={{ horizontal: 'right', vertical: 'top' }}
                 anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
               >
+                <Stack
+                  direction={'row'}
+                  alignItems={'center'}
+                  spacing={2}
+                  sx={{
+                    display: { sm: 'none' },
+                    px: 2,
+                    pb: 0.5,
+                  }}
+                >
+                  <Avatar sx={{ width: 20, height: 20 }} />{' '}
+                  <Typography
+                    variant="overline"
+                    sx={{
+                      textTransform: 'none',
+                    }}
+                    className="font-medium text-gray-500"
+                  >
+                    {user?.displayName ?? user?.email ?? 'Użytkownik'}
+                  </Typography>
+                </Stack>
+                <Divider
+                  sx={{
+                    display: { xs: 'block', sm: 'none' },
+                  }}
+                />
                 <MenuItem
                   onClick={handleClickOpenSettings}
-                  className="py-0"
-                  sx={{ minHeight: 24 }}
+                  sx={{ minHeight: 35 }}
+                  className="border-b-gray-200 sm:border-b"
                 >
                   <ListItemIcon>
                     <Settings fontSize="small" />
                   </ListItemIcon>
-                  Ustawienia
+                  Ustawienia konta
                 </MenuItem>
-                <Divider />
-                <MenuItem
-                  onClick={handleLogout}
-                  className="py-0"
-                  sx={{ minHeight: 24 }}
-                >
+                {/* <Divider
+                  sx={{
+                    m: 0,
+                    display: { xs: 'none', sm: 'block' },
+                  }}
+                /> */}
+                <MenuItem onClick={handleLogout} sx={{ minHeight: 35 }}>
                   <ListItemIcon>
                     <Logout fontSize="small" />
                   </ListItemIcon>
