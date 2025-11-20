@@ -84,7 +84,7 @@ export default function ConstructionsList() {
     startDateTo: null,
     endDateFrom: null,
     endDateTo: null,
-    status: '',
+    status: 'true',
     employeeCountMin: '',
     employeeCountMax: '',
   });
