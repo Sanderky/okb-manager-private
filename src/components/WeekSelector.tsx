@@ -60,7 +60,6 @@ interface WeekSelectorProps {
 const WeekSelector: React.FC<WeekSelectorProps> = ({
   value,
   onChange,
-  renderQuickActions = false,
   disabled = false,
 }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
@@ -318,31 +317,21 @@ const WeekSelector: React.FC<WeekSelectorProps> = ({
               </TableBody>
             </Table>
           </TableContainer>
+              <Stack direction={"row"} justifyContent={"flex-end"} mt={2}>
 
-          {renderQuickActions && (
-            <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
-              <Button
-                size="small"
-                variant="outlined"
-                fullWidth
-                onClick={() => {
-                  const today = new Date();
-                  setSelectedMonth(dayjs(today).startOf('month'));
-                  handleWeekSelect(getStartOfWeek(today));
-                }}
-              >
-                Bieżący tydzień
-              </Button>
-              <Button
-                size="small"
-                variant="outlined"
-                fullWidth
-                onClick={handleClose}
-              >
-                Anuluj
-              </Button>
-            </Box>
-          )}
+            <Button
+                  size="small"
+                  variant="text"
+                  // fullWidth
+                  onClick={() => {
+                    const today = new Date();
+                    setSelectedMonth(dayjs(today).startOf('month'));
+                    handleWeekSelect(getStartOfWeek(today));
+                  }}
+                >
+                  Bieżący tydzień
+                </Button>
+              </Stack>
         </Box>
       </Popover>
     </>
