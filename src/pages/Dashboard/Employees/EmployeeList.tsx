@@ -754,7 +754,7 @@ export default function EmployeeList() {
                   <TextField
                     size="small"
                     fullWidth
-                    value={filters.name}
+                    value={filters.name ?? ""}
                     onChange={(e) =>
                       setFilters({ ...filters, name: e.target.value })
                     }
@@ -765,7 +765,7 @@ export default function EmployeeList() {
                   <TextField
                     size="small"
                     fullWidth
-                    value={filters.email}
+                    value={filters.email ?? ""}
                     onChange={(e) =>
                       setFilters({ ...filters, email: e.target.value })
                     }
@@ -776,7 +776,7 @@ export default function EmployeeList() {
                   <TextField
                     size="small"
                     fullWidth
-                    value={filters.phone}
+                    value={filters.phone ?? ""}
                     onChange={(e) =>
                       setFilters({ ...filters, phone: e.target.value })
                     }
@@ -787,7 +787,7 @@ export default function EmployeeList() {
                   <TextField
                     size="small"
                     fullWidth
-                    value={filters.pesel}
+                    value={filters.pesel ?? ""}
                     onChange={(e) =>
                       setFilters({ ...filters, pesel: e.target.value })
                     }
@@ -798,7 +798,7 @@ export default function EmployeeList() {
                   <TextField
                     size="small"
                     fullWidth
-                    value={filters.address}
+                    value={filters.address ?? ""}
                     onChange={(e) =>
                       setFilters({ ...filters, address: e.target.value })
                     }
@@ -809,7 +809,7 @@ export default function EmployeeList() {
                     <FormLabel className="mb-2 block">Status</FormLabel>
                     <Select
                       size="small"
-                      value={filters.status ?? ''}
+                      value={filters.status ?? ""}
                       displayEmpty
                       onChange={(e) =>
                         setFilters({ ...filters, status: e.target.value })
@@ -826,7 +826,7 @@ export default function EmployeeList() {
                     <FormLabel className="mb-2 block">Kontraktor</FormLabel>
                     <Select
                       size="small"
-                      value={filters.isContractor ?? ''}
+                      value={filters.isContractor ?? ""}
                       displayEmpty
                       onChange={(e) =>
                         setFilters({ ...filters, isContractor: e.target.value })
@@ -852,7 +852,7 @@ export default function EmployeeList() {
                     <TextField
                       size="small"
                       type="number"
-                      value={filters.hourRateFrom}
+                      value={filters.hourRateFrom ?? ""}
                       label="Od"
                       onChange={(e) => {
                         setFilters({
@@ -873,7 +873,7 @@ export default function EmployeeList() {
                     </Typography>
                     <TextField
                       type="number"
-                      value={filters.hourRateTo}
+                      value={filters.hourRateTo ?? ""}
                       label="Do"
                       size="small"
                       onChange={(e) =>
@@ -892,7 +892,7 @@ export default function EmployeeList() {
                   <TextField
                     size="small"
                     fullWidth
-                    value={filters.birthPlace}
+                    value={filters.birthPlace ?? ""}
                     onChange={(e) =>
                       setFilters({ ...filters, birthPlace: e.target.value })
                     }

@@ -42,7 +42,6 @@ import {
   FormLabel,
   Alert,
   Badge,
-  InputAdornment,
   Autocomplete,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -634,7 +633,7 @@ export default function ConstructionsList() {
                   <TextField
                     size="small"
                     fullWidth
-                    value={filters.name}
+                    value={filters.name ?? ""}
                     onChange={(e) =>
                       setFilters({ ...filters, name: e.target.value })
                     }
@@ -661,7 +660,7 @@ export default function ConstructionsList() {
                   <TextField
                     size="small"
                     fullWidth
-                    value={filters.location}
+                    value={filters.location ?? ""}
                     onChange={(e) =>
                       setFilters({ ...filters, location: e.target.value })
                     }
@@ -824,7 +823,7 @@ export default function ConstructionsList() {
                       size="small"
                       fullWidth
                       type="number"
-                      value={filters.employeeCountMin}
+                      value={filters.employeeCountMin ?? ""}
                       onChange={(e) =>
                         setFilters({
                           ...filters,
@@ -842,7 +841,7 @@ export default function ConstructionsList() {
                       size="small"
                       fullWidth
                       type="number"
-                      value={filters.employeeCountMax}
+                      value={filters.employeeCountMax ?? ""}
                       onChange={(e) =>
                         setFilters({
                           ...filters,
