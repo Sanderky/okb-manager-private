@@ -42,11 +42,17 @@ import {
   FormLabel,
   Alert,
   Badge,
+  InputAdornment,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import CloseIcon from '@mui/icons-material/Close';
 import { plPL } from '@mui/x-date-pickers/locales';
 import { getEmployeesByScheduledConstruction } from '../../../api/schedules';
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
+
+dayjs.extend(isSameOrAfter);
+dayjs.extend(isSameOrBefore);
 
 interface ConstructionsFilters {
   name: string;
@@ -229,18 +235,24 @@ export default function ConstructionsList() {
     const [start, end] = filterValue;
     const rowValue = row.getValue(columnId);
 
-    if (!rowValue) return true;
+    if (!rowValue) return false;
 
     const rowDate = dayjs.isDayjs(rowValue) ? rowValue : dayjs(rowValue);
-    if (!rowDate.isValid()) return true;
+    if (!rowDate.isValid()) return false;
 
     const startDate = start ? dayjs(start).startOf('day') : null;
     const endDate = end ? dayjs(end).endOf('day') : null;
 
-    if (startDate && endDate)
-      return rowDate.isAfter(startDate) && rowDate.isBefore(endDate);
-    if (startDate) return rowDate.isAfter(startDate);
-    if (endDate) return rowDate.isBefore(endDate);
+    if (startDate && endDate) {
+      return (
+        rowDate.isSameOrAfter(startDate) && rowDate.isSameOrBefore(endDate)
+      );
+    } else if (startDate) {
+      return rowDate.isSameOrAfter(startDate);
+    } else if (endDate) {
+      return rowDate.isSameOrBefore(endDate);
+    }
+
     return true;
   };
 
@@ -658,7 +670,18 @@ export default function ConstructionsList() {
                         setFilters({ ...filters, startDateFrom: newValue })
                       }
                       slotProps={{
-                        textField: { fullWidth: true, size: 'small' },
+                        field: {
+                          clearable: true,
+                          onClear: () =>
+                            setFilters({
+                              ...filters,
+                              startDateFrom: null,
+                            }),
+                        },
+                        textField: {
+                          fullWidth: true,
+                          size: 'small',
+                        },
                       }}
                     />
                     <Typography
@@ -680,9 +703,20 @@ export default function ConstructionsList() {
                         setFilters({ ...filters, startDateTo: newValue })
                       }
                       slotProps={{
-                        textField: { fullWidth: true, size: 'small' },
+                        field: {
+                          clearable: true,
+                          onClear: () =>
+                            setFilters({
+                              ...filters,
+                              startDateTo: null,
+                            }),
+                        },
+                        textField: {
+                          fullWidth: true,
+                          size: 'small',
+                        },
                       }}
-                      minDate={dayjs(filters.startDateFrom) || null}
+                      minDate={filters.startDateFrom || undefined}
                     />
                   </Stack>
                 </Grid>
@@ -706,7 +740,18 @@ export default function ConstructionsList() {
                         setFilters({ ...filters, endDateFrom: newValue })
                       }
                       slotProps={{
-                        textField: { fullWidth: true, size: 'small' },
+                        field: {
+                          clearable: true,
+                          onClear: () =>
+                            setFilters({
+                              ...filters,
+                              endDateFrom: null,
+                            }),
+                        },
+                        textField: {
+                          fullWidth: true,
+                          size: 'small',
+                        },
                       }}
                     />
                     <Typography
@@ -728,9 +773,20 @@ export default function ConstructionsList() {
                         setFilters({ ...filters, endDateTo: newValue })
                       }
                       slotProps={{
-                        textField: { fullWidth: true, size: 'small' },
+                        field: {
+                          clearable: true,
+                          onClear: () =>
+                            setFilters({
+                              ...filters,
+                              endDateTo: null,
+                            }),
+                        },
+                        textField: {
+                          fullWidth: true,
+                          size: 'small',
+                        },
                       }}
-                      minDate={dayjs(filters.endDateFrom) || null}
+                      minDate={filters.endDateFrom || undefined}
                     />
                   </Stack>
                 </Grid>

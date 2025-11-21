@@ -48,6 +48,12 @@ import CloseIcon from '@mui/icons-material/Close';
 import { useEmployeeAlert } from '../../../context/EmployeeAlertContext';
 import { plPL } from '@mui/x-date-pickers/locales';
 
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
+
+dayjs.extend(isSameOrAfter);
+dayjs.extend(isSameOrBefore);
+
 interface EmployeesFilters {
   name: string;
   email: string;
@@ -187,7 +193,10 @@ export default function EmployeeList() {
     if (filters.hourRateFrom || filters.hourRateTo) {
       columnFilters.push({
         id: 'hourRate',
-        value: [filters.hourRateFrom, filters.hourRateTo],
+        value: {
+          min: filters.hourRateFrom ? parseFloat(filters.hourRateFrom) : null,
+          max: filters.hourRateTo ? parseFloat(filters.hourRateTo) : null,
+        },
       });
     }
 
@@ -226,9 +235,8 @@ export default function EmployeeList() {
     if (filters.status) {
       columnFilters.push({ id: 'status', value: filters.status });
     }
-    // table.setColumnFilters(columnFilters);
+
     setColumnFilters(columnFilters);
-    console.log(columnFilters);
     handleCloseFilters();
   };
 
@@ -248,18 +256,42 @@ export default function EmployeeList() {
     const [start, end] = filterValue;
     const rowValue = row.getValue(columnId);
 
-    if (!rowValue) return true;
+    if (!rowValue) return false;
 
     const rowDate = dayjs.isDayjs(rowValue) ? rowValue : dayjs(rowValue);
-    if (!rowDate.isValid()) return true;
+    if (!rowDate.isValid()) return false;
 
     const startDate = start ? dayjs(start).startOf('day') : null;
     const endDate = end ? dayjs(end).endOf('day') : null;
 
-    if (startDate && endDate)
-      return rowDate.isAfter(startDate) && rowDate.isBefore(endDate);
-    if (startDate) return rowDate.isAfter(startDate);
-    if (endDate) return rowDate.isBefore(endDate);
+    if (startDate && endDate) {
+      return (
+        rowDate.isSameOrAfter(startDate) && rowDate.isSameOrBefore(endDate)
+      );
+    } else if (startDate) {
+      return rowDate.isSameOrAfter(startDate);
+    } else if (endDate) {
+      return rowDate.isSameOrBefore(endDate);
+    }
+
+    return true;
+  };
+
+  const hourRateFilterFn = (row: any, columnId: string, filterValue: any) => {
+    if (!filterValue || typeof filterValue !== 'object') return true;
+
+    const { min, max } = filterValue;
+    const rowValue = row.getValue(columnId);
+    const hourRate = rowValue || 0;
+
+    if (min !== null && max !== null) {
+      return hourRate >= min && hourRate <= max;
+    } else if (min !== null) {
+      return hourRate >= min;
+    } else if (max !== null) {
+      return hourRate <= max;
+    }
+
     return true;
   };
 
@@ -300,13 +332,11 @@ export default function EmployeeList() {
         accessorKey: 'hourRate',
         header: 'Stawka',
         filterVariant: 'range',
-        filterFn: 'betweenInclusive',
+        filterFn: hourRateFilterFn,
         Cell: ({ cell }) => {
           const value = cell.getValue<number>();
           if (value === null || value === undefined) return '-';
           return value.toLocaleString('pl-PL', {
-            // minimumFractionDigits: 2,
-            // maximumFractionDigits: 2
             style: 'currency',
             currency: 'EUR',
           });
@@ -439,7 +469,7 @@ export default function EmployeeList() {
         ),
       },
     ],
-    []
+    [getEmployeeAlerts]
   );
 
   const localization = React.useMemo(
@@ -556,7 +586,6 @@ export default function EmployeeList() {
     muiTableBodyRowProps: ({ row }) => ({
       onClick: () => handleRowClick(row),
       sx: {
-        // height: '100%',
         cursor: 'pointer',
         '&:hover': {
           background: '#5fadff14 !important',
@@ -580,10 +609,6 @@ export default function EmployeeList() {
           sx: {
             borderLeft: 'none',
             padding: 0,
-            // height: '100%',
-            // '& .MuiBox-root': {
-            //   height: '100%',
-            // },
           },
         },
         size: 70,
@@ -866,7 +891,6 @@ export default function EmployeeList() {
                   <TextField
                     size="small"
                     fullWidth
-                    // placeholder="Miejsce urodzenia"
                     value={filters.birthPlace}
                     onChange={(e) =>
                       setFilters({ ...filters, birthPlace: e.target.value })
@@ -892,7 +916,18 @@ export default function EmployeeList() {
                         setFilters({ ...filters, birthDateFrom: newValue })
                       }
                       slotProps={{
-                        textField: { fullWidth: true, size: 'small' },
+                        field: {
+                          clearable: true,
+                          onClear: () =>
+                            setFilters({
+                              ...filters,
+                              birthDateFrom: null,
+                            }),
+                        },
+                        textField: {
+                          fullWidth: true,
+                          size: 'small',
+                        },
                       }}
                     />
                     <Typography
@@ -914,9 +949,20 @@ export default function EmployeeList() {
                         setFilters({ ...filters, birthDateTo: newValue })
                       }
                       slotProps={{
-                        textField: { fullWidth: true, size: 'small' },
+                        field: {
+                          clearable: true,
+                          onClear: () =>
+                            setFilters({
+                              ...filters,
+                              birthDateTo: null,
+                            }),
+                        },
+                        textField: {
+                          fullWidth: true,
+                          size: 'small',
+                        },
                       }}
-                      minDate={dayjs(filters.birthDateFrom) || null}
+                      minDate={filters.birthDateFrom || undefined}
                     />
                   </Stack>
                 </Grid>
@@ -945,7 +991,18 @@ export default function EmployeeList() {
                         })
                       }
                       slotProps={{
-                        textField: { fullWidth: true, size: 'small' },
+                        field: {
+                          clearable: true,
+                          onClear: () =>
+                            setFilters({
+                              ...filters,
+                              contractStartDateFrom: null,
+                            }),
+                        },
+                        textField: {
+                          fullWidth: true,
+                          size: 'small',
+                        },
                       }}
                     />
                     <Typography
@@ -970,9 +1027,20 @@ export default function EmployeeList() {
                         })
                       }
                       slotProps={{
-                        textField: { fullWidth: true, size: 'small' },
+                        field: {
+                          clearable: true,
+                          onClear: () =>
+                            setFilters({
+                              ...filters,
+                              contractStartDateTo: null,
+                            }),
+                        },
+                        textField: {
+                          fullWidth: true,
+                          size: 'small',
+                        },
                       }}
-                      minDate={dayjs(filters.contractStartDateFrom) || null}
+                      minDate={filters.contractStartDateFrom || undefined}
                     />
                   </Stack>
                 </Grid>
@@ -1000,7 +1068,18 @@ export default function EmployeeList() {
                         })
                       }
                       slotProps={{
-                        textField: { fullWidth: true, size: 'small' },
+                        field: {
+                          clearable: true,
+                          onClear: () =>
+                            setFilters({
+                              ...filters,
+                              contractEndDateFrom: null,
+                            }),
+                        },
+                        textField: {
+                          fullWidth: true,
+                          size: 'small',
+                        },
                       }}
                     />
                     <Typography
@@ -1025,9 +1104,20 @@ export default function EmployeeList() {
                         })
                       }
                       slotProps={{
-                        textField: { fullWidth: true, size: 'small' },
+                        field: {
+                          clearable: true,
+                          onClear: () =>
+                            setFilters({
+                              ...filters,
+                              contractEndDateTo: null,
+                            }),
+                        },
+                        textField: {
+                          fullWidth: true,
+                          size: 'small',
+                        },
                       }}
-                      minDate={dayjs(filters.contractEndDateFrom) || null}
+                      minDate={filters.contractEndDateFrom || undefined}
                     />
                   </Stack>
                 </Grid>
@@ -1053,7 +1143,18 @@ export default function EmployeeList() {
                         setFilters({ ...filters, a1StartDateFrom: newValue })
                       }
                       slotProps={{
-                        textField: { fullWidth: true, size: 'small' },
+                        field: {
+                          clearable: true,
+                          onClear: () =>
+                            setFilters({
+                              ...filters,
+                              a1StartDateFrom: null,
+                            }),
+                        },
+                        textField: {
+                          fullWidth: true,
+                          size: 'small',
+                        },
                       }}
                     />
                     <Typography
@@ -1075,9 +1176,20 @@ export default function EmployeeList() {
                         setFilters({ ...filters, a1StartDateTo: newValue })
                       }
                       slotProps={{
-                        textField: { fullWidth: true, size: 'small' },
+                        field: {
+                          clearable: true,
+                          onClear: () =>
+                            setFilters({
+                              ...filters,
+                              a1StartDateTo: null,
+                            }),
+                        },
+                        textField: {
+                          fullWidth: true,
+                          size: 'small',
+                        },
                       }}
-                      minDate={dayjs(filters.a1StartDateFrom) || null}
+                      minDate={filters.a1StartDateFrom || undefined}
                     />
                   </Stack>
                 </Grid>
@@ -1102,7 +1214,18 @@ export default function EmployeeList() {
                         setFilters({ ...filters, a1EndDateFrom: newValue })
                       }
                       slotProps={{
-                        textField: { fullWidth: true, size: 'small' },
+                        field: {
+                          clearable: true,
+                          onClear: () =>
+                            setFilters({
+                              ...filters,
+                              a1EndDateFrom: null,
+                            }),
+                        },
+                        textField: {
+                          fullWidth: true,
+                          size: 'small',
+                        },
                       }}
                     />
                     <Typography
@@ -1124,9 +1247,20 @@ export default function EmployeeList() {
                         setFilters({ ...filters, a1EndDateTo: newValue })
                       }
                       slotProps={{
-                        textField: { fullWidth: true, size: 'small' },
+                        field: {
+                          clearable: true,
+                          onClear: () =>
+                            setFilters({
+                              ...filters,
+                              a1EndDateTo: null,
+                            }),
+                        },
+                        textField: {
+                          fullWidth: true,
+                          size: 'small',
+                        },
                       }}
-                      minDate={dayjs(filters.a1EndDateFrom) || null}
+                      minDate={filters.a1EndDateFrom || undefined}
                     />
                   </Stack>
                 </Grid>
