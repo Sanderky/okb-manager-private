@@ -6,6 +6,12 @@ import './styles/global.css';
 import App from './App.tsx';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { EmployeeAlertProvider } from './context/EmployeeAlertContext.tsx';
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
+import dayjs from 'dayjs';
+
+dayjs.extend(isSameOrAfter);
+dayjs.extend(isSameOrBefore);
 
 const queryClient = new QueryClient();
 

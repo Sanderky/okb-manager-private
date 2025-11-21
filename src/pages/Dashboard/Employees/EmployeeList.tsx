@@ -30,7 +30,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs, { Dayjs } from 'dayjs';
 import { MRT_Localization_PL } from 'material-react-table/locales/pl';
 import { Badge, Typography } from '@mui/material';
-import { useTableState } from '../../../hooks/useTableSettings';
+import { useFormFilters, useTableState } from '../../../hooks/useTableSettings';
 import {
   Dialog,
   DialogTitle,
@@ -119,7 +119,8 @@ export default function EmployeeList() {
   const { getEmployeeAlerts } = useEmployeeAlert();
 
   const [filtersModalOpen, setFiltersModalOpen] = useState(false);
-  const [filters, setFilters] = useState<EmployeesFilters>(DefaultFiltersState);
+  const { filters, setFilters, resetFilters } =
+    useFormFilters<EmployeesFilters>('constructions', DefaultFiltersState);
 
   const isFilterActive = useMemo(() => {
     return (
@@ -153,6 +154,13 @@ export default function EmployeeList() {
   };
 
   const handleCloseFilters = () => {
+    setFiltersModalOpen(false);
+    if (!isFilterActive) resetFilters();
+  };
+
+  const handleCloseAndReset = () => {
+    setColumnFilters(DefaultColumnFilters);
+    resetFilters();
     setFiltersModalOpen(false);
   };
 
@@ -235,15 +243,8 @@ export default function EmployeeList() {
     if (filters.status) {
       columnFilters.push({ id: 'status', value: filters.status });
     }
-
     setColumnFilters(columnFilters);
-    handleCloseFilters();
-  };
-
-  const handleResetFilters = () => {
-    setFilters(DefaultFiltersState);
-    setColumnFilters(DefaultColumnFilters);
-    handleCloseFilters();
+    setFiltersModalOpen(false);
   };
 
   const dateBetweenFilterFn = (
@@ -808,7 +809,7 @@ export default function EmployeeList() {
                     <FormLabel className="mb-2 block">Status</FormLabel>
                     <Select
                       size="small"
-                      value={filters.status}
+                      value={filters.status ?? ''}
                       displayEmpty
                       onChange={(e) =>
                         setFilters({ ...filters, status: e.target.value })
@@ -825,7 +826,7 @@ export default function EmployeeList() {
                     <FormLabel className="mb-2 block">Kontraktor</FormLabel>
                     <Select
                       size="small"
-                      value={filters.isContractor}
+                      value={filters.isContractor ?? ''}
                       displayEmpty
                       onChange={(e) =>
                         setFilters({ ...filters, isContractor: e.target.value })
@@ -911,7 +912,7 @@ export default function EmployeeList() {
                       label="Od"
                       openTo="month"
                       views={['year', 'month', 'day']}
-                      value={filters.birthDateFrom}
+                      value={filters.birthDateFrom ?? null}
                       onChange={(newValue) =>
                         setFilters({ ...filters, birthDateFrom: newValue })
                       }
@@ -944,7 +945,7 @@ export default function EmployeeList() {
                       openTo="month"
                       views={['year', 'month', 'day']}
                       label="Do"
-                      value={filters.birthDateTo}
+                      value={filters.birthDateTo ?? null}
                       onChange={(newValue) =>
                         setFilters({ ...filters, birthDateTo: newValue })
                       }
@@ -983,7 +984,7 @@ export default function EmployeeList() {
                       label="Od"
                       openTo="month"
                       views={['year', 'month', 'day']}
-                      value={filters.contractStartDateFrom}
+                      value={filters.contractStartDateFrom ?? null}
                       onChange={(newValue) =>
                         setFilters({
                           ...filters,
@@ -1019,7 +1020,7 @@ export default function EmployeeList() {
                       label="Do"
                       openTo="month"
                       views={['year', 'month', 'day']}
-                      value={filters.contractStartDateTo}
+                      value={filters.contractStartDateTo ?? null}
                       onChange={(newValue) =>
                         setFilters({
                           ...filters,
@@ -1060,7 +1061,7 @@ export default function EmployeeList() {
                       label="Od"
                       openTo="month"
                       views={['year', 'month', 'day']}
-                      value={filters.contractEndDateFrom}
+                      value={filters.contractEndDateFrom ?? null}
                       onChange={(newValue) =>
                         setFilters({
                           ...filters,
@@ -1096,7 +1097,7 @@ export default function EmployeeList() {
                       label="Do"
                       openTo="month"
                       views={['year', 'month', 'day']}
-                      value={filters.contractEndDateTo}
+                      value={filters.contractEndDateTo ?? null}
                       onChange={(newValue) =>
                         setFilters({
                           ...filters,
@@ -1138,7 +1139,7 @@ export default function EmployeeList() {
                       label="Od"
                       openTo="month"
                       views={['year', 'month', 'day']}
-                      value={filters.a1StartDateFrom}
+                      value={filters.a1StartDateFrom ?? null}
                       onChange={(newValue) =>
                         setFilters({ ...filters, a1StartDateFrom: newValue })
                       }
@@ -1171,7 +1172,7 @@ export default function EmployeeList() {
                       label="Do"
                       openTo="month"
                       views={['year', 'month', 'day']}
-                      value={filters.a1StartDateTo}
+                      value={filters.a1StartDateTo ?? null}
                       onChange={(newValue) =>
                         setFilters({ ...filters, a1StartDateTo: newValue })
                       }
@@ -1209,7 +1210,7 @@ export default function EmployeeList() {
                       label="Od"
                       openTo="month"
                       views={['year', 'month', 'day']}
-                      value={filters.a1EndDateFrom}
+                      value={filters.a1EndDateFrom ?? null}
                       onChange={(newValue) =>
                         setFilters({ ...filters, a1EndDateFrom: newValue })
                       }
@@ -1242,7 +1243,7 @@ export default function EmployeeList() {
                       label="Do"
                       openTo="month"
                       views={['year', 'month', 'day']}
-                      value={filters.a1EndDateTo}
+                      value={filters.a1EndDateTo ?? null}
                       onChange={(newValue) =>
                         setFilters({ ...filters, a1EndDateTo: newValue })
                       }
@@ -1283,7 +1284,7 @@ export default function EmployeeList() {
                 }}
               >
                 <Button
-                  onClick={handleResetFilters}
+                  onClick={handleCloseAndReset}
                   variant="outlined"
                   color="primary"
                 >

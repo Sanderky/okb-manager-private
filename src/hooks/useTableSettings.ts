@@ -5,6 +5,7 @@ import type {
   MRT_VisibilityState,
   MRT_DensityState,
 } from 'material-react-table';
+import dayjs from 'dayjs';
 
 interface PaginationState {
   pageIndex: number;
@@ -154,6 +155,91 @@ export const useTableState = (
     resetState,
     isLoading,
     isError: false,
+  };
+};
+
+export const useFormFilters = <T extends object>(
+  storageKey: string,
+  defaultFilters: T
+) => {
+  const [filters, setFilters] = useState<T>(defaultFilters);
+  const [isLoading, setIsLoading] = useState(true);
+  const isInitialLoad = useRef(true);
+
+  useEffect(() => {
+    const loadFormFilters = () => {
+      try {
+        const saved = localStorage.getItem(`form-filters-${storageKey}`);
+        if (saved) {
+          const parsedFilters = JSON.parse(saved);
+
+          const filtersWithDates: any = { ...parsedFilters };
+          Object.keys(filtersWithDates).forEach((key) => {
+            if (
+              key.includes('Date') &&
+              filtersWithDates[key] &&
+              typeof filtersWithDates[key] === 'string'
+            ) {
+              filtersWithDates[key] = dayjs(filtersWithDates[key]);
+            }
+          });
+
+          setFilters(filtersWithDates);
+        }
+      } catch (error) {
+        console.error('Error loading form filters from local storage:', error);
+      } finally {
+        setIsLoading(false);
+        isInitialLoad.current = false;
+      }
+    };
+
+    loadFormFilters();
+  }, [storageKey]);
+
+  useEffect(() => {
+    if (isLoading || isInitialLoad.current) {
+      return;
+    }
+
+    const saveFormFilters = () => {
+      try {
+        const filtersToSave: any = { ...filters };
+        Object.keys(filtersToSave).forEach((key) => {
+          if (dayjs.isDayjs(filtersToSave[key])) {
+            filtersToSave[key] = filtersToSave[key].toISOString();
+          }
+        });
+
+        localStorage.setItem(
+          `form-filters-${storageKey}`,
+          JSON.stringify(filtersToSave)
+        );
+      } catch (error) {
+        console.error('Error saving form filters to local storage:', error);
+      }
+    };
+
+    const timeoutId = setTimeout(saveFormFilters, 300);
+    return () => clearTimeout(timeoutId);
+  }, [filters, storageKey, isLoading]);
+
+  const handleSetFilters = (newFilters: React.SetStateAction<T>) => {
+    setFilters((prev) => {
+      return typeof newFilters === 'function' ? newFilters(prev) : newFilters;
+    });
+  };
+
+  const resetFilters = () => {
+    setFilters(defaultFilters);
+    localStorage.removeItem(`form-filters-${storageKey}`);
+  };
+
+  return {
+    filters,
+    setFilters: handleSetFilters,
+    resetFilters,
+    isLoading,
   };
 };
 

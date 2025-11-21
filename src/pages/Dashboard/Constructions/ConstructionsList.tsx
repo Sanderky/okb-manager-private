@@ -27,7 +27,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs, { Dayjs } from 'dayjs';
 import { MRT_Localization_PL } from 'material-react-table/locales/pl';
-import { useTableState } from '../../../hooks/useTableSettings';
+import { useFormFilters, useTableState } from '../../../hooks/useTableSettings';
 import {
   Dialog,
   DialogTitle,
@@ -43,6 +43,7 @@ import {
   Alert,
   Badge,
   InputAdornment,
+  Autocomplete,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import CloseIcon from '@mui/icons-material/Close';
@@ -98,8 +99,8 @@ export default function ConstructionsList() {
 
   const [filtersModalOpen, setFiltersModalOpen] = useState(false);
 
-  const [filters, setFilters] =
-    useState<ConstructionsFilters>(DefaultFiltersState);
+  const { filters, setFilters, resetFilters } =
+    useFormFilters<ConstructionsFilters>('constructions', DefaultFiltersState);
 
   const isFilterActive = useMemo(() => {
     return (
@@ -116,6 +117,16 @@ export default function ConstructionsList() {
     queryKey: ['constructions'],
     queryFn: () => getConstructionList(),
   });
+
+  const contractorOptions = useMemo(() => {
+    if (!constructions || constructions.length === 0) return [];
+
+    const contractors = constructions.flatMap((construction) =>
+      construction.contractor ? [construction.contractor] : []
+    );
+
+    return [...new Set(contractors)];
+  }, [constructions]);
 
   const { data: employeesData } = useQuery({
     queryKey: ['constructionEmployees'],
@@ -165,6 +176,13 @@ export default function ConstructionsList() {
   };
 
   const handleCloseFilters = () => {
+    setFiltersModalOpen(false);
+    if (!isFilterActive) resetFilters();
+  };
+
+  const handleCloseAndReset = () => {
+    setColumnFilters(DefaultColumnFilters);
+    resetFilters();
     setFiltersModalOpen(false);
   };
 
@@ -216,13 +234,7 @@ export default function ConstructionsList() {
     }
 
     setColumnFilters(columnFilters);
-    handleCloseFilters();
-  };
-
-  const handleResetFilters = () => {
-    setFilters(DefaultFiltersState);
-    setColumnFilters(DefaultColumnFilters);
-    handleCloseFilters();
+    setFiltersModalOpen(false);
   };
 
   const dateBetweenFilterFn = (
@@ -630,13 +642,18 @@ export default function ConstructionsList() {
                 </Grid>
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <FormLabel className="mb-2 block">Wykonawca</FormLabel>
-                  <TextField
-                    size="small"
-                    fullWidth
-                    value={filters.contractor}
-                    onChange={(e) =>
-                      setFilters({ ...filters, contractor: e.target.value })
+                  <Autocomplete
+                    onInputChange={(_, newVal) =>
+                      setFilters({ ...filters, contractor: newVal })
                     }
+                    autoComplete={false}
+                    inputValue={filters.contractor ?? ''}
+                    freeSolo
+                    size="small"
+                    options={contractorOptions ?? []}
+                    renderInput={(params) => (
+                      <TextField {...params} size="small" fullWidth />
+                    )}
                   />
                 </Grid>
                 <Grid size={{ xs: 12, md: 6 }}>
@@ -665,7 +682,7 @@ export default function ConstructionsList() {
                       label="Od"
                       openTo="month"
                       views={['year', 'month', 'day']}
-                      value={filters.startDateFrom}
+                      value={filters.startDateFrom ?? null}
                       onChange={(newValue) =>
                         setFilters({ ...filters, startDateFrom: newValue })
                       }
@@ -698,7 +715,7 @@ export default function ConstructionsList() {
                       label="Do"
                       openTo="month"
                       views={['year', 'month', 'day']}
-                      value={filters.startDateTo}
+                      value={filters.startDateTo ?? null}
                       onChange={(newValue) =>
                         setFilters({ ...filters, startDateTo: newValue })
                       }
@@ -735,7 +752,7 @@ export default function ConstructionsList() {
                       label="Od"
                       openTo="month"
                       views={['year', 'month', 'day']}
-                      value={filters.endDateFrom}
+                      value={filters.endDateFrom ?? null}
                       onChange={(newValue) =>
                         setFilters({ ...filters, endDateFrom: newValue })
                       }
@@ -768,7 +785,7 @@ export default function ConstructionsList() {
                       label="Do"
                       openTo="month"
                       views={['year', 'month', 'day']}
-                      value={filters.endDateTo}
+                      value={filters.endDateTo ?? null}
                       onChange={(newValue) =>
                         setFilters({ ...filters, endDateTo: newValue })
                       }
@@ -847,7 +864,7 @@ export default function ConstructionsList() {
                     <FormLabel className="mb-2 block">Status</FormLabel>
                     <Select
                       size="small"
-                      value={filters.status}
+                      value={filters.status ?? ''}
                       displayEmpty
                       onChange={(e) =>
                         setFilters({ ...filters, status: e.target.value })
@@ -878,7 +895,7 @@ export default function ConstructionsList() {
                 }}
               >
                 <Button
-                  onClick={handleResetFilters}
+                  onClick={handleCloseAndReset}
                   variant="outlined"
                   color="primary"
                 >
