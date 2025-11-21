@@ -269,6 +269,8 @@ export const AddEventDialog: React.FC<AddEventDialogProps> = ({
           <Stack direction="row" spacing={{ xs: 1, sm: 2 }}>
             <DatePicker
               label="Data rozpoczęcia *"
+              openTo="month"
+              views={['year', 'month', 'day']}
               value={currentEvent.startDate || null}
               onChange={handleStartDateChange}
               slotProps={{
@@ -280,6 +282,8 @@ export const AddEventDialog: React.FC<AddEventDialogProps> = ({
             />
             <DatePicker
               label="Data zakończenia *"
+              openTo="month"
+              views={['year', 'month', 'day']}
               value={currentEvent.endDate || null}
               onChange={handleEndDateChange}
               slotProps={{
@@ -441,6 +445,8 @@ export const EditEventDialog: React.FC<EditEventDialogProps> = ({
           <Stack direction="row" spacing={{ xs: 1, sm: 2 }}>
             <DatePicker
               label="Data rozpoczęcia *"
+              openTo="month"
+              views={['year', 'month', 'day']}
               value={currentEvent.startDate || null}
               onChange={handleStartDateChange}
               slotProps={{
@@ -453,6 +459,8 @@ export const EditEventDialog: React.FC<EditEventDialogProps> = ({
             <DatePicker
               label="Data zakończenia *"
               value={currentEvent.endDate || null}
+              openTo="month"
+              views={['year', 'month', 'day']}
               onChange={handleEndDateChange}
               slotProps={{
                 textField: {
@@ -1172,71 +1180,47 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
                   <DatePicker
                     label="Data od (opcjonalnie)"
                     value={dateRange.start || null}
+                    openTo="month"
+                    views={['year', 'month', 'day']}
                     onChange={(newValue) =>
                       setDateRange((prev) => ({ ...prev, start: newValue }))
                     }
                     slotProps={{
+                      field: {
+                        clearable: true,
+                        onClear: handleClearStartDate,
+                      },
                       textField: {
                         fullWidth: true,
                         size: 'small' as const,
                         error: hasDateError || undefined,
                       },
-                      actionBar: {
-                        actions: ['clear'],
-                      },
                     }}
                     maxDate={dateRange.end || undefined}
                   />
-                  {dateRange.start && (
-                    <IconButton
-                      size="small"
-                      onClick={handleClearStartDate}
-                      sx={{
-                        position: 'absolute',
-                        right: 40,
-                        top: '50%',
-                        transform: 'translateY(-50%)',
-                        zIndex: 1,
-                      }}
-                    >
-                      <ClearIcon fontSize="small" />
-                    </IconButton>
-                  )}
                 </Box>
                 <Box sx={{ position: 'relative', flex: 1 }}>
                   <DatePicker
                     label="Data do (opcjonalnie)"
+                    openTo="month"
+                    views={['year', 'month', 'day']}
                     value={dateRange.end || null}
                     onChange={(newValue) =>
                       setDateRange((prev) => ({ ...prev, end: newValue }))
                     }
                     slotProps={{
+                      field: {
+                        clearable: true,
+                        onClear: handleClearEndDate,
+                      },
                       textField: {
                         fullWidth: true,
                         size: 'small' as const,
                         error: hasDateError || undefined,
                       },
-                      actionBar: {
-                        actions: ['clear'],
-                      },
                     }}
                     minDate={dateRange.start || undefined}
                   />
-                  {dateRange.end && (
-                    <IconButton
-                      size="small"
-                      onClick={handleClearEndDate}
-                      sx={{
-                        position: 'absolute',
-                        right: 40,
-                        top: '50%',
-                        transform: 'translateY(-50%)',
-                        zIndex: 1,
-                      }}
-                    >
-                      <ClearIcon fontSize="small" />
-                    </IconButton>
-                  )}
                 </Box>
               </Stack>
               <Typography variant="caption" className="text-gray-500">
