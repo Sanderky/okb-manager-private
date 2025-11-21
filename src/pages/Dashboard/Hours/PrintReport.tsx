@@ -217,119 +217,123 @@ export const PrintableTable = forwardRef<HTMLDivElement, PrintableTableProps>(
           </Typography>
         )}
 
-        <TableContainer className="bg-white">
-          <Table
-            size="small"
-            sx={{
-              '& td, & th, & p': {
-                fontSize: fontSize,
-              },
-              '& td, & th': {
-                border: tableBorder,
-                textAlign: 'center',
-              },
-              border: '1px solid #000',
-              borderCollapse: 'collapse',
-            }}
-          >
-            <TableHead sx={{ display: 'table-row-group' }}>
-              <TableRow>
-                <TableCell
-                  sx={{
-                    fontWeight: 'bold',
-                    borderBottom: borderBold,
-                  }}
-                >
-                  {translations.construction}
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontWeight: 'bold',
-                    borderBottom: borderBold,
-                  }}
-                >
-                  {translations.employee}
-                </TableCell>
-                {weekDates.map((date, index) => (
+        {constructionsWithWorkHours.length === 0 ? (
+          <Typography sx={{ width: '100%' }}>Brak danych</Typography>
+        ) : (
+          <TableContainer className="bg-white">
+            <Table
+              size="small"
+              sx={{
+                '& td, & th, & p': {
+                  fontSize: fontSize,
+                },
+                '& td, & th': {
+                  border: tableBorder,
+                  textAlign: 'center',
+                },
+                border: '1px solid #000',
+                borderCollapse: 'collapse',
+              }}
+            >
+              <TableHead sx={{ display: 'table-row-group' }}>
+                <TableRow>
                   <TableCell
-                    key={index}
-                    align="center"
                     sx={{
                       fontWeight: 'bold',
                       borderBottom: borderBold,
                     }}
                   >
-                    <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
-                      {date.toLocaleDateString(lang, { weekday: 'short' })}
-                    </Typography>
-                    <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
-                      {date.getDate().toString().padStart(2, '0')}.
-                      {(date.getMonth() + 1).toString().padStart(2, '0')}
-                    </Typography>
+                    {translations.construction}
                   </TableCell>
-                ))}
-                <TableCell
-                  align="center"
-                  sx={{ fontWeight: 'bold', borderBottom: borderBold }}
-                >
-                  {translations.sum}
-                </TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              <TableRows
-                constructionsWithWorkHours={constructionsWithWorkHours}
-                showVacation={showVacation}
-                lang={lang}
-              />
+                  <TableCell
+                    sx={{
+                      fontWeight: 'bold',
+                      borderBottom: borderBold,
+                    }}
+                  >
+                    {translations.employee}
+                  </TableCell>
+                  {weekDates.map((date, index) => (
+                    <TableCell
+                      key={index}
+                      align="center"
+                      sx={{
+                        fontWeight: 'bold',
+                        borderBottom: borderBold,
+                      }}
+                    >
+                      <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                        {date.toLocaleDateString(lang, { weekday: 'short' })}
+                      </Typography>
+                      <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                        {date.getDate().toString().padStart(2, '0')}.
+                        {(date.getMonth() + 1).toString().padStart(2, '0')}
+                      </Typography>
+                    </TableCell>
+                  ))}
+                  <TableCell
+                    align="center"
+                    sx={{ fontWeight: 'bold', borderBottom: borderBold }}
+                  >
+                    {translations.sum}
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                <TableRows
+                  constructionsWithWorkHours={constructionsWithWorkHours}
+                  showVacation={showVacation}
+                  lang={lang}
+                />
 
-              <TableRow
-                sx={{
-                  borderTop: 'none',
-                  borderBottom: 'none',
-                  background: '#fff',
-                }}
-              >
-                <TableCell
-                  colSpan={7}
+                <TableRow
                   sx={{
                     borderTop: 'none',
-                    p: 0.5,
                     borderBottom: 'none',
-                    borderRight: 'none !important',
+                    background: '#fff',
                   }}
-                ></TableCell>
-                <TableCell
-                  sx={{
-                    borderTop: 'none',
-                    p: 0.5,
-                    pr: 0,
-                    borderBottom: 'none',
-                    borderLeft: 'none !important',
-                    borderRight: 'none !important',
-                  }}
-                  colSpan={2}
-                  align="right"
                 >
-                  {`${translations.totalSum}:`}
-                </TableCell>
-                <TableCell
-                  sx={{
-                    borderTop: 'none',
-                    p: 0.5,
-                    borderBottom: 'none',
-                    borderLeft: 'none !important',
-                  }}
-                  align="center"
-                >
-                  {constructionsWithWorkHours.length > 0
-                    ? formatToPolishDecimal(totalHoursData.grandTotal)
-                    : '-'}
-                </TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-        </TableContainer>
+                  <TableCell
+                    colSpan={7}
+                    sx={{
+                      borderTop: 'none',
+                      p: 0.5,
+                      borderBottom: 'none',
+                      borderRight: 'none !important',
+                    }}
+                  ></TableCell>
+                  <TableCell
+                    sx={{
+                      borderTop: 'none',
+                      p: 0.5,
+                      pr: 0,
+                      borderBottom: 'none',
+                      borderLeft: 'none !important',
+                      borderRight: 'none !important',
+                    }}
+                    colSpan={2}
+                    align="right"
+                  >
+                    {`${translations.totalSum}:`}
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      borderTop: 'none',
+                      p: 0.5,
+                      borderBottom: 'none',
+                      borderLeft: 'none !important',
+                    }}
+                    align="center"
+                  >
+                    {constructionsWithWorkHours.length > 0
+                      ? formatToPolishDecimal(totalHoursData.grandTotal)
+                      : '-'}
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
       </Box>
     );
   }
@@ -360,7 +364,7 @@ export const PrintReport = forwardRef<HTMLDivElement, PrintReportProps>(
       showVacation,
       lang = 'pl-PL',
       selectedConstructions = [],
-      selectedEmployees = []
+      selectedEmployees = [],
     },
     ref
   ) => {
@@ -371,7 +375,7 @@ export const PrintReport = forwardRef<HTMLDivElement, PrintReportProps>(
     const { weeksData, isLoading, error } = useWeekReport({
       weekStarts: weeks,
       selectedConstructions,
-      selectedEmployees
+      selectedEmployees,
     });
 
     const translations = getReporTranslations(lang);
