@@ -225,7 +225,6 @@ const TableRows = ({
                   >
                     {isVacation ? (
                       <Typography
-                        className="font-medium text-amber-700"
                         variant="body2"
                       >
                         Urlop
