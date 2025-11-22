@@ -77,7 +77,7 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = React.memo(
           sx={{
             '&:hover': {
               '& .MuiTableCell-root:first-of-type': {
-                backgroundColor: '#eff6ff !important',
+                backgroundColor: `${employee.status && '#eff6ff !important'}`,
               },
             },
           }}
@@ -88,11 +88,6 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = React.memo(
               left: 0,
               zIndex: 3,
               textAlign: 'center',
-              root: {
-                '&:hover .MuiTableCell-root': {
-                  background: 'red',
-                },
-              },
             }}
             className="bg-gray-100 px-3 py-2"
           >
@@ -160,7 +155,7 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = React.memo(
         sx={{
           '&:hover': {
             '& .MuiTableCell-root:first-of-type': {
-              backgroundColor: '#eff6ff !important',
+              backgroundColor: `${employee.status && '#eff6ff !important'}`,
             },
           },
         }}
