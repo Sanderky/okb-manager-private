@@ -591,7 +591,7 @@ const ScheduleComponent = () => {
                     sm: `${40 + (60 / 2) * weeks.length}%`,
                     md: `${30 + (70 / 3) * weeks.length}%`,
                     lg: `${20 + (80 / 4) * weeks.length}%`,
-                    xl: `${20 + (80 / 7) * weeks.length}%`,
+                    xl: `${15 + (85 / 7) * weeks.length}%`,
                   },
                 }}
               >
@@ -606,7 +606,7 @@ const ScheduleComponent = () => {
                           xs: '50%',
                           sm: '40%',
                           md: '30%',
-                          lg: '20%',
+                          lg: '15%',
                         },
                       }}
                       className="bg-blue-200 px-3 py-2 text-center"
@@ -662,7 +662,7 @@ const ScheduleComponent = () => {
                               sm: `${60 / Math.min(weeks.length, 2)}%`,
                               md: `${70 / Math.min(weeks.length, 3)}%`,
                               lg: `${80 / Math.min(weeks.length, 4)}%`,
-                              xl: `${80 / Math.min(weeks.length, 7)}%`,
+                              xl: `${85 / Math.min(weeks.length, 7)}%`,
                             },
                           }}
                           onClick={() => setActiveTable({ type: 1, week: w })}
