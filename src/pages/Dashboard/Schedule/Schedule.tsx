@@ -36,8 +36,11 @@ import type {
 } from '../../../types';
 import { getConstructionList } from '../../../api/constructions';
 import useNotifications from '../../../hooks/useNotifications/useNotifications';
-import { getVacationList } from '../../../api/vacations';
-import { getScheduleList, updateSchedule } from '../../../api/schedules';
+import { getVacationListForMonths } from '../../../api/vacations';
+import {
+  getScheduleListForDateRange,
+  updateSchedule,
+} from '../../../api/schedules';
 import {
   daysToRanges,
   getScheduleByEmployeeAndWeek,
@@ -131,6 +134,26 @@ const ScheduleComponent = () => {
     localStorage.setItem('scheduleToWeek', toWeek.toISOString());
   }, [fromWeek, toWeek]);
 
+  const months = useMemo(() => {
+    const start = dayjs(fromWeek);
+    const end = dayjs(toWeek);
+    const monthsSet = new Set<string>();
+
+    let current = start.startOf('month');
+    while (current.isBefore(end) || current.isSame(end, 'month')) {
+      monthsSet.add(current.format('YYYY-MM'));
+      current = current.add(1, 'month');
+    }
+
+    return Array.from(monthsSet);
+  }, [fromWeek, toWeek]);
+
+  const scheduleDateRange = useMemo(() => {
+    const start = dayjs(fromWeek).startOf('week');
+    const end = dayjs(toWeek).endOf('week');
+    return { start: start.toDate(), end: end.toDate() };
+  }, [fromWeek, toWeek]);
+
   const {
     data: employees = [],
     isLoading: isLoadingEmployees,
@@ -165,8 +188,9 @@ const ScheduleComponent = () => {
     isLoading: isLoadingVacations,
     isError: isErrorVacations,
   } = useQuery<Vacation[], Error>({
-    queryKey: ['vacations'],
-    queryFn: getVacationList,
+    queryKey: ['vacations', months],
+    queryFn: () => getVacationListForMonths(months),
+    enabled: months.length > 0,
   });
 
   const {
@@ -174,8 +198,12 @@ const ScheduleComponent = () => {
     isLoading: isLoadingSchedules,
     isError: isErrorSchedules,
   } = useQuery<Schedule[], Error>({
-    queryKey: ['schedules'],
-    queryFn: getScheduleList,
+    queryKey: ['schedules', scheduleDateRange],
+    queryFn: () =>
+      getScheduleListForDateRange(
+        scheduleDateRange.start,
+        scheduleDateRange.end
+      ),
   });
 
   const getCellKey = useCallback((cell: ICell): string => {

@@ -176,3 +176,32 @@ export const removeEmployeeSchedules = async (
 
   return deletedCount;
 };
+
+export const getScheduleListForDateRange = async (
+  startDate: Date,
+  endDate: Date
+): Promise<Schedule[]> => {
+  try {
+    const startTimestamp = Timestamp.fromDate(startDate);
+    const endTimestamp = Timestamp.fromDate(endDate);
+
+    const q = query(
+      collection(db, 'schedules'),
+      where('weekStart', '>=', startTimestamp),
+      where('weekStart', '<=', endTimestamp)
+    );
+
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map((doc) => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        ...data,
+        weekStart: (data.weekStart as Timestamp).toDate(),
+      } as Schedule;
+    });
+  } catch (error) {
+    console.error('Error getting schedules for date range:', error);
+    throw error;
+  }
+};
