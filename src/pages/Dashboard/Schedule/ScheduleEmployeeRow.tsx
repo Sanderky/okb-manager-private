@@ -42,7 +42,7 @@ const ScheduleCell: React.FC<ScheduleCellProps> = React.memo(
           textAlign: 'center',
           position: 'relative',
         }}
-        className={`hover:bg-lightBlue border-l border-l-gray-300 px-3 py-2 ${!employee.status && 'bg-gray-100 text-gray-500 hover:!bg-gray-100'}`}
+        className={`border-l border-l-gray-200 px-3 py-2 hover:bg-blue-100 ${!employee.status && 'bg-gray-100 text-gray-500 hover:!bg-gray-100'}`}
         onClick={(e) => {
           if (isLoading || !employee.status) {
             e.stopPropagation();
@@ -72,13 +72,27 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = React.memo(
 
     if (activeTable.type === 1) {
       return (
-        <TableRow>
+        <TableRow
+          className="hover:bg-blue-50"
+          sx={{
+            '&:hover': {
+              '& .MuiTableCell-root:first-of-type': {
+                backgroundColor: '#eff6ff !important',
+              },
+            },
+          }}
+        >
           <TableCell
             sx={{
               position: 'sticky',
               left: 0,
               zIndex: 3,
               textAlign: 'center',
+              root: {
+                '&:hover .MuiTableCell-root': {
+                  background: 'red',
+                },
+              },
             }}
             className="bg-gray-100 px-3 py-2"
           >
@@ -141,7 +155,16 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = React.memo(
     }
 
     return (
-      <TableRow>
+      <TableRow
+        className="hover:bg-blue-50"
+        sx={{
+          '&:hover': {
+            '& .MuiTableCell-root:first-of-type': {
+              backgroundColor: '#eff6ff !important',
+            },
+          },
+        }}
+      >
         <TableCell
           sx={{
             position: 'sticky',

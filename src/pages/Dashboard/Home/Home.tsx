@@ -456,8 +456,8 @@ const UpcomingVacation = () => {
       const today = dayjs().startOf('day');
       return vacations.filter(
         (vacation) =>
-          dayjs(vacation.startDate).isAfter(today) ||
-          dayjs(vacation.endDate).isAfter(today)
+          dayjs(vacation.startDate).isSameOrAfter(today) ||
+          dayjs(vacation.endDate).isSameOrAfter(today)
       );
     },
   });

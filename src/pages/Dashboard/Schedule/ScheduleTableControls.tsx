@@ -22,7 +22,7 @@ interface TableControlsProps {
   toWeek: Date;
   setFromWeek: (date: Date) => void;
   setToWeek: (date: Date) => void;
-  selectedEmployees: Employee[];
+  selectedEmployees: string[];
   setIsFilterOpen: (open: boolean) => void;
   showVacations: boolean;
   setShowVacations: (show: boolean) => void;

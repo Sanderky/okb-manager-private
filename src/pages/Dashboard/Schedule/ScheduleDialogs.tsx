@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   FormControl,
   TextField,
@@ -16,9 +16,9 @@ import type { Employee } from '../../../types';
 interface FilterDialogProps {
   isFilterOpen: boolean;
   setIsFilterOpen: (open: boolean) => void;
-  filteredEmployees: Employee[];
-  selectedEmployees: Employee[];
-  setSelectedEmployees: (employees: Employee[]) => void;
+  employees: Employee[];
+  selectedEmployees: string[];
+  setSelectedEmployees: (employees: string[]) => void;
   showInactive: boolean;
   setShowInactive: (show: boolean) => void;
 }
@@ -26,23 +26,26 @@ interface FilterDialogProps {
 export const FilterDialog: React.FC<FilterDialogProps> = ({
   isFilterOpen,
   setIsFilterOpen,
-  filteredEmployees,
+  employees,
   selectedEmployees,
   setSelectedEmployees,
   showInactive,
   setShowInactive,
 }) => {
-  // const [showInactive, setShowInactive] = useState<boolean>(false);
+  const filteredEmployees = useMemo(() => {
+    if (showInactive) {
+      return employees;
+    }
+    return employees.filter((emp) => emp.status);
+  }, [employees, showInactive]);
 
-  // const filteredEmployees = useMemo(() => {
-  //   if (showInactive) {
-  //     return employees;
-  //   }
-  //   return employees.filter((emp) => emp.status);
-  // }, [employees, showInactive]);
+  const selectedEmployeeObjects = useMemo(() => {
+    return employees.filter((emp) => selectedEmployees.includes(emp.id));
+  }, [employees, selectedEmployees]);
 
   const handleSelectAll = () => {
-    setSelectedEmployees([...filteredEmployees]);
+    const allIds = filteredEmployees.map((emp) => emp.id);
+    setSelectedEmployees(allIds);
   };
 
   const handleClear = () => {
@@ -78,8 +81,11 @@ export const FilterDialog: React.FC<FilterDialogProps> = ({
           options={filteredEmployees}
           disableCloseOnSelect
           getOptionLabel={(opt) => opt.name}
-          value={selectedEmployees}
-          onChange={(_, newValue) => setSelectedEmployees(newValue)}
+          value={selectedEmployeeObjects}
+          onChange={(_, newValue) => {
+            const newIds = newValue.map((emp) => emp.id);
+            setSelectedEmployees(newIds);
+          }}
           isOptionEqualToValue={(option, value) => option.id === value?.id}
           renderOption={(props, option, { selected }) => {
             const { key, ...optionProps } = props;

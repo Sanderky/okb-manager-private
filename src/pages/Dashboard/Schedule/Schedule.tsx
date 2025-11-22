@@ -64,6 +64,13 @@ type SchedulePayload = Omit<Schedule, 'id'> & {
   id?: string;
 };
 
+const SCHEDULE_FILTERS_STORAGE_KEY = 'scheduleFilters';
+
+interface StoredFilters {
+  selectedEmployeeIds: string[];
+  showInactive: boolean;
+}
+
 const ScheduleComponent = () => {
   const [containerRef, width] = useContainerBreakpoint();
 
@@ -78,7 +85,12 @@ const ScheduleComponent = () => {
       : dayjs().add(2, 'week').startOf('week').toDate();
   });
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [selectedEmployees, setSelectedEmployees] = useState<Employee[]>([]);
+  const [selectedEmployees, setSelectedEmployees] = useState<string[]>(() => {
+    const saved = localStorage.getItem(SCHEDULE_FILTERS_STORAGE_KEY);
+    if (!saved) return [];
+    const parsed: StoredFilters = JSON.parse(saved);
+    return parsed.selectedEmployeeIds;
+  });
   const [activeTable, setActiveTable] = useState<{
     type: number;
     week: Dayjs;
@@ -91,7 +103,12 @@ const ScheduleComponent = () => {
   const [showVacations, setShowVacations] = useState(true);
   const [showDates, setShowDates] = useState(true);
   const [loadingCells, setLoadingCells] = useState<Set<string>>(new Set());
-  const [showInactive, setShowInactive] = useState<boolean>(false);
+  const [showInactive, setShowInactive] = useState<boolean>(() => {
+    const saved = localStorage.getItem(SCHEDULE_FILTERS_STORAGE_KEY);
+    if (!saved) return false;
+    const parsed: StoredFilters = JSON.parse(saved);
+    return parsed.showInactive;
+  });
 
   const notifications = useNotifications();
   const queryClient = useQueryClient();
@@ -122,6 +139,17 @@ const ScheduleComponent = () => {
     queryKey: ['employees'],
     queryFn: () => getEmployeeList(),
   });
+
+  useEffect(() => {
+    const filtersToStore: StoredFilters = {
+      selectedEmployeeIds: selectedEmployees,
+      showInactive: showInactive,
+    };
+    localStorage.setItem(
+      SCHEDULE_FILTERS_STORAGE_KEY,
+      JSON.stringify(filtersToStore)
+    );
+  }, [selectedEmployees, showInactive]);
 
   const {
     data: constructions = [],
@@ -188,8 +216,7 @@ const ScheduleComponent = () => {
     if (!selectedEmployees.length) {
       return showInactive ? employees : employees.filter((emp) => emp.status);
     }
-    const ids = new Set(selectedEmployees.map((e) => e.id));
-    const filtered = employees.filter((e) => ids.has(e.id));
+    const filtered = employees.filter((e) => selectedEmployees.includes(e.id));
     return showInactive ? filtered : filtered.filter((emp) => emp.status);
   }, [employees, selectedEmployees, showInactive]);
 
@@ -298,7 +325,17 @@ const ScheduleComponent = () => {
       }
 
       const target = event.currentTarget as HTMLElement;
-      target.style.backgroundColor = '#d2e1fc';
+
+      const row = target.closest('tr');
+      if (row) {
+        row.style.backgroundColor = '#eff6ff';
+        const firstCell = row.querySelector('td:first-child') as HTMLElement;
+        if (firstCell) {
+          firstCell.style.backgroundColor = '#eff6ff';
+        }
+      }
+
+      target.style.backgroundColor = '#dbeafe';
 
       setCellAnchorEl(target);
       setActiveCell(cell);
@@ -307,6 +344,15 @@ const ScheduleComponent = () => {
   );
 
   const handleCellMenuClose = useCallback(() => {
+    const row = cellAnchorEl?.closest('tr');
+    if (row) {
+      row.style.backgroundColor = '';
+      const firstCell = row.querySelector('td:first-child') as HTMLElement;
+      if (firstCell) {
+        firstCell.style.backgroundColor = '';
+      }
+    }
+
     if (cellAnchorEl) {
       cellAnchorEl.style.backgroundColor = '';
     }
@@ -906,7 +952,7 @@ const ScheduleComponent = () => {
         <FilterDialog
           isFilterOpen={isFilterOpen}
           setIsFilterOpen={setIsFilterOpen}
-          filteredEmployees={filteredEmployees}
+          employees={employees}
           selectedEmployees={selectedEmployees}
           setSelectedEmployees={setSelectedEmployees}
           showInactive={showInactive}
