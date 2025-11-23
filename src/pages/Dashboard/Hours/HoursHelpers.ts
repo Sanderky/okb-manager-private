@@ -1,4 +1,5 @@
 import { type LangCode } from './reportTranslations';
+import type { ConstructionsWithWorkHours } from './useHoursTable';
 
 export const getThreeMonthKeys = (week: Date): string[] => {
   const keys: string[] = [];
@@ -34,6 +35,19 @@ export const formatToPolishDecimal = (value: number) => {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   }).format(value);
+};
+
+export const sortConstructionsWithWorkHours = (
+  data: ConstructionsWithWorkHours[]
+): ConstructionsWithWorkHours[] => {
+  return data
+    .map((construction) => ({
+      ...construction,
+      workHours: [...construction.workHours].sort((a, b) =>
+        a.employeeName.localeCompare(b.employeeName)
+      ),
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name));
 };
 
 // export const formatWeeksString = (weeksCount: number) => {

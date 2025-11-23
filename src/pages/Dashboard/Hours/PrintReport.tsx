@@ -20,6 +20,7 @@ import {
   formatToPolishDecimal,
   formatWeeksString,
   getWeeksInRange,
+  sortConstructionsWithWorkHours,
 } from './HoursHelpers';
 import useWeekReport from './useWeeksReport';
 import { getReporTranslations, type LangCode } from './reportTranslations';
@@ -209,6 +210,10 @@ export const PrintableTable = forwardRef<HTMLDivElement, PrintableTableProps>(
     ref
   ) => {
     const translations = getReporTranslations(lang);
+    const dataSorted = useMemo(() => {
+      return sortConstructionsWithWorkHours(constructionsWithWorkHours);
+    }, [constructionsWithWorkHours]);
+
     return (
       <Box ref={ref} sx={{ width: '100%' }}>
         {printTitle && (
@@ -217,7 +222,7 @@ export const PrintableTable = forwardRef<HTMLDivElement, PrintableTableProps>(
           </Typography>
         )}
 
-        {constructionsWithWorkHours.length === 0 ? (
+        {dataSorted.length === 0 ? (
           <Typography sx={{ width: '100%' }}>Brak danych</Typography>
         ) : (
           <TableContainer className="bg-white">
@@ -281,7 +286,7 @@ export const PrintableTable = forwardRef<HTMLDivElement, PrintableTableProps>(
               </TableHead>
               <TableBody>
                 <TableRows
-                  constructionsWithWorkHours={constructionsWithWorkHours}
+                  constructionsWithWorkHours={dataSorted}
                   showVacation={showVacation}
                   lang={lang}
                 />
@@ -325,7 +330,7 @@ export const PrintableTable = forwardRef<HTMLDivElement, PrintableTableProps>(
                     }}
                     align="center"
                   >
-                    {constructionsWithWorkHours.length > 0
+                    {dataSorted.length > 0
                       ? formatToPolishDecimal(totalHoursData.grandTotal)
                       : '-'}
                   </TableCell>

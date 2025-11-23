@@ -36,7 +36,10 @@ import useHoursTable, {
 } from './useHoursTable';
 import HoursTableControls from './HoursTableControls';
 import { PrintableTable } from './PrintReport';
-import { formatToPolishDecimal } from './HoursHelpers';
+import {
+  formatToPolishDecimal,
+  sortConstructionsWithWorkHours,
+} from './HoursHelpers';
 import type { TableData } from './Hours';
 
 dayjs.extend(isoWeek);
@@ -143,6 +146,7 @@ const TableRows = ({
               {employeeIndex === 0 && (
                 <TableCell
                   rowSpan={construction.workHours.length + 1}
+                  className={`${!construction.isActive && 'text-red-400'}`}
                   align="center"
                   sx={{
                     borderRight: tableBorder,
@@ -164,18 +168,16 @@ const TableRows = ({
                     }
                     style={{
                       cursor: editMode ? 'pointer' : 'text',
-                      fontStyle: construction.isActive ? 'normal' : 'italic',
                     }}
                   >
-                    {construction.isActive
-                      ? construction.name
-                      : `${construction.name} *`}
+                    {construction.name}
                   </span>
                 </TableCell>
               )}
 
               <TableCell
                 align="center"
+                className={`${!workHour.isActive && 'text-red-400'}`}
                 sx={{
                   verticalAlign: 'middle',
                   p: numberCellPadding,
@@ -199,12 +201,9 @@ const TableRows = ({
                   }
                   style={{
                     cursor: editMode ? 'pointer' : 'text',
-                    fontStyle: workHour.isActive ? 'normal' : 'italic',
                   }}
                 >
-                  {workHour.isActive
-                    ? workHour.employeeName
-                    : `${workHour.employeeName} *`}
+                  {workHour.employeeName}
                 </span>
               </TableCell>
 
@@ -226,6 +225,7 @@ const TableRows = ({
                     {isVacation ? (
                       <Typography
                         variant="body2"
+                        className="font-medium text-amber-700"
                       >
                         Urlop
                       </Typography>
@@ -512,14 +512,16 @@ const NoTable = ({
   return (
     <Box
       className="border-lightGray rounded-lg border bg-gray-50"
-      sx={{
-        // backgroundColor: 'oklch(0.967 0.003 264.542) !important',
+      sx={(theme) => ({
         minHeight: '300px',
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-      }}
+        outline: editMode
+          ? `2px solid ${theme.palette.primary.main} !important`
+          : '',
+      })}
     >
       {content}
     </Box>
@@ -592,6 +594,10 @@ const HoursTable = ({
     }
   }, [currentWeek, constructionsWithWorkHours, isLoading, loadingError]);
 
+  const dataSorted = useMemo(() => {
+    return sortConstructionsWithWorkHours(constructionsWithWorkHours);
+  }, [constructionsWithWorkHours]);
+
   const handleOpenAddEmployeeDialog = (constructionId: string) => {
     onSelectedConstructionForEmployeeChange(constructionId);
     setAddEmployeeDialogOpen(true);
@@ -621,7 +627,7 @@ const HoursTable = ({
           <PrintableTable
             printTitle={true}
             showVacation={true}
-            constructionsWithWorkHours={constructionsWithWorkHours}
+            constructionsWithWorkHours={dataSorted}
             weekDates={weekDates}
             totalHoursData={totalHoursData}
           />
@@ -728,7 +734,7 @@ const HoursTable = ({
                     handleDeleteEmployee={handleDeleteEmployee}
                     handleHoursChange={handleHoursChange}
                     handleOpenAddEmployeeDialog={handleOpenAddEmployeeDialog}
-                    constructionsWithWorkHours={constructionsWithWorkHours}
+                    constructionsWithWorkHours={dataSorted}
                     editMode={editMode}
                     error={loadingError}
                     handleCopyDataDialogOpen={handleCopyDataDialogOpen}
