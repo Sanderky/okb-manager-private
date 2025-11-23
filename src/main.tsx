@@ -13,7 +13,14 @@ import dayjs from 'dayjs';
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 60 * 1000 * 5,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

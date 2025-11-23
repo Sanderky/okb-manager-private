@@ -153,7 +153,6 @@ const EmployeeAlertsSettings = ({
     queryKey: ['alertsSettings'],
     queryFn: fetchAlertsSettings,
     enabled: isOpen,
-    staleTime: 5 * 60 * 1000,
   });
 
   const notifications = useNotifications();
@@ -440,7 +439,7 @@ const UpcomingVacation = () => {
   });
 
   const { data: upcomingVacations, isLoading } = useQuery({
-    queryKey: ['upcoming-vacations'],
+    queryKey: ['vacations', 'upcoming-vacations'],
     queryFn: async () => {
       const now = dayjs();
       const nextMonth = now.add(1, 'month');

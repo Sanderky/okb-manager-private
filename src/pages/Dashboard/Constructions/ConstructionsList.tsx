@@ -11,7 +11,7 @@ import { useNavigate } from 'react-router';
 import PageContainer from '../../../components/PageContainer';
 import { getConstructionList } from '../../../api/constructions';
 import { useQuery } from '@tanstack/react-query';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   MaterialReactTable,
   MRT_ShowHideColumnsButton,
@@ -128,7 +128,7 @@ export default function ConstructionsList() {
   }, [constructions]);
 
   const { data: employeesData } = useQuery({
-    queryKey: ['constructionEmployees'],
+    queryKey: ['schedules', 'constructionEmployees'],
     queryFn: async () => {
       if (!constructions) return {};
 
@@ -633,7 +633,7 @@ export default function ConstructionsList() {
                   <TextField
                     size="small"
                     fullWidth
-                    value={filters.name ?? ""}
+                    value={filters.name ?? ''}
                     onChange={(e) =>
                       setFilters({ ...filters, name: e.target.value })
                     }
@@ -660,7 +660,7 @@ export default function ConstructionsList() {
                   <TextField
                     size="small"
                     fullWidth
-                    value={filters.location ?? ""}
+                    value={filters.location ?? ''}
                     onChange={(e) =>
                       setFilters({ ...filters, location: e.target.value })
                     }
@@ -823,7 +823,7 @@ export default function ConstructionsList() {
                       size="small"
                       fullWidth
                       type="number"
-                      value={filters.employeeCountMin ?? ""}
+                      value={filters.employeeCountMin ?? ''}
                       onChange={(e) =>
                         setFilters({
                           ...filters,
@@ -841,7 +841,7 @@ export default function ConstructionsList() {
                       size="small"
                       fullWidth
                       type="number"
-                      value={filters.employeeCountMax ?? ""}
+                      value={filters.employeeCountMax ?? ''}
                       onChange={(e) =>
                         setFilters({
                           ...filters,

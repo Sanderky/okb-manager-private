@@ -91,7 +91,7 @@ export default function ConstructionShow() {
     isLoading: isScheduleEmployeesLoading,
     error: errorScheduleEmployees,
   } = useQuery({
-    queryKey: ['employeesByConstruction', constructionId],
+    queryKey: ['schedules', 'employeesByConstruction', constructionId],
     queryFn: () =>
       getEmployeesByScheduledConstruction([constructionId!], dayjs().toDate()),
     enabled: !!constructionId,

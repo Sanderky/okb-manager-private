@@ -10,7 +10,11 @@ import { useNavigate, useParams } from 'react-router';
 import PageContainer from '../../../components/PageContainer';
 import Loading from '../../../components/Loading';
 
-import { type AlertsSettings, type Employee, type FileItem } from '../../../types';
+import {
+  type AlertsSettings,
+  type Employee,
+  type FileItem,
+} from '../../../types';
 import { getEmployee, updateEmployee } from '../../../api/employees';
 
 import EditIcon from '@mui/icons-material/Edit';
@@ -233,17 +237,15 @@ export default function EmployeeShow() {
     isLoading: isEmployeeVacationLoading,
     error: errorEmployeeVacation,
   } = useQuery({
-    queryKey: ['employeeVacations', employeeId],
+    queryKey: ['vacations', 'employeeVacations', employeeId],
     queryFn: () => getUpcomingVacationsForEmployee(employeeId!),
     enabled: !!employeeId,
   });
 
-  const {
-        data: alertsSettings,
-      } = useQuery({
-        queryKey: ['alertsSettings'],
-        queryFn: fetchAlertsSettings,
-      });
+  const { data: alertsSettings } = useQuery({
+    queryKey: ['alertsSettings'],
+    queryFn: fetchAlertsSettings,
+  });
 
   useEffect(() => {
     if (employee) {
@@ -569,7 +571,12 @@ export default function EmployeeShow() {
 
                   <Grid container spacing={2}>
                     {contractFields.map(({ key, label }) => {
-                      return generateDateBox(key, label, employee, alertsSettings ?? EmployeeAlertDefault);
+                      return generateDateBox(
+                        key,
+                        label,
+                        employee,
+                        alertsSettings ?? EmployeeAlertDefault
+                      );
                     })}
                   </Grid>
                 </Box>
@@ -598,7 +605,12 @@ export default function EmployeeShow() {
                   />
                   <Grid container spacing={2}>
                     {a1Fields.map(({ key, label }) => {
-                      return generateDateBox(key, label, employee, alertsSettings ?? EmployeeAlertDefault);
+                      return generateDateBox(
+                        key,
+                        label,
+                        employee,
+                        alertsSettings ?? EmployeeAlertDefault
+                      );
                     })}
                   </Grid>
                 </Box>
@@ -628,7 +640,7 @@ export default function EmployeeShow() {
     employeeVacation,
     handleBack,
     handleOpenPreview,
-    alertsSettings
+    alertsSettings,
   ]);
 
   const pageTitle = employee?.name || 'Szczegóły Pracownika';

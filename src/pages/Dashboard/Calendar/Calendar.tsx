@@ -119,7 +119,7 @@ const Calendar: React.FC = () => {
       startActionLoading();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['vacations', monthKeys] });
+      queryClient.invalidateQueries({ queryKey: ['vacations'] });
       notifications.show('Urlop został pomyślnie utworzony.', {
         severity: 'success',
         autoHideDuration: 5000,
@@ -150,7 +150,7 @@ const Calendar: React.FC = () => {
       startActionLoading();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['vacations', monthKeys] });
+      queryClient.invalidateQueries({ queryKey: ['vacations'] });
       notifications.show('Urlop został pomyślnie zaktualizowany.', {
         severity: 'success',
         autoHideDuration: 5000,
@@ -175,7 +175,7 @@ const Calendar: React.FC = () => {
       startActionLoading();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['vacations', monthKeys] });
+      queryClient.invalidateQueries({ queryKey: ['vacations'] });
       notifications.show('Urlop został pomyślnie usunięty.', {
         severity: 'info',
         autoHideDuration: 5000,
