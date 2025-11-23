@@ -15,7 +15,6 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 import { ChevronLeft, ChevronRight, MoreHoriz } from '@mui/icons-material';
 import WeekSelector from '../../../components/WeekSelector';
 import dayjs from 'dayjs';
-import type { Employee } from '../../../types';
 
 interface TableControlsProps {
   fromWeek: Date;

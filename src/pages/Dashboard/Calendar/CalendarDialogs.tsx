@@ -38,11 +38,7 @@ import {
 } from './CalendarHelpers';
 import type { Employee, Vacation } from '../../../types';
 import DeleteIcon from '@mui/icons-material/Delete';
-import {
-  Close as CloseIcon,
-  Clear as ClearIcon,
-  Print as PrintIcon,
-} from '@mui/icons-material';
+import { Close as CloseIcon, Print as PrintIcon } from '@mui/icons-material';
 import EditIcon from '@mui/icons-material/Edit';
 import dayjs, { Dayjs } from 'dayjs';
 import { useReactToPrint } from 'react-to-print';

@@ -42,7 +42,7 @@ const ScheduleCell: React.FC<ScheduleCellProps> = React.memo(
           textAlign: 'center',
           position: 'relative',
         }}
-        className={`border-l border-l-gray-200 px-3 py-2 hover:bg-blue-100 ${!employee.status && 'bg-gray-100 text-gray-500 hover:!bg-gray-100'}`}
+        className={`border-l border-l-gray-200 px-3 py-2 hover:bg-blue-100 ${!employee.status && 'bg-gray-100 *:!text-gray-500 hover:bg-gray-100'}`}
         onClick={(e) => {
           if (isLoading || !employee.status) {
             e.stopPropagation();

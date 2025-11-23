@@ -461,13 +461,14 @@ const ScheduleComponent = () => {
         }
       });
 
-      const parts: string[] = [];
+      const vacationParts: string[] = [];
+      const constructionParts: string[] = [];
 
       if (showVacations && vacationDays.length > 0) {
         const vacationText = showDates
           ? `Urlop (${daysToRanges(vacationDays).join(', ')})`
           : 'Urlop';
-        parts.push(vacationText);
+        vacationParts.push(vacationText);
       }
 
       const shouldShowRanges =
@@ -478,15 +479,31 @@ const ScheduleComponent = () => {
           days.length >= 6 && constructionsMap.size === 1;
 
         if (!shouldShowRanges || !showDates || isFullWeekConstruction) {
-          parts.push(name);
+          constructionParts.push(name);
         } else {
-          parts.push(`${name} (${daysToRanges(days).join(', ')})`);
+          constructionParts.push(`${name} (${daysToRanges(days).join(', ')})`);
         }
       });
 
+      const allParts = [...vacationParts, ...constructionParts];
+      const content = allParts.join(' / ') || (renderEmptyCellIndicator && '');
+
+      if (vacationParts.length > 0 && constructionParts.length > 0) {
+        return (
+          <Typography className="font-medium" variant="body2">
+            <span className="text-amber-700">{vacationParts.join(' / ')}</span>
+            {' / '}
+            {constructionParts.join(' / ')}
+          </Typography>
+        );
+      }
+
       return (
-        <Typography className="font-medium" variant="body2">
-          {parts.join(' / ') || (renderEmptyCellIndicator && '')}
+        <Typography
+          className={`font-medium ${vacationParts.length > 0 ? 'text-amber-700' : ''}`}
+          variant="body2"
+        >
+          {content}
         </Typography>
       );
     },
