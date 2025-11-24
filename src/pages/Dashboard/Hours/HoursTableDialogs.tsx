@@ -103,6 +103,7 @@ export const AddConstructionWithEmployeeDialog: React.FC<
     >
       <FormControl fullWidth sx={{ mt: 2 }}>
         <Autocomplete
+          size="small"
           value={
             availableConstructions.find((c) => c.id === selectedConstruction) ||
             null
@@ -124,6 +125,7 @@ export const AddConstructionWithEmployeeDialog: React.FC<
       </FormControl>
       <FormControl fullWidth sx={{ mt: 2 }}>
         <Autocomplete
+          size="small"
           value={employees?.find((e) => e.id === selectedEmployee) || null}
           onChange={(event, newValue) =>
             setSelectedEmployee(newValue?.id || '')
@@ -199,6 +201,7 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
     >
       <FormControl fullWidth sx={{ mt: 2 }}>
         <Autocomplete
+          size="small"
           value={
             availableEmployees.find((e) => e.id === selectedEmployee) || null
           }
