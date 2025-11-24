@@ -11,7 +11,7 @@ import { useNavigate } from 'react-router';
 import PageContainer from '../../../components/PageContainer';
 import { getConstructionList } from '../../../api/constructions';
 import { useQuery } from '@tanstack/react-query';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   MaterialReactTable,
   MRT_ShowHideColumnsButton,
