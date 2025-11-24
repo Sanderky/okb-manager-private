@@ -4,10 +4,14 @@ export const sortEmployees = (employees: Employee[]): Employee[] => {
   return [...employees].sort((a, b) => {
     const getLastFirstName = (fullName: string) => {
       const parts = fullName.trim().split(/\s+/);
-      if (parts.length === 1) return ['', parts[0]];
-      const lastName = parts.pop()!;
-      const firstName = parts.join(' ');
-      return [lastName.toLowerCase(), firstName.toLowerCase()];
+
+      if (parts.length === 1) {
+        return [parts[0].toLowerCase(), ''];
+      } else {
+        const lastName = parts.pop()!;
+        const firstName = parts.join(' ');
+        return [lastName.toLowerCase(), firstName.toLowerCase()];
+      }
     };
 
     const [aLastName, aFirstName] = getLastFirstName(a.name);
