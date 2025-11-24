@@ -26,6 +26,7 @@ import {
   Paper,
   FormControlLabel,
   darken,
+  useTheme,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -552,6 +553,8 @@ export const EventDetailsDialog: React.FC<EventDetailsDialogProps> = ({
     }
   };
 
+  const theme = useTheme();
+
   return (
     <BaseDialog
       open={isMultipleEvents || activeDialog.type === 'eventDetails'}
@@ -636,8 +639,15 @@ export const EventDetailsDialog: React.FC<EventDetailsDialogProps> = ({
                       {event.employee?.name}{' '}
                       <Typography
                         component={'span'}
-                        color="error"
+                        // color="error"
                         className="ml-1"
+                        sx={{
+                          color:
+                            theme.palette.getContrastText(event.color) ===
+                            '#fff'
+                              ? '#fff'
+                              : theme.palette.error.main,
+                        }}
                       >
                         {!event.employee?.status && '(nieaktywny)'}
                       </Typography>
