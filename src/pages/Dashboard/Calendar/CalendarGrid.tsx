@@ -15,6 +15,8 @@ import {
   type CalendarGridProps,
 } from './CalendarHelpers';
 
+import AddIcon from '@mui/icons-material/Add';
+
 export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
   ({
     monthGrid,
@@ -227,18 +229,30 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                       setActiveDialog({ type: 'moreEvents', day: calendarDay });
                     }}
                     sx={{
-                      fontSize: { xs: '0.70rem', md: '0.75rem' },
+                      fontSize: { xs: '0.80rem', sm: '0.90rem' },
+                      fontWeight: 600,
                       ':hover': { color: 'purple' },
                       width: '100%',
-                      display: 'block',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
                       position: 'absolute',
                       bottom: 3,
                       left: 0,
                       right: 0,
                       height: 20,
+                      gap: 0.25,
                     }}
                   >
-                    więcej
+                    <AddIcon
+                      sx={{
+                        width: { xs: '15px', sm: '20px' },
+                        maxHeight: '100%',
+                      }}
+                    />
+                    <Typography component={'span'} variant="inherit">
+                      {events.length > 4 && events.length - 4}
+                    </Typography>
                   </Link>
                 )}
               </Grid>

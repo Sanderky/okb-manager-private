@@ -2,10 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import {
   Button,
   Typography,
-  MenuItem,
   FormControl,
-  InputLabel,
-  Select,
   Alert,
   Stack,
   Divider,
@@ -16,6 +13,8 @@ import {
   Badge,
   Tooltip,
   Collapse,
+  Autocomplete,
+  TextField,
 } from '@mui/material';
 import type { Construction, Employee, WorkHours } from '../../../types';
 import 'dayjs/locale/pl';
@@ -103,37 +102,39 @@ export const AddConstructionWithEmployeeDialog: React.FC<
       }
     >
       <FormControl fullWidth sx={{ mt: 2 }}>
-        <InputLabel>Wybierz budowę</InputLabel>
-        <Select
-          value={selectedConstruction}
-          onChange={(e) => setSelectedConstruction(e.target.value)}
-          label="Wybierz budowę"
-        >
-          {availableConstructions.map((construction) => (
-            <MenuItem key={construction.id} value={construction.id}>
-              {construction.name}
-            </MenuItem>
-          ))}
-          {availableConstructions.length === 0 && (
-            <MenuItem disabled key={"noConstructions"}>
-              Wszystkie budowy są już dodane do tabeli
-            </MenuItem>
+        <Autocomplete
+          value={
+            availableConstructions.find((c) => c.id === selectedConstruction) ||
+            null
+          }
+          onChange={(event, newValue) =>
+            setSelectedConstruction(newValue?.id || '')
+          }
+          options={availableConstructions}
+          getOptionLabel={(option) => option.name}
+          renderInput={(params) => (
+            <TextField {...params} label="Wybierz budowę" />
           )}
-        </Select>
+          noOptionsText={
+            availableConstructions.length === 0
+              ? 'Wszystkie budowy są już dodane do tabeli'
+              : 'Brak dostępnych opcji'
+          }
+        />
       </FormControl>
       <FormControl fullWidth sx={{ mt: 2 }}>
-        <InputLabel>Wybierz pracownika</InputLabel>
-        <Select
-          value={selectedEmployee}
-          onChange={(e) => setSelectedEmployee(e.target.value)}
-          label="Wybierz pracownika"
-        >
-          {employees?.map((employee) => (
-            <MenuItem key={employee.id} value={employee.id}>
-              {employee.name}
-            </MenuItem>
-          ))}
-        </Select>
+        <Autocomplete
+          value={employees?.find((e) => e.id === selectedEmployee) || null}
+          onChange={(event, newValue) =>
+            setSelectedEmployee(newValue?.id || '')
+          }
+          options={employees || []}
+          getOptionLabel={(option) => option.name}
+          renderInput={(params) => (
+            <TextField {...params} label="Wybierz pracownika" />
+          )}
+          noOptionsText="Brak dostępnych pracowników"
+        />
       </FormControl>
     </BaseDialog>
   );
@@ -142,7 +143,7 @@ export const AddConstructionWithEmployeeDialog: React.FC<
 interface AddEmployeeDialogProps {
   open: boolean;
   onClose: () => void;
-  selectedConstruction: Construction | null
+  selectedConstruction: Construction | null;
   currentWeek: Date;
   onEmployeeAdded: (newWorkHours: WorkHours) => void;
   availableEmployees: Employee[];
@@ -197,23 +198,24 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
       }
     >
       <FormControl fullWidth sx={{ mt: 2 }}>
-        <InputLabel>Wybierz pracownika</InputLabel>
-        <Select
-          value={selectedEmployee}
-          onChange={(e) => setSelectedEmployee(e.target.value)}
-          label="Wybierz pracownika"
-        >
-          {availableEmployees.map((employee) => (
-            <MenuItem key={employee.id} value={employee.id}>
-              {employee.name}
-            </MenuItem>
-          ))}
-          {availableEmployees.length === 0 && (
-            <MenuItem disabled key={'noEmployees'}>
-              Wszyscy pracownicy są już dodani do tej budowy
-            </MenuItem>
+        <Autocomplete
+          value={
+            availableEmployees.find((e) => e.id === selectedEmployee) || null
+          }
+          onChange={(event, newValue) =>
+            setSelectedEmployee(newValue?.id || '')
+          }
+          options={availableEmployees}
+          getOptionLabel={(option) => option.name}
+          renderInput={(params) => (
+            <TextField {...params} label="Wybierz pracownika" />
           )}
-        </Select>
+          noOptionsText={
+            availableEmployees.length === 0
+              ? 'Wszyscy pracownicy są już dodani do tej budowy'
+              : 'Brak dostępnych opcji'
+          }
+        />
       </FormControl>
     </BaseDialog>
   );
@@ -530,23 +532,25 @@ export const PrintReportDialog: React.FC<PrintReportDialogProps> = ({
             label="Omijaj puste tygodnie"
           />
           <FormControl sx={{ mt: 2 }}>
-            <InputLabel id="report-lang-select-label">
-              Język docelowy
-            </InputLabel>
-            <Select
+            <Autocomplete
               size="small"
-              labelId="report-lang-select-label"
-              id="report-lang-select"
-              value={lang}
-              label="Język docelowy"
-              onChange={(e) => setLang(e.target.value)}
-            >
-              {Object.entries(Langs).map(([code, name]) => (
-                <MenuItem key={code} value={code}>
-                  {name}
-                </MenuItem>
-              ))}
-            </Select>
+              options={Object.entries(Langs).map(([code, name]) => ({
+                code,
+                name,
+              }))}
+              getOptionLabel={(option) => option.name}
+              value={
+                Object.entries(Langs).find(([code]) => code === lang)
+                  ? { code: lang, name: Langs[lang as keyof typeof Langs] }
+                  : null
+              }
+              onChange={(event, newValue) =>
+                setLang((newValue?.code as LangCode) || 'pl-PL')
+              }
+              renderInput={(params) => (
+                <TextField {...params} label="Język docelowy" />
+              )}
+            />
           </FormControl>
         </FormGroup>
       </Stack>

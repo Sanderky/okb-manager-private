@@ -49,9 +49,7 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
       gap={2}
       mb={1}
       width={'100%'}
-      className={
-        'border-lightGray rounded-lg border bg-gray-50 px-3 py-3'
-      }
+      className={'border-lightGray rounded-lg border bg-gray-50 px-3 py-3'}
     >
       <Stack
         sx={{ flexGrow: 1 }}
@@ -200,11 +198,9 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
       flexWrap={'wrap'}
       justifyContent={'flex-start'}
       gap={2}
-      mb={1}
       width={'100%'}
-      className={
-        'border-lightGray rounded-lg border bg-gray-50 px-3 py-3'
-      }
+      minHeight={'66px'}
+      className={'border-lightGray mb-2 rounded-lg border bg-gray-50 px-3 py-3'}
     >
       <Stack direction={'row'}>
         <Tooltip title={'Poprzedni miesiąc'}>
