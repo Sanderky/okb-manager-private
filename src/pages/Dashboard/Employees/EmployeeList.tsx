@@ -875,6 +875,7 @@ export default function EmployeeList() {
                     <TextField
                       size="small"
                       type="number"
+                      fullWidth
                       value={filters.hourRateFrom ?? ''}
                       label="Od"
                       onChange={(e) => {
@@ -896,6 +897,7 @@ export default function EmployeeList() {
                     </Typography>
                     <TextField
                       type="number"
+                      fullWidth
                       value={filters.hourRateTo ?? ''}
                       label="Do"
                       size="small"
@@ -908,7 +910,7 @@ export default function EmployeeList() {
                     />
                   </Stack>
                 </Grid>
-                <Grid size={{ xs: 12, sm: 6 }}>
+                <Grid size={{ xs: 12, md: 6 }}>
                   <FormLabel className="mb-2 block">
                     Miejsce urodzenia
                   </FormLabel>
