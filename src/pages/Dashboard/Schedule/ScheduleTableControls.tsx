@@ -62,7 +62,7 @@ export const TableControls: React.FC<TableControlsProps> = ({
       mb={1}
       width={'100%'}
       className={
-        'border-lightGray rounded-lg border bg-gray-50 px-3 py-3 md:py-2'
+        'border-lightGray rounded-lg border bg-gray-50 px-3 py-3'
       }
     >
       <Stack
@@ -255,7 +255,7 @@ export const TableControls: React.FC<TableControlsProps> = ({
       mb={1}
       width={'100%'}
       className={
-        'border-lightGray rounded-lg border bg-gray-50 px-3 py-3 md:py-2'
+        'border-lightGray rounded-lg border bg-gray-50 px-3 py-3'
       }
     >
       <Stack alignItems={'center'} direction={'row'} flexWrap={'wrap'} gap={2}>

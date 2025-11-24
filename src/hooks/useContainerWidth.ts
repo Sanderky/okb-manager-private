@@ -1,10 +1,17 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
+import {
+  useState,
+  useRef,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+} from 'react';
 
 const useContainerBreakpoint = (): [
   React.RefObject<HTMLDivElement | null>,
   number,
 ] => {
   const [width, setWidth] = useState<number>(0);
+
   const containerRef = useRef<HTMLDivElement>(null);
 
   const handleResize = useCallback((entries: ResizeObserverEntry[]) => {
@@ -12,6 +19,15 @@ const useContainerBreakpoint = (): [
     const newWidth = entries[0].contentRect.width;
     setWidth(newWidth);
   }, []);
+
+  useLayoutEffect(() => {
+    const element = containerRef.current;
+    if (!element) return;
+    if (width === 0) {
+      const initialWidth = element.getBoundingClientRect().width;
+      setWidth(initialWidth);
+    }
+  }, [containerRef]);
 
   useEffect(() => {
     const element = containerRef.current;
