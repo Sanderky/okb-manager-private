@@ -704,7 +704,6 @@ export default function EmployeeList() {
           onClick={handleCreateClick}
           startIcon={<AddIcon />}
           size="small"
-          sx={{ mx: 1, my: 0.5, minWidth: 'fit-content' }}
         >
           Nowy
         </Button>

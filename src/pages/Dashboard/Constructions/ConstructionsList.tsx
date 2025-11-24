@@ -583,7 +583,6 @@ export default function ConstructionsList() {
           onClick={handleCreateClick}
           startIcon={<AddIcon />}
           size="small"
-          sx={{ mx: 1, my: 0.5, minWidth: 'fit-content' }}
         >
           Nowa
         </Button>
