@@ -9,6 +9,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '../firebase';
 import type { Construction } from '../types';
+import { sortConstructions } from '../pages/Dashboard/Constructions/ConstructionsHelpers';
 
 export async function createConstruction(
   data: Partial<Construction> & { name: string; status: boolean }
@@ -66,7 +67,7 @@ export async function getConstructionList(): Promise<Construction[]> {
     } as Construction;
   });
 
-  return constructionsList;
+  return sortConstructions(constructionsList);
 }
 
 export async function getConstruction(

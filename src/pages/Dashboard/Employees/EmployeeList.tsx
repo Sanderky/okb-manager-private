@@ -301,16 +301,34 @@ export default function EmployeeList() {
       {
         accessorKey: 'name',
         header: 'Nazwa',
-        Cell: ({ row }) => {
+        Cell: ({ renderedCellValue,row }) => {
           const employeeId = row.original.id;
           const alerts = getEmployeeAlerts(employeeId);
           const hasAlert = alerts.length > 0;
 
           return (
             <Box className={`${hasAlert && 'text-amber-500'}`}>
-              {row.original.name}
+              {renderedCellValue}
             </Box>
           );
+        },
+        sortingFn: (a, b) => {
+          const getLastFirstName = (fullName: string) => {
+            const parts = fullName.trim().split(/\s+/);
+            if (parts.length === 1) return ['', parts[0]];
+            const lastName = parts.pop()!;
+            const firstName = parts.join(' ');
+            return [lastName.toLowerCase(), firstName.toLowerCase()];
+          };
+
+          const [aLastName, aFirstName] = getLastFirstName(a.original.name);
+          const [bLastName, bFirstName] = getLastFirstName(b.original.name);
+
+          if (aLastName < bLastName) return -1;
+          if (aLastName > bLastName) return 1;
+          if (aFirstName < bFirstName) return -1;
+          if (aFirstName > bFirstName) return 1;
+          return 0;
         },
       },
       {

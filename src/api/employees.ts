@@ -11,6 +11,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '../firebase';
 import type { Employee } from '../types';
+import { sortEmployees } from '../pages/Dashboard/Employees/EmployeesHelpers';
 
 export async function createEmployee(
   data: Partial<Employee> & { name: string; status: boolean }
@@ -86,7 +87,7 @@ export async function getEmployeeList(activeOnly = false): Promise<Employee[]> {
     } as Employee;
   });
 
-  return employeesList;
+  return sortEmployees(employeesList);
 }
 
 export async function getEmployee(id: string): Promise<Employee | null> {
