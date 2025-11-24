@@ -19,7 +19,6 @@ import ForgotPassword from './ForgotPassword';
 import { getRules, validateField } from './validation';
 import { useAuth } from '../../context/AuthContext';
 import { default as LogoIcon } from '@mui/icons-material/TokenOutlined';
-import { syncUserToFirestore } from '../../api/users';
 import Loading from '../../components/Loading';
 import useLoading from '../../hooks/useLoading';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
@@ -75,15 +74,7 @@ const Login = () => {
     startActionLoading();
     try {
       await setPersistence(auth, browserLocalPersistence);
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        values.email,
-        values.password
-      );
-      const user = userCredential.user;
-
-      await syncUserToFirestore(user);
-
+      await signInWithEmailAndPassword(auth, values.email, values.password);
       setValues({ email: '', password: '' });
       setErrors({});
       setCredentialError(false);
