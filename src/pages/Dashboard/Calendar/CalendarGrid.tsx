@@ -229,7 +229,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                       setActiveDialog({ type: 'moreEvents', day: calendarDay });
                     }}
                     sx={{
-                      fontSize: { xs: '0.80rem', sm: '0.90rem' },
+                      fontSize: { xs: '0.80rem' },
                       fontWeight: 600,
                       ':hover': { color: 'purple' },
                       width: '100%',
@@ -246,7 +246,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                   >
                     <AddIcon
                       sx={{
-                        width: { xs: '15px', sm: '20px' },
+                        width: { xs: '15px', sm: '17px' },
                         maxHeight: '100%',
                       }}
                     />
