@@ -61,6 +61,11 @@ const customTheme = createTheme({
         },
       },
     },
+    MuiAutocomplete: {
+      defaultProps: {
+        noOptionsText: 'Brak danych',
+      },
+    },
   },
 });
 
