@@ -22,7 +22,6 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import useNotifications from '../../../hooks/useNotifications/useNotifications';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import useEmployeeAttachment from './useAttachment';
-import { validate } from './EmployeeEditHelpers';
 import BaseDialog from '../../../components/BaseDialog';
 import { deleteFolderRecursive } from '../../../components/fileBrowser/FileBrowserHelpers';
 import Loading from '../../../components/Loading';
@@ -34,6 +33,7 @@ import { removeEmployeeVacations } from '../../../api/vacations';
 import { removeEmployeeSchedules } from '../../../api/schedules';
 import { useScroll } from '../../../context/ScrollContext';
 import { useDialogs } from '../../../hooks/useDialogs/useDialogs';
+import { validate } from './EmployeesHelpers';
 
 export type FileStateMap = {
   [K in EmployeeAttachment]: File | null;

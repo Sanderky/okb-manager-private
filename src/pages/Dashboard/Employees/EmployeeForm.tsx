@@ -32,7 +32,6 @@ import { CheckCircleOutline, FileUpload } from '@mui/icons-material';
 import AttachmentBox from './AttachmentBox';
 import { PreviewDialog } from '../../../components/fileBrowser/FilePreviewDialog';
 import type { FileStateMap } from './EmployeeEdit';
-import { handleDownloadAttachment } from './EmployeeEditHelpers';
 import { useNavigate, useParams } from 'react-router';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import type { LoadingState } from './useAttachment';
@@ -40,6 +39,7 @@ import { NoteBase } from '../../../components/Note';
 import { plPL } from '@mui/x-date-pickers/locales';
 import { getDownloadURL, ref } from 'firebase/storage';
 import { storage } from '../../../firebase';
+import { handleDownloadAttachment } from './EmployeesHelpers';
 
 export interface EmployeeFormState {
   values: Partial<Omit<Employee, 'id'>>;

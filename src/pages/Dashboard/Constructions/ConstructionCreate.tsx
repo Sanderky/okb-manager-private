@@ -11,9 +11,9 @@ import useNotifications from '../../../hooks/useNotifications/useNotifications';
 import { Box } from '@mui/material';
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { validate } from './ConstructionHelpers';
 import Loading from '../../../components/Loading';
 import useLoading from '../../../hooks/useLoading';
+import { shouldBeInactive, validate } from './ConstructionsHelpers';
 
 export default function ConstructionCreate() {
   const navigate = useNavigate();
@@ -87,11 +87,15 @@ export default function ConstructionCreate() {
           });
         }
         return;
-      }
+      }    
+            const changedValues: Partial<Omit<Construction, 'id'>> = {
+              ...formState.values,
+              status: !shouldBeInactive(formState.values.endDate)
+            }
 
       startActionLoading();
       try {
-        await createMutation.mutateAsync(formState.values);
+        await createMutation.mutateAsync(changedValues);
       } finally {
         stopActionLoading();
       }

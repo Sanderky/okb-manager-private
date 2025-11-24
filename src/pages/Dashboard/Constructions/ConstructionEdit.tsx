@@ -21,7 +21,6 @@ import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import useNotifications from '../../../hooks/useNotifications/useNotifications';
-import { validate } from './ConstructionHelpers';
 import BaseDialog from '../../../components/BaseDialog';
 import { deleteFolderRecursive } from '../../../components/fileBrowser/FileBrowserHelpers';
 import Loading from '../../../components/Loading';
@@ -30,6 +29,8 @@ import { removeWorkHoursByConstruction } from '../../../api/hours';
 import { useScroll } from '../../../context/ScrollContext';
 import ArchiveIcon from '@mui/icons-material/Archive';
 import UnarchiveIcon from '@mui/icons-material/Unarchive';
+import { shouldBeInactive, validate } from './ConstructionsHelpers';
+import { FinishConstruction, ResumeConstruction } from './ConstructionDialogs';
 
 export default function ConstructionEdit() {
   const { constructionId } = useParams<{ constructionId: string }>();
@@ -41,12 +42,12 @@ export default function ConstructionEdit() {
     startLoading: startActionLoading,
     stopLoading: stopActionLoading,
   } = useLoading(false);
+  const [endDialogOpen, setEndDialogOpen] = useState(false);
+  const [resumeDialogOpen, setResumeDialogOpen] = useState(false);
 
   const [deleteConfirmation, setDeleteConfirmation] = useState('');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [isUpdatingConstructionStatus, setIsUpdatingConstructionStatus] =
-    useState(false);
 
   const formRefs = React.useRef<Record<string, HTMLInputElement | null>>({});
 
@@ -138,7 +139,10 @@ export default function ConstructionEdit() {
         return;
       }
 
-      const changedValues: Partial<Omit<Construction, 'id'>> = formState.values;
+      const changedValues: Partial<Omit<Construction, 'id'>> = {
+        ...formState.values,
+        status: !shouldBeInactive(formState.values.endDate),
+      };
 
       // Object.keys(formState.values).forEach((key) => {
       //   const field = key as keyof Construction;
@@ -204,26 +208,7 @@ export default function ConstructionEdit() {
     setDeleteDialogOpen(false);
   }, []);
 
-  const handleConstructionStatus = useCallback(
-    async (status: boolean) => {
-      if (!construction) return;
-
-      setIsUpdatingConstructionStatus(true);
-      try {
-        await updateMutation.mutateAsync({ status: status });
-        navigate(`/constructions/${constructionId}`);
-        scrollToTop();
-      } catch (error) {
-        console.error('Construction status update error:', error);
-      } finally {
-        setIsUpdatingConstructionStatus(false);
-      }
-    },
-    [construction, constructionId, navigate, scrollToTop, updateMutation]
-  );
-
-  const isFormLoading =
-    actionLoading || isDeleting || isUpdatingConstructionStatus;
+  const isFormLoading = actionLoading || isDeleting;
 
   const renderContent = () => {
     if (isLoading || actionLoading) {
@@ -311,7 +296,7 @@ export default function ConstructionEdit() {
                   variant="contained"
                   color={'warning'}
                   sx={{ minWidth: 120 }}
-                  onClick={() => handleConstructionStatus(false)}
+                  onClick={() => setEndDialogOpen(true)}
                   loading={isFormLoading}
                   startIcon={<ArchiveIcon />}
                 >
@@ -339,7 +324,7 @@ export default function ConstructionEdit() {
                   variant="contained"
                   color={'success'}
                   sx={{ minWidth: 120 }}
-                  onClick={() => handleConstructionStatus(true)}
+                  onClick={() => setResumeDialogOpen(true)}
                   loading={isFormLoading}
                   startIcon={<UnarchiveIcon />}
                 >
@@ -377,6 +362,17 @@ export default function ConstructionEdit() {
             </Stack>
           </Grid>
         </Grid>
+
+        <FinishConstruction
+          open={endDialogOpen}
+          onClose={() => setEndDialogOpen(false)}
+          construction={construction}
+        />
+        <ResumeConstruction
+          open={resumeDialogOpen}
+          onClose={() => setResumeDialogOpen(false)}
+          construction={construction}
+        />
 
         <BaseDialog
           open={deleteDialogOpen}

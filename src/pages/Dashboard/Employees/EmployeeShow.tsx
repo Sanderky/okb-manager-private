@@ -38,7 +38,6 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import useNotifications from '../../../hooks/useNotifications/useNotifications';
 import AttachmentBox from './AttachmentBox';
 import { PreviewDialog } from '../../../components/fileBrowser/FilePreviewDialog';
-import { handleDownloadAttachment } from './EmployeeEditHelpers';
 
 import FirebaseFileBrowser from '../../../components/fileBrowser/FileBrowser';
 import { getUpcomingVacationsForEmployee } from '../../../api/vacations';
@@ -51,6 +50,7 @@ import { getDownloadURL, ref } from 'firebase/storage';
 import { storage } from '../../../firebase';
 import { fetchAlertsSettings } from '../../../api/settings';
 import { EmployeeAlertDefault } from '../../../hooks/useEmployeeAlert';
+import { handleDownloadAttachment } from './EmployeesHelpers';
 
 const personalFields = [
   { key: 'name', label: 'Imię i nazwisko' },

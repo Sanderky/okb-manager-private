@@ -39,16 +39,13 @@ import dayjs from 'dayjs';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import useNotifications from '../../../hooks/useNotifications/useNotifications';
-import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { getEmployeesByScheduledConstruction } from '../../../api/schedules';
-import BaseDialog, { ConfirmationDialog } from '../../../components/BaseDialog';
 import FirebaseFileBrowser from '../../../components/fileBrowser/FileBrowser';
 import useLoading from '../../../hooks/useLoading';
 import { Note } from '../../../components/Note';
 
 import PeopleIcon from '@mui/icons-material/People';
-import { plPL } from '@mui/x-date-pickers/locales';
+import { FinishConstruction, ResumeConstruction } from './ConstructionDialogs';
 
 const personalFields = [
   { key: 'name', label: 'Nazwa budowy' },
@@ -147,100 +144,17 @@ export default function ConstructionShow() {
   }, [navigate]);
 
   const [endDialogOpen, setEndDialogOpen] = useState(false);
-  const [endDateValue, setEndDateValue] = useState(dayjs());
-  const [endDateError, setEndDateError] = useState<string | null>(null);
   const [resumeDialogOpen, setResumeDialogOpen] = useState(false);
-
-  const updateStatusMutation = useMutation({
-    mutationFn: (payload: { status: boolean; endDate?: Date | null }) =>
-      updateConstruction(constructionId!, payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['construction', constructionId],
-      });
-      queryClient.invalidateQueries({ queryKey: ['constructions'] });
-    },
-    onError: (error: Error) => {
-      console.error('Update construction status error:', error);
-      notifications.show('Wystąpił błąd podczas zmiany stanu budowy.', {
-        severity: 'error',
-        autoHideDuration: 5000,
-      });
-    },
-  });
 
   const isInProgress = construction?.status ?? false;
 
   const openEndDialog = useCallback(() => {
-    setEndDateError(null);
-
-    let initialEndDate;
-    if (construction?.endDate) {
-      initialEndDate = dayjs(construction.endDate);
-    } else {
-      initialEndDate = dayjs();
-    }
-
-    setEndDateValue(initialEndDate);
     setEndDialogOpen(true);
-  }, [construction]);
+  }, []);
 
   const closeEndDialog = useCallback(() => {
     setEndDialogOpen(false);
   }, []);
-
-  const handleFinish = useCallback(() => {
-    const start = construction?.startDate
-      ? dayjs(construction.startDate).startOf('day')
-      : null;
-    const chosen = endDateValue ? endDateValue.endOf('day') : null;
-
-    if (start && chosen && chosen.isBefore(start)) {
-      setEndDateError(
-        'Data zakończenia nie może być wcześniejsza niż data rozpoczęcia.'
-      );
-      return;
-    }
-
-    closeEndDialog();
-    updateStatusMutation.mutate(
-      {
-        status: false,
-        endDate: chosen ? chosen.toDate() : new Date(),
-      },
-      {
-        onSuccess: () => {
-          notifications.show('Budowa została oznaczona jako zakończona.', {
-            severity: 'success',
-            autoHideDuration: 5000,
-          });
-        },
-      }
-    );
-  }, [
-    construction?.startDate,
-    endDateValue,
-    closeEndDialog,
-    updateStatusMutation,
-    notifications,
-  ]);
-
-  const handleResume = useCallback(() => {
-    setResumeDialogOpen(false);
-    updateStatusMutation.mutate(
-      {
-        status: true,
-      },
-      {
-        onSuccess: () => {
-          notifications.show('Budowa została wznowiona.', {
-            severity: 'success',
-            autoHideDuration: 5000,
-          });
-        },
-      }
-    );
-  }, [updateStatusMutation, notifications]);
 
   const activeScheduleEmployees = useMemo(() => {
     if (scheduleEmployees) {
@@ -561,76 +475,15 @@ export default function ConstructionShow() {
             />
           </Box>
         )}
-        <BaseDialog
+        <FinishConstruction
           open={endDialogOpen}
           onClose={closeEndDialog}
-          onConfirm={handleFinish}
-          title="Zakończ budowę"
-          confirmText="Zakończ budowę"
-          confirmColor="warning"
-          showCancel={false}
-          loading={updateStatusMutation.isPending}
-        >
-          <Stack spacing={2}>
-            <Typography variant="body1">
-              Wybierz datę zakończenia budowy{' '}
-              <strong>{construction?.name}</strong>:
-            </Typography>
-            {construction?.startDate && (
-              <Typography variant="body1" className="mb-2">
-                Data rozpoczęcia:{' '}
-                <strong>
-                  {dayjs(construction?.startDate).format('DD.MM.YYYY')}
-                </strong>
-              </Typography>
-            )}
-
-            <LocalizationProvider
-              localeText={
-                plPL.components.MuiLocalizationProvider.defaultProps.localeText
-              }
-              dateAdapter={AdapterDayjs}
-              adapterLocale="pl"
-            >
-              <DatePicker
-                openTo="month"
-                views={['year', 'month', 'day']}
-                label="Data zakończenia"
-                value={endDateValue}
-                onChange={(v) => {
-                  setEndDateError(null);
-                  setEndDateValue(v ?? dayjs());
-                }}
-                slotProps={{
-                  textField: {
-                    size: 'small',
-                    fullWidth: true,
-                    error: !!endDateError,
-                    helperText: endDateError ?? '',
-                  },
-                  field: { clearable: false },
-                }}
-                minDate={dayjs(construction.startDate) || null}
-              />
-            </LocalizationProvider>
-          </Stack>
-        </BaseDialog>
-        <ConfirmationDialog
+          construction={construction}
+        />
+        <ResumeConstruction
           open={resumeDialogOpen}
           onClose={() => setResumeDialogOpen(false)}
-          onConfirm={handleResume}
-          title="Wznawianie budowy"
-          message={
-            <Typography variant="body1">
-              Czy na pewno chcesz wznowić budowę{' '}
-              <strong>{construction?.name}</strong>?
-            </Typography>
-          }
-          confirmText="Wznów budowę"
-          cancelText="Anuluj"
-          confirmColor="success"
-          showCancel={false}
-          loading={updateStatusMutation.isPending}
+          construction={construction}
         />
       </Box>
     ) : null;
@@ -648,12 +501,7 @@ export default function ConstructionShow() {
     scheduleEmployees,
     endDialogOpen,
     closeEndDialog,
-    handleFinish,
-    updateStatusMutation.isPending,
-    endDateValue,
-    endDateError,
     resumeDialogOpen,
-    handleResume,
     handleBack,
     navigate,
   ]);

@@ -11,13 +11,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import dayjs, { type Dayjs } from 'dayjs';
 import type { Construction } from '../../../types';
 import Alert from '@mui/material/Alert';
-import {
-  Autocomplete,
-  Divider,
-  FormControlLabel,
-  Switch,
-  Typography,
-} from '@mui/material';
+import { Autocomplete, Divider, Typography } from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
@@ -26,6 +20,7 @@ import { NoteBase } from '../../../components/Note';
 import { plPL } from '@mui/x-date-pickers/locales';
 import { getConstructionList } from '../../../api/constructions';
 import { useQuery } from '@tanstack/react-query';
+import { shouldBeInactive } from './ConstructionsHelpers';
 
 export interface ConstructionFormState {
   values: Partial<Omit<Construction, 'id'>>;
@@ -243,7 +238,7 @@ export default function ConstructionForm(props: ConstructionFormProps) {
                   )}
                 </Grid>
               ))}
-              {!isEditForm && (
+              {/* {!isEditForm && (
                 <Grid size={{ xs: 12 }}>
                   <FormControlLabel
                     control={
@@ -259,7 +254,7 @@ export default function ConstructionForm(props: ConstructionFormProps) {
                     label="Aktywna budowa"
                   />
                 </Grid>
-              )}
+              )} */}
             </Grid>
           </Grid>
           <Divider sx={{ width: '100%' }} />
@@ -282,8 +277,19 @@ export default function ConstructionForm(props: ConstructionFormProps) {
                       openTo="month"
                       views={['year', 'month', 'day']}
                       label={label}
+                      disabled={Boolean(
+                        key === 'endDate' &&
+                          (!formValues['startDate'] ||
+                            dayjs(formValues['startDate']).isAfter(dayjs()))
+                      )}
                       value={getDateValue(formValues[key])}
                       onChange={(newValue) => handleFieldChange(key, newValue)}
+                      minDate={
+                        key === 'endDate'
+                          ? dayjs(formValues['startDate'])
+                          : undefined
+                      }
+                      maxDate={key === 'endDate' ? dayjs() : undefined}
                       slotProps={{
                         textField: {
                           size: 'small',
@@ -307,6 +313,11 @@ export default function ConstructionForm(props: ConstructionFormProps) {
                 </Grid>
               ))}
             </Grid>
+            {shouldBeInactive(formState.values.endDate) && (
+              <Alert severity="warning" className="mt-3 px-3 py-0 font-medium">
+                Budowa zostanie oznaczona jako zakończona.
+              </Alert>
+            )}
           </Grid>
 
           {!isEditForm && (
