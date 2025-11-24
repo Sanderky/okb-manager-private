@@ -148,7 +148,6 @@ export const useTableState = (
   const handleSetColumnOrder = (
     newColumnOrder: React.SetStateAction<string[]>
   ) => {
-    console.log('set order', newColumnOrder);
     setColumnOrder((prev) => {
       return typeof newColumnOrder === 'function'
         ? newColumnOrder(prev)
