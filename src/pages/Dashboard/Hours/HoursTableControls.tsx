@@ -143,41 +143,61 @@ const HoursTableControls = ({
           </MenuItem>
           <Divider />
 
-          {!readOnly && (
-            <MenuItem key={'editMode'} disableRipple>
-              <Button
-                size="small"
-                fullWidth
-                loading={isLoading}
-                color="primary"
-                className="rounded-lg border"
-                onClick={() => {
-                  if (!isExpanded) handleToggleExpand();
-                  handleCloseMobileMenu();
-                  handleToggleEditMode();
-                }}
-              >
-                {editMode ? 'Zapisz' : 'Edytuj'}
-              </Button>
-            </MenuItem>
-          )}
-          {!readOnly && editMode && (
-            <MenuItem key={'cancel'} disableRipple>
-              <Button
-                size="small"
-                fullWidth
-                loading={isLoading}
-                color="inherit"
-                className="rounded-lg border"
-                onClick={() => {
-                  handleCloseMobileMenu();
-                  handleCancelEdit();
-                }}
-              >
-                Anuluj
-              </Button>
-            </MenuItem>
-          )}
+          {!readOnly && editMode
+            ? [
+                <MenuItem key={'editMode'} disableRipple>
+                  <Button
+                    size="small"
+                    fullWidth
+                    loading={isLoading}
+                    color="primary"
+                    variant={'contained'}
+                    onClick={() => {
+                      if (!isExpanded) handleToggleExpand();
+                      handleCloseMobileMenu();
+                      handleToggleEditMode();
+                    }}
+                  >
+                    Zapisz
+                  </Button>
+                </MenuItem>,
+
+                <MenuItem key={'cancel'} disableRipple>
+                  <Button
+                    size="small"
+                    fullWidth
+                    loading={isLoading}
+                    color="inherit"
+                    className="rounded-lg border"
+                    onClick={() => {
+                      handleCloseMobileMenu();
+                      handleCancelEdit();
+                    }}
+                  >
+                    Anuluj
+                  </Button>
+                </MenuItem>,
+              ]
+            : !readOnly && (
+                <MenuItem key={'editMode'} disableRipple>
+                  <Button
+                    size="small"
+                    fullWidth
+                    loading={isLoading}
+                    color="primary"
+                    // className="rounded-lg border"
+                    variant={'outlined'}
+                    onClick={() => {
+                      if (!isExpanded) handleToggleExpand();
+                      handleCloseMobileMenu();
+                      handleToggleEditMode();
+                    }}
+                  >
+                    Edytuj
+                  </Button>
+                </MenuItem>
+              )}
+
           {!readOnly && (
             <MenuItem key={'copy'} disableRipple>
               <Button
@@ -488,32 +508,45 @@ const HoursTableControls = ({
         >
           {!readOnly && (
             <>
-              <Button
-                disabled={isLoading}
-                size="small"
-                variant="outlined"
-                onClick={() => {
-                  if (!isExpanded) handleToggleExpand();
-
-                  handleToggleEditMode();
-                }}
-              >
-                {editMode ? 'Zapisz' : 'Edytuj'}
-              </Button>
-
-              {editMode && (
+              {editMode ? (
+                <>
+                  <Button
+                    disabled={isLoading}
+                    size="small"
+                    variant={'contained'}
+                    onClick={() => {
+                      if (!isExpanded) handleToggleExpand();
+                      handleToggleEditMode();
+                    }}
+                  >
+                    Zapisz
+                  </Button>
+                  <Button
+                    disabled={isLoading}
+                    size="small"
+                    variant="outlined"
+                    color="inherit"
+                    onClick={() => handleCancelEdit()}
+                    sx={{
+                      color: 'inherit',
+                      ml: 1,
+                    }}
+                  >
+                    Anuluj
+                  </Button>
+                </>
+              ) : (
                 <Button
                   disabled={isLoading}
                   size="small"
-                  variant="outlined"
-                  color="inherit"
-                  onClick={() => handleCancelEdit()}
-                  sx={{
-                    color: 'inherit',
-                    ml: 1,
+                  variant={'outlined'}
+                  onClick={() => {
+                    if (!isExpanded) handleToggleExpand();
+
+                    handleToggleEditMode();
                   }}
                 >
-                  Anuluj
+                  Edytuj
                 </Button>
               )}
 
