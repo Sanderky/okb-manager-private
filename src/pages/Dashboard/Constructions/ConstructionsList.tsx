@@ -82,6 +82,17 @@ const DefaultFiltersState: ConstructionsFilters = {
 
 const DefaultColumnFilters = [{ id: 'status', value: 'true' }];
 
+const DefaultColumnsOrder = [
+  'mrt-row-numbers',
+  'name',
+  'status',
+  'employeeCount',
+  'contractor',
+  'location',
+  'startDate',
+  'endDate',
+];
+
 export default function ConstructionsList() {
   const navigate = useNavigate();
   const {
@@ -94,7 +105,9 @@ export default function ConstructionsList() {
     setPagination,
     columnFilters,
     setColumnFilters,
-  } = useTableState('constructions', DefaultColumnFilters);
+    columnOrder,
+    setColumnOrder,
+  } = useTableState('constructions', DefaultColumnFilters, DefaultColumnsOrder);
 
   const [filtersModalOpen, setFiltersModalOpen] = useState(false);
 
@@ -294,19 +307,22 @@ export default function ConstructionsList() {
   >(
     () => [
       {
+        id: 'name',
         accessorKey: 'name',
         header: 'Nazwa',
       },
       {
+        id: 'contractor',
         accessorKey: 'contractor',
         header: 'Wykonawca',
       },
       {
+        id: 'location',
         accessorKey: 'location',
         header: 'Adres',
       },
       {
-        accessorKey: 'startDate',
+        id: 'startDate',
         header: 'Data rozpoczęcia',
         filterVariant: 'date-range',
         accessorFn: (originalRow) => {
@@ -323,7 +339,7 @@ export default function ConstructionsList() {
         maxSize: 140,
       },
       {
-        accessorKey: 'endDate',
+        id: 'endDate',
         header: 'Data zakończenia',
         filterVariant: 'date-range',
         accessorFn: (originalRow) => {
@@ -412,30 +428,21 @@ export default function ConstructionsList() {
     columns,
     data: tableData,
     layoutMode: 'semantic',
-    initialState: {
-      density: 'comfortable',
-      columnOrder: [
-        'mrt-row-numbers',
-        'name',
-        'status',
-        'employeeCount',
-        'contractor',
-        'location',
-        'startDate',
-        'endDate',
-      ],
-    },
     state: {
       columnFilters,
       columnVisibility,
       density,
       isLoading: isLoading,
       pagination,
+      columnOrder,
     },
     onPaginationChange: setPagination,
+    onColumnOrderChange: setColumnOrder,
     onColumnVisibilityChange: setColumnVisibility,
     onDensityChange: setDensity,
     enableColumnFilters: false,
+    enableColumnActions: false,
+    enableColumnOrdering: true,
     enableColumnResizing: true,
     renderToolbarInternalActions: ({ table }) => (
       <Stack direction="row" alignItems="center" spacing={1}>

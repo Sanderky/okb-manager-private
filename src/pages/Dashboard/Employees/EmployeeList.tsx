@@ -102,6 +102,25 @@ const DefaultFiltersState: EmployeesFilters = {
 
 const DefaultColumnFilters = [{ id: 'status', value: 'true' }];
 
+const ColumnOrderDefault = [
+  'mrt-row-numbers',
+  'name',
+  'status',
+  'phone',
+  'email',
+  'address',
+  'pesel',
+  'isContractor',
+  'hourRate',
+  'birthPlace',
+  'birthDate',
+  'accountNumber',
+  'contractStartDate',
+  'contractEndDate',
+  'a1StartDate',
+  'a1EndDate',
+];
+
 export default function EmployeeList() {
   const navigate = useNavigate();
   const {
@@ -114,7 +133,9 @@ export default function EmployeeList() {
     setPagination,
     columnFilters,
     setColumnFilters,
-  } = useTableState('employees', DefaultColumnFilters);
+    columnOrder,
+    setColumnOrder,
+  } = useTableState('employees', DefaultColumnFilters, ColumnOrderDefault);
 
   const { getEmployeeAlerts } = useEmployeeAlert();
 
@@ -405,6 +426,7 @@ export default function EmployeeList() {
         accessorKey: 'contractStartDate',
         header: 'Data rozpoczęcia umowy',
         filterVariant: 'date-range',
+        size: 250,
         accessorFn: (originalRow) => {
           const value = originalRow.contractStartDate;
           if (!value) return null;
@@ -420,6 +442,7 @@ export default function EmployeeList() {
       {
         accessorKey: 'contractEndDate',
         header: 'Data zakończenia umowy',
+        size: 250,
         filterVariant: 'date-range',
         accessorFn: (originalRow) => {
           const value = originalRow.contractEndDate;
@@ -509,40 +532,13 @@ export default function EmployeeList() {
     columns,
     data: tableData,
     layoutMode: 'semantic',
-    initialState: {
-      density: 'comfortable',
-      columnOrder: [
-        'mrt-row-numbers',
-        'name',
-        'status',
-        'phone',
-        'email',
-        'address',
-        'pesel',
-        'isContractor',
-        'hourRate',
-        'birthPlace',
-        'birthDate',
-        'accountNumber',
-        'contractStartDate',
-        'contractEndDate',
-        'a1StartDate',
-        'a1EndDate',
-      ],
-      columnVisibility: {
-        address: false,
-        birthDate: false,
-        isContractor: false,
-        contractEndDate: false,
-        a1EndDate: false,
-      },
-    },
     state: {
       columnFilters,
       columnVisibility,
       density,
       isLoading: isLoading,
       pagination,
+      columnOrder,
     },
     muiTableContainerProps: {
       sx: {
@@ -555,8 +551,11 @@ export default function EmployeeList() {
     onPaginationChange: setPagination,
     onColumnVisibilityChange: setColumnVisibility,
     onDensityChange: setDensity,
+    onColumnOrderChange: setColumnOrder,
     enableColumnFilters: false,
+    enableColumnOrdering: true,
     enableColumnResizing: true,
+    enableColumnActions: false,
     renderToolbarInternalActions: ({ table }) => (
       <Stack direction="row" alignItems="center" spacing={1}>
         <MRT_ToggleGlobalFilterButton table={table} />
