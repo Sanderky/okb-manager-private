@@ -19,18 +19,20 @@ interface ColumnFilter {
 
 const DensityDefault: MRT_DensityState = 'compact';
 
+const PaginationDefault = { pageIndex: 0, pageSize: 10 };
+
+const ColumnVisibilityDefault = {};
+
 export const useTableState = (
   tableName: string,
   defaultFilters: ColumnFilter[] = []
 ) => {
   const [columnVisibility, setColumnVisibility] = useState<MRT_VisibilityState>(
-    {}
+    ColumnVisibilityDefault
   );
   const [density, setDensity] = useState<MRT_DensityState>(DensityDefault);
-  const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 10,
-  });
+  const [pagination, setPagination] =
+    useState<PaginationState>(PaginationDefault);
   const [columnFilters, setColumnFilters] =
     useState<ColumnFilter[]>(defaultFilters);
   const [isLoading, setIsLoading] = useState(true);
@@ -43,12 +45,12 @@ export const useTableState = (
         const saved = localStorage.getItem(`table-preferences-${tableName}`);
         if (saved) {
           const preferences = JSON.parse(saved);
-          setColumnVisibility(preferences.columnVisibility || {});
-          setDensity(preferences.density || DensityDefault);
-          setPagination(
-            preferences.pagination || { pageIndex: 0, pageSize: 10 }
+          setColumnVisibility(
+            preferences.columnVisibility || ColumnVisibilityDefault
           );
-          setColumnFilters(preferences.columnFilters || []);
+          setDensity(preferences.density || DensityDefault);
+          setPagination(preferences.pagination || PaginationDefault);
+          setColumnFilters(preferences.columnFilters || defaultFilters);
         }
       } catch (error) {
         console.error(
@@ -62,7 +64,7 @@ export const useTableState = (
     };
 
     loadPreferences();
-  }, [tableName]);
+  }, [tableName, defaultFilters]);
 
   useEffect(() => {
     if (isLoading || isInitialLoad.current) return;
