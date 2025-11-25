@@ -7,7 +7,6 @@ import {
 } from 'react-router-dom';
 import DashboardLayout from './components/dashboard/DashboardLayout';
 import Login from './pages/Login/Login';
-import { AuthProvider } from './context/AuthContext';
 import PrivateRoute from './routing/PrivateRoute';
 import EmployeeShow from './pages/Dashboard/Employees/EmployeeShow';
 import ConstructionsList from './pages/Dashboard/Constructions/ConstructionsList';
@@ -23,9 +22,16 @@ import Home from './pages/Dashboard/Home/Home';
 import VacationCalendar from './pages/Dashboard/Calendar/Calendar';
 import Hours from './pages/Dashboard/Hours/Hours';
 import Schedule from './pages/Dashboard/Schedule/Schedule';
-import useEmployeesAlert from './hooks/useEmployeeAlert';
 import PageNotFound from './pages/PageNotFound/PageNotFound';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { useAuth } from './context/AuthContext';
+import useEmployeesAlert from './hooks/useEmployeeAlert';
+import { getConstructionList } from './api/constructions';
+import { useQuery } from '@tanstack/react-query';
+import { fetchAlertsSettings } from './api/settings';
+import { getEmployeeList } from './api/employees';
+import { getUpcomingVacations } from './api/vacations';
+import { getHomeNote } from './api/home';
 
 const customTheme = createTheme({
   palette: {
@@ -70,61 +76,106 @@ const customTheme = createTheme({
 });
 
 export default function App() {
-  useEmployeesAlert();
+  const { user, initialLoading: authLoading } = useAuth();
+
+  const { data: employees, isLoading: employeesLoading } = useQuery({
+    queryKey: ['employees'],
+    queryFn: () => getEmployeeList(),
+    enabled: !!user,
+  });
+
+  const { data: alertsSettings, isLoading: alertsSettingsLoading } = useQuery({
+    queryKey: ['alertsSettings'],
+    queryFn: fetchAlertsSettings,
+    enabled: !!user,
+  });
+
+  const { isLoading: constructionsLoading } = useQuery({
+    queryKey: ['constructions'],
+    queryFn: () => getConstructionList(),
+    enabled: !!user,
+  });
+
+  const { isLoading: upcomingVacationsLoading } = useQuery({
+    queryKey: ['vacations', 'upcoming-vacations'],
+    queryFn: getUpcomingVacations,
+    enabled: !!user,
+  });
+
+  const { isLoading: activeEmployeesLoading } = useQuery({
+    queryKey: ['employees', { status: true }],
+    queryFn: () => getEmployeeList(true),
+    enabled: !!user,
+  });
+
+  const { isLoading: homeNoteLoading } = useQuery({
+    queryKey: ['home', 'note'],
+    queryFn: getHomeNote,
+    enabled: !!user,
+  });
+
+  useEmployeesAlert(employees, alertsSettings, employeesLoading || alertsSettingsLoading);
+
+  const isLoading = Boolean(
+    authLoading ||
+      (user &&
+        (constructionsLoading ||
+          alertsSettingsLoading ||
+          employeesLoading ||
+          upcomingVacationsLoading ||
+          activeEmployeesLoading ||
+          homeNoteLoading))
+  );
 
   return (
-    <AuthProvider>
-      <ThemeProvider theme={customTheme}>
-        <CssBaseline enableColorScheme />
-        <NotificationsProvider>
-          <DialogsProvider>
-            <Router>
-              <Routes>
-                <Route path="/login" element={<Login />} />
-                <Route element={<PrivateRoute />}>
-                  <Route path="/" element={<DashboardLayout />}>
-                    <Route index element={<Navigate replace to="/home" />} />
-                    <Route path="home" element={<Home />} />
-                    <Route path="employees" element={<EmployeeList />} />
-                    <Route
-                      path="employees/:employeeId"
-                      element={<EmployeeShow />}
-                    />
-                    <Route
-                      path="employees/:employeeId/edit"
-                      element={<EmployeeEdit />}
-                    />
-                    <Route
-                      path="employees/create"
-                      element={<EmployeeCreate />}
-                    />
-                    <Route
-                      path="constructions"
-                      element={<ConstructionsList />}
-                    />
-                    <Route
-                      path="constructions/:constructionId"
-                      element={<ConstructionShow />}
-                    />
-                    <Route
-                      path="constructions/:constructionId/edit"
-                      element={<ConstructionEdit />}
-                    />
-                    <Route
-                      path="constructions/create"
-                      element={<ConstructionCreate />}
-                    />
-                    <Route path="schedule" element={<Schedule />} />
-                    <Route path="calendar" element={<VacationCalendar />} />
-                    <Route path="hours" element={<Hours />} />
-                    <Route path="*" element={<PageNotFound />} />
-                  </Route>
+    <ThemeProvider theme={customTheme}>
+      <CssBaseline enableColorScheme />
+      <NotificationsProvider>
+        <DialogsProvider>
+          <Router>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route
+                element={
+                  <PrivateRoute isLoading={isLoading} user={user} />
+                }
+              >
+                <Route path="/" element={<DashboardLayout />}>
+                  <Route index element={<Navigate replace to="/home" />} />
+                  <Route path="home" element={<Home />} />
+                  <Route path="employees" element={<EmployeeList />} />
+                  <Route
+                    path="employees/:employeeId"
+                    element={<EmployeeShow />}
+                  />
+                  <Route
+                    path="employees/:employeeId/edit"
+                    element={<EmployeeEdit />}
+                  />
+                  <Route path="employees/create" element={<EmployeeCreate />} />
+                  <Route path="constructions" element={<ConstructionsList />} />
+                  <Route
+                    path="constructions/:constructionId"
+                    element={<ConstructionShow />}
+                  />
+                  <Route
+                    path="constructions/:constructionId/edit"
+                    element={<ConstructionEdit />}
+                  />
+                  <Route
+                    path="constructions/create"
+                    element={<ConstructionCreate />}
+                  />
+                  <Route path="schedule" element={<Schedule />} />
+                  <Route path="calendar" element={<VacationCalendar />} />
+                  <Route path="hours" element={<Hours />} />
+                  <Route path="*" element={<PageNotFound />} />
                 </Route>
-              </Routes>
-            </Router>
-          </DialogsProvider>
-        </NotificationsProvider>
-      </ThemeProvider>
-    </AuthProvider>
+              </Route>
+            </Routes>
+          </Router>
+        </DialogsProvider>
+      </NotificationsProvider>
+    </ThemeProvider>
   );
 }

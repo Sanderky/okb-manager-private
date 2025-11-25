@@ -30,11 +30,11 @@ import { Construction, Done, Person, Settings } from '@mui/icons-material';
 import useNotifications from '../../../hooks/useNotifications/useNotifications';
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../../../firebase';
-import type { AlertsSettings, HomeDocument } from '../../../types';
+import type { AlertsSettings } from '../../../types';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import ReportProblemIcon from '@mui/icons-material/ReportProblem';
 import dayjs from 'dayjs';
-import { getVacationListForMonths } from '../../../api/vacations';
+import { getUpcomingVacations } from '../../../api/vacations';
 import Loading from '../../../components/Loading';
 import { ExpandMore, ExpandLess } from '@mui/icons-material';
 import { Note } from '../../../components/Note';
@@ -44,6 +44,7 @@ import {
   fetchAlertsSettings,
   updateAlertsSettings,
 } from '../../../api/settings';
+import { getHomeNote } from '../../../api/home';
 
 interface EmployeeAlertsSettingsProps {
   isOpen: boolean;
@@ -331,7 +332,7 @@ const EmployeeAlertsSettings = ({
 };
 
 const EmployeeAlerts = () => {
-  const { alerts } = useEmployeeAlert();
+  const { alerts, loading } = useEmployeeAlert();
   const navigate = useNavigate();
   const [isExpanded, setIsExpanded] = useState(false);
   const [isSettingsDialogOpen, setIsSettingsDialogOpen] = useState(false);
@@ -381,34 +382,44 @@ const EmployeeAlerts = () => {
           overflow: 'auto',
         }}
       >
-        <List className="mb-2">
-          {alerts.length === 0 ? (
-            <Stack direction={'row'} spacing={1} className="mb-2">
-              <Done />
-              <Typography color={'textSecondary'}>Brak uwag</Typography>
-            </Stack>
-          ) : (
-            alerts.map((alert) => (
-              <ListItem
-                key={alert.id}
-                onClick={() => navigate(`/employees/${alert.employeeId}`)}
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  cursor: 'pointer',
-                  borderRadius: '4px',
-                  borderLeftWidth: '8px',
-                  alignItems: 'flex-start',
-                  mb: 2,
-                }}
-                className={`${alert.severity === 'error' ? 'border-l-red-400' : 'border-l-yellow-400'} ${alert.severity === 'error' ? 'hover:bg-red-200' : 'hover:bg-amber-200'} ${alert.severity === 'error' ? 'bg-red-100' : 'bg-amber-100'} last:mb-0`}
-              >
-                <Typography variant="subtitle2">{alert.title}</Typography>
-                <Typography variant="body2">{alert.message}</Typography>
-              </ListItem>
-            ))
-          )}
-        </List>
+        {loading ? (
+          <Stack
+            justifyContent={'center'}
+            alignItems={'center'}
+            sx={{ height: '100%' }}
+          >
+            <CircularProgress />
+          </Stack>
+        ) : (
+          <List className="mb-2">
+            {alerts.length === 0 ? (
+              <Stack direction={'row'} spacing={1} className="mb-2">
+                <Done />
+                <Typography color={'textSecondary'}>Brak uwag</Typography>
+              </Stack>
+            ) : (
+              alerts.map((alert) => (
+                <ListItem
+                  key={alert.id}
+                  onClick={() => navigate(`/employees/${alert.employeeId}`)}
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    cursor: 'pointer',
+                    borderRadius: '4px',
+                    borderLeftWidth: '8px',
+                    alignItems: 'flex-start',
+                    mb: 2,
+                  }}
+                  className={`${alert.severity === 'error' ? 'border-l-red-400' : 'border-l-yellow-400'} ${alert.severity === 'error' ? 'hover:bg-red-200' : 'hover:bg-amber-200'} ${alert.severity === 'error' ? 'bg-red-100' : 'bg-amber-100'} last:mb-0`}
+                >
+                  <Typography variant="subtitle2">{alert.title}</Typography>
+                  <Typography variant="body2">{alert.message}</Typography>
+                </ListItem>
+              ))
+            )}
+          </List>
+        )}
       </Box>
       {hasMoreItems && (
         <Box sx={{ textAlign: 'center', mb: 1 }}>
@@ -440,25 +451,7 @@ const UpcomingVacation = () => {
 
   const { data: upcomingVacations, isLoading } = useQuery({
     queryKey: ['vacations', 'upcoming-vacations'],
-    queryFn: async () => {
-      const now = dayjs();
-      const nextMonth = now.add(1, 'month');
-
-      const currentMonthKey = now.format('YYYY-MM');
-      const nextMonthKey = nextMonth.format('YYYY-MM');
-
-      const vacations = await getVacationListForMonths([
-        currentMonthKey,
-        nextMonthKey,
-      ]);
-
-      const today = dayjs().startOf('day');
-      return vacations.filter(
-        (vacation) =>
-          dayjs(vacation.startDate).isSameOrAfter(today) ||
-          dayjs(vacation.endDate).isSameOrAfter(today)
-      );
-    },
+    queryFn: getUpcomingVacations,
   });
 
   const groupedVacations = useMemo(() => {
@@ -597,27 +590,14 @@ const HomeNote = () => {
   const notifications = useNotifications();
   const queryClient = useQueryClient();
 
-  const HOME_DOC_ID = 'home';
-  const { data: home } = useQuery({
-    queryKey: ['home', HOME_DOC_ID],
-    queryFn: async (): Promise<HomeDocument | null> => {
-      const homeDocRef = doc(db, 'home', HOME_DOC_ID);
-      const docSnap = await getDoc(homeDocRef);
-
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        return {
-          id: docSnap.id,
-          note: data.note,
-        };
-      }
-      return null;
-    },
+  const { data: home, isLoading: noteLoading } = useQuery({
+    queryKey: ['home', 'note'],
+    queryFn: getHomeNote,
   });
 
   const updateNoteMutation = useMutation({
     mutationFn: async (newNote: string) => {
-      const homeDocRef = doc(db, 'home', HOME_DOC_ID);
+      const homeDocRef = doc(db, 'home', 'note');
       const docSnap = await getDoc(homeDocRef);
 
       if (docSnap.exists()) {
@@ -633,7 +613,7 @@ const HomeNote = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ['home', HOME_DOC_ID],
+        queryKey: ['home', 'note'],
       });
       notifications.show('Notatka została zaktualizowana.', {
         severity: 'success',
@@ -653,7 +633,7 @@ const HomeNote = () => {
     <Note
       content={home?.note ?? ''}
       onSave={(note) => updateNoteMutation.mutate(note)}
-      loading={updateNoteMutation.isPending}
+      loading={updateNoteMutation.isPending || noteLoading}
     />
   );
 };
@@ -667,12 +647,12 @@ const Home = () => {
     setTab(newValue);
   };
 
-  const { data: employees } = useQuery({
+  const { data: employees, isLoading: employeesLoading } = useQuery({
     queryKey: ['employees'],
     queryFn: () => getEmployeeList(),
   });
 
-  const { data: constructions } = useQuery({
+  const { data: constructions, isLoading: constructionsLoading } = useQuery({
     queryKey: ['constructions'],
     queryFn: getConstructionList,
   });
@@ -734,50 +714,74 @@ const Home = () => {
                   onClick={handleEmployeesClick}
                   className="border-lightGray rounded-lg border hover:shadow-sm"
                 >
-                  <CardContent className="p-4">
-                    <Stack
-                      direction="row"
-                      spacing={2}
-                      alignItems="center"
-                      justifyContent={'space-between'}
+                  {employeesLoading ? (
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        minHeight: '200px',
+                      }}
                     >
-                      <Box>
-                        <Typography variant="body1" className="text-gray-600">
-                          Pracownicy
-                        </Typography>
-                        <Typography variant="h4">
-                          {activeEmployees?.length || 0}
-                        </Typography>
+                      <CircularProgress />
+                    </Box>
+                  ) : (
+                    <>
+                      <CardContent className="p-4">
+                        <Stack
+                          direction="row"
+                          spacing={2}
+                          alignItems="center"
+                          justifyContent={'space-between'}
+                        >
+                          <Box>
+                            <Typography
+                              variant="body1"
+                              className="text-gray-600"
+                            >
+                              Pracownicy
+                            </Typography>
+                            <Typography variant="h4">
+                              {activeEmployees?.length || 0}
+                            </Typography>
+                          </Box>
+                          <Avatar sx={{ bgcolor: 'primary.main' }}>
+                            <Person />
+                          </Avatar>
+                        </Stack>
+                      </CardContent>
+                      <Divider />
+                      <Box className="px-4 py-2">
+                        <Stack direction={'column'}>
+                          <Typography
+                            variant="overline"
+                            className="text-gray-600"
+                          >
+                            Zarchiwizowani:{' '}
+                            <Typography
+                              component={'span'}
+                              className="text-gray-800"
+                            >
+                              {Number(employees?.length) -
+                                Number(activeEmployees?.length) || 0}
+                            </Typography>
+                          </Typography>
+                          <Typography
+                            variant="overline"
+                            className="text-gray-600"
+                          >
+                            Wszyscy:{' '}
+                            <Typography
+                              component={'span'}
+                              className="text-gray-800"
+                            >
+                              {Number(employees?.length) || 0}
+                            </Typography>
+                          </Typography>
+                        </Stack>
                       </Box>
-                      <Avatar sx={{ bgcolor: 'primary.main' }}>
-                        <Person />
-                      </Avatar>
-                    </Stack>
-                  </CardContent>
-                  <Divider />
-                  <Box className="px-4 py-2">
-                    <Stack direction={'column'}>
-                      <Typography variant="overline" className="text-gray-600">
-                        Zarchiwizowani:{' '}
-                        <Typography
-                          component={'span'}
-                          className="text-gray-800"
-                        >
-                          {Number(employees?.length) -
-                            Number(activeEmployees?.length) || 0}
-                        </Typography>
-                      </Typography>
-                      <Typography variant="overline" className="text-gray-600">
-                        Wszyscy:{' '}
-                        <Typography
-                          component={'span'}
-                          className="text-gray-800"
-                        >
-                          {Number(employees?.length) || 0}
-                        </Typography>
-                      </Typography>
-                    </Stack>
-                  </Box>
+                    </>
+                  )}
                 </Card>
               </Grid>
               <Grid size={{ xs: 12, sm: 6 }}>
@@ -786,50 +790,74 @@ const Home = () => {
                   onClick={handleConstructionsClick}
                   className="border-lightGray rounded-lg border hover:shadow-sm"
                 >
-                  <CardContent className="p-4">
-                    <Stack
-                      direction="row"
-                      spacing={2}
-                      alignItems="center"
-                      justifyContent={'space-between'}
+                  {constructionsLoading ? (
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        minHeight: '200px',
+                      }}
                     >
-                      <Box>
-                        <Typography variant="body1" className="text-gray-600">
-                          Aktywne budowy
-                        </Typography>
-                        <Typography variant="h4">
-                          {activeConstructions?.length || 0}
-                        </Typography>
+                      <CircularProgress />
+                    </Box>
+                  ) : (
+                    <>
+                      <CardContent className="p-4">
+                        <Stack
+                          direction="row"
+                          spacing={2}
+                          alignItems="center"
+                          justifyContent={'space-between'}
+                        >
+                          <Box>
+                            <Typography
+                              variant="body1"
+                              className="text-gray-600"
+                            >
+                              Aktywne budowy
+                            </Typography>
+                            <Typography variant="h4">
+                              {activeConstructions?.length || 0}
+                            </Typography>
+                          </Box>
+                          <Avatar sx={{ bgcolor: 'secondary.main' }}>
+                            <Construction />
+                          </Avatar>
+                        </Stack>
+                      </CardContent>
+                      <Divider />
+                      <Box className="px-4 py-2">
+                        <Stack direction={'column'}>
+                          <Typography
+                            variant="overline"
+                            className="text-gray-600"
+                          >
+                            Zakończone:{' '}
+                            <Typography
+                              component={'span'}
+                              className="text-gray-800"
+                            >
+                              {Number(constructions?.length) -
+                                Number(activeConstructions?.length) || 0}
+                            </Typography>
+                          </Typography>
+                          <Typography
+                            variant="overline"
+                            className="text-gray-600"
+                          >
+                            Wszystkie:{' '}
+                            <Typography
+                              component={'span'}
+                              className="text-gray-800"
+                            >
+                              {Number(constructions?.length) || 0}
+                            </Typography>
+                          </Typography>
+                        </Stack>
                       </Box>
-                      <Avatar sx={{ bgcolor: 'secondary.main' }}>
-                        <Construction />
-                      </Avatar>
-                    </Stack>
-                  </CardContent>
-                  <Divider />
-                  <Box className="px-4 py-2">
-                    <Stack direction={'column'}>
-                      <Typography variant="overline" className="text-gray-600">
-                        Zakończone:{' '}
-                        <Typography
-                          component={'span'}
-                          className="text-gray-800"
-                        >
-                          {Number(constructions?.length) -
-                            Number(activeConstructions?.length) || 0}
-                        </Typography>
-                      </Typography>
-                      <Typography variant="overline" className="text-gray-600">
-                        Wszystkie:{' '}
-                        <Typography
-                          component={'span'}
-                          className="text-gray-800"
-                        >
-                          {Number(constructions?.length) || 0}
-                        </Typography>
-                      </Typography>
-                    </Stack>
-                  </Box>
+                    </>
+                  )}
                 </Card>
               </Grid>
               <Grid

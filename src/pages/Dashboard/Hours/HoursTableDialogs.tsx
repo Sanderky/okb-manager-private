@@ -108,7 +108,7 @@ export const AddConstructionWithEmployeeDialog: React.FC<
             availableConstructions.find((c) => c.id === selectedConstruction) ||
             null
           }
-          onChange={(event, newValue) =>
+          onChange={(_, newValue) =>
             setSelectedConstruction(newValue?.id || '')
           }
           options={availableConstructions}
@@ -127,7 +127,7 @@ export const AddConstructionWithEmployeeDialog: React.FC<
         <Autocomplete
           size="small"
           value={employees?.find((e) => e.id === selectedEmployee) || null}
-          onChange={(event, newValue) =>
+          onChange={(_, newValue) =>
             setSelectedEmployee(newValue?.id || '')
           }
           options={employees || []}
@@ -205,7 +205,7 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
           value={
             availableEmployees.find((e) => e.id === selectedEmployee) || null
           }
-          onChange={(event, newValue) =>
+          onChange={(_, newValue) =>
             setSelectedEmployee(newValue?.id || '')
           }
           options={availableEmployees}
@@ -547,7 +547,7 @@ export const PrintReportDialog: React.FC<PrintReportDialogProps> = ({
                   ? { code: lang, name: Langs[lang as keyof typeof Langs] }
                   : null
               }
-              onChange={(event, newValue) =>
+              onChange={(_, newValue) =>
                 setLang((newValue?.code as LangCode) || 'pl-PL')
               }
               renderInput={(params) => (

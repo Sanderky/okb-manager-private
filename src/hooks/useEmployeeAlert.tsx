@@ -1,10 +1,7 @@
-import { useQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { useEffect } from 'react';
-import { getEmployeeList } from '../api/employees';
 import { useEmployeeAlert } from '../context/EmployeeAlertContext';
 import type { AlertsSettings, Employee, EmployeeAlertSeverity } from '../types';
-import { fetchAlertsSettings } from '../api/settings';
 
 export const EmployeeAlertDefault = {
   a1Warning: 30,
@@ -118,18 +115,33 @@ const generateA1Alert = (
   return null;
 };
 
-const useEmployeesAlert = () => {
-  const { addAlert, resetAlerts } = useEmployeeAlert();
+const useEmployeesAlert = (
+  employees: Employee[] | undefined,
+  alertsSettings: AlertsSettings | undefined,
+  isLoading = false
+) => {
+  const { addAlert, resetAlerts, setLoading } = useEmployeeAlert();
 
-  const { data: employees } = useQuery({
-    queryKey: ['employees'],
-    queryFn: () => getEmployeeList(),
-  });
+  useEffect(() => {
+    setLoading(isLoading);
+  }, [isLoading, setLoading]);
+  // const { user } = useAuth();  const { user } = useAuth();
 
-  const { data: alertsSettings } = useQuery({
-    queryKey: ['alertsSettings'],
-    queryFn: fetchAlertsSettings,
-  });
+  // const { data: employees, isLoading: employeesLoading, isLoading: employeesLoading } = useQuery({
+  //   queryKey: ['employees'],
+  //   queryFn: () => getEmployeeList(),
+  // enabled: !!user,
+  // });
+
+  // const { data: alertsSettings, isLoading: alertsSettingsLoading } = useQuery({
+  //   queryKey: ['alertsSettings'],
+  //   queryFn: fetchAlertsSettings,
+  //   enabled: !!user,
+  // });
+
+  // useEffect(() => {
+  //   setLoading(employeesLoading || alertsSettingsLoading);
+  // }, [employeesLoading, alertsSettingsLoading, setLoading]);
 
   useEffect(() => {
     if (employees) {
@@ -164,6 +176,10 @@ const useEmployeesAlert = () => {
       });
     }
   }, [employees, alertsSettings]);
+
+  // return {
+  //   isLoading: employeesLoading || alertsSettingsLoading
+  // }
 };
 
 export default useEmployeesAlert;

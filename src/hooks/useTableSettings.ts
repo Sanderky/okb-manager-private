@@ -18,14 +18,14 @@ interface ColumnFilter {
 }
 
 const DensityDefault: MRT_DensityState = 'compact';
-
 const PaginationDefault = { pageIndex: 0, pageSize: 10 };
-
 const ColumnVisibilityDefault = {};
+const ColumnOrderDefault: string[] = [];
 
 export const useTableState = (
   tableName: string,
-  defaultFilters: ColumnFilter[] = []
+  defaultFilters: ColumnFilter[] = [],
+  defaultColumnOrder: string[] = []
 ) => {
   const [columnVisibility, setColumnVisibility] = useState<MRT_VisibilityState>(
     ColumnVisibilityDefault
@@ -35,6 +35,9 @@ export const useTableState = (
     useState<PaginationState>(PaginationDefault);
   const [columnFilters, setColumnFilters] =
     useState<ColumnFilter[]>(defaultFilters);
+  const [columnOrder, setColumnOrder] = useState<string[]>(
+    defaultColumnOrder || ColumnOrderDefault
+  );
   const [isLoading, setIsLoading] = useState(true);
 
   const isInitialLoad = useRef(true);
@@ -51,6 +54,9 @@ export const useTableState = (
           setDensity(preferences.density || DensityDefault);
           setPagination(preferences.pagination || PaginationDefault);
           setColumnFilters(preferences.columnFilters || defaultFilters);
+          setColumnOrder(
+            preferences.columnOrder || defaultColumnOrder || ColumnOrderDefault
+          );
         }
       } catch (error) {
         console.error(
@@ -64,7 +70,7 @@ export const useTableState = (
     };
 
     loadPreferences();
-  }, [tableName, defaultFilters]);
+  }, [tableName, defaultFilters, defaultColumnOrder]);
 
   useEffect(() => {
     if (isLoading || isInitialLoad.current) return;
@@ -76,6 +82,7 @@ export const useTableState = (
           density,
           pagination,
           columnFilters,
+          columnOrder,
           lastUpdated: new Date().toISOString(),
         };
         localStorage.setItem(
@@ -97,6 +104,7 @@ export const useTableState = (
     density,
     pagination,
     columnFilters,
+    columnOrder,
     tableName,
     isLoading,
   ]);
@@ -137,11 +145,22 @@ export const useTableState = (
     });
   };
 
+  const handleSetColumnOrder = (
+    newColumnOrder: React.SetStateAction<string[]>
+  ) => {
+    setColumnOrder((prev) => {
+      return typeof newColumnOrder === 'function'
+        ? newColumnOrder(prev)
+        : newColumnOrder;
+    });
+  };
+
   const resetState = () => {
     setColumnVisibility({});
     setDensity(DensityDefault);
     setPagination({ pageIndex: 0, pageSize: 10 });
     setColumnFilters(defaultFilters);
+    setColumnOrder(defaultColumnOrder || ColumnOrderDefault);
     localStorage.removeItem(`table-preferences-${tableName}`);
   };
 
@@ -150,10 +169,12 @@ export const useTableState = (
     setDensity: handleSetDensity,
     setPagination: handleSetPagination,
     setColumnFilters: handleSetColumnFilters,
+    setColumnOrder: handleSetColumnOrder,
     columnVisibility,
     density,
     pagination,
     columnFilters,
+    columnOrder,
     resetState,
     isLoading,
     isError: false,
