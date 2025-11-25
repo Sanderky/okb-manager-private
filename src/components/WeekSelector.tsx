@@ -11,6 +11,7 @@ import {
   Popover,
   IconButton,
   Tooltip,
+  type Theme,
 } from '@mui/material';
 import { CalendarMonth, ChevronLeft, ChevronRight } from '@mui/icons-material';
 
@@ -158,12 +159,20 @@ const WeekSelector: React.FC<WeekSelectorProps> = ({
           vertical: 'top',
           horizontal: 'left',
         }}
+        sx={{
+          '& .MuiPopover-paper': {
+            borderRadius: '8px',
+            overflow: 'hidden',
+          },
+        }}
       >
         <Box
           sx={{
             width: 320,
             py: 2,
             px: 1,
+            maxWidth: '100vw',
+            boxSizing: 'border-box',
           }}
         >
           <Stack direction={'row'} sx={{ alignItems: 'center' }}>
@@ -177,9 +186,6 @@ const WeekSelector: React.FC<WeekSelectorProps> = ({
             <LocalizationProvider
               dateAdapter={AdapterDayjs}
               adapterLocale="pl"
-              // localeText={{
-              //   cancelButtonLabel: "Anuluj"
-              // }}
               localeText={
                 plPL.components.MuiLocalizationProvider.defaultProps.localeText
               }
@@ -218,12 +224,18 @@ const WeekSelector: React.FC<WeekSelectorProps> = ({
                 textAlign: 'center',
                 fontSize: '0.8rem',
                 lineHeight: '1.2',
+                background: 'none',
               },
             }}
           >
             <Table
               size="small"
-              sx={{ borderCollapse: 'separate', borderSpacing: '0 8px' }}
+              sx={{
+                borderCollapse: 'separate',
+                borderSpacing: '0 5px',
+                tableLayout: 'fixed',
+                width: '100%',
+              }}
             >
               <TableHead>
                 <TableRow>
@@ -234,6 +246,7 @@ const WeekSelector: React.FC<WeekSelectorProps> = ({
                         fontWeight: 'bold',
                         fontSize: '0.7rem',
                         py: 1,
+                        background: 'transparent',
                       }}
                     >
                       {dayName}
@@ -256,32 +269,9 @@ const WeekSelector: React.FC<WeekSelectorProps> = ({
                         cursor: 'pointer',
                         position: 'relative',
                         marginTop: '5px !important',
-                        zIndex: 10,
-                        '&:hover &:after': {
-                          backgroundColor: isSelected
-                            ? 'primary.main'
-                            : 'action.hover',
-                        },
-                        '&:after': {
-                          content: '""',
-                          position: 'absolute',
-                          left: 0,
-                          top: 0,
-                          backgroundColor: isSelected
-                            ? 'primary.main'
-                            : isHovered
-                              ? 'action.hover'
-                              : 'transparent',
-                          color: isSelected
-                            ? 'primary.contrastText'
-                            : 'text.primary',
-                          transition: 'background-color 0.2s',
-                          zIndex: -1,
-                          display: 'block',
-                          width: '100%',
-                          height: '100%',
-                          borderRadius: '10px',
-                        },
+                        height: '32px',
+                        overflow: 'hidden',
+                        display: 'table-row',
                       }}
                       onMouseEnter={() => setHoveredWeek(week.start)}
                       onMouseLeave={() => setHoveredWeek(null)}
@@ -292,20 +282,50 @@ const WeekSelector: React.FC<WeekSelectorProps> = ({
                           day.getMonth() === selectedMonth.month();
                         const isToday =
                           day.toDateString() === new Date().toDateString();
-
+                        const getTextColor = () => {
+                          if (!isCurrentMonth) {
+                            return isSelected
+                              ? 'rgba(255,255,255,0.6)'
+                              : 'rgba(0,0,0,0.4)';
+                          } else {
+                            if (isSelected) {
+                              if (isToday) {
+                                return '#DBC569';
+                              }
+                              return 'primary.contrastText';
+                            }
+                            return isToday ? 'primary.main' : 'text.primary';
+                          }
+                        };
+                        const getBgColor = (theme: Theme) => {
+                          if (isSelected) {
+                            if (isHovered)
+                              return `${theme.palette.primary.dark} !important`;
+                            return `${theme.palette.primary.main} !important`;
+                          }
+                          if (isHovered)
+                            return `${theme.palette.action.hover} !important`;
+                          return 'transparent';
+                        };
                         return (
                           <TableCell
                             key={dayIndex}
-                            sx={{
+                            sx={(theme) => ({
                               fontWeight: isToday ? 'bold' : 'normal',
-                              opacity: isCurrentMonth ? 1 : 0.4,
-                              color: isSelected
-                                ? 'primary.contrastText'
-                                : isToday
-                                  ? 'primary.main'
-                                  : 'text.primary',
-                              py: 0.8,
-                            }}
+                              color: getTextColor(),
+                              py: 0.5,
+                              border: 'none',
+                              backgroundColor: getBgColor(theme),
+                              textDecoration: isToday ? 'underline' : 'none',
+                              ...(dayIndex === 0 && {
+                                borderTopLeftRadius: '10px',
+                                borderBottomLeftRadius: '10px',
+                              }),
+                              ...(dayIndex === 6 && {
+                                borderTopRightRadius: '10px',
+                                borderBottomRightRadius: '10px',
+                              }),
+                            })}
                           >
                             {day.getDate()}
                           </TableCell>
@@ -317,21 +337,19 @@ const WeekSelector: React.FC<WeekSelectorProps> = ({
               </TableBody>
             </Table>
           </TableContainer>
-              <Stack direction={"row"} justifyContent={"flex-end"} mt={2}>
-
+          <Stack direction={'row'} justifyContent={'flex-end'} mt={1}>
             <Button
-                  size="small"
-                  variant="text"
-                  // fullWidth
-                  onClick={() => {
-                    const today = new Date();
-                    setSelectedMonth(dayjs(today).startOf('month'));
-                    handleWeekSelect(getStartOfWeek(today));
-                  }}
-                >
-                  Bieżący tydzień
-                </Button>
-              </Stack>
+              size="small"
+              variant="text"
+              onClick={() => {
+                const today = new Date();
+                setSelectedMonth(dayjs(today).startOf('month'));
+                handleWeekSelect(getStartOfWeek(today));
+              }}
+            >
+              Bieżący tydzień
+            </Button>
+          </Stack>
         </Box>
       </Popover>
     </>
