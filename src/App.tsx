@@ -22,9 +22,16 @@ import Home from './pages/Dashboard/Home/Home';
 import VacationCalendar from './pages/Dashboard/Calendar/Calendar';
 import Hours from './pages/Dashboard/Hours/Hours';
 import Schedule from './pages/Dashboard/Schedule/Schedule';
-import useEmployeesAlert from './hooks/useEmployeeAlert';
 import PageNotFound from './pages/PageNotFound/PageNotFound';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { useAuth } from './context/AuthContext';
+import useEmployeesAlert from './hooks/useEmployeeAlert';
+import { getConstructionList } from './api/constructions';
+import { useQuery } from '@tanstack/react-query';
+import { fetchAlertsSettings } from './api/settings';
+import { getEmployeeList } from './api/employees';
+import { getUpcomingVacations } from './api/vacations';
+import { getHomeNote } from './api/home';
 
 const customTheme = createTheme({
   palette: {
@@ -69,7 +76,56 @@ const customTheme = createTheme({
 });
 
 export default function App() {
-  useEmployeesAlert();
+  const { user, initialLoading: authLoading } = useAuth();
+
+  const { data: employees, isLoading: employeesLoading } = useQuery({
+    queryKey: ['employees'],
+    queryFn: () => getEmployeeList(),
+    enabled: !!user,
+  });
+
+  const { data: alertsSettings, isLoading: alertsSettingsLoading } = useQuery({
+    queryKey: ['alertsSettings'],
+    queryFn: fetchAlertsSettings,
+    enabled: !!user,
+  });
+
+  const { isLoading: constructionsLoading } = useQuery({
+    queryKey: ['constructions'],
+    queryFn: () => getConstructionList(),
+    enabled: !!user,
+  });
+
+  const { isLoading: upcomingVacationsLoading } = useQuery({
+    queryKey: ['vacations', 'upcoming-vacations'],
+    queryFn: getUpcomingVacations,
+    enabled: !!user,
+  });
+
+  const { isLoading: activeEmployeesLoading } = useQuery({
+    queryKey: ['employees', { status: true }],
+    queryFn: () => getEmployeeList(true),
+    enabled: !!user,
+  });
+
+  const { isLoading: homeNoteLoading } = useQuery({
+    queryKey: ['home', 'note'],
+    queryFn: getHomeNote,
+    enabled: !!user,
+  });
+
+  useEmployeesAlert(employees, alertsSettings, employeesLoading || alertsSettingsLoading);
+
+  const isLoading = Boolean(
+    authLoading ||
+      (user &&
+        (constructionsLoading ||
+          alertsSettingsLoading ||
+          employeesLoading ||
+          upcomingVacationsLoading ||
+          activeEmployeesLoading ||
+          homeNoteLoading))
+  );
 
   return (
     <ThemeProvider theme={customTheme}>
@@ -79,7 +135,11 @@ export default function App() {
           <Router>
             <Routes>
               <Route path="/login" element={<Login />} />
-              <Route element={<PrivateRoute />}>
+              <Route
+                element={
+                  <PrivateRoute isLoading={isLoading} user={user} />
+                }
+              >
                 <Route path="/" element={<DashboardLayout />}>
                   <Route index element={<Navigate replace to="/home" />} />
                   <Route path="home" element={<Home />} />

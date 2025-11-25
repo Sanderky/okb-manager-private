@@ -30,11 +30,11 @@ import { Construction, Done, Person, Settings } from '@mui/icons-material';
 import useNotifications from '../../../hooks/useNotifications/useNotifications';
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../../../firebase';
-import type { AlertsSettings, HomeDocument } from '../../../types';
+import type { AlertsSettings } from '../../../types';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import ReportProblemIcon from '@mui/icons-material/ReportProblem';
 import dayjs from 'dayjs';
-import { getVacationListForMonths } from '../../../api/vacations';
+import { getUpcomingVacations } from '../../../api/vacations';
 import Loading from '../../../components/Loading';
 import { ExpandMore, ExpandLess } from '@mui/icons-material';
 import { Note } from '../../../components/Note';
@@ -44,6 +44,7 @@ import {
   fetchAlertsSettings,
   updateAlertsSettings,
 } from '../../../api/settings';
+import { getHomeNote } from '../../../api/home';
 
 interface EmployeeAlertsSettingsProps {
   isOpen: boolean;
@@ -450,25 +451,7 @@ const UpcomingVacation = () => {
 
   const { data: upcomingVacations, isLoading } = useQuery({
     queryKey: ['vacations', 'upcoming-vacations'],
-    queryFn: async () => {
-      const now = dayjs();
-      const nextMonth = now.add(1, 'month');
-
-      const currentMonthKey = now.format('YYYY-MM');
-      const nextMonthKey = nextMonth.format('YYYY-MM');
-
-      const vacations = await getVacationListForMonths([
-        currentMonthKey,
-        nextMonthKey,
-      ]);
-
-      const today = dayjs().startOf('day');
-      return vacations.filter(
-        (vacation) =>
-          dayjs(vacation.startDate).isSameOrAfter(today) ||
-          dayjs(vacation.endDate).isSameOrAfter(today)
-      );
-    },
+    queryFn: getUpcomingVacations,
   });
 
   const groupedVacations = useMemo(() => {
@@ -607,27 +590,14 @@ const HomeNote = () => {
   const notifications = useNotifications();
   const queryClient = useQueryClient();
 
-  const HOME_DOC_ID = 'home';
   const { data: home, isLoading: noteLoading } = useQuery({
-    queryKey: ['home', HOME_DOC_ID],
-    queryFn: async (): Promise<HomeDocument | null> => {
-      const homeDocRef = doc(db, 'home', HOME_DOC_ID);
-      const docSnap = await getDoc(homeDocRef);
-
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        return {
-          id: docSnap.id,
-          note: data.note,
-        };
-      }
-      return null;
-    },
+    queryKey: ['home', 'note'],
+    queryFn: getHomeNote,
   });
 
   const updateNoteMutation = useMutation({
     mutationFn: async (newNote: string) => {
-      const homeDocRef = doc(db, 'home', HOME_DOC_ID);
+      const homeDocRef = doc(db, 'home', 'note');
       const docSnap = await getDoc(homeDocRef);
 
       if (docSnap.exists()) {
@@ -643,7 +613,7 @@ const HomeNote = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ['home', HOME_DOC_ID],
+        queryKey: ['home', 'note'],
       });
       notifications.show('Notatka została zaktualizowana.', {
         severity: 'success',

@@ -175,6 +175,26 @@ export async function getVacationListForMonths(
   return allVacations;
 }
 
+export const getUpcomingVacations = async () => {
+  const now = dayjs();
+  const nextMonth = now.add(1, 'month');
+
+  const currentMonthKey = now.format('YYYY-MM');
+  const nextMonthKey = nextMonth.format('YYYY-MM');
+
+  const vacations = await getVacationListForMonths([
+    currentMonthKey,
+    nextMonthKey,
+  ]);
+
+  const today = dayjs().startOf('day');
+  return vacations.filter(
+    (vacation) =>
+      dayjs(vacation.startDate).isSameOrAfter(today) ||
+      dayjs(vacation.endDate).isSameOrAfter(today)
+  );
+};
+
 export const getUpcomingVacationsForEmployee = async (
   employeeId: string
 ): Promise<Vacation[]> => {

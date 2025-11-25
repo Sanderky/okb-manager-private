@@ -1,11 +1,13 @@
 import { Navigate, Outlet } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
 import Loading from '../components/Loading';
+import type { User } from 'firebase/auth';
+interface PrivateRouteProps {
+  isLoading: boolean;
+  user: User | null;
+}
 
-const PrivateRoute = () => {
-  const { user, initialLoading } = useAuth();
-
-  if (initialLoading) {
+const PrivateRoute = ({ isLoading, user }: PrivateRouteProps) => {
+  if (isLoading) {
     return <Loading fullScreen />;
   }
 
