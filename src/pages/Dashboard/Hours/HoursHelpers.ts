@@ -1,3 +1,4 @@
+import { sortByLastName } from '../Employees/EmployeesHelpers';
 import { type LangCode } from './reportTranslations';
 import type { ConstructionsWithWorkHours } from './useHoursTable';
 
@@ -44,7 +45,7 @@ export const sortConstructionsWithWorkHours = (
     .map((construction) => ({
       ...construction,
       workHours: [...construction.workHours].sort((a, b) =>
-        a.employeeName.localeCompare(b.employeeName)
+        sortByLastName(a.employeeName, b.employeeName)
       ),
     }))
     .sort((a, b) => a.name.localeCompare(b.name));
