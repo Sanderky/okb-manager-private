@@ -29,7 +29,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs, { Dayjs } from 'dayjs';
 import { MRT_Localization_PL } from 'material-react-table/locales/pl';
-import { Badge, Typography } from '@mui/material';
+import { Badge, Checkbox, Typography } from '@mui/material';
 import { useFormFilters, useTableState } from '../../../hooks/useTableSettings';
 import {
   Dialog,
@@ -45,14 +45,10 @@ import {
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import CloseIcon from '@mui/icons-material/Close';
+import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import { useEmployeeAlert } from '../../../context/EmployeeAlertContext';
 import { plPL } from '@mui/x-date-pickers/locales';
-
-import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
-import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
-
-dayjs.extend(isSameOrAfter);
-dayjs.extend(isSameOrBefore);
 
 interface EmployeesFilters {
   name: string;
@@ -398,7 +394,11 @@ export default function EmployeeList() {
         filterVariant: 'checkbox',
         Cell: ({ cell }) => (
           <Box className="w-full text-center">
-            {cell.getValue<boolean>() ? 'Tak' : 'Nie'}
+            {cell.getValue<boolean>() ? (
+              <CheckBoxIcon />
+            ) : (
+              <CheckBoxOutlineBlankIcon />
+            )}
           </Box>
         ),
       },

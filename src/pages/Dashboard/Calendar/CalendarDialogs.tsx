@@ -1182,52 +1182,48 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
                 </Button>
               </Stack>
               <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-                <Box sx={{ position: 'relative', flex: 1 }}>
-                  <DatePicker
-                    label="Data od (opcjonalnie)"
-                    value={dateRange.start || null}
-                    openTo="month"
-                    views={['year', 'month', 'day']}
-                    onChange={(newValue) =>
-                      setDateRange((prev) => ({ ...prev, start: newValue }))
-                    }
-                    slotProps={{
-                      field: {
-                        clearable: true,
-                        onClear: handleClearStartDate,
-                      },
-                      textField: {
-                        fullWidth: true,
-                        size: 'small' as const,
-                        error: hasDateError || undefined,
-                      },
-                    }}
-                    maxDate={dateRange.end || undefined}
-                  />
-                </Box>
-                <Box sx={{ position: 'relative', flex: 1 }}>
-                  <DatePicker
-                    label="Data do (opcjonalnie)"
-                    openTo="month"
-                    views={['year', 'month', 'day']}
-                    value={dateRange.end || null}
-                    onChange={(newValue) =>
-                      setDateRange((prev) => ({ ...prev, end: newValue }))
-                    }
-                    slotProps={{
-                      field: {
-                        clearable: true,
-                        onClear: handleClearEndDate,
-                      },
-                      textField: {
-                        fullWidth: true,
-                        size: 'small' as const,
-                        error: hasDateError || undefined,
-                      },
-                    }}
-                    minDate={dateRange.start || undefined}
-                  />
-                </Box>
+                <DatePicker
+                  label="Data od (opcjonalnie)"
+                  value={dateRange.start || null}
+                  openTo="month"
+                  views={['year', 'month', 'day']}
+                  onChange={(newValue) =>
+                    setDateRange((prev) => ({ ...prev, start: newValue }))
+                  }
+                  slotProps={{
+                    field: {
+                      clearable: true,
+                      onClear: handleClearStartDate,
+                    },
+                    textField: {
+                      fullWidth: true,
+                      size: 'small' as const,
+                      error: hasDateError || undefined,
+                    },
+                  }}
+                  maxDate={dateRange.end || undefined}
+                />
+                <DatePicker
+                  label="Data do (opcjonalnie)"
+                  openTo="month"
+                  views={['year', 'month', 'day']}
+                  value={dateRange.end || null}
+                  onChange={(newValue) =>
+                    setDateRange((prev) => ({ ...prev, end: newValue }))
+                  }
+                  slotProps={{
+                    field: {
+                      clearable: true,
+                      onClear: handleClearEndDate,
+                    },
+                    textField: {
+                      fullWidth: true,
+                      size: 'small' as const,
+                      error: hasDateError || undefined,
+                    },
+                  }}
+                  minDate={dateRange.start || undefined}
+                />
               </Stack>
               <Typography variant="caption" className="text-gray-500">
                 {'Efektywny zakres dat: '}
