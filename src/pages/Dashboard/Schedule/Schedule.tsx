@@ -597,6 +597,7 @@ const ScheduleComponent = () => {
               sx={{
                 overflowX: 'auto',
                 width: '100%',
+                maxHeight: '65vh',
               }}
             >
               <Table
@@ -612,13 +613,20 @@ const ScheduleComponent = () => {
                   },
                 }}
               >
-                <TableHead>
+                <TableHead
+                  sx={{
+                    position: 'sticky',
+                    left: 0,
+                    zIndex: 4,
+                    top: 0,
+                  }}
+                >
                   <TableRow>
                     <TableCell
                       sx={{
                         position: 'sticky',
                         left: 0,
-                        zIndex: 3,
+                        zIndex: 4,
                         width: {
                           xs: '50%',
                           sm: '40%',
@@ -661,7 +669,7 @@ const ScheduleComponent = () => {
                           key={index}
                           className={`relative cursor-pointer border-l border-l-gray-300 px-3 py-2 ${
                             isBefor
-                              ? 'bg-red-600/20'
+                              ? 'bg-red-200'
                               : isAfter
                                 ? 'bg-gray-100'
                                 : 'bg-green-200'
@@ -732,7 +740,12 @@ const ScheduleComponent = () => {
               </Table>
             </TableContainer>
           ) : (
-            <TableContainer component={Box}>
+            <TableContainer
+              component={Box}
+              sx={{
+                maxHeight: '65vh',
+              }}
+            >
               <Table
                 stickyHeader
                 sx={{
@@ -747,7 +760,7 @@ const ScheduleComponent = () => {
                       sx={{
                         position: 'sticky',
                         left: 0,
-                        zIndex: 3,
+                        zIndex: 4,
                         width: {
                           xs: '150px',
                           md: '200px',
