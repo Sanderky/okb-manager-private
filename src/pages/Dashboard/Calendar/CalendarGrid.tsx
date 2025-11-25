@@ -8,6 +8,7 @@ import {
   useTheme,
   darken,
   Stack,
+  useMediaQuery,
 } from '@mui/material';
 import dayjs from 'dayjs';
 import {
@@ -17,6 +18,9 @@ import {
 } from './CalendarHelpers';
 
 import AddIcon from '@mui/icons-material/Add';
+
+const MAX_EVENTS_DESKTOP = 4;
+const MAX_EVENTS_PHONE = 2;
 
 export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
   ({
@@ -29,6 +33,10 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
     setActiveDialog,
   }) => {
     const theme = useTheme();
+
+    const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
+    const MAX_EVENTS = isMobile ? MAX_EVENTS_PHONE : MAX_EVENTS_DESKTOP;
 
     return (
       <>
@@ -63,7 +71,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                   className={`border-t border-t-gray-300 p-1 ${isSelected && 'bg-lightBlue'}`}
                   sx={{
                     borderLeft: di % 7 !== 0 ? '1px solid #ddd' : 'none',
-                    minHeight: 140,
+                    // minHeight: 140,
                     p: '0 !important',
                     bgcolor: isCurrentMonth ? 'white' : '#fafafa',
                     ':hover': {
@@ -90,7 +98,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                   <Box
                     sx={{
                       position: 'relative',
-                      height: 4 * 24 + 23,
+                      height: MAX_EVENTS * 24 + 23,
                     }}
                   >
                     {events.map((ev, index) => {
@@ -106,7 +114,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
 
                       const showName = isStart || isWeekStart;
 
-                      if (slot > 3 || !ev.employee) return null;
+                      if (slot >= MAX_EVENTS || !ev.employee) return null;
 
                       return (
                         <Tooltip
@@ -256,7 +264,8 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                         }}
                       />
                       <Typography component={'span'} variant="inherit">
-                        {events.length > 4 && events.length - 4}
+                        {events.length > MAX_EVENTS &&
+                          events.length - MAX_EVENTS}
                       </Typography>
                     </Link>
                   )}
@@ -279,25 +288,6 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
           >
             {currentMonth.format('MMMM YYYY')}
           </Typography>
-          {/* <Typography variant="body2" className="font-medium text-gray-500">
-            <Typography component={'span'} variant="inherit">
-              {'Zakres: '}
-            </Typography>
-            {dayjs(fromWeek).format('DD.MM.YYYY')}
-            <Typography
-              component={'span'}
-              variant="inherit"
-              // sx={{
-              //   display: {
-              //     xs: 'none',
-              //     sm: 'inline',
-              //   },
-              // }}
-            >
-              {' - '}
-              {dayjs(toWeek).add(6, 'day').format('DD.MM.YYYY')}
-            </Typography>
-          </Typography> */}
         </Stack>
       </>
     );
