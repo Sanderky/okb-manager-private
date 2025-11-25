@@ -61,9 +61,7 @@ export const TableControls: React.FC<TableControlsProps> = ({
       gap={2}
       mb={1}
       width={'100%'}
-      className={
-        'border-lightGray rounded-lg border bg-gray-50 px-3 py-3'
-      }
+      className={'border-lightGray rounded-lg border bg-white px-3 py-3'}
     >
       <Stack
         sx={{ flexGrow: 1 }}
@@ -254,9 +252,7 @@ export const TableControls: React.FC<TableControlsProps> = ({
       gap={2}
       mb={1}
       width={'100%'}
-      className={
-        'border-lightGray rounded-lg border bg-gray-50 px-3 py-3'
-      }
+      className={'border-lightGray rounded-lg border bg-white px-3 py-3'}
     >
       <Stack alignItems={'center'} direction={'row'} flexWrap={'wrap'} gap={2}>
         <WeekSelector

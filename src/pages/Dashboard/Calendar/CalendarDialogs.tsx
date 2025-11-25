@@ -534,6 +534,7 @@ export const EventDetailsDialog: React.FC<EventDetailsDialogProps> = ({
 }) => {
   const navigate = useNavigate();
   const isMultipleEvents = activeDialog.type === 'moreEvents';
+  const isEventDetails = activeDialog.type === 'eventDetails';
 
   const handleDelete = () => {
     handleDeleteEvent();
@@ -557,7 +558,7 @@ export const EventDetailsDialog: React.FC<EventDetailsDialogProps> = ({
 
   return (
     <BaseDialog
-      open={isMultipleEvents || activeDialog.type === 'eventDetails'}
+      open={isMultipleEvents || isEventDetails}
       onClose={handleModalClose}
       title={
         isMultipleEvents ? (

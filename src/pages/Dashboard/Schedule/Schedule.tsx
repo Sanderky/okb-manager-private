@@ -590,7 +590,7 @@ const ScheduleComponent = () => {
           setShowDates={setShowDates}
           activeTable={activeTable}
         />
-        <Box className="overflow-hidden rounded-lg border border-gray-300 bg-gray-50">
+        <Box className="overflow-hidden rounded-lg border border-gray-300 bg-white">
           {activeTable.type === 0 ? (
             <TableContainer
               component={Box}

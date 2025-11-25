@@ -108,7 +108,7 @@ const HoursTableControls = ({
     <Stack
       gap={2}
       direction={'column'}
-      className="border-lightGray rounded-lg border bg-gray-50 px-3 py-3"
+      className="border-lightGray rounded-lg border bg-white px-3 py-3"
       sx={{
         border: tableBorder,
         mb: 1,
@@ -371,7 +371,7 @@ const HoursTableControls = ({
 
   const desktop = (
     <Box
-      className="border-lightGray mb-2 rounded-lg border bg-gray-50 px-3 py-3"
+      className="border-lightGray mb-2 rounded-lg border bg-white px-3 py-3"
       sx={{
         display: { xs: 'none', sm: 'flex' },
         flexDirection: { sm: 'column-reverse', md: 'row' },
