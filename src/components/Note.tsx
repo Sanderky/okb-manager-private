@@ -24,6 +24,7 @@ import {
 } from '@mui/icons-material';
 import {
   Box,
+  CircularProgress,
   Divider,
   IconButton,
   Stack,
@@ -403,6 +404,7 @@ export const Note = ({ content, onSave, loading = false }: NoteProps) => {
           content={note}
           onChange={(newNote) => setNote(newNote)}
           editable={editNote}
+          loading={loading}
         />
       </Box>
     </Box>
@@ -414,6 +416,7 @@ interface NoteBaseProps {
   onChange: (content: string) => void;
   editable: boolean;
   renderToolbar?: boolean;
+  loading?: boolean;
 }
 
 export const NoteBase = ({
@@ -421,6 +424,7 @@ export const NoteBase = ({
   onChange,
   editable,
   renderToolbar = true,
+  loading = false,
 }: NoteBaseProps) => {
   const editor = useEditor({
     extensions: [
@@ -470,7 +474,19 @@ export const NoteBase = ({
     }
   }, [editor, content]);
 
-  return (
+  return loading ? (
+    <Box
+      className="note rounded-sm border border-gray-300 bg-white px-2 py-1"
+      sx={{
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}
+    >
+      <CircularProgress />
+    </Box>
+  ) : (
     <>
       {renderToolbar && <MenuBar editor={editor} />}
 

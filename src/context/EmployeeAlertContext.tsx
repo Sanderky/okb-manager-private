@@ -3,6 +3,7 @@ import React, {
   useState,
   useContext,
   type ReactNode,
+  useCallback,
 } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import type { EmployeeAlert } from '../types';
@@ -19,6 +20,8 @@ interface AlertContextType {
     updates: Partial<Omit<EmployeeAlert, 'id'>>
   ) => void;
   resetAlerts: () => void;
+  loading: boolean;
+  setLoading: (loading: boolean) => void;
 }
 
 const EmployeeAlertContext = createContext<AlertContextType | undefined>(
@@ -29,6 +32,7 @@ export const EmployeeAlertProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const [alerts, setAlerts] = useState<EmployeeAlert[]>([]);
+  const [loading, setLoading] = useState(false);
 
   const addAlert = (alert: Omit<EmployeeAlert, 'id'>) => {
     if (!alert) return;
@@ -66,6 +70,10 @@ export const EmployeeAlertProvider: React.FC<{ children: ReactNode }> = ({
 
   const resetAlerts = () => setAlerts([]);
 
+  const handleSetLoading = useCallback((loading: boolean) => {
+    setLoading(loading);
+  }, []);
+
   return (
     <EmployeeAlertContext.Provider
       value={{
@@ -77,6 +85,8 @@ export const EmployeeAlertProvider: React.FC<{ children: ReactNode }> = ({
         getEmployeeAlerts,
         updateAlert,
         resetAlerts,
+        loading,
+        setLoading: handleSetLoading,
       }}
     >
       {children}

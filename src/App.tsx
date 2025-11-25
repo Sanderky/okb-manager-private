@@ -7,7 +7,6 @@ import {
 } from 'react-router-dom';
 import DashboardLayout from './components/dashboard/DashboardLayout';
 import Login from './pages/Login/Login';
-import { AuthProvider } from './context/AuthContext';
 import PrivateRoute from './routing/PrivateRoute';
 import EmployeeShow from './pages/Dashboard/Employees/EmployeeShow';
 import ConstructionsList from './pages/Dashboard/Constructions/ConstructionsList';
@@ -73,58 +72,50 @@ export default function App() {
   useEmployeesAlert();
 
   return (
-    <AuthProvider>
-      <ThemeProvider theme={customTheme}>
-        <CssBaseline enableColorScheme />
-        <NotificationsProvider>
-          <DialogsProvider>
-            <Router>
-              <Routes>
-                <Route path="/login" element={<Login />} />
-                <Route element={<PrivateRoute />}>
-                  <Route path="/" element={<DashboardLayout />}>
-                    <Route index element={<Navigate replace to="/home" />} />
-                    <Route path="home" element={<Home />} />
-                    <Route path="employees" element={<EmployeeList />} />
-                    <Route
-                      path="employees/:employeeId"
-                      element={<EmployeeShow />}
-                    />
-                    <Route
-                      path="employees/:employeeId/edit"
-                      element={<EmployeeEdit />}
-                    />
-                    <Route
-                      path="employees/create"
-                      element={<EmployeeCreate />}
-                    />
-                    <Route
-                      path="constructions"
-                      element={<ConstructionsList />}
-                    />
-                    <Route
-                      path="constructions/:constructionId"
-                      element={<ConstructionShow />}
-                    />
-                    <Route
-                      path="constructions/:constructionId/edit"
-                      element={<ConstructionEdit />}
-                    />
-                    <Route
-                      path="constructions/create"
-                      element={<ConstructionCreate />}
-                    />
-                    <Route path="schedule" element={<Schedule />} />
-                    <Route path="calendar" element={<VacationCalendar />} />
-                    <Route path="hours" element={<Hours />} />
-                    <Route path="*" element={<PageNotFound />} />
-                  </Route>
+    <ThemeProvider theme={customTheme}>
+      <CssBaseline enableColorScheme />
+      <NotificationsProvider>
+        <DialogsProvider>
+          <Router>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route element={<PrivateRoute />}>
+                <Route path="/" element={<DashboardLayout />}>
+                  <Route index element={<Navigate replace to="/home" />} />
+                  <Route path="home" element={<Home />} />
+                  <Route path="employees" element={<EmployeeList />} />
+                  <Route
+                    path="employees/:employeeId"
+                    element={<EmployeeShow />}
+                  />
+                  <Route
+                    path="employees/:employeeId/edit"
+                    element={<EmployeeEdit />}
+                  />
+                  <Route path="employees/create" element={<EmployeeCreate />} />
+                  <Route path="constructions" element={<ConstructionsList />} />
+                  <Route
+                    path="constructions/:constructionId"
+                    element={<ConstructionShow />}
+                  />
+                  <Route
+                    path="constructions/:constructionId/edit"
+                    element={<ConstructionEdit />}
+                  />
+                  <Route
+                    path="constructions/create"
+                    element={<ConstructionCreate />}
+                  />
+                  <Route path="schedule" element={<Schedule />} />
+                  <Route path="calendar" element={<VacationCalendar />} />
+                  <Route path="hours" element={<Hours />} />
+                  <Route path="*" element={<PageNotFound />} />
                 </Route>
-              </Routes>
-            </Router>
-          </DialogsProvider>
-        </NotificationsProvider>
-      </ThemeProvider>
-    </AuthProvider>
+              </Route>
+            </Routes>
+          </Router>
+        </DialogsProvider>
+      </NotificationsProvider>
+    </ThemeProvider>
   );
 }

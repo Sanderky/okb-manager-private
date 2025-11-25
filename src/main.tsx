@@ -9,6 +9,7 @@ import { EmployeeAlertProvider } from './context/EmployeeAlertContext.tsx';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import dayjs from 'dayjs';
+import { AuthProvider } from './context/AuthContext.tsx';
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
@@ -27,9 +28,11 @@ createRoot(document.getElementById('root')!).render(
     <StyledEngineProvider enableCssLayer>
       <GlobalStyles styles="@layer theme, base, mui, components, utilities;" />
       <QueryClientProvider client={queryClient}>
-        <EmployeeAlertProvider>
-          <App />
-        </EmployeeAlertProvider>
+        <AuthProvider>
+          <EmployeeAlertProvider>
+            <App />
+          </EmployeeAlertProvider>
+        </AuthProvider>
       </QueryClientProvider>
     </StyledEngineProvider>
   </StrictMode>

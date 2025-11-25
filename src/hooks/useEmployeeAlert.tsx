@@ -5,6 +5,7 @@ import { getEmployeeList } from '../api/employees';
 import { useEmployeeAlert } from '../context/EmployeeAlertContext';
 import type { AlertsSettings, Employee, EmployeeAlertSeverity } from '../types';
 import { fetchAlertsSettings } from '../api/settings';
+import { useAuth } from '../context/AuthContext';
 
 export const EmployeeAlertDefault = {
   a1Warning: 30,
@@ -119,17 +120,24 @@ const generateA1Alert = (
 };
 
 const useEmployeesAlert = () => {
-  const { addAlert, resetAlerts } = useEmployeeAlert();
+  const { addAlert, resetAlerts, setLoading } = useEmployeeAlert();
+  const { user } = useAuth();
 
-  const { data: employees } = useQuery({
+  const { data: employees, isLoading: employeesLoading } = useQuery({
     queryKey: ['employees'],
     queryFn: () => getEmployeeList(),
+    enabled: !!user,
   });
 
-  const { data: alertsSettings } = useQuery({
+  const { data: alertsSettings, isLoading: alertsSettingsLoading } = useQuery({
     queryKey: ['alertsSettings'],
     queryFn: fetchAlertsSettings,
+    enabled: !!user,
   });
+
+  useEffect(() => {
+    setLoading(employeesLoading || alertsSettingsLoading);
+  }, [employeesLoading, alertsSettingsLoading, setLoading]);
 
   useEffect(() => {
     if (employees) {
