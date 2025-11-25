@@ -232,7 +232,7 @@ const Calendar: React.FC = () => {
         return slot;
       };
 
-      while (current.isBefore(end) || current.isSame(end, 'day')) {
+      while (current.isSameOrBefore(end)) {
         const week: CalendarDay[] = [];
 
         for (let i = 0; i < 7; i++) {
@@ -266,7 +266,7 @@ const Calendar: React.FC = () => {
           sortedDayEvents.forEach((ev) => {
             const gid = ev.groupId;
             if (
-              current.isSame(ev.startDate, 'day') &&
+              current.isSame(ev.date, 'day') &&
               groupSlotMap[gid] === undefined
             ) {
               const free = getFreeSlot();
