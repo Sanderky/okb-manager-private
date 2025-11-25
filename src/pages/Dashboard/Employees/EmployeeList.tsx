@@ -330,7 +330,7 @@ export default function EmployeeList() {
             </Box>
           );
         },
-        sortingFn: (a, b) => sortByLastName(a.original.name, b.original.name)
+        sortingFn: (a, b) => sortByLastName(a.original.name, b.original.name),
       },
       {
         accessorKey: 'email',
@@ -373,9 +373,9 @@ export default function EmployeeList() {
         Cell: ({ cell }) => (
           <Box className="w-full text-center">
             {cell.getValue<boolean>() ? (
-              <CheckBoxIcon />
+              <CheckBoxIcon className="text-gray-500" />
             ) : (
-              <CheckBoxOutlineBlankIcon />
+              <CheckBoxOutlineBlankIcon className="text-gray-500" />
             )}
           </Box>
         ),
