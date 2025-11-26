@@ -589,13 +589,15 @@ const useHoursTable = (startWeek?: Date) => {
     }
   };
 
-  const handleEmployeeAdded = (newWorkHours: WorkHours) => {
-    setLocalWorkHours((prev) => [...prev, newWorkHours]);
+  const handleEmployeesAdded = (newWorkHoursArray: WorkHours[]) => {
+    setLocalWorkHours((prev) => [...prev, ...newWorkHoursArray]);
     setHasUnsavedChanges(true);
   };
 
-  const handleConstructionWithEmployeeAdded = (newWorkHours: WorkHours) => {
-    setLocalWorkHours((prev) => [...prev, newWorkHours]);
+  const handleConstructionWithEmployeeAdded = (
+    newWorkHoursArray: WorkHours[]
+  ) => {
+    setLocalWorkHours((prev) => [...prev, ...newWorkHoursArray]);
     setHasUnsavedChanges(true);
   };
 
@@ -828,7 +830,7 @@ const useHoursTable = (startWeek?: Date) => {
     isLoading,
     loadingError,
     totalHoursData,
-    handleEmployeeAdded,
+    handleEmployeesAdded,
     handleDeleteConstruction,
     handleCopyFromSourceWeek,
     handleDeleteEmployee,

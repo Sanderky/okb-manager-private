@@ -322,7 +322,7 @@ const TableRows = ({
                       }
                       size="small"
                     >
-                      Dodaj pracownika
+                      Dodaj pracowników
                     </Button>
                   </span>
                 </Tooltip>
@@ -560,7 +560,7 @@ const HoursTable = ({
     handleDeleteConstruction,
     handleCopyFromSourceWeek,
     handleDeleteEmployee,
-    handleEmployeeAdded,
+    handleEmployeesAdded,
     handleConstructionWithEmployeeAdded,
     handleHoursChange,
     totalHoursData,
@@ -844,7 +844,7 @@ const HoursTable = ({
         onClose={() => setAddEmployeeDialogOpen(false)}
         selectedConstruction={selectedConstructionForEmployee}
         currentWeek={currentWeek}
-        onEmployeeAdded={handleEmployeeAdded}
+        onEmployeeAdded={handleEmployeesAdded}
         availableEmployees={getAvailableEmployeesForConstruction(
           selectedConstructionForEmployee?.id
         )}

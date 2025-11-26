@@ -15,6 +15,7 @@ import {
   Collapse,
   Autocomplete,
   TextField,
+  Chip,
 } from '@mui/material';
 import type { Construction, Employee, WorkHours } from '../../../types';
 import 'dayjs/locale/pl';
@@ -40,7 +41,7 @@ interface AddConstructionWithEmployeeDialogProps {
   open: boolean;
   onClose: () => void;
   currentWeek: Date;
-  onSuccess: (newWorkHours: WorkHours) => void;
+  onSuccess: (newWorkHours: WorkHours[]) => void;
   availableConstructions: Construction[];
   activeEmployees: Employee[];
 }
@@ -56,26 +57,43 @@ export const AddConstructionWithEmployeeDialog: React.FC<
   activeEmployees: employees,
 }) => {
   const [selectedConstruction, setSelectedConstruction] = useState<string>('');
-  const [selectedEmployee, setSelectedEmployee] = useState<string>('');
+  const [selectedEmployees, setSelectedEmployees] = useState<Employee[]>([]);
+
+  const handleChangeEmployeeFilter = (
+    _: React.SyntheticEvent<Element, Event>,
+    newValue: Employee[]
+  ) => {
+    setSelectedEmployees(newValue);
+  };
+
+  const handleSelectAllEmployees = () => {
+    setSelectedEmployees(employees || []);
+  };
+
+  const handleDeselectAllEmployees = () => {
+    setSelectedEmployees([]);
+  };
 
   const handleAdd = () => {
-    if (!selectedConstruction || !selectedEmployee) return;
+    if (!selectedConstruction || selectedEmployees.length === 0) return;
 
-    const workHoursData: Omit<WorkHours, 'id'> = {
-      constructionId: selectedConstruction,
-      employeeId: selectedEmployee,
-      weekStart: currentWeek,
-      hours: [0, 0, 0, 0, 0, 0, 0],
-    };
+    const newWorkHoursArray: WorkHours[] = selectedEmployees.map((employee) => {
+      const workHoursData: Omit<WorkHours, 'id'> = {
+        constructionId: selectedConstruction,
+        employeeId: employee.id,
+        weekStart: currentWeek,
+        hours: [0, 0, 0, 0, 0, 0, 0],
+      };
 
-    const newWorkHours: WorkHours = {
-      ...workHoursData,
-      id: `${workHoursData.constructionId}_${workHoursData.employeeId}_${workHoursData.weekStart.getTime()}`,
-    };
+      return {
+        ...workHoursData,
+        id: `${workHoursData.constructionId}_${workHoursData.employeeId}_${workHoursData.weekStart.getTime()}`,
+      };
+    });
 
-    onSuccess(newWorkHours);
+    onSuccess(newWorkHoursArray);
     setSelectedConstruction('');
-    setSelectedEmployee('');
+    setSelectedEmployees([]);
     onClose();
   };
 
@@ -83,7 +101,7 @@ export const AddConstructionWithEmployeeDialog: React.FC<
     <BaseDialog
       open={open}
       onClose={onClose}
-      title="Dodaj nową budowę z pracownikiem"
+      title="Dodaj nową budowę z pracownikami"
       showConfirm={false}
       actions={
         <Stack direction="row" spacing={1}>
@@ -92,11 +110,11 @@ export const AddConstructionWithEmployeeDialog: React.FC<
             variant="contained"
             disabled={
               !selectedConstruction ||
-              !selectedEmployee ||
+              selectedEmployees.length === 0 ||
               availableConstructions.length === 0
             }
           >
-            Dodaj
+            Dodaj ({selectedEmployees.length})
           </Button>
         </Stack>
       }
@@ -123,21 +141,51 @@ export const AddConstructionWithEmployeeDialog: React.FC<
           }
         />
       </FormControl>
+
       <FormControl fullWidth sx={{ mt: 2 }}>
         <Autocomplete
           size="small"
-          value={employees?.find((e) => e.id === selectedEmployee) || null}
-          onChange={(_, newValue) =>
-            setSelectedEmployee(newValue?.id || '')
-          }
+          multiple
           options={employees || []}
+          disableCloseOnSelect
           getOptionLabel={(option) => option.name}
+          value={selectedEmployees}
+          onChange={handleChangeEmployeeFilter}
+          isOptionEqualToValue={(option, value) => option.id === value.id}
+          renderOption={(props, option, { selected }) => {
+            const { key, ...optionProps } = props;
+            return (
+              <li key={key} {...optionProps}>
+                <Checkbox checked={selected} />
+                {option.name}
+                {!option.status && (
+                  <Chip
+                    label="Nieaktywny"
+                    size="small"
+                    color="default"
+                    variant="outlined"
+                    sx={{ ml: 1, height: 20 }}
+                  />
+                )}
+              </li>
+            );
+          }}
           renderInput={(params) => (
-            <TextField {...params} label="Wybierz pracownika" />
+            <TextField
+              {...params}
+              label="Wybierz pracowników"
+              placeholder={
+                selectedEmployees.length === 0 ? 'Wybierz pracowników...' : ''
+              }
+            />
           )}
           noOptionsText="Brak dostępnych pracowników"
         />
       </FormControl>
+      <Stack direction="row" mt={1} spacing={1} justifyContent={'flex-end'}>
+        <Button onClick={handleSelectAllEmployees}>Wszyscy</Button>
+        <Button onClick={handleDeselectAllEmployees}>Wyczyść</Button>
+      </Stack>
     </BaseDialog>
   );
 };
@@ -147,7 +195,7 @@ interface AddEmployeeDialogProps {
   onClose: () => void;
   selectedConstruction: Construction | null;
   currentWeek: Date;
-  onEmployeeAdded: (newWorkHours: WorkHours) => void;
+  onEmployeeAdded: (newWorkHours: WorkHours[]) => void;
   availableEmployees: Employee[];
 }
 
@@ -159,25 +207,42 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
   onEmployeeAdded,
   availableEmployees,
 }) => {
-  const [selectedEmployee, setSelectedEmployee] = useState<string>('');
+  const [selectedEmployees, setSelectedEmployees] = useState<Employee[]>([]);
+
+  const handleChangeEmployeeFilter = (
+    _: React.SyntheticEvent<Element, Event>,
+    newValue: Employee[]
+  ) => {
+    setSelectedEmployees(newValue);
+  };
+
+  const handleSelectAllEmployees = () => {
+    setSelectedEmployees(availableEmployees);
+  };
+
+  const handleDeselectAllEmployees = () => {
+    setSelectedEmployees([]);
+  };
 
   const handleAdd = () => {
-    if (!selectedEmployee || !selectedConstruction) return;
+    if (selectedEmployees.length === 0 || !selectedConstruction) return;
 
-    const workHoursData: Omit<WorkHours, 'id'> = {
-      constructionId: selectedConstruction.id,
-      employeeId: selectedEmployee,
-      weekStart: currentWeek,
-      hours: [0, 0, 0, 0, 0, 0, 0],
-    };
+    const newWorkHoursArray: WorkHours[] = selectedEmployees.map((employee) => {
+      const workHoursData: Omit<WorkHours, 'id'> = {
+        constructionId: selectedConstruction.id,
+        employeeId: employee.id,
+        weekStart: currentWeek,
+        hours: [0, 0, 0, 0, 0, 0, 0],
+      };
 
-    const newWorkHours: WorkHours = {
-      ...workHoursData,
-      id: `${workHoursData.constructionId}_${workHoursData.employeeId}_${workHoursData.weekStart.getTime()}`,
-    };
+      return {
+        ...workHoursData,
+        id: `${workHoursData.constructionId}_${workHoursData.employeeId}_${workHoursData.weekStart.getTime()}`,
+      };
+    });
 
-    onEmployeeAdded(newWorkHours);
-    setSelectedEmployee('');
+    onEmployeeAdded(newWorkHoursArray);
+    setSelectedEmployees([]);
     onClose();
   };
 
@@ -185,16 +250,16 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
     <BaseDialog
       open={open}
       onClose={onClose}
-      title={`Dodaj pracownika do budowy: ${selectedConstruction?.name}`}
+      title={`Dodaj pracowników do budowy: ${selectedConstruction?.name}`}
       showConfirm={false}
       actions={
         <Stack direction="row" spacing={1}>
           <Button
             onClick={handleAdd}
             variant="contained"
-            disabled={!selectedEmployee || availableEmployees.length === 0}
+            disabled={selectedEmployees.length === 0}
           >
-            Dodaj
+            Dodaj ({selectedEmployees.length})
           </Button>
         </Stack>
       }
@@ -202,16 +267,39 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
       <FormControl fullWidth sx={{ mt: 2 }}>
         <Autocomplete
           size="small"
-          value={
-            availableEmployees.find((e) => e.id === selectedEmployee) || null
-          }
-          onChange={(_, newValue) =>
-            setSelectedEmployee(newValue?.id || '')
-          }
+          multiple
           options={availableEmployees}
+          disableCloseOnSelect
           getOptionLabel={(option) => option.name}
+          value={selectedEmployees}
+          onChange={handleChangeEmployeeFilter}
+          isOptionEqualToValue={(option, value) => option.id === value.id}
+          renderOption={(props, option, { selected }) => {
+            const { key, ...optionProps } = props;
+            return (
+              <li key={key} {...optionProps}>
+                <Checkbox checked={selected} />
+                {option.name}
+                {!option.status && (
+                  <Chip
+                    label="Nieaktywny"
+                    size="small"
+                    color="default"
+                    variant="outlined"
+                    sx={{ ml: 1, height: 20 }}
+                  />
+                )}
+              </li>
+            );
+          }}
           renderInput={(params) => (
-            <TextField {...params} label="Wybierz pracownika" />
+            <TextField
+              {...params}
+              label="Wybierz pracowników"
+              placeholder={
+                selectedEmployees.length === 0 ? 'Wybierz pracowników...' : ''
+              }
+            />
           )}
           noOptionsText={
             availableEmployees.length === 0
@@ -220,6 +308,10 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
           }
         />
       </FormControl>
+      <Stack direction="row" mt={1} spacing={1} justifyContent={'flex-end'}>
+        <Button onClick={handleSelectAllEmployees}>Wszyscy</Button>
+        <Button onClick={handleDeselectAllEmployees}>Wyczyść</Button>
+      </Stack>
     </BaseDialog>
   );
 };
