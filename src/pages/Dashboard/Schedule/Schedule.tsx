@@ -57,7 +57,7 @@ import { Print } from '@mui/icons-material';
 import PageContainer from '../../../components/PageContainer';
 import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
 import KeyboardReturnIcon from '@mui/icons-material/KeyboardReturn';
-import InfoOutlineIcon from '@mui/icons-material/InfoOutline';
+
 import useContainerBreakpoint from '../../../hooks/useContainerWidth';
 import { formatWeeksString } from '../Hours/HoursHelpers';
 
@@ -636,27 +636,9 @@ const ScheduleComponent = () => {
                       }}
                       className="bg-blue-200 px-3 py-2 text-center"
                     >
-                      <Tooltip
-                        title="Kliknij w datę tygodnia w nagłówku tabeli, aby wyświetlić szczegółowy widok tego tygodnia."
-                        placement="top"
-                        slotProps={{
-                          popper: {
-                            sx: {
-                              cursor: 'pointer',
-                            },
-                            modifiers: [
-                              {
-                                name: 'offset',
-                                options: {
-                                  offset: [0, -14],
-                                },
-                              },
-                            ],
-                          },
-                        }}
-                      >
-                        <InfoOutlineIcon />
-                      </Tooltip>
+                      <Typography variant="overline" className="font-medium">
+                        Pracownicy: {filteredEmployees.length}
+                      </Typography>
                     </TableCell>
 
                     {weeks.map((w, index) => {
@@ -841,7 +823,7 @@ const ScheduleComponent = () => {
               justifyContent={'space-between'}
               spacing={2}
               alignItems={'center'}
-              className="px-3 py-2"
+              className="border-t border-t-gray-300 px-3 py-2"
             >
               {activeTable.type === 0 ? (
                 <>

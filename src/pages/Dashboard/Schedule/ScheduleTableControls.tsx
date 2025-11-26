@@ -16,6 +16,8 @@ import { ChevronLeft, ChevronRight, MoreHoriz } from '@mui/icons-material';
 import WeekSelector from '../../../components/WeekSelector';
 import dayjs from 'dayjs';
 
+import InfoOutlineIcon from '@mui/icons-material/InfoOutline';
+
 interface TableControlsProps {
   fromWeek: Date;
   toWeek: Date;
@@ -69,10 +71,33 @@ export const TableControls: React.FC<TableControlsProps> = ({
         direction={'row'}
         justifyContent={'space-between'}
       >
-        <Typography className="rounded-full border border-gray-700 px-3 py-1 font-semibold">
-          {dayjs(fromWeek).format('DD.MM.YYYY')} -{' '}
-          {dayjs(toWeek).add(6, 'day').format('DD.MM.YYYY')}
-        </Typography>
+        <Stack direction={'row'} alignItems={'center'} spacing={1}>
+          <Typography className="rounded-full border border-gray-700 px-3 py-1 font-semibold">
+            {dayjs(fromWeek).format('DD.MM.YYYY')} -{' '}
+            {dayjs(toWeek).add(6, 'day').format('DD.MM.YYYY')}
+          </Typography>
+          <Tooltip
+            title="Kliknij w datę tygodnia w nagłówku tabeli, aby wyświetlić szczegółowy widok tego tygodnia."
+            placement="top"
+            slotProps={{
+              popper: {
+                sx: {
+                  cursor: 'pointer',
+                },
+                modifiers: [
+                  {
+                    name: 'offset',
+                    options: {
+                      offset: [0, -14],
+                    },
+                  },
+                ],
+              },
+            }}
+          >
+            <InfoOutlineIcon />
+          </Tooltip>
+        </Stack>
         <IconButton onClick={handleClickMobileMenu}>
           <MoreHoriz />
         </IconButton>
@@ -332,6 +357,7 @@ export const TableControls: React.FC<TableControlsProps> = ({
         alignItems={'center'}
         direction={'row'}
         flexWrap={'wrap'}
+        spacing={1}
         justifyContent={{ xs: 'flex-start', md: 'flex-end' }}
       >
         <Typography
@@ -346,6 +372,27 @@ export const TableControls: React.FC<TableControlsProps> = ({
           {dayjs(fromWeek).format('DD.MM.YYYY')} -{' '}
           {dayjs(toWeek).add(6, 'day').format('DD.MM.YYYY')}
         </Typography>
+        <Tooltip
+          title="Kliknij w datę tygodnia w nagłówku tabeli, aby wyświetlić szczegółowy widok tego tygodnia."
+          placement="top"
+          slotProps={{
+            popper: {
+              sx: {
+                cursor: 'pointer',
+              },
+              modifiers: [
+                {
+                  name: 'offset',
+                  options: {
+                    offset: [0, -14],
+                  },
+                },
+              ],
+            },
+          }}
+        >
+          <InfoOutlineIcon />
+        </Tooltip>
       </Stack>
     </Stack>
   );
