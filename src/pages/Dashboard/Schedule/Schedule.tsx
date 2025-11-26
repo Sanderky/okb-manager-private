@@ -708,7 +708,7 @@ const ScheduleComponent = () => {
                 </TableHead>
 
                 <TableBody>
-                  {filteredEmployees.map((emp) => (
+                  {filteredEmployees.map((emp, index) => (
                     <EmployeeRow
                       key={emp.id}
                       employee={emp}
@@ -718,6 +718,7 @@ const ScheduleComponent = () => {
                       activeTable={activeTable}
                       loadingCells={loadingCells}
                       getCellKey={getCellKey}
+                      index={index}
                     />
                   ))}
                 </TableBody>
@@ -786,7 +787,7 @@ const ScheduleComponent = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {filteredEmployees.map((emp) => (
+                  {filteredEmployees.map((emp, index) => (
                     <EmployeeRow
                       key={emp.id}
                       employee={emp}
@@ -796,6 +797,7 @@ const ScheduleComponent = () => {
                       activeTable={activeTable}
                       loadingCells={loadingCells}
                       getCellKey={getCellKey}
+                      index={index}
                     />
                   ))}
                 </TableBody>

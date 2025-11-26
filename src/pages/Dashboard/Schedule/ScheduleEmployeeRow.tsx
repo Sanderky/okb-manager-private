@@ -5,6 +5,8 @@ import {
   Typography,
   Tooltip,
   CircularProgress,
+  Stack,
+  Box,
 } from '@mui/material';
 import { Dayjs } from 'dayjs';
 import type { Employee } from '../../../types';
@@ -18,6 +20,7 @@ interface EmployeeRowProps {
   activeTable: { type: number; week: Dayjs };
   loadingCells: Set<string>;
   getCellKey: (cell: ICell) => string;
+  index: number;
 }
 
 interface ScheduleCellProps {
@@ -66,6 +69,7 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = React.memo(
     activeTable,
     loadingCells,
     getCellKey,
+    index,
   }) => {
     // const theme = useTheme();
     // const isXs = useMediaQuery(theme.breakpoints.only('xs'));
@@ -91,37 +95,51 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = React.memo(
             }}
             className="bg-gray-100 px-3 py-2"
           >
-            <Tooltip
-              arrow
-              placement="top"
-              title={employee.name}
-              slotProps={{
-                popper: {
-                  modifiers: [
-                    {
-                      name: 'offset',
-                      options: {
-                        offset: [0, -5],
-                      },
-                    },
-                  ],
-                },
-              }}
-            >
+            <Stack direction={'row'} alignItems={'center'}>
               <Typography
                 sx={{
                   fontSize: {
                     xs: '0.75rem',
                     md: '0.85rem',
                   },
-                  fontWeight: 600,
                 }}
                 className={`${!employee.status && 'text-red-400'}`}
-                noWrap
               >
-                {employee.name}
+                {index + 1}.
               </Typography>
-            </Tooltip>
+              <Tooltip
+                arrow
+                placement="top"
+                title={employee.name}
+                slotProps={{
+                  popper: {
+                    modifiers: [
+                      {
+                        name: 'offset',
+                        options: {
+                          offset: [0, -5],
+                        },
+                      },
+                    ],
+                  },
+                }}
+              >
+                <Typography
+                  sx={{
+                    fontSize: {
+                      xs: '0.75rem',
+                      md: '0.85rem',
+                    },
+                    fontWeight: 600,
+                    flexGrow: 1,
+                  }}
+                  className={`${!employee.status && 'text-red-400'}`}
+                  noWrap
+                >
+                  {employee.name}
+                </Typography>
+              </Tooltip>
+            </Stack>
           </TableCell>
 
           {Array.from({ length: 7 }).map((_, i) => {
@@ -169,37 +187,57 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = React.memo(
           }}
           className="bg-gray-100 px-3 py-2"
         >
-          <Tooltip
-            arrow
-            placement="top"
-            title={employee.name}
-            slotProps={{
-              popper: {
-                modifiers: [
-                  {
-                    name: 'offset',
-                    options: {
-                      offset: [0, -5],
-                    },
-                  },
-                ],
-              },
-            }}
-          >
-            <Typography
-              noWrap
+          <Stack direction={'row'} alignItems={'center'}>
+            <Box
               sx={{
-                fontSize: {
-                  xs: '0.75rem',
-                  md: '0.85rem',
-                },
-                fontWeight: 600,
+                width: '20px',
               }}
-              className={`${!employee.status && 'text-red-400'}`}
             >
-              {employee.name}
-            </Typography>
-          </Tooltip>
+              <Typography
+                sx={{
+                  fontSize: {
+                    xs: '0.75rem',
+                    md: '0.85rem',
+                  },
+                }}
+                className={`${!employee.status && 'text-red-400'}`}
+              >
+                {index + 1}.
+              </Typography>
+            </Box>
+            <Tooltip
+              arrow
+              placement="top"
+              title={employee.name}
+              slotProps={{
+                popper: {
+                  modifiers: [
+                    {
+                      name: 'offset',
+                      options: {
+                        offset: [0, -5],
+                      },
+                    },
+                  ],
+                },
+              }}
+            >
+              <Typography
+                noWrap
+                sx={{
+                  flexGrow: 1,
+                  fontSize: {
+                    xs: '0.75rem',
+                    md: '0.85rem',
+                  },
+                  fontWeight: 600,
+                }}
+                className={`${!employee.status && 'text-red-400'}`}
+              >
+                {employee.name}
+              </Typography>
+            </Tooltip>
+          </Stack>
         </TableCell>
 
         {weeks.map((week) => {
