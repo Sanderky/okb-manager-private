@@ -636,7 +636,10 @@ const ScheduleComponent = () => {
                       className="bg-blue-200 px-3 py-2 text-center"
                     >
                       <Typography variant="overline" className="font-medium">
-                        Pracownicy: {filteredEmployees.length}
+                        Pracownicy:{' '}
+                        {selectedEmployees.length === 0
+                          ? filteredEmployees.length
+                          : `${selectedEmployees.length} / ${showInactive ? employees.length : employees.filter((e) => e.status).length}`}
                       </Typography>
                     </TableCell>
 
