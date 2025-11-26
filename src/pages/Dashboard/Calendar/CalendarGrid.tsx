@@ -64,6 +64,19 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
               const isToday = day.isSame(dayjs(), 'day');
               const isSelected = isDayInRange(day);
 
+              const hasHiddenEvents = events.some((ev) => {
+                const slot = slots[ev.groupId];
+                return slot >= MAX_EVENTS || !ev.employee;
+              });
+
+              const hiddenEventsCount = events.filter((ev) => {
+                const slot = slots[ev.groupId];
+                return slot >= MAX_EVENTS || !ev.employee;
+              }).length;
+
+              const showMoreLink =
+                events.length > MAX_EVENTS || hasHiddenEvents;
+
               return (
                 <Grid
                   size={{ xs: 12 / 7 }}
@@ -230,7 +243,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                       );
                     })}
                   </Box>
-                  {events.length > 1 && (
+                  {showMoreLink && (
                     <Link
                       component="button"
                       underline="none"
@@ -264,8 +277,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                         }}
                       />
                       <Typography component={'span'} variant="inherit">
-                        {events.length > MAX_EVENTS &&
-                          events.length - MAX_EVENTS}
+                        {hiddenEventsCount}
                       </Typography>
                     </Link>
                   )}

@@ -604,13 +604,14 @@ export const EventDetailsDialog: React.FC<EventDetailsDialogProps> = ({
     >
       <Stack direction="column" spacing={1}>
         {isMultipleEvents
-          ? activeDialog.day.events
-              .filter(
-                (e) =>
-                  selectedEmployees.length === 0 ||
-                  selectedEmployees.some((emp) => emp.id === e.employee.id)
-              )
-              .map((event) => (
+          ? activeDialog.day.events.map((event) => {
+              const isStart = activeDialog.day.date.isSame(
+                event.startDate,
+                'day'
+              );
+              const isEnd = activeDialog.day.date.isSame(event.endDate, 'day');
+
+              return (
                 <Stack
                   key={event.id}
                   sx={{
@@ -663,8 +664,42 @@ export const EventDetailsDialog: React.FC<EventDetailsDialogProps> = ({
                       </Typography>
                     )}
                   </Box>
+                  <Box
+                    sx={{
+                      height: 3,
+                      minWidth: '30px',
+                      backgroundColor: darken(event.color, 0.5),
+                      position: 'relative',
+                      display: isStart || isEnd ? 'block' : 'none',
+                      '&:after': {
+                        content: "''",
+                        height: 10,
+                        width: 10,
+                        backgroundColor: 'inherit',
+                        position: 'absolute',
+                        left: isStart ? 0 : 'unset',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        display: isStart ? 'block' : 'none',
+                        borderRadius: '50%',
+                      },
+                      '&:before': {
+                        content: "''",
+                        height: 10,
+                        width: 10,
+                        backgroundColor: 'inherit',
+                        position: 'absolute',
+                        right: isEnd ? 0 : 'unset',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        display: isEnd ? 'block' : 'none',
+                        borderRadius: '50%',
+                      },
+                    }}
+                  />
                 </Stack>
-              ))
+              );
+            })
           : currentEvent.employee && (
               <Box className="border-lightGray rounded-lg border p-3">
                 <Stack

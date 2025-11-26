@@ -258,9 +258,10 @@ const Calendar: React.FC = () => {
             .filter(Boolean) as CalendarEvent[];
 
           const sortedDayEvents = newDayEvents.sort((a, b) => {
-            const durationA = a.endDate.diff(a.startDate, 'day');
-            const durationB = b.endDate.diff(b.startDate, 'day');
-            return durationB - durationA;
+            return (
+              b.endDate.diff(b.startDate, 'day') -
+              a.endDate.diff(a.startDate, 'day')
+            );
           });
 
           sortedDayEvents.forEach((ev) => {
