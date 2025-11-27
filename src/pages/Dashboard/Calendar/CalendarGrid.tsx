@@ -9,6 +9,7 @@ import {
   darken,
   Stack,
   useMediaQuery,
+  Divider,
 } from '@mui/material';
 import dayjs from 'dayjs';
 import {
@@ -17,10 +18,14 @@ import {
   type CalendarGridProps,
 } from './CalendarHelpers';
 
-import AddIcon from '@mui/icons-material/Add';
+import { ExpandLess, ExpandMore } from '@mui/icons-material';
+import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 
 const MAX_EVENTS_DESKTOP = 4;
 const MAX_EVENTS_PHONE = 2;
+
+const MAX_EVENT_HEIGHT_DESKTOP = 20;
+const MAX_EVENT_HEIGHT_PHONE = 18;
 
 export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
   ({
@@ -37,6 +42,10 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
     const MAX_EVENTS = isMobile ? MAX_EVENTS_PHONE : MAX_EVENTS_DESKTOP;
+
+    const MAX_EVENT_HEIGHT = isMobile
+      ? MAX_EVENT_HEIGHT_PHONE
+      : MAX_EVENT_HEIGHT_DESKTOP;
 
     return (
       <>
@@ -111,7 +120,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                   <Box
                     sx={{
                       position: 'relative',
-                      height: MAX_EVENTS * 24 + 23,
+                      height: MAX_EVENTS * (MAX_EVENT_HEIGHT + 4) + 23,
                     }}
                   >
                     {events.map((ev, index) => {
@@ -170,8 +179,8 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                           <Box
                             sx={{
                               position: 'absolute',
-                              top: slot * 24,
-                              height: 20,
+                              top: slot * (MAX_EVENT_HEIGHT + 4),
+                              height: MAX_EVENT_HEIGHT,
                               left: 0,
                               right: 0,
                               bgcolor: ev.color,
@@ -203,7 +212,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                                   sm: showName ? 'block' : 'none',
                                 },
                                 color: 'inherit',
-                                lineHeight: '20px',
+                                lineHeight: `${MAX_EVENT_HEIGHT}px`,
                               }}
                             >
                               {ev.employee.name}
@@ -217,7 +226,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                                   sm: 'none',
                                 },
                                 color: 'inherit',
-                                lineHeight: '20px',
+                                lineHeight: `${MAX_EVENT_HEIGHT}px`,
                               }}
                             >
                               {getInitials(ev.employee.name)}
@@ -243,44 +252,96 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                       );
                     })}
                   </Box>
-                  {showMoreLink && (
-                    <Link
-                      component="button"
-                      underline="none"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setActiveDialog({
-                          type: 'moreEvents',
-                          day: calendarDay,
-                        });
-                      }}
-                      sx={{
-                        fontSize: { xs: '0.80rem' },
-                        fontWeight: 600,
-                        ':hover': { color: 'purple' },
-                        width: '100%',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        position: 'absolute',
-                        bottom: 3,
-                        left: 0,
-                        right: 0,
-                        height: 20,
-                        gap: 0.25,
-                      }}
-                    >
-                      <AddIcon
-                        sx={{
-                          width: { xs: '15px', sm: '17px' },
-                          maxHeight: '100%',
-                        }}
-                      />
-                      <Typography component={'span'} variant="inherit">
-                        {hiddenEventsCount}
-                      </Typography>
-                    </Link>
-                  )}
+                  <Stack
+                    direction={'row'}
+                    alignItems={'center'}
+                    // spacing={1}
+                    sx={{
+                      width: '100%',
+                      position: 'absolute',
+                      bottom: 3,
+                      left: 0,
+                      right: 0,
+                      height: 20,
+                      gap: 0.25,
+                    }}
+                  >
+                    {showMoreLink && (
+                      <>
+                        <Link
+                          component="button"
+                          underline="none"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveDialog({
+                              type: 'moreEvents',
+                              day: calendarDay,
+                            });
+                          }}
+                          sx={{
+                            // ':hover': { color: 'purple' },
+                            flex: 1,
+                          }}
+                          className="hover:bg-gray-900/15"
+                        >
+                          <FormatListBulletedIcon
+                            sx={{
+                              width: { xs: '15px', sm: '17px' },
+                              maxHeight: '100%',
+                            }}
+                          />
+                        </Link>
+                        <Divider orientation="vertical" flexItem />
+                        <Link
+                          component="button"
+                          underline="none"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            // setActiveDialog({
+                            //   type: 'moreEvents',
+                            //   day: calendarDay,
+                            // });
+                          }}
+                          sx={{
+                            // ':hover': { color: 'purple' },
+                            fontSize: { xs: '0.80rem' },
+                            fontWeight: 600,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            flex: 1,
+                            gap: { xs: 0, sm: 0.25 },
+                          }}
+                          className="hover:bg-gray-900/15"
+                        >
+                          {false ? (
+                            <ExpandLess
+                              sx={{
+                                width: { xs: '15px', sm: '20px' },
+                                maxHeight: '100%',
+                                position: 'relative',
+                                left: '-3px',
+                                marginRight: { xs: '-5px', md: 0 },
+                              }}
+                            />
+                          ) : (
+                            <ExpandMore
+                              sx={{
+                                width: { xs: '15px', sm: '20px' },
+                                maxHeight: '100%',
+                                position: 'relative',
+                                left: '-3px',
+                                marginRight: { xs: '-5px', md: 0 },
+                              }}
+                            />
+                          )}
+                          <Typography component={'span'} variant="inherit">
+                            {hiddenEventsCount}
+                          </Typography>
+                        </Link>
+                      </>
+                    )}
+                  </Stack>
                 </Grid>
               );
             })

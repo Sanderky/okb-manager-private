@@ -610,7 +610,6 @@ const Calendar: React.FC = () => {
         <EventDetailsDialog
           activeDialog={activeDialog}
           currentEvent={currentEvent}
-          selectedEmployees={selectedEmployees}
           handleModalClose={handleModalClose}
           handleDeleteEvent={handleDeleteEvent}
           setActiveDialog={setActiveDialog}

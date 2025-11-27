@@ -514,7 +514,6 @@ export const EditEventDialog: React.FC<EditEventDialogProps> = ({
 interface EventDetailsDialogProps {
   activeDialog: ActiveDialog;
   currentEvent: CalendarEvent;
-  selectedEmployees: Employee[];
   handleModalClose: () => void;
   handleDeleteEvent: (id?: string) => void;
   setActiveDialog: (dialog: ActiveDialog) => void;
@@ -525,7 +524,6 @@ interface EventDetailsDialogProps {
 export const EventDetailsDialog: React.FC<EventDetailsDialogProps> = ({
   activeDialog,
   currentEvent,
-  selectedEmployees,
   handleModalClose,
   handleDeleteEvent,
   setActiveDialog,
@@ -535,6 +533,30 @@ export const EventDetailsDialog: React.FC<EventDetailsDialogProps> = ({
   const navigate = useNavigate();
   const isMultipleEvents = activeDialog.type === 'moreEvents';
   const isEventDetails = activeDialog.type === 'eventDetails';
+
+  const sortedEvents = useMemo(() => {
+    if (!isMultipleEvents) return [];
+
+    const events = [...activeDialog.day.events];
+
+    return events.sort((a, b) => {
+      const aIsStart = activeDialog.day.date.isSame(a.startDate, 'day');
+      const aIsEnd = activeDialog.day.date.isSame(a.endDate, 'day');
+      const bIsStart = activeDialog.day.date.isSame(b.startDate, 'day');
+      const bIsEnd = activeDialog.day.date.isSame(b.endDate, 'day');
+
+      if (aIsStart && !aIsEnd && !(bIsStart && !bIsEnd)) return -1;
+      if (bIsStart && !bIsEnd && !(aIsStart && !aIsEnd)) return 1;
+
+      if (!aIsStart && aIsEnd && !(!bIsStart && bIsEnd)) return -1;
+      if (!bIsStart && bIsEnd && !(!aIsStart && aIsEnd)) return 1;
+
+      if (!aIsStart && !aIsEnd && (bIsStart || bIsEnd)) return 1;
+      if (!bIsStart && !bIsEnd && (aIsStart || aIsEnd)) return -1;
+
+      return a.startDate.valueOf() - b.startDate.valueOf();
+    });
+  }, [isMultipleEvents]);
 
   const handleDelete = () => {
     handleDeleteEvent();
@@ -604,7 +626,7 @@ export const EventDetailsDialog: React.FC<EventDetailsDialogProps> = ({
     >
       <Stack direction="column" spacing={1}>
         {isMultipleEvents
-          ? activeDialog.day.events.map((event) => {
+          ? sortedEvents.map((event) => {
               const isStart = activeDialog.day.date.isSame(
                 event.startDate,
                 'day'
@@ -654,15 +676,20 @@ export const EventDetailsDialog: React.FC<EventDetailsDialogProps> = ({
                         {!event.employee?.status && '(nieaktywny)'}
                       </Typography>
                     </Typography>
-                    <Typography variant="body2" color="text.secondary">
+
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      className="inline-block font-medium"
+                    >
                       {event.startDate.format('DD.MM.YYYY')} –{' '}
                       {event.endDate.format('DD.MM.YYYY')}
                     </Typography>
-                    {event.description && (
-                      <Typography variant="body2" sx={{ mt: 0.5 }}>
-                        {event.description}
-                      </Typography>
-                    )}
+                    {/* {event.description && (
+                        <Typography variant="body2" sx={{ mt: 0.5 }}>
+                          {event.description}
+                        </Typography>
+                      )} */}
                   </Box>
                   <Box
                     sx={{
