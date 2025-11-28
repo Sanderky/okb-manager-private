@@ -466,38 +466,33 @@ export default function EmployeeForm(props: EmployeeFormProps) {
     if (key === 'hourRate') {
       return (
         <Grid size={{ xs: 12, md: 6 }} key={key}>
-          <FormControl fullWidth required={required}>
-            <InputLabel htmlFor="adornment-amount">Stawka godzinowa</InputLabel>
-            <OutlinedInput
-              id="adornment-amount"
-              name={key}
-              startAdornment={
-                <InputAdornment position="start">€</InputAdornment>
-              }
-              label="Stawka godzinowa"
-              size="small"
-              value={formValues[key] ?? ''}
-              onChange={(e) => {
-                const inputValue = e.target.value.trim();
-
-                if (inputValue === '') {
-                  handleFieldChange(key, null);
-                  return;
-                }
-
-                const numericValue = Number(inputValue);
-                if (isNaN(numericValue)) {
-                  return;
-                }
-
-                handleFieldChange(key, numericValue);
-              }}
-              inputRef={(el) => {
-                if (props.registerFieldRef)
-                  props.registerFieldRef(key as string, el);
-              }}
-            />
-          </FormControl>
+          <TextField
+            type="number"
+            label="Stawka godzinowa"
+            fullWidth
+            size="small"
+            required={required}
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">€</InputAdornment>
+                ),
+              },
+            }}
+            value={formValues[key] ?? ''}
+            onChange={(e) => {
+              const val = e.target.value;
+              if (isNaN(parseFloat(val)) && val.length !== 0) return;
+              handleFieldChange(key, parseFloat(val));
+            }}
+            name={key}
+            error={Boolean(formErrors[key])}
+            helperText={formErrors[key]}
+            inputRef={(el) => {
+              if (props.registerFieldRef)
+                props.registerFieldRef(key as string, el);
+            }}
+          />
         </Grid>
       );
     }
