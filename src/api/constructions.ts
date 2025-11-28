@@ -40,6 +40,9 @@ export async function updateConstruction(
   id: string,
   data: Partial<Construction>
 ): Promise<void> {
+  const updateData = { ...data };
+  delete updateData.id;
+
   const constructionRef = doc(db, 'constructions', id);
   await updateDoc(constructionRef, data);
 }

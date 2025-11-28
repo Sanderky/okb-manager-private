@@ -51,8 +51,11 @@ export async function updateEmployee(
   id: string,
   data: Partial<Employee>
 ): Promise<void> {
+  const updateData = { ...data };
+  delete updateData.id;
+
   const employeeRef = doc(db, 'employees', id);
-  await updateDoc(employeeRef, data);
+  await updateDoc(employeeRef, updateData);
 }
 
 export async function removeEmployee(id: string): Promise<void> {

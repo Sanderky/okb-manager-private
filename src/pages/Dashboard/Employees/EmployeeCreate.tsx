@@ -111,6 +111,7 @@ export default function EmployeeCreate() {
 
       const payload: Partial<Employee> = {
         ...formState.values,
+        name: formState.values.name?.trim(),
         status: formState.values.status ?? true,
         isContractor: formState.values.isContractor ?? false,
         contractStartDate: formState.values.contractStartDate ?? null,
@@ -119,13 +120,12 @@ export default function EmployeeCreate() {
         contractEndDate: formState.values.contractISPermanent
           ? null
           : (formState.values.contractEndDate ?? null),
-        name: formState.values.name?.trim(),
-        pesel: formState.values.pesel?.trim(),
-        address: formState.values.address?.trim(),
-        email: formState.values.email?.trim(),
-        phone: formState.values.phone?.trim(),
-        birthPlace: formState.values.birthPlace?.trim(),
-        accountNumber: formState.values.accountNumber?.trim(),
+        pesel: formState.values.pesel?.trim() ?? null,
+        address: formState.values.address?.trim() ?? null,
+        email: formState.values.email?.trim() ?? null,
+        phone: formState.values.phone?.trim() ?? null,
+        birthPlace: formState.values.birthPlace?.trim() ?? null,
+        accountNumber: formState.values.accountNumber?.trim() ?? null,
         hourRate: toNumberOrNull(formState.values.hourRate) ?? null,
       };
 
