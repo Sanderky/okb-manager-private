@@ -24,7 +24,7 @@ import { CalendarControls } from './CalendarControls';
 import {
   FilterDialog,
   AddEventDialog,
-  EventDetailsDialog,
+  EventListDialog,
   EditEventDialog,
   VacationReportDialog,
 } from './CalendarDialogs';
@@ -476,8 +476,8 @@ const Calendar: React.FC = () => {
   };
 
   const handleEventClick = useCallback((ev: CalendarEvent) => {
-    setActiveDialog({ type: 'eventDetails' });
     setCurrentEvent(ev);
+    setActiveDialog({ type: 'editEvent' });
   }, []);
 
   const error = isErrorEmployees || isErrorVacations;
@@ -603,15 +603,14 @@ const Calendar: React.FC = () => {
           employees={employees}
           handleModalClose={handleModalClose}
           handleEmployeeChange={handleEmployeeChange}
+          handleDeleteEvent={handleDeleteEvent}
           handleEditEvent={handleEditEvent}
           loading={actionLoading || isUpdating}
         />
 
-        <EventDetailsDialog
+        <EventListDialog
           activeDialog={activeDialog}
-          currentEvent={currentEvent}
           handleModalClose={handleModalClose}
-          handleDeleteEvent={handleDeleteEvent}
           setActiveDialog={setActiveDialog}
           loading={actionLoading || isDeleting}
           onEventClick={handleEventClick}

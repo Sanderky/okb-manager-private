@@ -25,8 +25,8 @@ import {
   TableRow,
   Paper,
   FormControlLabel,
-  darken,
-  useTheme,
+  // darken,
+  // useTheme,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -40,7 +40,8 @@ import {
 import type { Employee, Vacation } from '../../../types';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Close as CloseIcon, Print as PrintIcon } from '@mui/icons-material';
-import EditIcon from '@mui/icons-material/Edit';
+// import EditIcon from '@mui/icons-material/Edit';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import dayjs, { Dayjs } from 'dayjs';
 import { useReactToPrint } from 'react-to-print';
 import { plPL } from '@mui/x-date-pickers/locales';
@@ -339,6 +340,7 @@ interface EditEventDialogProps {
   employees: Employee[];
   handleModalClose: () => void;
   handleEmployeeChange: (employee: Employee) => void;
+  handleDeleteEvent: (id?: string) => void;
   handleEditEvent: () => void;
   loading?: boolean;
 }
@@ -351,6 +353,7 @@ export const EditEventDialog: React.FC<EditEventDialogProps> = ({
   employees,
   handleModalClose,
   handleEmployeeChange,
+  handleDeleteEvent,
   handleEditEvent,
   loading = false,
 }) => {
@@ -388,18 +391,40 @@ export const EditEventDialog: React.FC<EditEventDialogProps> = ({
     }
   };
 
+  const handleDelete = () => {
+    handleDeleteEvent();
+  };
+
   const isFormValid = currentEvent.color;
 
   return (
     <BaseDialog
       open={activeDialog.type === 'editEvent'}
       onClose={handleModalClose}
-      onConfirm={handleEditEvent}
       title="Edytuj urlop"
-      confirmText="Zapisz zmiany"
       loading={loading}
       disabled={!isFormValid}
-      showCancel={false}
+      actions={
+        <>
+          <Button
+            variant="outlined"
+            color="error"
+            onClick={handleDelete}
+            loading={loading}
+            startIcon={<DeleteIcon />}
+            sx={{ mr: 'auto' }}
+          >
+            Usuń urlop
+          </Button>
+          <Button
+            variant="contained"
+            onClick={handleEditEvent}
+            loading={loading}
+          >
+            Zapisz zmiany
+          </Button>
+        </>
+      }
     >
       <Stack spacing={2}>
         <Autocomplete
@@ -481,13 +506,7 @@ export const EditEventDialog: React.FC<EditEventDialogProps> = ({
               {validationError}
             </Typography>
           )}
-          <Stack
-            direction="row"
-            // spacing={1}
-            gap={1}
-            sx={{ mt: 1 }}
-            flexWrap="wrap"
-          >
+          <Stack direction="row" gap={1} sx={{ mt: 1 }} flexWrap="wrap">
             {employeeColors.map((color) => (
               <Box
                 key={color}
@@ -511,31 +530,25 @@ export const EditEventDialog: React.FC<EditEventDialogProps> = ({
   );
 };
 
-interface EventDetailsDialogProps {
+interface EventListDialogProps {
   activeDialog: ActiveDialog;
-  currentEvent: CalendarEvent;
   handleModalClose: () => void;
-  handleDeleteEvent: (id?: string) => void;
   setActiveDialog: (dialog: ActiveDialog) => void;
   loading?: boolean;
   onEventClick?: (event: CalendarEvent) => void;
 }
 
-export const EventDetailsDialog: React.FC<EventDetailsDialogProps> = ({
+export const EventListDialog: React.FC<EventListDialogProps> = ({
   activeDialog,
-  currentEvent,
   handleModalClose,
-  handleDeleteEvent,
   setActiveDialog,
-  loading = false,
   onEventClick,
 }) => {
-  const navigate = useNavigate();
-  const isMultipleEvents = activeDialog.type === 'moreEvents';
-  const isEventDetails = activeDialog.type === 'eventDetails';
+  // const navigate = useNavigate();
+  const isEventListDialog = activeDialog.type === 'moreEvents';
 
   const sortedEvents = useMemo(() => {
-    if (!isMultipleEvents) return [];
+    if (!isEventListDialog) return [];
 
     const events = [...activeDialog.day.events];
 
@@ -556,34 +569,27 @@ export const EventDetailsDialog: React.FC<EventDetailsDialogProps> = ({
 
       return a.startDate.valueOf() - b.startDate.valueOf();
     });
-  }, [isMultipleEvents]);
+  }, [isEventListDialog]);
 
-  const handleDelete = () => {
-    handleDeleteEvent();
-  };
-
-  const handleEdit = () => {
-    setActiveDialog({ type: 'editEvent' });
-  };
-
-  const handleEmployeeProfileClick = (employeeId: string) => {
-    navigate(`/employees/${employeeId}`);
-  };
-
-  const handleMoreEventsItemClick = (event: CalendarEvent) => {
+  const handleEdit = (event: CalendarEvent) => {
     if (onEventClick) {
       onEventClick(event);
     }
+    setActiveDialog({ type: 'editEvent' });
   };
 
-  const theme = useTheme();
+  // const handleEmployeeProfileClick = (employeeId: string) => {
+  //   navigate(`/employees/${employeeId}`);
+  // };
+
+  // const theme = useTheme();
 
   return (
     <BaseDialog
-      open={isMultipleEvents || isEventDetails}
+      open={isEventListDialog}
       onClose={handleModalClose}
       title={
-        isMultipleEvents ? (
+        isEventListDialog && (
           <Stack direction={'row'} alignItems={'center'} spacing={1}>
             <Typography variant="h6">
               Urlopy ({activeDialog.day.events.length})
@@ -594,278 +600,139 @@ export const EventDetailsDialog: React.FC<EventDetailsDialogProps> = ({
               label={activeDialog.day.date.format('DD.MM.YYYY')}
             />
           </Stack>
-        ) : (
-          'Szczegóły urlopu'
         )
       }
       showConfirm={false}
-      showCancel={!isMultipleEvents}
       cancelText="Zamknij"
-      actions={
-        !isMultipleEvents ? (
-          <>
-            <Button
-              variant="outlined"
-              onClick={handleEdit}
-              startIcon={<EditIcon />}
-            >
-              Edytuj
-            </Button>
-            <Button
-              variant="outlined"
-              color="error"
-              onClick={handleDelete}
-              loading={loading}
-              startIcon={<DeleteIcon />}
-            >
-              Usuń urlop
-            </Button>
-          </>
-        ) : undefined
-      }
+      actions={<></>}
+      maxWidth="md"
     >
       <Stack direction="column" spacing={1}>
-        {isMultipleEvents
-          ? sortedEvents.map((event) => {
-              const isStart = activeDialog.day.date.isSame(
-                event.startDate,
-                'day'
-              );
-              const isEnd = activeDialog.day.date.isSame(event.endDate, 'day');
+        <TableContainer
+          component={Paper}
+          className="border border-gray-500 shadow-none"
+          sx={{ maxHeight: 600, overflow: 'auto' }}
+        >
+          <Table stickyHeader size="small">
+            <TableHead>
+              <TableRow
+                sx={{
+                  '& .MuiTableCell-root:last-child': {
+                    borderRight: 'none !important',
+                  },
+                }}
+              >
+                <TableCell className="border-r border-b border-r-gray-500 border-b-gray-500">
+                  Pracownik
+                </TableCell>
+                <TableCell className="border-r border-b border-r-gray-500 border-b-gray-500">
+                  Okres urlopu
+                </TableCell>
+                <TableCell className="border-r border-b border-r-gray-500 border-b-gray-500">
+                  Długość
+                </TableCell>
+                <TableCell className="border-r border-b border-r-gray-500 border-b-gray-500">
+                  Status
+                </TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {isEventListDialog ? (
+                sortedEvents.map((event) => {
+                  const isStart = activeDialog.day.date.isSame(
+                    event.startDate,
+                    'day'
+                  );
+                  const isEnd = activeDialog.day.date.isSame(
+                    event.endDate,
+                    'day'
+                  );
+                  const duration =
+                    event.endDate.diff(event.startDate, 'day') + 1;
 
-              return (
-                <Stack
-                  key={event.id}
-                  sx={{
-                    backgroundColor: event.color,
-                    borderRadius: 1,
-                    cursor: 'pointer',
-                    ':hover': { opacity: 0.9 },
-                    overflow: 'hidden',
-                    borderWidth: '1px',
-                    borderColor: darken(event.color, 0.3),
-                  }}
-                  spacing={1}
-                  direction="row"
-                  alignItems="center"
-                  className="px-3 py-1"
-                  onClick={() => handleMoreEventsItemClick(event)}
-                >
-                  <Box sx={{ flexGrow: 1, overflow: 'hidden' }}>
-                    <Typography
-                      variant="subtitle1"
-                      fontWeight="500"
+                  return (
+                    <TableRow
+                      key={event.id}
+                      onClick={() => handleEdit(event)}
                       sx={{
-                        whiteSpace: 'wrap',
-                        // color: darken(event.color, 0.85),
-                      }}
-                    >
-                      {event.employee?.name}{' '}
-                      <Typography
-                        component={'span'}
-                        // color="error"
-                        className="ml-1"
-                        sx={{
-                          color:
-                            theme.palette.getContrastText(event.color) ===
-                            '#fff'
-                              ? '#fff'
-                              : theme.palette.error.main,
-                        }}
-                      >
-                        {!event.employee?.status && '(nieaktywny)'}
-                      </Typography>
-                    </Typography>
-
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      className="inline-block font-medium"
-                    >
-                      {event.startDate.format('DD.MM.YYYY')} –{' '}
-                      {event.endDate.format('DD.MM.YYYY')}
-                    </Typography>
-                    {/* {event.description && (
-                        <Typography variant="body2" sx={{ mt: 0.5 }}>
-                          {event.description}
-                        </Typography>
-                      )} */}
-                  </Box>
-                  <Box
-                    sx={{
-                      height: 3,
-                      minWidth: '30px',
-                      backgroundColor: darken(event.color, 0.5),
-                      position: 'relative',
-                      display: isStart || isEnd ? 'block' : 'none',
-                      '&:after': {
-                        content: "''",
-                        height: 10,
-                        width: 10,
-                        backgroundColor: 'inherit',
-                        position: 'absolute',
-                        left: isStart ? 0 : 'unset',
-                        top: '50%',
-                        transform: 'translateY(-50%)',
-                        display: isStart ? 'block' : 'none',
-                        borderRadius: '50%',
-                      },
-                      '&:before': {
-                        content: "''",
-                        height: 10,
-                        width: 10,
-                        backgroundColor: 'inherit',
-                        position: 'absolute',
-                        right: isEnd ? 0 : 'unset',
-                        top: '50%',
-                        transform: 'translateY(-50%)',
-                        display: isEnd ? 'block' : 'none',
-                        borderRadius: '50%',
-                      },
-                    }}
-                  />
-                </Stack>
-              );
-            })
-          : currentEvent.employee && (
-              <Box className="border-lightGray rounded-lg border p-3">
-                <Stack
-                  direction={'row'}
-                  justifyContent={'space-between'}
-                  alignItems={'flex-start'}
-                  spacing={1}
-                  className="mb-3"
-                >
-                  <Box
-                    sx={{
-                      flexGrow: 1,
-                      overflow: 'hidden',
-                    }}
-                  >
-                    <Typography
-                      variant="body1"
-                      fontWeight="600"
-                      onClick={() =>
-                        handleEmployeeProfileClick(currentEvent.employee.id)
-                      }
-                      sx={{
-                        // overflow: 'hidden',
-                        // textOverflow: 'ellipsis',
-                        whiteSpace: 'wrap',
+                        backgroundColor: event.color,
                         cursor: 'pointer',
-                        ':hover': {
+                        '&:hover': {
                           opacity: 0.8,
-                          textDecoration: 'underline',
                         },
-                        transition: '0.3s',
+                        transition: 'all 0.2s ease',
+                        '&:last-child .MuiTableCell-root': {
+                          borderBottom: 'none !important',
+                        },
+                        '& .MuiTableCell-root:last-child': {
+                          borderRight: 'none !important',
+                        },
                       }}
                     >
-                      {currentEvent.employee?.name}
-                    </Typography>
-                    <Typography variant="overline" className="text-gray-500">
-                      Pracownik
-                    </Typography>
-                  </Box>
-                  <Box
-                    sx={{
-                      px: 1.5,
-                      py: 0.75,
-                      fontSize: '0.7rem',
-                    }}
-                    className={`${currentEvent.employee?.status ? 'bg-green-600' : 'bg-red-400'} rounded-lg font-semibold text-white uppercase`}
-                  >
-                    {currentEvent.employee?.status ? 'Aktywny' : 'Nieaktywny'}
-                  </Box>
-                </Stack>
+                      <TableCell className="border-r border-b border-r-gray-500 border-b-gray-500 !py-3">
+                        <Typography variant="body2" fontWeight="500" noWrap>
+                          {event.employee?.name}
+                        </Typography>
+                      </TableCell>
+                      <TableCell className="border-r border-b border-r-gray-500 border-b-gray-500 !py-3">
+                        <Stack direction="row" alignItems="center" spacing={1}>
+                          <PlayArrowIcon
+                            sx={{
+                              width: 15,
+                              visibility: isStart ? 'visible' : 'hidden',
+                            }}
+                          />
 
-                {currentEvent.description && (
-                  <Box className="border-lightGray mb-2 rounded-lg border bg-gray-50 p-2">
-                    <Typography
-                      variant="caption"
-                      color="text.secondary"
-                      fontWeight="500"
-                      sx={{ display: 'block', mb: 0.5 }}
-                    >
-                      Opis
-                    </Typography>
-                    <Typography variant="body2">
-                      {currentEvent.description}
-                    </Typography>
-                  </Box>
-                )}
+                          <Typography variant="body2">
+                            {event.startDate.format('DD.MM.YYYY')}
+                          </Typography>
+                          <Typography variant="body2">–</Typography>
+                          <Typography variant="body2">
+                            {event.endDate.format('DD.MM.YYYY')}
+                          </Typography>
 
-                <Stack
-                  direction={{ xs: 'column', sm: 'row' }}
-                  spacing={{ xs: 1, sm: 2 }}
-                >
-                  <Box
-                    className="border-lightGray rounded-lg border bg-gray-50 p-2"
-                    sx={{
-                      flex: 1,
-                    }}
-                  >
-                    <Typography
-                      variant="caption"
-                      color="text.secondary"
-                      fontWeight="500"
-                      sx={{ display: 'block', mb: 0.5 }}
-                    >
-                      Okres urlopu
+                          <PlayArrowIcon
+                            sx={{
+                              width: 15,
+                              transform: 'rotate(180deg)',
+                              visibility: isEnd ? 'visible' : 'hidden',
+                            }}
+                          />
+                        </Stack>
+                      </TableCell>
+                      <TableCell className="border-r border-b border-r-gray-500 border-b-gray-500 !py-3">
+                        <Typography variant="body2">
+                          {duration} {duration < 2 ? 'dzień' : 'dni'}
+                        </Typography>
+                      </TableCell>
+                      <TableCell className="border-r border-b border-r-gray-500 border-b-gray-500 !py-3">
+                        <Chip
+                          size="small"
+                          label={
+                            event.employee?.status ? 'Aktywny' : 'Nieaktywny'
+                          }
+                          className={`${event.employee?.status ? 'bg-green-600' : 'bg-red-400'} rounded-sm font-semibold text-white uppercase`}
+                          sx={{
+                            fontSize: '0.7rem',
+                            height: 20,
+                          }}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
+              ) : (
+                <TableRow>
+                  <TableCell className="!py-3" colSpan={4}>
+                    <Typography variant="body2" fontWeight="500" align="center">
+                      Brak wpisów...
                     </Typography>
-                    <Typography variant="body2" fontWeight="500">
-                      {currentEvent.startDate.format('DD.MM.YYYY')} –{' '}
-                      {currentEvent.endDate.format('DD.MM.YYYY')}
-                    </Typography>
-                  </Box>
-                  <Box
-                    className="border-lightGray rounded-lg border bg-gray-50 p-2"
-                    sx={{
-                      flex: 1,
-                    }}
-                  >
-                    <Typography
-                      variant="caption"
-                      color="text.secondary"
-                      fontWeight="500"
-                      sx={{ display: 'block', mb: 0.5 }}
-                    >
-                      Długość urlopu
-                    </Typography>
-                    <Typography variant="body2" fontWeight="500">
-                      {currentEvent.endDate.diff(
-                        currentEvent.startDate,
-                        'day'
-                      ) + 1}{' '}
-                      dni
-                    </Typography>
-                  </Box>
-                </Stack>
-
-                <Stack
-                  direction="row"
-                  alignItems="center"
-                  spacing={1}
-                  sx={{ mt: 2 }}
-                >
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    fontWeight="500"
-                  >
-                    Kolor:
-                  </Typography>
-                  <Box
-                    sx={{
-                      width: 20,
-                      height: 20,
-                      backgroundColor: currentEvent.color,
-                      borderRadius: 1,
-                      border: '1px solid #ddd',
-                    }}
-                  />
-                </Stack>
-              </Box>
-            )}
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
       </Stack>
     </BaseDialog>
   );

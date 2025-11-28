@@ -41,7 +41,6 @@ export interface CalendarDay {
 export type ActiveDialog =
   | { type: 'none' }
   | { type: 'addEvent' }
-  | { type: 'eventDetails' }
   | { type: 'editEvent' }
   | { type: 'moreEvents'; day: CalendarDay };
 
