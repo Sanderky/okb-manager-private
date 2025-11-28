@@ -1013,7 +1013,7 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
         </Stack>
       </DialogTitle>
 
-      <DialogContent dividers>
+      <DialogContent dividers className="px-3 sm:px-5">
         <LocalizationProvider
           localeText={
             plPL.components.MuiLocalizationProvider.defaultProps.localeText
@@ -1035,10 +1035,7 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
                   onClick={handleSelectAll}
                   disabled={isAllSelected}
                 >
-                  Wybierz wszystkich
-                </Button>
-                <Button size="small" onClick={handleClear}>
-                  Wyczyść
+                  Wszyscy
                 </Button>
                 <FormControlLabel
                   control={
@@ -1049,6 +1046,11 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
                     />
                   }
                   label="Uwzględnij nieaktywnych"
+                  sx={{
+                    '*': {
+                      fontSize: { xs: '0.90rem', sm: '1rem' },
+                    },
+                  }}
                 />
               </Stack>
               <Autocomplete
@@ -1094,9 +1096,25 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
                   })
                 }
               />
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                Wybrano: {selectedEmployees.length} z {filteredEmployees.length}
-              </Typography>
+              <Stack
+                direction={'row'}
+                alignItems={'center'}
+                justifyContent={'space-between'}
+                spacing={1}
+                mt={1}
+              >
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ mt: 1 }}
+                >
+                  Wybrano: {selectedEmployees.length} z{' '}
+                  {filteredEmployees.length}
+                </Typography>
+                <Button size="small" onClick={handleClear}>
+                  Wyczyść
+                </Button>
+              </Stack>
             </Box>
 
             <Box>

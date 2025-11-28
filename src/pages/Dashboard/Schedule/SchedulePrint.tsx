@@ -8,10 +8,12 @@ import {
   TableBody,
   Box,
   Typography,
+  Stack,
+  Paper,
 } from '@mui/material';
 import dayjs from 'dayjs';
 import type { Employee } from '../../../types';
-import type { ICell } from './ScheduleHelpers';
+import { WEEK_DAYS, type ICell } from './ScheduleHelpers';
 
 interface PrintableScheduleProps {
   activeTable: {
@@ -20,11 +22,8 @@ interface PrintableScheduleProps {
   };
   weeks: dayjs.Dayjs[];
   filteredEmployees: Employee[];
-  //   cellText: (employee: Employee, date: dayjs.Dayjs) => string;
   cellText: (cell: ICell, renderEmptyCellIndicator?: boolean) => JSX.Element;
 }
-
-const WEEK_DAYS = ['Pon', 'Wt', 'Śr', 'Czw', 'Pt', 'Sb', 'Nd'];
 
 export const PrintableSchedule = ({
   activeTable,
@@ -33,43 +32,64 @@ export const PrintableSchedule = ({
   cellText,
 }: PrintableScheduleProps) => {
   return (
-    <Box sx={{ backgroundColor: 'white', color: 'black' }}>
+    <Box sx={{ p: 1 }}>
+      <Typography variant="h6" gutterBottom align="center">
+        Harmonogram budów
+      </Typography>
+
+      <Stack direction="row" justifyContent="space-between" sx={{ mb: 2 }}>
+        <Typography variant="body2">
+          <strong>Widok:</strong>{' '}
+          {activeTable.type === 0 ? 'Miesięczny' : 'Tygodniowy'}
+        </Typography>
+        <Typography variant="body2">
+          <strong>Liczba pracowników:</strong> {filteredEmployees.length}
+        </Typography>
+        <Typography variant="body2">
+          <strong>Wygenerowano:</strong> {dayjs().format('DD.MM.YYYY HH:mm')}
+        </Typography>
+      </Stack>
+
       {activeTable.type === 0 ? (
-        <TableContainer component={Box}>
+        <TableContainer
+          component={Paper}
+          sx={{
+            border: '1px solid #000',
+            '& .MuiTableCell-root': {
+              border: '1px solid #666',
+              padding: '4px',
+              color: 'black',
+              textAlign: 'center',
+              verticalAlign: 'middle',
+            },
+            '& .MuiTableHead-root .MuiTableCell-root': {
+              backgroundColor: '#f5f5f5',
+              fontWeight: 'bold',
+            },
+            '& .MuiTypography-root': {
+              fontSize: '0.75rem !important',
+            },
+          }}
+        >
           <Table
+            size="small"
             sx={{
               tableLayout: 'fixed',
-              width: '100%',
-              //   width: 'fit-content',
-              border: '1px solid black',
-              '& .MuiTableCell-root': {
-                border: '1px solid black',
-                padding: '4px 8px',
-                backgroundColor: 'white !important',
-                color: 'black !important',
-              },
             }}
           >
             <TableHead>
               <TableRow>
-                <TableCell
-                  sx={{
-                    // width: '20%',
-                    width: '120px',
-                    fontWeight: 'bold',
-                    textAlign: 'center',
-                  }}
-                >
-                  Pracownik
+                <TableCell sx={{ width: '150px' }}>
+                  <Typography
+                    variant="caption"
+                    display="block"
+                    sx={{ fontWeight: 'bold' }}
+                  >
+                    Pracownik
+                  </Typography>
                 </TableCell>
                 {weeks.map((week, index) => (
-                  <TableCell
-                    key={index}
-                    sx={{
-                      fontWeight: 'bold',
-                      textAlign: 'center',
-                    }}
-                  >
+                  <TableCell key={index}>
                     <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
                       {week.format('DD.MM')} -{' '}
                       {week.add(6, 'day').format('DD.MM')}
@@ -78,18 +98,26 @@ export const PrintableSchedule = ({
                 ))}
               </TableRow>
             </TableHead>
-
             <TableBody>
               {filteredEmployees.map((employee) => (
                 <TableRow key={employee.id}>
-                  <TableCell>
+                  <TableCell sx={{ backgroundColor: '#f9f9f9' }}>
                     <Typography
-                      sx={{
-                        fontWeight: 'bold',
-                        textAlign: 'center',
-                      }}
+                      variant="caption"
+                      display="block"
+                      sx={{ fontWeight: 'bold' }}
                     >
                       {employee.name}
+                      {!employee.status && (
+                        <Typography
+                          component={'span'}
+                          variant="inherit"
+                          className="ml-1"
+                          color="error"
+                        >
+                          (Nieaktywny)
+                        </Typography>
+                      )}
                     </Typography>
                   </TableCell>
                   {weeks.map((week, weekIndex) => {
@@ -100,16 +128,17 @@ export const PrintableSchedule = ({
                       isWeek: true,
                     };
                     return (
-                      <TableCell
-                        key={weekIndex}
-                        sx={{
-                          textAlign: 'center',
-                          '& p': {
-                            color: '#000 !important',
-                          },
-                        }}
-                      >
-                        {cellText(cellData, false)}
+                      <TableCell key={weekIndex}>
+                        <Box
+                          sx={{
+                            minHeight: '50px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                          }}
+                        >
+                          {cellText(cellData, false)}
+                        </Box>
                       </TableCell>
                     );
                   })}
@@ -119,41 +148,46 @@ export const PrintableSchedule = ({
           </Table>
         </TableContainer>
       ) : (
-        <TableContainer component={Box}>
-          <Table
-            sx={{
-              tableLayout: 'fixed',
-              width: '100%',
-              //   width: 'fit-content',
-              border: '1px solid black',
-              '& .MuiTableCell-root': {
-                border: '1px solid black',
-                padding: '4px 8px',
-                backgroundColor: 'white !important',
-                color: 'black !important',
-              },
-            }}
-          >
+        <TableContainer
+          component={Paper}
+          sx={{
+            border: '1px solid #000',
+            '& .MuiTableCell-root': {
+              border: '1px solid #666',
+              padding: '4px',
+              color: 'black',
+              textAlign: 'center',
+              verticalAlign: 'middle',
+            },
+            '& .MuiTableHead-root .MuiTableCell-root': {
+              backgroundColor: '#f5f5f5',
+              fontWeight: 'bold',
+            },
+            '& .MuiTypography-root': {
+              fontSize: '0.75rem !important',
+            },
+          }}
+        >
+          <Table size="small" sx={{ tableLayout: 'fixed' }}>
             <TableHead>
               <TableRow>
-                <TableCell
-                  sx={{
-                    // width: '150px',
-                    width: '120px',
-                    fontWeight: 'bold',
-                    textAlign: 'center',
-                  }}
-                >
-                  Pracownik
+                <TableCell sx={{ width: '150px' }}>
+                  <Typography
+                    variant="caption"
+                    display="block"
+                    sx={{ fontWeight: 'bold' }}
+                  >
+                    Pracownik
+                  </Typography>
                 </TableCell>
                 {Array.from({ length: 7 }).map((_, dayIndex) => {
                   const day = activeTable.week?.add(dayIndex, 'day');
+                  const isWeekend = dayIndex >= 5;
                   return (
                     <TableCell
                       key={dayIndex}
                       sx={{
-                        fontWeight: 'bold',
-                        textAlign: 'center',
+                        backgroundColor: isWeekend ? '#e8e8e8' : '#f5f5f5',
                       }}
                     >
                       <Typography
@@ -164,29 +198,38 @@ export const PrintableSchedule = ({
                         {WEEK_DAYS[dayIndex]}
                       </Typography>
                       <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
-                        {day?.format('DD.MM')}
+                        {day?.format('DD.MM.YYYY')}
                       </Typography>
                     </TableCell>
                   );
                 })}
               </TableRow>
             </TableHead>
-
             <TableBody>
               {filteredEmployees.map((employee) => (
                 <TableRow key={employee.id}>
-                  <TableCell>
+                  <TableCell sx={{ backgroundColor: '#f9f9f9' }}>
                     <Typography
-                      sx={{
-                        fontWeight: 'bold',
-                        textAlign: 'center',
-                      }}
+                      variant="caption"
+                      display="block"
+                      sx={{ fontWeight: 'bold' }}
                     >
                       {employee.name}
+                      {!employee.status && (
+                        <Typography
+                          component={'span'}
+                          variant="inherit"
+                          className="ml-1"
+                          color="error"
+                        >
+                          (Nieaktywny)
+                        </Typography>
+                      )}
                     </Typography>
                   </TableCell>
                   {Array.from({ length: 7 }).map((_, dayIndex) => {
                     const day = activeTable.week?.add(dayIndex, 'day');
+                    const isWeekend = dayIndex >= 5;
                     const cellData: ICell = {
                       empId: employee.id,
                       weekKey: day?.format('YYYY-MM-DD') || '',
@@ -197,13 +240,19 @@ export const PrintableSchedule = ({
                       <TableCell
                         key={dayIndex}
                         sx={{
-                          textAlign: 'center',
-                          '& p': {
-                            color: '#000 !important',
-                          },
+                          backgroundColor: isWeekend ? '#f0f0f0' : 'white',
                         }}
                       >
-                        {day ? cellText(cellData, false) : ''}
+                        <Box
+                          sx={{
+                            minHeight: '60px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                          }}
+                        >
+                          {day ? cellText(cellData, false) : ''}
+                        </Box>
                       </TableCell>
                     );
                   })}
