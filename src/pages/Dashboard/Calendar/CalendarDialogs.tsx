@@ -648,7 +648,7 @@ export const EventDetailsDialog: React.FC<EventDetailsDialogProps> = ({
                   spacing={1}
                   direction="row"
                   alignItems="center"
-                  className="px-3 py-2"
+                  className="px-3 py-1"
                   onClick={() => handleMoreEventsItemClick(event)}
                 >
                   <Box sx={{ flexGrow: 1, overflow: 'hidden' }}>

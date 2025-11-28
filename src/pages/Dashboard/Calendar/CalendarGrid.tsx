@@ -117,7 +117,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                 <Grid
                   size={{ xs: 12 / 7 }}
                   key={`${wi}-${di}`}
-                  className={`border-t border-t-gray-300 p-1 ${isSelected && 'bg-lightBlue'}`}
+                  className={`border-t border-t-gray-300 p-1 ${isSelected && 'bg-blue-100'}`}
                   sx={{
                     borderLeft: di % 7 !== 0 ? '1px solid #ddd' : 'none',
                     // minHeight: 140,
@@ -178,119 +178,124 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                       // if (shouldHideEvent()) return null;
 
                       return (
-                        <Tooltip
-                          arrow
-                          placement="top"
+                        // <Tooltip
+                        //   arrow
+                        //   placement="top"
+                        //   title={
+                        //     <Box>
+                        //       <Typography variant="subtitle2">
+                        //         {ev.employee?.name}
+                        //       </Typography>
+                        //       <Typography variant="body2">
+                        //         {ev.startDate.format('DD.MM.YYYY')} –{' '}
+                        //         {ev.endDate.format('DD.MM.YYYY')}
+                        //       </Typography>
+                        //       {ev.description && (
+                        //         <Typography variant="body2" sx={{ mt: 0.5 }}>
+                        //           {ev.description}
+                        //         </Typography>
+                        //       )}
+                        //     </Box>
+                        //   }
+                        //   key={index}
+                        //   onClick={(e) => {
+                        //     e.stopPropagation();
+                        //     handleEventClick(ev);
+                        //   }}
+                        //   slotProps={{
+                        //     popper: {
+                        //       modifiers: [
+                        //         {
+                        //           name: 'offset',
+                        //           options: {
+                        //             offset: [0, -5],
+                        //           },
+                        //         },
+                        //       ],
+                        //     },
+                        //   }}
+                        // >
+                        <Box
                           key={index}
-                          title={
-                            <Box>
-                              <Typography variant="subtitle2">
-                                {ev.employee?.name}
-                              </Typography>
-                              <Typography variant="body2">
-                                {ev.startDate.format('DD.MM.YYYY')} –{' '}
-                                {ev.endDate.format('DD.MM.YYYY')}
-                              </Typography>
-                              {ev.description && (
-                                <Typography variant="body2" sx={{ mt: 0.5 }}>
-                                  {ev.description}
-                                </Typography>
-                              )}
-                            </Box>
-                          }
                           onClick={(e) => {
                             e.stopPropagation();
                             handleEventClick(ev);
                           }}
-                          slotProps={{
-                            popper: {
-                              modifiers: [
-                                {
-                                  name: 'offset',
-                                  options: {
-                                    offset: [0, -5],
-                                  },
-                                },
-                              ],
-                            },
+                          sx={{
+                            visibility: shouldHideEvent()
+                              ? 'hidden'
+                              : 'visible',
+                            position: 'absolute',
+                            top: slot * (MAX_EVENT_HEIGHT + 4),
+                            height: MAX_EVENT_HEIGHT,
+                            left: 0,
+                            right: 0,
+                            bgcolor: ev.color,
+                            px: 1,
+                            ml: isStart ? 1 : '-1px',
+                            mr: isEnd ? 1 : '-1px',
+                            fontSize: '0.7rem',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            color: showName ? textColor : 'transparent',
+                            borderTopLeftRadius: isStart ? 10 : 0,
+                            borderBottomLeftRadius: isStart ? 10 : 0,
+                            borderTopRightRadius: isEnd ? 10 : 0,
+                            borderBottomRightRadius: isEnd ? 10 : 0,
+                            cursor: 'pointer',
+                            textAlign: showName ? 'left' : 'right',
                           }}
+                          className={`${!ev.employee.status && 'italic line-through'}`}
                         >
-                          <Box
+                          <Typography
                             sx={{
-                              visibility: shouldHideEvent()
-                                ? 'hidden'
-                                : 'visible',
-                              position: 'absolute',
-                              top: slot * (MAX_EVENT_HEIGHT + 4),
-                              height: MAX_EVENT_HEIGHT,
-                              left: 0,
-                              right: 0,
-                              bgcolor: ev.color,
-                              px: 1,
-                              ml: isStart ? 1 : '-1px',
-                              mr: isEnd ? 1 : '-1px',
-                              fontSize: '0.7rem',
-                              overflow: 'hidden',
+                              fontSize: 'inherit',
+                              fontWeight: 500,
                               textOverflow: 'ellipsis',
-                              whiteSpace: 'nowrap',
-                              color: showName ? textColor : 'transparent',
-                              borderTopLeftRadius: isStart ? 10 : 0,
-                              borderBottomLeftRadius: isStart ? 10 : 0,
-                              borderTopRightRadius: isEnd ? 10 : 0,
-                              borderBottomRightRadius: isEnd ? 10 : 0,
-                              cursor: 'pointer',
-                              textAlign: showName ? 'left' : 'right',
+                              overflow: 'hidden',
+                              display: {
+                                xs: 'none',
+                                sm: showName ? 'block' : 'none',
+                              },
+                              color: 'inherit',
+                              lineHeight: `${MAX_EVENT_HEIGHT}px`,
                             }}
-                            className={`${!ev.employee.status && 'italic line-through'}`}
                           >
-                            <Typography
-                              sx={{
-                                fontSize: 'inherit',
-                                fontWeight: 500,
-                                textOverflow: 'ellipsis',
-                                overflow: 'hidden',
-                                display: {
-                                  xs: 'none',
-                                  sm: showName ? 'block' : 'none',
-                                },
-                                color: 'inherit',
-                                lineHeight: `${MAX_EVENT_HEIGHT}px`,
-                              }}
-                            >
-                              {ev.employee.name}
-                            </Typography>
-                            <Typography
-                              sx={{
-                                fontSize: 'inherit',
-                                fontWeight: 600,
-                                display: {
-                                  xs: showName ? 'block' : 'none',
-                                  sm: 'none',
-                                },
-                                color: 'inherit',
-                                lineHeight: `${MAX_EVENT_HEIGHT}px`,
-                              }}
-                            >
-                              {getInitials(ev.employee.name)}
-                            </Typography>
+                            {ev.employee.name}
+                          </Typography>
+                          <Typography
+                            sx={{
+                              fontSize: 'inherit',
+                              fontWeight: 600,
+                              display: {
+                                xs: showName ? 'block' : 'none',
+                                sm: 'none',
+                              },
+                              color: 'inherit',
+                              lineHeight: `${MAX_EVENT_HEIGHT}px`,
+                            }}
+                          >
+                            {getInitials(ev.employee.name)}
+                          </Typography>
 
-                            {isWeekStart && !isStart && (
-                              <Box
-                                sx={{
-                                  position: 'absolute',
-                                  left: 2,
-                                  top: '50%',
-                                  transform: 'translateY(-50%)',
-                                  width: 3,
-                                  height: 12,
-                                  backgroundColor: textColor,
-                                  opacity: 0.6,
-                                  borderRadius: 1,
-                                }}
-                              />
-                            )}
-                          </Box>
-                        </Tooltip>
+                          {isWeekStart && !isStart && (
+                            <Box
+                              sx={{
+                                position: 'absolute',
+                                left: 2,
+                                top: '50%',
+                                transform: 'translateY(-50%)',
+                                width: 3,
+                                height: 12,
+                                backgroundColor: textColor,
+                                opacity: 0.6,
+                                borderRadius: 1,
+                              }}
+                            />
+                          )}
+                        </Box>
+                        // </Tooltip>
                       );
                     })}
                   </Box>
