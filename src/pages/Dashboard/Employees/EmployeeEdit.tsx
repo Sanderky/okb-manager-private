@@ -33,7 +33,7 @@ import { removeEmployeeVacations } from '../../../api/vacations';
 import { removeEmployeeSchedules } from '../../../api/schedules';
 import { useScroll } from '../../../context/ScrollContext';
 import { useDialogs } from '../../../hooks/useDialogs/useDialogs';
-import { validate } from './EmployeesHelpers';
+import { toNumberOrNull, validate } from './EmployeesHelpers';
 
 export type FileStateMap = {
   [K in EmployeeAttachment]: File | null;
@@ -228,6 +228,7 @@ export default function EmployeeEdit() {
           phone: formState.values.phone?.trim(),
           birthPlace: formState.values.birthPlace?.trim(),
           accountNumber: formState.values.accountNumber?.trim(),
+          hourRate: toNumberOrNull(formState.values.hourRate) ?? null,
         };
 
         startActionLoading();

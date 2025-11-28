@@ -13,7 +13,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { FileStateMap } from './EmployeeEdit';
 import Loading from '../../../components/Loading';
 import useLoading from '../../../hooks/useLoading';
-import { validate } from './EmployeesHelpers';
+import { toNumberOrNull, validate } from './EmployeesHelpers';
 
 export default function EmployeeCreate() {
   const navigate = useNavigate();
@@ -126,6 +126,7 @@ export default function EmployeeCreate() {
         phone: formState.values.phone?.trim(),
         birthPlace: formState.values.birthPlace?.trim(),
         accountNumber: formState.values.accountNumber?.trim(),
+        hourRate: toNumberOrNull(formState.values.hourRate) ?? null,
       };
 
       startActionLoading();

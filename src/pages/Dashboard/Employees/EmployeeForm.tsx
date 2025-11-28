@@ -467,7 +467,7 @@ export default function EmployeeForm(props: EmployeeFormProps) {
       return (
         <Grid size={{ xs: 12, md: 6 }} key={key}>
           <TextField
-            type="number"
+            type="text"
             label="Stawka godzinowa"
             fullWidth
             size="small"
@@ -481,9 +481,17 @@ export default function EmployeeForm(props: EmployeeFormProps) {
             }}
             value={formValues[key] ?? ''}
             onChange={(e) => {
-              const val = e.target.value;
-              if (isNaN(parseFloat(val)) && val.length !== 0) return;
-              handleFieldChange(key, parseFloat(val));
+              let val = e.target.value;
+              if (val === '') {
+                handleFieldChange(key, null);
+                return;
+              }
+              val = val
+                .replace(/,/g, '.')
+                .replace(/[^0-9.]/g, '')
+                .replace(/(\..*)\./g, '$1');
+
+              handleFieldChange(key, val);
             }}
             name={key}
             error={Boolean(formErrors[key])}
