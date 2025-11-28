@@ -427,25 +427,19 @@ export const EditEventDialog: React.FC<EditEventDialogProps> = ({
       }
     >
       <Stack spacing={2}>
-        <Autocomplete
+        <TextField
           size="small"
-          options={employees.filter((e) => e.status)}
-          getOptionLabel={(opt) => opt?.name}
-          value={currentEvent.employee ?? null}
-          onChange={(_, newValue) => handleEmployeeChange(newValue!)}
-          isOptionEqualToValue={(option, value) => option.id === value.id}
-          renderOption={(props, option) => {
-            const { key, ...optionProps } = props;
-            return (
-              <li key={key} {...optionProps}>
-                {option.name}
-              </li>
-            );
+          label="Pracownik"
+          value={currentEvent.employee?.name ?? ''}
+          fullWidth
+          slotProps={{
+            input: { readOnly: true },
           }}
-          renderInput={(params) => (
-            <TextField {...params} label="Pracownik" disabled />
-          )}
-          disabled={true}
+          sx={{
+            '& .MuiInputBase-root': {
+              backgroundColor: '#f5f5f5',
+            },
+          }}
         />
 
         <TextField
