@@ -221,6 +221,13 @@ export default function EmployeeEdit() {
           contractEndDate: formState.values.contractISPermanent
             ? null
             : (formState.values.contractEndDate ?? null),
+          name: formState.values.name?.trim(),
+          pesel: formState.values.pesel?.trim(),
+          address: formState.values.address?.trim(),
+          email: formState.values.email?.trim(),
+          phone: formState.values.phone?.trim(),
+          birthPlace: formState.values.birthPlace?.trim(),
+          accountNumber: formState.values.accountNumber?.trim(),
         };
 
         startActionLoading();

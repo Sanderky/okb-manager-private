@@ -87,11 +87,14 @@ export default function ConstructionCreate() {
           });
         }
         return;
-      }    
-            const changedValues: Partial<Omit<Construction, 'id'>> = {
-              ...formState.values,
-              status: !shouldBeInactive(formState.values.endDate)
-            }
+      }
+      const changedValues: Partial<Omit<Construction, 'id'>> = {
+        ...formState.values,
+        name: formState.values.name?.trim(),
+        location: formState.values.location?.trim(),
+        contractor: formState.values.contractor?.trim(),
+        status: !shouldBeInactive(formState.values.endDate),
+      };
 
       startActionLoading();
       try {

@@ -141,6 +141,9 @@ export default function ConstructionEdit() {
 
       const changedValues: Partial<Omit<Construction, 'id'>> = {
         ...formState.values,
+        name: formState.values.name?.trim(),
+        location: formState.values.location?.trim(),
+        contractor: formState.values.contractor?.trim(),
         status: !shouldBeInactive(formState.values.endDate),
       };
 
