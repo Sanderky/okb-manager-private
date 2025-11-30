@@ -478,17 +478,13 @@ export default function EmployeeForm(props: EmployeeFormProps) {
             }}
             value={formValues[key] ?? ''}
             onChange={(e) => {
-              let val = e.target.value;
-              if (val === '') {
-                handleFieldChange(key, null);
-                return;
-              }
-              val = val
-                .replace(/,/g, '.')
-                .replace(/[^0-9.]/g, '')
-                .replace(/(\..*)\./g, '$1');
+              const val = e.target.value.replace(/,/g, '.');
 
-              handleFieldChange(key, val);
+              const regex = /^\d*(?:\.\d*)?$/;
+
+              if (val === '' || regex.test(val)) {
+                handleFieldChange(key, val === '' ? null : val);
+              }
             }}
             name={key}
             error={Boolean(formErrors[key])}
