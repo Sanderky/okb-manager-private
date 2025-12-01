@@ -11,16 +11,18 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import dayjs, { type Dayjs } from 'dayjs';
 import type { Construction } from '../../../types';
 import Alert from '@mui/material/Alert';
-import { Autocomplete, Divider, Typography } from '@mui/material';
+import { Autocomplete, Divider, Paper, Typography } from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { NoteBase } from '../../../components/Note';
 import { plPL } from '@mui/x-date-pickers/locales';
-import { getConstructionList } from '../../../api/constructions';
 import { useQuery } from '@tanstack/react-query';
 import { shouldBeInactive } from './ConstructionsHelpers';
+import { getContractors } from '../../../api/contractors';
+import { Add } from '@mui/icons-material';
+import { ContractorsDialog } from '../../../components/ContractorsDialog';
 
 export interface ConstructionFormState {
   values: Partial<Omit<Construction, 'id'>>;
@@ -65,20 +67,17 @@ export default function ConstructionForm(props: ConstructionFormProps) {
     isEditForm,
   } = props;
 
-  const { data: constructions } = useQuery({
-    queryKey: ['constructions'],
-    queryFn: () => getConstructionList(),
+  const [contractorsModalOpen, setContractorsModalOpen] = useState(false);
+
+  const { data: contractors, isLoading: contractorsIsLoading } = useQuery({
+    queryKey: ['contractors'],
+    queryFn: getContractors,
   });
 
-  const contractorOptions = useMemo(() => {
-    if (!constructions || constructions.length === 0) return [];
-
-    const contractors = constructions.flatMap((construction) =>
-      construction.contractor ? [construction.contractor] : []
-    );
-
-    return [...new Set(contractors)];
-  }, [constructions]);
+  const contractorsOptions = useMemo(() => {
+    if (!contractors) return [];
+    return contractors.map((contractor) => contractor.name);
+  }, [contractors]);
 
   const formValues = formState.values;
   const formErrors = formState.errors;
@@ -202,11 +201,38 @@ export default function ConstructionForm(props: ConstructionFormProps) {
                       onInputChange={(_, newVal) =>
                         handleFieldChange(key, newVal)
                       }
+                      slots={{
+                        paper: (props) => {
+                          const { children, ...other } = props;
+                          return (
+                            <Paper {...other}>
+                              {children}
+
+                              <Divider />
+
+                              <Box
+                                onMouseDown={(e) => e.preventDefault()}
+                                sx={{ p: 1 }}
+                              >
+                                <Button
+                                  fullWidth
+                                  variant="text"
+                                  size="small"
+                                  startIcon={<Add />}
+                                  onClick={() => setContractorsModalOpen(true)}
+                                >
+                                  Dodaj wykonawcę
+                                </Button>
+                              </Box>
+                            </Paper>
+                          );
+                        },
+                      }}
                       autoComplete={false}
                       inputValue={formValues[key] ?? ''}
-                      freeSolo
                       size="small"
-                      options={contractorOptions ?? []}
+                      loading={contractorsIsLoading}
+                      options={contractorsOptions}
                       renderInput={(params) => (
                         <TextField
                           {...params}
@@ -365,6 +391,11 @@ export default function ConstructionForm(props: ConstructionFormProps) {
           </Button>
         </Stack>
       </FormGroup>
+
+      <ContractorsDialog
+        open={contractorsModalOpen}
+        onClose={() => setContractorsModalOpen(false)}
+      />
     </Box>
   );
 }

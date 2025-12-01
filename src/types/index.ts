@@ -45,6 +45,10 @@ export interface HomeDocument {
   note?: string;
 }
 
+export interface ConstructionContractor {
+  id: string;
+  name: string;
+}
 export interface Construction {
   id: string;
   name: string;

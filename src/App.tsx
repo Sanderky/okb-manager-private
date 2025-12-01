@@ -32,6 +32,7 @@ import { fetchAlertsSettings } from './api/settings';
 import { getEmployeeList } from './api/employees';
 import { getUpcomingVacations } from './api/vacations';
 import { getHomeNote } from './api/home';
+import { getContractors } from './api/contractors';
 
 const customTheme = createTheme({
   palette: {
@@ -90,6 +91,11 @@ export default function App() {
     enabled: !!user,
   });
 
+  const { isLoading: isContractorsLoading } = useQuery({
+    queryKey: ['contractors'],
+    queryFn: getContractors,
+  });
+
   const { isLoading: constructionsLoading } = useQuery({
     queryKey: ['constructions'],
     queryFn: () => getConstructionList(),
@@ -114,13 +120,18 @@ export default function App() {
     enabled: !!user,
   });
 
-  useEmployeesAlert(employees, alertsSettings, employeesLoading || alertsSettingsLoading);
+  useEmployeesAlert(
+    employees,
+    alertsSettings,
+    employeesLoading || alertsSettingsLoading
+  );
 
   const isLoading = Boolean(
     authLoading ||
       (user &&
         (constructionsLoading ||
           alertsSettingsLoading ||
+          isContractorsLoading ||
           employeesLoading ||
           upcomingVacationsLoading ||
           activeEmployeesLoading ||
@@ -136,9 +147,7 @@ export default function App() {
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route
-                element={
-                  <PrivateRoute isLoading={isLoading} user={user} />
-                }
+                element={<PrivateRoute isLoading={isLoading} user={user} />}
               >
                 <Route path="/" element={<DashboardLayout />}>
                   <Route index element={<Navigate replace to="/home" />} />

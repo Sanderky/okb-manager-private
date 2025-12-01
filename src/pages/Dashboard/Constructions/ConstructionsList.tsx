@@ -50,6 +50,8 @@ import { plPL } from '@mui/x-date-pickers/locales';
 import { getEmployeesByScheduledConstruction } from '../../../api/schedules';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
+import { ContractorsDialog } from '../../../components/ContractorsDialog';
+import { Engineering } from '@mui/icons-material';
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
@@ -110,6 +112,7 @@ export default function ConstructionsList() {
   } = useTableState('constructions', DefaultColumnFilters, DefaultColumnsOrder);
 
   const [filtersModalOpen, setFiltersModalOpen] = useState(false);
+  const [contractorsModalOpen, setContractorsModalOpen] = useState(false);
 
   const { filters, setFilters, resetFilters } =
     useFormFilters<ConstructionsFilters>('constructions', DefaultFiltersState);
@@ -584,7 +587,15 @@ export default function ConstructionsList() {
   return (
     <PageContainer
       breadcrumbs={[{ title: 'Lista budów' }]}
-      actions={
+      actions={[
+        <Button
+          variant="contained"
+          onClick={() => setContractorsModalOpen(true)}
+          startIcon={<Engineering />}
+          size="small"
+        >
+          Wykonawcy
+        </Button>,
         <Button
           variant="contained"
           onClick={handleCreateClick}
@@ -592,8 +603,8 @@ export default function ConstructionsList() {
           size="small"
         >
           Nowa
-        </Button>
-      }
+        </Button>,
+      ]}
     >
       <Box sx={{ flex: 1, width: '100%' }}>
         <LocalizationProvider
@@ -604,6 +615,10 @@ export default function ConstructionsList() {
           adapterLocale="pl"
         >
           <MaterialReactTable table={table} />
+          <ContractorsDialog
+            open={contractorsModalOpen}
+            onClose={() => setContractorsModalOpen(false)}
+          />
 
           <Dialog
             open={filtersModalOpen}
