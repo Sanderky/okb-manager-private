@@ -44,21 +44,20 @@ import {
 } from '@mui/icons-material';
 import MoveItemsDialog from './MoveFilesDialog';
 import { PreviewDialog } from './FilePreviewDialog';
-import type { FileItem, FileCustom } from '../../types';
-import useFileView from './useFileBrowser';
-import { canOpenPreview, formatBytes, getFileType } from './FileBrowserHelpers';
+import type { FileBrowserItem, FileItem } from '../../types';
+import useFileBrowser from './useFileBrowser';
 import PdfIcon from '../../assets/icons/file-pdf.svg?react';
 import 'dayjs/locale/pl';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { MRT_Localization_PL } from 'material-react-table/locales/pl';
 import BaseDialog from '../BaseDialog';
-import { getDownloadURL, ref } from 'firebase/storage';
-import { storage } from '../../firebase';
+import * as StorageService from '../../services/storage';
+import { canOpenPreview, formatBytes, getFileType, openFileInNewTab } from '../../services/storage';
 
 // const BASE_DIRECTORY = 'files';
 
-const RenderFileImage = ({ file }: { file: FileCustom }) => {
+const RenderFileImage = ({ file }: { file: FileBrowserItem }) => {
   if (file.type === 'folder') return <Folder />;
   const fileType = getFileType(file.name);
   // if(fileType === 'pdf') return <PictureAsPdfOutlined/>
@@ -116,8 +115,8 @@ export const FileDetailsDialog: React.FC<FileDetailsDialogProps> = ({
         <FileDetailsItem
           title="Data dodania"
           value={
-            file.timeCreated
-              ? new Date(file.timeCreated).toLocaleString()
+            file.createdAt
+              ? new Date(file.createdAt).toLocaleString()
               : 'brak danych'
           }
         />
@@ -125,10 +124,7 @@ export const FileDetailsDialog: React.FC<FileDetailsDialogProps> = ({
           title="Rozmiar"
           value={file.size ? formatBytes(file.size as number) : 'brak danych'}
         />
-        <FileDetailsItem
-          title="Rodzaj"
-          value={file.contentType ?? 'brak danych'}
-        />
+        <FileDetailsItem title="Rodzaj" value={file.type ?? 'brak danych'} />
       </Stack>
     </BaseDialog>
   );
@@ -203,7 +199,7 @@ interface FirebaseFileBrowserProps {
   baseDirectory: string;
 }
 
-const FirebaseFileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
+const FileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
   const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
   const [previewFile, setPreviewFile] = useState<FileItem | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState<boolean>(false);
@@ -212,7 +208,7 @@ const FirebaseFileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
     useState<boolean>(false);
   const [isDragOver, setIsDragOver] = useState<boolean>(false);
   const dropRef = useRef<HTMLDivElement>(null);
- const dragCounter = useRef<number>(0);
+  const dragCounter = useRef<number>(0);
   const onFetch = useCallback(() => {
     setRowSelection({});
   }, []);
@@ -234,7 +230,7 @@ const FirebaseFileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
     handleMove,
     destinationFolders,
     isUploadDialogOpen,
-  } = useFileView(baseDirectory, onFetch);
+  } = useFileBrowser(baseDirectory, onFetch);
 
   const handleOpenPreview = useCallback((file: FileItem) => {
     setPreviewFile(file);
@@ -258,23 +254,26 @@ const FirebaseFileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
     e.preventDefault();
     e.stopPropagation();
     dragCounter.current--;
-    
+
     const currentTarget = e.currentTarget as HTMLElement;
     const relatedTarget = e.relatedTarget as HTMLElement;
-    
+
     if (!currentTarget.contains(relatedTarget) && dragCounter.current <= 0) {
       dragCounter.current = 0;
       setIsDragOver(false);
     }
   }, []);
 
-  const handleDragOver = useCallback((e: DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (!isDragOver && dragCounter.current > 0) {
-      setIsDragOver(true);
-    }
-  }, [isDragOver]);
+  const handleDragOver = useCallback(
+    (e: DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (!isDragOver && dragCounter.current > 0) {
+        setIsDragOver(true);
+      }
+    },
+    [isDragOver]
+  );
 
   const handleDrop = useCallback(
     (e: DragEvent) => {
@@ -311,32 +310,20 @@ const FirebaseFileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
     };
   }, [handleDragEnter, handleDragLeave, handleDragOver, handleDrop]);
 
-  const handleOpenFileInNewTab = useCallback(async (filePath: string) => {
-    if (!filePath) return;
-
-    try {
-      const fileRef = ref(storage, filePath);
-      const downloadURL = await getDownloadURL(fileRef);
-      window.open(downloadURL, '_blank');
-    } catch (error) {
-      console.error('Error opening file in new tab:', error);
-    }
-  }, []);
-
   const handleClikOnName = useCallback(
-    (item: FileCustom) => {
+    async (item: FileBrowserItem) => {
       if (item.type === 'folder') {
-        changeCurrentPath(item.fullPath);
-      } else if (canOpenPreview(item)) {
-        handleOpenPreview(item);
+        changeCurrentPath(item.path);
+      } else if (StorageService.canOpenPreview(item)) {
+        handleOpenPreview(item as FileItem);
       } else {
-        handleOpenFileInNewTab(item.fullPath);
+        await openFileInNewTab(item.path);
       }
     },
-    [changeCurrentPath, handleOpenPreview, handleOpenFileInNewTab]
+    [changeCurrentPath, handleOpenPreview]
   );
 
-  const columns = useMemo<MRT_ColumnDef<FileCustom>[]>(
+  const columns = useMemo<MRT_ColumnDef<FileBrowserItem>[]>(
     () => [
       {
         accessorKey: 'name',
@@ -385,7 +372,7 @@ const FirebaseFileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
         ),
       },
       {
-        accessorKey: 'timeCreated',
+        accessorKey: 'createdAt',
         header: 'Data dodania',
         grow: false,
         size: 150,
@@ -453,7 +440,7 @@ const FirebaseFileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
               label={
                 row.original.type === 'folder'
                   ? 'folder'
-                  : row.original.contentType
+                  : (row.original.contentType ?? '-')
               }
               size="small"
               variant="outlined"
@@ -465,7 +452,7 @@ const FirebaseFileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
     [handleClikOnName]
   );
 
-  const renderToolbarButtons = (selectedRows: FileCustom[]) => {
+  const renderToolbarButtons = (selectedRows: FileBrowserItem[]) => {
     return (
       <>
         <Button
@@ -655,7 +642,7 @@ const FirebaseFileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
               key="newTab"
               label="Otwórz w nowej karcie"
               onClick={() => {
-                handleOpenFileInNewTab((row.original as FileItem).fullPath);
+                openFileInNewTab((row.original as FileItem).path);
                 closeMenu();
               }}
               table={table}
@@ -830,7 +817,7 @@ const FirebaseFileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
               backgroundColor: 'rgba(25, 118, 210, 0.1)',
               border: '2px dashed #1976d2',
               borderRadius: '4px',
-              pointerEvents: 'none'
+              pointerEvents: 'none',
             }}
           >
             <Box
@@ -883,4 +870,4 @@ const FirebaseFileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
   );
 };
 
-export default FirebaseFileBrowser;
+export default FileBrowser;

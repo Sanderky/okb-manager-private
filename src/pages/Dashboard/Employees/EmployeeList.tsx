@@ -10,7 +10,7 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 import WarningIcon from '@mui/icons-material/Warning';
 import { useNavigate } from 'react-router';
 import PageContainer from '../../../components/PageContainer';
-import { getEmployeeList } from '../../../api/employees';
+import { getEmployeeList } from '../../../services/employees';
 import { useQuery } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 import Alert from '@mui/material/Alert';

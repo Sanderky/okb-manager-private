@@ -1,8 +1,8 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import type { Construction, Employee, WorkHours } from '../../../types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getEmployeeList } from '../../../api/employees';
-import { getConstructionList } from '../../../api/constructions';
+import { getEmployeeList } from '../../../services/employees';
+import { getConstructionList } from '../../../services/constructions';
 import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
 import 'dayjs/locale/pl';
@@ -13,7 +13,7 @@ import {
   getStartOfWeek,
   getWeekDates,
 } from './HoursHelpers';
-import { getVacationListForMonths } from '../../../api/vacations';
+import { getVacationListForMonths } from '../../../services/vacations';
 import isoWeek from 'dayjs/plugin/isoWeek';
 import { useDialogs } from '../../../hooks/useDialogs/useDialogs';
 import useNotifications from '../../../hooks/useNotifications/useNotifications';
@@ -21,8 +21,8 @@ import {
   getWorkHoursList,
   addWorkHours,
   deleteAllWorkHoursForWeek,
-} from '../../../api/hours';
-import { getScheduleListForWeek } from '../../../api/schedules';
+} from '../../../services/hours';
+import { getScheduleListForWeek } from '../../../services/schedules';
 
 dayjs.extend(isoWeek);
 dayjs.extend(isBetween);

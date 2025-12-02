@@ -9,7 +9,7 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { useNavigate } from 'react-router';
 import PageContainer from '../../../components/PageContainer';
-import { getConstructionList } from '../../../api/constructions';
+import { getConstructionList } from '../../../services/constructions';
 import { useQuery } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 import {
@@ -47,11 +47,12 @@ import {
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import CloseIcon from '@mui/icons-material/Close';
 import { plPL } from '@mui/x-date-pickers/locales';
-import { getEmployeesByScheduledConstruction } from '../../../api/schedules';
+import { getEmployeesByScheduledConstruction } from '../../../services/schedules';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import { ContractorsDialog } from '../../../components/ContractorsDialog';
 import { Engineering } from '@mui/icons-material';
+import { getContractors } from '../../../services/contractors';
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
@@ -133,15 +134,30 @@ export default function ConstructionsList() {
     queryFn: () => getConstructionList(),
   });
 
+  const { data: contractors } = useQuery({
+    queryKey: ['contractors'],
+    queryFn: getContractors,
+  });
+
   const contractorOptions = useMemo(() => {
-    if (!constructions || constructions.length === 0) return [];
+    if (!contractors || contractors.length === 0) return [];
 
-    const contractors = constructions.flatMap((construction) =>
-      construction.contractor ? [construction.contractor] : []
+    return contractors.map((contractor) => ({
+      label: contractor.name,
+      id: contractor.id,
+    }));
+  }, [contractors]);
+
+  const contractorsMap = useMemo(() => {
+    if (!contractors) return {};
+    return contractors.reduce(
+      (acc, curr) => {
+        acc[curr.id] = curr.name;
+        return acc;
+      },
+      {} as Record<string, string>
     );
-
-    return [...new Set(contractors)];
-  }, [constructions]);
+  }, [contractors]);
 
   const { data: employeesData } = useQuery({
     queryKey: ['schedules', 'constructionEmployees'],
@@ -318,6 +334,10 @@ export default function ConstructionsList() {
         id: 'contractor',
         accessorKey: 'contractor',
         header: 'Wykonawca',
+
+        filterFn: 'equals',
+
+        accessorFn: (row) => contractorsMap[row.contractor || ''] || '',
       },
       {
         id: 'location',
@@ -409,7 +429,7 @@ export default function ConstructionsList() {
         ),
       },
     ],
-    [employeesData]
+    [employeesData, contractorsMap]
   );
 
   const localization = React.useMemo(
@@ -424,7 +444,7 @@ export default function ConstructionsList() {
       ...construction,
       employeeCount: employeesData?.[construction.id] || 0,
     }));
-  }, [constructions, employeesData]);
+  }, [constructions, employeesData, contractorsMap]);
 
   const table = useMaterialReactTable({
     localization,
@@ -663,14 +683,25 @@ export default function ConstructionsList() {
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <FormLabel className="mb-2 block">Wykonawca</FormLabel>
                   <Autocomplete
-                    onInputChange={(_, newVal) =>
-                      setFilters({ ...filters, contractor: newVal })
+                    options={contractorOptions}
+                    getOptionLabel={(option) => option.label || ''}
+                    isOptionEqualToValue={(option, value) =>
+                      option.id === value.id
                     }
-                    autoComplete={false}
-                    inputValue={filters.contractor ?? ''}
-                    freeSolo
+                    value={
+                      filters.contractor
+                        ? contractorOptions.find(
+                            (opt) => opt.label === filters.contractor
+                          ) || null
+                        : null
+                    }
+                    onChange={(_, newValue) => {
+                      setFilters({
+                        ...filters,
+                        contractor: newValue ? newValue.label : '',
+                      });
+                    }}
                     size="small"
-                    options={contractorOptions ?? []}
                     renderInput={(params) => (
                       <TextField {...params} size="small" fullWidth />
                     )}

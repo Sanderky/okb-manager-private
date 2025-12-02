@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { sendPasswordResetEmail } from 'firebase/auth';
-import { auth } from '../../firebase';
+import { resetPassword } from '../../services/auth';
 import {
   Alert,
   Dialog,
@@ -64,7 +63,8 @@ const ForgotPassword = ({ open, handleClose }: ForgotPasswordProps) => {
 
     startActionLoading();
     try {
-      await sendPasswordResetEmail(auth, email);
+      await resetPassword(email);
+
       setToastMsg(
         'Link do resetowania hasła został wysłany na Twój adres e-mail.'
       );
@@ -73,14 +73,18 @@ const ForgotPassword = ({ open, handleClose }: ForgotPasswordProps) => {
       setEmail('');
       setEmailError(false);
       setEmailErrorMessage('');
-    } catch (error) {
-      const firebaseError = error as { code?: string; message: string };
+    } catch (error: any) {
+      console.error('Reset password error:', error);
 
-      setToastMsg(
-        firebaseError.code === 'auth/invalid-email'
-          ? 'Nieprawidłowy adres e-mail.'
-          : 'Wystąpił błąd podczas próby zresetowania hasła.'
-      );
+      let msg = 'Wystąpił błąd podczas próby zresetowania hasła.';
+
+      if (error.status === 429) {
+        msg = 'Zbyt wiele prób. Spróbuj ponownie za chwilę.';
+      } else if (error.message) {
+        msg = error.message;
+      }
+
+      setToastMsg(msg);
       setToastSeverity('error');
     } finally {
       setToast(true);
@@ -93,7 +97,7 @@ const ForgotPassword = ({ open, handleClose }: ForgotPasswordProps) => {
     <>
       <Snackbar
         open={toast}
-        autoHideDuration={3000}
+        autoHideDuration={6000}
         onClose={() => setToast(false)}
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       >

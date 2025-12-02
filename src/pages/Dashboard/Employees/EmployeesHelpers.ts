@@ -1,7 +1,6 @@
 import dayjs from 'dayjs';
-import type { Employee, FileItem } from '../../../types';
+import type { Employee } from '../../../types';
 import type { EmployeeFormState } from './EmployeeForm';
-import { forceDownloadFile } from '../../../components/fileBrowser/FileBrowserHelpers';
 
 export const sortByLastName = (a: string, b: string): number => {
   const getLastFirstName = (fullName: string) => {
@@ -75,15 +74,6 @@ export const validate = (
   }
 
   return errors;
-};
-
-export const handleDownloadAttachment = async (file: FileItem | null) => {
-  if (!file) return;
-  try {
-    forceDownloadFile(file.fullPath, file.name);
-  } catch (error) {
-    console.error('Download error: ', error);
-  }
 };
 
 export const toNumberOrNull = (value: any): number | null => {

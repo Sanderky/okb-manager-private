@@ -152,8 +152,8 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                     }}
                   >
                     {events.map((ev, index) => {
-                      const isStart = ev.date.isSame(ev.startDate);
-                      const isEnd = ev.date.isSame(ev.endDate);
+                      const isStart = ev.date.isSame(ev.startDate, 'day');
+                      const isEnd = ev.date.isSame(ev.endDate, 'day');
                       const isWeekStart = ev.date.day() === 1;
                       const slot = slots[ev.groupId];
                       const isLightColor =

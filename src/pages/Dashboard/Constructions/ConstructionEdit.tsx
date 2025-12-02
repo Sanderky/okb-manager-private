@@ -7,7 +7,7 @@ import {
   getConstruction,
   removeConstruction,
   updateConstruction,
-} from '../../../api/constructions';
+} from '../../../services/constructions';
 import type { Construction } from '../../../types';
 import ConstructionForm, {
   type FormFieldValue,
@@ -22,15 +22,15 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import useNotifications from '../../../hooks/useNotifications/useNotifications';
 import BaseDialog from '../../../components/BaseDialog';
-import { deleteFolderRecursive } from '../../../components/fileBrowser/FileBrowserHelpers';
 import Loading from '../../../components/Loading';
 import useLoading from '../../../hooks/useLoading';
-import { removeWorkHoursByConstruction } from '../../../api/hours';
+import { removeWorkHoursByConstruction } from '../../../services/hours';
 import { useScroll } from '../../../context/ScrollContext';
 import ArchiveIcon from '@mui/icons-material/Archive';
 import UnarchiveIcon from '@mui/icons-material/Unarchive';
 import { shouldBeInactive, validate } from './ConstructionsHelpers';
 import { FinishConstruction, ResumeConstruction } from './ConstructionDialogs';
+import { deleteFolderRecursive } from '../../../services/storage';
 
 export default function ConstructionEdit() {
   const { constructionId } = useParams<{ constructionId: string }>();

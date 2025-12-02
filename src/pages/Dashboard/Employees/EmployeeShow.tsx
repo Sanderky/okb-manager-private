@@ -6,19 +6,11 @@ import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { useNavigate, useParams } from 'react-router';
-
 import PageContainer from '../../../components/PageContainer';
 import Loading from '../../../components/Loading';
-
-import {
-  type AlertsSettings,
-  type Employee,
-  type FileItem,
-} from '../../../types';
-import { getEmployee, updateEmployee } from '../../../api/employees';
-
+import { type Employee, type FileItem } from '../../../types';
+import { getEmployee, updateEmployee } from '../../../services/employees';
 import EditIcon from '@mui/icons-material/Edit';
-
 import {
   Chip,
   IconButton,
@@ -33,26 +25,24 @@ import {
   Tooltip,
 } from '@mui/material';
 import dayjs from 'dayjs';
-
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import useNotifications from '../../../hooks/useNotifications/useNotifications';
-import AttachmentBox from './AttachmentBox';
 import { PreviewDialog } from '../../../components/fileBrowser/FilePreviewDialog';
-
-import FirebaseFileBrowser from '../../../components/fileBrowser/FileBrowser';
-import { getUpcomingVacationsForEmployee } from '../../../api/vacations';
-
+import FileBrowser from '../../../components/fileBrowser/FileBrowser';
+import { getUpcomingVacationsForEmployee } from '../../../services/vacations';
 import useLoading from '../../../hooks/useLoading';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import { Note } from '../../../components/Note';
 import { useScroll } from '../../../context/ScrollContext';
-import { getDownloadURL, ref } from 'firebase/storage';
-import { storage } from '../../../firebase';
-import { fetchAlertsSettings } from '../../../api/settings';
-import { EmployeeAlertDefault } from '../../../hooks/useEmployeeAlert';
-import { handleDownloadAttachment } from './EmployeesHelpers';
+import { fetchAlertsSettings } from '../../../services/settings';
+import useEmployeeAttachments from './useAttachment';
+import AttachmentBox from './AttachmentBox';
 
-const personalFields = [
+export interface FieldInfo {
+  key: keyof Employee;
+  label: string;
+}
+const personalFields: FieldInfo[] = [
   { key: 'name', label: 'Imię i nazwisko' },
   { key: 'pesel', label: 'PESEL' },
   { key: 'address', label: 'Adres' },
@@ -63,120 +53,17 @@ const personalFields = [
   { key: 'hourRate', label: 'Stawka' },
   { key: 'accountNumber', label: 'Numer konta' },
   { key: 'isContractor', label: 'Kontraktor' },
-] as const;
+];
 
-const contractFields = [
+const contractFields: FieldInfo[] = [
   { key: 'contractStartDate', label: 'Data rozpoczęcia umowy' },
   { key: 'contractEndDate', label: 'Data wygaśnięcia umowy' },
-] as const;
+];
 
-const a1Fields = [
+const a1Fields: FieldInfo[] = [
   { key: 'a1StartDate', label: 'Data rozpoczęcia A1' },
   { key: 'a1EndDate', label: 'Data wygaśnięcia A1' },
-] as const;
-
-const generateDateBox = (
-  key: keyof Employee,
-  label: string,
-  employeeData: Employee | null,
-  alertsSettings: AlertsSettings
-) => {
-  if (!employeeData) return null;
-
-  const dateValue = employeeData[key];
-  const isContractEndDate = key === 'contractEndDate';
-  const isA1EndDate = key === 'a1EndDate';
-  const isEndDateField = isContractEndDate || isA1EndDate;
-  const isPermanent = isContractEndDate
-    ? Boolean(employeeData.contractISPermanent)
-    : false;
-
-  let dateStyles = '';
-  let severity: 'error' | 'warning' = 'warning';
-  let message = '';
-  let dayWord = 'dni';
-
-  let displayValue: React.ReactNode;
-
-  if (isContractEndDate && isPermanent) {
-    displayValue = 'Umowa na czas nieokreślony';
-    dateStyles = '!text-gray-700';
-  } else if (dateValue instanceof Date) {
-    displayValue = dayjs(dateValue).format('DD.MM.YYYY');
-
-    if (isEndDateField && !isPermanent) {
-      const today = dayjs().startOf('day');
-      const endDate = dayjs(dateValue).startOf('day');
-      const daysDiff = endDate.diff(today, 'day');
-      const itemName = isA1EndDate ? 'A1' : 'Umowa';
-      const warningRange = isA1EndDate
-        ? alertsSettings.a1Warning
-        : alertsSettings.contractWarning;
-      const criticalRange = isA1EndDate
-        ? alertsSettings.a1Critical
-        : alertsSettings.contractCritical;
-
-      if (Math.abs(daysDiff) === 1) dayWord = 'dzień';
-
-      if (daysDiff <= criticalRange) {
-        dateStyles = 'border-red-500/25! bg-red-500/10! text-red-700!';
-        severity = 'error';
-        message =
-          daysDiff < 0
-            ? `${itemName} wygasła ${Math.abs(daysDiff)} ${dayWord} temu`
-            : daysDiff === 0
-              ? `${itemName} kończy się dziś`
-              : `${itemName} kończy się za ${daysDiff} ${dayWord}`;
-      } else if (daysDiff <= warningRange) {
-        dateStyles = 'border-amber-500/25! bg-amber-500/10! text-amber-600!';
-        severity = 'warning';
-        message = `${itemName} kończy się za ${daysDiff} ${dayWord}`;
-      }
-    }
-  } else {
-    displayValue = <em className="text-gray-400">Brak</em>;
-  }
-
-  return (
-    <Grid key={key} size={{ xs: 12 }}>
-      <Stack
-        direction={{ xs: 'column', lg: 'row' }}
-        justifyContent="flex-start"
-        alignItems={{ xs: 'flex-start', lg: 'center' }}
-        spacing={{ xs: 1, lg: 2 }}
-        sx={{ width: '100%' }}
-      >
-        <Typography variant="body2" className="font-medium">
-          {label}:
-        </Typography>
-        <Typography
-          variant="body2"
-          className={`border-lightGray rounded border px-3 py-1 text-gray-700 ${dateStyles}`}
-        >
-          {displayValue}
-        </Typography>
-      </Stack>
-
-      {isEndDateField &&
-        dateValue instanceof Date &&
-        !isPermanent &&
-        message && (
-          <Alert
-            severity={severity}
-            // className={`border border-${severity}`}
-            sx={{
-              width: '100%',
-              mt: 2,
-              borderColor: `${severity}.main`,
-              borderWidth: '1px',
-            }}
-          >
-            <Typography variant="body2">{message}</Typography>
-          </Alert>
-        )}
-    </Grid>
-  );
-};
+];
 
 export default function EmployeeShow() {
   const { employeeId } = useParams<{ employeeId: string }>();
@@ -187,36 +74,20 @@ export default function EmployeeShow() {
     startLoading: startActionLoading,
     stopLoading: stopActionLoading,
   } = useLoading(false);
-
   const [notFound, setNotFound] = useState(false);
-
   const notifications = useNotifications();
-
   const [previewFile, setPreviewFile] = useState<FileItem | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState<boolean>(false);
-
   const [tab, setTab] = useState(0);
+
+  const attachmentsHook = useEmployeeAttachments(employeeId);
 
   const handleOpenPreview = useCallback((file: FileItem | null | undefined) => {
     if (!file) return;
+
     setPreviewFile(file);
     setIsPreviewOpen(true);
   }, []);
-
-  const handleOpenFileInNewTab = useCallback(
-    async (filePath: string | undefined) => {
-      if (!filePath) return;
-
-      try {
-        const fileRef = ref(storage, filePath);
-        const downloadURL = await getDownloadURL(fileRef);
-        window.open(downloadURL, '_blank');
-      } catch (error) {
-        console.error('Error opening file in new tab:', error);
-      }
-    },
-    []
-  );
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setTab(newValue);
@@ -248,11 +119,8 @@ export default function EmployeeShow() {
   });
 
   useEffect(() => {
-    if (employee) {
-      setNotFound(false);
-    } else if (!isEmployeeLoading) {
-      setNotFound(true);
-    }
+    if (employee) setNotFound(false);
+    else if (!isEmployeeLoading) setNotFound(true);
   }, [employee, isEmployeeLoading]);
 
   const updateNoteMutation = useMutation({
@@ -260,7 +128,7 @@ export default function EmployeeShow() {
       updateEmployee(employeeId!, { note: newNote }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['employee', employeeId] });
-      notifications.show('Notatka została zaktualizowana.', {
+      notifications.show('Notatka została zaktualizowane.', {
         severity: 'success',
         autoHideDuration: 5000,
       });
@@ -289,33 +157,21 @@ export default function EmployeeShow() {
   const handleEmployeeEdit = useCallback(() => {
     navigate(`/employees/${employeeId}/edit`);
   }, [navigate, employeeId]);
-
   const handleBack = useCallback(() => {
     navigate('/employees');
   }, [navigate]);
 
   const formatFieldValue = (key: string, value: any) => {
-    if (key === 'isContractor') {
-      return value ? 'Tak' : 'Nie';
-    }
-
-    if (value === null || value === undefined || value === '') {
+    if (key === 'isContractor') return value ? 'Tak' : 'Nie';
+    if (value === null || value === undefined || value === '')
       return <em className="text-gray-400">-</em>;
-    }
-
-    if (key === 'birthDate' && value instanceof Date) {
+    if (key === 'birthDate' && value instanceof Date)
       return dayjs(value).format('DD.MM.YYYY');
-    }
-
-    if (key === 'hourRate' && typeof value === 'number') {
-      return `${value} €/h`;
-    }
-
+    if (key === 'hourRate' && typeof value === 'number') return `${value} €/h`;
     return String(value);
   };
 
   const { scrollToTop } = useScroll();
-
   const handleVacationClick = (vacation: any) => {
     const startMonth = dayjs(vacation.startDate).format('YYYY-MM');
     navigate(`/calendar?month=${startMonth}`);
@@ -326,11 +182,8 @@ export default function EmployeeShow() {
   const loading = isEmployeeLoading || isEmployeeVacationLoading;
 
   const renderShow = useMemo(() => {
-    if (loading) {
-      return <Loading message="Ładowanie danych pracownika..." />;
-    }
-
-    if (error) {
+    if (loading) return <Loading message="Ładowanie danych pracownika..." />;
+    if (error)
       return (
         <Box sx={{ flexGrow: 1, width: '100%' }}>
           <Alert severity="error">
@@ -338,14 +191,10 @@ export default function EmployeeShow() {
           </Alert>
         </Box>
       );
-    }
-
-    if (notFound) {
+    if (notFound)
       return (
         <Box sx={{ width: '100%' }}>
-          <Alert severity="info">
-            Nie znaleziono pracownika. Mógł zostać usunięty lub nie istnieje.
-          </Alert>
+          <Alert severity="info">Nie znaleziono pracownika.</Alert>
           <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
             <Button color="inherit" variant="contained" onClick={handleBack}>
               Wróć
@@ -353,7 +202,6 @@ export default function EmployeeShow() {
           </Stack>
         </Box>
       );
-    }
 
     return employee ? (
       <Box
@@ -425,9 +273,7 @@ export default function EmployeeShow() {
                           sx={{
                             borderBottom: '1px solid',
                             borderColor: 'grey.300',
-                            '&:last-child': {
-                              borderBottom: 'none',
-                            },
+                            '&:last-child': { borderBottom: 'none' },
                           }}
                         >
                           <TableCell
@@ -515,105 +361,33 @@ export default function EmployeeShow() {
                     </table>
                   </Box>
                 )}
-                <Box className="rounded-lg border border-blue-700/25 bg-blue-50/50 p-3 md:p-5 md:pb-3">
-                  <Stack
-                    direction="row"
-                    justifyContent="space-between"
-                    mb={1.5}
-                  >
-                    <Typography
-                      variant="subtitle1"
-                      className="text-baseline font-semibold"
-                    >
-                      Dowód osobisty
-                    </Typography>
-                  </Stack>
 
-                  <AttachmentBox
-                    file={employee.idAttachment}
-                    onShow={() => handleOpenPreview(employee.idAttachment)}
-                    onDownload={() =>
-                      handleDownloadAttachment(employee.idAttachment)
-                    }
-                    onNewCard={() =>
-                      handleOpenFileInNewTab(employee.idAttachment?.fullPath)
-                    }
-                  />
-                </Box>
-                <Box className="rounded-lg border border-blue-700/25 bg-blue-50/50 p-3 md:p-5 md:pb-3">
-                  <Stack
-                    direction="row"
-                    justifyContent="space-between"
-                    mb={1.5}
-                  >
-                    <Typography
-                      variant="subtitle1"
-                      className="text-baseline font-semibold"
-                    >
-                      Umowa zatrudnienia
-                    </Typography>
-                  </Stack>
-
-                  <AttachmentBox
-                    file={employee.contractAttachment}
-                    onShow={() =>
-                      handleOpenPreview(employee.contractAttachment)
-                    }
-                    onDownload={() =>
-                      handleDownloadAttachment(employee.contractAttachment)
-                    }
-                    onNewCard={() =>
-                      handleOpenFileInNewTab(
-                        employee.contractAttachment?.fullPath
-                      )
-                    }
-                  />
-
-                  <Grid container spacing={2}>
-                    {contractFields.map(({ key, label }) => {
-                      return generateDateBox(
-                        key,
-                        label,
-                        employee,
-                        alertsSettings ?? EmployeeAlertDefault
-                      );
-                    })}
-                  </Grid>
-                </Box>
-                <Box className="rounded-lg border border-blue-700/25 bg-blue-50/50 p-3 md:p-5 md:pb-3">
-                  <Stack
-                    direction="row"
-                    justifyContent="space-between"
-                    mb={1.5}
-                  >
-                    <Typography
-                      variant="subtitle1"
-                      className="text-baseline font-semibold"
-                    >
-                      A1
-                    </Typography>
-                  </Stack>
-                  <AttachmentBox
-                    file={employee.a1Attachment}
-                    onShow={() => handleOpenPreview(employee.a1Attachment)}
-                    onDownload={() =>
-                      handleDownloadAttachment(employee.a1Attachment)
-                    }
-                    onNewCard={() =>
-                      handleOpenFileInNewTab(employee.a1Attachment?.fullPath)
-                    }
-                  />
-                  <Grid container spacing={2}>
-                    {a1Fields.map(({ key, label }) => {
-                      return generateDateBox(
-                        key,
-                        label,
-                        employee,
-                        alertsSettings ?? EmployeeAlertDefault
-                      );
-                    })}
-                  </Grid>
-                </Box>
+                <AttachmentBox
+                  label="Dowód osobisty"
+                  type="id_card"
+                  hook={attachmentsHook}
+                  employee={employee}
+                  alertsSettings={alertsSettings}
+                  onPreview={handleOpenPreview}
+                />
+                <AttachmentBox
+                  label="Umowa zatrudnienia"
+                  type="contract"
+                  hook={attachmentsHook}
+                  employee={employee}
+                  alertsSettings={alertsSettings}
+                  onPreview={handleOpenPreview}
+                  dateFields={contractFields}
+                />
+                <AttachmentBox
+                  label="A1"
+                  type="a1"
+                  hook={attachmentsHook}
+                  employee={employee}
+                  alertsSettings={alertsSettings}
+                  onPreview={handleOpenPreview}
+                  dateFields={a1Fields}
+                />
               </Stack>
             </Grid>
           </Grid>
@@ -621,9 +395,7 @@ export default function EmployeeShow() {
 
         {tab === 1 && (
           <Box>
-            <FirebaseFileBrowser
-              baseDirectory={`employees/${employee.id}/files`}
-            />
+            <FileBrowser baseDirectory={`employees/${employee.id}/files`} />
           </Box>
         )}
       </Box>
@@ -641,6 +413,7 @@ export default function EmployeeShow() {
     handleBack,
     handleOpenPreview,
     alertsSettings,
+    attachmentsHook,
   ]);
 
   const pageTitle = employee?.name || 'Szczegóły Pracownika';

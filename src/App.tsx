@@ -26,13 +26,13 @@ import PageNotFound from './pages/PageNotFound/PageNotFound';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useAuth } from './context/AuthContext';
 import useEmployeesAlert from './hooks/useEmployeeAlert';
-import { getConstructionList } from './api/constructions';
+import { getConstructionList } from './services/constructions';
 import { useQuery } from '@tanstack/react-query';
-import { fetchAlertsSettings } from './api/settings';
-import { getEmployeeList } from './api/employees';
-import { getUpcomingVacations } from './api/vacations';
-import { getHomeNote } from './api/home';
-import { getContractors } from './api/contractors';
+import { fetchAlertsSettings } from './services/settings';
+import { getEmployeeList } from './services/employees';
+import { getUpcomingVacations } from './services/vacations';
+import { getHomeNote } from './services/home';
+import { getContractors } from './services/contractors';
 
 const customTheme = createTheme({
   palette: {

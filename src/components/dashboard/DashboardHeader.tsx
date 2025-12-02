@@ -118,7 +118,6 @@ export default function DashboardHeader({
     },
     [handleMenuOpen]
   );
-
   // const open = Boolean(anchorEl);
 
   return (
@@ -195,7 +194,7 @@ export default function DashboardHeader({
                     }}
                     className="text-dark font-medium"
                   >
-                    {user?.displayName ?? user?.email ?? 'Użytkownik'}
+                    {user?.user_metadata.display_name ?? user?.email ?? 'Użytkownik'}
                   </Typography>
                 </Button>
               </Box>
@@ -246,7 +245,7 @@ export default function DashboardHeader({
                     }}
                     className="font-medium text-gray-500"
                   >
-                    {user?.displayName ?? user?.email ?? 'Użytkownik'}
+                    {user?.user_metadata.display_name ?? user?.email ?? 'Użytkownik'}
                   </Typography>
                 </Stack>
                 <Divider

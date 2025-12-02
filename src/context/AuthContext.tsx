@@ -5,11 +5,13 @@ import React, {
   useState,
   type ReactNode,
 } from 'react';
-import { onAuthStateChanged, signOut, type User } from 'firebase/auth';
-import { auth } from '../firebase';
+import { supabase } from '../supabase';
+import { logout as authLogout } from '../services/auth';
+import type { User, Session } from '@supabase/supabase-js';
 
 interface AuthContextType {
   user: User | null;
+  session: Session | null;
   loading: boolean;
   initialLoading: boolean;
   logout: () => Promise<void>;
@@ -31,24 +33,32 @@ export const useAuth = () => {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [initialLoading, setInitialLoading] = useState(true);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-
-      if (initialLoading) {
-        setInitialLoading(false);
-      }
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      setInitialLoading(false);
     });
-    return () => unsubscribe();
-  }, [initialLoading]);
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      setInitialLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const logout = async () => {
     setLoading(true);
     try {
-      await signOut(auth);
+      await authLogout();
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
@@ -58,6 +68,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const value = {
     user,
+    session,
     loading: initialLoading || loading,
     initialLoading,
     logout,

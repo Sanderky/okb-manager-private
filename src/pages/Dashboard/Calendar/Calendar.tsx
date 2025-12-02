@@ -7,14 +7,14 @@ import {
   IconButton,
 } from '@mui/material';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getEmployeeList } from '../../../api/employees';
+import { getEmployeeList } from '../../../services/employees';
 import type { Employee, Vacation } from '../../../types';
 import {
   createVacation,
   getVacationListForMonths,
   removeVacation,
   updateVacationGroup,
-} from '../../../api/vacations';
+} from '../../../services/vacations';
 import { Close as CloseIcon } from '@mui/icons-material';
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
@@ -247,9 +247,9 @@ const Calendar: React.FC = () => {
 
               return {
                 ...ev,
-                endDate: dayjs(ev.endDate),
-                startDate: dayjs(ev.startDate),
-                date: dayjs(ev.date),
+                endDate: dayjs(ev.endDate).startOf('day'),
+                startDate: dayjs(ev.startDate).startOf('day'),
+                date: dayjs(ev.date).startOf('day'),
                 employee: employee,
                 description: ev.description,
                 color: ev.color,

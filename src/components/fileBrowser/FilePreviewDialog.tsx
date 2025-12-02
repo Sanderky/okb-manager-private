@@ -13,10 +13,8 @@ import {
 import CloseIcon from '@mui/icons-material/Close';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { FileItem, FolderItem } from '../../types';
-import { getFileType } from './FileBrowserHelpers';
 import { Add, CropFree, Error, Remove } from '@mui/icons-material';
-import { getDownloadURL, ref } from 'firebase/storage';
-import { storage } from '../../firebase'
+import * as StorageService from '../../services/storage';
 
 const ZoomStep = 0.2;
 const MaxZoom = 2.0;
@@ -27,6 +25,7 @@ interface PreviewDialogProps {
   onClose: () => void;
   file: FileItem | FolderItem | File | null;
 }
+
 export const PreviewDialog = ({ open, onClose, file }: PreviewDialogProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
@@ -34,6 +33,7 @@ export const PreviewDialog = ({ open, onClose, file }: PreviewDialogProps) => {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
   const dragStartRef = useRef({ x: 0, y: 0 });
   const positionStartRef = useRef({ x: 0, y: 0 });
   const imageRef = useRef<HTMLImageElement>(null);
@@ -45,15 +45,16 @@ export const PreviewDialog = ({ open, onClose, file }: PreviewDialogProps) => {
           setIsLoading(true);
           setIsError(false);
 
-          let url: string;
+          let url: string | null = null;
 
           if (isFileObject(file)) {
-
             url = URL.createObjectURL(file);
           } else {
+            url = await StorageService.getSignedUrl(file.path, 3600);
+          }
 
-            const fileRef = ref(storage, file.fullPath);
-            url = await getDownloadURL(fileRef);
+          if (!url) {
+            return;
           }
 
           setPreviewUrl(url);
@@ -61,17 +62,20 @@ export const PreviewDialog = ({ open, onClose, file }: PreviewDialogProps) => {
           console.error('Error creating preview URL:', error);
           setIsError(true);
         } finally {
-          setIsLoading(false);
+          const fType = isFileObject(file)
+            ? StorageService.getFileType(file.name)
+            : StorageService.getFileType(file.name);
+          if (fType === 'pdf') {
+            setIsLoading(false);
+          }
         }
       };
 
       createPreviewUrl();
     }
 
-
     return () => {
       if (previewUrl) {
-
         if (isFileObject(file)) {
           URL.revokeObjectURL(previewUrl);
         }
@@ -79,7 +83,6 @@ export const PreviewDialog = ({ open, onClose, file }: PreviewDialogProps) => {
       }
     };
   }, [open, file]);
-
 
   useEffect(() => {
     if (open && file) {
@@ -167,7 +170,6 @@ export const PreviewDialog = ({ open, onClose, file }: PreviewDialogProps) => {
     setScale(1);
     setPosition({ x: 0, y: 0 });
     if (previewUrl) {
-
       if (isFileObject(file)) {
         URL.revokeObjectURL(previewUrl);
       }
@@ -178,18 +180,20 @@ export const PreviewDialog = ({ open, onClose, file }: PreviewDialogProps) => {
 
   if (!file || file.type === 'folder') return null;
 
-  const fileType = getFileType(file.name);
+  const fileType = StorageService.getFileType(file.name);
 
   const renderPreview = () => {
     if (isError) {
       return (
         <Stack direction={'column'} alignItems={'center'} spacing={1}>
-          <Error color='error' fontSize="large"/>
-          <Typography color="error">Wystąpił błąd podczas wczytywania pliku</Typography>
+          <Error color="error" fontSize="large" />
+          <Typography color="error">
+            Wystąpił błąd podczas wczytywania pliku
+          </Typography>
         </Stack>
       );
     }
-    
+
     switch (fileType) {
       case 'image':
         return (
@@ -200,6 +204,7 @@ export const PreviewDialog = ({ open, onClose, file }: PreviewDialogProps) => {
                   display: 'flex',
                   justifyContent: 'center',
                   alignItems: 'center',
+                  position: 'absolute',
                 }}
               >
                 <CircularProgress />
@@ -207,6 +212,7 @@ export const PreviewDialog = ({ open, onClose, file }: PreviewDialogProps) => {
             )}
             {previewUrl && (
               <img
+                crossOrigin="anonymous"
                 ref={imageRef}
                 src={previewUrl}
                 alt={file.name}
@@ -215,7 +221,7 @@ export const PreviewDialog = ({ open, onClose, file }: PreviewDialogProps) => {
                   transform: `translate(${position.x}px, ${position.y}px)`,
                   transformOrigin: 'center center',
                   maxHeight: '100%',
-                  maxWidth: 'auto',
+                  maxWidth: '100%', // Zmieniono na 100% żeby nie wychodziło poza ekran przy starcie
                   display: isLoading ? 'none' : 'block',
                   cursor:
                     scale > 1 ? (isDragging ? 'grabbing' : 'grab') : 'default',
@@ -244,8 +250,10 @@ export const PreviewDialog = ({ open, onClose, file }: PreviewDialogProps) => {
       default:
         return (
           <Stack direction={'column'} alignItems={'center'} spacing={1}>
-            <Error color='error' fontSize="large"/>
-            <Typography color="error">Podgląd dla tego typu pliku nie jest obsługiwany.</Typography>
+            <Error color="error" fontSize="large" />
+            <Typography color="error">
+              Podgląd dla tego typu pliku nie jest obsługiwany.
+            </Typography>
           </Stack>
         );
     }
@@ -261,6 +269,7 @@ export const PreviewDialog = ({ open, onClose, file }: PreviewDialogProps) => {
             justifyContent: 'space-between',
             pl: { xs: 1, sm: 3 },
             pr: { xs: 1, sm: 3 },
+            minHeight: '64px',
           }}
         >
           <Typography
@@ -326,6 +335,7 @@ export const PreviewDialog = ({ open, onClose, file }: PreviewDialogProps) => {
           backgroundColor: 'grey.100',
           overflow: 'hidden',
           cursor: isDragging ? 'grabbing' : 'default',
+          position: 'relative',
         }}
         onMouseDown={(e) => e.preventDefault()}
       >

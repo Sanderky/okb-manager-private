@@ -20,7 +20,7 @@ import { NoteBase } from '../../../components/Note';
 import { plPL } from '@mui/x-date-pickers/locales';
 import { useQuery } from '@tanstack/react-query';
 import { shouldBeInactive } from './ConstructionsHelpers';
-import { getContractors } from '../../../api/contractors';
+import { getContractors } from '../../../services/contractors';
 import { Add } from '@mui/icons-material';
 import { ContractorsDialog } from '../../../components/ContractorsDialog';
 
@@ -76,7 +76,10 @@ export default function ConstructionForm(props: ConstructionFormProps) {
 
   const contractorsOptions = useMemo(() => {
     if (!contractors) return [];
-    return contractors.map((contractor) => contractor.name);
+    return contractors.map((contractor) => ({
+      label: contractor.name,
+      id: contractor.id,
+    }));
   }, [contractors]);
 
   const formValues = formState.values;
@@ -198,18 +201,30 @@ export default function ConstructionForm(props: ConstructionFormProps) {
                 <Grid size={{ xs: 12, md: 6 }} key={key}>
                   {key === 'contractor' ? (
                     <Autocomplete
-                      onInputChange={(_, newVal) =>
-                        handleFieldChange(key, newVal)
+                      options={contractorsOptions}
+                      getOptionLabel={(option) => option.label}
+                      isOptionEqualToValue={(option, value) =>
+                        option.id === value.id
                       }
+                      loading={contractorsIsLoading}
+                      value={
+                        contractorsOptions.find(
+                          (c) => c.id === formValues[key]
+                        ) || null
+                      }
+                      onChange={(_, newValue) => {
+                        handleFieldChange(
+                          key,
+                          newValue ? (newValue.id as any) : null
+                        );
+                      }}
                       slots={{
                         paper: (props) => {
                           const { children, ...other } = props;
                           return (
                             <Paper {...other}>
                               {children}
-
                               <Divider />
-
                               <Box
                                 onMouseDown={(e) => e.preventDefault()}
                                 sx={{ p: 1 }}
@@ -228,11 +243,6 @@ export default function ConstructionForm(props: ConstructionFormProps) {
                           );
                         },
                       }}
-                      autoComplete={false}
-                      inputValue={formValues[key] ?? ''}
-                      size="small"
-                      loading={contractorsIsLoading}
-                      options={contractorsOptions}
                       renderInput={(params) => (
                         <TextField
                           {...params}
@@ -240,6 +250,7 @@ export default function ConstructionForm(props: ConstructionFormProps) {
                           fullWidth
                           label={label}
                           name={key}
+                          error={Boolean(formErrors[key])}
                           helperText={formErrors[key]}
                         />
                       )}
@@ -264,23 +275,6 @@ export default function ConstructionForm(props: ConstructionFormProps) {
                   )}
                 </Grid>
               ))}
-              {/* {!isEditForm && (
-                <Grid size={{ xs: 12 }}>
-                  <FormControlLabel
-                    control={
-                      <Switch
-                        checked={formValues.status ?? true}
-                        onChange={(e) =>
-                          handleFieldChange('status', e.target.checked)
-                        }
-                        name="status"
-                        color="primary"
-                      />
-                    }
-                    label="Aktywna budowa"
-                  />
-                </Grid>
-              )} */}
             </Grid>
           </Grid>
           <Divider sx={{ width: '100%' }} />
@@ -355,7 +349,7 @@ export default function ConstructionForm(props: ConstructionFormProps) {
                 </Typography>
                 <Box sx={{ px: 0.2 }}>
                   <NoteBase
-                    content={formValues.note ?? ''}
+                    content={(formValues.note as string) ?? ''}
                     onChange={(note) => handleFieldChange('note', note)}
                     editable={true}
                   />

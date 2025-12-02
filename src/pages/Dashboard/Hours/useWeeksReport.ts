@@ -2,10 +2,10 @@ import { useQueries } from '@tanstack/react-query';
 import { getMonthKeysFromWeek, getWeekDates } from './HoursHelpers';
 import dayjs from 'dayjs';
 import { useMemo } from 'react';
-import { getConstructionList } from '../../../api/constructions';
-import { getEmployeeList } from '../../../api/employees';
-import { getWorkHoursList } from '../../../api/hours';
-import { getVacationListForMonths } from '../../../api/vacations';
+import { getConstructionList } from '../../../services/constructions';
+import { getEmployeeList } from '../../../services/employees';
+import { getWorkHoursList } from '../../../services/hours';
+import { getVacationListForMonths } from '../../../services/vacations';
 import type { ConstructionsWithWorkHours } from './useHoursTable';
 import type {
   Construction,

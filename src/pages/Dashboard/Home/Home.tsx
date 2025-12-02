@@ -22,19 +22,17 @@ import PageContainer from '../../../components/PageContainer';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getEmployeeList } from '../../../api/employees';
-import { getConstructionList } from '../../../api/constructions';
-import FirebaseFileBrowser from '../../../components/fileBrowser/FileBrowser';
+import { getEmployeeList } from '../../../services/employees';
+import { getConstructionList } from '../../../services/constructions';
+import FileBrowser from '../../../components/fileBrowser/FileBrowser';
 import { useEmployeeAlert } from '../../../context/EmployeeAlertContext';
 import { Construction, Done, Person, Settings } from '@mui/icons-material';
 import useNotifications from '../../../hooks/useNotifications/useNotifications';
-import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
-import { db } from '../../../firebase';
 import type { AlertsSettings } from '../../../types';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import ReportProblemIcon from '@mui/icons-material/ReportProblem';
 import dayjs from 'dayjs';
-import { getUpcomingVacations } from '../../../api/vacations';
+import { getUpcomingVacations } from '../../../services/vacations';
 import Loading from '../../../components/Loading';
 import { ExpandMore, ExpandLess } from '@mui/icons-material';
 import { Note } from '../../../components/Note';
@@ -43,8 +41,8 @@ import BaseDialog from '../../../components/BaseDialog';
 import {
   fetchAlertsSettings,
   updateAlertsSettings,
-} from '../../../api/settings';
-import { getHomeNote } from '../../../api/home';
+} from '../../../services/settings';
+import { getHomeNote, saveHomeNote } from '../../../services/home';
 
 interface EmployeeAlertsSettingsProps {
   isOpen: boolean;
@@ -596,21 +594,8 @@ const HomeNote = () => {
   });
 
   const updateNoteMutation = useMutation({
-    mutationFn: async (newNote: string) => {
-      const homeDocRef = doc(db, 'home', 'note');
-      const docSnap = await getDoc(homeDocRef);
+    mutationFn: (newNote: string) => saveHomeNote(newNote),
 
-      if (docSnap.exists()) {
-        await updateDoc(homeDocRef, {
-          note: newNote,
-        });
-      } else {
-        const newHome = {
-          note: newNote,
-        };
-        await setDoc(homeDocRef, newHome);
-      }
-    },
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ['home', 'note'],
@@ -917,7 +902,7 @@ const Home = () => {
         )}
         {tab === 1 && (
           <Grid size={{ xs: 12 }}>
-            <FirebaseFileBrowser baseDirectory="general" />
+            <FileBrowser baseDirectory="general" />
           </Grid>
         )}
       </Grid>

@@ -9,7 +9,7 @@ import BaseDialog, { ConfirmationDialog } from '../../../components/BaseDialog';
 import type { Construction } from '../../../types';
 import useNotifications from '../../../hooks/useNotifications/useNotifications';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { updateConstruction } from '../../../api/constructions';
+import { updateConstruction } from '../../../services/constructions';
 import { useNavigate } from 'react-router-dom';
 
 interface FinishConstructionProps {

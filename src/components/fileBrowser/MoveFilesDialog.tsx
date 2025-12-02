@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Button,
   FormControl,
@@ -7,12 +7,14 @@ import {
   MenuItem,
   Typography,
   Stack,
+  Box,
 } from '@mui/material';
 import BaseDialog from '../BaseDialog';
+import { Folder, Reply } from '@mui/icons-material';
 
 interface MoveItemsDialogProps {
   open: boolean;
-  folders: Array<{ name: string; fullPath: string }>;
+  folders: Array<{ name: string; path: string }>;
   onClose: () => void;
   onMove: (destinationPath: string) => Promise<void>;
   baseDirectory: string;
@@ -24,65 +26,101 @@ const MoveItemsDialog = ({
   folders,
   onClose,
   onMove,
-  baseDirectory,
-  currentPath,
 }: MoveItemsDialogProps) => {
-  const [destination, setDestination] = useState('');
+  const [destination, setDestination] = useState<string>('');
+
+  useEffect(() => {
+    if (open) {
+      setDestination('');
+    }
+  }, [open]);
 
   const handleClose = () => {
     setDestination('');
     onClose();
   };
+
   const handleMove = () => {
-    onMove(destination);
-    handleClose();
+    if (destination !== '') {
+      onMove(destination);
+      handleClose();
+    }
   };
 
-  const foldersAvailable = folders.length > 0;
-  const canMove = currentPath !== baseDirectory || foldersAvailable;
+  const canMove = folders.length > 0;
 
   return (
     <BaseDialog
       open={open}
       onClose={handleClose}
-      title={`Przenieś do folderu`}
+      title="Przenieś elementy"
       showConfirm={false}
       actions={
         <Stack direction="row" spacing={1}>
-          {foldersAvailable && (
-            <Button
-              onClick={handleMove}
-              disabled={destination === '' || destination === undefined}
-            >
-              Przenieś
-            </Button>
-          )}
+          <Button onClick={handleClose} color="inherit">
+            Anuluj
+          </Button>
+          <Button
+            variant="contained"
+            onClick={handleMove}
+            disabled={destination === ''}
+          >
+            Przenieś
+          </Button>
         </Stack>
       }
     >
       {canMove ? (
-        <FormControl fullWidth sx={{ mt: 2 }}>
-          <InputLabel>Folder docelowy</InputLabel>
-          <Select
-            required
-            value={destination}
-            label="Folder docelowy"
-            onChange={(e) => setDestination(e.target.value)}
+        <Box sx={{ mt: 2, minWidth: 300 }}>
+          <Typography
+            variant="body2"
+            gutterBottom
+            className="mb-4 text-gray-600"
           >
-            {currentPath !== baseDirectory && (
-              <MenuItem value={baseDirectory}>Katalog główny</MenuItem>
-            )}
-            {folders.map((folder) => (
-              <MenuItem key={folder.fullPath} value={folder.fullPath}>
-                {folder.fullPath.replace(baseDirectory, 'Katalog główny')}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+            Wybierz miejsce docelowe:
+          </Typography>
+
+          <FormControl fullWidth>
+            <InputLabel id="move-dest-label">Folder docelowy</InputLabel>
+            <Select
+              labelId="move-dest-label"
+              value={destination}
+              label="Folder docelowy"
+              onChange={(e) => setDestination(e.target.value)}
+            >
+              {folders.map((folder) => {
+                const isBackOption = folder.name.includes('..');
+
+                return (
+                  <MenuItem key={folder.path} value={folder.path}>
+                    <Stack direction="row" alignItems="center" spacing={1.5}>
+                      {isBackOption ? (
+                        <Reply fontSize="small" color="action" />
+                      ) : (
+                        <Folder fontSize="small" color="primary" />
+                      )}
+                      <Typography
+                        variant="body2"
+                        fontWeight={isBackOption ? 600 : 400}
+                      >
+                        {folder.name}
+                      </Typography>
+                    </Stack>
+                  </MenuItem>
+                );
+              })}
+            </Select>
+          </FormControl>
+        </Box>
       ) : (
-        <Typography sx={{ mt: 2 }}>
-          Brak dostępnych folderów docelowych.
-        </Typography>
+        <Box sx={{ mt: 2, textAlign: 'center' }}>
+          <Typography color="text.secondary">
+            Brak dostępnych folderów w tej lokalizacji.
+          </Typography>
+          <Typography variant="caption">
+            Możesz przenieść pliki tylko do podfolderów lub katalogu wyżej.
+          </Typography>
+        </Box>
       )}
     </BaseDialog>
   );

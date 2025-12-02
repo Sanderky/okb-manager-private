@@ -1,9 +1,26 @@
-export type EmployeeAttachment =
-  | 'idAttachment'
-  | 'contractAttachment'
-  | 'a1Attachment';
+export type EmployeeAttachmentType = 'id_card' | 'contract' | 'a1' | 'other';
 
-export type FileCustom = FileItem | FolderItem;
+export interface FileItem {
+  id?: string;
+  name: string;
+  path: string;
+  size: number;
+  createdAt: string;
+  type: 'file';
+  contentType: string;
+}
+
+export interface FolderItem {
+  name: string;
+  type: 'folder';
+  path: string;
+}
+
+export type FileBrowserItem = FileItem | FolderItem;
+
+export interface Attachment extends FileItem {
+  attachmentType: EmployeeAttachmentType;
+}
 
 export interface Employee {
   id: string;
@@ -24,30 +41,6 @@ export interface Employee {
   contractISPermanent: boolean | null;
   a1StartDate: Date | null;
   a1EndDate: Date | null;
-  a1Attachment: Attachment | null;
-  contractAttachment: Attachment | null;
-  idAttachment: Attachment | null;
-}
-
-export type EmployeeAlertSeverity = 'error' | 'warning' | 'info';
-
-export interface EmployeeAlert {
-  id: string;
-  employeeId: string;
-  employeeName: string;
-  severity: EmployeeAlertSeverity;
-  title: string;
-  message: string;
-}
-
-export interface HomeDocument {
-  id: string;
-  note?: string;
-}
-
-export interface ConstructionContractor {
-  id: string;
-  name: string;
 }
 export interface Construction {
   id: string;
@@ -55,28 +48,15 @@ export interface Construction {
   status: boolean;
   location: string | null;
   contractor: string | null;
+  contractorName?: string | null;
   startDate: Date;
   endDate: Date | null;
   note?: string | null;
 }
 
-export interface FileItem {
+export interface Contractor {
+  id: string;
   name: string;
-  type: 'file';
-  fullPath: string;
-  timeCreated?: string;
-  size?: number;
-  contentType?: string;
-}
-
-export interface Attachment extends FileItem {
-  attachmentType: EmployeeAttachment;
-}
-
-export interface FolderItem {
-  name: string;
-  type: 'folder';
-  fullPath: string;
 }
 
 export interface Vacation {
@@ -98,8 +78,6 @@ export interface Schedule {
   weekStart: Date;
 }
 
-export type File = FileItem | FolderItem;
-
 export interface WorkHours {
   id: string;
   constructionId: string;
@@ -113,4 +91,18 @@ export interface AlertsSettings {
   a1Critical: number;
   contractWarning: number;
   contractCritical: number;
+}
+
+export interface HomeDocument {
+  id: string;
+  note?: string;
+}
+
+export interface EmployeeAlert {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  severity: 'error' | 'warning' | 'info';
+  title: string;
+  message: string;
 }

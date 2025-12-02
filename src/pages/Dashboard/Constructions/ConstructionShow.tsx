@@ -14,7 +14,7 @@ import { type Construction } from '../../../types';
 import {
   getConstruction,
   updateConstruction,
-} from '../../../api/constructions';
+} from '../../../services/constructions';
 
 import EditIcon from '@mui/icons-material/Edit';
 import EventAvailableIcon from '@mui/icons-material/EventAvailable';
@@ -39,13 +39,14 @@ import dayjs from 'dayjs';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import useNotifications from '../../../hooks/useNotifications/useNotifications';
-import { getEmployeesByScheduledConstruction } from '../../../api/schedules';
-import FirebaseFileBrowser from '../../../components/fileBrowser/FileBrowser';
+import { getEmployeesByScheduledConstruction } from '../../../services/schedules';
+import FileBrowser from '../../../components/fileBrowser/FileBrowser';
 import useLoading from '../../../hooks/useLoading';
 import { Note } from '../../../components/Note';
 
 import PeopleIcon from '@mui/icons-material/People';
 import { FinishConstruction, ResumeConstruction } from './ConstructionDialogs';
+import { getContractors } from '../../../services/contractors';
 
 const personalFields = [
   { key: 'name', label: 'Nazwa budowy' },
@@ -82,6 +83,17 @@ export default function ConstructionShow() {
     queryFn: () => getConstruction(constructionId!),
     enabled: !!constructionId,
   });
+
+  const { data: contractors } = useQuery({
+    queryKey: ['contractors'],
+    queryFn: getContractors,
+  });
+
+  const contractor = useMemo(() => {
+    if (construction && contractors) {
+      return contractors.find((c) => c.id === construction.contractor);
+    }
+  }, [construction, contractors]);
 
   const {
     data: scheduleEmployees,
@@ -381,6 +393,13 @@ export default function ConstructionShow() {
                                       );
                                     return dayjs(value).format('DD.MM.YYYY');
                                   }
+                                  if (key === 'contractor') {
+                                    return contractor ? (
+                                      contractor.name
+                                    ) : (
+                                      <em className="text-gray-400">-</em>
+                                    );
+                                  }
                                   return String(value);
                                 })()}
                               </Typography>
@@ -470,7 +489,7 @@ export default function ConstructionShow() {
         )}
         {tab === 1 && (
           <Box>
-            <FirebaseFileBrowser
+            <FileBrowser
               baseDirectory={`constructions/${construction.id}/files`}
             />
           </Box>

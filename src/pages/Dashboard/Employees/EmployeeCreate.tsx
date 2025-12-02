@@ -5,12 +5,11 @@ import EmployeeForm, {
   type FormFieldValue,
 } from './EmployeeForm';
 import PageContainer from '../../../components/PageContainer';
-import type { Employee, EmployeeAttachment } from '../../../types';
-import { createEmployee } from '../../../api/employees';
+import type { Employee } from '../../../types';
+import { createEmployee } from '../../../services/employees';
 import useNotifications from '../../../hooks/useNotifications/useNotifications';
 import { Box } from '@mui/material';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import type { FileStateMap } from './EmployeeEdit';
 import Loading from '../../../components/Loading';
 import useLoading from '../../../hooks/useLoading';
 import { toNumberOrNull, validate } from './EmployeesHelpers';
@@ -26,7 +25,6 @@ export default function EmployeeCreate() {
   } = useLoading(false);
 
   const formRefs = React.useRef<Record<string, HTMLInputElement | null>>({});
-
   const registerFieldRef = (name: string, el: HTMLInputElement | null) => {
     formRefs.current[name] = el;
   };
@@ -34,12 +32,6 @@ export default function EmployeeCreate() {
   const [formState, setFormState] = React.useState<EmployeeFormState>({
     values: { status: true },
     errors: {},
-  });
-
-  const [files, setFiles] = React.useState<FileStateMap>({
-    idAttachment: null,
-    contractAttachment: null,
-    a1Attachment: null,
   });
 
   const createMutation = useMutation({
@@ -76,20 +68,9 @@ export default function EmployeeCreate() {
     []
   );
 
-  const handleFileChange = (
-    file: File | null,
-    attachmentType: EmployeeAttachment
-  ) => {
-    setFiles((prevFiles) => ({
-      ...prevFiles,
-      [attachmentType]: file,
-    }));
-  };
-
   const handleSubmit = React.useCallback(
     async (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
-
       const validationErrors = validate(formState.values);
       if (Object.keys(validationErrors).length > 0) {
         setFormState((prev) => ({ ...prev, errors: validationErrors }));
@@ -145,9 +126,8 @@ export default function EmployeeCreate() {
     ]
   );
 
-  if (actionLoading) {
+  if (actionLoading)
     return <Loading message="Trwa tworzenie nowego pracownika..." />;
-  }
 
   return (
     <PageContainer
@@ -171,8 +151,6 @@ export default function EmployeeCreate() {
           onSubmit={handleSubmit}
           isSubmitting={actionLoading}
           isEditForm={false}
-          onFileChange={handleFileChange}
-          filesState={files}
           registerFieldRef={registerFieldRef}
         />
       </Box>

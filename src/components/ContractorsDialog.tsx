@@ -21,15 +21,15 @@ import {
   deleteContractor,
   addContractor,
   getContractors,
-} from '../api/contractors';
-import type { ConstructionContractor } from '../types';
+} from '../services/contractors';
 import { useDialogs } from '../hooks/useDialogs/useDialogs';
+import type { Contractor } from '../types';
 
 const ContractorRow = ({
   contractor,
   index,
 }: {
-  contractor: ConstructionContractor;
+  contractor: Contractor;
   index: number;
 }) => {
   const [isEditMode, setIsEditMode] = useState(false);

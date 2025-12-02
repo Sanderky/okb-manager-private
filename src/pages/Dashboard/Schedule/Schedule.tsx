@@ -26,20 +26,20 @@ import dayjs, { Dayjs } from 'dayjs';
 import weekOfYear from 'dayjs/plugin/weekOfYear';
 import 'dayjs/locale/pl';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getEmployeeList } from '../../../api/employees';
+import { getEmployeeList } from '../../../services/employees';
 import type {
   Construction,
   Employee,
   Vacation,
   Schedule,
 } from '../../../types';
-import { getConstructionList } from '../../../api/constructions';
+import { getConstructionList } from '../../../services/constructions';
 import useNotifications from '../../../hooks/useNotifications/useNotifications';
-import { getVacationListForMonths } from '../../../api/vacations';
+import { getVacationListForMonths } from '../../../services/vacations';
 import {
   getScheduleListForDateRange,
   updateSchedule,
-} from '../../../api/schedules';
+} from '../../../services/schedules';
 import {
   daysToRanges,
   getScheduleByEmployeeAndWeek,

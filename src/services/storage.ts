@@ -1,0 +1,263 @@
+import { supabase } from '../supabase';
+import type { FileBrowserItem } from '../types';
+
+export const BUCKET_NAME = 'files';
+
+export const getFileExtension = (filename: string): string | null => {
+  const lastDotIndex = filename.lastIndexOf('.');
+  if (lastDotIndex <= 0) return null;
+  return filename.substring(lastDotIndex + 1).toLowerCase();
+};
+
+export const getFileNameWithoutExtension = (filename: string): string => {
+  const lastSlashIndex = filename.lastIndexOf('/');
+  const baseFilename =
+    lastSlashIndex === -1 ? filename : filename.substring(lastSlashIndex + 1);
+  const lastDotIndex = baseFilename.lastIndexOf('.');
+  if (lastDotIndex <= 0) return baseFilename;
+  return baseFilename.substring(0, lastDotIndex);
+};
+
+export const getFileType = (fileName: string) => {
+  const extension = getFileExtension(fileName);
+  if (!extension) return 'unsupported';
+  if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(extension))
+    return 'image';
+  if (extension === 'pdf') return 'pdf';
+  if (['txt', 'md', 'js', 'css', 'html', 'json'].includes(extension))
+    return 'text';
+  if (['doc', 'docx'].includes(extension)) return 'word';
+  return 'unsupported';
+};
+
+export const canOpenPreview = (item: { type: string; name: string }) => {
+  if (item.type === 'folder') return false;
+  const fileType = getFileType(item.name);
+  return fileType === 'image' || fileType === 'pdf';
+};
+
+export const formatBytes = (bytes: number, decimals = 2): string => {
+  if (!bytes) return '0 Bytes';
+  const k = 1024;
+  const dm = decimals < 0 ? 0 : decimals;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
+};
+
+export const listFiles = async (path: string): Promise<FileBrowserItem[]> => {
+  const { data, error } = await supabase.storage.from(BUCKET_NAME).list(path, {
+    limit: 100,
+    offset: 0,
+    sortBy: { column: 'name', order: 'asc' },
+  });
+
+  if (error) throw error;
+
+  const items: FileBrowserItem[] = [];
+  data.forEach((item) => {
+    if (item.name === '.placeholder') return;
+
+    if (!item.id) {
+      items.push({
+        name: item.name,
+        type: 'folder',
+        path: path ? `${path}/${item.name}` : item.name,
+      });
+    } else {
+      items.push({
+        name: item.name,
+        type: 'file',
+        path: path ? `${path}/${item.name}` : item.name,
+        createdAt: item.created_at,
+        size: item.metadata?.size || 0,
+        contentType: item.metadata?.mimetype || 'application/octet-stream',
+      });
+    }
+  });
+  return items;
+};
+
+export const openFileInNewTab = async (path: string | undefined): Promise<void> => {
+  if (!path) {
+    console.warn('Cannot open file: path is missing');
+    return;
+  }
+
+  try {
+    const signedUrl = await getSignedUrl(path);
+    
+    if (signedUrl) {
+      window.open(signedUrl, '_blank', 'noopener,noreferrer');
+    } else {
+      console.error('Failed to generate signed URL');
+    }
+  } catch (error) {
+    console.error('Error opening file in new tab:', error);
+  }
+};
+
+export const uploadFile = async (
+  path: string,
+  file: File,
+  onProgress?: (progress: number) => void
+): Promise<void> => {
+  if (onProgress) onProgress(10);
+
+  const { error } = await supabase.storage
+    .from(BUCKET_NAME)
+    .upload(path, file, { upsert: false });
+
+  if (onProgress) onProgress(100);
+
+  if (error) throw error;
+};
+
+export const createFolder = async (path: string): Promise<void> => {
+  const { error } = await supabase.storage
+    .from(BUCKET_NAME)
+    .upload(`${path}/.placeholder`, new Blob(['']), { upsert: false });
+
+  if (error) throw error;
+};
+
+export const downloadFile = async (
+  fullPath: string,
+  fileName: string
+): Promise<void> => {
+  const { data, error } = await supabase.storage
+    .from(BUCKET_NAME)
+    .download(fullPath);
+
+  if (error) throw error;
+
+  const blobUrl = window.URL.createObjectURL(data);
+  const link = document.createElement('a');
+  link.href = blobUrl;
+  link.setAttribute('download', fileName);
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.URL.revokeObjectURL(blobUrl);
+};
+
+export const getSignedUrl = async (
+  fullPath: string,
+  expiresIn = 60
+): Promise<string | null> => {
+  const { data, error } = await supabase.storage
+    .from(BUCKET_NAME)
+    .createSignedUrl(fullPath, expiresIn);
+
+  if (error) {
+    console.error('Error creating signed URL:', error);
+    return null;
+  }
+  return data.signedUrl;
+};
+
+export const moveFile = async (
+  sourcePath: string,
+  destPath: string
+): Promise<void> => {
+  const { error } = await supabase.storage
+    .from(BUCKET_NAME)
+    .move(sourcePath, destPath);
+
+  if (error) throw error;
+};
+
+export const deleteFiles = async (paths: string[]): Promise<void> => {
+  if (paths.length === 0) return;
+  const { error } = await supabase.storage.from(BUCKET_NAME).remove(paths);
+  if (error) throw error;
+};
+
+export const deleteFolderRecursive = async (path: string): Promise<void> => {
+  const { data, error } = await supabase.storage.from(BUCKET_NAME).list(path);
+
+  if (error) throw error;
+
+  const filesToDelete: string[] = [];
+  const foldersToVisit: string[] = [];
+
+  for (const item of data) {
+    if (item.id) {
+      filesToDelete.push(`${path}/${item.name}`);
+    } else {
+      foldersToVisit.push(`${path}/${item.name}`);
+    }
+  }
+
+  if (filesToDelete.length > 0) {
+    const { error: removeError } = await supabase.storage
+      .from(BUCKET_NAME)
+      .remove(filesToDelete);
+
+    if (removeError) throw removeError;
+  }
+
+  await Promise.all(
+    foldersToVisit.map((folderPath) => deleteFolderRecursive(folderPath))
+  );
+};
+
+export const moveFolderRecursive = async (
+  sourcePath: string,
+  destPath: string
+): Promise<void> => {
+  const { data, error } = await supabase.storage
+    .from(BUCKET_NAME)
+    .list(sourcePath);
+
+  if (error) throw error;
+
+  for (const item of data) {
+    const currentItemSource = `${sourcePath}/${item.name}`;
+    const currentItemDest = destPath ? `${destPath}/${item.name}` : item.name;
+
+    if (item.id) {
+      await moveFile(currentItemSource, currentItemDest);
+    } else {
+      await moveFolderRecursive(currentItemSource, currentItemDest);
+    }
+  }
+};
+
+export const listAllFoldersRecursive = async (
+  path: string
+): Promise<Array<{ name: string; fullPath: string }>> => {
+  const items = await listFiles(path);
+  let folders: Array<{ name: string; fullPath: string }> = [];
+
+  for (const item of items) {
+    if (item.type === 'folder') {
+      folders.push({ name: item.name, fullPath: item.path });
+      const subFolders = await listAllFoldersRecursive(item.path);
+      folders = folders.concat(subFolders);
+    }
+  }
+  return folders;
+};
+
+export const getUniqueDestPath = async (
+  proposedPath: string
+): Promise<string> => {
+  let uniquePath = proposedPath;
+  let counter = 1;
+  const extension = getFileExtension(proposedPath);
+  const originalNameWithoutExtension =
+    getFileNameWithoutExtension(proposedPath);
+
+  const lastSlash = proposedPath.lastIndexOf('/');
+  const pathDirectory =
+    lastSlash !== -1 ? proposedPath.substring(0, lastSlash + 1) : '';
+
+  const itemsInDir = await listFiles(pathDirectory);
+
+  while (itemsInDir.some((item) => item.name === uniquePath.split('/').pop())) {
+    uniquePath = `${pathDirectory}${originalNameWithoutExtension} (${counter})${extension ? '.' + extension : ''}`;
+    counter++;
+  }
+  return uniquePath;
+};

@@ -1,6 +1,6 @@
 import { Navigate, Outlet } from 'react-router-dom';
 import Loading from '../components/Loading';
-import type { User } from 'firebase/auth';
+import type { User } from '@supabase/supabase-js';
 interface PrivateRouteProps {
   isLoading: boolean;
   user: User | null;

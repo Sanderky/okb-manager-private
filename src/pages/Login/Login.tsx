@@ -1,11 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  browserLocalPersistence,
-  setPersistence,
-  signInWithEmailAndPassword,
-} from 'firebase/auth';
-import { auth } from '../../firebase';
+import { login } from '../../services/auth';
 import TextField from '@mui/material/TextField';
 import {
   Alert,
@@ -53,6 +48,7 @@ const Login = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setValues({ ...values, [e.target.name]: e.target.value });
+    if (credentialError) setCredentialError(false);
   };
 
   const validateInputs = () => {
@@ -73,14 +69,20 @@ const Login = () => {
 
     startActionLoading();
     try {
-      await setPersistence(auth, browserLocalPersistence);
-      await signInWithEmailAndPassword(auth, values.email, values.password);
+      await login(values.email, values.password);
+
       setValues({ email: '', password: '' });
       setErrors({});
       setCredentialError(false);
-    } catch (error) {
-      const firebaseError = error as { code?: string; message: string };
-      if (firebaseError.code === 'auth/invalid-credential') {
+    } catch (error: any) {
+      console.error('Login error:', error);
+
+      if (
+        error.message === 'Invalid login credentials' ||
+        error.status === 400
+      ) {
+        setCredentialError(true);
+      } else {
         setCredentialError(true);
       }
     } finally {

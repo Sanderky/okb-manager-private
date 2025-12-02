@@ -7,8 +7,8 @@ import {
   getEmployee,
   removeEmployee,
   updateEmployee,
-} from '../../../api/employees';
-import type { Employee, EmployeeAttachment } from '../../../types';
+} from '../../../services/employees';
+import type { Employee } from '../../../types';
 import EmployeeForm, {
   type FormFieldValue,
   type EmployeeFormState,
@@ -21,29 +21,18 @@ import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import useNotifications from '../../../hooks/useNotifications/useNotifications';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
-import useEmployeeAttachment from './useAttachment';
 import BaseDialog from '../../../components/BaseDialog';
-import { deleteFolderRecursive } from '../../../components/fileBrowser/FileBrowserHelpers';
 import Loading from '../../../components/Loading';
 import useLoading from '../../../hooks/useLoading';
 import ArchiveIcon from '@mui/icons-material/Archive';
 import UnarchiveIcon from '@mui/icons-material/Unarchive';
-import { removeEmployeeWorkHours } from '../../../api/hours';
-import { removeEmployeeVacations } from '../../../api/vacations';
-import { removeEmployeeSchedules } from '../../../api/schedules';
+import { removeEmployeeWorkHours } from '../../../services/hours';
+import { removeEmployeeVacations } from '../../../services/vacations';
+import { removeEmployeeSchedules } from '../../../services/schedules';
 import { useScroll } from '../../../context/ScrollContext';
 import { useDialogs } from '../../../hooks/useDialogs/useDialogs';
 import { toNumberOrNull, validate } from './EmployeesHelpers';
-
-export type FileStateMap = {
-  [K in EmployeeAttachment]: File | null;
-};
-
-const EmployeeAttachments: EmployeeAttachment[] = [
-  'idAttachment',
-  'contractAttachment',
-  'a1Attachment',
-];
+import { deleteFolderRecursive } from '../../../services/storage';
 
 export default function EmployeeEdit() {
   const { employeeId } = useParams<{ employeeId: string }>();
@@ -65,7 +54,6 @@ export default function EmployeeEdit() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const formRefs = React.useRef<Record<string, HTMLInputElement | null>>({});
-
   const { scrollToTop } = useScroll();
 
   const registerFieldRef = (name: string, el: HTMLInputElement | null) => {
@@ -80,6 +68,7 @@ export default function EmployeeEdit() {
     queryKey: ['employee', employeeId],
     queryFn: () => getEmployee(employeeId!),
     refetchOnWindowFocus: false,
+    enabled: !!employeeId,
   });
 
   const [formState, setFormState] = useState<EmployeeFormState>({
@@ -87,16 +76,8 @@ export default function EmployeeEdit() {
     errors: {},
   });
 
-  const [files, setFiles] = useState<FileStateMap>({
-    idAttachment: null,
-    contractAttachment: null,
-    a1Attachment: null,
-  });
-
   useEffect(() => {
-    if (employee) {
-      setFormState({ values: employee, errors: {} });
-    }
+    if (employee) setFormState({ values: employee, errors: {} });
   }, [employee]);
 
   const updateMutation = useMutation({
@@ -116,26 +97,9 @@ export default function EmployeeEdit() {
       console.error('Update employee error:', error);
       notifications.show(
         'Wystąpił błąd podczas aktualizacji danych pracownika.',
-        {
-          severity: 'error',
-          autoHideDuration: 5000,
-        }
+        { severity: 'error', autoHideDuration: 5000 }
       );
     },
-  });
-
-  const handleFileChange = (
-    file: File | null,
-    attachmentType: EmployeeAttachment
-  ) => {
-    setFiles((prevFiles) => ({
-      ...prevFiles,
-      [attachmentType]: file,
-    }));
-  };
-
-  const deleteMutation = useMutation({
-    mutationFn: () => removeEmployee(employeeId!),
   });
 
   const handleFieldChange = useCallback(
@@ -152,16 +116,9 @@ export default function EmployeeEdit() {
     []
   );
 
-  const {
-    handleDeleteAttachment,
-    handleUploadAttachment,
-    loading: attachmentLoading,
-  } = useEmployeeAttachment(employee);
-
   const handleSubmit = useCallback(
     async (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
-
       const validationErrors = validate(formState.values);
       if (Object.keys(validationErrors).length > 0) {
         setFormState((prev) => ({ ...prev, errors: validationErrors }));
@@ -182,40 +139,11 @@ export default function EmployeeEdit() {
         return;
       }
 
+      startActionLoading();
       try {
-        const attachmentResults = await Promise.all(
-          EmployeeAttachments.map(async (attachmentType) => {
-            const file = files[attachmentType];
-            const currentValue = formState.values[attachmentType] ?? null;
-            const employeeValue = employee?.[attachmentType] ?? null;
-            const type = attachmentType;
-
-            if (file) {
-              if (employeeValue) await handleDeleteAttachment(type);
-              return await handleUploadAttachment(file, type);
-            } else if (!currentValue && employeeValue) {
-              await handleDeleteAttachment(type);
-              return null;
-            }
-            return currentValue ?? null;
-          })
-        );
-
         const updateData: Partial<Employee> = {
           ...formState.values,
           name: formState.values.name?.trim(),
-          idAttachment:
-            attachmentResults.find(
-              (a) => a?.attachmentType === 'idAttachment'
-            ) ?? null,
-          contractAttachment:
-            attachmentResults.find(
-              (a) => a?.attachmentType === 'contractAttachment'
-            ) ?? null,
-          a1Attachment:
-            attachmentResults.find(
-              (a) => a?.attachmentType === 'a1Attachment'
-            ) ?? null,
           contractStartDate: formState.values.contractStartDate ?? null,
           a1StartDate: formState.values.a1StartDate ?? null,
           a1EndDate: formState.values.a1EndDate ?? null,
@@ -230,8 +158,6 @@ export default function EmployeeEdit() {
           accountNumber: formState.values.accountNumber?.trim() ?? null,
           hourRate: toNumberOrNull(formState.values.hourRate) ?? null,
         };
-
-        startActionLoading();
         await updateMutation.mutateAsync(updateData);
       } catch (error) {
         console.error('Submit error:', error);
@@ -242,40 +168,39 @@ export default function EmployeeEdit() {
     [
       formState.values,
       updateMutation,
-      handleDeleteAttachment,
-      handleUploadAttachment,
-      notifications,
-      files,
-      employee,
       startActionLoading,
       stopActionLoading,
+      notifications,
     ]
   );
 
+  const deleteMutation = useMutation({
+    mutationFn: () => removeEmployee(employeeId!),
+  });
   const handleDeleteClick = useCallback(() => {
+    setDeleteConfirmation('');
     setDeleteDialogOpen(true);
+  }, []);
+  const handleDeleteCancel = useCallback(() => {
+    setDeleteDialogOpen(false);
+    setDeleteConfirmation('');
   }, []);
 
   const handleDeleteEmployee = useCallback(async () => {
     if (!employee) return;
-
     setIsDeleting(true);
     try {
       await deleteMutation.mutateAsync();
-      await Promise.all([
+      await Promise.allSettled([
         removeEmployeeWorkHours(employee.id),
         removeEmployeeVacations(employee.id),
         removeEmployeeSchedules(employee.id),
       ]);
-      await deleteFolderRecursive(`/employees/${employee.id}`);
+      await deleteFolderRecursive(`employees/${employee.id}`);
       setDeleteDialogOpen(false);
-      notifications.show('Pracownik został usunięty.', {
-        severity: 'info',
-        autoHideDuration: 5000,
-      });
+      notifications.show('Pracownik został usunięty.', { severity: 'info' });
       navigate('/employees');
     } catch (error) {
-      setDeleteDialogOpen(false);
       console.error('Delete employee error:', error);
       notifications.show('Wystąpił błąd podczas usuwania pracownika.', {
         severity: 'error',
@@ -286,14 +211,9 @@ export default function EmployeeEdit() {
     }
   }, [employee, deleteMutation, navigate, notifications]);
 
-  const handleDeleteCancel = useCallback(() => {
-    setDeleteDialogOpen(false);
-  }, []);
-
   const handleEmployeeStatus = useCallback(
     async (status: boolean) => {
       if (!employee) return;
-
       const confirmation = await dialogs.confirm(
         status
           ? `Czy na pewno chcesz aktywować pracownika?`
@@ -305,7 +225,6 @@ export default function EmployeeEdit() {
           cancelText: 'Anuluj',
         }
       );
-
       if (confirmation) {
         setIsUpdatingEmployeeStatus(true);
         try {
@@ -322,11 +241,7 @@ export default function EmployeeEdit() {
     [employee, employeeId, navigate, scrollToTop, updateMutation, dialogs]
   );
 
-  const isFormLoading =
-    actionLoading ||
-    attachmentLoading !== false ||
-    isDeleting ||
-    isUpdatingEmployeeStatus;
+  const isFormLoading = actionLoading || isDeleting || isUpdatingEmployeeStatus;
 
   const renderContent = () => {
     if (isLoading) {
@@ -379,13 +294,10 @@ export default function EmployeeEdit() {
               className="rounded-lg bg-white p-3 md:p-4"
             >
               <EmployeeForm
-                onFileChange={handleFileChange}
-                filesState={files}
                 formState={formState}
                 onFieldChange={handleFieldChange}
                 onSubmit={handleSubmit}
                 isSubmitting={actionLoading}
-                isFileLoading={attachmentLoading}
                 isEditForm={true}
                 registerFieldRef={registerFieldRef}
               />

@@ -7,18 +7,10 @@ import {
   Divider,
   IconButton,
   InputAdornment,
-  Collapse,
 } from '@mui/material';
 import { OutgoingMail, Visibility, VisibilityOff } from '@mui/icons-material';
-import {
-  updatePassword,
-  updateProfile,
-  EmailAuthProvider,
-  reauthenticateWithCredential,
-  type User,
-  verifyBeforeUpdateEmail,
-} from 'firebase/auth';
-import { auth } from '../../firebase';
+import { supabase } from '../../supabase';
+import { useAuth } from '../../context/AuthContext';
 import BaseDialog from '../BaseDialog';
 import useNotifications from '../../hooks/useNotifications/useNotifications';
 
@@ -31,7 +23,7 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
   open,
   onClose,
 }) => {
-  const user = auth.currentUser;
+  const { user } = useAuth();
   const notifications = useNotifications();
 
   const [emailEditMode, setEmailEditMode] = useState(false);
@@ -40,23 +32,25 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
 
   const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
   const [loading, setLoading] = useState(false);
   const [fieldsErrors, setFieldsError] = useState<Record<string, string>>({});
-  const [showPassword, setShowPassword] = useState(false);
+
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   useEffect(() => {
-    if (user && open) {
-      setDisplayName(user.displayName || '');
-      setEmail(user.email || '');
-      setPassword('');
+    if (open) {
+      const metaName =
+        user?.user_metadata?.display_name ||
+        user?.user_metadata?.full_name ||
+        '';
+      setDisplayName(metaName || '');
+      setEmail(user?.email || '');
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
@@ -65,17 +59,43 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
       setVerificationEmailInfo(false);
       setFieldsError({});
     }
-  }, [user, open]);
+  }, [open]);
 
-  const reauthenticate = async (currentPassword: string): Promise<boolean> => {
+  useEffect(() => {
+    if (user) {
+      setDisplayName((prev) => {
+        if (!usernameEditMode) {
+          return (
+            user.user_metadata?.display_name ||
+            user.user_metadata?.full_name ||
+            ''
+          );
+        }
+        return prev;
+      });
+
+      setEmail((prev) => {
+        if (!emailEditMode) {
+          return user.email || '';
+        }
+        return prev;
+      });
+    }
+  }, [user]);
+
+  const reauthenticate = async (passwordToCheck: string): Promise<boolean> => {
     if (!user || !user.email) return false;
 
     try {
-      const credential = EmailAuthProvider.credential(
-        user.email,
-        currentPassword
-      );
-      await reauthenticateWithCredential(user, credential);
+      const { error } = await supabase.auth.signInWithPassword({
+        email: user.email,
+        password: passwordToCheck,
+      });
+
+      if (error) {
+        console.error('Re-auth error:', error);
+        return false;
+      }
       return true;
     } catch (error) {
       console.error('User authentication error:', error);
@@ -86,55 +106,49 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
   const updateDisplayName = async (): Promise<boolean> => {
     if (!user) return false;
 
-    if (displayName !== user.displayName) {
-      await updateProfile(user, {
-        displayName: displayName.trim(),
+    const currentName = user.user_metadata?.display_name || '';
+    if (displayName !== currentName) {
+      const { error } = await supabase.auth.updateUser({
+        data: { display_name: displayName.trim() },
       });
+
+      if (error) {
+        console.error('Update name error:', error);
+        return false;
+      }
       return true;
     }
     return false;
   };
 
   const updateUserEmail = async (): Promise<boolean> => {
-    let result = true;
-    if (!user || email === user.email) result = false;
+    if (!user) return false;
+
+    if (email === user.email) return false;
 
     if (!email) {
-      setFieldsError((prev) => ({
-        ...prev,
-        email: 'Należy wprowadzić adres email.',
-      }));
-      result = false;
+      setFieldsError((prev) => ({ ...prev, email: 'Wprowadź adres email.' }));
+      return false;
     }
 
     if (!/\S+@\S+\.\S+/.test(email)) {
       setFieldsError((prev) => ({
         ...prev,
-        email: 'Nieprawidłowy format adresu email.',
+        email: 'Nieprawidłowy format email.',
       }));
-      result = false;
+      return false;
     }
 
-    if (!password) {
-      setFieldsError((prev) => ({
-        ...prev,
-        password: 'Obecne hasło jest wymagane do zmiany emaila.',
-      }));
-      result = false;
+    const { error } = await supabase.auth.updateUser({
+      email: email.trim(),
+    });
+
+    if (error) {
+      notifications.show(error.message, { severity: 'error' });
+      return false;
     }
 
-    if (result && user) {
-      if (await reauthenticate(password)) {
-        await verifyBeforeUpdateEmail(user, email.trim());
-      } else {
-        setFieldsError((prev) => ({
-          ...prev,
-          password: 'Wprowadzono nieprawidłowe hasło',
-        }));
-        result = false;
-      }
-    }
-    return result;
+    return true;
   };
 
   const updateUserPassword = async (): Promise<boolean> => {
@@ -173,7 +187,14 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
 
     if (result) {
       if (await reauthenticate(currentPassword)) {
-        await updatePassword(user as User, newPassword);
+        const { error } = await supabase.auth.updateUser({
+          password: newPassword,
+        });
+
+        if (error) {
+          notifications.show(error.message, { severity: 'error' });
+          return false;
+        }
       } else {
         setFieldsError((prev) => ({
           ...prev,
@@ -198,20 +219,13 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
     setFieldsError({});
 
     try {
-      const hasEmailChanged = email !== user.email;
-      if (!hasEmailChanged) {
-        return;
-      }
-
       if (await updateUserEmail()) {
         setVerificationEmailInfo(true);
         setEmailEditMode(false);
       }
     } catch (error) {
-      setEmailEditMode(false);
-      setEmail(user.email ?? '');
-      console.error('Error updating user:', error);
-      notifications.show('Wystąpił błąd podczas aktualizacji danych', {
+      console.error('Error updating email:', error);
+      notifications.show('Wystąpił błąd podczas zmiany emaila', {
         severity: 'error',
         autoHideDuration: 5000,
       });
@@ -233,7 +247,8 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
     setFieldsError({});
 
     try {
-      const hasDisplayNameChanged = displayName !== user.displayName;
+      const currentName = user.user_metadata?.display_name || '';
+      const hasDisplayNameChanged = displayName !== currentName;
 
       if (!hasDisplayNameChanged) {
         return;
@@ -284,8 +299,7 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
       }
     } catch (error) {
       console.error('Error updating user:', error);
-
-      notifications.show('Użytkownik nie jest zalogowany', {
+      notifications.show('Wystąpił błąd podczas zmiany hasła', {
         severity: 'error',
         autoHideDuration: 5000,
       });
@@ -295,7 +309,6 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
   };
 
   const handleClose = (): void => {
-    // setVerificationEmailInfo(false)
     onClose();
   };
 
@@ -376,7 +389,7 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
                   className="border-gray-400"
                   sx={{ mr: 2 }}
                   onClick={() => {
-                    setDisplayName(user.displayName || '');
+                    setDisplayName(user.user_metadata?.display_name || '');
                     setUsernameEditMode(false);
                   }}
                 >
@@ -412,44 +425,6 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
             disabled={loading || !emailEditMode}
           />
 
-          <Collapse in={emailEditMode}>
-            <TextField
-              size="small"
-              label="Hasło"
-              error={Boolean(fieldsErrors['password'])}
-              type={showPassword ? 'text' : 'password'}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              fullWidth
-              margin="normal"
-              disabled={loading}
-              helperText={fieldsErrors['password']}
-              slotProps={{
-                input: {
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton
-                        onClick={() => setShowPassword((prev) => !prev)}
-                        edge="end"
-                      >
-                        {showPassword ? <VisibilityOff /> : <Visibility />}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                },
-              }}
-            />
-
-            <Typography
-              variant="caption"
-              color="text.secondary"
-              display="block"
-              sx={{ mt: 1, mb: 2 }}
-            >
-              Aby zmienić adres email należy również wprowadzić obecne hasło
-            </Typography>
-          </Collapse>
-
           {!emailEditMode && (
             <Button
               variant="contained"
@@ -465,7 +440,7 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
                 variant="outlined"
                 color="inherit"
                 className="border-gray-400"
-                sx={{ mr: 2 }}
+                sx={{ mr: 2, mt: 1 }}
                 onClick={() => {
                   setEmail(user.email || '');
                   setEmailEditMode(false);
@@ -478,6 +453,9 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
                 variant="contained"
                 onClick={handleSaveEmail}
                 loading={loading}
+                sx={{
+                  mt: 1,
+                }}
               >
                 Zapisz
               </Button>

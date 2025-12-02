@@ -9,12 +9,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import dayjs from 'dayjs';
-import type {
-  Attachment,
-  Employee,
-  EmployeeAttachment,
-  FileItem,
-} from '../../../types';
+import type { Employee } from '../../../types';
 import Alert from '@mui/material/Alert';
 import {
   Checkbox,
@@ -24,19 +19,12 @@ import {
   Switch,
   Typography,
 } from '@mui/material';
-import { useCallback, useEffect, useState } from 'react';
-import { CheckCircleOutline, FileUpload } from '@mui/icons-material';
-import AttachmentBox from './AttachmentBox';
-import { PreviewDialog } from '../../../components/fileBrowser/FilePreviewDialog';
-import type { FileStateMap } from './EmployeeEdit';
+import { useEffect, useState } from 'react';
+import { CheckCircleOutline } from '@mui/icons-material';
 import { useNavigate, useParams } from 'react-router';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import type { LoadingState } from './useAttachment';
 import { NoteBase } from '../../../components/Note';
 import { plPL } from '@mui/x-date-pickers/locales';
-import { getDownloadURL, ref } from 'firebase/storage';
-import { storage } from '../../../firebase';
-import { handleDownloadAttachment } from './EmployeesHelpers';
 
 export interface EmployeeFormState {
   values: Partial<Omit<Employee, 'id'>>;
@@ -51,8 +39,7 @@ export type FormFieldValue =
   | boolean
   | null
   | DateWithPermanent
-  | number
-  | Attachment;
+  | number;
 
 export interface EmployeeFormProps {
   formId?: string;
@@ -64,10 +51,7 @@ export interface EmployeeFormProps {
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
   onReset?: () => void;
   isSubmitting?: boolean;
-  isFileLoading?: LoadingState | false;
   isEditForm?: boolean;
-  onFileChange: (file: File | null, attachmentType: EmployeeAttachment) => void;
-  filesState: FileStateMap;
   registerFieldRef?: (name: string, el: HTMLInputElement | null) => void;
 }
 
@@ -80,187 +64,19 @@ interface EmployeeField {
   required: boolean;
 }
 
-interface AttachmentFieldProps {
-  attachmentType: EmployeeAttachment;
-  onOpenPreview: (file: FileItem | File | null | undefined) => void;
-  onFileChange: (file: File | null, attachmentType: EmployeeAttachment) => void;
-  handleFieldChange: (
-    name: keyof EmployeeFormState['values'],
-    value: FormFieldValue | object | null
-  ) => void;
-  formState: EmployeeFormState;
-  filesState: FileStateMap;
-}
-
-const AttachmentField = ({
-  attachmentType,
-  onOpenPreview,
-  formState,
-  onFileChange,
-  handleFieldChange,
-  filesState,
-}: AttachmentFieldProps) => {
-  const [isDragging, setIsDragging] = useState(false);
-
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    if (!attachment) {
-      e.preventDefault();
-      setIsDragging(true);
-    }
-  };
-
-  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
-    if (!attachment) {
-      e.preventDefault();
-      setIsDragging(false);
-    }
-  };
-
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    if (!attachment) {
-      e.preventDefault();
-      setIsDragging(false);
-      const files = e.dataTransfer.files;
-      if (files.length > 0) {
-        handleUploadFileForm(files[0]);
-      }
-    }
-  };
-
-  const handleOpenFileInNewTab = async (
-    file: Attachment | null | undefined
-  ) => {
-    if (!file?.fullPath) return;
-
-    try {
-      const fileRef = ref(storage, file.fullPath);
-      const downloadURL = await getDownloadURL(fileRef);
-
-      const link = document.createElement('a');
-      link.href = downloadURL;
-      link.target = '_blank';
-      link.rel = 'noopener noreferrer';
-      link.click();
-    } catch (error) {
-      console.error('Error opening file in new tab:', error);
-    }
-  };
-
-  const handleUploadFileForm = (file: File | null) => {
-    if (!file) return;
-    onFileChange(file, attachmentType);
-    handleFieldChange(attachmentType, {
-      name: file.name,
-      type: 'file',
-      fullPath: '',
-      attachmentType: attachmentType,
-      contentType: file.type,
-      size: file.size,
-      timeCreated: new Date().toISOString(),
-    } as Attachment);
-  };
-
-  const handleDeleteFileForm = () => {
-    onFileChange(null, attachmentType);
-    handleFieldChange(attachmentType, null);
-  };
-
-  const attachment = formState.values[attachmentType] ?? null;
-
-  return (
-    <Grid
-      sx={{
-        position: 'relative',
-        backgroundColor: isDragging ? 'rgba(25, 118, 210, 0.1)' : 'none',
-        border: isDragging ? '1px dashed #1976d2 !important' : '',
-      }}
-      columns={12}
-      spacing={{ xs: 2 }}
-      width={'100%'}
-      marginBottom={2}
-      className="border-lightGray rounded-lg border p-3"
-      onDragOver={handleDragOver}
-      onDragLeave={handleDragLeave}
-      onDrop={handleDrop}
-    >
-      <Typography component="div" variant="body1" marginBottom={1}>
-        Załącznik
-      </Typography>
-      {attachment && (
-        <Alert severity="info" className="mb-3 px-3 py-0">
-          Tylko jeden plik może być dodany. Usuń stary aby dodać nowy.
-        </Alert>
-      )}
-      {filesState[attachmentType] && (
-        <Alert severity="warning" className="mb-3 px-3 py-0">
-          Plik zostanie przesłany dopiero po zapisaniu formularza.
-        </Alert>
-      )}
-      <AttachmentBox
-        file={attachment}
-        onShow={() => onOpenPreview(filesState[attachmentType] ?? attachment)}
-        onDelete={handleDeleteFileForm}
-        onDownload={
-          filesState[attachmentType]
-            ? undefined
-            : () => handleDownloadAttachment(attachment)
-        }
-        onNewCard={
-          filesState[attachmentType]
-            ? undefined
-            : () => handleOpenFileInNewTab(attachment)
-        }
-      />
-      {!attachment && (
-        <Stack
-          alignItems={'center'}
-          spacing={1}
-          direction={'row'}
-          sx={{ flexWrap: 'wrap' }}
-        >
-          <Button
-            size="small"
-            component="label"
-            variant="contained"
-            startIcon={<FileUpload />}
-          >
-            Dodaj załącznik
-            <input
-              type="file"
-              hidden
-              onChange={(e) =>
-                handleUploadFileForm(e.target.files?.[0] || null)
-              }
-            />
-          </Button>
-          <Typography variant="caption">lub przeciągnij i upuść</Typography>
-        </Stack>
-      )}
-    </Grid>
-  );
-};
-
 export default function EmployeeForm(props: EmployeeFormProps) {
   const {
     formId,
     formState,
-    filesState,
     onFieldChange,
     onSubmit,
     onReset,
     isSubmitting,
-    isFileLoading = false,
     isEditForm,
-    onFileChange,
   } = props;
 
   const formValues = formState.values;
   const formErrors = formState.errors;
-
-  const [previewFile, setPreviewFile] = useState<FileItem | File | null>(null);
-  const [isPreviewOpen, setIsPreviewOpen] = useState<boolean>(false);
-
-  const isFormLoading = isFileLoading !== false || isSubmitting;
 
   const { employeeId } = useParams<{ employeeId: string }>();
   const navigate = useNavigate();
@@ -277,15 +93,6 @@ export default function EmployeeForm(props: EmployeeFormProps) {
       }
     },
     [onFieldChange]
-  );
-
-  const handleOpenPreview = useCallback(
-    (file: FileItem | File | null | undefined) => {
-      if (!file) return;
-      setPreviewFile(file);
-      setIsPreviewOpen(true);
-    },
-    []
   );
 
   const handleBack = React.useCallback(() => {
@@ -402,16 +209,6 @@ export default function EmployeeForm(props: EmployeeFormProps) {
       } else {
         val = null;
       }
-
-      // let minD = undefined;
-
-      // if (key === 'a1EndDate') {
-      //   minD = dayjs(formValues.a1StartDate);
-      // }
-
-      // if (key === 'contractEndDate') {
-      //   minD = dayjs(formValues.contractStartDate);
-      // }
 
       return (
         <Grid size={{ xs: 12, md: 6 }} key={key}>
@@ -543,7 +340,7 @@ export default function EmployeeForm(props: EmployeeFormProps) {
           spacing={2.5}
           sx={{ position: 'relative', maxWidth: '100%' }}
         >
-          {isFormLoading && (
+          {isSubmitting && (
             <Box
               sx={{
                 position: 'absolute',
@@ -571,12 +368,7 @@ export default function EmployeeForm(props: EmployeeFormProps) {
             <Grid container columns={12} spacing={{ xs: 2 }} width={'100%'}>
               {employeeFields.map(renderField)}
               <Grid size={{ xs: 12 }}>
-                <Stack
-                  direction={'row'}
-                  spacing={2}
-                  alignItems={'center'}
-                  // className="border-lightGray w-full rounded-lg border p-2 px-4"
-                >
+                <Stack direction={'row'} spacing={2} alignItems={'center'}>
                   <FormControlLabel
                     control={
                       <Switch
@@ -589,40 +381,8 @@ export default function EmployeeForm(props: EmployeeFormProps) {
                     }
                     label="Kontraktor"
                   />
-                  {/* <Divider orientation="vertical" flexItem variant="middle" />
-                <FormControlLabel
-                  control={
-                    <Switch
-                      checked={Boolean(formValues.status)}
-                      onChange={(e) =>
-                        handleFieldChange('status', e.target.checked)
-                      }
-                      name="status"
-                      color={formValues.status ? 'success' : 'error'}
-                    />
-                  }
-                  label="Aktywny"
-                /> */}
                 </Stack>
               </Grid>
-            </Grid>
-          </Grid>
-
-          <Divider sx={{ width: '100%' }} />
-
-          <Grid width={'100%'}>
-            <Typography variant="subtitle1" className="mb-3 font-medium">
-              Dowód osobisty
-            </Typography>
-            <Grid container columns={12} spacing={{ xs: 2 }}>
-              <AttachmentField
-                handleFieldChange={handleFieldChange}
-                onFileChange={onFileChange}
-                formState={formState}
-                attachmentType="idAttachment"
-                onOpenPreview={handleOpenPreview}
-                filesState={filesState}
-              />
             </Grid>
           </Grid>
 
@@ -633,14 +393,6 @@ export default function EmployeeForm(props: EmployeeFormProps) {
               Umowa zatrudnienia
             </Typography>
             <Grid container columns={12} spacing={{ xs: 2 }}>
-              <AttachmentField
-                handleFieldChange={handleFieldChange}
-                onFileChange={onFileChange}
-                formState={formState}
-                attachmentType="contractAttachment"
-                onOpenPreview={handleOpenPreview}
-                filesState={filesState}
-              />
               {contractFields.map(renderField)}
               <Grid size={{ xs: 12 }} mt={-1}>
                 <FormControlLabel
@@ -669,14 +421,6 @@ export default function EmployeeForm(props: EmployeeFormProps) {
               A1
             </Typography>
             <Grid container columns={12} spacing={{ xs: 2 }}>
-              <AttachmentField
-                handleFieldChange={handleFieldChange}
-                onFileChange={onFileChange}
-                formState={formState}
-                attachmentType="a1Attachment"
-                onOpenPreview={handleOpenPreview}
-                filesState={filesState}
-              />
               {a1Fields.map(renderField)}
             </Grid>
           </Grid>
@@ -712,37 +456,23 @@ export default function EmployeeForm(props: EmployeeFormProps) {
             variant="contained"
             startIcon={<CheckCircleOutline />}
             type="submit"
-            disabled={isFormLoading}
+            disabled={isSubmitting}
           >
             Zapisz
           </Button>
-          {isFormLoading && (
-            <Typography>
-              {isSubmitting
-                ? 'Zapisywanie danych...'
-                : isFileLoading === 'uploading'
-                  ? 'Przesyłanie plików...'
-                  : 'Usuwanie plików...'}
-            </Typography>
-          )}
+          {isSubmitting && <Typography>Zapisywanie danych...</Typography>}
           <Button
             variant="outlined"
             onClick={handleBack}
             startIcon={<ArrowBackIcon />}
             type="reset"
             color="inherit"
-            disabled={isFormLoading}
+            disabled={isSubmitting}
           >
             Anuluj
           </Button>
         </Stack>
       </FormGroup>
-
-      <PreviewDialog
-        open={isPreviewOpen}
-        onClose={() => setIsPreviewOpen(false)}
-        file={previewFile}
-      />
     </Box>
   );
 }

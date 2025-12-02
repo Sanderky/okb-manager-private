@@ -14,8 +14,8 @@ import {
 } from '@mui/material';
 import type { Construction, Employee } from '../../../types';
 import { useQuery } from '@tanstack/react-query';
-import { getEmployeeList } from '../../../api/employees';
-import { getConstructionList } from '../../../api/constructions';
+import { getEmployeeList } from '../../../services/employees';
+import { getConstructionList } from '../../../services/constructions';
 import 'dayjs/locale/pl';
 
 const useEmployeesConstructionsFilter = (
