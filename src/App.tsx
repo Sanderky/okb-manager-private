@@ -26,10 +26,13 @@ import PageNotFound from './pages/PageNotFound/PageNotFound';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useAuth } from './context/AuthContext';
 import useEmployeesAlert from './hooks/useEmployeeAlert';
-import { getConstructionList } from './services/constructions';
+import {
+  getConstructionList,
+  getConstructionStats,
+} from './services/constructions';
 import { useQuery } from '@tanstack/react-query';
 import { fetchAlertsSettings } from './services/settings';
-import { getEmployeeList } from './services/employees';
+import { getEmployeeList, getEmployeeStats } from './services/employees';
 import { getUpcomingVacations } from './services/vacations';
 import { getHomeNote } from './services/home';
 import { getContractors } from './services/contractors';
@@ -108,6 +111,16 @@ export default function App() {
     enabled: !!user,
   });
 
+  const { isLoading: employeeStatsLoading } = useQuery({
+    queryKey: ['employees', 'stats'],
+    queryFn: getEmployeeStats,
+  });
+
+  const { isLoading: constructionStatsLoading } = useQuery({
+    queryKey: ['constructions', 'stats'],
+    queryFn: getConstructionStats,
+  });
+
   const { isLoading: activeEmployeesLoading } = useQuery({
     queryKey: ['employees', { status: true }],
     queryFn: () => getEmployeeList(true),
@@ -135,7 +148,9 @@ export default function App() {
           employeesLoading ||
           upcomingVacationsLoading ||
           activeEmployeesLoading ||
-          homeNoteLoading))
+          homeNoteLoading ||
+          employeeStatsLoading ||
+          constructionStatsLoading))
   );
 
   return (

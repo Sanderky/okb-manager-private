@@ -47,7 +47,7 @@ const generateDateBox = (
   const isA1EndDate = key === 'a1EndDate';
   const isEndDateField = isContractEndDate || isA1EndDate;
   const isPermanent = isContractEndDate
-    ? Boolean(employeeData.contractISPermanent)
+    ? Boolean(employeeData.contractIsPermanent)
     : false;
 
   let dateStyles = '';

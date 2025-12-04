@@ -50,7 +50,6 @@ const numberCellMaxWidth = '20px';
 const numberCellPadding = 0.5;
 const redAlert = 'bg-red-300';
 const orangeAlert = 'bg-amber-300';
-// const sumColor = 'oklch(0.707 0.165 254.624)';
 const tableBorder = '1px solid rgb(224, 224, 224)';
 
 interface TableRowsProps {
@@ -138,7 +137,6 @@ const TableRows = ({
       const availableEmployees = getAvailableEmployeesForConstruction(
         construction.id
       );
-
       return (
         <React.Fragment key={construction.id}>
           {construction.workHours.map((workHour, employeeIndex) => (
@@ -166,9 +164,7 @@ const TableRows = ({
                         construction.name
                       )
                     }
-                    style={{
-                      cursor: editMode ? 'pointer' : 'text',
-                    }}
+                    style={{ cursor: editMode ? 'pointer' : 'text' }}
                   >
                     {construction.name}
                   </span>
@@ -199,9 +195,7 @@ const TableRows = ({
                       construction.name
                     )
                   }
-                  style={{
-                    cursor: editMode ? 'pointer' : 'text',
-                  }}
+                  style={{ cursor: editMode ? 'pointer' : 'text' }}
                 >
                   {workHour.employeeName}
                 </span>
@@ -245,20 +239,13 @@ const TableRows = ({
                         }
                         sx={{
                           '& .MuiInputBase-root:before, & .MuiInputBase-root:after':
-                            {
-                              borderBottom: 'none !important',
-                            },
+                            { borderBottom: 'none !important' },
                           '& .MuiInputBase-input': {
                             textAlign: 'center',
                             padding: '0 !important',
                             '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button':
-                              {
-                                WebkitAppearance: 'none',
-                                margin: 0,
-                              },
-                            '&[type=number]': {
-                              MozAppearance: 'textfield',
-                            },
+                              { WebkitAppearance: 'none', margin: 0 },
+                            '&[type=number]': { MozAppearance: 'textfield' },
                           },
                         }}
                         variant="standard"
@@ -268,9 +255,7 @@ const TableRows = ({
                             min: 0,
                             max: 24,
                             step: 0.5,
-                            style: {
-                              textAlign: 'center',
-                            },
+                            style: { textAlign: 'center' },
                           },
                         }}
                       />
@@ -331,11 +316,7 @@ const TableRows = ({
             <TableCell
               align="center"
               className="bg-blue-200"
-              sx={{
-                borderBottom: borderBold,
-                p: 0.5,
-                fontWeight: 'bold',
-              }}
+              sx={{ borderBottom: borderBold, p: 0.5, fontWeight: 'bold' }}
             >
               {formatToPolishDecimal(construction.totalHours)}
             </TableCell>
@@ -430,11 +411,9 @@ const NoTable = ({
         </Box>
       );
     }
-
     if (isLoading) {
       return <CircularProgress />;
     }
-
     return (
       <Box
         sx={{
@@ -444,9 +423,6 @@ const NoTable = ({
           justifyContent: 'center',
         }}
       >
-        {/* <CancelPresentation
-              sx={{ color: 'text.secondary', fontSize: 40 }}
-            /> */}
         <Typography
           color="textSecondary"
           variant="body1"
@@ -474,7 +450,6 @@ const NoTable = ({
             >
               Kopiuj dane z innego tygodnia
             </Button>
-
             <Tooltip
               title={
                 availableConstructions.length === 0
@@ -487,7 +462,6 @@ const NoTable = ({
                   startIcon={<Add />}
                   sx={{ visibility: editMode ? 'visible' : 'hidden', mt: 2 }}
                   onClick={handleAddConstruction}
-                  // size="small"
                   variant="contained"
                   color="primary"
                   disabled={availableConstructions.length === 0}
@@ -509,6 +483,7 @@ const NoTable = ({
     handleAddConstruction,
     availableConstructions,
   ]);
+
   return (
     <Box
       className="border-lightGray rounded-lg border bg-gray-50"
@@ -583,7 +558,9 @@ const HoursTable = ({
     hasUnsavedChanges,
   } = useHoursTable();
 
+  // --- NAPRAWA BŁĘDU MAXIMUM UPDATE DEPTH ---
   useEffect(() => {
+    // Sprawdzamy czy funkcja istnieje oraz czy dane są gotowe (nie ma ładowania ani błędu)
     if (onTableDataUpdate && !isLoading && !loadingError) {
       onTableDataUpdate({
         weekStart: currentWeek,
@@ -592,7 +569,15 @@ const HoursTable = ({
         totalHoursData,
       });
     }
-  }, [currentWeek, constructionsWithWorkHours, isLoading, loadingError]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    currentWeek,
+    constructionsWithWorkHours,
+    isLoading,
+    loadingError,
+    totalHoursData,
+    weekDates,
+  ]);
 
   const dataSorted = useMemo(() => {
     return sortConstructionsWithWorkHours(constructionsWithWorkHours);
@@ -608,9 +593,7 @@ const HoursTable = ({
   };
 
   const printContentRef = useRef<HTMLDivElement>(null);
-
   const isTableLoading = isCoping || isFilling || isLoading || isSaving;
-
   const availableConstructions = getAvailableConstructions();
 
   return (
@@ -665,9 +648,7 @@ const HoursTable = ({
               className="border-lightGray rounded-lg border bg-white"
               sx={(theme) => ({
                 position: 'relative',
-                '& th': {
-                  backgroundColor: 'oklch(0.967 0.003 264.542)',
-                },
+                '& th': { backgroundColor: 'oklch(0.967 0.003 264.542)' },
                 outline: editMode
                   ? `2px solid ${theme.palette.primary.main} !important`
                   : '',

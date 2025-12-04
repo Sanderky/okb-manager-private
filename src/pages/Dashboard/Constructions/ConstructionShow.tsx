@@ -46,12 +46,11 @@ import { Note } from '../../../components/Note';
 
 import PeopleIcon from '@mui/icons-material/People';
 import { FinishConstruction, ResumeConstruction } from './ConstructionDialogs';
-import { getContractors } from '../../../services/contractors';
 
 const personalFields = [
   { key: 'name', label: 'Nazwa budowy' },
   { key: 'location', label: 'Lokalizacja' },
-  { key: 'contractor', label: 'Wykonawca' },
+  { key: 'contractorName', label: 'Wykonawca' },
   { key: 'startDate', label: 'Data rozpoczęcia' },
   { key: 'endDate', label: 'Data zakończenia' },
 ];
@@ -83,17 +82,6 @@ export default function ConstructionShow() {
     queryFn: () => getConstruction(constructionId!),
     enabled: !!constructionId,
   });
-
-  const { data: contractors } = useQuery({
-    queryKey: ['contractors'],
-    queryFn: getContractors,
-  });
-
-  const contractor = useMemo(() => {
-    if (construction && contractors) {
-      return contractors.find((c) => c.id === construction.contractor);
-    }
-  }, [construction, contractors]);
 
   const {
     data: scheduleEmployees,
@@ -392,13 +380,6 @@ export default function ConstructionShow() {
                                         <em className="text-gray-400">-</em>
                                       );
                                     return dayjs(value).format('DD.MM.YYYY');
-                                  }
-                                  if (key === 'contractor') {
-                                    return contractor ? (
-                                      contractor.name
-                                    ) : (
-                                      <em className="text-gray-400">-</em>
-                                    );
                                   }
                                   return String(value);
                                 })()}

@@ -146,6 +146,25 @@ export default function EmployeeList() {
     );
   }, [columnFilters]);
 
+//   const shouldFetchActiveOnly = filters.status === 'true';
+
+// const {
+//   data: employees,
+//   isLoading,
+//   error,
+//   refetch,
+// } = useQuery({
+//   // 2. Klucz cache zależy od filtra. 
+//   // Jak zmienisz filtr, React Query automatycznie wywoła queryFn ponownie.
+//   queryKey: ['employees', shouldFetchActiveOnly ? 'active' : 'all'],
+  
+//   // 3. Przekazujemy true/false do serwisu
+//   queryFn: () => getEmployeeList(shouldFetchActiveOnly),
+  
+//   // Opcjonalnie: żeby tabela nie "migała" przy przełączaniu, zostawiamy stare dane na chwilę
+//   placeholderData: (previousData) => previousData,
+// });
+
   const {
     data: employees,
     isLoading,

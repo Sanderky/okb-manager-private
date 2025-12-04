@@ -1,29 +1,35 @@
 import { supabase } from '../supabase';
 import type { HomeDocument } from '../types';
 
-export const getHomeNote = async (): Promise<HomeDocument | null> => {
+const NOTE_ID = 'home';
+
+export const getHomeNote = async (): Promise<HomeDocument> => {
   const { data, error } = await supabase
     .from('home_notes')
     .select('id, note')
-    .eq('id', 'note')
+    .eq('id', NOTE_ID)
     .single();
 
   if (error) {
-    if (error.code === 'PGRST116') return null;
+    if (error.code === 'PGRST116') {
+      return { id: NOTE_ID, note: '' };
+    }
+
     console.error('Błąd pobierania notatki:', error);
-    return null;
+    return { id: NOTE_ID, note: '' };
   }
 
   return {
     id: data.id,
-    note: data.note || undefined,
+    note: data.note || '',
   };
 };
 
 export const saveHomeNote = async (noteContent: string): Promise<void> => {
   const { error } = await supabase.from('home_notes').upsert({
-    id: 'note',
+    id: NOTE_ID,
     note: noteContent,
+    updated_at: new Date().toISOString(),
   });
 
   if (error) throw error;

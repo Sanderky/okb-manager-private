@@ -61,6 +61,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
 
     return (
       <>
+        {/* NAGŁÓWKI DNI TYGODNIA */}
         <Grid container className="bg-gray-50">
           {WEEK_DAYS.map((day, index) => (
             <Grid
@@ -78,30 +79,36 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
             </Grid>
           ))}
 
+          {/* SIATKA DNI */}
           {monthGrid.map((week, wi) =>
             week.map((calendarDay, di) => {
               const { date: day, events, slots = {} } = calendarDay;
+
               const isCurrentMonth = day.isSame(currentMonth, 'month');
               const isToday = day.isSame(dayjs(), 'day');
               const isSelected = isDayInRange(day);
-
               const isExpanded = expandedWeeks.has(wi);
 
+              // Obliczanie wysokości komórki
               const getDayBoxHeight = () => {
                 const eventsCount = events.length;
                 const hasEvents = eventsCount > 0;
-                const baseHeight = MAX_EVENTS * 24 + 23;
+
+                // Base height calculation based on rows
+                const rowHeight = MAX_EVENTS_DESKTOP * 24 + 23; // Stała wysokość minimalna
 
                 if (hasEvents && isExpanded) {
                   const expandedHeight = eventsCount * 24 + 23;
-                  return Math.max(expandedHeight, baseHeight);
+                  return Math.max(expandedHeight, rowHeight);
                 } else {
-                  return baseHeight;
+                  return rowHeight; // Domyślna wysokość wiersza
                 }
               };
 
+              // Sprawdzanie czy są ukryte eventy
               const hasHiddenEvents = events.some((ev) => {
                 const slot = slots[ev.groupId];
+                // Jeśli slot jest poza limitem LUB nie ma przypisanego slotu (błąd danych)
                 return (
                   (slot !== undefined ? slot : 99) >= MAX_EVENTS || !ev.employee
                 );
@@ -134,6 +141,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                   }}
                   onClick={() => onDayClick(day)}
                 >
+                  {/* NUMER DNIA */}
                   <Typography
                     textAlign={'center'}
                     sx={{
@@ -148,27 +156,32 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                     {day.date()}
                   </Typography>
 
+                  {/* KONTENER NA PASKI URLOPÓW */}
                   <Box
                     sx={{
                       position: 'relative',
                       height: getDayBoxHeight(),
-                      transition: 'ease height 0.3s',
+                      transition: 'ease height 0.2s', // Przyspieszyłem animację
                     }}
                   >
                     {events.map((ev, index) => {
+                      // Obliczenia wizualne
                       const isStart = ev.date.isSame(ev.startDate, 'day');
                       const isEnd = ev.date.isSame(ev.endDate, 'day');
 
+                      // ZMIANA: Wykrywanie początku wiersza (poniedziałek) po indeksie kolumny
                       const isWeekStart = di === 0;
 
-                      const slot = slots[ev.groupId] ?? index;
+                      const slot = slots[ev.groupId] ?? index; // Fallback to index if slot missing
 
+                      // Kolory
                       const isLightColor =
                         theme.palette.getContrastText(ev.color) !== '#fff';
                       const textColor = isLightColor
                         ? darken(ev.color, 0.55)
                         : '#ffffff';
 
+                      // Kiedy pokazać nazwisko: Początek urlopu LUB początek tygodnia
                       const showName = isStart || isWeekStart;
 
                       const maxSlots = isExpanded
@@ -201,17 +214,17 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                             right: 0,
                             bgcolor: ev.color,
                             px: 1,
-
-                            ml: isStart ? 1 : isWeekStart ? 0 : '-1px',
-
+                            // Magia CSS: Jeśli to nie początek, przesuń w lewo o 1px żeby zakryć przerwę
+                            // Ale jeśli to początek tygodnia (di===0) i nie początek urlopu, to nie przesuwamy (bo jest krawędź)
+                            ml: isStart || isWeekStart ? 1 : '-1px',
                             mr: isEnd ? 1 : '-1px',
 
                             fontSize: '0.7rem',
                             overflow: 'hidden',
-                            textOverflow: 'ellipsis',
                             whiteSpace: 'nowrap',
                             color: showName ? textColor : 'transparent',
 
+                            // Zaokrąglenia tylko na faktycznych końcach urlopu
                             borderTopLeftRadius: isStart ? 10 : 0,
                             borderBottomLeftRadius: isStart ? 10 : 0,
                             borderTopRightRadius: isEnd ? 10 : 0,
@@ -219,10 +232,11 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
 
                             cursor: 'pointer',
                             textAlign: showName ? 'left' : 'right',
-                            zIndex: 1,
+                            zIndex: 1, // Żeby pasek był nad siatką
                           }}
                           className={`${!ev.employee.status ? 'italic line-through' : ''}`}
                         >
+                          {/* Nazwa (Desktop) */}
                           <Typography
                             sx={{
                               fontSize: 'inherit',
@@ -239,6 +253,8 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                           >
                             {ev.employee.name}
                           </Typography>
+
+                          {/* Inicjały (Mobile) */}
                           <Typography
                             sx={{
                               fontSize: 'inherit',
@@ -254,6 +270,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                             {getInitials(ev.employee.name)}
                           </Typography>
 
+                          {/* Ozdobnik (Pasek po lewej dla kontynuacji w nowym tygodniu) */}
                           {isWeekStart && !isStart && (
                             <Box
                               sx={{
@@ -274,6 +291,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                     })}
                   </Box>
 
+                  {/* PRZYCISKI "POKAŻ WIĘCEJ" */}
                   <Stack
                     direction={'row'}
                     alignItems={'center'}
@@ -299,9 +317,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                               day: calendarDay,
                             });
                           }}
-                          sx={{
-                            flex: 1,
-                          }}
+                          sx={{ flex: 1 }}
                           className="hover:bg-gray-900/15"
                         >
                           <FormatListBulletedIcon
@@ -312,9 +328,9 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                           />
                         </Link>
                         {hasHiddenEvents && [
-                          <Divider key="d" orientation="vertical" flexItem />,
+                          <Divider key="div" orientation="vertical" flexItem />,
                           <Link
-                            key="l"
+                            key="expand"
                             component="button"
                             underline="none"
                             onClick={(e) => {
@@ -334,23 +350,11 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                           >
                             {isExpanded ? (
                               <ExpandLess
-                                sx={{
-                                  width: { xs: '15px', sm: '20px' },
-                                  maxHeight: '100%',
-                                  position: 'relative',
-                                  left: '-3px',
-                                  marginRight: { xs: '-5px', md: 0 },
-                                }}
+                                sx={{ width: { xs: '15px', sm: '20px' } }}
                               />
                             ) : (
                               <ExpandMore
-                                sx={{
-                                  width: { xs: '15px', sm: '20px' },
-                                  maxHeight: '100%',
-                                  position: 'relative',
-                                  left: '-3px',
-                                  marginRight: { xs: '-5px', md: 0 },
-                                }}
+                                sx={{ width: { xs: '15px', sm: '20px' } }}
                               />
                             )}
                             {!isExpanded && (
@@ -369,6 +373,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
           )}
         </Grid>
 
+        {/* STOPKA Z NAZWĄ MIESIĄCA */}
         <Stack
           direction={'row'}
           justifyContent={'space-between'}

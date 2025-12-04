@@ -1,31 +1,12 @@
-import { sortByLastName } from '../Employees/EmployeesHelpers';
 import { type LangCode } from './reportTranslations';
 import type { ConstructionsWithWorkHours } from './useHoursTable';
+import dayjs from 'dayjs';
+import 'dayjs/locale/pl';
+import isoWeek from 'dayjs/plugin/isoWeek';
+import { sortByLastName } from '../Employees/EmployeesHelpers';
 
-export const getThreeMonthKeys = (week: Date): string[] => {
-  const keys: string[] = [];
-
-  for (let i = -1; i <= 1; i++) {
-    const targetDate = new Date(week.getFullYear(), week.getMonth() + i, 1);
-
-    const month = (targetDate.getMonth() + 1).toString().padStart(2, '0');
-    const year = targetDate.getFullYear();
-
-    keys.push(`${year}-${month}`);
-  }
-  return keys;
-};
-
-export const getWeekDates = (week: Date) => {
-  const start = new Date(week);
-  const dates = [];
-  for (let i = 0; i < 7; i++) {
-    dates.push(
-      new Date(start.getFullYear(), start.getMonth(), start.getDate() + i)
-    );
-  }
-  return dates;
-};
+dayjs.extend(isoWeek);
+dayjs.locale('pl');
 
 export const formatToPolishDecimal = (value: number) => {
   if (typeof value !== 'number' || isNaN(value)) {
@@ -38,39 +19,12 @@ export const formatToPolishDecimal = (value: number) => {
   }).format(value);
 };
 
-export const sortConstructionsWithWorkHours = (
-  data: ConstructionsWithWorkHours[]
-): ConstructionsWithWorkHours[] => {
-  return data
-    .map((construction) => ({
-      ...construction,
-      workHours: [...construction.workHours].sort((a, b) =>
-        sortByLastName(a.employeeName, b.employeeName)
-      ),
-    }))
-    .sort((a, b) => a.name.localeCompare(b.name));
-};
-
-// export const formatWeeksString = (weeksCount: number) => {
-//   const lastDigit = weeksCount % 10;
-//   const lastTwoDigits = weeksCount % 100;
-
-//   if (weeksCount === 1) return 'tydzień';
-//   if (lastTwoDigits >= 11 && lastTwoDigits <= 14) return 'tygodni';
-//   if (lastDigit >= 2 && lastDigit <= 4) return 'tygodnie';
-//   return 'tygodni';
-// };
-
 export const formatWeeksString = (
   weeksCount: number,
   lang: LangCode = 'pl-PL'
 ) => {
   if (lang === 'de-DE') {
-    if (weeksCount === 1) {
-      return 'Woche';
-    }
-
-    return 'Wochen';
+    return weeksCount === 1 ? 'Woche' : 'Wochen';
   }
 
   if (lang === 'pl-PL') {
@@ -86,70 +40,74 @@ export const formatWeeksString = (
   return 'tygodni';
 };
 
-export const getMonthKeysFromWeek = (startOfWeek: Date): string[] => {
-  const monthKeysSet = new Set<string>();
+export function formatDate(date: Date): string {
+  return dayjs(date).format('DD.MM.YYYY');
+}
 
-  for (let i = 0; i < 7; i++) {
-    const currentDay = new Date(startOfWeek);
-    currentDay.setDate(startOfWeek.getDate() + i);
-
-    const month = (currentDay.getMonth() + 1).toString().padStart(2, '0');
-    const year = currentDay.getFullYear();
-
-    const monthKey = `${year}-${month}`;
-    monthKeysSet.add(monthKey);
-  }
-
-  return Array.from(monthKeysSet);
+export const getThreeMonthKeys = (week: Date): string[] => {
+  const current = dayjs(week);
+  return [
+    current.subtract(1, 'month').format('YYYY-MM'),
+    current.format('YYYY-MM'),
+    current.add(1, 'month').format('YYYY-MM'),
+  ];
 };
+
+export const getMonthKeysFromWeek = (startOfWeek: Date): string[] => {
+  const start = dayjs(startOfWeek);
+  const end = start.add(6, 'day');
+
+  const keys = new Set<string>();
+  keys.add(start.format('YYYY-MM'));
+  keys.add(end.format('YYYY-MM'));
+
+  return Array.from(keys);
+};
+
+export const getWeekDates = (week: Date): Date[] => {
+  const start = dayjs(week).startOf('week');
+  return Array.from({ length: 7 }).map((_, i) => start.add(i, 'day').toDate());
+};
+
+export function getStartOfWeek(date: Date): Date {
+  return dayjs(date).startOf('week').toDate();
+}
+
+export function getEndOfWeek(date: Date): Date {
+  return dayjs(date).endOf('week').toDate();
+}
+
+export function getPreviousWeek(date: Date): Date {
+  return dayjs(date).subtract(1, 'week').startOf('week').toDate();
+}
+
+export function getNextWeek(date: Date): Date {
+  return dayjs(date).add(1, 'week').startOf('week').toDate();
+}
 
 export function getWeeksInRange(startDate: Date, endDate: Date): Date[] {
   const weeks: Date[] = [];
-  let currentWeekStart = getStartOfWeek(startDate);
-  const endWeekStart = getStartOfWeek(endDate);
+  let current = dayjs(startDate).startOf('week');
+  const end = dayjs(endDate).startOf('week');
 
-  while (currentWeekStart <= endWeekStart) {
-    weeks.push(new Date(currentWeekStart));
-    currentWeekStart = new Date(currentWeekStart);
-    currentWeekStart.setDate(currentWeekStart.getDate() + 7);
+  while (current.isSameOrBefore(end)) {
+    weeks.push(current.toDate());
+    current = current.add(1, 'week');
   }
 
   return weeks;
 }
 
-export function getStartOfWeek(date: Date): Date {
-  const d = new Date(date);
-  const day = d.getDay();
-  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
-  const newDate = new Date(d);
-  newDate.setDate(diff);
-  newDate.setHours(0, 0, 0, 0);
-  return newDate;
-}
-
-export function getPreviousWeek(date: Date): Date {
-  const previousWeek = new Date(date);
-  previousWeek.setDate(previousWeek.getDate() - 7);
-  return getStartOfWeek(previousWeek);
-}
-
-export function getNextWeek(date: Date): Date {
-  const previousWeek = new Date(date);
-  previousWeek.setDate(previousWeek.getDate() + 7);
-  return getStartOfWeek(previousWeek);
-}
-
-export function getEndOfWeek(date: Date): Date {
-  const start = getStartOfWeek(date);
-  const end = new Date(start);
-  end.setDate(start.getDate() + 6);
-  return end;
-}
-
-export function formatDate(date: Date): string {
-  return date.toLocaleDateString('pl-PL', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  });
-}
+export const sortConstructionsWithWorkHours = (
+  data: ConstructionsWithWorkHours[]
+): ConstructionsWithWorkHours[] => {
+  if (!data || data.length === 0) return data;
+  return data
+    .map((construction) => ({
+      ...construction,
+      workHours: [...construction.workHours].sort((a, b) =>
+        sortByLastName(a.employeeName, b.employeeName)
+      ),
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name));
+};

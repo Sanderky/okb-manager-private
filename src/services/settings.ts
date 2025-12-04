@@ -1,8 +1,14 @@
 import { supabase } from '../supabase';
 import type { AlertsSettings } from '../types';
-import { EmployeeAlertDefault } from '../hooks/useEmployeeAlert';
 
-const SETTINGS_ID = 'alerts';
+const SETTINGS_ID = 1;
+
+const DEFAULT_SETTINGS: AlertsSettings = {
+  a1Warning: 30,
+  a1Critical: 7,
+  contractWarning: 30,
+  contractCritical: 7,
+};
 
 export const fetchAlertsSettings = async (): Promise<AlertsSettings> => {
   const { data, error } = await supabase
@@ -12,8 +18,11 @@ export const fetchAlertsSettings = async (): Promise<AlertsSettings> => {
     .single();
 
   if (error) {
-    console.warn('Using default alerts setting.', error);
-    return EmployeeAlertDefault;
+    console.warn(
+      'Nie udało się pobrać ustawień alertów, używam domyślnych.',
+      error
+    );
+    return DEFAULT_SETTINGS;
   }
 
   return {
@@ -25,16 +34,14 @@ export const fetchAlertsSettings = async (): Promise<AlertsSettings> => {
 };
 
 export const updateAlertsSettings = async (
-  data: AlertsSettings
+  settings: AlertsSettings
 ): Promise<void> => {
-  if (!data) return;
-
   const payload = {
     id: SETTINGS_ID,
-    a1_warning: data.a1Warning,
-    a1_critical: data.a1Critical,
-    contract_warning: data.contractWarning,
-    contract_critical: data.contractCritical,
+    a1_warning: settings.a1Warning,
+    a1_critical: settings.a1Critical,
+    contract_warning: settings.contractWarning,
+    contract_critical: settings.contractCritical,
     updated_at: new Date().toISOString(),
   };
 

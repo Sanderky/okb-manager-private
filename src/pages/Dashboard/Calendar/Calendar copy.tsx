@@ -8,13 +8,13 @@ import {
 } from '@mui/material';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getEmployeeList } from '../../../services/employees';
+import type { Employee, Vacation } from '../../../types'; // Upewnij się, że importujesz z model.ts
 import {
   createVacation,
   getVacationListForMonths,
   removeVacation,
-  updateVacation,
+  updateVacation, // Zmiana nazwy z updateVacationGroup na updateVacation (zgodnie z nowym serwisem)
 } from '../../../services/vacations';
-import type { Employee, Vacation } from '../../../types';
 import { Close as CloseIcon } from '@mui/icons-material';
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
@@ -47,23 +47,21 @@ dayjs.locale('pl');
 const Calendar: React.FC = () => {
   const [containerRef, width] = useContainerBreakpoint();
   const [searchParams] = useSearchParams();
-
+  
+  // Stan kalendarza
   const [currentMonth, setCurrentMonth] = useState<Dayjs>(
     dayjs().startOf('month')
   );
   const [selectedEmployees, setSelectedEmployees] = useState<Employee[]>([]);
   const [selectDay, setSelectDay] = useState<Dayjs | null>(null);
-
-  const [activeDialog, setActiveDialog] = useState<ActiveDialog>({
-    type: 'none',
-  });
+  
+  // Stan dialogów
+  const [activeDialog, setActiveDialog] = useState<ActiveDialog>({ type: 'none' });
   const [isFilterOpen, setIsFilterOpen] = useState<boolean>(false);
-  const [isVacationReportOpen, setIsVacationReportOpen] =
-    useState<boolean>(false);
-
-  const [currentEvent, setCurrentEvent] = useState<CalendarEvent>(
-    {} as CalendarEvent
-  );
+  const [isVacationReportOpen, setIsVacationReportOpen] = useState<boolean>(false);
+  
+  // Stan edycji
+  const [currentEvent, setCurrentEvent] = useState<CalendarEvent>({} as CalendarEvent);
   const [validationError, setValidationError] = useState<string>('');
 
   const notifications = useNotifications();
@@ -76,6 +74,7 @@ const Calendar: React.FC = () => {
     stopLoading: stopActionLoading,
   } = useLoading(false);
 
+  // Synchronizacja z URL
   useEffect(() => {
     const monthFromUrl = searchParams.get('month');
     if (monthFromUrl) {
@@ -84,15 +83,19 @@ const Calendar: React.FC = () => {
     }
   }, [searchParams]);
 
+  // --- DANE ---
+
+  // 1. Pracownicy (Pobieramy tylko aktywnych do listy, lub wszystkich jeśli wolisz)
   const {
     data: employees = [],
     isLoading: isLoadingEmployees,
     isError: isErrorEmployees,
   } = useQuery<Employee[], Error>({
-    queryKey: ['employees'],
-    queryFn: () => getEmployeeList(),
+    queryKey: ['employees', 'active'], // Klucz sugeruje aktywnych
+    queryFn: () => getEmployeeList(true), // true = activeOnly
   });
 
+  // 2. Urlopy (Zakres 3 miesięcy)
   const monthKeys = useMemo(() => {
     const prevMonth = currentMonth.subtract(1, 'month');
     const nextMonth = currentMonth.add(1, 'month');
@@ -112,39 +115,36 @@ const Calendar: React.FC = () => {
     queryFn: () => getVacationListForMonths(monthKeys),
   });
 
+  // --- MUTACJE ---
+
   const { mutate: addMutation } = useMutation({
+    // ZMIANA: createVacation przyjmuje teraz pojedynczy obiekt, nie tablicę!
     mutationFn: (payload: Partial<Vacation>) => createVacation(payload),
     onMutate: () => startActionLoading(),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['vacations'] });
-      queryClient.invalidateQueries({ queryKey: ['schedules'] });
+        queryClient.invalidateQueries({ queryKey: ['schedules'] });
       queryClient.invalidateQueries({ queryKey: ['workLogs'] });
-
-      notifications.show('Urlop został pomyślnie utworzony.', {
-        severity: 'success',
-      });
+      notifications.show('Urlop został pomyślnie utworzony.', { severity: 'success' });
       handleModalClose();
     },
     onError: (err) => {
       console.error(err);
-      notifications.show('Wystąpił błąd podczas tworzenia urlopu.', {
-        severity: 'error',
-      });
+      notifications.show('Wystąpił błąd podczas tworzenia urlopu.', { severity: 'error' });
     },
     onSettled: () => stopActionLoading(),
   });
 
   const { mutate: updateMutation } = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<Vacation> }) =>
+    // ZMIANA: Używamy id rekordu, a nie groupId (choć mogą być tym samym)
+    mutationFn: ({ id, data }: { id: string; data: Partial<Vacation> }) => 
       updateVacation(id, data),
     onMutate: () => startActionLoading(),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['vacations'] });
       queryClient.invalidateQueries({ queryKey: ['schedules'] });
       queryClient.invalidateQueries({ queryKey: ['workLogs'] });
-      notifications.show('Urlop został zaktualizowany.', {
-        severity: 'success',
-      });
+      notifications.show('Urlop został pomyślnie zaktualizowany.', { severity: 'success' });
       handleModalClose();
     },
     onError: (err) => {
@@ -159,8 +159,6 @@ const Calendar: React.FC = () => {
     onMutate: () => startActionLoading(),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['vacations'] });
-      queryClient.invalidateQueries({ queryKey: ['schedules'] });
-      queryClient.invalidateQueries({ queryKey: ['workLogs'] });
       notifications.show('Urlop usunięty.', { severity: 'info' });
       handleModalClose();
     },
@@ -171,6 +169,8 @@ const Calendar: React.FC = () => {
     onSettled: () => stopActionLoading(),
   });
 
+  // --- LOGIKA KALENDARZA (GENEROWANIE SIATKI) ---
+
   const generateMonthGrid = useCallback(
     (month: Dayjs) => {
       const start = month.startOf('month').startOf('week');
@@ -178,15 +178,14 @@ const Calendar: React.FC = () => {
       const weeks: CalendarDay[][] = [];
       let current = start.clone();
 
-      const visibleVacations =
-        selectedEmployees.length > 0
-          ? vacations.filter((v) =>
-              selectedEmployees.some((emp) => emp.id === v.employeeId)
-            )
-          : vacations;
+      // Filtrujemy widocznych pracowników
+      const visibleVacations = selectedEmployees.length > 0
+        ? vacations.filter((v) => selectedEmployees.some((emp) => emp.id === v.employeeId))
+        : vacations;
 
+      // Mapy do zarządzania pozycją pasków (żeby się nie nakładały)
       const groupSlotMap: Record<string, number> = {};
-      const activeSlots: Record<number, string> = {};
+      const activeSlots: Record<number, string> = {}; // slotIndex -> vacationId
 
       const getFreeSlot = (): number => {
         let slot = 0;
@@ -198,6 +197,8 @@ const Calendar: React.FC = () => {
         const week: CalendarDay[] = [];
 
         for (let i = 0; i < 7; i++) {
+          // 1. Znajdź urlopy aktywne w tym dniu
+          // (Data bieżąca mieści się w zakresie startDate - endDate)
           const dayEventsRaw = visibleVacations.filter((v) => {
             const vStart = dayjs(v.startDate).startOf('day');
             const vEnd = dayjs(v.endDate).endOf('day');
@@ -205,52 +206,31 @@ const Calendar: React.FC = () => {
             return today.isSameOrAfter(vStart) && today.isSameOrBefore(vEnd);
           });
 
+          // 2. Mapowanie na CalendarEvent (dodanie obiektu Employee)
           const dayEvents: CalendarEvent[] = dayEventsRaw
             .map((ev) => {
-              let employee = employees.find((e) => e.id === ev.employeeId);
-
-              if (!employee && ev.employeeName) {
-                employee = {
-                  id: ev.employeeId,
-                  name: ev.employeeName,
-                  status: ev.employeeActive ?? false,
-                  isContractor: false,
-                  pesel: null,
-                  address: null,
-                  hourRate: null,
-                  email: null,
-                  phone: null,
-                  birthPlace: null,
-                  accountNumber: null,
-                  contractStartDate: null,
-                  contractEndDate: null,
-                  contractIsPermanent: null,
-                  a1StartDate: null,
-                  a1EndDate: null,
-                  note: null,
-                  birthDate: null,
-                };
-              }
-
+              const employee = employees.find((e) => e.id === ev.employeeId);
               if (!employee) return null;
 
               return {
                 ...ev,
                 startDate: dayjs(ev.startDate),
                 endDate: dayjs(ev.endDate),
-                date: current.clone(),
+                date: current, // Data tej komórki
                 employee: employee,
-                groupId: ev.id,
+                groupId: ev.id, // ID rekordu jest też ID grupy w UI
               };
             })
             .filter(Boolean) as CalendarEvent[];
 
+          // 3. Sortowanie (dłuższe urlopy wyżej, żeby ładnie wyglądało)
           dayEvents.sort((a, b) => {
             const durA = a.endDate.diff(a.startDate, 'day');
             const durB = b.endDate.diff(b.startDate, 'day');
-            return durB - durA;
+            return durB - durA; // Malejąco
           });
 
+          // 4. Przydzielanie slotów wizualnych
           dayEvents.forEach((ev) => {
             const gid = ev.groupId!;
             if (groupSlotMap[gid] === undefined) {
@@ -263,15 +243,17 @@ const Calendar: React.FC = () => {
           week.push({
             date: current.clone(),
             events: dayEvents,
-            slots: { ...groupSlotMap },
+            slots: { ...groupSlotMap }, // Kopiujemy stan slotów
           });
 
+          // 5. Zwalnianie slotów (jeśli urlop kończy się dzisiaj)
           dayEvents.forEach((ev) => {
             if (current.isSame(ev.endDate, 'day')) {
               const gid = ev.groupId!;
               const slot = groupSlotMap[gid];
               if (slot !== undefined) {
                 delete activeSlots[slot];
+                // Nie usuwamy z groupSlotMap w środku tygodnia, żeby pasek nie skakał
               }
             }
           });
@@ -290,6 +272,8 @@ const Calendar: React.FC = () => {
     [currentMonth, generateMonthGrid]
   );
 
+  // --- HANDLERY ---
+
   const handleMonthChange = useCallback((action: 'prev' | 'next' | 'today') => {
     setCurrentMonth((prev) => {
       if (action === 'prev') return prev.subtract(1, 'month');
@@ -302,28 +286,26 @@ const Calendar: React.FC = () => {
     if (value) setCurrentMonth(value);
   }, []);
 
-  const handleDayClick = useCallback(
-    (day: Dayjs) => {
-      if (!selectDay) {
-        setSelectDay(day);
-        setCurrentEvent({
-          startDate: day,
-          endDate: day,
-          color: employeeColors[0],
-        } as CalendarEvent);
-      } else {
-        const start = selectDay.isBefore(day) ? selectDay : day;
-        const end = selectDay.isBefore(day) ? day : selectDay;
-        setCurrentEvent((prev) => ({
-          ...prev,
-          startDate: start,
-          endDate: end,
-        }));
-        setActiveDialog({ type: 'addEvent' });
-      }
-    },
-    [selectDay]
-  );
+  const handleDayClick = useCallback((day: Dayjs) => {
+    if (!selectDay) {
+      setSelectDay(day);
+      setCurrentEvent({
+        startDate: day,
+        endDate: day,
+        color: employeeColors[0],
+      } as CalendarEvent);
+    } else {
+      // Wybrano zakres
+      const start = selectDay.isBefore(day) ? selectDay : day;
+      const end = selectDay.isBefore(day) ? day : selectDay;
+      setCurrentEvent((prev) => ({
+        ...prev,
+        startDate: start,
+        endDate: end,
+      }));
+      setActiveDialog({ type: 'addEvent' });
+    }
+  }, [selectDay]);
 
   const handleModalClose = useCallback(() => {
     setActiveDialog({ type: 'none' });
@@ -337,11 +319,12 @@ const Calendar: React.FC = () => {
 
     const { employee, startDate, endDate, description, color } = currentEvent;
 
+    // Walidacja (sprawdza kolizje z istniejącymi urlopami)
     const validation = validateVacation(
       employee.id,
       startDate,
       endDate,
-      vacations,
+      vacations, // Przekazujemy listę zakresów
       color
     );
 
@@ -350,6 +333,7 @@ const Calendar: React.FC = () => {
       return;
     }
 
+    // ZMIANA: Wysyłamy JEDEN obiekt (zakres)
     addMutation({
       employeeId: employee.id,
       startDate: startDate.toDate(),
@@ -360,19 +344,14 @@ const Calendar: React.FC = () => {
   };
 
   const handleEditEvent = () => {
-    if (!currentEvent.groupId) return;
+    if (!currentEvent.groupId) return; // groupId to tutaj ID rekordu
 
     const { employee, startDate, endDate, description, color } = currentEvent;
 
-    const otherVacations = vacations.filter(
-      (v) => v.id !== currentEvent.groupId
-    );
+    // Walidacja (wykluczamy edytowany urlop z kolizji)
+    const otherVacations = vacations.filter(v => v.id !== currentEvent.groupId);
     const validation = validateVacation(
-      employee.id,
-      startDate,
-      endDate,
-      otherVacations,
-      color
+        employee.id, startDate, endDate, otherVacations, color
     );
 
     if (!validation.isValid) {
@@ -381,7 +360,7 @@ const Calendar: React.FC = () => {
     }
 
     updateMutation({
-      id: currentEvent.groupId,
+      id: currentEvent.groupId, // ID rekordu
       data: {
         employeeId: employee.id,
         startDate: startDate.toDate(),
@@ -393,6 +372,7 @@ const Calendar: React.FC = () => {
   };
 
   const handleDeleteEvent = async (id?: string) => {
+    // ID urlopu jest w groupId (dla spójności z helperami kalendarza) lub przekazane wprost
     const targetId = id || currentEvent.groupId;
     if (!targetId) return;
 
@@ -412,32 +392,24 @@ const Calendar: React.FC = () => {
   }, []);
 
   const handleEmployeeChange = useCallback((emp: Employee) => {
-    setCurrentEvent((prev) => ({ ...prev, employee: emp }));
+    setCurrentEvent(prev => ({ ...prev, employee: emp }));
     setValidationError('');
   }, []);
 
-  const isDayInRange = useCallback(
-    (day: Dayjs) => {
-      if (!currentEvent.startDate) return false;
-      const start = currentEvent.startDate.startOf('day');
-      if (!currentEvent.endDate) return day.startOf('day').isSame(start);
-      const end = currentEvent.endDate.startOf('day');
-      return day.isSameOrAfter(start) && day.isSameOrBefore(end);
-    },
-    [currentEvent]
-  );
+  const isDayInRange = useCallback((day: Dayjs) => {
+    if (!currentEvent.startDate) return false;
+    const start = currentEvent.startDate.startOf('day');
+    if (!currentEvent.endDate) return day.startOf('day').isSame(start);
+    const end = currentEvent.endDate.startOf('day');
+    return day.isSameOrAfter(start) && day.isSameOrBefore(end);
+  }, [currentEvent]);
 
-  const error = isErrorEmployees || isErrorVacations;
-  const loading = isLoadingEmployees || isLoadingVacations;
+  // --- RENDER ---
 
-  if (error) {
+  if (isErrorEmployees || isErrorVacations) {
     return (
       <PageContainer breadcrumbs={[{ title: 'Kalendarz urlopów' }]}>
-        <Box className="relative">
-          <Alert severity="error">
-            Wystąpił błąd podczas ładowania danych.
-          </Alert>
-        </Box>
+        <Alert severity="error">Wystąpił błąd podczas ładowania danych.</Alert>
       </PageContainer>
     );
   }
@@ -458,46 +430,22 @@ const Calendar: React.FC = () => {
     >
       <Box className="relative" ref={containerRef}>
         {actionLoading && (
-          <Box
-            sx={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              backgroundColor: 'rgba(255, 255, 255, 0.5)',
-              zIndex: 100,
-              borderRadius: 'inherit',
-            }}
+          <Box className="absolute inset-0 z-50 flex items-center justify-center bg-white/50 rounded-lg">
+            <CircularProgress />
+          </Box>
+        )}
+
+        {/* Przycisk X przy zaznaczaniu zakresu (Mobile) */}
+        {selectDay && (
+          <IconButton
+            size="large"
+            sx={{ position: 'fixed', bottom: 25, right: 25, zIndex: 100, bgcolor: '#fee2e2', border: '1px solid #fecaca' }}
+            onClick={handleModalClose}
+            className="sm:hidden"
           >
-            <CircularProgress />
-          </Box>
+            <CloseIcon color="error" />
+          </IconButton>
         )}
-
-        {loading && !actionLoading && (
-          <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
-            <CircularProgress />
-          </Box>
-        )}
-
-        <IconButton
-          size="large"
-          sx={{
-            color: 'red',
-            position: 'fixed',
-            bottom: 25,
-            right: 25,
-            zIndex: 100,
-            display: { xs: selectDay ? 'flex' : 'none', sm: 'none' },
-          }}
-          className="border bg-red-100"
-          onClick={handleModalClose}
-        >
-          <CloseIcon />
-        </IconButton>
 
         <CalendarControls
           currentMonth={currentMonth}
@@ -508,10 +456,7 @@ const Calendar: React.FC = () => {
           containerWidth={width}
         />
 
-        <Box
-          sx={{ overflow: 'hidden', userSelect: 'none', position: 'relative' }}
-          className="rounded-lg border border-gray-300"
-        >
+        <Box className="rounded-lg border border-gray-300 overflow-hidden select-none relative">
           <CalendarGrid
             monthGrid={monthGrid}
             currentMonth={currentMonth}
@@ -523,6 +468,7 @@ const Calendar: React.FC = () => {
           />
         </Box>
 
+        {/* DIALOGI */}
         <FilterDialog
           isFilterOpen={isFilterOpen}
           setIsFilterOpen={setIsFilterOpen}

@@ -105,7 +105,7 @@ export default function ConstructionForm(props: ConstructionFormProps) {
   const constructionFields: ConstructionField[] = [
     { key: 'name', label: 'Nazwa budowy', type: 'text', required: true },
     { key: 'location', label: 'Lokalizacja', type: 'text', required: false },
-    { key: 'contractor', label: 'Wykonawca', type: 'text', required: false },
+    { key: 'contractorId', label: 'Wykonawca', type: 'text', required: false },
   ];
 
   const DateFields: ConstructionField[] = [
@@ -199,7 +199,7 @@ export default function ConstructionForm(props: ConstructionFormProps) {
             <Grid container columns={12} spacing={{ xs: 2 }}>
               {constructionFields.map(({ key, label, type, required }) => (
                 <Grid size={{ xs: 12, md: 6 }} key={key}>
-                  {key === 'contractor' ? (
+                  {key === 'contractorId' ? (
                     <Autocomplete
                       options={contractorsOptions}
                       getOptionLabel={(option) => option.label}

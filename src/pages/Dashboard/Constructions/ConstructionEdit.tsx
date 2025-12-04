@@ -24,7 +24,6 @@ import useNotifications from '../../../hooks/useNotifications/useNotifications';
 import BaseDialog from '../../../components/BaseDialog';
 import Loading from '../../../components/Loading';
 import useLoading from '../../../hooks/useLoading';
-import { removeWorkHoursByConstruction } from '../../../services/hours';
 import { useScroll } from '../../../context/ScrollContext';
 import ArchiveIcon from '@mui/icons-material/Archive';
 import UnarchiveIcon from '@mui/icons-material/Unarchive';
@@ -143,7 +142,7 @@ export default function ConstructionEdit() {
         ...formState.values,
         name: formState.values.name?.trim(),
         location: formState.values.location?.trim(),
-        contractor: formState.values.contractor?.trim(),
+        contractorId: formState.values.contractorId?.trim(),
         status: !shouldBeInactive(formState.values.endDate),
       };
 
@@ -187,7 +186,7 @@ export default function ConstructionEdit() {
     setIsDeleting(true);
     try {
       await deleteMutation.mutateAsync();
-      await removeWorkHoursByConstruction(construction.id);
+      // await removeWorkHoursByConstruction(construction.id);
       await deleteFolderRecursive(`/constructions/${construction.id}`);
       setDeleteDialogOpen(false);
       notifications.show('Budowa została pomyślnie usunięta.', {

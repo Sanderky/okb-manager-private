@@ -124,14 +124,27 @@ export default function ConstructionsList() {
     );
   }, [columnFilters]);
 
+  // const {
+  //   data: constructions,
+  //   isLoading,
+  //   error,
+  //   refetch,
+  // } = useQuery({
+  //   queryKey: ['constructions'],
+  //   queryFn: () => getConstructionList(true),
+  // });
+  const isStatusFilterActive = filters.status === 'true';
+
   const {
     data: constructions,
     isLoading,
     error,
     refetch,
+    // ...
   } = useQuery({
-    queryKey: ['constructions'],
-    queryFn: () => getConstructionList(),
+    queryKey: ['constructions', isStatusFilterActive ? 'active' : 'all'],
+
+    queryFn: () => getConstructionList(isStatusFilterActive),
   });
 
   const { data: contractors } = useQuery({
@@ -146,17 +159,6 @@ export default function ConstructionsList() {
       label: contractor.name,
       id: contractor.id,
     }));
-  }, [contractors]);
-
-  const contractorsMap = useMemo(() => {
-    if (!contractors) return {};
-    return contractors.reduce(
-      (acc, curr) => {
-        acc[curr.id] = curr.name;
-        return acc;
-      },
-      {} as Record<string, string>
-    );
   }, [contractors]);
 
   const { data: employeesData } = useQuery({
@@ -331,13 +333,11 @@ export default function ConstructionsList() {
         header: 'Nazwa',
       },
       {
-        id: 'contractor',
-        accessorKey: 'contractor',
+        id: 'contractorName',
+        accessorKey: 'contractorName',
         header: 'Wykonawca',
 
         filterFn: 'equals',
-
-        accessorFn: (row) => contractorsMap[row.contractor || ''] || '',
       },
       {
         id: 'location',
@@ -429,7 +429,7 @@ export default function ConstructionsList() {
         ),
       },
     ],
-    [employeesData, contractorsMap]
+    [employeesData]
   );
 
   const localization = React.useMemo(
@@ -444,7 +444,7 @@ export default function ConstructionsList() {
       ...construction,
       employeeCount: employeesData?.[construction.id] || 0,
     }));
-  }, [constructions, employeesData, contractorsMap]);
+  }, [constructions, employeesData]);
 
   const table = useMaterialReactTable({
     localization,

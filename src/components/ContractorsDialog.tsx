@@ -41,6 +41,7 @@ const ContractorRow = ({
     mutationFn: updateContractor,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['contractors'] });
+      queryClient.invalidateQueries({ queryKey: ['constructions'] });
       setIsEditMode(false);
     },
   });
@@ -49,6 +50,7 @@ const ContractorRow = ({
     mutationFn: deleteContractor,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['contractors'] });
+      queryClient.invalidateQueries({ queryKey: ['constructions'] });
     },
   });
 
@@ -218,29 +220,27 @@ const ContractorAdd = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {
-              !contractors || contractors.length == 0 ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={3}
-                    sx={{
-                      textAlign: 'center',
-                      py:3
-                    }}
-                    >
-                    Brak danych
-                    </TableCell>
-                    </TableRow>
-              ) : (
-                contractors?.map((contractor, index) => (
-              <ContractorRow
-                key={contractor.id}
-                contractor={contractor}
-                index={index}
-              />
-            ))
-              )
-            }
+            {!contractors || contractors.length == 0 ? (
+              <TableRow>
+                <TableCell
+                  colSpan={3}
+                  sx={{
+                    textAlign: 'center',
+                    py: 3,
+                  }}
+                >
+                  Brak danych
+                </TableCell>
+              </TableRow>
+            ) : (
+              contractors?.map((contractor, index) => (
+                <ContractorRow
+                  key={contractor.id}
+                  contractor={contractor}
+                  index={index}
+                />
+              ))
+            )}
             {/* {contractors?.map((contractor, index) => (
               <ContractorRow
                 key={contractor.id}

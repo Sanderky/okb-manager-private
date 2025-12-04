@@ -3,135 +3,115 @@ import type { Vacation } from '../types';
 import dayjs from 'dayjs';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import isBetween from 'dayjs/plugin/isBetween';
+import minMax from 'dayjs/plugin/minMax';
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isBetween);
+dayjs.extend(minMax);
 
-const expandVacationToDays = (row: any): Vacation[] => {
-  const days: Vacation[] = [];
-  let current = dayjs(row.start_date);
-  const end = dayjs(row.end_date);
+const mapVacationFromDB = (row: any): Vacation => ({
+  id: row.id,
+  employeeId: row.employee_id,
+  startDate: new Date(row.start_date),
+  endDate: new Date(row.end_date),
+  color: row.color,
+  description: row.description || '',
+  groupId: row.group_id || row.id,
 
-  while (current.isSameOrBefore(end)) {
-    days.push({
-      id: `${row.id}_${current.format('YYYY-MM-DD')}`,
-
-      employeeId: row.employee_id,
-      date: current.toDate(),
-      yearMonth: current.format('YYYY-MM'),
-
-      groupId: row.id,
-
-      startDate: new Date(row.start_date),
-      endDate: new Date(row.end_date),
-      color: row.color,
-      description: row.description || '',
-    });
-    current = current.add(1, 'day');
-  }
-  return days;
+  employeeName: row.employees?.name,
+  employeeActive: row.employees?.status,
+});
+const toSqlDate = (date: Date | string): string => {
+  return dayjs(date).format('YYYY-MM-DD');
 };
 
 export const createVacation = async (
-  data: Partial<Vacation> | Partial<Vacation>[]
-) => {
-  const list = Array.isArray(data) ? data : [data];
-  if (list.length === 0) return null;
+  data: Partial<Vacation>
+): Promise<string> => {
+  if (!data.startDate || !data.endDate || !data.employeeId) {
+    throw new Error('Brak wymaganych danych do utworzenia urlopu');
+  }
 
-  const first = list[0];
-  // const last = list[list.length - 1];
+  const startDateStr = toSqlDate(data.startDate);
+  const endDateStr = toSqlDate(data.endDate);
 
-  const startDateStr = dayjs(first.startDate).format('YYYY-MM-DD');
-  const endDateStr = dayjs(first.endDate).format('YYYY-MM-DD');
+  const payload = {
+    employee_id: data.employeeId,
+    start_date: startDateStr,
+    end_date: endDateStr,
+    color: data.color,
+    description: data.description,
+  };
 
   const { data: createdRecord, error } = await supabase
     .from('vacations')
-    .insert({
-      employee_id: first.employeeId,
-      start_date: startDateStr,
-      end_date: endDateStr,
-      color: first.color,
-      description: first.description,
-    })
-    .select()
+    .insert(payload)
+    .select('id')
     .single();
 
   if (error) throw error;
+
+  await Promise.all([
+    supabase
+      .from('work_logs')
+      .delete()
+      .eq('employee_id', data.employeeId)
+      .gte('date', startDateStr)
+      .lte('date', endDateStr),
+
+    supabase
+      .from('daily_schedules')
+      .delete()
+      .eq('employee_id', data.employeeId)
+      .gte('date', startDateStr)
+      .lte('date', endDateStr),
+  ]);
 
   return createdRecord.id;
 };
 
-export const batchCreateVacations = async (
-  employeeId: string,
-  startDate: Date,
-  endDate: Date,
-  color: string,
-  description?: string
-) => {
-  await createVacation([
-    {
-      employeeId,
-      startDate,
-      endDate,
-      color,
-      description,
-    },
-  ]);
-};
-
-export async function updateVacationGroup(
-  groupId: string,
-  data: Partial<Vacation>
-) {
+export async function updateVacation(id: string, data: Partial<Vacation>) {
   const updatePayload: any = {};
 
-  if (data.startDate)
-    updatePayload.start_date = dayjs(data.startDate).format('YYYY-MM-DD');
-  if (data.endDate)
-    updatePayload.end_date = dayjs(data.endDate).format('YYYY-MM-DD');
+  if (data.startDate) updatePayload.start_date = toSqlDate(data.startDate);
+  if (data.endDate) updatePayload.end_date = toSqlDate(data.endDate);
   if (data.color) updatePayload.color = data.color;
   if (data.description) updatePayload.description = data.description;
 
-  const { error } = await supabase
+  const { data: updatedRecord, error } = await supabase
     .from('vacations')
     .update(updatePayload)
-    .eq('id', groupId);
-
-  if (error) throw error;
-}
-
-export async function removeVacation(groupId: string) {
-  const { error } = await supabase.from('vacations').delete().eq('id', groupId);
-
-  if (error) throw error;
-}
-
-export async function getVacationList(): Promise<Vacation[]> {
-  const { data, error } = await supabase.from('vacations').select('*');
-  if (error) throw error;
-
-  const allDays: Vacation[] = [];
-  data.forEach((row) => {
-    allDays.push(...expandVacationToDays(row));
-  });
-
-  return allDays;
-}
-
-export async function getVacation(id: string): Promise<Vacation | null> {
-  const { data, error } = await supabase
-    .from('vacations')
-    .select('*')
     .eq('id', id)
+    .select('employee_id, start_date, end_date')
     .single();
 
-  if (error) {
-    if (error.code === 'PGRST116') return null;
-    throw error;
-  }
+  if (error) throw error;
 
-  const days = expandVacationToDays(data);
-  return days.length > 0 ? days[0] : null;
+  if (data.startDate || data.endDate) {
+    const startDateStr = updatedRecord.start_date;
+    const endDateStr = updatedRecord.end_date;
+    const employeeId = updatedRecord.employee_id;
+
+    await Promise.all([
+      supabase
+        .from('work_logs')
+        .delete()
+        .eq('employee_id', employeeId)
+        .gte('date', startDateStr)
+        .lte('date', endDateStr),
+      supabase
+        .from('daily_schedules')
+        .delete()
+        .eq('employee_id', employeeId)
+        .gte('date', startDateStr)
+        .lte('date', endDateStr),
+    ]);
+  }
+}
+
+export async function removeVacation(id: string) {
+  const { error } = await supabase.from('vacations').delete().eq('id', id);
+  if (error) throw error;
 }
 
 export async function getVacationListForMonths(
@@ -139,90 +119,79 @@ export async function getVacationListForMonths(
 ): Promise<Vacation[]> {
   if (!monthKeys.length) return [];
 
-  const { data, error } = await supabase.from('vacations').select('*');
+  const sortedKeys = [...monthKeys].sort();
+  const startMonth = sortedKeys[0];
+  const endMonth = sortedKeys[sortedKeys.length - 1];
+  const minDate = dayjs(startMonth).startOf('month').format('YYYY-MM-DD');
+  const maxDate = dayjs(endMonth).endOf('month').format('YYYY-MM-DD');
+
+  const { data, error } = await supabase
+    .from('vacations')
+    .select(
+      `
+      *,
+      employees ( name, status )
+    `
+    )
+    .lte('start_date', maxDate)
+    .gte('end_date', minDate);
+
   if (error) throw error;
 
-  const allDays: Vacation[] = [];
-
-  data.forEach((row) => {
-    const days = expandVacationToDays(row);
-    const matchingDays = days.filter((d) => monthKeys.includes(d.yearMonth));
-    allDays.push(...matchingDays);
-  });
-
-  return allDays;
+  return data.map(mapVacationFromDB);
 }
 
-export const getUpcomingVacations = async () => {
-  const now = dayjs();
-  const nextMonth = now.add(1, 'month');
+export const getUpcomingVacations = async (): Promise<Vacation[]> => {
+  const today = dayjs().format('YYYY-MM-DD');
 
-  const currentMonthKey = now.format('YYYY-MM');
-  const nextMonthKey = nextMonth.format('YYYY-MM');
+  const { data, error } = await supabase
+    .from('vacations')
+    .select(
+      `
+      *,
+      employees ( name, status )
+    `
+    )
+    .gte('end_date', today)
+    .order('start_date', { ascending: true });
 
-  const vacations = await getVacationListForMonths([
-    currentMonthKey,
-    nextMonthKey,
-  ]);
+  if (error) throw error;
 
-  const today = dayjs().startOf('day');
-  return vacations.filter(
-    (vacation) =>
-      dayjs(vacation.startDate).isSameOrAfter(today) ||
-      dayjs(vacation.endDate).isSameOrAfter(today)
-  );
+  return data.map(mapVacationFromDB);
 };
 
 export const getUpcomingVacationsForEmployee = async (
   employeeId: string
 ): Promise<Vacation[]> => {
-  const now = dayjs();
-  const oneMonthFromNow = now.add(1, 'month').endOf('day');
+  const today = dayjs().format('YYYY-MM-DD');
 
-  const monthKeys: string[] = [];
-  for (let i = -1; i < 2; i++) {
-    const date = now.add(i, 'month');
-    const monthKey = date.format('YYYY-MM');
-    monthKeys.push(monthKey);
-  }
+  const { data, error } = await supabase
+    .from('vacations')
+    .select('*')
+    .eq('employee_id', employeeId)
+    .gte('end_date', today)
+    .order('start_date', { ascending: true });
 
-  const vacations = await getVacationListForMonths(monthKeys);
+  if (error) throw error;
 
-  const employeeVacations = vacations.filter(
-    (vacation) => vacation.employeeId === employeeId
-  );
-
-  const uniqueVacations = employeeVacations.reduce((acc, vacation) => {
-    if (!acc.has(vacation.groupId)) {
-      acc.set(vacation.groupId, vacation);
-    }
-    return acc;
-  }, new Map<string, Vacation>());
-
-  const uniqueVacationsArray = Array.from(uniqueVacations.values());
-
-  const filteredVacations = uniqueVacationsArray.filter((vacation) => {
-    const startDate = dayjs(vacation.startDate);
-    const endDate = dayjs(vacation.endDate);
-
-    const isCurrent = now.isBetween(startDate, endDate, 'day', '[]');
-    const isUpcoming =
-      startDate.isAfter(now) && startDate.isBefore(oneMonthFromNow);
-
-    return isCurrent || isUpcoming;
-  });
-
-  return filteredVacations;
+  return data.map((row) => ({
+    id: row.id,
+    employeeId: row.employee_id,
+    startDate: new Date(row.start_date),
+    endDate: new Date(row.end_date),
+    color: row.color,
+    description: row.description,
+    groupId: row.group_id,
+  }));
 };
 
 export const removeEmployeeVacations = async (
   employeeId: string
-): Promise<number> => {
-  const { count, error } = await supabase
+): Promise<void> => {
+  const { error } = await supabase
     .from('vacations')
-    .delete({ count: 'exact' })
+    .delete()
     .eq('employee_id', employeeId);
 
   if (error) throw error;
-  return count || 0;
 };

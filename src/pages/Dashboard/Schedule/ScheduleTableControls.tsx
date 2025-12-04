@@ -24,6 +24,7 @@ interface TableControlsProps {
   setFromWeek: (date: Date) => void;
   setToWeek: (date: Date) => void;
   selectedEmployees: string[];
+  selectedCosntructions: string[];
   setIsFilterOpen: (open: boolean) => void;
   showVacations: boolean;
   setShowVacations: (show: boolean) => void;
@@ -44,6 +45,7 @@ export const TableControls: React.FC<TableControlsProps> = ({
   setShowVacations,
   showDates,
   setShowDates,
+  selectedCosntructions,
   activeTable,
   containerWidth,
 }) => {
@@ -169,7 +171,7 @@ export const TableControls: React.FC<TableControlsProps> = ({
           </MenuItem>
           <MenuItem disableRipple key={'filters'}>
             <Badge
-              badgeContent={selectedEmployees.length}
+              badgeContent={(selectedEmployees.length > 0 ? 1 : 0) + (selectedCosntructions.length > 0 ? 1 : 0 )}
               color="primary"
               sx={{ width: '100%' }}
             >
@@ -307,7 +309,7 @@ export const TableControls: React.FC<TableControlsProps> = ({
         />
       </Stack>
       <Tooltip title="Filtry">
-        <Badge badgeContent={selectedEmployees.length} color="primary">
+        <Badge badgeContent={(selectedEmployees.length > 0 ? 1 : 0) + (selectedCosntructions.length > 0 ? 1 : 0 )} color="primary">
           <IconButton
             size="small"
             color="primary"

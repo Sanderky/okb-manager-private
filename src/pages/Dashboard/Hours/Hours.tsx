@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useCallback } from 'react';
 import { Button, Box, Typography, Divider, Stack } from '@mui/material';
 import HoursTable from './HoursTable';
 import { Add, Print, Summarize } from '@mui/icons-material';
@@ -35,14 +35,25 @@ const Hours: React.FC = () => {
       return newData;
     });
   };
+
   const [printReportDialogOpen, setPrintReportDialogOpen] = useState(false);
 
-  const handleTableDataUpdate = (tableId: string, data: TableData) => {
-    setTablesData((prev) => ({
-      ...prev,
-      [tableId]: data,
-    }));
-  };
+  const handleTableDataUpdate = useCallback(
+    (tableId: string, newData: TableData) => {
+      setTablesData((prev) => {
+        const prevData = prev[tableId];
+        if (prevData && JSON.stringify(prevData) === JSON.stringify(newData)) {
+          return prev;
+        }
+
+        return {
+          ...prev,
+          [tableId]: newData,
+        };
+      });
+    },
+    []
+  );
 
   const handleAddComparisonTable = () => {
     const newKey =
@@ -68,12 +79,10 @@ const Hours: React.FC = () => {
         <>
           <Button
             size="small"
-            onClick={reactToPrintFn}
+            onClick={() => reactToPrintFn()}
             startIcon={<Print />}
             variant="contained"
-            sx={{
-              flexGrow: 0,
-            }}
+            sx={{ flexGrow: 0 }}
           >
             Drukuj
           </Button>
@@ -91,22 +100,17 @@ const Hours: React.FC = () => {
     >
       <Box ref={containerRef}>
         <Stack direction="column" spacing={6}>
-          <HoursTable
-            containerWidth={width}
-            readOnly={false}
-            onTableDataUpdate={(data) => handleTableDataUpdate('main', data)}
-            tableId="main"
-          />
+          <HoursTable containerWidth={width} readOnly={false} tableId="main" />
 
-          {comparisionTables.map((key, index) => (
-            <Box key={index}>
+          {comparisionTables.map((key) => (
+            <Box key={key}>
               <Typography
                 variant="h5"
                 component={'div'}
                 mb={1}
                 sx={{ fontSize: '1.2rem' }}
               >
-                Tabela porównawcza {index + 1}
+                Tabela porównawcza {key}
               </Typography>
 
               <HoursTable

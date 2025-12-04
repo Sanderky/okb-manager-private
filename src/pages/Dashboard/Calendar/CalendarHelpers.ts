@@ -1,5 +1,10 @@
 import dayjs, { Dayjs } from 'dayjs';
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import type { Employee, Vacation } from '../../../types';
+
+dayjs.extend(isSameOrBefore);
+dayjs.extend(isSameOrAfter);
 
 export const WEEK_DAYS = [
   'Pon.',
@@ -10,39 +15,6 @@ export const WEEK_DAYS = [
   'Sob.',
   'Niedz.',
 ];
-
-export interface CalendarEvent {
-  id?: string;
-  employee: Employee;
-  date: Dayjs;
-  startDate: Dayjs;
-  endDate: Dayjs;
-  groupId: string;
-  color: string;
-  description?: string;
-}
-
-export interface CalendarGridProps {
-  monthGrid: CalendarDay[][];
-  currentMonth: Dayjs;
-  selectDay: Dayjs | null;
-  onDayClick: (day: Dayjs) => void;
-  isDayInRange: (day: Dayjs) => boolean;
-  handleEventClick: (event: CalendarEvent) => void;
-  setActiveDialog: (dialog: ActiveDialog) => void;
-}
-
-export interface CalendarDay {
-  date: Dayjs;
-  events: CalendarEvent[];
-  slots?: Record<string, number>;
-}
-
-export type ActiveDialog =
-  | { type: 'none' }
-  | { type: 'addEvent' }
-  | { type: 'editEvent' }
-  | { type: 'moreEvents'; day: CalendarDay };
 
 export const employeeColors = [
   '#EF9A9A', // Czerwony
@@ -68,67 +40,78 @@ export const employeeColors = [
   '#BCAAA4', // Beżowy
 ];
 
-// '#EF9A9A', // Czerwony
-// '#FFAB91', // Pomarańczowy
-// '#FFCC80', // Jasny pomarańcz
-// '#C5E1A5', // Zielony
-// '#AED581', // Jasny zielony
-// '#80CBC4', // Szmaragdowy
-// '#81D4FA', // Jasny niebieski
-// '#90CAF9', // Niebieski
-// '#9FA8DA', // Lawendowy
-// '#B39DDB', // Fioletowy
-// '#CE93D8', // Różowy-fiolet
-// '#F48FB1', // Różowy
-// '#A1887F', // Brązowy
+export interface CalendarEvent {
+  id?: string;
+  employee: Employee;
+  date: Dayjs;
+  startDate: Dayjs;
+  endDate: Dayjs;
+  groupId: string;
+  color: string;
+  description?: string;
+}
+
+export interface CalendarDay {
+  date: Dayjs;
+  events: CalendarEvent[];
+  slots?: Record<string, number>;
+}
+
+export type ActiveDialog =
+  | { type: 'none' }
+  | { type: 'addEvent' }
+  | { type: 'editEvent' }
+  | { type: 'moreEvents'; day: CalendarDay };
+
+export interface CalendarGridProps {
+  monthGrid: CalendarDay[][];
+  currentMonth: Dayjs;
+  selectDay: Dayjs | null;
+  onDayClick: (day: Dayjs) => void;
+  isDayInRange: (day: Dayjs) => boolean;
+  handleEventClick: (event: CalendarEvent) => void;
+  setActiveDialog: (dialog: ActiveDialog) => void;
+}
 
 export const validateVacation = (
   employeeId: string,
-  startDate: Dayjs,
-  endDate: Dayjs,
-  vacations: Vacation[],
+  start: Dayjs,
+  end: Dayjs,
+  existingVacations: Vacation[],
   color: string
 ): { isValid: boolean; error?: string } => {
   if (!employeeId) {
     return { isValid: false, error: 'Wybierz pracownika' };
   }
-
-  if (!startDate || !endDate) {
-    return { isValid: false, error: 'Wybierz zakres dat' };
+  if (!start || !end) {
+    return { isValid: false, error: 'Wybierz daty' };
   }
-
-  if (!color) {
-    return { isValid: false, error: 'Wybierz kolor urlopu' };
-  }
-
-  if (endDate.isBefore(startDate)) {
+  if (end.isBefore(start, 'day')) {
     return {
       isValid: false,
-      error: 'Data zakończenia nie może być wcześniejsza niż data rozpoczęcia',
+      error: 'Data końcowa nie może być przed początkową',
     };
   }
-
-  let currentDate = startDate;
-  const conflictingDates: string[] = [];
-
-  while (currentDate.isBefore(endDate) || currentDate.isSame(endDate, 'day')) {
-    const hasConflict = vacations.some(
-      (vacation) =>
-        vacation.employeeId === employeeId &&
-        dayjs(vacation.date).isSame(currentDate, 'day')
-    );
-
-    if (hasConflict) {
-      conflictingDates.push(currentDate.format('DD.MM.YYYY'));
-    }
-
-    currentDate = currentDate.add(1, 'day');
+  if (!color) {
+    return { isValid: false, error: 'Wybierz kolor' };
   }
 
-  if (conflictingDates.length > 0) {
+  const hasOverlap = existingVacations.some((v) => {
+    if (v.employeeId !== employeeId) return false;
+
+    const vStart = dayjs(v.startDate).startOf('day');
+    const vEnd = dayjs(v.endDate).endOf('day');
+
+    const newStart = start.startOf('day');
+    const newEnd = end.endOf('day');
+
+    return newStart.isSameOrBefore(vEnd) && vStart.isSameOrBefore(newEnd);
+  });
+
+  if (hasOverlap) {
     return {
       isValid: false,
-      error: `Pracownik ma już urlop w dniach: ${conflictingDates.join(', ')}`,
+      error: 'Ten pracownik ma już urlop w wybranym terminie.',
     };
   }
 

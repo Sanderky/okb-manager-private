@@ -1,26 +1,42 @@
 import dayjs, { Dayjs } from 'dayjs';
-import type { Schedule } from '../../../types';
+import type { ScheduleEntry } from '../../../types';
 
-export const getScheduleByEmployeeAndWeek = (
-  schedules: Schedule[],
-  employeeId: string,
-  weekStart: Dayjs
-): Schedule | null => {
-  // const weekStartDayjs = weekStart.startOf('week');
+export const WEEK_DAYS = [
+  'Pon.',
+  'Wt.',
+  'Śr.',
+  'Czw.',
+  'Pt.',
+  'Sob.',
+  'Niedz.',
+];
 
-  const foundSchedule = schedules.find(
-    (schedule) =>
-      schedule.employeeId === employeeId &&
-      dayjs(schedule.weekStart).isSame(weekStart, 'week')
-  );
+export interface ICell {
+  date: Dayjs;
+  weekKey: string;
+  empId: string;
+  isWeek: boolean;
+}
 
-  return foundSchedule || null;
+export type ScheduleMap = Map<string, Map<string, ScheduleEntry>>;
+
+export const createScheduleMap = (schedules: ScheduleEntry[]): ScheduleMap => {
+  const map = new Map<string, Map<string, ScheduleEntry>>();
+
+  schedules.forEach((entry) => {
+    if (!map.has(entry.employeeId)) {
+      map.set(entry.employeeId, new Map());
+    }
+
+    map.get(entry.employeeId)!.set(entry.date, entry);
+  });
+
+  return map;
 };
 
 export const formatRange = (start: dayjs.Dayjs, end: dayjs.Dayjs) => {
   const sameDay = start.isSame(end, 'day');
   const sameMonth = start.month() === end.month();
-
   if (sameDay) return start.format('DD.MM');
   if (sameMonth) return `${start.format('DD')}-${end.format('DD.MM')}`;
   return `${start.format('DD.MM')}-${end.format('DD.MM')}`;
@@ -45,20 +61,3 @@ export const daysToRanges = (days: dayjs.Dayjs[]) => {
   ranges.push(formatRange(start, end));
   return ranges;
 };
-
-export const WEEK_DAYS = [
-  'Pon.',
-  'Wt.',
-  'Śr.',
-  'Czw.',
-  'Pt.',
-  'Sob.',
-  'Niedz.',
-];
-
-export interface ICell {
-  date: Dayjs;
-  weekKey: string;
-  empId: string;
-  isWeek: boolean;
-}

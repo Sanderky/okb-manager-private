@@ -26,7 +26,7 @@ import Loading from '../../../components/Loading';
 import useLoading from '../../../hooks/useLoading';
 import ArchiveIcon from '@mui/icons-material/Archive';
 import UnarchiveIcon from '@mui/icons-material/Unarchive';
-import { removeEmployeeWorkHours } from '../../../services/hours';
+// import { removeEmployeeWorkHours } from '../../../services/hours';
 import { removeEmployeeVacations } from '../../../services/vacations';
 import { removeEmployeeSchedules } from '../../../services/schedules';
 import { useScroll } from '../../../context/ScrollContext';
@@ -147,7 +147,7 @@ export default function EmployeeEdit() {
           contractStartDate: formState.values.contractStartDate ?? null,
           a1StartDate: formState.values.a1StartDate ?? null,
           a1EndDate: formState.values.a1EndDate ?? null,
-          contractEndDate: formState.values.contractISPermanent
+          contractEndDate: formState.values.contractIsPermanent
             ? null
             : (formState.values.contractEndDate ?? null),
           pesel: formState.values.pesel?.trim() ?? null,
@@ -192,7 +192,7 @@ export default function EmployeeEdit() {
     try {
       await deleteMutation.mutateAsync();
       await Promise.allSettled([
-        removeEmployeeWorkHours(employee.id),
+        // removeEmployeeWorkHours(employee.id),
         removeEmployeeVacations(employee.id),
         removeEmployeeSchedules(employee.id),
       ]);

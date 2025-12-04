@@ -1,27 +1,43 @@
 import { supabase } from '../supabase';
 import type { Attachment, EmployeeAttachmentType } from '../types';
 
+const STORAGE_BUCKET = 'files';
+
+const sanitizeFileName = (fileName: string): string => {
+  return fileName
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, '_')
+    .replace(/[^a-zA-Z0-9._-]/g, '')
+    .toLowerCase();
+};
+
+const mapToAttachment = (item: any): Attachment => ({
+  id: item.id,
+  employeeId: item.employee_id,
+  name: item.file_name,
+  path: item.file_path,
+  size: item.file_size,
+  contentType: item.content_type,
+  type: 'file',
+
+  createdAt: new Date(item.created_at),
+
+  attachmentType: item.type as EmployeeAttachmentType,
+});
+
 export const getEmployeeAttachments = async (
   employeeId: string
 ): Promise<Attachment[]> => {
   const { data, error } = await supabase
     .from('employee_attachments')
     .select('*')
-    .eq('employee_id', employeeId);
+    .eq('employee_id', employeeId)
+    .order('created_at', { ascending: false });
 
   if (error) throw error;
 
-  return data.map((item: any) => ({
-    id: item.id,
-    name: item.file_name,
-    path: item.file_path,
-    size: item.file_size,
-    contentType: item.content_type,
-    type: 'file',
-    createdAt: item.created_at,
-
-    attachmentType: item.type as EmployeeAttachmentType,
-  }));
+  return data.map(mapToAttachment);
 };
 
 export const uploadAttachment = async (
@@ -29,11 +45,16 @@ export const uploadAttachment = async (
   file: File,
   type: EmployeeAttachmentType
 ): Promise<Attachment> => {
-  const filePath = `employees/${employeeId}/${type}/${Date.now()}_${file.name}`;
+  const safeName = sanitizeFileName(file.name);
 
-  const { data: storageData, error: storageError } = await supabase.storage
-    .from('files')
-    .upload(filePath, file, { upsert: true });
+  const filePath = `employees/${employeeId}/${type}/${Date.now()}_${safeName}`;
+
+  const { error: storageError } = await supabase.storage
+    .from(STORAGE_BUCKET)
+    .upload(filePath, file, {
+      upsert: true,
+      cacheControl: '3600',
+    });
 
   if (storageError) throw storageError;
 
@@ -41,7 +62,7 @@ export const uploadAttachment = async (
     .from('employee_attachments')
     .insert({
       employee_id: employeeId,
-      file_path: storageData.path,
+      file_path: filePath,
       file_name: file.name,
       file_size: file.size,
       content_type: file.type,
@@ -51,26 +72,18 @@ export const uploadAttachment = async (
     .single();
 
   if (dbError) {
-    await supabase.storage.from('files').remove([filePath]);
+    console.error('Błąd zapisu w bazie, usuwam osierocony plik ze Storage...');
+    await supabase.storage.from(STORAGE_BUCKET).remove([filePath]);
     throw dbError;
   }
 
-  return {
-    id: dbData.id,
-    name: file.name,
-    path: storageData.path,
-    size: file.size,
-    type: 'file',
-    contentType: file.type,
-    createdAt: dbData.created_at,
-    attachmentType: type,
-  };
+  return mapToAttachment(dbData);
 };
 
 export const deleteAttachment = async (
   attachmentId: string,
   filePath: string
-) => {
+): Promise<void> => {
   const { error: dbError } = await supabase
     .from('employee_attachments')
     .delete()
@@ -79,13 +92,33 @@ export const deleteAttachment = async (
   if (dbError) throw dbError;
 
   const { error: storageError } = await supabase.storage
-    .from('files')
+    .from(STORAGE_BUCKET)
     .remove([filePath]);
 
   if (storageError) {
-    console.error(
-      'Failed to delete file from storage (orphan file created):',
+    console.warn(
+      'Rekord usunięty, ale plik pozostał w Storage (orphan):',
       storageError
     );
   }
+};
+
+export const getAttachmentUrl = (path: string): string => {
+  const { data } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(path);
+
+  return data.publicUrl;
+};
+
+export const getSignedAttachmentUrl = async (
+  path: string
+): Promise<string | null> => {
+  const { data, error } = await supabase.storage
+    .from(STORAGE_BUCKET)
+    .createSignedUrl(path, 3600); // Ważny 1h
+
+  if (error) {
+    console.error('Błąd generowania linku:', error);
+    return null;
+  }
+  return data.signedUrl;
 };

@@ -92,7 +92,7 @@ export default function ConstructionCreate() {
         ...formState.values,
         name: formState.values.name?.trim(),
         location: formState.values.location?.trim(),
-        contractor: formState.values.contractor?.trim(),
+        contractorId: formState.values.contractorId,
         status: !shouldBeInactive(formState.values.endDate),
       };
 

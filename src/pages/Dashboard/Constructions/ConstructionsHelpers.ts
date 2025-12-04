@@ -34,8 +34,8 @@ export const validate = (
 
   if (!values.name || values.name.trim() === '') {
     errors.name = 'Nazwa jest wymagana.';
-  } else if (values.name.length > 100) {
-    errors.name = 'Nazwa nie może być dłuższa niż 100 znaków.';
+  } else if (values.name.length > 255) {
+    errors.name = 'Nazwa nie może być dłuższa niż 255 znaków.';
   }
 
   if (!values.startDate) {
@@ -55,12 +55,8 @@ export const validate = (
     }
   }
 
-  if (values.location && values.location.length > 100) {
-    errors.location = 'Lokalizacja nie może być dłuższa niż 100 znaków.';
-  }
-
-  if (values.contractor && values.contractor.length > 100) {
-    errors.contractor = 'Wykonawca nie może być dłuższy niż 100 znaków.';
+  if (values.location && values.location.length > 255) {
+    errors.location = 'Lokalizacja nie może być dłuższa niż 255 znaków.';
   }
 
   if (values.status === undefined) {

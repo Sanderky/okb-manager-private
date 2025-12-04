@@ -98,7 +98,7 @@ export default function EmployeeCreate() {
         contractStartDate: formState.values.contractStartDate ?? null,
         a1StartDate: formState.values.a1StartDate ?? null,
         a1EndDate: formState.values.a1EndDate ?? null,
-        contractEndDate: formState.values.contractISPermanent
+        contractEndDate: formState.values.contractIsPermanent
           ? null
           : (formState.values.contractEndDate ?? null),
         pesel: formState.values.pesel?.trim() ?? null,

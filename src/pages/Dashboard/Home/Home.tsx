@@ -22,8 +22,8 @@ import PageContainer from '../../../components/PageContainer';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getEmployeeList } from '../../../services/employees';
-import { getConstructionList } from '../../../services/constructions';
+import { getEmployeeList, getEmployeeStats } from '../../../services/employees';
+import { getConstructionStats } from '../../../services/constructions';
 import FileBrowser from '../../../components/fileBrowser/FileBrowser';
 import { useEmployeeAlert } from '../../../context/EmployeeAlertContext';
 import { Construction, Done, Person, Settings } from '@mui/icons-material';
@@ -632,14 +632,14 @@ const Home = () => {
     setTab(newValue);
   };
 
-  const { data: employees, isLoading: employeesLoading } = useQuery({
-    queryKey: ['employees'],
-    queryFn: () => getEmployeeList(),
+  const { data: employeeStats, isLoading: employeesLoading } = useQuery({
+    queryKey: ['employees', 'stats'],
+    queryFn: getEmployeeStats,
   });
 
-  const { data: constructions, isLoading: constructionsLoading } = useQuery({
-    queryKey: ['constructions'],
-    queryFn: getConstructionList,
+  const { data: constructionStats, isLoading: constructionsLoading } = useQuery({
+    queryKey: ['constructions', 'stats'],
+    queryFn: getConstructionStats,
   });
 
   const handleEmployeesClick = useCallback(() => {
@@ -650,15 +650,6 @@ const Home = () => {
     navigate('/constructions');
   }, [navigate]);
 
-  const activeEmployees = useMemo(() => {
-    const active = employees?.filter((e) => e.status);
-    return active;
-  }, [employees]);
-
-  const activeConstructions = useMemo(() => {
-    const active = constructions?.filter((c) => c.status);
-    return active;
-  }, [constructions]);
 
   return (
     <PageContainer breadcrumbs={[{ title: 'Strona główna' }]}>
@@ -727,7 +718,7 @@ const Home = () => {
                               Pracownicy
                             </Typography>
                             <Typography variant="h4">
-                              {activeEmployees?.length || 0}
+                              {employeeStats?.active|| 0}
                             </Typography>
                           </Box>
                           <Avatar sx={{ bgcolor: 'primary.main' }}>
@@ -747,8 +738,8 @@ const Home = () => {
                               component={'span'}
                               className="text-gray-800"
                             >
-                              {Number(employees?.length) -
-                                Number(activeEmployees?.length) || 0}
+                              {Number(employeeStats?.total) -
+                                Number(employeeStats?.active) || 0}
                             </Typography>
                           </Typography>
                           <Typography
@@ -760,7 +751,7 @@ const Home = () => {
                               component={'span'}
                               className="text-gray-800"
                             >
-                              {Number(employees?.length) || 0}
+                              {Number(employeeStats?.total) || 0}
                             </Typography>
                           </Typography>
                         </Stack>
@@ -803,7 +794,7 @@ const Home = () => {
                               Aktywne budowy
                             </Typography>
                             <Typography variant="h4">
-                              {activeConstructions?.length || 0}
+                              {constructionStats?.active || 0}
                             </Typography>
                           </Box>
                           <Avatar sx={{ bgcolor: 'secondary.main' }}>
@@ -823,8 +814,8 @@ const Home = () => {
                               component={'span'}
                               className="text-gray-800"
                             >
-                              {Number(constructions?.length) -
-                                Number(activeConstructions?.length) || 0}
+                              {Number(constructionStats?.total) -
+                                Number(constructionStats?.active) || 0}
                             </Typography>
                           </Typography>
                           <Typography
@@ -836,7 +827,7 @@ const Home = () => {
                               component={'span'}
                               className="text-gray-800"
                             >
-                              {Number(constructions?.length) || 0}
+                              {Number(constructionStats?.total) || 0}
                             </Typography>
                           </Typography>
                         </Stack>

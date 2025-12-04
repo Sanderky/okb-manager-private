@@ -27,6 +27,7 @@ export const getFileType = (fileName: string) => {
   if (['txt', 'md', 'js', 'css', 'html', 'json'].includes(extension))
     return 'text';
   if (['doc', 'docx'].includes(extension)) return 'word';
+  if (['xls', 'xlsx', 'csv'].includes(extension)) return 'excel';
   return 'unsupported';
 };
 
@@ -55,21 +56,27 @@ export const listFiles = async (path: string): Promise<FileBrowserItem[]> => {
   if (error) throw error;
 
   const items: FileBrowserItem[] = [];
+
   data.forEach((item) => {
-    if (item.name === '.placeholder') return;
+    if (item.name === '.placeholder' || item.name === '.emptyFolderPlaceholder')
+      return;
+
+    const fullPath = path ? `${path}/${item.name}` : item.name;
 
     if (!item.id) {
       items.push({
         name: item.name,
         type: 'folder',
-        path: path ? `${path}/${item.name}` : item.name,
+        path: fullPath,
       });
     } else {
+      // To jest plik
       items.push({
+        id: item.id, // Supabase zwraca ID pliku
         name: item.name,
         type: 'file',
-        path: path ? `${path}/${item.name}` : item.name,
-        createdAt: item.created_at,
+        path: fullPath,
+        createdAt: item.created_at ? new Date(item.created_at) : new Date(),
         size: item.metadata?.size || 0,
         contentType: item.metadata?.mimetype || 'application/octet-stream',
       });
@@ -78,7 +85,24 @@ export const listFiles = async (path: string): Promise<FileBrowserItem[]> => {
   return items;
 };
 
-export const openFileInNewTab = async (path: string | undefined): Promise<void> => {
+export const getSignedUrl = async (
+  fullPath: string,
+  expiresIn = 60
+): Promise<string | null> => {
+  const { data, error } = await supabase.storage
+    .from(BUCKET_NAME)
+    .createSignedUrl(fullPath, expiresIn);
+
+  if (error) {
+    console.error('Error creating signed URL:', error);
+    return null;
+  }
+  return data.signedUrl;
+};
+
+export const openFileInNewTab = async (
+  path: string | undefined
+): Promise<void> => {
   if (!path) {
     console.warn('Cannot open file: path is missing');
     return;
@@ -86,11 +110,8 @@ export const openFileInNewTab = async (path: string | undefined): Promise<void> 
 
   try {
     const signedUrl = await getSignedUrl(path);
-    
     if (signedUrl) {
       window.open(signedUrl, '_blank', 'noopener,noreferrer');
-    } else {
-      console.error('Failed to generate signed URL');
     }
   } catch (error) {
     console.error('Error opening file in new tab:', error);
@@ -141,21 +162,6 @@ export const downloadFile = async (
   window.URL.revokeObjectURL(blobUrl);
 };
 
-export const getSignedUrl = async (
-  fullPath: string,
-  expiresIn = 60
-): Promise<string | null> => {
-  const { data, error } = await supabase.storage
-    .from(BUCKET_NAME)
-    .createSignedUrl(fullPath, expiresIn);
-
-  if (error) {
-    console.error('Error creating signed URL:', error);
-    return null;
-  }
-  return data.signedUrl;
-};
-
 export const moveFile = async (
   sourcePath: string,
   destPath: string
@@ -179,27 +185,21 @@ export const deleteFolderRecursive = async (path: string): Promise<void> => {
   if (error) throw error;
 
   const filesToDelete: string[] = [];
-  const foldersToVisit: string[] = [];
+  const folderPromises: Promise<void>[] = [];
 
   for (const item of data) {
     if (item.id) {
       filesToDelete.push(`${path}/${item.name}`);
     } else {
-      foldersToVisit.push(`${path}/${item.name}`);
+      folderPromises.push(deleteFolderRecursive(`${path}/${item.name}`));
     }
   }
 
   if (filesToDelete.length > 0) {
-    const { error: removeError } = await supabase.storage
-      .from(BUCKET_NAME)
-      .remove(filesToDelete);
-
-    if (removeError) throw removeError;
+    await deleteFiles(filesToDelete);
   }
 
-  await Promise.all(
-    foldersToVisit.map((folderPath) => deleteFolderRecursive(folderPath))
-  );
+  await Promise.all(folderPromises);
 };
 
 export const moveFolderRecursive = async (
@@ -212,16 +212,18 @@ export const moveFolderRecursive = async (
 
   if (error) throw error;
 
-  for (const item of data) {
+  const moveOperations = data.map(async (item) => {
     const currentItemSource = `${sourcePath}/${item.name}`;
     const currentItemDest = destPath ? `${destPath}/${item.name}` : item.name;
 
     if (item.id) {
-      await moveFile(currentItemSource, currentItemDest);
+      return moveFile(currentItemSource, currentItemDest);
     } else {
-      await moveFolderRecursive(currentItemSource, currentItemDest);
+      return moveFolderRecursive(currentItemSource, currentItemDest);
     }
-  }
+  });
+
+  await Promise.all(moveOperations);
 };
 
 export const listAllFoldersRecursive = async (
@@ -255,7 +257,9 @@ export const getUniqueDestPath = async (
 
   const itemsInDir = await listFiles(pathDirectory);
 
-  while (itemsInDir.some((item) => item.name === uniquePath.split('/').pop())) {
+  const existingNames = new Set(itemsInDir.map((i) => i.name));
+
+  while (existingNames.has(uniquePath.split('/').pop()!)) {
     uniquePath = `${pathDirectory}${originalNameWithoutExtension} (${counter})${extension ? '.' + extension : ''}`;
     counter++;
   }

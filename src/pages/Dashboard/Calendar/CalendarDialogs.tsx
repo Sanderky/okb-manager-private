@@ -25,8 +25,6 @@ import {
   TableRow,
   Paper,
   FormControlLabel,
-  // darken,
-  // useTheme,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -40,7 +38,6 @@ import {
 import type { Employee, Vacation } from '../../../types';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Close as CloseIcon, Print as PrintIcon } from '@mui/icons-material';
-// import EditIcon from '@mui/icons-material/Edit';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import dayjs, { Dayjs } from 'dayjs';
 import { useReactToPrint } from 'react-to-print';
@@ -324,7 +321,7 @@ export const AddEventDialog: React.FC<AddEventDialogProps> = ({
           </Stack>
         </Box>
 
-        {validationError && validationError.includes('urlop w dniach') && (
+        {validationError && (
           <Alert severity="error">{validationError}</Alert>
         )}
       </Stack>
@@ -536,7 +533,6 @@ export const EventListDialog: React.FC<EventListDialogProps> = ({
   setActiveDialog,
   onEventClick,
 }) => {
-  // const navigate = useNavigate();
   const isEventListDialog = activeDialog.type === 'moreEvents';
 
   const sortedEvents = useMemo(() => {
@@ -569,12 +565,6 @@ export const EventListDialog: React.FC<EventListDialogProps> = ({
     }
     setActiveDialog({ type: 'editEvent' });
   };
-
-  // const handleEmployeeProfileClick = (employeeId: string) => {
-  //   navigate(`/employees/${employeeId}`);
-  // };
-
-  // const theme = useTheme();
 
   return (
     <BaseDialog
@@ -875,8 +865,10 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
   const uniqueVacations = useMemo(() => {
     const grouped = vacations.reduce(
       (acc, vacation) => {
-        if (!acc[vacation.groupId]) {
-          acc[vacation.groupId] = vacation;
+        const key = vacation.groupId || vacation.id;
+
+        if (!acc[key]) {
+          acc[key] = vacation;
         }
         return acc;
       },
@@ -907,7 +899,6 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
         if (vacation.employeeId !== employee.id) return false;
 
         const vacationStart = dayjs(vacation.startDate).startOf('day');
-        // const vacationEnd = dayjs(vacation.endDate).endOf('day');
 
         return vacationStart.isBetween(
           effectiveStart,
@@ -973,8 +964,6 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
     filteredEmployees.length > 0;
   const hasDateError =
     dateRange.start && dateRange.end && dateRange.start.isAfter(dateRange.end);
-
-  // const { start: effectiveStart, end: effectiveEnd } = effectiveDateRange;
 
   return (
     <Dialog

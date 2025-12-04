@@ -243,7 +243,7 @@ export default function EmployeeForm(props: EmployeeFormProps) {
               }}
               name={key}
               disabled={
-                (formValues.contractISPermanent && key === 'contractEndDate') ??
+                (formValues.contractIsPermanent && key === 'contractEndDate') ??
                 false
               }
               inputRef={(el) => {
@@ -398,10 +398,10 @@ export default function EmployeeForm(props: EmployeeFormProps) {
                 <FormControlLabel
                   control={
                     <Checkbox
-                      checked={formValues.contractISPermanent ?? false}
+                      checked={formValues.contractIsPermanent ?? false}
                       onChange={(e) => {
                         const checked = e.target.checked;
-                        handleFieldChange('contractISPermanent', checked);
+                        handleFieldChange('contractIsPermanent', checked);
                         if (checked) {
                           handleFieldChange('contractEndDate', null);
                         }
