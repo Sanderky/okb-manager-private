@@ -290,6 +290,16 @@ const Calendar: React.FC = () => {
     [currentMonth, generateMonthGrid]
   );
 
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        handleModalClose();
+      }
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, []);
+
   const handleMonthChange = useCallback((action: 'prev' | 'next' | 'today') => {
     setCurrentMonth((prev) => {
       if (action === 'prev') return prev.subtract(1, 'month');
@@ -306,11 +316,12 @@ const Calendar: React.FC = () => {
     (day: Dayjs) => {
       if (!selectDay) {
         setSelectDay(day);
-        setCurrentEvent({
+        setCurrentEvent((prev) => ({
+          ...prev,
           startDate: day,
           endDate: day,
           color: employeeColors[0],
-        } as CalendarEvent);
+        }));
       } else {
         const start = selectDay.isBefore(day) ? selectDay : day;
         const end = selectDay.isBefore(day) ? day : selectDay;
@@ -318,6 +329,7 @@ const Calendar: React.FC = () => {
           ...prev,
           startDate: start,
           endDate: end,
+          color: prev.color || employeeColors[0],
         }));
         setActiveDialog({ type: 'addEvent' });
       }
@@ -329,6 +341,25 @@ const Calendar: React.FC = () => {
     setActiveDialog({ type: 'none' });
     setCurrentEvent({} as CalendarEvent);
     setSelectDay(null);
+    setValidationError('');
+  }, []);
+
+  const isDayInRange = useCallback(
+    (day: Dayjs) => {
+      if (!currentEvent.startDate) return false;
+      const start = currentEvent.startDate.startOf('day');
+      if (!currentEvent.endDate) return day.startOf('day').isSame(start);
+      const end = currentEvent.endDate.startOf('day');
+      return day.isSameOrAfter(start) && day.isSameOrBefore(end);
+    },
+    [currentEvent]
+  );
+  
+  const handleEmployeeChange = useCallback((newValue: Employee) => {
+    setCurrentEvent((prev) => ({
+      ...prev,
+      employee: newValue,
+    }));
     setValidationError('');
   }, []);
 
@@ -411,22 +442,6 @@ const Calendar: React.FC = () => {
     setActiveDialog({ type: 'editEvent' });
   }, []);
 
-  const handleEmployeeChange = useCallback((emp: Employee) => {
-    setCurrentEvent((prev) => ({ ...prev, employee: emp }));
-    setValidationError('');
-  }, []);
-
-  const isDayInRange = useCallback(
-    (day: Dayjs) => {
-      if (!currentEvent.startDate) return false;
-      const start = currentEvent.startDate.startOf('day');
-      if (!currentEvent.endDate) return day.startOf('day').isSame(start);
-      const end = currentEvent.endDate.startOf('day');
-      return day.isSameOrAfter(start) && day.isSameOrBefore(end);
-    },
-    [currentEvent]
-  );
-
   const error = isErrorEmployees || isErrorVacations;
   const loading = isLoadingEmployees || isLoadingVacations;
 
@@ -457,7 +472,7 @@ const Calendar: React.FC = () => {
       }
     >
       <Box className="relative" ref={containerRef}>
-        {actionLoading && (
+        {loading && (
           <Box
             sx={{
               position: 'absolute',
@@ -477,12 +492,6 @@ const Calendar: React.FC = () => {
           </Box>
         )}
 
-        {loading && !actionLoading && (
-          <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
-            <CircularProgress />
-          </Box>
-        )}
-
         <IconButton
           size="large"
           sx={{
@@ -491,10 +500,15 @@ const Calendar: React.FC = () => {
             bottom: 25,
             right: 25,
             zIndex: 100,
-            display: { xs: selectDay ? 'flex' : 'none', sm: 'none' },
+            display: {
+              xs: selectDay ? 'flex' : 'none',
+              sm: 'none',
+            },
           }}
           className="border bg-red-100"
-          onClick={handleModalClose}
+          onClick={() => {
+            handleModalClose();
+          }}
         >
           <CloseIcon />
         </IconButton>

@@ -36,9 +36,7 @@ import {
   saveScheduleList,
 } from '../../../services/schedules';
 
-import type {
-  Construction
-} from '../../../types';
+import type { Construction } from '../../../types';
 
 import useNotifications from '../../../hooks/useNotifications/useNotifications';
 import {
@@ -85,7 +83,7 @@ const ScheduleComponent = () => {
       ? new Date(saved)
       : dayjs().add(2, 'week').startOf('week').toDate();
   });
-  
+
   const [activeTable, setActiveTable] = useState<{
     type: number;
     week: Dayjs;
@@ -115,19 +113,22 @@ const ScheduleComponent = () => {
     return parsed.showInactive || false;
   });
 
-  const [selectedConstructions, setSelectedConstructions] = useState<string[]>(() => {
-    const saved = localStorage.getItem(SCHEDULE_FILTERS_STORAGE_KEY);
-    if (!saved) return [];
-    const parsed: StoredFilters = JSON.parse(saved);
-    return parsed.selectedConstructionIds || [];
-  });
+  const [selectedConstructions, setSelectedConstructions] = useState<string[]>(
+    () => {
+      const saved = localStorage.getItem(SCHEDULE_FILTERS_STORAGE_KEY);
+      if (!saved) return [];
+      const parsed: StoredFilters = JSON.parse(saved);
+      return parsed.selectedConstructionIds || [];
+    }
+  );
 
-  const [showInactiveConstructions, setShowInactiveConstructions] = useState<boolean>(() => {
-    const saved = localStorage.getItem(SCHEDULE_FILTERS_STORAGE_KEY);
-    if (!saved) return false;
-    const parsed: StoredFilters = JSON.parse(saved);
-    return parsed.showInactiveConstructions || false;
-  });
+  const [showInactiveConstructions, setShowInactiveConstructions] =
+    useState<boolean>(() => {
+      const saved = localStorage.getItem(SCHEDULE_FILTERS_STORAGE_KEY);
+      if (!saved) return false;
+      const parsed: StoredFilters = JSON.parse(saved);
+      return parsed.showInactiveConstructions || false;
+    });
 
   const notifications = useNotifications();
   const queryClient = useQueryClient();
@@ -149,14 +150,19 @@ const ScheduleComponent = () => {
   useEffect(() => {
     localStorage.setItem(
       SCHEDULE_FILTERS_STORAGE_KEY,
-      JSON.stringify({ 
-          selectedEmployeeIds: selectedEmployees, 
-          showInactive,
-          selectedConstructionIds: selectedConstructions,
-          showInactiveConstructions
+      JSON.stringify({
+        selectedEmployeeIds: selectedEmployees,
+        showInactive,
+        selectedConstructionIds: selectedConstructions,
+        showInactiveConstructions,
       })
     );
-  }, [selectedEmployees, showInactive, selectedConstructions, showInactiveConstructions]);
+  }, [
+    selectedEmployees,
+    showInactive,
+    selectedConstructions,
+    showInactiveConstructions,
+  ]);
 
   const months = useMemo(() => {
     const start = dayjs(fromWeek);
@@ -171,31 +177,51 @@ const ScheduleComponent = () => {
   }, [fromWeek, toWeek]);
 
   const scheduleDateRange = useMemo(() => {
-    return { 
-      start: dayjs(fromWeek).startOf('week').toDate(), 
-      end: dayjs(toWeek).endOf('week').toDate() 
+    return {
+      start: dayjs(fromWeek).startOf('week').toDate(),
+      end: dayjs(toWeek).endOf('week').toDate(),
     };
   }, [fromWeek, toWeek]);
 
-  const { data: employees = [], isLoading: isLoadingEmployees, isError: isErrorEmployees } = useQuery({
+  const {
+    data: employees = [],
+    isLoading: isLoadingEmployees,
+    isError: isErrorEmployees,
+  } = useQuery({
     queryKey: ['employees'],
     queryFn: () => getEmployeeList(),
   });
 
-  const { data: constructions = [], isLoading: isLoadingConstructions, isError: isErrorConstructions } = useQuery({
+  const {
+    data: constructions = [],
+    isLoading: isLoadingConstructions,
+    isError: isErrorConstructions,
+  } = useQuery({
     queryKey: ['constructions'],
     queryFn: () => getConstructionList(),
   });
 
-  const { data: vacations = [], isLoading: isLoadingVacations, isError: isErrorVacations } = useQuery({
+  const {
+    data: vacations = [],
+    isLoading: isLoadingVacations,
+    isError: isErrorVacations,
+  } = useQuery({
     queryKey: ['vacations', months],
     queryFn: () => getVacationListForMonths(months),
     enabled: months.length > 0,
   });
 
-  const { data: schedules = [], isLoading: isLoadingSchedules, isError: isErrorSchedules } = useQuery({
+  const {
+    data: schedules = [],
+    isLoading: isLoadingSchedules,
+    isError: isErrorSchedules,
+  } = useQuery({
     queryKey: ['schedules', scheduleDateRange],
-    queryFn: () => getScheduleListForDateRange(scheduleDateRange.start, scheduleDateRange.end),
+    queryFn: () =>
+      getScheduleListForDateRange(
+        scheduleDateRange.start,
+        scheduleDateRange.end
+      ),
   });
 
   const scheduleMap = useMemo(() => createScheduleMap(schedules), [schedules]);
@@ -216,7 +242,7 @@ const ScheduleComponent = () => {
     let result = employees;
 
     if (!showInactive) {
-        result = result.filter((emp) => emp.status);
+      result = result.filter((emp) => emp.status);
     }
 
     if (selectedEmployees.length > 0) {
@@ -224,24 +250,34 @@ const ScheduleComponent = () => {
     }
 
     if (selectedConstructions.length > 0) {
-        const activeEmployeeIds = new Set<string>();
-        schedules.forEach(entry => {
-            if (selectedConstructions.includes(entry.constructionId)) {
-                activeEmployeeIds.add(entry.employeeId);
-            }
-        });
-        result = result.filter(e => activeEmployeeIds.has(e.id));
+      const activeEmployeeIds = new Set<string>();
+      schedules.forEach((entry) => {
+        if (selectedConstructions.includes(entry.constructionId)) {
+          activeEmployeeIds.add(entry.employeeId);
+        }
+      });
+      result = result.filter((e) => activeEmployeeIds.has(e.id));
     }
 
     return result;
-  }, [employees, selectedEmployees, showInactive, selectedConstructions, schedules]);
+  }, [
+    employees,
+    selectedEmployees,
+    showInactive,
+    selectedConstructions,
+    schedules,
+  ]);
 
-  const checkIsVacation = useCallback((empId: string, date: Dayjs) => {
-    return vacations?.some((v) => 
-      v.employeeId === empId && 
-      date.isBetween(dayjs(v.startDate), dayjs(v.endDate), 'day', '[]')
-    );
-  }, [vacations]);
+  const checkIsVacation = useCallback(
+    (empId: string, date: Dayjs) => {
+      return vacations?.some(
+        (v) =>
+          v.employeeId === empId &&
+          date.isBetween(dayjs(v.startDate), dayjs(v.endDate), 'day', '[]')
+      );
+    },
+    [vacations]
+  );
 
   const getCellKey = useCallback((cell: ICell): string => {
     return `${cell.empId}-${cell.weekKey}-${cell.date.format('YYYY-MM-DD')}-${cell.isWeek}`;
@@ -256,7 +292,8 @@ const ScheduleComponent = () => {
     onError: () => notifications.show('Błąd zapisu', { severity: 'error' }),
   });
 
-  const handleCellChange = useCallback(async (
+  const handleCellChange = useCallback(
+    async (
       empId: string,
       date: Dayjs,
       value: Construction | null,
@@ -266,27 +303,31 @@ const ScheduleComponent = () => {
       const cellKey = getCellKey(cell);
       setLoadingCells((prev) => new Set(prev).add(cellKey));
 
-      const entriesToSave: { employeeId: string; date: Date; constructionId: string | null }[] = [];
+      const entriesToSave: {
+        employeeId: string;
+        date: Date;
+        constructionId: string | null;
+      }[] = [];
       const startOfWeek = date.startOf('week');
 
       if (isWeek) {
         for (let i = 0; i < 7; i++) {
           const day = startOfWeek.add(i, 'day');
           const hasVacation = checkIsVacation(empId, day);
-          
+
           if (!hasVacation && i !== 6) {
-             entriesToSave.push({
-                 employeeId: empId,
-                 date: day.toDate(),
-                 constructionId: value?.id ?? null
-             });
+            entriesToSave.push({
+              employeeId: empId,
+              date: day.toDate(),
+              constructionId: value?.id ?? null,
+            });
           }
         }
       } else {
         entriesToSave.push({
-            employeeId: empId,
-            date: date.toDate(),
-            constructionId: value?.id ?? null
+          employeeId: empId,
+          date: date.toDate(),
+          constructionId: value?.id ?? null,
         });
       }
 
@@ -303,7 +344,8 @@ const ScheduleComponent = () => {
     [checkIsVacation, updateScheduleMutation, getCellKey]
   );
 
-  const handleShowInputConstruction = useCallback((event: React.MouseEvent<HTMLElement>, cell: ICell) => {
+  const handleShowInputConstruction = useCallback(
+    (event: React.MouseEvent<HTMLElement>, cell: ICell) => {
       event.stopPropagation();
       const hasVacation = checkIsVacation(cell.empId, cell.date);
       if (!cell.isWeek && hasVacation) return;
@@ -312,49 +354,63 @@ const ScheduleComponent = () => {
       const row = target.closest('tr');
       if (row) {
         row.style.backgroundColor = '#eff6ff';
-        (row.querySelector('td:first-child') as HTMLElement).style.backgroundColor = '#eff6ff';
+        (
+          row.querySelector('td:first-child') as HTMLElement
+        ).style.backgroundColor = '#eff6ff';
       }
       target.style.backgroundColor = '#dbeafe';
 
       setCellAnchorEl(target);
       setActiveCell(cell);
-    }, [checkIsVacation]);
+    },
+    [checkIsVacation]
+  );
 
   const handleCellMenuClose = useCallback(() => {
     const row = cellAnchorEl?.closest('tr');
     if (row) {
       row.style.backgroundColor = '';
-      (row.querySelector('td:first-child') as HTMLElement).style.backgroundColor = '';
+      (
+        row.querySelector('td:first-child') as HTMLElement
+      ).style.backgroundColor = '';
     }
     if (cellAnchorEl) cellAnchorEl.style.backgroundColor = '';
     setCellAnchorEl(null);
     setActiveCell(null);
   }, [cellAnchorEl]);
 
-  const cellText = useCallback(({ empId, weekKey, date, isWeek }: ICell, renderEmptyCellIndicator = true) => {
+  const cellText = useCallback(
+    (
+      { empId, weekKey, date, isWeek }: ICell,
+      renderEmptyCellIndicator = true
+    ) => {
       const hasVacation = checkIsVacation(empId, date);
-      
+
       const entry = scheduleMap.get(empId)?.get(date.format('YYYY-MM-DD'));
 
       if (!isWeek) {
         if (hasVacation) {
-          return <Typography className="font-medium text-amber-700" variant="body2">Urlop</Typography>;
+          return (
+            <Typography className="font-medium text-amber-700" variant="body2">
+              Urlop
+            </Typography>
+          );
         }
-        
+
         let cName = entry?.constructionName;
         let cActive = entry?.constructionActive;
 
         if (!cName && entry?.constructionId) {
-           const def = constructions.find(c => c.id === entry?.constructionId);
-           cName = def?.name;
-           cActive = def?.status;
+          const def = constructions.find((c) => c.id === entry?.constructionId);
+          cName = def?.name;
+          cActive = def?.status;
         }
 
         if (!cName && entry?.constructionId) cName = 'Nieznana';
 
         return (
-          <Typography 
-            className={`font-medium ${!cActive && cName ? 'line-through text-gray-400' : ''}`} 
+          <Typography
+            className={`font-medium ${!cActive && cName ? 'text-gray-400 line-through' : ''}`}
             variant="body2"
           >
             {cName ?? (renderEmptyCellIndicator && '')}
@@ -363,77 +419,106 @@ const ScheduleComponent = () => {
       }
 
       const weekStart = dayjs(weekKey);
-      
+
       const items: React.ReactNode[] = [];
-      
+
       const vacationDays: Dayjs[] = [];
-      const cDataMap = new Map<string, { days: Dayjs[], active: boolean }>();
+      const cDataMap = new Map<string, { days: Dayjs[]; active: boolean }>();
       let hasEmptyDays = false;
 
-      for(let i=0; i<7; i++) {
-          const day = weekStart.add(i, 'day');
-          const isVac = checkIsVacation(empId, day);
-          const dayEntry = scheduleMap.get(empId)?.get(day.format('YYYY-MM-DD'));
-          
-          if(isVac) {
-            vacationDays.push(day);
-          } else if(dayEntry) {
-              let cName = dayEntry.constructionName;
-              let cActive = dayEntry.constructionActive;
-              
-              if (!cName && dayEntry.constructionId) {
-                  const def = constructions.find(c => c.id === dayEntry.constructionId);
-                  cName = def?.name || '?';
-                  cActive = def?.status;
-              }
+      for (let i = 0; i < 7; i++) {
+        const day = weekStart.add(i, 'day');
+        const isVac = checkIsVacation(empId, day);
+        const dayEntry = scheduleMap.get(empId)?.get(day.format('YYYY-MM-DD'));
 
-              if (cName) {
-                if(!cDataMap.has(cName)) {
-                    cDataMap.set(cName, { days: [], active: cActive ?? true });
-                }
-                cDataMap.get(cName)!.days.push(day);
-              }
-          } else {
-              hasEmptyDays = true;
+        if (isVac) {
+          vacationDays.push(day);
+        } else if (dayEntry) {
+          let cName = dayEntry.constructionName;
+          let cActive = dayEntry.constructionActive;
+
+          if (!cName && dayEntry.constructionId) {
+            const def = constructions.find(
+              (c) => c.id === dayEntry.constructionId
+            );
+            cName = def?.name || '?';
+            cActive = def?.status;
           }
+
+          if (cName) {
+            if (!cDataMap.has(cName)) {
+              cDataMap.set(cName, { days: [], active: cActive ?? true });
+            }
+            cDataMap.get(cName)!.days.push(day);
+          }
+        } else {
+          hasEmptyDays = true;
+        }
       }
 
       if (showVacations && vacationDays.length > 0) {
-        const text = showDates ? `Urlop (${daysToRanges(vacationDays).join(', ')})` : 'Urlop';
+        const text = showDates
+          ? `Urlop (${daysToRanges(vacationDays).join(', ')})`
+          : 'Urlop';
         items.push(
-            <span key="vac" className="text-amber-700">{text}</span>
+          <span key="vac" className="text-amber-700">
+            {text}
+          </span>
         );
       }
 
-      const shouldShowRanges = cDataMap.size > 1 || vacationDays.length > 0 || hasEmptyDays;
+      const shouldShowRanges =
+        cDataMap.size > 1 || vacationDays.length > 0 || hasEmptyDays;
 
       cDataMap.forEach((data, name) => {
         const isFull = data.days.length >= 6 && cDataMap.size === 1;
-        const text = (!shouldShowRanges || !showDates || isFull) 
-            ? name 
+        const text =
+          !shouldShowRanges || !showDates || isFull
+            ? name
             : `${name} (${daysToRanges(data.days).join(', ')})`;
-        
+
         items.push(
-            <span key={name} className={!data.active ? 'line-through text-gray-400' : ''}>
-                {text}
-            </span>
+          <span
+            key={name}
+            className={!data.active ? 'text-gray-400 line-through' : ''}
+          >
+            {text}
+          </span>
         );
       });
 
-      if (items.length === 0) return (renderEmptyCellIndicator && '');
+      if (items.length === 0) return renderEmptyCellIndicator && '';
 
       return (
         <Typography className="font-medium" variant="body2" component="div">
-          {items.reduce((prev, curr, index) => [prev, <span key={`sep-${index}`}> / </span>, curr])}
+          {items.reduce((prev, curr, index) => [
+            prev,
+            <span key={`sep-${index}`}> / </span>,
+            curr,
+          ])}
         </Typography>
       );
+    },
+    [scheduleMap, checkIsVacation, constructions, showVacations, showDates]
+  );
 
-    }, [scheduleMap, checkIsVacation, constructions, showVacations, showDates]);
+  const error =
+    isErrorConstructions ||
+    isErrorEmployees ||
+    isErrorVacations ||
+    isErrorSchedules;
+  const loading =
+    isLoadingConstructions ||
+    isLoadingEmployees ||
+    isLoadingVacations ||
+    isLoadingSchedules;
 
-  const error = isErrorConstructions || isErrorEmployees || isErrorVacations || isErrorSchedules;
-  const loading = isLoadingConstructions || isLoadingEmployees || isLoadingVacations || isLoadingSchedules;
-
-  if (error) return <PageContainer breadcrumbs={[{ title: 'Harmonogram' }]}><Alert severity="error">Błąd danych.</Alert></PageContainer>;
+  if (error)
+    return (
+      <PageContainer breadcrumbs={[{ title: 'Harmonogram' }]}>
+        <Alert severity="error">Błąd danych.</Alert>
+      </PageContainer>
+    );
 
   return (
     <PageContainer
@@ -451,9 +536,22 @@ const ScheduleComponent = () => {
       }
     >
       <Box ref={containerRef} sx={{ overflow: 'hidden' }} className="relative">
-        
         {loading && (
-          <Box sx={{ position: 'absolute', inset: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', bgcolor: 'rgba(255,255,255,0.5)', zIndex: 100 }}>
+          <Box
+            sx={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              backgroundColor: 'rgba(255, 255, 255, 0.5)',
+              zIndex: 100,
+              borderRadius: 'inherit',
+            }}
+          >
             <CircularProgress />
           </Box>
         )}
@@ -476,13 +574,38 @@ const ScheduleComponent = () => {
 
         <Box className="overflow-hidden rounded-lg border border-gray-300 bg-white">
           {activeTable.type === 0 ? (
-            <TableContainer component={Box} sx={{ overflowX: 'auto', width: '100%', maxHeight: '65vh' }}>
-              <Table stickyHeader sx={{ tableLayout: 'fixed', minWidth: { xs: `${50 + (50 * weeks.length)}%`, md: `${20 + (80 * weeks.length / 4)}%` } }}>
-                <TableHead sx={{ position: 'sticky', left: 0, zIndex: 4, top: 0 }}>
+            <TableContainer
+              component={Box}
+              sx={{ overflowX: 'auto', width: '100%', maxHeight: '65vh' }}
+            >
+              <Table
+                stickyHeader
+                sx={{
+                  tableLayout: 'fixed',
+                  minWidth: {
+                    xs: `${50 + 50 * weeks.length}%`,
+                    md: `${20 + (80 * weeks.length) / 4}%`,
+                  },
+                }}
+              >
+                <TableHead
+                  sx={{ position: 'sticky', left: 0, zIndex: 4, top: 0 }}
+                >
                   <TableRow>
-                    <TableCell sx={{ position: 'sticky', left: 0, zIndex: 4, width: '200px' }} className="bg-blue-200 px-3 py-2 text-center">
+                    <TableCell
+                      sx={{
+                        position: 'sticky',
+                        left: 0,
+                        zIndex: 4,
+                        width: '200px',
+                      }}
+                      className="bg-blue-200 px-3 py-2 text-center"
+                    >
                       <Typography variant="overline" className="font-medium">
-                        Pracownicy: {selectedEmployees.length > 0 ? `${selectedEmployees.length} / ${filteredEmployees.length}` : filteredEmployees.length}
+                        Pracownicy:{' '}
+                        {selectedEmployees.length > 0
+                          ? `${selectedEmployees.length} / ${filteredEmployees.length}`
+                          : filteredEmployees.length}
                       </Typography>
                     </TableCell>
                     {weeks.map((w, index) => {
@@ -491,12 +614,35 @@ const ScheduleComponent = () => {
                       return (
                         <TableCell
                           key={index}
-                          className={`cursor-pointer border-l border-l-gray-300 px-3 py-2 ${isBefore ? 'bg-red-200' : isAfter ? 'bg-gray-100' : 'bg-green-200'} relative group`}
+                          className={`cursor-pointer border-l border-l-gray-300 px-3 py-2 ${isBefore ? 'bg-red-200' : isAfter ? 'bg-gray-100' : 'bg-green-200'} group relative`}
                           onClick={() => setActiveTable({ type: 1, week: w })}
                         >
-                          <Typography className="block text-center font-semibold text-gray-700/50" variant="caption">[{w.week()}]</Typography>
-                          <Typography className="text-center font-semibold" variant="body2">{w.format('DD.MM')} - {w.add(6, 'day').format('DD.MM')}</Typography>
-                          <UnfoldMoreIcon sx={{ fontSize: '1rem', fontWeight: '300', position: 'absolute', top: '50%', right: 10, transform: 'translateY(-50%)', opacity: 0, transition: '0.3s', '.group:hover &': { opacity: 1 } }} />
+                          <Typography
+                            className="block text-center font-semibold text-gray-700/50"
+                            variant="caption"
+                          >
+                            [{w.week()}]
+                          </Typography>
+                          <Typography
+                            className="text-center font-semibold"
+                            variant="body2"
+                          >
+                            {w.format('DD.MM')} -{' '}
+                            {w.add(6, 'day').format('DD.MM')}
+                          </Typography>
+                          <UnfoldMoreIcon
+                            sx={{
+                              fontSize: '1rem',
+                              fontWeight: '300',
+                              position: 'absolute',
+                              top: '50%',
+                              right: 10,
+                              transform: 'translateY(-50%)',
+                              opacity: 0,
+                              transition: '0.3s',
+                              '.group:hover &': { opacity: 1 },
+                            }}
+                          />
                         </TableCell>
                       );
                     })}
@@ -524,16 +670,39 @@ const ScheduleComponent = () => {
               <Table stickyHeader sx={{ tableLayout: 'fixed', minWidth: 800 }}>
                 <TableHead>
                   <TableRow>
-                    <TableCell sx={{ position: 'sticky', left: 0, zIndex: 4, width: '200px' }} className="cursor-pointer bg-blue-200 px-3 py-2 text-center" onClick={() => setActiveTable(p => ({ ...p, type: 0 }))}>
+                    <TableCell
+                      sx={{
+                        position: 'sticky',
+                        left: 0,
+                        zIndex: 4,
+                        width: '200px',
+                      }}
+                      className="cursor-pointer bg-blue-200 px-3 py-2 text-center"
+                      onClick={() => setActiveTable((p) => ({ ...p, type: 0 }))}
+                    >
                       <KeyboardReturnIcon />
                     </TableCell>
                     {Array.from({ length: 7 }).map((_, i) => {
                       const day = activeTable.week.add(i, 'day');
                       const isToday = day.isSame(dayjs(), 'day');
                       return (
-                        <TableCell key={i} sx={{ width: '150px' }} className={`border-l border-l-gray-300 bg-gray-100 px-3 py-2 ${isToday && 'bg-green-100'}`}>
-                          <Typography className="block text-center font-semibold" variant="caption">{WEEK_DAYS[i]}</Typography>
-                          <Typography className="text-center font-semibold" variant="body2">{day.format('DD.MM')}</Typography>
+                        <TableCell
+                          key={i}
+                          sx={{ width: '150px' }}
+                          className={`border-l border-l-gray-300 bg-gray-100 px-3 py-2 ${isToday && 'bg-green-100'}`}
+                        >
+                          <Typography
+                            className="block text-center font-semibold"
+                            variant="caption"
+                          >
+                            {WEEK_DAYS[i]}
+                          </Typography>
+                          <Typography
+                            className="text-center font-semibold"
+                            variant="body2"
+                          >
+                            {day.format('DD.MM')}
+                          </Typography>
                         </TableCell>
                       );
                     })}
@@ -560,23 +729,63 @@ const ScheduleComponent = () => {
 
           <Box>
             {filteredEmployees.length === 0 && (
-              <Stack direction={'column'} justifyContent={'center'} alignItems={'center'} sx={{ py: 5 }} className="border-b border-gray-300">
-                <Typography variant="body1" align="center" className="px-4 font-normal text-gray-500">Nie znaleziono pracowników</Typography>
+              <Stack
+                direction={'column'}
+                justifyContent={'center'}
+                alignItems={'center'}
+                sx={{ py: 5 }}
+                className="border-b border-gray-300"
+              >
+                <Typography
+                  variant="body1"
+                  align="center"
+                  className="px-4 font-normal text-gray-500"
+                >
+                  Nie znaleziono pracowników
+                </Typography>
               </Stack>
             )}
-            <Stack direction={'row'} justifyContent={'space-between'} spacing={2} alignItems={'center'} className="border-t border-t-gray-300 px-3 py-2">
+            <Stack
+              direction={'row'}
+              justifyContent={'space-between'}
+              spacing={2}
+              alignItems={'center'}
+              className="border-t border-t-gray-300 px-3 py-2"
+            >
               {activeTable.type === 0 ? (
                 <>
-                  <Typography variant="overline" className="font-medium text-gray-500">{weeks.length} {formatWeeksString(weeks.length, 'pl-PL')}</Typography>
-                  <Typography variant="body2" className="font-medium text-gray-500">
-                    <Typography component={'span'} variant="inherit">Zakres: </Typography>
-                    {dayjs(fromWeek).format('DD.MM.YYYY')} - {dayjs(toWeek).add(6, 'day').format('DD.MM.YYYY')}
+                  <Typography
+                    variant="overline"
+                    className="font-medium text-gray-500"
+                  >
+                    {weeks.length} {formatWeeksString(weeks.length, 'pl-PL')}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    className="font-medium text-gray-500"
+                  >
+                    <Typography component={'span'} variant="inherit">
+                      Zakres:{' '}
+                    </Typography>
+                    {dayjs(fromWeek).format('DD.MM.YYYY')} -{' '}
+                    {dayjs(toWeek).add(6, 'day').format('DD.MM.YYYY')}
                   </Typography>
                 </>
               ) : (
                 <>
-                  <Typography variant="overline" className="font-medium text-gray-500">{activeTable.week.week()} Tydzień</Typography>
-                  <Typography variant="body2" className="font-medium text-gray-500">{activeTable.week.format('DD.MM.YYYY')} - {activeTable.week.add(6, 'day').format('DD.MM.YYYY')}</Typography>
+                  <Typography
+                    variant="overline"
+                    className="font-medium text-gray-500"
+                  >
+                    {activeTable.week.week()} Tydzień
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    className="font-medium text-gray-500"
+                  >
+                    {activeTable.week.format('DD.MM.YYYY')} -{' '}
+                    {activeTable.week.add(6, 'day').format('DD.MM.YYYY')}
+                  </Typography>
                 </>
               )}
             </Stack>
@@ -589,31 +798,70 @@ const ScheduleComponent = () => {
           onClose={handleCellMenuClose}
           anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
           transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-          slotProps={{ paper: { sx: { width: cellAnchorEl ? cellAnchorEl.clientWidth - 2 : 'auto', minWidth: '220px', px: 1 } } }}
+          slotProps={{
+            paper: {
+              sx: {
+                width: cellAnchorEl ? cellAnchorEl.clientWidth - 2 : 'auto',
+                minWidth: '220px',
+                px: 1,
+              },
+            },
+          }}
         >
           {activeCell && (
             <Autocomplete
               size="small"
-              options={[{ id: null, name: '— Brak —' }, ...constructions.filter(c => c.status)]}
+              options={[
+                { id: null, name: '— Brak —' },
+                ...constructions.filter((c) => c.status),
+              ]}
               getOptionLabel={(opt) => opt?.name || ''}
               isOptionEqualToValue={(opt, val) => opt.id === val?.id}
               value={(() => {
-                 const dateToCheck = activeCell.isWeek ? dayjs(activeCell.weekKey) : activeCell.date;
-                 const entry = scheduleMap.get(activeCell.empId)?.get(dateToCheck.format('YYYY-MM-DD'));
-                 return constructions.find(c => c.id === entry?.constructionId) ?? { id: null, name: '— Brak —' };
+                const dateToCheck = activeCell.isWeek
+                  ? dayjs(activeCell.weekKey)
+                  : activeCell.date;
+                const entry = scheduleMap
+                  .get(activeCell.empId)
+                  ?.get(dateToCheck.format('YYYY-MM-DD'));
+                return (
+                  constructions.find((c) => c.id === entry?.constructionId) ?? {
+                    id: null,
+                    name: '— Brak —',
+                  }
+                );
               })()}
               onChange={(_, newValue) => {
-                const valueToPass = newValue && (newValue as Construction).id === null ? null : newValue;
-                handleCellChange(activeCell.empId, activeCell.date, valueToPass as Construction | null, activeCell.isWeek, activeCell);
+                const valueToPass =
+                  newValue && (newValue as Construction).id === null
+                    ? null
+                    : newValue;
+                handleCellChange(
+                  activeCell.empId,
+                  activeCell.date,
+                  valueToPass as Construction | null,
+                  activeCell.isWeek,
+                  activeCell
+                );
                 handleCellMenuClose();
               }}
               loading={loadingCells.has(getCellKey(activeCell))}
               disabled={loadingCells.has(getCellKey(activeCell))}
               renderInput={(params) => (
-                <TextField 
-                  {...params} 
-                  label="Budowa" 
-                  InputProps={{ ...params.InputProps, endAdornment: <>{loadingCells.has(getCellKey(activeCell)) ? <CircularProgress size={20} /> : null}{params.InputProps.endAdornment}</> }} 
+                <TextField
+                  {...params}
+                  label="Budowa"
+                  InputProps={{
+                    ...params.InputProps,
+                    endAdornment: (
+                      <>
+                        {loadingCells.has(getCellKey(activeCell)) ? (
+                          <CircularProgress size={20} />
+                        ) : null}
+                        {params.InputProps.endAdornment}
+                      </>
+                    ),
+                  }}
                 />
               )}
             />
@@ -637,7 +885,12 @@ const ScheduleComponent = () => {
 
         <div style={{ display: 'none' }}>
           <div ref={printRef}>
-            <PrintableSchedule activeTable={activeTable} weeks={weeks} filteredEmployees={filteredEmployees} cellText={cellText} />
+            <PrintableSchedule
+              activeTable={activeTable}
+              weeks={weeks}
+              filteredEmployees={filteredEmployees}
+              cellText={cellText}
+            />
           </div>
         </div>
       </Box>

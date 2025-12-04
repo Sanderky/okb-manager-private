@@ -102,16 +102,12 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
 
               const hasHiddenEvents = events.some((ev) => {
                 const slot = slots[ev.groupId];
-                return (
-                  (slot !== undefined ? slot : 99) >= MAX_EVENTS || !ev.employee
-                );
+                return slot >= MAX_EVENTS || !ev.employee;
               });
 
               const hiddenEventsCount = events.filter((ev) => {
                 const slot = slots[ev.groupId];
-                return (
-                  (slot !== undefined ? slot : 99) >= MAX_EVENTS || !ev.employee
-                );
+                return slot >= MAX_EVENTS || !ev.employee;
               }).length;
 
               const showMoreLink =
@@ -121,7 +117,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                 <Grid
                   size={{ xs: 12 / 7 }}
                   key={`${wi}-${di}`}
-                  className={`border-t border-t-gray-300 p-1 ${isSelected ? 'bg-blue-100' : ''}`}
+                  className={`border-t border-t-gray-300 p-1 ${isSelected && 'bg-blue-100'}`}
                   sx={{
                     borderLeft: di % 7 !== 0 ? '1px solid #ddd' : 'none',
                     p: '0 !important',
@@ -143,7 +139,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                       pb: '5px',
                     }}
                     variant="body2"
-                    className={`${isToday ? 'font-bold text-blue-700 underline' : ''}`}
+                    className={`${isToday && 'font-bold text-blue-700 underline'}`}
                   >
                     {day.date()}
                   </Typography>
@@ -160,9 +156,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                       const isEnd = ev.date.isSame(ev.endDate, 'day');
 
                       const isWeekStart = di === 0;
-
-                      const slot = slots[ev.groupId] ?? index;
-
+                      const slot = slots[ev.groupId];
                       const isLightColor =
                         theme.palette.getContrastText(ev.color) !== '#fff';
                       const textColor = isLightColor
@@ -180,12 +174,11 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                       const shouldHideEvent = () => {
                         if (isExpanded) return false;
                         if (slot >= maxSlots || !ev.employee) return true;
-                        return false;
                       };
 
                       return (
                         <Box
-                          key={`${ev.id}-${index}`}
+                          key={index}
                           onClick={(e) => {
                             e.stopPropagation();
                             handleEventClick(ev);
@@ -201,9 +194,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                             right: 0,
                             bgcolor: ev.color,
                             px: 1,
-
-                            ml: isStart ? 1 : isWeekStart ? 0 : '-1px',
-
+                            ml: isStart ? 1 : '-1px',
                             mr: isEnd ? 1 : '-1px',
 
                             fontSize: '0.7rem',
@@ -219,9 +210,8 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
 
                             cursor: 'pointer',
                             textAlign: showName ? 'left' : 'right',
-                            zIndex: 1,
                           }}
-                          className={`${!ev.employee.status ? 'italic line-through' : ''}`}
+                          className={`${!ev.employee.status && 'italic line-through'}`}
                         >
                           <Typography
                             sx={{

@@ -41,7 +41,7 @@ function Notification({
   }
   const { close } = notificationsContext;
 
-  const { severity, actionText, onAction, autoHideDuration } = options;
+  const { severity, actionText, onAction, autoHideDuration = 5000 } = options;
 
   const handleClose = React.useCallback(
     (event: unknown, reason?: CloseReason | SnackbarCloseReason) => {
@@ -94,7 +94,12 @@ function Notification({
     >
       <Badge badgeContent={badge} color="primary" sx={{ width: '100%' }}>
         {severity ? (
-          <Alert severity={severity} variant='filled' sx={{ width: '100%' }} action={action}>
+          <Alert
+            severity={severity}
+            variant="filled"
+            sx={{ width: '100%' }}
+            action={action}
+          >
             {message}
           </Alert>
         ) : (

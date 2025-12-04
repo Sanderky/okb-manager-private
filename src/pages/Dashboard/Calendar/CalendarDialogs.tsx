@@ -321,7 +321,9 @@ export const AddEventDialog: React.FC<AddEventDialogProps> = ({
           </Stack>
         </Box>
 
-        {validationError && <Alert severity="error">{validationError}</Alert>}
+        {validationError && validationError.includes('urlop w dniach') && (
+          <Alert severity="error">{validationError}</Alert>
+        )}
       </Stack>
     </BaseDialog>
   );
@@ -1056,8 +1058,8 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
                 direction="row"
                 alignItems="center"
                 justifyContent="space-between"
-                sx={{ mt: 1 }}
-              >
+                  sx={{ mt: 1 }}
+                >
                 <FormControlLabel
                   control={
                     <Checkbox
@@ -1069,7 +1071,7 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
                   label={
                     <Typography variant="caption">
                       Uwzględnij nieaktywnych
-                    </Typography>
+                </Typography>
                   }
                 />
                 <Stack direction="row" spacing={1}>
@@ -1081,9 +1083,9 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
                     Wszyscy
                   </Button>
 
-                  <Button size="small" onClick={handleClear}>
-                    Wyczyść
-                  </Button>
+                <Button size="small" onClick={handleClear}>
+                  Wyczyść
+                </Button>
                 </Stack>
               </Stack>
             </Box>
