@@ -6,13 +6,14 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  TextField,
   Button,
   Box,
   Typography,
   CircularProgress,
   Tooltip,
   Collapse,
+  InputBase,
+  Stack,
 } from '@mui/material';
 import {
   Add,
@@ -52,6 +53,95 @@ const redAlert = 'bg-red-300';
 const orangeAlert = 'bg-amber-300';
 const tableBorder = '1px solid rgb(224, 224, 224)';
 
+interface EditableCellProps {
+  value: number;
+  onChange: (val: number) => void;
+  max?: number;
+  isHoliday?: boolean;
+  isActive: boolean;
+}
+
+const EditableCell = React.memo(
+  ({ value, onChange, max = 24, isHoliday, isActive }: EditableCellProps) => {
+    const [localValue, setLocalValue] = useState<string>(
+      value > 0 ? value.toString() : ''
+    );
+
+    useEffect(() => {
+      setLocalValue(value > 0 ? value.toString() : '');
+    }, [value]);
+
+    const handleBlur = () => {
+      let numVal = parseFloat(localValue.replace(',', '.'));
+      if (isNaN(numVal)) numVal = 0;
+
+      if (numVal !== value) {
+        onChange(numVal);
+      }
+
+      setLocalValue(numVal > 0 ? numVal.toString() : '');
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter') {
+        (e.target as HTMLElement).blur();
+      }
+    };
+
+    if (isHoliday) {
+      return (
+        <Typography variant="body2" className="font-medium text-amber-700">
+          Urlop
+        </Typography>
+      );
+    }
+
+    return (
+      <InputBase
+        value={localValue}
+        readOnly={!isActive}
+        onChange={(e) => setLocalValue(e.target.value)}
+        onBlur={handleBlur}
+        onKeyDown={handleKeyDown}
+        type="number"
+        inputProps={{
+          min: 0,
+          max,
+          step: 0.5,
+          style: {
+            textAlign: 'center',
+            cursor: isActive ? 'text' : 'default',
+            backgroundColor: 'transparent',
+            padding: 0,
+          },
+        }}
+        sx={{
+          fontSize: '0.875rem',
+          fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+          width: '100%',
+
+          '& .MuiInputBase-input': {
+            color: isActive ? 'black' : 'inherit',
+            fontWeight: isActive ? 500 : 400,
+
+            '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': {
+              WebkitAppearance: 'none',
+              margin: 0,
+            },
+            '&[type=number]': { MozAppearance: 'textfield' },
+          },
+        }}
+      />
+    );
+  },
+  (prev, next) => {
+    return (
+      prev.value === next.value &&
+      prev.isHoliday === next.isHoliday &&
+      prev.isActive === next.isActive
+    );
+  }
+);
 interface TableRowsProps {
   constructionsWithWorkHours: ConstructionsWithWorkHours[];
   editMode: boolean;
@@ -203,6 +293,7 @@ const TableRows = ({
 
               {workHour.hours.map((hour, dayIndex) => {
                 const isVacation = workHour.isOnVacation[dayIndex];
+
                 return (
                   <TableCell
                     key={`${workHour.id}-${dayIndex}`}
@@ -212,56 +303,19 @@ const TableRows = ({
                     }
                     sx={{
                       borderBottom: tableBorder,
-                      p: numberCellPadding,
+                      p: 0.5,
                       borderRight: tableBorder,
-                    }}
+                      height: '33px',
+                    }} // p:0.5 pasuje do inputa
                   >
-                    {isVacation ? (
-                      <Typography
-                        variant="body2"
-                        className="font-medium text-amber-700"
-                      >
-                        Urlop
-                      </Typography>
-                    ) : editMode ? (
-                      <TextField
-                        type="number"
-                        value={hour}
-                        onFocus={(e) => {
-                          e.target.select();
-                        }}
-                        onChange={(e) =>
-                          handleHoursChange(
-                            workHour.id,
-                            dayIndex,
-                            parseFloat(e.target.value) || 0
-                          )
-                        }
-                        sx={{
-                          '& .MuiInputBase-root:before, & .MuiInputBase-root:after':
-                            { borderBottom: 'none !important' },
-                          '& .MuiInputBase-input': {
-                            textAlign: 'center',
-                            padding: '0 !important',
-                            '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button':
-                              { WebkitAppearance: 'none', margin: 0 },
-                            '&[type=number]': { MozAppearance: 'textfield' },
-                          },
-                        }}
-                        variant="standard"
-                        size="small"
-                        slotProps={{
-                          htmlInput: {
-                            min: 0,
-                            max: 24,
-                            step: 0.5,
-                            style: { textAlign: 'center' },
-                          },
-                        }}
-                      />
-                    ) : (
-                      <Typography>{formatToPolishDecimal(hour)}</Typography>
-                    )}
+                    <EditableCell
+                      value={hour}
+                      isHoliday={isVacation}
+                      isActive={editMode} // <--- Kluczowa zmiana: sterujemy tylko tym propsem
+                      onChange={(newVal) =>
+                        handleHoursChange(workHour.id, dayIndex, newVal)
+                      }
+                    />
                   </TableCell>
                 );
               })}
@@ -558,9 +612,7 @@ const HoursTable = ({
     hasUnsavedChanges,
   } = useHoursTable();
 
-  // --- NAPRAWA BŁĘDU MAXIMUM UPDATE DEPTH ---
   useEffect(() => {
-    // Sprawdzamy czy funkcja istnieje oraz czy dane są gotowe (nie ma ładowania ani błędu)
     if (onTableDataUpdate && !isLoading && !loadingError) {
       onTableDataUpdate({
         weekStart: currentWeek,
@@ -652,9 +704,10 @@ const HoursTable = ({
                 outline: editMode
                   ? `2px solid ${theme.palette.primary.main} !important`
                   : '',
+                maxHeight: '600px',
               })}
             >
-              <Table size="small">
+              <Table size="small" stickyHeader>
                 <TableHead>
                   <TableRow>
                     <TableCell
@@ -723,63 +776,44 @@ const HoursTable = ({
                       getAvailableEmployeesForConstruction
                     }
                   />
-
-                  <TableRow
-                    sx={{
-                      borderTop: 'none',
-                      borderBottom: 'none',
-                      background: '#fff',
-                    }}
-                  >
-                    <TableCell
-                      colSpan={7}
-                      sx={{ borderTop: 'none', p: 0.5, borderBottom: 'none' }}
-                    >
-                      {editMode && (
-                        <Tooltip
-                          title={
-                            availableConstructions.length === 0
-                              ? 'Wszystkie budowy zostały już dodane'
-                              : ''
-                          }
-                        >
-                          <span>
-                            <Button
-                              startIcon={<Add />}
-                              sx={{
-                                visibility: editMode ? 'visible' : 'hidden',
-                              }}
-                              onClick={() => setAddConstructionDialogOpen(true)}
-                              size="small"
-                              variant="text"
-                              color="primary"
-                              disabled={availableConstructions.length === 0}
-                            >
-                              Dodaj budowę
-                            </Button>
-                          </span>
-                        </Tooltip>
-                      )}
-                    </TableCell>
-                    <TableCell
-                      sx={{ borderTop: 'none', p: 0.5, borderBottom: 'none' }}
-                      colSpan={2}
-                      align="right"
-                    >
-                      Suma całkowita:
-                    </TableCell>
-                    <TableCell
-                      sx={{ borderTop: 'none', p: 0.5, borderBottom: 'none' }}
-                      align="center"
-                    >
-                      {constructionsWithWorkHours.length > 0
-                        ? formatToPolishDecimal(totalHoursData.grandTotal)
-                        : '-'}
-                    </TableCell>
-                  </TableRow>
                 </TableBody>
               </Table>
             </TableContainer>
+            <Stack direction={'row'}>
+              {editMode && (
+                <Tooltip
+                  title={
+                    availableConstructions.length === 0
+                      ? 'Wszystkie budowy zostały już dodane'
+                      : ''
+                  }
+                >
+                  <span>
+                    <Button
+                      startIcon={<Add />}
+                      sx={{
+                        visibility: editMode ? 'visible' : 'hidden',
+                      }}
+                      onClick={() => setAddConstructionDialogOpen(true)}
+                      size="small"
+                      variant="text"
+                      color="primary"
+                      disabled={availableConstructions.length === 0}
+                    >
+                      Dodaj budowę
+                    </Button>
+                  </span>
+                </Tooltip>
+              )}
+
+              <Typography>
+                {`Suma całkowita: ${
+                  constructionsWithWorkHours.length > 0
+                    ? formatToPolishDecimal(totalHoursData.grandTotal)
+                    : '-'
+                }`}
+              </Typography>
+            </Stack>
             {hasUnsavedChanges && (
               <Typography
                 variant="caption"
