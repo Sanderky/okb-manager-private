@@ -321,9 +321,7 @@ export const AddEventDialog: React.FC<AddEventDialogProps> = ({
           </Stack>
         </Box>
 
-        {validationError && (
-          <Alert severity="error">{validationError}</Alert>
-        )}
+        {validationError && <Alert severity="error">{validationError}</Alert>}
       </Stack>
     </BaseDialog>
   );
@@ -1004,36 +1002,12 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
         >
           <Stack spacing={3}>
             <Box>
-              <FormLabel className="mb-2 block">Pracownicy</FormLabel>
-              <Stack
-                direction="row"
-                alignItems={'center'}
-                spacing={1}
-                sx={{ mb: 1 }}
-              >
-                <Button
-                  size="small"
-                  onClick={handleSelectAll}
-                  disabled={isAllSelected}
-                >
-                  Wszyscy
-                </Button>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={showInactive}
-                      onChange={(e) => setShowInactive(e.target.checked)}
-                      size="small"
-                    />
-                  }
-                  label="Uwzględnij nieaktywnych"
-                  sx={{
-                    '*': {
-                      fontSize: { xs: '0.90rem', sm: '1rem' },
-                    },
-                  }}
-                />
-              </Stack>
+              <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                Pracownicy
+              </Typography>
+              <Typography variant="caption" sx={{ mb: 1.5, display: 'block' }}>
+                Wybrano: {selectedEmployees.length} z {filteredEmployees.length}
+              </Typography>
               <Autocomplete
                 multiple
                 options={filteredEmployees}
@@ -1077,24 +1051,40 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
                   })
                 }
               />
+
               <Stack
-                direction={'row'}
-                alignItems={'center'}
-                justifyContent={'space-between'}
-                spacing={1}
-                mt={1}
+                direction="row"
+                alignItems="center"
+                justifyContent="space-between"
+                sx={{ mt: 1 }}
               >
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{ mt: 1 }}
-                >
-                  Wybrano: {selectedEmployees.length} z{' '}
-                  {filteredEmployees.length}
-                </Typography>
-                <Button size="small" onClick={handleClear}>
-                  Wyczyść
-                </Button>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={showInactive}
+                      onChange={(e) => setShowInactive(e.target.checked)}
+                      size="small"
+                    />
+                  }
+                  label={
+                    <Typography variant="caption">
+                      Uwzględnij nieaktywnych
+                    </Typography>
+                  }
+                />
+                <Stack direction="row" spacing={1}>
+                  <Button
+                    size="small"
+                    onClick={handleSelectAll}
+                    disabled={isAllSelected}
+                  >
+                    Wszyscy
+                  </Button>
+
+                  <Button size="small" onClick={handleClear}>
+                    Wyczyść
+                  </Button>
+                </Stack>
               </Stack>
             </Box>
 
@@ -1105,7 +1095,8 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
                 justifyContent="space-between"
                 sx={{ mb: 1 }}
               >
-                <FormLabel className="mb-2 block">Zakres dat</FormLabel>
+                <Typography variant="subtitle2">Zakres dat</Typography>
+
                 <Button size="small" onClick={handleClearAllDates}>
                   Wyczyść daty
                 </Button>
