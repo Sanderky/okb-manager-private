@@ -469,11 +469,9 @@ export default function ConstructionShow() {
           </Grid>
         )}
         {tab === 1 && (
-          <Box>
-            <FileBrowser
+          <FileBrowser
               baseDirectory={`constructions/${construction.id}/files`}
             />
-          </Box>
         )}
         <FinishConstruction
           open={endDialogOpen}

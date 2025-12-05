@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import {
   Button,
   FormControl,
-  InputLabel,
   Select,
   MenuItem,
   Typography,
@@ -57,7 +56,7 @@ const MoveItemsDialog = ({
       showConfirm={false}
       actions={
         <Stack direction="row" spacing={1}>
-          <Button onClick={handleClose} color="inherit">
+          <Button onClick={handleClose} color="inherit" variant="outlined">
             Anuluj
           </Button>
           <Button
@@ -71,21 +70,16 @@ const MoveItemsDialog = ({
       }
     >
       {canMove ? (
-        <Box sx={{ mt: 2, minWidth: 300 }}>
-          <Typography
-            variant="body2"
-            gutterBottom
-            className="mb-4 text-gray-600"
-          >
+        <Box sx={{ mt: 1, minWidth: 300 }}>
+          <Typography variant="body2" gutterBottom>
             Wybierz miejsce docelowe:
           </Typography>
 
           <FormControl fullWidth>
-            <InputLabel id="move-dest-label">Folder docelowy</InputLabel>
             <Select
               labelId="move-dest-label"
               value={destination}
-              label="Folder docelowy"
+              size="small"
               onChange={(e) => setDestination(e.target.value)}
             >
               {folders.map((folder) => {
@@ -95,9 +89,9 @@ const MoveItemsDialog = ({
                   <MenuItem key={folder.path} value={folder.path}>
                     <Stack direction="row" alignItems="center" spacing={1.5}>
                       {isBackOption ? (
-                        <Reply fontSize="small" color="action" />
+                        <Reply fontSize="small" />
                       ) : (
-                        <Folder fontSize="small" color="primary" />
+                        <Folder fontSize="small" />
                       )}
                       <Typography
                         variant="body2"
@@ -117,7 +111,7 @@ const MoveItemsDialog = ({
           <Typography color="text.secondary">
             Brak dostępnych folderów w tej lokalizacji.
           </Typography>
-          <Typography variant="caption">
+          <Typography color="text.secondary" mt={2} mb={2}>
             Możesz przenieść pliki tylko do podfolderów lub katalogu wyżej.
           </Typography>
         </Box>

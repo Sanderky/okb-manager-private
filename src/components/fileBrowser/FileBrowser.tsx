@@ -19,10 +19,10 @@ import {
   Tooltip,
   Typography,
   Chip,
-  LinearProgress,
   Paper,
   Stack,
   Divider,
+  CircularProgress,
 } from '@mui/material';
 import {
   Folder,
@@ -46,14 +46,18 @@ import MoveItemsDialog from './MoveFilesDialog';
 import { PreviewDialog } from './FilePreviewDialog';
 import type { FileBrowserItem, FileItem } from '../../types';
 import useFileBrowser from './useFileBrowser';
-import PdfIcon from '../../assets/icons/file-pdf.svg?react';
 import 'dayjs/locale/pl';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { MRT_Localization_PL } from 'material-react-table/locales/pl';
 import BaseDialog from '../BaseDialog';
 import * as StorageService from '../../services/storage';
-import { canOpenPreview, formatBytes, getFileType, openFileInNewTab } from '../../services/storage';
+import {
+  canOpenPreview,
+  formatBytes,
+  getFileType,
+  openFileInNewTab,
+} from '../../services/storage';
 
 // const BASE_DIRECTORY = 'files';
 
@@ -61,7 +65,8 @@ const RenderFileImage = ({ file }: { file: FileBrowserItem }) => {
   if (file.type === 'folder') return <Folder />;
   const fileType = getFileType(file.name);
   // if(fileType === 'pdf') return <PictureAsPdfOutlined/>
-  if (fileType === 'pdf') return <PdfIcon width={24} height={24} />;
+  // if (fileType === 'pdf') return <PdfIcon width={24} height={24} />;
+  if (fileType === 'pdf') return <DescriptionOutlined />;
   if (fileType === 'image') return <InsertPhotoOutlined />;
   if (fileType === 'text') return <DescriptionOutlined />;
   if (fileType === 'word') return <DescriptionOutlined />;
@@ -124,7 +129,10 @@ export const FileDetailsDialog: React.FC<FileDetailsDialogProps> = ({
           title="Rozmiar"
           value={file.size ? formatBytes(file.size as number) : 'brak danych'}
         />
-        <FileDetailsItem title="Rodzaj" value={file.type ?? 'brak danych'} />
+        <FileDetailsItem
+          title="Rodzaj"
+          value={file.contentType ?? 'brak danych'}
+        />
       </Stack>
     </BaseDialog>
   );
@@ -338,7 +346,7 @@ const FileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
             pl: 0,
           },
         },
-        Cell: ({ cell, row }) => (
+        Cell: ({ renderedCellValue, cell, row }) => (
           <Stack
             direction={'row'}
             alignItems={'center'}
@@ -365,7 +373,7 @@ const FileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
                 }}
                 noWrap
               >
-                {cell.getValue() as string}
+                {renderedCellValue}
               </Typography>
             </Tooltip>
           </Stack>
@@ -423,31 +431,31 @@ const FileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
           );
         },
       },
-      {
-        accessorKey: 'contentType',
-        header: 'Rodzaj',
-        grow: false,
-        size: 150,
-        muiTableHeadCellProps: {
-          sx: { display: { xs: 'none', md: 'table-cell' } },
-        },
-        muiTableBodyCellProps: {
-          sx: { display: { xs: 'none', md: 'table-cell' } },
-        },
-        Cell: ({ row }) => {
-          return (
-            <Chip
-              label={
-                row.original.type === 'folder'
-                  ? 'folder'
-                  : (row.original.contentType ?? '-')
-              }
-              size="small"
-              variant="outlined"
-            />
-          );
-        },
-      },
+      // {
+      //   accessorKey: 'contentType',
+      //   header: 'Rodzaj',
+      //   grow: false,
+      //   size: 150,
+      //   muiTableHeadCellProps: {
+      //     sx: { display: { xs: 'none', md: 'table-cell' } },
+      //   },
+      //   muiTableBodyCellProps: {
+      //     sx: { display: { xs: 'none', md: 'table-cell' } },
+      //   },
+      //   Cell: ({ row }) => {
+      //     return (
+      //       <Chip
+      //         label={
+      //           row.original.type === 'folder'
+      //             ? 'folder'
+      //             : (row.original.contentType ?? '-')
+      //         }
+      //         size="small"
+      //         variant="outlined"
+      //       />
+      //     );
+      //   },
+      // },
     ],
     [handleClikOnName]
   );
@@ -487,36 +495,38 @@ const FileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
             <CreateNewFolder />
           </IconButton>
         </Tooltip>
-        <Tooltip title={`Pobierz (${selectedRows.length})`}>
-          <span>
-            <IconButton
-              disabled={selectedRows.length === 0}
-              onClick={() => handleDownload(selectedRows)}
-            >
-              <Download />
-            </IconButton>
-          </span>
-        </Tooltip>
-        <Tooltip title={`Przenieś (${selectedRows.length})`}>
-          <span>
-            <IconButton
-              disabled={selectedRows.length === 0}
-              onClick={() => openMoveDialog(selectedRows)}
-            >
-              <DriveFileMove />
-            </IconButton>
-          </span>
-        </Tooltip>
-        <Tooltip title={`Usuń (${selectedRows.length})`}>
-          <span>
-            <IconButton
-              disabled={selectedRows.length === 0}
-              onClick={() => handleDelete(selectedRows)}
-            >
-              <Delete />
-            </IconButton>
-          </span>
-        </Tooltip>
+        {selectedRows.length > 0 && [
+          <Tooltip title={`Pobierz (${selectedRows.length})`}>
+            <span>
+              <IconButton
+                disabled={selectedRows.length === 0}
+                onClick={() => handleDownload(selectedRows)}
+              >
+                <Download />
+              </IconButton>
+            </span>
+          </Tooltip>,
+          <Tooltip title={`Przenieś (${selectedRows.length})`}>
+            <span>
+              <IconButton
+                disabled={selectedRows.length === 0}
+                onClick={() => openMoveDialog(selectedRows)}
+              >
+                <DriveFileMove />
+              </IconButton>
+            </span>
+          </Tooltip>,
+          <Tooltip title={`Usuń (${selectedRows.length})`}>
+            <span>
+              <IconButton
+                disabled={selectedRows.length === 0}
+                onClick={() => handleDelete(selectedRows)}
+              >
+                <Delete />
+              </IconButton>
+            </span>
+          </Tooltip>,
+        ]}
       </>
     );
   };
@@ -787,12 +797,13 @@ const FileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
               {Object.entries(uploadProgress).map(([fileName, progress]) => (
                 <Box key={fileName} sx={{ mb: 1 }}>
                   <Stack direction={'row'} alignItems={'center'} spacing={1}>
-                    {progress === 100 && <Check sx={{ fontSize: '1rem' }} />}
+                    {progress === 100 ? (
+                      <Check sx={{ fontSize: '1rem' }} />
+                    ) : (
+                      <CircularProgress size={15} />
+                    )}
                     <Typography variant="subtitle2">{fileName}</Typography>
                   </Stack>
-                  {progress < 100 && (
-                    <LinearProgress variant="determinate" value={progress} />
-                  )}
                 </Box>
               ))}
             </Box>

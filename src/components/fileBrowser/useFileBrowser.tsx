@@ -54,10 +54,9 @@ const useFileBrowser = (baseDirectory: string, onFetch: () => void) => {
           notifications.show('Błąd pobierania pliku', { severity: 'error' });
         }
       } else {
-        notifications.show(
-          'Pobieranie wielu plików (ZIP) wymaga Supabase Edge Functions.',
-          { severity: 'info' }
-        );
+        notifications.show('Pobieranie wielu plików jest niedostępne.', {
+          severity: 'info',
+        });
       }
     },
     [notifications]
@@ -81,20 +80,26 @@ const useFileBrowser = (baseDirectory: string, onFetch: () => void) => {
       const path = currentPath ? `${currentPath}/${folderName}` : folderName;
       await StorageService.createFolder(path);
       await fetchData(currentPath);
-      notifications.show('Folder utworzony', { severity: 'success' });
+      notifications.show('Folder został utworzony', { severity: 'success' });
     } catch (error) {
-      notifications.show('Błąd tworzenia folderu', { severity: 'error' });
+      notifications.show('Błąd podczas tworzenia folderu', {
+        severity: 'error',
+      });
     }
   }, [data, currentPath, dialogs, notifications, fetchData]);
 
   const handleDelete = useCallback(
     async (items: FileBrowserItem[]) => {
       if (
-        !(await dialogs.confirm(`Czy usunąć ${items.length} element(ów)?`, {
-          title: 'Usuwanie',
-          severity: 'error',
-          okText: 'Usuń',
-        }))
+        !(await dialogs.confirm(
+          `Czy na pewno usunąć ${items.length} element(ów)?`,
+          {
+            title: 'Usuwanie plików',
+            severity: 'error',
+            okText: 'Usuń',
+            cancelText: 'Anuluj',
+          }
+        ))
       )
         return;
 
@@ -103,14 +108,15 @@ const useFileBrowser = (baseDirectory: string, onFetch: () => void) => {
         if (files.length > 0) await StorageService.deleteFiles(files);
 
         const folders = items.filter((i) => i.type === 'folder');
-        for (const f of folders) {
-          await StorageService.deleteFolderRecursive(f.path);
-        }
+
+        await Promise.all(
+          folders.map((f) => StorageService.deleteFolderRecursive(f.path))
+        );
 
         await fetchData(currentPath);
-        notifications.show('Elementy usunięte', { severity: 'success' });
+        notifications.show('Pliki zostały usunięte.', { severity: 'success' });
       } catch (error) {
-        notifications.show('Błąd usuwania', { severity: 'error' });
+        notifications.show('Błąd podczas usuwania.', { severity: 'error' });
       }
     },
     [dialogs, fetchData, currentPath, notifications]
@@ -137,7 +143,7 @@ const useFileBrowser = (baseDirectory: string, onFetch: () => void) => {
       }
 
       if (data.some((i) => i.name === newName)) {
-        notifications.show('Taka nazwa już istnieje', { severity: 'error' });
+        notifications.show('Taka nazwa już istnieje.', { severity: 'error' });
         return;
       }
 
@@ -150,9 +156,9 @@ const useFileBrowser = (baseDirectory: string, onFetch: () => void) => {
           await StorageService.moveFolderRecursive(item.path, newPath);
         }
         await fetchData(currentPath);
-        notifications.show('Nazwa zmieniona', { severity: 'success' });
+        notifications.show('Nazwa została zmieniona.', { severity: 'success' });
       } catch (error) {
-        notifications.show('Błąd zmiany nazwy', { severity: 'error' });
+        notifications.show('Błąd podczas zmiany nazwy.', { severity: 'error' });
       } finally {
         setLoading(false);
       }
@@ -169,6 +175,10 @@ const useFileBrowser = (baseDirectory: string, onFetch: () => void) => {
       setUploadProgress({});
 
       const promises: Promise<void>[] = [];
+
+      for (const file of files) {
+        setUploadProgress((prev) => ({ ...prev, [file.name]: 0 }));
+      }
 
       for (const file of files) {
         const finalName = file.name;
@@ -192,7 +202,9 @@ const useFileBrowser = (baseDirectory: string, onFetch: () => void) => {
           severity: 'success',
         });
       } catch (error) {
-        notifications.show('Błąd przesyłania', { severity: 'error' });
+        notifications.show('Błąd podczas przesyłania plików.', {
+          severity: 'error',
+        });
       } finally {
         setTimeout(() => {
           setIsUploadDialogOpen(false);
@@ -217,7 +229,7 @@ const useFileBrowser = (baseDirectory: string, onFetch: () => void) => {
             : baseDirectory;
 
         options.push({
-          name: '.. (Folder wyżej)',
+          name: '..',
           path: parentPath,
         });
       }
@@ -257,10 +269,12 @@ const useFileBrowser = (baseDirectory: string, onFetch: () => void) => {
         }
 
         await fetchData(currentPath);
-        notifications.show('Przeniesiono pomyślnie', { severity: 'success' });
+        notifications.show('Pomyślnie przeniesiono pliki.', {
+          severity: 'success',
+        });
       } catch (e) {
         console.error(e);
-        notifications.show('Błąd przenoszenia', { severity: 'error' });
+        notifications.show('Błąd pdoczas przenoszenia.', { severity: 'error' });
       } finally {
         setLoading(false);
         setMoveDialogOpen(false);
