@@ -3,6 +3,8 @@ import { useDialogs } from '../../hooks/useDialogs/useDialogs';
 import useNotifications from '../../hooks/useNotifications/useNotifications';
 import * as StorageService from '../../services/storage';
 import type { FileBrowserItem } from '../../types';
+import JSZip from 'jszip';
+import { saveAs } from 'file-saver';
 
 const useFileBrowser = (baseDirectory: string, onFetch: () => void) => {
   const [data, setData] = useState<FileBrowserItem[]>([]);
@@ -47,16 +49,66 @@ const useFileBrowser = (baseDirectory: string, onFetch: () => void) => {
 
   const handleDownload = useCallback(
     async (items: FileBrowserItem[]) => {
+      if (items.length === 0) return;
+
       if (items.length === 1 && items[0].type === 'file') {
         try {
           await StorageService.downloadFile(items[0].path, items[0].name);
         } catch (e) {
           notifications.show('Błąd pobierania pliku', { severity: 'error' });
         }
-      } else {
-        notifications.show('Pobieranie wielu plików jest niedostępne.', {
-          severity: 'info',
+        return;
+      }
+
+      setLoading(true);
+      const zip = new JSZip();
+      let count = 0;
+
+      try {
+        const processItem = async (
+          item: FileBrowserItem,
+          currentZipFolder: JSZip
+        ) => {
+          if (item.type === 'file') {
+            const blob = await StorageService.downloadFileAsBlob(item.path);
+            if (blob) {
+              currentZipFolder.file(item.name, blob);
+              count++;
+            }
+          } else {
+            const newZipFolder = currentZipFolder.folder(item.name);
+            if (newZipFolder) {
+              const subItems = await StorageService.listFiles(item.path);
+              for (const subItem of subItems) {
+                await processItem(subItem, newZipFolder);
+              }
+            }
+          }
+        };
+
+        for (const item of items) {
+          await processItem(item, zip);
+        }
+
+        if (count === 0) {
+          notifications.show('Nie znaleziono plików do spakowania.', {
+            severity: 'warning',
+          });
+          return;
+        }
+
+        const content = await zip.generateAsync({ type: 'blob' });
+        saveAs(
+          content,
+          `pliki_okb_manager_${new Date().toISOString().slice(0, 10)}.zip`
+        );
+      } catch (error) {
+        console.error('ZIP Error:', error);
+        notifications.show('Błąd podczas tworzenia archiwum ZIP.', {
+          severity: 'error',
         });
+      } finally {
+        setLoading(false);
       }
     },
     [notifications]

@@ -295,3 +295,17 @@ export const getUniqueDestPath = async (
   }
   return uniquePath;
 };
+
+export const downloadFileAsBlob = async (
+  fullPath: string
+): Promise<Blob | null> => {
+  const { data, error } = await supabase.storage
+    .from(BUCKET_NAME)
+    .download(fullPath);
+
+  if (error) {
+    console.error(`Error downloading ${fullPath}:`, error);
+    return null;
+  }
+  return data;
+};
