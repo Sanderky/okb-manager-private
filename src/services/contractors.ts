@@ -27,10 +27,15 @@ export const addContractor = async (name: string): Promise<string> => {
   const { data, error } = await supabase
     .from(TABLE_NAME)
     .insert({ name })
-    .select('id') // Pobieramy tylko ID, dla spójności z innymi serwisami
+    .select('id')
     .single();
 
-  if (error) throw error;
+  if (error) {
+    if (error.code === '23505') {
+      throw new Error('Taki wykonawca już istnieje (błąd bazy danych)');
+    }
+    throw error;
+  }
   return data.id;
 };
 

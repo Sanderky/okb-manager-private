@@ -14,7 +14,7 @@ import {
   TextField,
 } from '@mui/material';
 import BaseDialog from './BaseDialog';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useQueryClient, useMutation, useQuery } from '@tanstack/react-query';
 import {
   updateContractor,
@@ -24,25 +24,37 @@ import {
 } from '../services/contractors';
 import { useDialogs } from '../hooks/useDialogs/useDialogs';
 import type { Contractor } from '../types';
+import useNotifications from '../hooks/useNotifications/useNotifications';
 
-const ContractorRow = ({
-  contractor,
-  index,
-}: {
-  contractor: Contractor;
-  index: number;
-}) => {
-  const [isEditMode, setIsEditMode] = useState(false);
-  const [localName, setLocalName] = useState(contractor.name);
+const useContractors = () => {
   const queryClient = useQueryClient();
   const dialogs = useDialogs();
+  const notifications = useNotifications();
+
+  const {
+    data: contractors,
+    isLoading: isFetching,
+    isError: isFetchingError,
+  } = useQuery({
+    queryKey: ['contractors'],
+    queryFn: getContractors,
+  });
+
+  const addMutation = useMutation({
+    mutationFn: addContractor,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['contractors'] });
+    },
+    onError: (error: Error) => {
+      notifications.show(error.message, { severity: 'error' });
+    },
+  });
 
   const updateMutation = useMutation({
     mutationFn: updateContractor,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['contractors'] });
       queryClient.invalidateQueries({ queryKey: ['constructions'] });
-      setIsEditMode(false);
     },
   });
 
@@ -54,75 +66,152 @@ const ContractorRow = ({
     },
   });
 
-  const handleSave = () => {
-    if (localName !== contractor.name) {
-      if (localName.trim()) {
-        updateMutation.mutate({ id: contractor.id, name: localName });
+  const handleEdit = useCallback(
+    (newName: string, contractor: Contractor) => {
+      if (!newName || !contractor) return;
+      const trimmedName = newName.trim();
+
+      if (trimmedName === contractor.name) {
+        return;
       }
-    } else {
-      setIsEditMode(false);
-    }
+
+      if (!trimmedName) return;
+
+      const exists = contractors?.some(
+        (c) =>
+          c.id !== contractor.id &&
+          c.name.toLowerCase() === trimmedName.toLowerCase()
+      );
+
+      if (exists) {
+        notifications.show('Taki wykonawca już istnieje!', {
+          severity: 'warning',
+          autoHideDuration: 3000,
+        });
+        return;
+      }
+
+      updateMutation.mutate({ id: contractor.id, name: trimmedName });
+    },
+    [contractors, updateMutation, notifications]
+  );
+
+  const handleDelete = useCallback(
+    async (contractor: Contractor) => {
+      if (!contractor) return;
+      const confirmation = await dialogs.confirm(
+        `Czy na pewno chcesz usunąć wykonawcę ${contractor.name}?`,
+        {
+          title: `Usuwanie wykonawcy`,
+          severity: 'error',
+          okText: 'Usuń',
+          cancelText: 'Anuluj',
+        }
+      );
+      if (confirmation) deleteMutation.mutate(contractor.id);
+    },
+    [dialogs, deleteMutation]
+  );
+
+  const handleAdd = useCallback(
+    (newName: string, onSuccess?: (id: string) => void) => {
+      if (!newName) return;
+      const trimmedName = newName.trim();
+
+      if (!trimmedName) return;
+
+      const exists = contractors?.some(
+        (c) => c.name.toLowerCase() === trimmedName.toLowerCase()
+      );
+
+      if (exists) {
+        notifications.show('Taki wykonawca już istnieje!', {
+          severity: 'warning',
+        });
+        return;
+      }
+
+      addMutation.mutate(trimmedName, {
+        onSuccess: (data) => {
+          if (onSuccess) onSuccess(data);
+        },
+      });
+    },
+    [addMutation, notifications, contractors]
+  );
+
+  return {
+    isFetching,
+    isFetchingError,
+    isLoading:
+      updateMutation.isPending ||
+      deleteMutation.isPending ||
+      addMutation.isPending,
+    contractors,
+    handleAdd,
+    handleDelete,
+    handleEdit,
+  };
+};
+
+const ContractorRow = ({
+  contractor,
+  index,
+}: {
+  contractor: Contractor;
+  index: number;
+}) => {
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [localName, setLocalName] = useState(contractor.name);
+  const { isLoading, handleDelete, handleEdit } = useContractors();
+
+  const onEdit = () => {
+    handleEdit(localName, contractor);
+    setIsEditMode(false);
   };
 
-  const handleDelete = async () => {
-    const confirmation = await dialogs.confirm(
-      `Czy na pewno chcesz usunąć wykonawcę ${contractor.name}?`,
-      {
-        title: `Usuwanie wykonawcy`,
-        severity: 'error',
-        okText: 'Usuń',
-        cancelText: 'Anuluj',
-      }
-    );
-    if (confirmation) deleteMutation.mutate(contractor.id);
+  const onDelete = () => {
+    handleDelete(contractor);
   };
 
   return (
     <TableRow hover>
       <TableCell
-        className="border-r border-b border-r-gray-500 border-b-gray-500"
         sx={{
           textAlign: 'center',
         }}
       >
         {index + 1}
       </TableCell>
-      <TableCell
-        className="border-r border-b border-r-gray-500 border-b-gray-500"
-        sx={{ minWidth: 160, width: 'min-content' }}
-      >
-        {isEditMode ? (
-          <TextField
-            size="small"
-            value={localName}
-            onChange={(e) => setLocalName(e.target.value)}
-            variant="standard"
-            fullWidth
-            autoFocus
-            disabled={updateMutation.isPending}
-          />
+      <TableCell sx={{ minWidth: 160, width: 'min-content' }}>
+        {isLoading ? (
+          <CircularProgress size={10} />
         ) : (
           <TextField
             size="small"
-            value={contractor.name}
+            value={isEditMode ? localName : contractor.name}
             variant="standard"
             fullWidth
-            InputProps={{
-              readOnly: true,
-              disableUnderline: true,
+            autoFocus={isEditMode}
+            disabled={isLoading}
+            onChange={(e) => setLocalName(e.target.value)}
+            slotProps={{
+              input: {
+                readOnly: !isEditMode,
+                disableUnderline: !isEditMode,
+              },
             }}
             sx={{
-              '& .MuiInputBase-input': { cursor: 'default' },
+              '& .MuiInputBase-input': {
+                cursor: isEditMode ? 'pointer' : 'default',
+              },
             }}
           />
         )}
       </TableCell>
-      <TableCell
-        sx={{ minWidth: 160 }}
-        className="border-b border-r-gray-500 border-b-gray-500"
-      >
+      <TableCell sx={{ minWidth: 160 }} className="border-b">
         {isEditMode ? (
-          <Button onClick={handleSave} loading={updateMutation.isPending}>
+          <Button onClick={onEdit} loading={isLoading}>
             Zapisz
           </Button>
         ) : (
@@ -130,11 +219,7 @@ const ContractorRow = ({
             Edytuj
           </Button>
         )}
-        <Button
-          color="error"
-          onClick={handleDelete}
-          disabled={deleteMutation.isPending}
-        >
+        <Button color="error" onClick={onDelete} disabled={isLoading}>
           Usuń
         </Button>
       </TableCell>
@@ -142,40 +227,23 @@ const ContractorRow = ({
   );
 };
 
-const ContractorAdd = () => {
+const ContractorsList = () => {
   const [newName, setNewName] = useState('');
-  const queryClient = useQueryClient();
+  const { isFetching, isFetchingError, handleAdd, contractors, isLoading } =
+    useContractors();
 
-  const {
-    data: contractors,
-    isLoading,
-    isError,
-  } = useQuery({
-    queryKey: ['contractors'],
-    queryFn: getContractors,
-  });
-
-  const addMutation = useMutation({
-    mutationFn: addContractor,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['contractors'] });
-      setNewName('');
-    },
-  });
-
-  const handleAdd = () => {
-    if (newName.trim()) {
-      addMutation.mutate(newName);
-    }
+  const onAdd = () => {
+    handleAdd(newName);
+    setNewName('');
   };
 
-  if (isLoading)
+  if (isFetching)
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
         <CircularProgress />
       </Box>
     );
-  if (isError)
+  if (isFetchingError)
     return <Alert severity="error">Nie udało się pobrać danych.</Alert>;
 
   return (
@@ -184,7 +252,6 @@ const ContractorAdd = () => {
         component={Paper}
         variant="outlined"
         sx={{
-          //  maxHeight: 600,
           maxHeight: '55vh',
           overflow: 'auto',
           borderRadius: 0,
@@ -202,19 +269,9 @@ const ContractorAdd = () => {
         >
           <TableHead>
             <TableRow>
-              <TableCell
-                width="5%"
-                className="border-r border-b border-r-gray-500 border-b-gray-500"
-              >
-                Lp.
-              </TableCell>
-              <TableCell
-                width="65%"
-                className="border-r border-b border-r-gray-500 border-b-gray-500"
-              >
-                Nazwa
-              </TableCell>
-              <TableCell width="30%" className="border-b border-b-gray-500">
+              <TableCell width="5%">Lp.</TableCell>
+              <TableCell width="65%">Nazwa</TableCell>
+              <TableCell width="30%" className="border-b">
                 Akcje
               </TableCell>
             </TableRow>
@@ -241,13 +298,6 @@ const ContractorAdd = () => {
                 />
               ))
             )}
-            {/* {contractors?.map((contractor, index) => (
-              <ContractorRow
-                key={contractor.id}
-                contractor={contractor}
-                index={index}
-              />
-            ))} */}
           </TableBody>
         </Table>
       </TableContainer>
@@ -259,7 +309,6 @@ const ContractorAdd = () => {
           pb: 1,
           pt: 2,
         }}
-        className="border-t border-t-gray-500"
       >
         <TextField
           size="small"
@@ -268,15 +317,15 @@ const ContractorAdd = () => {
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
           variant="outlined"
-          onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
-          disabled={addMutation.isPending}
+          onKeyDown={(e) => e.key === 'Enter' && onAdd()}
+          disabled={isLoading}
         />
 
         <Button
           variant="contained"
-          onClick={handleAdd}
+          onClick={onAdd}
           disabled={!newName.trim()}
-          loading={addMutation.isPending}
+          loading={isLoading}
         >
           Dodaj
         </Button>
@@ -303,7 +352,60 @@ export const ContractorsDialog = ({
         p: 0,
       }}
     >
-      <ContractorAdd />
+      <ContractorsList />
+    </BaseDialog>
+  );
+};
+
+interface AddContractorDialogProps {
+  open: boolean;
+  onClose: () => void;
+  onAddSuccess?: (newId: string) => void;
+}
+export const AddContractorDialog = ({
+  open,
+  onClose,
+  onAddSuccess,
+}: AddContractorDialogProps) => {
+  const [newName, setNewName] = useState('');
+  const { handleAdd, isLoading } = useContractors();
+
+  const onAdd = () => {
+    handleAdd(newName, (newId) => {
+      if (onAddSuccess) onAddSuccess(newId);
+      setNewName('');
+      onClose();
+    });
+    setNewName('');
+  };
+
+  return (
+    <BaseDialog
+      open={open}
+      onClose={onClose}
+      title="Dodaj wykonawcę"
+      showCancel={false}
+      actions={
+        <Button
+          variant="contained"
+          onClick={onAdd}
+          disabled={!newName.trim()}
+          loading={isLoading}
+        >
+          Dodaj
+        </Button>
+      }
+    >
+      <TextField
+        size="small"
+        fullWidth
+        label="Nowy wykonawca"
+        value={newName}
+        onChange={(e) => setNewName(e.target.value)}
+        variant="outlined"
+        onKeyDown={(e) => e.key === 'Enter' && onAdd()}
+        disabled={isLoading}
+      />
     </BaseDialog>
   );
 };

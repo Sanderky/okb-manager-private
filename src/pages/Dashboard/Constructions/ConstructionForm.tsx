@@ -22,7 +22,7 @@ import { useQuery } from '@tanstack/react-query';
 import { shouldBeInactive } from './ConstructionsHelpers';
 import { getContractors } from '../../../services/contractors';
 import { Add } from '@mui/icons-material';
-import { ContractorsDialog } from '../../../components/ContractorsDialog';
+import { AddContractorDialog } from '../../../components/ContractorsDialog';
 
 export interface ConstructionFormState {
   values: Partial<Omit<Construction, 'id'>>;
@@ -161,6 +161,11 @@ export default function ConstructionForm(props: ConstructionFormProps) {
     }
 
     return null;
+  };
+
+  const handleContractorAdded = (newId: string) => {
+    handleFieldChange('contractorId', newId);
+    setContractorsModalOpen(false);
   };
 
   return (
@@ -386,9 +391,10 @@ export default function ConstructionForm(props: ConstructionFormProps) {
         </Stack>
       </FormGroup>
 
-      <ContractorsDialog
+      <AddContractorDialog
         open={contractorsModalOpen}
         onClose={() => setContractorsModalOpen(false)}
+        onAddSuccess={handleContractorAdded}
       />
     </Box>
   );
