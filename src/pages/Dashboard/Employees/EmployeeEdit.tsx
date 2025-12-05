@@ -26,9 +26,6 @@ import Loading from '../../../components/Loading';
 import useLoading from '../../../hooks/useLoading';
 import ArchiveIcon from '@mui/icons-material/Archive';
 import UnarchiveIcon from '@mui/icons-material/Unarchive';
-// import { removeEmployeeWorkHours } from '../../../services/hours';
-import { removeEmployeeVacations } from '../../../services/vacations';
-import { removeEmployeeSchedules } from '../../../services/schedules';
 import { useScroll } from '../../../context/ScrollContext';
 import { useDialogs } from '../../../hooks/useDialogs/useDialogs';
 import { toNumberOrNull, validate } from './EmployeesHelpers';
@@ -191,11 +188,6 @@ export default function EmployeeEdit() {
     setIsDeleting(true);
     try {
       await deleteMutation.mutateAsync();
-      await Promise.allSettled([
-        // removeEmployeeWorkHours(employee.id),
-        removeEmployeeVacations(employee.id),
-        removeEmployeeSchedules(employee.id),
-      ]);
       await deleteFolderRecursive(`employees/${employee.id}`);
       setDeleteDialogOpen(false);
       notifications.show('Pracownik został usunięty.', { severity: 'info' });

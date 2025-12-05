@@ -186,7 +186,6 @@ export default function ConstructionEdit() {
     setIsDeleting(true);
     try {
       await deleteMutation.mutateAsync();
-      // await removeWorkHoursByConstruction(construction.id);
       await deleteFolderRecursive(`/constructions/${construction.id}`);
       setDeleteDialogOpen(false);
       notifications.show('Budowa została pomyślnie usunięta.', {

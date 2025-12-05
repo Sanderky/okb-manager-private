@@ -70,9 +70,8 @@ export const listFiles = async (path: string): Promise<FileBrowserItem[]> => {
         path: fullPath,
       });
     } else {
-      // To jest plik
       items.push({
-        id: item.id, // Supabase zwraca ID pliku
+        id: item.id,
         name: item.name,
         type: 'file',
         path: fullPath,
@@ -173,33 +172,64 @@ export const moveFile = async (
   if (error) throw error;
 };
 
+const chunkArray = <T>(array: T[], size: number): T[][] => {
+  const chunks: T[][] = [];
+  for (let i = 0; i < array.length; i += size) {
+    chunks.push(array.slice(i, i + size));
+  }
+  return chunks;
+};
+
 export const deleteFiles = async (paths: string[]): Promise<void> => {
   if (paths.length === 0) return;
-  const { error } = await supabase.storage.from(BUCKET_NAME).remove(paths);
-  if (error) throw error;
+
+  const batches = chunkArray(paths, 50);
+
+  for (const batch of batches) {
+    const { error } = await supabase.storage.from(BUCKET_NAME).remove(batch);
+    if (error) {
+      console.error('Error deleting batch:', error);
+      throw error;
+    }
+  }
 };
 
 export const deleteFolderRecursive = async (path: string): Promise<void> => {
-  const { data, error } = await supabase.storage.from(BUCKET_NAME).list(path);
+  let keepFetching = true;
 
-  if (error) throw error;
+  while (keepFetching) {
+    const { data, error } = await supabase.storage
+      .from(BUCKET_NAME)
+      .list(path, {
+        limit: 100,
+      });
 
-  const filesToDelete: string[] = [];
-  const folderPromises: Promise<void>[] = [];
+    if (error) throw error;
 
-  for (const item of data) {
-    if (item.id) {
-      filesToDelete.push(`${path}/${item.name}`);
-    } else {
-      folderPromises.push(deleteFolderRecursive(`${path}/${item.name}`));
+    if (!data || data.length === 0) {
+      keepFetching = false;
+      break;
+    }
+
+    const filesToDelete: string[] = [];
+    const folderPromises: Promise<void>[] = [];
+
+    for (const item of data) {
+      if (item.id) {
+        filesToDelete.push(`${path}/${item.name}`);
+      } else {
+        folderPromises.push(deleteFolderRecursive(`${path}/${item.name}`));
+      }
+    }
+
+    if (filesToDelete.length > 0) {
+      await deleteFiles(filesToDelete);
+    }
+
+    if (folderPromises.length > 0) {
+      await Promise.all(folderPromises);
     }
   }
-
-  if (filesToDelete.length > 0) {
-    await deleteFiles(filesToDelete);
-  }
-
-  await Promise.all(folderPromises);
 };
 
 export const moveFolderRecursive = async (
