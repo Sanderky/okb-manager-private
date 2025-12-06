@@ -287,7 +287,6 @@ const ScheduleComponent = () => {
     mutationFn: saveScheduleList,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['schedules'] });
-      notifications.show('Zapisano harmonogram', { severity: 'success' });
     },
     onError: () => notifications.show('Błąd zapisu', { severity: 'error' }),
   });
@@ -437,6 +436,8 @@ const ScheduleComponent = () => {
           let cName = dayEntry.constructionName;
           let cActive = dayEntry.constructionActive;
 
+          if (!cName) cName = 'Nieznana budowa';
+
           if (!cName && dayEntry.constructionId) {
             const def = constructions.find(
               (c) => c.id === dayEntry.constructionId
@@ -489,15 +490,7 @@ const ScheduleComponent = () => {
 
       if (items.length === 0) return renderEmptyCellIndicator && '';
 
-      return (
-        <Typography className="font-medium" variant="body2" component="div">
-          {items.reduce((prev, curr, index) => [
-            prev,
-            <span key={`sep-${index}`}> / </span>,
-            curr,
-          ])}
-        </Typography>
-      );
+      return <Stack>{items.map((item) => item)}</Stack>;
     },
     [scheduleMap, checkIsVacation, constructions, showVacations, showDates]
   );
