@@ -160,6 +160,7 @@ const EmployeeAlertsSettings = ({
     mutationFn: updateAlertsSettings,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['alertsSettings'] });
+      queryClient.invalidateQueries({ queryKey: ['alerts'] });
       setHasChanges(false);
       notifications.show('Ustawienia alertów zostały zmienione.', {
         severity: 'success',

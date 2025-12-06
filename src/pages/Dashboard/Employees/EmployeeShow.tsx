@@ -367,7 +367,6 @@ export default function EmployeeShow() {
                   type="id_card"
                   hook={attachmentsHook}
                   employee={employee}
-                  alertsSettings={alertsSettings}
                   onPreview={handleOpenPreview}
                 />
                 <AttachmentBox
@@ -375,7 +374,6 @@ export default function EmployeeShow() {
                   type="contract"
                   hook={attachmentsHook}
                   employee={employee}
-                  alertsSettings={alertsSettings}
                   onPreview={handleOpenPreview}
                   dateFields={contractFields}
                 />
@@ -384,7 +382,6 @@ export default function EmployeeShow() {
                   type="a1"
                   hook={attachmentsHook}
                   employee={employee}
-                  alertsSettings={alertsSettings}
                   onPreview={handleOpenPreview}
                   dateFields={a1Fields}
                 />

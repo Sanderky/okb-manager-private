@@ -25,17 +25,16 @@ import Schedule from './pages/Dashboard/Schedule/Schedule';
 import PageNotFound from './pages/PageNotFound/PageNotFound';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useAuth } from './context/AuthContext';
-import useEmployeesAlert from './hooks/useEmployeeAlert';
 import {
   getConstructionList,
   getConstructionStats,
 } from './services/constructions';
 import { useQuery } from '@tanstack/react-query';
-import { fetchAlertsSettings } from './services/settings';
 import { getEmployeeList, getEmployeeStats } from './services/employees';
 import { getUpcomingVacations } from './services/vacations';
 import { getHomeNote } from './services/home';
 import { getContractors } from './services/contractors';
+import { getEmployeeAlerts } from './services/alerts';
 
 const customTheme = createTheme({
   palette: {
@@ -82,15 +81,9 @@ const customTheme = createTheme({
 export default function App() {
   const { user, initialLoading: authLoading } = useAuth();
 
-  const { data: employees, isLoading: employeesLoading } = useQuery({
+  const { isLoading: employeesLoading } = useQuery({
     queryKey: ['employees'],
     queryFn: () => getEmployeeList(),
-    enabled: !!user,
-  });
-
-  const { data: alertsSettings, isLoading: alertsSettingsLoading } = useQuery({
-    queryKey: ['alertsSettings'],
-    queryFn: fetchAlertsSettings,
     enabled: !!user,
   });
 
@@ -133,17 +126,16 @@ export default function App() {
     enabled: !!user,
   });
 
-  useEmployeesAlert(
-    employees,
-    alertsSettings,
-    employeesLoading || alertsSettingsLoading
-  );
+  const { isLoading: isAlertsLoading } = useQuery({
+    queryKey: ['alerts'],
+    queryFn: getEmployeeAlerts,
+  });
 
   const isLoading = Boolean(
     authLoading ||
       (user &&
         (constructionsLoading ||
-          alertsSettingsLoading ||
+          isAlertsLoading ||
           isContractorsLoading ||
           employeesLoading ||
           upcomingVacationsLoading ||

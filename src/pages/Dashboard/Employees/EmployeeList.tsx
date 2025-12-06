@@ -134,7 +134,18 @@ export default function EmployeeList() {
     setColumnOrder,
   } = useTableState('employees', DefaultColumnFilters, ColumnOrderDefault);
 
-  const { getEmployeeAlerts } = useEmployeeAlert();
+  const { alerts } = useEmployeeAlert();
+
+  const alertsMap = useMemo(() => {
+    const map = new Map<string, any[]>();
+    alerts.forEach((alert) => {
+      if (!map.has(alert.employeeId)) {
+        map.set(alert.employeeId, []);
+      }
+      map.get(alert.employeeId)!.push(alert);
+    });
+    return map;
+  }, [alerts]);
 
   const [filtersModalOpen, setFiltersModalOpen] = useState(false);
   const { filters, setFilters, resetFilters } =
@@ -146,24 +157,24 @@ export default function EmployeeList() {
     );
   }, [columnFilters]);
 
-//   const shouldFetchActiveOnly = filters.status === 'true';
+  //   const shouldFetchActiveOnly = filters.status === 'true';
 
-// const {
-//   data: employees,
-//   isLoading,
-//   error,
-//   refetch,
-// } = useQuery({
-//   // 2. Klucz cache zależy od filtra. 
-//   // Jak zmienisz filtr, React Query automatycznie wywoła queryFn ponownie.
-//   queryKey: ['employees', shouldFetchActiveOnly ? 'active' : 'all'],
-  
-//   // 3. Przekazujemy true/false do serwisu
-//   queryFn: () => getEmployeeList(shouldFetchActiveOnly),
-  
-//   // Opcjonalnie: żeby tabela nie "migała" przy przełączaniu, zostawiamy stare dane na chwilę
-//   placeholderData: (previousData) => previousData,
-// });
+  // const {
+  //   data: employees,
+  //   isLoading,
+  //   error,
+  //   refetch,
+  // } = useQuery({
+  //   // 2. Klucz cache zależy od filtra.
+  //   // Jak zmienisz filtr, React Query automatycznie wywoła queryFn ponownie.
+  //   queryKey: ['employees', shouldFetchActiveOnly ? 'active' : 'all'],
+
+  //   // 3. Przekazujemy true/false do serwisu
+  //   queryFn: () => getEmployeeList(shouldFetchActiveOnly),
+
+  //   // Opcjonalnie: żeby tabela nie "migała" przy przełączaniu, zostawiamy stare dane na chwilę
+  //   placeholderData: (previousData) => previousData,
+  // });
 
   const {
     data: employees,
@@ -340,8 +351,8 @@ export default function EmployeeList() {
         header: 'Nazwa',
         Cell: ({ renderedCellValue, row }) => {
           const employeeId = row.original.id;
-          const alerts = getEmployeeAlerts(employeeId);
-          const hasAlert = alerts.length > 0;
+          const employeeAlerts = alertsMap.get(employeeId) || [];
+          const hasAlert = employeeAlerts.length > 0;
 
           return (
             <Box className={`${hasAlert && 'text-amber-500'}`}>
@@ -514,7 +525,7 @@ export default function EmployeeList() {
         ),
       },
     ],
-    [getEmployeeAlerts]
+    [alertsMap]
   );
 
   const localization = React.useMemo(
@@ -636,8 +647,8 @@ export default function EmployeeList() {
         enableResizing: false,
         Cell: ({ row, table }) => {
           const employeeId = row.original.id;
-          const alerts = getEmployeeAlerts(employeeId);
-          const hasAlert = alerts.length > 0;
+          const employeeAlerts = alertsMap.get(employeeId) || [];
+          const hasAlert = employeeAlerts.length > 0;
 
           const visibleRows = table.getRowModel().rows;
 

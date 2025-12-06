@@ -6,6 +6,7 @@ import {
   type AlertsSettings,
   type Attachment,
   type Employee,
+  type EmployeeAlert,
   type EmployeeAttachmentType,
 } from '../../../types';
 import {
@@ -30,7 +31,7 @@ import {
 import { useDialogs } from '../../../hooks/useDialogs/useDialogs';
 import useEmployeeAttachments from './useAttachment';
 import dayjs from 'dayjs';
-import { EmployeeAlertDefault } from '../../../hooks/useEmployeeAlert';
+import { useEmployeeAlert } from '../../../context/EmployeeAlertContext';
 import { useState } from 'react';
 import type { FieldInfo } from './EmployeeShow';
 import { openFileInNewTab } from '../../../services/storage';
@@ -39,59 +40,49 @@ const generateDateBox = (
   key: keyof Employee,
   label: string,
   employeeData: Employee | null,
-  alertsSettings: AlertsSettings
+  alerts: EmployeeAlert[] // ZMIANA: Przekazujemy listę alertów zamiast ustawień
 ) => {
   if (!employeeData) return null;
+
   const dateValue = employeeData[key];
   const isContractEndDate = key === 'contractEndDate';
   const isA1EndDate = key === 'a1EndDate';
-  const isEndDateField = isContractEndDate || isA1EndDate;
   const isPermanent = isContractEndDate
     ? Boolean(employeeData.contractIsPermanent)
     : false;
 
-  let dateStyles = '';
-  let severity: 'error' | 'warning' = 'warning';
-  let message = '';
-  let dayWord = 'dni';
   let displayValue: React.ReactNode;
+  let activeAlert = null;
 
   if (isContractEndDate && isPermanent) {
     displayValue = 'Umowa na czas nieokreślony';
-    dateStyles = '!text-gray-700';
   } else if (dateValue instanceof Date) {
     displayValue = dayjs(dateValue).format('DD.MM.YYYY');
-    if (isEndDateField && !isPermanent) {
-      const today = dayjs().startOf('day');
-      const endDate = dayjs(dateValue).startOf('day');
-      const daysDiff = endDate.diff(today, 'day');
-      const itemName = isA1EndDate ? 'A1' : 'Umowa';
-      const warningRange = isA1EndDate
-        ? alertsSettings.a1Warning
-        : alertsSettings.contractWarning;
-      const criticalRange = isA1EndDate
-        ? alertsSettings.a1Critical
-        : alertsSettings.contractCritical;
 
-      if (Math.abs(daysDiff) === 1) dayWord = 'dzień';
+    const alertSuffix = isContractEndDate
+      ? '_contract'
+      : isA1EndDate
+        ? '_a1'
+        : '';
 
-      if (daysDiff <= criticalRange) {
-        dateStyles = 'border-red-500/25! bg-red-500/10! text-red-700!';
-        severity = 'error';
-        message =
-          daysDiff < 0
-            ? `${itemName} wygasła ${Math.abs(daysDiff)} ${dayWord} temu`
-            : daysDiff === 0
-              ? `${itemName} kończy się dziś`
-              : `${itemName} kończy się za ${daysDiff} ${dayWord}`;
-      } else if (daysDiff <= warningRange) {
-        dateStyles = 'border-amber-500/25! bg-amber-500/10! text-amber-600!';
-        severity = 'warning';
-        message = `${itemName} kończy się za ${daysDiff} ${dayWord}`;
-      }
+    if (alertSuffix) {
+      activeAlert = alerts.find(
+        (a) => a.id === `${employeeData.id}${alertSuffix}`
+      );
     }
   } else {
     displayValue = <em className="text-gray-400">Brak</em>;
+  }
+
+  let dateStyles = '';
+  if (activeAlert) {
+    if (activeAlert.severity === 'error') {
+      dateStyles = 'border-red-500/25! bg-red-500/10! text-red-700!';
+    } else if (activeAlert.severity === 'warning') {
+      dateStyles = 'border-amber-500/25! bg-amber-500/10! text-amber-600!';
+    }
+  } else if (isPermanent) {
+    dateStyles = '!text-gray-700';
   }
 
   return (
@@ -113,22 +104,20 @@ const generateDateBox = (
           {displayValue}
         </Typography>
       </Stack>
-      {isEndDateField &&
-        dateValue instanceof Date &&
-        !isPermanent &&
-        message && (
-          <Alert
-            severity={severity}
-            sx={{
-              width: '100%',
-              mt: 2,
-              borderColor: `${severity}.main`,
-              borderWidth: '1px',
-            }}
-          >
-            <Typography variant="body2">{message}</Typography>
-          </Alert>
-        )}
+
+      {activeAlert && (
+        <Alert
+          severity={activeAlert.severity}
+          sx={{
+            width: '100%',
+            mt: 2,
+            borderColor: `${activeAlert.severity}.main`,
+            borderWidth: '1px',
+          }}
+        >
+          <Typography variant="body2">{activeAlert.message}</Typography>
+        </Alert>
+      )}
     </Grid>
   );
 };
@@ -263,7 +252,7 @@ interface AttachmentBoxProps {
   hook: ReturnType<typeof useEmployeeAttachments>;
   onPreview: (file: Attachment) => void;
   employee: Employee | null;
-  alertsSettings: AlertsSettings | undefined;
+  // alertsSettings: AlertsSettings | undefined;
   dateFields?: FieldInfo[];
 }
 
@@ -273,12 +262,12 @@ const AttachmentBox = ({
   hook,
   onPreview,
   employee,
-  alertsSettings,
   dateFields,
 }: AttachmentBoxProps) => {
   const files = hook.getAttachmentsByType(type);
   const isLoading = hook.loadingType === type;
-
+  const { alerts } = useEmployeeAlert();
+  const employeeAlerts = alerts.filter((a) => a.employeeId === employee?.id);
   const dialogs = useDialogs();
 
   const [isDragging, setIsDragging] = useState(false);
@@ -433,12 +422,7 @@ const AttachmentBox = ({
           sx={{ pt: 2, mt: 0 }}
         >
           {dateFields.map(({ key, label }) => {
-            return generateDateBox(
-              key,
-              label,
-              employee,
-              alertsSettings ?? EmployeeAlertDefault
-            );
+            return generateDateBox(key, label, employee, employeeAlerts);
           })}
         </Grid>
       )}
