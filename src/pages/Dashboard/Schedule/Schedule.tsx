@@ -384,7 +384,6 @@ const ScheduleComponent = () => {
       renderEmptyCellIndicator = true
     ) => {
       const hasVacation = checkIsVacation(empId, date);
-
       const entry = scheduleMap.get(empId)?.get(date.format('YYYY-MM-DD'));
 
       if (!isWeek) {
@@ -407,10 +406,16 @@ const ScheduleComponent = () => {
 
         if (!cName && entry?.constructionId) cName = 'Nieznana';
 
+        const isActive = cActive ?? true;
+
         return (
           <Typography
-            className={`font-medium ${!cActive && cName ? 'text-gray-400 line-through' : ''}`}
+            className="font-medium"
             variant="body2"
+            sx={{
+              textDecoration: !isActive ? 'line-through' : 'none',
+              color: !isActive ? 'text.disabled' : 'text.primary',
+            }}
           >
             {cName ?? (renderEmptyCellIndicator && '')}
           </Typography>
@@ -418,9 +423,7 @@ const ScheduleComponent = () => {
       }
 
       const weekStart = dayjs(weekKey);
-
       const items: React.ReactNode[] = [];
-
       const vacationDays: Dayjs[] = [];
       const cDataMap = new Map<string, { days: Dayjs[]; active: boolean }>();
       let hasEmptyDays = false;
@@ -436,8 +439,6 @@ const ScheduleComponent = () => {
           let cName = dayEntry.constructionName;
           let cActive = dayEntry.constructionActive;
 
-          if (!cName) cName = 'Nieznana budowa';
-
           if (!cName && dayEntry.constructionId) {
             const def = constructions.find(
               (c) => c.id === dayEntry.constructionId
@@ -451,6 +452,11 @@ const ScheduleComponent = () => {
               cDataMap.set(cName, { days: [], active: cActive ?? true });
             }
             cDataMap.get(cName)!.days.push(day);
+          } else {
+            const unknown = 'Nieznana budowa';
+            if (!cDataMap.has(unknown))
+              cDataMap.set(unknown, { days: [], active: true });
+            cDataMap.get(unknown)!.days.push(day);
           }
         } else {
           hasEmptyDays = true;
@@ -462,9 +468,18 @@ const ScheduleComponent = () => {
           ? `Urlop (${daysToRanges(vacationDays).join(', ')})`
           : 'Urlop';
         items.push(
-          <span key="vac" className="text-amber-700">
+          <Box
+            component="div"
+            key="vac"
+            sx={{
+              color: '#b45309',
+              fontSize: '0.75rem',
+              fontWeight: 500,
+              lineHeight: 1.3,
+            }}
+          >
             {text}
-          </span>
+          </Box>
         );
       }
 
@@ -479,22 +494,42 @@ const ScheduleComponent = () => {
             : `${name} (${daysToRanges(data.days).join(', ')})`;
 
         items.push(
-          <span
+          <Box
+            component="div"
             key={name}
-            className={!data.active ? 'text-gray-400 line-through' : ''}
+            sx={{
+              textDecoration: !data.active ? 'line-through' : 'none',
+              color: !data.active ? 'text.disabled' : 'inherit',
+              fontSize: '0.75rem',
+              fontWeight: 500,
+              lineHeight: 1.3,
+
+              // whiteSpace: 'nowrap',
+              // overflow: 'hidden',
+              // textOverflow: 'ellipsis',
+              // maxWidth: '100%'
+            }}
           >
             {text}
-          </span>
+          </Box>
         );
       });
 
       if (items.length === 0) return renderEmptyCellIndicator && '';
 
-      return <Stack>{items.map((item) => item)}</Stack>;
+      return (
+        <Stack
+          direction="column"
+          spacing={0.5}
+          justifyContent="center"
+          sx={{ width: '100%', py: 0.5 }}
+        >
+          {items}
+        </Stack>
+      );
     },
     [scheduleMap, checkIsVacation, constructions, showVacations, showDates]
   );
-
   const error =
     isErrorConstructions ||
     isErrorEmployees ||
