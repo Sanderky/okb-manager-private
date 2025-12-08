@@ -547,8 +547,11 @@ export const PrintReportDialog: React.FC<PrintReportDialogProps> = ({
         <Tooltip title="Filtry">
           <Badge
             color="primary"
+            variant="dot"
             badgeContent={
-              selectedConstructions.length + selectedEmployees.length
+              selectedConstructions.length + selectedEmployees.length > 0
+                ? 1
+                : 0
             }
           >
             <Button

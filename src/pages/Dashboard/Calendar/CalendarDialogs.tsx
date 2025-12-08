@@ -85,17 +85,11 @@ export const FilterDialog: React.FC<FilterDialogProps> = ({
       onClose={() => setIsFilterOpen(false)}
       title="Filtr pracowników"
       showConfirm={false}
-      actions={
-        <Stack direction="row" spacing={1}>
-          <Button onClick={handleSelectAll} disabled={isAllSelected}>
-            Wszystko
-          </Button>
-          <Button onClick={handleClear}>Wyczyść</Button>
-        </Stack>
-      }
     >
-      <Typography variant="overline" sx={{ mb: 1.5, display: 'block' }}>
-        {`Wybrane: ${selectedEmployees.length} z ${filteredEmployees.length}`}
+      <Typography variant="overline" sx={{ mb: 1, display: 'block' }}>
+        {selectedEmployees.length > 0
+          ? `Wybrano: ${selectedEmployees.length} z ${filteredEmployees.length}`
+          : 'Wszyscy pracownicy'}
       </Typography>
       <FormControl sx={{ width: '100%', maxWidth: '100%' }}>
         <Autocomplete
@@ -136,9 +130,15 @@ export const FilterDialog: React.FC<FilterDialogProps> = ({
             size="small"
           />
         }
-        label="Uwzględnij nieaktywnych"
-        className="mt-2"
+        label={<Typography variant="caption">Pokaż nieaktywnych</Typography>}
+        sx={{ mt: 1 }}
       />
+      <Stack direction="row" spacing={1} justifyContent={'flex-end'}>
+        <Button onClick={handleSelectAll} disabled={isAllSelected}>
+          Wszystko
+        </Button>
+        <Button onClick={handleClear}>Wyczyść</Button>
+      </Stack>
     </BaseDialog>
   );
 };
@@ -1001,8 +1001,10 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
               <Typography variant="subtitle2" sx={{ mb: 1 }}>
                 Pracownicy
               </Typography>
-              <Typography variant="caption" sx={{ mb: 1.5, display: 'block' }}>
-                Wybrano: {selectedEmployees.length} z {filteredEmployees.length}
+              <Typography variant="overline" sx={{ mb: 1.5, display: 'block' }}>
+                {selectedEmployees.length > 0
+                  ? `Wybrano: ${selectedEmployees.length} z ${filteredEmployees.length}`
+                  : 'Wszyscy pracownicy'}
               </Typography>
               <Autocomplete
                 multiple
@@ -1048,39 +1050,27 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
                 }
               />
 
-              <Stack
-                direction="row"
-                alignItems="center"
-                justifyContent="space-between"
+              <FormControlLabel
                 sx={{ mt: 1 }}
-              >
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={showInactive}
-                      onChange={(e) => setShowInactive(e.target.checked)}
-                      size="small"
-                    />
-                  }
-                  label={
-                    <Typography variant="caption">
-                      Uwzględnij nieaktywnych
-                    </Typography>
-                  }
-                />
-                <Stack direction="row" spacing={1}>
-                  <Button
+                control={
+                  <Checkbox
+                    checked={showInactive}
+                    onChange={(e) => setShowInactive(e.target.checked)}
                     size="small"
-                    onClick={handleSelectAll}
-                    disabled={isAllSelected}
-                  >
-                    Wszyscy
-                  </Button>
+                  />
+                }
+                label={
+                  <Typography variant="caption">
+                    Uwzględnij nieaktywnych
+                  </Typography>
+                }
+              />
+              <Stack direction="row" spacing={1} justifyContent={'flex-end'}>
+                <Button onClick={handleSelectAll} disabled={isAllSelected}>
+                  Wszystko
+                </Button>
 
-                  <Button size="small" onClick={handleClear}>
-                    Wyczyść
-                  </Button>
-                </Stack>
+                <Button onClick={handleClear}>Wyczyść</Button>
               </Stack>
             </Box>
 
@@ -1093,9 +1083,7 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
               >
                 <Typography variant="subtitle2">Zakres dat</Typography>
 
-                <Button size="small" onClick={handleClearAllDates}>
-                  Wyczyść daty
-                </Button>
+                <Button onClick={handleClearAllDates}>Wyczyść daty</Button>
               </Stack>
               <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
                 <DatePicker

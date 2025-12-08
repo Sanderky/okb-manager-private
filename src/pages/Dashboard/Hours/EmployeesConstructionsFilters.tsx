@@ -139,17 +139,26 @@ const EmployeesContructionsFilters = ({
     handleSelectEmployees(newValue);
   };
 
+  const isAllEmployeesSelected =
+    selectedEmployees.length === filteredEmployees.length &&
+    filteredEmployees.length > 0;
+  const isAllConstructionsSelected =
+    selectedConstructions.length === filteredConstructions.length &&
+    filteredConstructions.length > 0;
+
   return (
     <Box
       sx={{
         width: '100%',
       }}
     >
-      <Typography sx={{ mb: 2 }} component={'div'} variant="subtitle2">
+      <Typography sx={{ mb: 1 }} component={'div'} variant="subtitle2">
         Filtr budów
       </Typography>
-      <Typography sx={{ mb: 2 }} component={'div'} variant="caption">
-        {`Wybrane: ${selectedConstructions.length} z ${filteredConstructions.length}`}
+      <Typography sx={{ mb: 1 }} component={'div'} variant="overline">
+        {selectedConstructions.length > 0
+          ? `Wybrano: ${selectedConstructions.length} z ${filteredConstructions.length}`
+          : 'Wszystkie budowy'}
       </Typography>
 
       <FormControl sx={{ width: '100%', maxWidth: '100%' }}>
@@ -194,20 +203,27 @@ const EmployeesContructionsFilters = ({
             }
           />
         }
-        label="Uwzględnij zakończone"
+        label={<Typography variant="caption">Pokaż zakończone</Typography>}
       />
       <Stack direction="row" spacing={1} justifyContent={'flex-end'}>
-        <Button onClick={handleSelectAllConstructions}>Wszystkie</Button>
+        <Button
+          onClick={handleSelectAllConstructions}
+          disabled={isAllConstructionsSelected}
+        >
+          Wszystko
+        </Button>
         <Button onClick={handleDeselectAllConstructions}>Wyczyść</Button>
       </Stack>
 
       <Divider sx={{ mb: 2, mt: 2 }} />
 
-      <Typography sx={{ mb: 2 }} component={'div'} variant="subtitle2">
+      <Typography sx={{ mb: 1 }} component={'div'} variant="subtitle2">
         Filtr pracowników
       </Typography>
-      <Typography sx={{ mb: 2 }} component={'div'} variant="caption">
-        {`Wybrane: ${selectedEmployees.length} z ${filteredEmployees.length}`}
+      <Typography sx={{ mb: 1 }} component={'div'} variant="overline">
+        {selectedEmployees.length > 0
+          ? `Wybrano: ${selectedEmployees.length} z ${filteredEmployees.length}`
+          : 'Wszyscy pracownicy'}
       </Typography>
       <FormControl sx={{ width: '100%', maxWidth: '100%' }}>
         <Autocomplete
@@ -251,10 +267,15 @@ const EmployeesContructionsFilters = ({
             }
           />
         }
-        label="Uwzględnij nieaktywnych"
+        label={<Typography variant="caption">Pokaż nieaktywnych</Typography>}
       />
       <Stack direction="row" spacing={1} justifyContent={'flex-end'}>
-        <Button onClick={handleSelectAllEmployees}>Wszystkie</Button>
+        <Button
+          onClick={handleSelectAllEmployees}
+          disabled={isAllEmployeesSelected}
+        >
+          Wszystko
+        </Button>
         <Button onClick={handleDeselectAllEmployees}>Wyczyść</Button>
       </Stack>
     </Box>

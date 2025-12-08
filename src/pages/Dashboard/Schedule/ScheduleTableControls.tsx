@@ -171,7 +171,11 @@ export const TableControls: React.FC<TableControlsProps> = ({
           </MenuItem>
           <MenuItem disableRipple key={'filters'}>
             <Badge
-              badgeContent={(selectedEmployees.length > 0 ? 1 : 0) + (selectedCosntructions.length > 0 ? 1 : 0 )}
+              badgeContent={
+                selectedEmployees.length + selectedCosntructions.length > 0
+                  ? ' '
+                  : 0
+              }
               color="primary"
               sx={{ width: '100%' }}
             >
@@ -309,7 +313,14 @@ export const TableControls: React.FC<TableControlsProps> = ({
         />
       </Stack>
       <Tooltip title="Filtry">
-        <Badge badgeContent={(selectedEmployees.length > 0 ? 1 : 0) + (selectedCosntructions.length > 0 ? 1 : 0 )} color="primary">
+        <Badge
+          badgeContent={
+            selectedEmployees.length + selectedCosntructions.length > 0
+              ? ' '
+              : 0
+          }
+          color="primary"
+        >
           <IconButton
             size="small"
             color="primary"

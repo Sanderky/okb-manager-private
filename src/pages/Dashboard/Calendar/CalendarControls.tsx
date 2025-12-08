@@ -116,7 +116,7 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
             }}
           >
             <Badge
-              badgeContent={selectedEmployees.length}
+              badgeContent={selectedEmployees.length > 0 ? ' ' : 0}
               color="primary"
               sx={{ width: '100%' }}
             >
@@ -288,7 +288,10 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
         />
       </LocalizationProvider>
       <Tooltip title="Filtry">
-        <Badge badgeContent={selectedEmployees.length} color="primary">
+        <Badge
+          badgeContent={selectedEmployees.length > 0 ? ' ' : 0}
+          color="primary"
+        >
           <IconButton
             size="small"
             color="primary"

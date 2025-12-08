@@ -239,7 +239,11 @@ const HoursTableControls = ({
           <Divider />
           <MenuItem key={'filters'} disableRipple>
             <Badge
-              badgeContent={selectedEmployees.length}
+              badgeContent={
+                selectedConstructions.length + selectedEmployees.length > 0
+                  ? ' '
+                  : 0
+              }
               color="primary"
               sx={{ width: '100%' }}
             >
@@ -465,7 +469,9 @@ const HoursTableControls = ({
               <Badge
                 color="primary"
                 badgeContent={
-                  selectedConstructions.length + selectedEmployees.length
+                  selectedConstructions.length + selectedEmployees.length > 0
+                    ? ' '
+                    : 0
                 }
               >
                 <IconButton

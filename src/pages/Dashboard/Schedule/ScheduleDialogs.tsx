@@ -98,13 +98,12 @@ export const FilterDialog: React.FC<FilterDialogProps> = ({
       onClose={() => setIsFilterOpen(false)}
       title="Filtrowanie"
       showConfirm={false}
-      actions={<Button onClick={() => setIsFilterOpen(false)}>Zamknij</Button>}
     >
       <Box sx={{ mb: 3 }}>
         <Typography variant="subtitle2" sx={{ mb: 1 }}>
           Filtr budów
         </Typography>
-        <Typography variant="caption" sx={{ mb: 1.5, display: 'block' }}>
+        <Typography variant="overline" sx={{ mb: 1, display: 'block' }}>
           {selectedConstructions.length > 0
             ? `Wybrano: ${selectedConstructions.length} z ${filteredConstructions.length}`
             : 'Wszystkie budowy'}
@@ -147,34 +146,25 @@ export const FilterDialog: React.FC<FilterDialogProps> = ({
           />
         </FormControl>
 
-        <Stack
-          direction="row"
-          alignItems="center"
-          justifyContent="space-between"
+        <FormControlLabel
           sx={{ mt: 1 }}
-        >
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={showInactiveConstructions}
-                onChange={(e) => setShowInactiveConstructions(e.target.checked)}
-                size="small"
-              />
-            }
-            label={<Typography variant="caption">Pokaż zakończone</Typography>}
-          />
-          <Stack direction="row" spacing={1}>
-            <Button
+          control={
+            <Checkbox
+              checked={showInactiveConstructions}
+              onChange={(e) => setShowInactiveConstructions(e.target.checked)}
               size="small"
-              onClick={handleSelectAllConstructions}
-              disabled={isAllConstructionsSelected}
-            >
-              Wszystkie
-            </Button>
-            <Button size="small" onClick={handleClearConstructions}>
-              Wyczyść
-            </Button>
-          </Stack>
+            />
+          }
+          label={<Typography variant="caption">Pokaż zakończone</Typography>}
+        />
+        <Stack direction="row" spacing={1} justifyContent={'flex-end'}>
+          <Button
+            onClick={handleSelectAllConstructions}
+            disabled={isAllConstructionsSelected}
+          >
+            Wszystko
+          </Button>
+          <Button onClick={handleClearConstructions}>Wyczyść</Button>
         </Stack>
       </Box>
 
@@ -184,7 +174,7 @@ export const FilterDialog: React.FC<FilterDialogProps> = ({
         <Typography variant="subtitle2" sx={{ mb: 1 }}>
           Filtr pracowników
         </Typography>
-        <Typography variant="caption" sx={{ mb: 1.5, display: 'block' }}>
+        <Typography variant="overline" sx={{ mb: 1, display: 'block' }}>
           {selectedEmployees.length > 0
             ? `Wybrano: ${selectedEmployees.length} z ${filteredEmployees.length}`
             : 'Wszyscy pracownicy'}
@@ -226,36 +216,26 @@ export const FilterDialog: React.FC<FilterDialogProps> = ({
           />
         </FormControl>
 
-        <Stack
-          direction="row"
-          alignItems="center"
-          justifyContent="space-between"
+        <FormControlLabel
           sx={{ mt: 1 }}
-        >
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={showInactive}
-                onChange={(e) => setShowInactive(e.target.checked)}
-                size="small"
-              />
-            }
-            label={
-              <Typography variant="caption">Pokaż nieaktywnych</Typography>
-            }
-          />
-          <Stack direction="row" spacing={1}>
-            <Button
+          control={
+            <Checkbox
+              checked={showInactive}
+              onChange={(e) => setShowInactive(e.target.checked)}
               size="small"
-              onClick={handleSelectAllEmployees}
-              disabled={isAllEmployeesSelected}
-            >
-              Wszyscy
-            </Button>
-            <Button size="small" onClick={handleClearEmployees}>
-              Wyczyść
-            </Button>
-          </Stack>
+            />
+          }
+          label={<Typography variant="caption">Pokaż nieaktywnych</Typography>}
+        />
+
+        <Stack direction="row" justifyContent={'flex-end'} spacing={1}>
+          <Button
+            onClick={handleSelectAllEmployees}
+            disabled={isAllEmployeesSelected}
+          >
+            Wszystko
+          </Button>
+          <Button onClick={handleClearEmployees}>Wyczyść</Button>
         </Stack>
       </Box>
     </BaseDialog>
