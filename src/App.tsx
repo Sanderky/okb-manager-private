@@ -35,6 +35,7 @@ import { getUpcomingVacations } from './services/vacations';
 import { getHomeNote } from './services/home';
 import { getContractors } from './services/contractors';
 import { getEmployeeAlerts } from './services/alerts';
+import UpdatePassword from './pages/ForgotPassword/ForgotPassword';
 
 const customTheme = createTheme({
   palette: {
@@ -156,6 +157,7 @@ export default function App() {
               <Route
                 element={<PrivateRoute isLoading={isLoading} user={user} />}
               >
+                <Route path="/reset-password" element={<UpdatePassword />} />
                 <Route path="/" element={<DashboardLayout />}>
                   <Route index element={<Navigate replace to="/home" />} />
                   <Route path="home" element={<Home />} />

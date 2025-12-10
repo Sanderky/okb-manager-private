@@ -4,15 +4,14 @@ import {
   Button,
   Box,
   Typography,
-  Divider,
-  IconButton,
-  InputAdornment,
+  Divider
 } from '@mui/material';
-import { OutgoingMail, Visibility, VisibilityOff } from '@mui/icons-material';
+import { OutgoingMail } from '@mui/icons-material';
 import { supabase } from '../../supabase';
 import { useAuth } from '../../context/AuthContext';
 import BaseDialog from '../BaseDialog';
 import useNotifications from '../../hooks/useNotifications/useNotifications';
+import { useNavigate } from 'react-router-dom';
 
 interface UserSettingsDialogProps {
   open: boolean;
@@ -32,16 +31,11 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
 
   const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
 
   const [loading, setLoading] = useState(false);
   const [fieldsErrors, setFieldsError] = useState<Record<string, string>>({});
 
-  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
-  const [showNewPassword, setShowNewPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (open) {
@@ -51,9 +45,6 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
         '';
       setDisplayName(metaName || '');
       setEmail(user?.email || '');
-      setCurrentPassword('');
-      setNewPassword('');
-      setConfirmPassword('');
       setEmailEditMode(false);
       setUsernameEditMode(false);
       setVerificationEmailInfo(false);
@@ -82,26 +73,6 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
       });
     }
   }, [user]);
-
-  const reauthenticate = async (passwordToCheck: string): Promise<boolean> => {
-    if (!user || !user.email) return false;
-
-    try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email: user.email,
-        password: passwordToCheck,
-      });
-
-      if (error) {
-        console.error('Re-auth error:', error);
-        return false;
-      }
-      return true;
-    } catch (error) {
-      console.error('User authentication error:', error);
-      return false;
-    }
-  };
 
   const updateDisplayName = async (): Promise<boolean> => {
     if (!user) return false;
@@ -149,61 +120,6 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
     }
 
     return true;
-  };
-
-  const updateUserPassword = async (): Promise<boolean> => {
-    let result = true;
-    if (!newPassword) {
-      setFieldsError((prev) => ({
-        ...prev,
-        newPassword: 'Należy wprowadzić nowe hasło.',
-      }));
-      result = false;
-    }
-
-    if (!currentPassword) {
-      setFieldsError((prev) => ({
-        ...prev,
-        currentPassword: 'Należy wprowadzić obecne hasło.',
-      }));
-      result = false;
-    }
-
-    if (newPassword.length > 0 && newPassword.length < 8) {
-      setFieldsError((prev) => ({
-        ...prev,
-        newPassword: 'Hasło musi zawierać co najmniej 8 znaków.',
-      }));
-      result = false;
-    }
-    if (newPassword !== confirmPassword) {
-      setFieldsError((prev) => ({
-        ...prev,
-        newPassword: 'Nowe hasła się różnią.',
-        confirmPassword: 'Nowe hasła się różnią.',
-      }));
-      result = false;
-    }
-
-    if (result) {
-      if (await reauthenticate(currentPassword)) {
-        const { error } = await supabase.auth.updateUser({
-          password: newPassword,
-        });
-
-        if (error) {
-          notifications.show(error.message, { severity: 'error' });
-          return false;
-        }
-      } else {
-        setFieldsError((prev) => ({
-          ...prev,
-          currentPassword: 'Wprowadzono nieprawidłowe hasło',
-        }));
-        result = false;
-      }
-    }
-    return result;
   };
 
   const handleSaveEmail = async (): Promise<void> => {
@@ -270,41 +186,6 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
     } finally {
       setLoading(false);
       setUsernameEditMode(false);
-    }
-  };
-
-  const handleResetPassword = async (): Promise<void> => {
-    if (!user) {
-      notifications.show('Użytkownik nie jest zalogowany', {
-        severity: 'error',
-        autoHideDuration: 5000,
-      });
-      return;
-    }
-
-    setLoading(true);
-    setFieldsError({});
-
-    try {
-      if (await updateUserPassword()) {
-        notifications.show('Hasło zostało zresetowane', {
-          severity: 'success',
-          autoHideDuration: 5000,
-        });
-
-        setCurrentPassword('');
-        setNewPassword('');
-        setConfirmPassword('');
-        handleClose();
-      }
-    } catch (error) {
-      console.error('Error updating user:', error);
-      notifications.show('Wystąpił błąd podczas zmiany hasła', {
-        severity: 'error',
-        autoHideDuration: 5000,
-      });
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -464,107 +345,13 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
 
           <Divider sx={{ my: 3 }} />
 
-          <Typography variant="body1" gutterBottom>
+          <Typography variant="body1" mb={2}>
             Zmiana hasła
-          </Typography>
-
-          <TextField
-            size="small"
-            label="Obecne hasło"
-            error={Boolean(fieldsErrors['currentPassword'])}
-            type={showCurrentPassword ? 'text' : 'password'}
-            value={currentPassword}
-            onChange={(e) => setCurrentPassword(e.target.value)}
-            fullWidth
-            margin="normal"
-            disabled={loading}
-            helperText={fieldsErrors['currentPassword']}
-            slotProps={{
-              input: {
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      onClick={() =>
-                        setShowCurrentPassword(!showCurrentPassword)
-                      }
-                      edge="end"
-                    >
-                      {showCurrentPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              },
-            }}
-          />
-
-          <TextField
-            label="Nowe hasło"
-            size="small"
-            error={Boolean(fieldsErrors['newPassword'])}
-            helperText={fieldsErrors['newPassword']}
-            type={showNewPassword ? 'text' : 'password'}
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-            fullWidth
-            margin="normal"
-            disabled={loading}
-            slotProps={{
-              input: {
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      onClick={() => setShowNewPassword(!showNewPassword)}
-                      edge="end"
-                    >
-                      {showNewPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              },
-            }}
-          />
-
-          <TextField
-            label="Potwierdź nowe hasło"
-            size="small"
-            error={Boolean(fieldsErrors['confirmPassword'])}
-            helperText={fieldsErrors['confirmPassword']}
-            type={showConfirmPassword ? 'text' : 'password'}
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            fullWidth
-            margin="normal"
-            disabled={loading}
-            slotProps={{
-              input: {
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      onClick={() =>
-                        setShowConfirmPassword(!showConfirmPassword)
-                      }
-                      edge="end"
-                    >
-                      {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              },
-            }}
-          />
-
-          <Typography
-            variant="caption"
-            color="text.secondary"
-            display="block"
-            sx={{ mt: 1, mb: 2 }}
-          >
-            Hasło musi mieć co najmniej 8 znaków
           </Typography>
 
           <Button
             variant="contained"
-            onClick={handleResetPassword}
+            onClick={() => navigate('/reset-password')}
             loading={loading}
           >
             Resetuj hasło

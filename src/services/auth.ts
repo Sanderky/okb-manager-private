@@ -28,3 +28,12 @@ export const getSession = async () => {
   if (error) throw error;
   return data.session;
 };
+
+export const updatePassword = async (password: string) => {
+  const { data, error } = await supabase.auth.updateUser({
+    password: password
+  });
+
+  if (error) throw error;
+  return data;
+};
