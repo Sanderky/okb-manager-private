@@ -41,8 +41,8 @@ export const TableControls: React.FC<TableControlsProps> = ({
   setToWeek,
   selectedEmployees,
   setIsFilterOpen,
-  showVacations,
-  setShowVacations,
+  // showVacations,
+  // setShowVacations,
   showDates,
   setShowDates,
   selectedCosntructions,
@@ -143,7 +143,7 @@ export const TableControls: React.FC<TableControlsProps> = ({
             </Stack>
           </MenuItem>
           <Divider />
-          <MenuItem disableRipple key={'vacations'}>
+          {/* <MenuItem disableRipple key={'vacations'}>
             <Stack direction="row" alignItems="center" justifyContent="center">
               <Typography sx={{ textAlign: 'center' }}>Urlopy</Typography>
               <Tooltip title="Ukrywanie informacji o urlopach">
@@ -155,7 +155,7 @@ export const TableControls: React.FC<TableControlsProps> = ({
                 />
               </Tooltip>
             </Stack>
-          </MenuItem>
+          </MenuItem> */}
           <MenuItem disableRipple key={'dates'}>
             <Stack direction="row" alignItems="center" justifyContent="center">
               <Typography sx={{ textAlign: 'center' }}>Daty</Typography>
@@ -338,7 +338,7 @@ export const TableControls: React.FC<TableControlsProps> = ({
         </Badge>
       </Tooltip>
       <Stack direction={'row'} spacing={1}>
-        <Stack direction="column" alignItems="center" justifyContent="center">
+        {/* <Stack direction="column" alignItems="center" justifyContent="center">
           <Tooltip title="Ukrywanie informacji o urlopach">
             <Switch
               size="small"
@@ -350,7 +350,7 @@ export const TableControls: React.FC<TableControlsProps> = ({
           <Typography variant="caption" sx={{ textAlign: 'center' }}>
             Urlopy
           </Typography>
-        </Stack>
+        </Stack> */}
         <Stack direction="column" alignItems="center" justifyContent="center">
           <Tooltip title="Ukrywanie szczegółowych dat">
             <Switch
