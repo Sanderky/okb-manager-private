@@ -214,7 +214,7 @@ const useHoursTable = (startWeek?: Date) => {
         queryKey: ['workLogs', currentWeek.toISOString()],
       });
       setHasUnsavedChanges(false);
-      notifications.show('Zapisano', { severity: 'success' });
+      notifications.show('Zapisano godziny pracy', { severity: 'success' });
     },
     onError: () => notifications.show('Błąd zapisu', { severity: 'error' }),
   });
@@ -249,7 +249,7 @@ const useHoursTable = (startWeek?: Date) => {
     onSuccess: (res) => {
       setLocalWorkHours(res);
       setHasUnsavedChanges(true);
-      notifications.show('Skopiowano', { severity: 'success' });
+      notifications.show('Skopiowano dane', { severity: 'success' });
     },
     onError: () => notifications.show('Błąd kopiowania', { severity: 'error' }),
   });
@@ -294,7 +294,9 @@ const useHoursTable = (startWeek?: Date) => {
     onSuccess: (res) => {
       setLocalWorkHours(res);
       setHasUnsavedChanges(true);
-      notifications.show(`Załadowano ${res.length}`, { severity: 'success' });
+      notifications.show(`Załadowano ${res.length} z harmonogramu`, {
+        severity: 'success',
+      });
     },
     onError: () =>
       notifications.show('Błąd harmonogramu', { severity: 'error' }),
@@ -304,7 +306,10 @@ const useHoursTable = (startWeek?: Date) => {
     (d: Date) => {
       if (localWorkHours.length > 0)
         dialogs
-          .confirm('Nadpisać?')
+          .confirm('Kopiowanie nadpisze obecnie wprowadzone dane', {
+            cancelText: 'Anuluj',
+            title: 'Kopiowanie danych',
+          })
           .then((ok) => ok && copyFromPreviousWeekMutation.mutate(d));
       else copyFromPreviousWeekMutation.mutate(d);
     },
@@ -312,7 +317,13 @@ const useHoursTable = (startWeek?: Date) => {
   );
 
   const handleFillWithSchedule = useCallback(async () => {
-    if (localWorkHours.length > 0 && !(await dialogs.confirm('Nadpisać?')))
+    if (
+      localWorkHours.length > 0 &&
+      !(await dialogs.confirm(
+        'Uzupełnienie z harmonogramu nadpisze obecnie wprowadzone dane',
+        { cancelText: 'Anuluj', title: 'Proponowane dane' }
+      ))
+    )
       return;
     fillWithScheduleMutation.mutate();
   }, [fillWithScheduleMutation, localWorkHours, dialogs]);
@@ -320,7 +331,10 @@ const useHoursTable = (startWeek?: Date) => {
   const onWeeekChange = (d: Date) => {
     if (hasUnsavedChanges)
       dialogs
-        .confirm('Utracisz zmiany')
+        .confirm('Utracisz niezapisane zmiany', {
+          cancelText: 'Anuluj',
+          title: 'Zmiana tygodnia',
+        })
         .then((ok) => ok && (setCurrentWeek(d), setEditMode(false)));
     else setCurrentWeek(d);
   };
@@ -372,7 +386,12 @@ const useHoursTable = (startWeek?: Date) => {
       setEditMode(false);
     };
     if (hasUnsavedChanges)
-      dialogs.confirm('Utracisz zmiany').then((ok) => ok && go());
+      dialogs
+        .confirm('Utracisz niezapisane zmiany', {
+          cancelText: 'Anuluj',
+          title: 'Zmiana tygodnia',
+        })
+        .then((ok) => ok && go());
     else go();
   };
   const isEmployeeOnVacation = (id: string, d: Date) =>
@@ -384,6 +403,8 @@ const useHoursTable = (startWeek?: Date) => {
       {
         severity: 'error',
         okText: 'Usuń',
+        cancelText: 'Anuluj',
+        title: 'Usuwanie pracownika',
       }
     );
 
@@ -394,10 +415,15 @@ const useHoursTable = (startWeek?: Date) => {
   };
 
   const handleDeleteConstruction = async (id: string, n: string) => {
-    const confirmed = await dialogs.confirm(`Usunąć budowę ${n}?`, {
-      severity: 'error',
-      okText: 'Usuń',
-    });
+    const confirmed = await dialogs.confirm(
+      `Usunąć budowę ${n} łącznie ze wszystkimi pracownikami?`,
+      {
+        severity: 'error',
+        okText: 'Usuń',
+        cancelText: 'Anuluj',
+        title: 'Usuwanie budowy',
+      }
+    );
 
     if (confirmed) {
       setLocalWorkHours((p) => p.filter((x) => x.constructionId !== id));
@@ -429,7 +455,14 @@ const useHoursTable = (startWeek?: Date) => {
   };
   const handleConstructionWithEmployeeAdded = handleEmployeesAdded;
   const handleCancelEdit = async () => {
-    if (hasUnsavedChanges && !(await dialogs.confirm('Anulować?'))) return;
+    if (
+      hasUnsavedChanges &&
+      !(await dialogs.confirm('Masz niezapisane zmiany. Anulować edycję?', {
+        cancelText: 'Wróć',
+        title: 'Anulowanie edycji',
+      }))
+    )
+      return;
     setLocalWorkHours(workHoursFromDB);
     setHasUnsavedChanges(false);
     setEditMode(false);
@@ -541,7 +574,8 @@ const useHoursTable = (startWeek?: Date) => {
   );
 
   return {
-    isLoading: workHoursLoading || vacationsLoading,
+    isLoading:
+      workHoursLoading || vacationsLoading || saveWorkHoursMutation.isPending,
     loadingError: workHoursError || vacationsError,
     // isLoading: employeesLoading || constructionsLoading || workHoursLoading || vacationsLoading,
     // loadingError: workHoursError || employeesError || vacationsError || constructionsError,

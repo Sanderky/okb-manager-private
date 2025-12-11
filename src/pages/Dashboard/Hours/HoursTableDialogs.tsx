@@ -97,6 +97,8 @@ export const AddConstructionWithEmployeeDialog: React.FC<
     onClose();
   };
 
+  const isAllSelected = selectedEmployees.length === employees.length
+
   return (
     <BaseDialog
       open={open}
@@ -183,7 +185,7 @@ export const AddConstructionWithEmployeeDialog: React.FC<
         />
       </FormControl>
       <Stack direction="row" mt={1} spacing={1} justifyContent={'flex-end'}>
-        <Button onClick={handleSelectAllEmployees}>Wszyscy</Button>
+        <Button onClick={handleSelectAllEmployees} disabled={isAllSelected}>Wszystko</Button>
         <Button onClick={handleDeselectAllEmployees}>Wyczyść</Button>
       </Stack>
     </BaseDialog>
@@ -246,6 +248,7 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
     onClose();
   };
 
+  const isAllSelected = selectedEmployees.length === availableEmployees.length
   return (
     <BaseDialog
       open={open}
@@ -309,7 +312,7 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
         />
       </FormControl>
       <Stack direction="row" mt={1} spacing={1} justifyContent={'flex-end'}>
-        <Button onClick={handleSelectAllEmployees}>Wszyscy</Button>
+        <Button onClick={handleSelectAllEmployees} disabled={isAllSelected}>Wszystko</Button>
         <Button onClick={handleDeselectAllEmployees}>Wyczyść</Button>
       </Stack>
     </BaseDialog>

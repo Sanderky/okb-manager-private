@@ -198,7 +198,7 @@ const HoursTableControls = ({
                 </MenuItem>
               )}
 
-          {!readOnly && (
+          {!readOnly && editMode && (
             <MenuItem key={'copy'} disableRipple>
               <Button
                 startIcon={<ContentCopy />}
@@ -217,7 +217,7 @@ const HoursTableControls = ({
               </Button>
             </MenuItem>
           )}
-          {!readOnly && (
+          {!readOnly && editMode && (
             <MenuItem key={'fill'} disableRipple>
               <Button
                 startIcon={<AutoFixHigh />}
@@ -444,21 +444,7 @@ const HoursTableControls = ({
         </Grid>
 
         <Grid>
-          <Stack
-            alignItems="center"
-            direction="row"
-            // spacing={1}
-            sx={{ flexShrink: 0 }}
-          >
-            <Typography
-              sx={{
-                display: { xs: 'none', sm: 'none', md: 'none', lg: 'block' },
-                mr: 1,
-              }}
-              variant="body2"
-            >
-              Wybrany tydzień:
-            </Typography>
+          <Stack alignItems="center" direction="row" sx={{ flexShrink: 0 }}>
             <WeekSelector
               disabled={isLoading}
               value={currentWeek}
@@ -536,6 +522,7 @@ const HoursTableControls = ({
                     sx={{
                       color: 'inherit',
                       ml: 1,
+                      mr: 1,
                     }}
                   >
                     Anuluj
@@ -546,6 +533,9 @@ const HoursTableControls = ({
                   disabled={isLoading}
                   size="small"
                   variant={'outlined'}
+                  sx={{
+                    mr: 1,
+                  }}
                   onClick={() => {
                     if (!isExpanded) handleToggleExpand();
 
@@ -555,30 +545,30 @@ const HoursTableControls = ({
                   Edytuj
                 </Button>
               )}
-
-              <Tooltip title="Kopiuj z innego tygodnia">
-                <span>
-                  <IconButton
-                    disabled={isLoading || !editMode}
-                    onClick={handleCopyDataDialogOpen}
-                    loading={isCoping}
-                    sx={{ ml: 1 }}
-                  >
-                    <ContentCopy />
-                  </IconButton>
-                </span>
-              </Tooltip>
-              <Tooltip title="Uzupełnij proponowane">
-                <span>
-                  <IconButton
-                    disabled={isLoading || !editMode}
-                    onClick={handleFillWithSchedule}
-                    loading={isCoping}
-                  >
-                    <AutoFixHigh />
-                  </IconButton>
-                </span>
-              </Tooltip>
+              {editMode && [
+                <Tooltip title="Kopiuj z innego tygodnia">
+                  <span>
+                    <IconButton
+                      disabled={isLoading || !editMode}
+                      onClick={handleCopyDataDialogOpen}
+                      loading={isCoping}
+                    >
+                      <ContentCopy />
+                    </IconButton>
+                  </span>
+                </Tooltip>,
+                <Tooltip title="Uzupełnij proponowane">
+                  <span>
+                    <IconButton
+                      disabled={isLoading || !editMode}
+                      onClick={handleFillWithSchedule}
+                      loading={isCoping}
+                    >
+                      <AutoFixHigh />
+                    </IconButton>
+                  </span>
+                </Tooltip>,
+              ]}
             </>
           )}
           <Tooltip title="Drukuj tabelkę">

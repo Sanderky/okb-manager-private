@@ -14,6 +14,7 @@ import {
   Collapse,
   InputBase,
   Stack,
+  TableFooter,
 } from '@mui/material';
 import {
   Add,
@@ -110,27 +111,36 @@ const EditableCell = React.memo(
           step: 0.5,
           style: {
             textAlign: 'center',
-            cursor: isActive ? 'text' : 'default',
             backgroundColor: 'transparent',
             padding: 0,
+            caretColor: isActive ? 'auto' : 'transparent',
+            height: '100%',
+            flexGrow: 1
           },
         }}
-        sx={{
+        sx={(theme) => ({
+          width: '100%',
+          height: '100%', 
+
           fontSize: '0.875rem',
           fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
-          width: '100%',
-
           '& .MuiInputBase-input': {
+            height: '100% !important',
             color: isActive ? 'black' : 'inherit',
-            fontWeight: isActive ? 500 : 400,
 
             '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': {
               WebkitAppearance: 'none',
               margin: 0,
             },
             '&[type=number]': { MozAppearance: 'textfield' },
+
+            '&:focus': isActive
+              ? {
+                  boxShadow: `inset 0 0 0 2px ${theme.palette.primary.main}`,
+                }
+              : {},
           },
-        }}
+        })}
       />
     );
   },
@@ -234,19 +244,15 @@ const TableRows = ({
               {employeeIndex === 0 && (
                 <TableCell
                   rowSpan={construction.workHours.length + 1}
-                  className={`${!construction.isActive && 'text-red-400'}`}
                   align="center"
                   sx={{
                     borderRight: tableBorder,
                     fontWeight: 'bold',
                     verticalAlign: 'middle',
                     borderBottom: borderBold,
-                    '& span:hover': {
-                      textDecoration: editMode ? 'underline' : 'none',
-                    },
                   }}
                 >
-                  <span
+                  <Typography
                     onClick={() =>
                       editMode &&
                       handleDeleteConstruction(
@@ -254,29 +260,45 @@ const TableRows = ({
                         construction.name
                       )
                     }
-                    style={{ cursor: editMode ? 'pointer' : 'text' }}
+                    sx={{
+                      textDecoration: !construction.isActive
+                        ? 'line-through'
+                        : 'none',
+                      color: !construction.isActive
+                        ? 'text.disabled'
+                        : 'text.primary',
+                      cursor: editMode ? 'pointer' : 'text',
+                      fontSize: {
+                        xs: '0.75rem',
+                        md: '0.85rem',
+                      },
+                      fontWeight: 600,
+                      '&:hover': {
+                        textDecoration: editMode
+                          ? 'underline'
+                          : !construction.isActive
+                            ? 'line-through'
+                            : 'none',
+                      },
+                    }}
                   >
+                    {/* {`${constructionIndex + 1}. ${construction.name}`} */}
                     {construction.name}
-                  </span>
+                  </Typography>
                 </TableCell>
               )}
 
               <TableCell
                 align="center"
-                className={`${!workHour.isActive && 'text-red-400'}`}
                 sx={{
                   verticalAlign: 'middle',
                   p: numberCellPadding,
                   position: 'relative',
-                  fontWeight: 'bold',
                   borderRight: tableBorder,
                   borderBottom: tableBorder,
-                  '& span:hover': {
-                    textDecoration: editMode ? 'underline' : 'none',
-                  },
                 }}
               >
-                <span
+                <Typography
                   onClick={() =>
                     editMode &&
                     handleDeleteEmployee(
@@ -285,10 +307,31 @@ const TableRows = ({
                       construction.name
                     )
                   }
-                  style={{ cursor: editMode ? 'pointer' : 'text' }}
+                  sx={{
+                    textDecoration: !workHour.isActive
+                      ? 'line-through'
+                      : 'none',
+                    color: !workHour.isActive
+                      ? 'text.disabled'
+                      : 'text.primary',
+                    cursor: editMode ? 'pointer' : 'text',
+                    fontWeight: 600,
+                    fontSize: {
+                      xs: '0.75rem',
+                      md: '0.85rem',
+                    },
+                    '&:hover': {
+                      textDecoration: editMode
+                        ? 'underline'
+                        : !workHour.isActive
+                          ? 'line-through'
+                          : 'none',
+                    },
+                  }}
                 >
+                  {/* {`${employeeIndex + 1}. ${workHour.employeeName}`} */}
                   {workHour.employeeName}
-                </span>
+                </Typography>
               </TableCell>
 
               {workHour.hours.map((hour, dayIndex) => {
@@ -303,15 +346,15 @@ const TableRows = ({
                     }
                     sx={{
                       borderBottom: tableBorder,
-                      p: 0.5,
+                      p: 0,
                       borderRight: tableBorder,
                       height: '33px',
-                    }} // p:0.5 pasuje do inputa
+                    }}
                   >
                     <EditableCell
                       value={hour}
                       isHoliday={isVacation}
-                      isActive={editMode} // <--- Kluczowa zmiana: sterujemy tylko tym propsem
+                      isActive={editMode}
                       onChange={(newVal) =>
                         handleHoursChange(workHour.id, dayIndex, newVal)
                       }
@@ -323,14 +366,18 @@ const TableRows = ({
               <TableCell
                 align="center"
                 sx={{
-                  fontWeight: 'bold',
                   width: numberCellMaxWidth,
                   minWidth: '20px',
                   p: numberCellPadding,
                   borderBottom: tableBorder,
                 }}
               >
-                {formatToPolishDecimal(workHour.total)}
+                <Typography
+                  className="text-center font-semibold"
+                  variant="body2"
+                >
+                  {formatToPolishDecimal(workHour.total)}
+                </Typography>
               </TableCell>
             </TableRow>
           ))}
@@ -338,41 +385,43 @@ const TableRows = ({
             <TableCell
               sx={{
                 borderBottom: borderBold,
-                p: 0.5,
+                p: 0,
+                pl: 1,
                 borderRight: tableBorder,
                 background: '#fff',
               }}
               colSpan={8}
             >
-              {editMode && (
-                <Tooltip
-                  title={
-                    availableEmployees.length === 0
-                      ? 'Wszyscy pracownicy zostali już dodani'
-                      : ''
-                  }
-                >
-                  <span>
-                    <Button
-                      startIcon={<Add />}
-                      disabled={availableEmployees.length === 0}
-                      onClick={() =>
-                        handleOpenAddEmployeeDialog(construction.id)
-                      }
-                      size="small"
-                    >
-                      Dodaj pracowników
-                    </Button>
-                  </span>
-                </Tooltip>
-              )}
+              <Tooltip
+                title={
+                  availableEmployees.length === 0
+                    ? 'Wszyscy pracownicy zostali już dodani'
+                    : ''
+                }
+              >
+                <span>
+                  <Button
+                    startIcon={<Add />}
+                    disabled={availableEmployees.length === 0}
+                    onClick={() => handleOpenAddEmployeeDialog(construction.id)}
+                    size="small"
+                    sx={{
+                      visibility: editMode ? 'visible' : 'hidden',
+                    }}
+                  >
+                    Dodaj pracowników
+                  </Button>
+                </span>
+              </Tooltip>
             </TableCell>
             <TableCell
               align="center"
               className="bg-blue-200"
-              sx={{ borderBottom: borderBold, p: 0.5, fontWeight: 'bold' }}
+              sx={{ borderBottom: borderBold, p: 0.5 }}
             >
-              {formatToPolishDecimal(construction.totalHours)}
+              <Typography className="text-center font-semibold" variant="body2">
+                {formatToPolishDecimal(construction.totalHours)}
+              </Typography>
             </TableCell>
           </TableRow>
         </React.Fragment>
@@ -648,6 +697,12 @@ const HoursTable = ({
   const isTableLoading = isCoping || isFilling || isLoading || isSaving;
   const availableConstructions = getAvailableConstructions();
 
+  const employeesCount = useMemo(() => {
+    return constructionsWithWorkHours.reduce((acc, construction) => {
+      return acc + construction.workHours.length;
+    }, 0);
+  }, [constructionsWithWorkHours]);
+
   return (
     <Box>
       <Box sx={{ display: 'none' }}>
@@ -700,7 +755,6 @@ const HoursTable = ({
               className="border-lightGray rounded-lg border bg-white"
               sx={(theme) => ({
                 position: 'relative',
-                '& th': { backgroundColor: 'oklch(0.967 0.003 264.542)' },
                 outline: editMode
                   ? `2px solid ${theme.palette.primary.main} !important`
                   : '',
@@ -711,51 +765,73 @@ const HoursTable = ({
                 <TableHead>
                   <TableRow>
                     <TableCell
+                      className="bg-gray-100"
                       sx={{
-                        fontWeight: 'bold',
                         borderRight: tableBorder,
                         borderBottom: borderBold,
                       }}
                       align="center"
                     >
-                      Budowa
+                      <Typography
+                        className="text-center font-semibold"
+                        variant="body2"
+                      >
+                        Budowa
+                      </Typography>
                     </TableCell>
                     <TableCell
+                      className="bg-gray-100"
                       sx={{
-                        fontWeight: 'bold',
                         borderRight: tableBorder,
                         borderBottom: borderBold,
                       }}
                       align="center"
                     >
-                      Pracownik
+                      <Typography
+                        className="text-center font-semibold"
+                        variant="body2"
+                      >
+                        Pracownik
+                      </Typography>
                     </TableCell>
                     {weekDates.map((date, index) => (
                       <TableCell
+                        className="bg-gray-100"
                         key={`${date.getTime()}-${index}`}
                         align="center"
                         sx={{
-                          fontWeight: 'bold',
                           borderRight: tableBorder,
                           borderBottom: borderBold,
                         }}
                       >
-                        <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                        <Typography
+                          className="block text-center font-semibold"
+                          variant="caption"
+                        >
                           {date.toLocaleDateString('pl-PL', {
                             weekday: 'short',
                           })}
                         </Typography>
-                        <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                        <Typography
+                          className="text-center font-semibold"
+                          variant="body2"
+                        >
                           {date.getDate().toString().padStart(2, '0')}.
                           {(date.getMonth() + 1).toString().padStart(2, '0')}
                         </Typography>
                       </TableCell>
                     ))}
                     <TableCell
+                      className="bg-gray-100"
                       align="center"
-                      sx={{ fontWeight: 'bold', borderBottom: borderBold }}
+                      sx={{ borderBottom: borderBold }}
                     >
-                      Suma
+                      <Typography
+                        className="text-center font-semibold"
+                        variant="body2"
+                      >
+                        Suma
+                      </Typography>
                     </TableCell>
                   </TableRow>
                 </TableHead>
@@ -777,43 +853,118 @@ const HoursTable = ({
                     }
                   />
                 </TableBody>
+                <TableFooter>
+                  <TableRow>
+                    <TableCell
+                      className="border-lightGray border-t border-b bg-white"
+                      colSpan={9}
+                      sx={{
+                        position: 'sticky',
+                        bottom: -1,
+                        zIndex: 2,
+                        p: 0,
+                        pl: 1,
+                      }}
+                    >
+                      <Stack
+                        direction="row"
+                        spacing={3}
+                        alignItems="center"
+                        justifyContent={'space-between'}
+                      >
+                        <Stack direction="row" alignItems="center" spacing={3}>
+                          <Tooltip
+                            title={
+                              availableConstructions.length === 0 && editMode
+                                ? 'Wszystkie budowy zostały już dodane'
+                                : ''
+                            }
+                          >
+                            <Box
+                              component="span"
+                              sx={{
+                                order: editMode ? 1 : 3,
+                              }}
+                            >
+                              <Button
+                                sx={{
+                                  visibility: editMode ? 'visible' : 'hidden',
+                                }}
+                                startIcon={<Add />}
+                                onClick={() =>
+                                  setAddConstructionDialogOpen(true)
+                                }
+                                size="small"
+                                variant="text"
+                                color="primary"
+                                disabled={availableConstructions.length === 0}
+                              >
+                                Dodaj budowę
+                              </Button>
+                            </Box>
+                          </Tooltip>
+
+                          <Stack
+                            direction="row"
+                            spacing={2}
+                            alignItems={'center'}
+                            divider={
+                              <Box
+                                sx={{
+                                  borderRight: '1px solid #ccc',
+                                  height: '15px',
+                                }}
+                              />
+                            }
+                            sx={{ order: 2 }}
+                          >
+                            <Typography
+                              variant="caption"
+                              sx={{ fontWeight: 600, color: 'text.secondary' }}
+                            >
+                              Budowy: {constructionsWithWorkHours.length}
+                            </Typography>
+                            <Typography
+                              variant="caption"
+                              sx={{ fontWeight: 600, color: 'text.secondary' }}
+                            >
+                              Pracownicy: {employeesCount}
+                            </Typography>
+                          </Stack>
+                        </Stack>
+
+                        <Typography
+                          variant="caption"
+                          sx={{ fontWeight: 600, color: 'text.secondary' }}
+                        >
+                          Suma całkowita:
+                        </Typography>
+                      </Stack>
+                    </TableCell>
+
+                    <TableCell
+                      align="center"
+                      className="border-lightGray border-t bg-white"
+                      sx={{
+                        position: 'sticky',
+                        bottom: -1,
+                        p: 0,
+                        zIndex: 2,
+                      }}
+                    >
+                      <Typography
+                        variant="caption"
+                        sx={{ fontWeight: 600, color: 'text.secondary' }}
+                      >
+                        {constructionsWithWorkHours.length > 0
+                          ? formatToPolishDecimal(totalHoursData.grandTotal)
+                          : '-'}
+                      </Typography>
+                    </TableCell>
+                  </TableRow>
+                </TableFooter>
               </Table>
             </TableContainer>
-            <Stack direction={'row'}>
-              {editMode && (
-                <Tooltip
-                  title={
-                    availableConstructions.length === 0
-                      ? 'Wszystkie budowy zostały już dodane'
-                      : ''
-                  }
-                >
-                  <span>
-                    <Button
-                      startIcon={<Add />}
-                      sx={{
-                        visibility: editMode ? 'visible' : 'hidden',
-                      }}
-                      onClick={() => setAddConstructionDialogOpen(true)}
-                      size="small"
-                      variant="text"
-                      color="primary"
-                      disabled={availableConstructions.length === 0}
-                    >
-                      Dodaj budowę
-                    </Button>
-                  </span>
-                </Tooltip>
-              )}
-
-              <Typography>
-                {`Suma całkowita: ${
-                  constructionsWithWorkHours.length > 0
-                    ? formatToPolishDecimal(totalHoursData.grandTotal)
-                    : '-'
-                }`}
-              </Typography>
-            </Stack>
             {hasUnsavedChanges && (
               <Typography
                 variant="caption"
