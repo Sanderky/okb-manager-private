@@ -354,7 +354,7 @@ const Calendar: React.FC = () => {
     },
     [currentEvent]
   );
-  
+
   const handleEmployeeChange = useCallback((newValue: Employee) => {
     setCurrentEvent((prev) => ({
       ...prev,
@@ -466,6 +466,7 @@ const Calendar: React.FC = () => {
           onClick={() => setIsVacationReportOpen(true)}
           variant="contained"
           startIcon={<ListAltIcon />}
+          disabled={loading || employees.length === 0}
         >
           Wykaz urlopów
         </Button>
