@@ -448,7 +448,7 @@ export const NoteBase = ({
     ],
     editorProps: {
       attributes: {
-        class: 'rounded-sm border border-gray-300 bg-white px-2 py-1 note',
+        class: 'rounded-sm border border-gray-300 bg-white px-4 py-4 note',
         spellcheck: 'false',
       },
     },
