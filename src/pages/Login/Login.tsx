@@ -8,6 +8,8 @@ import {
   Button,
   IconButton,
   InputAdornment,
+  Link,
+  Stack,
   Typography,
 } from '@mui/material';
 import ForgotPassword from './ForgotPassword';
@@ -106,138 +108,170 @@ const Login = () => {
           />
         </div>
       ) : (
-        <Box
-          className="flex h-screen flex-col items-center justify-center py-8"
-          sx={{
-            px: { xs: 2, sm: 4 },
-          }}
-        >
+        <Box className="flex flex-col h-screen">
+
           <Box
-            className="relative w-full rounded-lg bg-white shadow"
+            className="flex flex-col items-center justify-center py-8"
             sx={{
-              maxWidth: { xs: '100%', sm: '450px' },
-              py: 3,
-              px: { xs: 2, sm: 3 },
+              flexGrow: 1,
+              px: { xs: 2, sm: 4 },
             }}
           >
-            <h1 className="text-dark absolute -top-8 left-1/2 mb-6 inline-flex -translate-x-1/2 flex-row items-end justify-center rounded-lg bg-white/50 px-4 py-2 font-medium shadow">
-              <LogoIcon className="text-4xl" />
-              <Typography
-                component={'span'}
-                className="text-4xl font-medium text-shadow-sm/20"
-                sx={(theme) => ({
-                  color: theme.palette.secondary.main,
-                })}
-              >
-                OKB
-              </Typography>
-              <Typography
-                component={'span'}
-                className="text-2xl font-medium underline"
-              >
-                manager
-              </Typography>
-            </h1>
-            <h2 className="text-dark mt-6 mb-8 text-xl">
-              Zaloguj się do swojego konta
-            </h2>
 
-            <form className="space-y-6" noValidate onSubmit={handleSubmit}>
-              <TextField
-                size="small"
-                error={!!errors.email}
-                required
-                fullWidth
-                id="email"
-                label="Email"
-                name="email"
-                autoFocus
-                helperText={errors.email}
-                value={values.email}
-                onChange={handleChange}
-                disabled={actionLoading}
-                slotProps={{
-                  input: { className: 'rounded-lg' },
-                }}
-              />
-              <TextField
-                size="small"
-                error={!!errors.password}
-                required
-                fullWidth
-                name="password"
-                label="Hasło"
-                type={showPassword ? 'text' : 'password'}
-                id="password"
-                helperText={errors.password}
-                value={values.password}
-                onChange={handleChange}
-                disabled={actionLoading}
-                slotProps={{
-                  input: {
-                    className: 'rounded-lg',
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          onClick={() => setShowPassword((prev) => !prev)}
-                          edge="end"
-                        >
-                          {showPassword ? <VisibilityOff /> : <Visibility />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  },
-                }}
-              />
-
-              {credentialError && (
-                <Alert severity="error">
-                  Wprowadzono niepoprawny email lub hasło.
-                </Alert>
-              )}
-
-              <div>
-                <Button
-                  onClick={() => setForgotOpen(true)}
-                  variant="text"
+            <Box
+              className="relative w-full rounded-lg bg-white shadow"
+              sx={{
+                maxWidth: { xs: '100%', sm: '450px' },
+                py: 3,
+                px: { xs: 2, sm: 3 },
+              }}
+            >
+              <h1 className="text-dark absolute -top-8 left-1/2 mb-6 inline-flex -translate-x-1/2 flex-row items-end justify-center rounded-lg bg-white/50 px-4 py-2 font-medium shadow">
+                <LogoIcon className="text-4xl" />
+                <Typography
+                  component={'span'}
+                  className="text-4xl font-medium text-shadow-sm/20"
                   sx={(theme) => ({
-                    color: theme.palette.primary.main,
-                    p: 0,
+                    color: theme.palette.secondary.main,
+                  })}
+                >
+                  OKB
+                </Typography>
+                <Typography
+                  component={'span'}
+                  className="text-2xl font-medium underline"
+                >
+                  manager
+                </Typography>
+              </h1>
+              <h2 className="text-dark mt-6 mb-8 text-xl">
+                Zaloguj się do swojego konta
+              </h2>
+
+              <form className="space-y-4" noValidate onSubmit={handleSubmit}>
+                <TextField
+                  size="small"
+                  error={!!errors.email}
+                  required
+                  fullWidth
+                  id="email"
+                  label="Email"
+                  name="email"
+                  autoFocus
+                  helperText={errors.email}
+                  value={values.email}
+                  onChange={handleChange}
+                  disabled={actionLoading}
+                  slotProps={{
+                    input: { className: 'rounded-lg' },
+                  }}
+                />
+                <TextField
+                  size="small"
+                  error={!!errors.password}
+                  required
+                  fullWidth
+                  name="password"
+                  label="Hasło"
+                  type={showPassword ? 'text' : 'password'}
+                  id="password"
+                  helperText={errors.password}
+                  value={values.password}
+                  onChange={handleChange}
+                  disabled={actionLoading}
+                  slotProps={{
+                    input: {
+                      className: 'rounded-lg',
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            onClick={() => setShowPassword((prev) => !prev)}
+                            edge="end"
+                          >
+                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    },
+                  }}
+                />
+
+                {credentialError && (
+                  <Alert severity="error">
+                    Wprowadzono niepoprawny email lub hasło.
+                  </Alert>
+                )}
+
+                <div>
+                  <Button
+                    onClick={() => setForgotOpen(true)}
+                    variant="text"
+                    sx={(theme) => ({
+                      color: theme.palette.primary.main,
+                      p: 0,
+                      '&:hover': {
+                        textDecoration: 'underline',
+                        background: 'transparent',
+                      },
+                    })}
+                  >
+                    Nie pamiętasz hasła?
+                  </Button>
+                </div>
+                <Typography variant='caption'>
+                  {`Logując się, akceptujesz `}
+                  <Link href="/regulamin.pdf" target="_blank" rel="noopener noreferrer">Zasady użytkowania systemu</Link>
+                  {` oraz potwierdzasz zapoznanie się z `}
+                  <Link href="/rodo.pdf" target="_blank" rel="noopener noreferrer">Informacją o przetwarzaniu danych (RODO)</Link>.
+                </Typography>
+
+                <Button
+                  type="submit"
+                  loading={actionLoading}
+                  variant="contained"
+                  sx={(theme) => ({
+                    width: '100%',
+                    border: `1px solid darkGray`,
+                    background: '#fff',
+                    color: theme.palette.text.primary,
+                    mt: 2,
+                    py: 1.5,
                     '&:hover': {
-                      textDecoration: 'underline',
-                      background: 'transparent',
+                      boxShadow: 'none',
+                      background: theme.palette.secondary.main,
                     },
                   })}
                 >
-                  Nie pamiętasz hasła?
+                  Zaloguj się
                 </Button>
-              </div>
+              </form>
 
-              <Button
-                type="submit"
-                loading={actionLoading}
-                variant="contained"
-                sx={(theme) => ({
-                  width: '100%',
-                  border: `1px solid darkGray`,
-                  background: '#fff',
-                  color: theme.palette.text.primary,
-                  py: 1.5,
-                  '&:hover': {
-                    boxShadow: 'none',
-                    background: theme.palette.secondary.main,
-                  },
-                })}
-              >
-                Zaloguj się
-              </Button>
-            </form>
-
-            <ForgotPassword
-              open={forgotOpen}
-              handleClose={() => setForgotOpen(false)}
-            />
+              <ForgotPassword
+                open={forgotOpen}
+                handleClose={() => setForgotOpen(false)}
+              />
+            </Box>
           </Box>
+
+          <footer
+          >
+            <Stack
+              direction={'row'}
+              justifyContent={'space-between'}
+              sx={{
+                px: 1,
+                columnGap: 1,
+                rowGap: 1
+              }}
+              flexWrap={'wrap'}
+            >
+
+              <Typography variant='caption' color='textSecondary'>Panel administracyjny dla pracowników. Dostęp tylko dla autoryzowanego personelu.</Typography>
+              <Typography variant='caption' color='textSecondary'>
+                &copy; {new Date().getFullYear()}, {import.meta.env.VITE_COMPANY_NAME}
+              </Typography>
+            </Stack>
+          </footer>
         </Box>
       )}
     </section>
