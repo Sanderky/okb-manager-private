@@ -100,7 +100,7 @@ const Hours: React.FC = () => {
     >
       <Box ref={containerRef}>
         <Stack direction="column" spacing={6}>
-          <HoursTable containerWidth={width} readOnly={false} tableId="main" />
+          <HoursTable containerWidth={width} readOnly={false} tableId="main" onTableDataUpdate={(data) => handleTableDataUpdate('main', data)} />
 
           {comparisionTables.map((key) => (
             <Box key={key}>
@@ -139,6 +139,7 @@ const Hours: React.FC = () => {
         <PrintReportDialog
           open={printReportDialogOpen}
           onClose={() => setPrintReportDialogOpen(false)}
+          defaultStartWeek={tablesData['main']?.weekStart}
         />
 
         <Box sx={{ display: 'none' }}>

@@ -198,7 +198,7 @@ const useHoursTable = (startWeek?: Date) => {
       const logs: Omit<WorkLogEntry, 'id'>[] = [];
       whs.forEach((w) =>
         w.hours.forEach((h, i) => {
-          if (h > 0)
+          if (h >= 0)
             logs.push({
               employeeId: w.employeeId,
               constructionId: w.constructionId,
@@ -358,26 +358,36 @@ const useHoursTable = (startWeek?: Date) => {
   };
 
   const handleToggleExpand = () => setIsExpanded((p) => !p);
-  const handleHoursChange = (id: string, idx: number, val: number | string) => {
-    if (!localWorkHours) return;
+
+  const handleHoursChange = useCallback((id: string, idx: number, val: number | string) => {
     const num = typeof val === 'string' ? parseFloat(val) || 0 : val;
-    setLocalWorkHours((p) =>
-      p.map((w) => {
-        if (w.id !== id) return w;
-        const nh = [...w.hours];
-        nh[idx] = num;
-        const tot = nh.reduce(
-          (s, c, i) =>
-            isEmployeeOnVacation(w.employeeId, getWeekDates(currentWeek)[i])
-              ? s
-              : s + c,
-          0
-        );
-        return { ...w, hours: nh, total: tot };
-      })
-    );
+
+    setLocalWorkHours((prevWorkHours) => {
+      const index = prevWorkHours.findIndex((w) => w.id === id);
+      if (index === -1) return prevWorkHours;
+
+      const item = prevWorkHours[index];
+
+      if (item.hours[idx] === num) return prevWorkHours;
+
+      const newHours = [...item.hours];
+      newHours[idx] = num;
+
+      const simpleTotal = newHours.reduce((acc, curr) => acc + curr, 0);
+
+      const newWorkHours = [...prevWorkHours];
+      newWorkHours[index] = {
+        ...item,
+        hours: newHours,
+        total: simpleTotal
+      };
+
+      return newWorkHours;
+    });
+
     setHasUnsavedChanges(true);
-  };
+  }, []);
+
   const handleWeekChange = (dir: 'prev' | 'current' | 'next') => {
     const go = () => {
       if (dir === 'prev') setCurrentWeek(getPreviousWeek(currentWeek));
@@ -575,10 +585,8 @@ const useHoursTable = (startWeek?: Date) => {
 
   return {
     isLoading:
-      workHoursLoading || vacationsLoading || saveWorkHoursMutation.isPending,
+      workHoursLoading || vacationsLoading,
     loadingError: workHoursError || vacationsError,
-    // isLoading: employeesLoading || constructionsLoading || workHoursLoading || vacationsLoading,
-    // loadingError: workHoursError || employeesError || vacationsError || constructionsError,
     totalHoursData,
     handleEmployeesAdded,
     handleDeleteConstruction,

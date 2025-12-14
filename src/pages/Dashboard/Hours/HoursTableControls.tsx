@@ -546,7 +546,7 @@ const HoursTableControls = ({
                 </Button>
               )}
               {editMode && [
-                <Tooltip title="Kopiuj z innego tygodnia">
+                <Tooltip key='copy' title="Kopiuj z innego tygodnia">
                   <span>
                     <IconButton
                       disabled={isLoading || !editMode}
@@ -557,7 +557,7 @@ const HoursTableControls = ({
                     </IconButton>
                   </span>
                 </Tooltip>,
-                <Tooltip title="Uzupełnij proponowane">
+                <Tooltip key='fill' title="Uzupełnij proponowane">
                   <span>
                     <IconButton
                       disabled={isLoading || !editMode}

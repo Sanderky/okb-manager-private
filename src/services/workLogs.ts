@@ -114,7 +114,7 @@ export const saveWorkLogDay = async (
   hours: number
 ): Promise<void> => {
   const dateStr = toSqlDate(date);
-  if (hours > 0) {
+  if (hours >= 0) {
     const { error } = await supabase
       .from('work_logs')
       .upsert(
