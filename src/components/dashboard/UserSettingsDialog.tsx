@@ -4,10 +4,11 @@ import {
   Button,
   Box,
   Typography,
-  Divider
+  Divider,
+  useTheme
 } from '@mui/material';
 import { OutgoingMail } from '@mui/icons-material';
-import { supabase } from '../../supabase';
+import { updateDisplayName as updateNameService, updateEmail as updateEmailService } from '../../services/auth';
 import { useAuth } from '../../context/AuthContext';
 import BaseDialog from '../BaseDialog';
 import useNotifications from '../../hooks/useNotifications/useNotifications';
@@ -24,6 +25,7 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
 }) => {
   const { user } = useAuth();
   const notifications = useNotifications();
+  const theme = useTheme();
 
   const [emailEditMode, setEmailEditMode] = useState(false);
   const [usernameEditMode, setUsernameEditMode] = useState(false);
@@ -36,6 +38,15 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
   const [fieldsErrors, setFieldsError] = useState<Record<string, string>>({});
 
   const navigate = useNavigate();
+
+  const disabledInputStyles = {
+    '& .MuiInputBase-input.Mui-disabled': {
+      cursor: 'text',
+      WebkitTextFillColor: theme.palette.text.primary,
+      color: theme.palette.text.primary,
+      opacity: 1,
+    },
+  };
 
   useEffect(() => {
     if (open) {
@@ -79,15 +90,13 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
 
     const currentName = user.user_metadata?.display_name || '';
     if (displayName !== currentName) {
-      const { error } = await supabase.auth.updateUser({
-        data: { display_name: displayName.trim() },
-      });
-
-      if (error) {
+      try {
+        await updateNameService(displayName.trim());
+        return true;
+      } catch (error) {
         console.error('Update name error:', error);
         return false;
       }
-      return true;
     }
     return false;
   };
@@ -110,16 +119,13 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
       return false;
     }
 
-    const { error } = await supabase.auth.updateUser({
-      email: email.trim(),
-    });
-
-    if (error) {
-      notifications.show(error.message, { severity: 'error' });
+    try {
+      await updateEmailService(email.trim());
+      return true;
+    } catch (error: any) {
+      notifications.show(error.message || 'Błąd zmiany emaila', { severity: 'error' });
       return false;
     }
-
-    return true;
   };
 
   const handleSaveEmail = async (): Promise<void> => {
@@ -229,13 +235,15 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
         </Box>
       ) : (
         <Box component="form" sx={{ mt: 1 }}>
-          <Typography variant="body1" gutterBottom>
+          <Typography sx={{ fontWeight: 500, fontSize: '1.1rem' }} variant="body1" gutterBottom>
             Informacje podstawowe
           </Typography>
 
+          <Typography>
+            Nazwa użytkownika:
+          </Typography>
           <TextField
             size="small"
-            label="Nazwa użytkownika"
             slotProps={{
               input: {
                 readOnly: !usernameEditMode,
@@ -244,20 +252,22 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
             fullWidth
-            margin="normal"
             disabled={loading || !usernameEditMode}
+            sx={disabledInputStyles}
           />
 
           <Box
             sx={{
-              mt: 1,
+              mt: 2,
               mb: 2,
             }}
           >
             {!usernameEditMode && (
               <Button
-                variant="contained"
+                variant="outlined"
+                size='small'
                 onClick={() => setUsernameEditMode(true)}
+                loading={loading}
               >
                 Edytuj nazwę użytkownika
               </Button>
@@ -266,8 +276,10 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
               <>
                 <Button
                   variant="outlined"
+                  size='small'
                   color="inherit"
-                  className="border-gray-400"
+                  loading={loading}
+
                   sx={{ mr: 2 }}
                   onClick={() => {
                     setDisplayName(user.user_metadata?.display_name || '');
@@ -279,6 +291,7 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
 
                 <Button
                   variant="contained"
+                  size='small'
                   onClick={handleSaveUsername}
                   loading={loading}
                 >
@@ -288,9 +301,12 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
             )}
           </Box>
 
+
+          <Typography>
+            Email:
+          </Typography>
           <TextField
             size="small"
-            label="Email"
             type="email"
             slotProps={{
               input: {
@@ -302,55 +318,58 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
             onChange={(e) => setEmail(e.target.value)}
             fullWidth
             helperText={fieldsErrors['email']}
-            margin="normal"
             disabled={loading || !emailEditMode}
+            sx={disabledInputStyles}
           />
 
-          {!emailEditMode && (
-            <Button
-              variant="contained"
-              sx={{ mt: 1 }}
-              onClick={() => setEmailEditMode(true)}
-            >
-              Edytuj adres email
-            </Button>
-          )}
-          {emailEditMode && (
-            <>
+          <Box sx={{ mt: 2 }}>
+            {!emailEditMode && (
               <Button
-                variant="outlined"
-                color="inherit"
-                className="border-gray-400"
-                sx={{ mr: 2, mt: 1 }}
-                onClick={() => {
-                  setEmail(user.email || '');
-                  setEmailEditMode(false);
-                }}
-              >
-                Anuluj
-              </Button>
-
-              <Button
-                variant="contained"
-                onClick={handleSaveEmail}
                 loading={loading}
-                sx={{
-                  mt: 1,
-                }}
+                variant="outlined"
+                size='small'
+                onClick={() => setEmailEditMode(true)}
               >
-                Zapisz
+                Edytuj adres email
               </Button>
-            </>
-          )}
+            )}
+            {emailEditMode && (
+              <>
+                <Button
+                  variant="outlined"
+                  size='small'
+                  color="inherit"
+                  loading={loading}
+                  sx={{ mr: 2 }}
+                  onClick={() => {
+                    setEmail(user.email || '');
+                    setEmailEditMode(false);
+                  }}
+                >
+                  Anuluj
+                </Button>
+
+                <Button
+                  variant="contained"
+                  size='small'
+                  onClick={handleSaveEmail}
+                  loading={loading}
+                >
+                  Zapisz
+                </Button>
+              </>
+            )}
+          </Box>
 
           <Divider sx={{ my: 3 }} />
 
-          <Typography variant="body1" mb={2}>
+          <Typography variant="body1" mb={2} sx={{ fontWeight: 500, fontSize: '1.1rem' }}>
             Zmiana hasła
           </Typography>
 
           <Button
-            variant="contained"
+            variant="outlined"
+            size='small'
             onClick={() => navigate('/reset-password')}
             loading={loading}
           >

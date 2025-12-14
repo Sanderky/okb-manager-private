@@ -37,3 +37,21 @@ export const updatePassword = async (password: string) => {
   if (error) throw error;
   return data;
 };
+
+export const updateDisplayName = async (displayName: string) => {
+  const { data, error } = await supabase.auth.updateUser({
+    data: { display_name: displayName }
+  });
+
+  if (error) throw error;
+  return data;
+};
+
+export const updateEmail = async (email: string) => {
+  const { data, error } = await supabase.auth.updateUser({
+    email: email
+  });
+
+  if (error) throw error;
+  return data;
+};
