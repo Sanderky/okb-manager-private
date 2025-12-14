@@ -609,6 +609,7 @@ export default function ConstructionsList() {
       breadcrumbs={[{ title: 'Lista budów' }]}
       actions={[
         <Button
+          key='contractors'
           variant="contained"
           onClick={() => setContractorsModalOpen(true)}
           startIcon={<Engineering />}
@@ -617,6 +618,7 @@ export default function ConstructionsList() {
           Wykonawcy
         </Button>,
         <Button
+          key='new'
           variant="contained"
           onClick={handleCreateClick}
           startIcon={<AddIcon />}
