@@ -6,12 +6,13 @@ const TABLE_NAME = 'contractors';
 const mapToContractor = (data: any): Contractor => ({
   id: data.id,
   name: data.name,
+  constructionsCount: data?.constructions[0]?.count
 });
 
 export const getContractors = async (): Promise<Contractor[]> => {
   const { data, error } = await supabase
     .from(TABLE_NAME)
-    .select('*')
+    .select('*, constructions(count)')
     .order('name', { ascending: true });
 
   if (error) throw error;

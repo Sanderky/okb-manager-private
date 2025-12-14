@@ -41,6 +41,7 @@ export default function ConstructionCreate() {
       createConstruction(newConstruction as Construction),
     onSuccess: (newConstructionId) => {
       queryClient.invalidateQueries({ queryKey: ['constructions'] });
+      queryClient.invalidateQueries({ queryKey: ['contractors'] });
       notifications.show('Budowa została pomyślnie utworzona.', {
         severity: 'success',
         autoHideDuration: 5000,

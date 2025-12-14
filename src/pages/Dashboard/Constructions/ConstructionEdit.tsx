@@ -85,6 +85,7 @@ export default function ConstructionEdit() {
         queryKey: ['construction', constructionId],
       });
       queryClient.invalidateQueries({ queryKey: ['constructions'] });
+      queryClient.invalidateQueries({ queryKey: ['contractors'] });
       notifications.show('Zmiany zostały pomyślnie zapisane.', {
         severity: 'success',
         autoHideDuration: 3000,
@@ -103,6 +104,9 @@ export default function ConstructionEdit() {
 
   const deleteMutation = useMutation({
     mutationFn: () => removeConstruction(constructionId!),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['contractors'] });
+    }
   });
 
   const handleFieldChange = useCallback(

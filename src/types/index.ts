@@ -5,6 +5,7 @@ export type EmployeeAttachmentType = 'id_card' | 'contract' | 'a1' | 'other';
 export interface Contractor {
   id: string;
   name: string;
+  constructionsCount?: number
 }
 
 export interface Construction {

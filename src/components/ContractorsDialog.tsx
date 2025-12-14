@@ -31,6 +31,8 @@ const useContractors = () => {
   const dialogs = useDialogs();
   const notifications = useNotifications();
 
+  const [operatingId, setOperatingId] = useState<string | null>(null);
+
   const {
     data: contractors,
     isLoading: isFetching,
@@ -52,6 +54,12 @@ const useContractors = () => {
 
   const updateMutation = useMutation({
     mutationFn: updateContractor,
+    onMutate: (variables) => {
+      setOperatingId(variables.id);
+    },
+    onSettled: () => {
+      setOperatingId(null);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['contractors'] });
       queryClient.invalidateQueries({ queryKey: ['constructions'] });
@@ -147,6 +155,7 @@ const useContractors = () => {
       updateMutation.isPending ||
       deleteMutation.isPending ||
       addMutation.isPending,
+    operatingId,
     contractors,
     handleAdd,
     handleDelete,
@@ -154,24 +163,31 @@ const useContractors = () => {
   };
 };
 
+interface ContractorRowProps {
+  contractor: Contractor;
+  index: number;
+  onEdit: (newName: string, contractor: Contractor) => void;
+  onDelete: (contractor: Contractor) => void;
+  isLoading: boolean;
+}
+
 const ContractorRow = ({
   contractor,
   index,
-}: {
-  contractor: Contractor;
-  index: number;
-}) => {
+  onEdit,
+  onDelete,
+  isLoading
+}: ContractorRowProps) => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [localName, setLocalName] = useState(contractor.name);
-  const { isLoading, handleDelete, handleEdit } = useContractors();
 
-  const onEdit = () => {
-    handleEdit(localName, contractor);
+  const handleSave = () => {
+    onEdit(localName, contractor);
     setIsEditMode(false);
   };
 
-  const onDelete = () => {
-    handleDelete(contractor);
+  const handleDeleteClick = () => {
+    onDelete(contractor);
   };
 
   return (
@@ -201,17 +217,13 @@ const ContractorRow = ({
                 disableUnderline: !isEditMode,
               },
             }}
-            sx={{
-              '& .MuiInputBase-input': {
-                cursor: isEditMode ? 'pointer' : 'default',
-              },
-            }}
           />
         )}
       </TableCell>
+      <TableCell align='center'>{contractor.constructionsCount ?? '-'}</TableCell>
       <TableCell sx={{ minWidth: 160 }} className="border-b">
         {isEditMode ? (
-          <Button onClick={onEdit} loading={isLoading}>
+          <Button onClick={handleSave} loading={isLoading}>
             Zapisz
           </Button>
         ) : (
@@ -219,7 +231,7 @@ const ContractorRow = ({
             Edytuj
           </Button>
         )}
-        <Button color="error" onClick={onDelete} disabled={isLoading}>
+        <Button color="error" onClick={handleDeleteClick} disabled={isLoading}>
           Usuń
         </Button>
       </TableCell>
@@ -229,7 +241,7 @@ const ContractorRow = ({
 
 const ContractorsList = () => {
   const [newName, setNewName] = useState('');
-  const { isFetching, isFetchingError, handleAdd, contractors, isLoading } =
+  const { isFetching, isFetchingError, operatingId, handleAdd, handleDelete, handleEdit, contractors, isLoading } =
     useContractors();
 
   const onAdd = () => {
@@ -262,15 +274,16 @@ const ContractorsList = () => {
           stickyHeader
           sx={{
             '& .MuiTableBody-root .MuiTableRow-root:last-child .MuiTableCell-root':
-              {
-                borderBottom: 'none !important',
-              },
+            {
+              borderBottom: 'none !important',
+            },
           }}
         >
           <TableHead>
             <TableRow>
               <TableCell width="5%">Lp.</TableCell>
-              <TableCell width="65%">Nazwa</TableCell>
+              <TableCell width="55%">Nazwa</TableCell>
+              <TableCell width="10%">Budowy</TableCell>
               <TableCell width="30%" className="border-b">
                 Akcje
               </TableCell>
@@ -295,6 +308,9 @@ const ContractorsList = () => {
                   key={contractor.id}
                   contractor={contractor}
                   index={index}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                  isLoading={operatingId === contractor.id}
                 />
               ))
             )}
