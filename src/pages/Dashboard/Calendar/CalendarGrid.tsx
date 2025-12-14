@@ -8,7 +8,7 @@ import {
   darken,
   Stack,
   useMediaQuery,
-  Divider,
+  Divider
 } from '@mui/material';
 import dayjs from 'dayjs';
 import {
@@ -40,6 +40,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
 
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
     const [expandedWeeks, setExpandedWeeks] = useState<Set<number>>(new Set());
+    const [hoveredEventId, setHoveredEventId] = useState<string | null>(null);
 
     const MAX_EVENTS = isMobile ? MAX_EVENTS_PHONE : MAX_EVENTS_DESKTOP;
 
@@ -179,6 +180,8 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                       return (
                         <Box
                           key={index}
+                          onMouseEnter={() => setHoveredEventId(ev.groupId)}
+                          onMouseLeave={() => setHoveredEventId(null)}
                           onClick={(e) => {
                             e.stopPropagation();
                             handleEventClick(ev);
@@ -210,6 +213,14 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
 
                             cursor: 'pointer',
                             textAlign: showName ? 'left' : 'right',
+
+                            ...(hoveredEventId === (ev.groupId || ev.id) && {
+                              transform: 'scaleY(1.2)',
+                              zIndex: 10,
+                              // filter: 'brightness(0.95)',
+                              transition: 'all 0.1s ease-in-out',
+                            }),
+
                           }}
                           className={`${!ev.employee.status && 'italic line-through'}`}
                         >
@@ -243,7 +254,6 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                           >
                             {getInitials(ev.employee.name)}
                           </Typography>
-
                           {isWeekStart && !isStart && (
                             <Box
                               sx={{
