@@ -31,6 +31,7 @@ import {
   AddConstructionWithEmployeeDialog,
   AddEmployeeDialog,
   CopyTableDialog,
+  FiltersDialog,
 } from './HoursTableDialogs';
 import useHoursTable, {
   type ConstructionsWithWorkHours,
@@ -119,7 +120,7 @@ const EditableCell = React.memo(
             padding: 0,
             caretColor: isActive ? 'auto' : 'transparent',
             height: '100%',
-            flexGrow: 1
+            flexGrow: 1,
           },
         }}
         sx={(theme) => ({
@@ -541,6 +542,7 @@ const HoursTable = ({
     useState(false);
   const [copyDataDialogOpen, setCopyDataDialogOpen] = useState(false);
   const [addEmployeeDialogOpen, setAddEmployeeDialogOpen] = useState(false);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   const {
     isLoading,
@@ -576,6 +578,12 @@ const HoursTable = ({
     getAvailableConstructions,
     getActiveEmployees,
     hasUnsavedChanges,
+    setShowInactiveConstructions,
+    setShowInactiveEmployees,
+    showInactiveConstructions,
+    showInactiveEmployees,
+    employees,
+    constructions,
   } = useHoursTable();
 
   useEffect(() => {
@@ -656,12 +664,12 @@ const HoursTable = ({
         onTableDelete={onTableDelete}
         tableBorder={tableBorder}
         contentRef={printContentRef}
-        selectedConstructions={selectedConstructions}
-        onSelectedConstructionsChange={onSelectedConstructionsChange}
         handleCancelEdit={handleCancelEdit}
         handleFillWithSchedule={handleFillWithSchedule}
-        onSelectedEmployeesChange={onSelectedEmployeesChange}
-        selectedEmployees={selectedEmployees}
+        showFilterBadge={
+          selectedConstructions.length + selectedEmployees.length > 0
+        }
+        setIsFilterOpen={setIsFilterOpen}
       />
       <Collapse in={isExpanded} timeout="auto" unmountOnExit>
         {!loadingError &&
@@ -947,6 +955,21 @@ const HoursTable = ({
         availableEmployees={getAvailableEmployeesForConstruction(
           selectedConstructionForEmployee?.id
         )}
+      />
+
+      <FiltersDialog
+        isOpen={isFilterOpen}
+        onClose={() => setIsFilterOpen(false)}
+        onSelectedConstructionsChange={onSelectedConstructionsChange}
+        selectedEmployees={selectedEmployees}
+        onSelectedEmployeesChange={onSelectedEmployeesChange}
+        selectedConstructions={selectedConstructions}
+        employees={employees ?? []}
+        constructions={constructions ?? []}
+        showInactiveConstructions={showInactiveConstructions}
+        showInactiveEmployees={showInactiveEmployees}
+        handleShowInactiveConstructionsChange={setShowInactiveConstructions}
+        handleShowInactiveEmployeesChange={setShowInactiveEmployees}
       />
     </Box>
   );

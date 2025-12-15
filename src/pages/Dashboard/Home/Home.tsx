@@ -443,32 +443,23 @@ const UpcomingVacation = () => {
   const navigate = useNavigate();
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const { data: employees } = useQuery({
-    queryKey: ['employees', { status: true }],
-    queryFn: () => getEmployeeList(true),
-  });
-
   const { data: upcomingVacations, isLoading } = useQuery({
     queryKey: ['vacations', 'upcoming-vacations'],
     queryFn: getUpcomingVacations,
   });
 
   const groupedVacations = useMemo(() => {
-    if (!upcomingVacations || !employees) return [];
+    if (!upcomingVacations) return [];
 
     const uniqueGroups = new Map();
 
     upcomingVacations.forEach((vacation) => {
-      const employee = employees.find((emp) => emp.id === vacation.employeeId);
-
-      if (!employee) {
-        return;
-      }
+      if (!vacation.employeeActive) return;
 
       if (!uniqueGroups.has(vacation.groupId)) {
         uniqueGroups.set(vacation.groupId, {
           ...vacation,
-          employeeName: employee.name,
+          employeeName: vacation.employeeName ?? 'Nieznany pracownik',
         });
       }
     });
@@ -476,7 +467,7 @@ const UpcomingVacation = () => {
     return Array.from(uniqueGroups.values()).sort(
       (a, b) => dayjs(a.startDate).valueOf() - dayjs(b.startDate).valueOf()
     );
-  }, [upcomingVacations, employees]);
+  }, [upcomingVacations]);
 
   const MAX_VISIBLE_ITEMS = 2;
   const hasMoreItems = groupedVacations.length > MAX_VISIBLE_ITEMS;
@@ -638,10 +629,12 @@ const Home = () => {
     queryFn: getEmployeeStats,
   });
 
-  const { data: constructionStats, isLoading: constructionsLoading } = useQuery({
-    queryKey: ['constructions', 'stats'],
-    queryFn: getConstructionStats,
-  });
+  const { data: constructionStats, isLoading: constructionsLoading } = useQuery(
+    {
+      queryKey: ['constructions', 'stats'],
+      queryFn: getConstructionStats,
+    }
+  );
 
   const handleEmployeesClick = useCallback(() => {
     navigate('/employees');
@@ -650,7 +643,6 @@ const Home = () => {
   const handleConstructionsClick = useCallback(() => {
     navigate('/constructions');
   }, [navigate]);
-
 
   return (
     <PageContainer breadcrumbs={[{ title: 'Strona główna' }]}>
@@ -719,7 +711,7 @@ const Home = () => {
                               Pracownicy
                             </Typography>
                             <Typography variant="h4">
-                              {employeeStats?.active|| 0}
+                              {employeeStats?.active || 0}
                             </Typography>
                           </Box>
                           <Avatar sx={{ bgcolor: 'primary.main' }}>

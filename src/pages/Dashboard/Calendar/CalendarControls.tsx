@@ -14,25 +14,24 @@ import { ChevronLeft, ChevronRight, MoreHoriz } from '@mui/icons-material';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import type { Dayjs } from 'dayjs';
-import type { Employee } from '../../../types';
 import { plPL } from '@mui/x-date-pickers/locales';
 
 interface CalendarControlsProps {
   currentMonth: Dayjs;
-  selectedEmployees: Employee[];
   setIsFilterOpen: (open: boolean) => void;
   handleMonthChange: (action: 'prev' | 'next' | 'today') => void;
   handleDatePickerChange: (value: Dayjs | null) => void;
   containerWidth: number;
+  showFilterBadge: boolean;
 }
 
 export const CalendarControls: React.FC<CalendarControlsProps> = ({
   currentMonth,
-  selectedEmployees,
   setIsFilterOpen,
   handleMonthChange,
   handleDatePickerChange,
   containerWidth,
+  showFilterBadge,
 }) => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const openMobileMenu = Boolean(anchorEl);
@@ -116,7 +115,8 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
             }}
           >
             <Badge
-              badgeContent={selectedEmployees.length > 0 ? ' ' : 0}
+              badgeContent={showFilterBadge ? 1 : 0}
+              variant="dot"
               color="primary"
               sx={{ width: '100%' }}
             >
@@ -289,7 +289,8 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
       </LocalizationProvider>
       <Tooltip title="Filtry">
         <Badge
-          badgeContent={selectedEmployees.length > 0 ? ' ' : 0}
+          badgeContent={showFilterBadge ? 1 : 0}
+          variant="dot"
           color="primary"
         >
           <IconButton

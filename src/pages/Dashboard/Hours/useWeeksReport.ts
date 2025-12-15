@@ -1,19 +1,13 @@
-import { useQueries } from '@tanstack/react-query';
+import { useQueries, useQuery } from '@tanstack/react-query';
 import { getMonthKeysFromWeek, getWeekDates } from './HoursHelpers';
 import dayjs from 'dayjs';
 import { useMemo } from 'react';
-// ZMIANA: Importy z services
 import { getConstructionList } from '../../../services/constructions';
 import { getEmployeeList } from '../../../services/employees';
 import { getWorkLogs } from '../../../services/workLogs';
 import { getVacationListForMonths } from '../../../services/vacations';
 import type { ConstructionsWithWorkHours } from './useHoursTable';
-import type {
-  Construction,
-  Employee,
-  Vacation,
-  WorkLogEntry,
-} from '../../../types';
+import type { Vacation, WorkLogEntry } from '../../../types';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 
 dayjs.extend(isSameOrBefore);
@@ -33,67 +27,56 @@ interface WeekReportData {
   weekStart: Date;
   workLogs: WorkLogEntry[];
   vacations: Vacation[];
-  employees: Employee[];
-  constructions: Construction[];
 }
 
 interface UseWeekReportParams {
   weekStarts: Date[];
-  selectedConstructions?: Construction[];
-  selectedEmployees?: Employee[];
+  selectedConstructionIds?: string[];
+  selectedEmployeeIds?: string[];
 }
 
 const useWeekReport = ({
   weekStarts,
-  selectedConstructions = [],
-  selectedEmployees = [],
+  selectedConstructionIds = [],
+  selectedEmployeeIds = [],
 }: UseWeekReportParams): UseWeekReportResult => {
-  const selectedConstructionIds = selectedConstructions.map((c) => c.id);
-  const selectedEmployeeIds = selectedEmployees.map((e) => e.id);
+  const { data: allEmployees = [], isLoading: employeesLoading } = useQuery({
+    queryKey: ['employees'],
+    queryFn: () => getEmployeeList(),
+  });
+
+  const { data: allConstructions = [], isLoading: constructionsLoading } =
+    useQuery({
+      queryKey: ['constructions'],
+      queryFn: () => getConstructionList(),
+    });
 
   const weekQueries = useQueries({
     queries: weekStarts.map((weekStart) => ({
-      queryKey: [
-        'weekReport',
-        weekStart.toISOString(),
-        selectedConstructionIds.join(','),
-        selectedEmployeeIds.join(','),
-      ],
+      queryKey: ['weekReportData', weekStart.toISOString()],
       queryFn: async () => {
         const weekEnd = dayjs(weekStart).add(6, 'day').toDate();
-
-        // 1. Pobieramy dane równolegle
         const [workLogs, vacations] = await Promise.all([
           getWorkLogs(weekStart, weekEnd),
           getVacationListForMonths(getMonthKeysFromWeek(weekStart)),
         ]);
-
-        const [employees, constructions] = await Promise.all([
-          getEmployeeList(),
-          getConstructionList(),
-        ]);
-
-        return {
-          weekStart,
-          workLogs,
-          vacations,
-          employees,
-          constructions,
-        } as WeekReportData;
+        return { weekStart, workLogs, vacations } as WeekReportData;
       },
       staleTime: 1000 * 60 * 5,
     })),
   });
 
-  const isLoading = weekQueries.some((query) => query.isLoading);
+  const isDataLoading = weekQueries.some((query) => query.isLoading);
+  const isLoading = isDataLoading || employeesLoading || constructionsLoading;
   const error =
     (weekQueries.find((query) => query.error)?.error as Error) || null;
 
   const weeksData = useMemo(() => {
-    if (isLoading) return [];
+    if (isLoading || !allEmployees.length || !allConstructions.length)
+      return [];
 
     return weekQueries.map((query, index) => {
-      const data = query.data as WeekReportData | undefined;
+      const data = query.data;
       const currentWeekStart = weekStarts[index] || new Date();
       const weekDates = getWeekDates(currentWeekStart);
 
@@ -106,43 +89,34 @@ const useWeekReport = ({
         };
       }
 
-      const { workLogs, vacations, employees, constructions } = data;
+      const { workLogs, vacations } = data;
 
       const vacationMap = new Map<string, Set<string>>();
-      vacations.forEach((vacation) => {
-        let curr = dayjs(vacation.startDate);
-        const end = dayjs(vacation.endDate);
-
-        if (!vacationMap.has(vacation.employeeId)) {
-          vacationMap.set(vacation.employeeId, new Set());
-        }
-
+      vacations.forEach((v) => {
+        let curr = dayjs(v.startDate);
+        const end = dayjs(v.endDate);
+        if (!vacationMap.has(v.employeeId))
+          vacationMap.set(v.employeeId, new Set());
         while (curr.isSameOrBefore(end)) {
-          vacationMap.get(vacation.employeeId)!.add(curr.format('YYYY-MM-DD'));
+          vacationMap.get(v.employeeId)!.add(curr.format('YYYY-MM-DD'));
           curr = curr.add(1, 'day');
         }
       });
 
-      const isEmployeeOnVacation = (
-        employeeId: string,
-        date: Date
-      ): boolean => {
-        const employeeVacations = vacationMap.get(employeeId);
-        if (!employeeVacations) return false;
-        return employeeVacations.has(dayjs(date).format('YYYY-MM-DD'));
-      };
-
-      const constructionMap = new Map<string, ConstructionsWithWorkHours>();
+      const isEmployeeOnVacation = (empId: string, date: Date) =>
+        vacationMap.get(empId)?.has(dayjs(date).format('YYYY-MM-DD')) ?? false;
 
       const selEmpIds = new Set(selectedEmployeeIds);
       const selConIds = new Set(selectedConstructionIds);
+
+      const constructionMap = new Map<string, ConstructionsWithWorkHours>();
 
       workLogs.forEach((log) => {
         if (selEmpIds.size > 0 && !selEmpIds.has(log.employeeId)) return;
         if (selConIds.size > 0 && !selConIds.has(log.constructionId)) return;
 
-        const cDef = constructions.find((c) => c.id === log.constructionId);
-        const eDef = employees.find((e) => e.id === log.employeeId);
+        const cDef = allConstructions.find((c) => c.id === log.constructionId);
+        const eDef = allEmployees.find((e) => e.id === log.employeeId);
 
         const cName = log.constructionName || cDef?.name || 'Nieznana budowa';
         const cAct = log.constructionActive ?? cDef?.status ?? true;
@@ -160,7 +134,6 @@ const useWeekReport = ({
         }
 
         const group = constructionMap.get(log.constructionId)!;
-
         let workHourEntry = group.workHours.find(
           (wh) => wh.employeeId === log.employeeId
         );
@@ -173,16 +146,16 @@ const useWeekReport = ({
             isActive: eAct,
             hours: [0, 0, 0, 0, 0, 0, 0],
             total: 0,
-            isOnVacation: [false, false, false, false, false, false, false],
+            isOnVacation: [],
           };
           group.workHours.push(workHourEntry);
         }
 
-        const logDateStr = dayjs(log.date).format('YYYY-MM-DD');
         const dayIndex = weekDates.findIndex(
-          (d) => dayjs(d).format('YYYY-MM-DD') === logDateStr
+          (d) =>
+            dayjs(d).format('YYYY-MM-DD') ===
+            dayjs(log.date).format('YYYY-MM-DD')
         );
-
         if (dayIndex !== -1) {
           workHourEntry.hours[dayIndex] = log.hours;
         }
@@ -210,19 +183,18 @@ const useWeekReport = ({
             }
           });
         });
-
         group.workHours.sort((a, b) =>
           a.employeeName.localeCompare(b.employeeName)
         );
       });
 
-      const constructionsWithWorkHours = Array.from(
-        constructionMap.values()
-      ).sort((a, b) => a.name.localeCompare(b.name));
+      const res = Array.from(constructionMap.values()).sort((a, b) =>
+        a.name.localeCompare(b.name)
+      );
 
       return {
         weekStart: currentWeekStart,
-        constructionsWithWorkHours,
+        constructionsWithWorkHours: res,
         weekDates,
         totalHoursData: { dailyTotals, grandTotal },
       };
@@ -233,13 +205,11 @@ const useWeekReport = ({
     weekStarts,
     selectedConstructionIds,
     selectedEmployeeIds,
+    allEmployees,
+    allConstructions,
   ]);
 
-  return {
-    weeksData,
-    isLoading,
-    error,
-  };
+  return { weeksData, isLoading, error };
 };
 
 export default useWeekReport;

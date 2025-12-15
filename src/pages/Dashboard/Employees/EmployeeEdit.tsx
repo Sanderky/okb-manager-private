@@ -83,6 +83,9 @@ export default function EmployeeEdit() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['employee', employeeId] });
       queryClient.invalidateQueries({ queryKey: ['employees'] });
+      queryClient.invalidateQueries({ queryKey: ['vacations'] });
+      queryClient.invalidateQueries({ queryKey: ['schedules'] });
+      queryClient.invalidateQueries({ queryKey: ['workLogs'] });
       notifications.show('Dane pracownika zostały zaktualizowane.', {
         severity: 'success',
         autoHideDuration: 5000,

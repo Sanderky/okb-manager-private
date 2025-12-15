@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import {
   Button,
   Typography,
@@ -36,6 +36,9 @@ import {
 import BaseDialog from '../../../components/BaseDialog';
 import { ExpandLess, ExpandMore, FilterList } from '@mui/icons-material';
 import EmployeesContructionsFilters from './EmployeesConstructionsFilters';
+import { useQuery } from '@tanstack/react-query';
+import { getConstructionList } from '../../../services/constructions';
+import { getEmployeeList } from '../../../services/employees';
 
 interface AddConstructionWithEmployeeDialogProps {
   open: boolean;
@@ -97,7 +100,7 @@ export const AddConstructionWithEmployeeDialog: React.FC<
       onClose();
     };
 
-    const isAllSelected = selectedEmployees.length === employees.length
+  const isAllSelected = selectedEmployees.length === employees.length;
 
     return (
       <BaseDialog
@@ -144,53 +147,55 @@ export const AddConstructionWithEmployeeDialog: React.FC<
           />
         </FormControl>
 
-        <FormControl fullWidth sx={{ mt: 2 }}>
-          <Autocomplete
-            size="small"
-            multiple
-            options={employees || []}
-            disableCloseOnSelect
-            getOptionLabel={(option) => option.name}
-            value={selectedEmployees}
-            onChange={handleChangeEmployeeFilter}
-            isOptionEqualToValue={(option, value) => option.id === value.id}
-            renderOption={(props, option, { selected }) => {
-              const { key, ...optionProps } = props;
-              return (
-                <li key={key} {...optionProps}>
-                  <Checkbox checked={selected} />
-                  {option.name}
-                  {!option.status && (
-                    <Chip
-                      label="Nieaktywny"
-                      size="small"
-                      color="default"
-                      variant="outlined"
-                      sx={{ ml: 1, height: 20 }}
-                    />
-                  )}
-                </li>
-              );
-            }}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Wybierz pracowników"
-                placeholder={
-                  selectedEmployees.length === 0 ? 'Wybierz pracowników...' : ''
-                }
-              />
-            )}
-            noOptionsText="Brak dostępnych pracowników"
-          />
-        </FormControl>
-        <Stack direction="row" mt={1} spacing={1} justifyContent={'flex-end'}>
-          <Button onClick={handleSelectAllEmployees} disabled={isAllSelected}>Wszystko</Button>
-          <Button onClick={handleDeselectAllEmployees}>Wyczyść</Button>
-        </Stack>
-      </BaseDialog>
-    );
-  };
+      <FormControl fullWidth sx={{ mt: 2 }}>
+        <Autocomplete
+          size="small"
+          multiple
+          options={employees || []}
+          disableCloseOnSelect
+          getOptionLabel={(option) => option.name}
+          value={selectedEmployees}
+          onChange={handleChangeEmployeeFilter}
+          isOptionEqualToValue={(option, value) => option.id === value.id}
+          renderOption={(props, option, { selected }) => {
+            const { key, ...optionProps } = props;
+            return (
+              <li key={key} {...optionProps}>
+                <Checkbox checked={selected} />
+                {option.name}
+                {!option.status && (
+                  <Chip
+                    label="Nieaktywny"
+                    size="small"
+                    color="default"
+                    variant="outlined"
+                    sx={{ ml: 1, height: 20 }}
+                  />
+                )}
+              </li>
+            );
+          }}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Wybierz pracowników"
+              placeholder={
+                selectedEmployees.length === 0 ? 'Wybierz pracowników...' : ''
+              }
+            />
+          )}
+          noOptionsText="Brak dostępnych pracowników"
+        />
+      </FormControl>
+      <Stack direction="row" mt={1} spacing={1} justifyContent={'flex-end'}>
+        <Button onClick={handleSelectAllEmployees} disabled={isAllSelected}>
+          Wszystko
+        </Button>
+        <Button onClick={handleDeselectAllEmployees}>Wyczyść</Button>
+      </Stack>
+    </BaseDialog>
+  );
+};
 
 interface AddEmployeeDialogProps {
   open: boolean;
@@ -248,7 +253,7 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
     onClose();
   };
 
-  const isAllSelected = selectedEmployees.length === availableEmployees.length
+  const isAllSelected = selectedEmployees.length === availableEmployees.length;
   return (
     <BaseDialog
       open={open}
@@ -312,7 +317,9 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
         />
       </FormControl>
       <Stack direction="row" mt={1} spacing={1} justifyContent={'flex-end'}>
-        <Button onClick={handleSelectAllEmployees} disabled={isAllSelected}>Wszystko</Button>
+        <Button onClick={handleSelectAllEmployees} disabled={isAllSelected}>
+          Wszystko
+        </Button>
         <Button onClick={handleDeselectAllEmployees}>Wyczyść</Button>
       </Stack>
     </BaseDialog>
@@ -385,6 +392,12 @@ interface FiltersDialogProps {
   onSelectedEmployeesChange: (employees: Employee[]) => void;
   isOpen: boolean;
   onClose: () => void;
+  showInactiveEmployees: boolean;
+  showInactiveConstructions: boolean;
+  employees: Employee[];
+  constructions: Construction[];
+  handleShowInactiveConstructionsChange: (val: boolean) => void;
+  handleShowInactiveEmployeesChange: (val: boolean) => void;
 }
 
 export const FiltersDialog = ({
@@ -394,6 +407,12 @@ export const FiltersDialog = ({
   onSelectedEmployeesChange,
   isOpen,
   onClose,
+  showInactiveEmployees,
+  showInactiveConstructions,
+  employees,
+  constructions,
+  handleShowInactiveConstructionsChange,
+  handleShowInactiveEmployeesChange,
 }: FiltersDialogProps) => {
   return (
     <BaseDialog
@@ -407,6 +426,14 @@ export const FiltersDialog = ({
         selectedEmployees={selectedEmployees}
         onSelectedConstructionsChange={onSelectedConstructionsChange}
         onSelectedEmployeesChange={onSelectedEmployeesChange}
+        showInactiveConstructions={showInactiveConstructions}
+        showInactiveEmployees={showInactiveEmployees}
+        handleShowInactiveConstructionsChange={
+          handleShowInactiveConstructionsChange
+        }
+        handleShowInactiveEmployeesChange={handleShowInactiveEmployeesChange}
+        employees={employees}
+        constructions={constructions}
       />
     </BaseDialog>
   );
@@ -436,10 +463,35 @@ export const PrintReportDialog: React.FC<PrintReportDialogProps> = ({
   const [showVacation, setShowVacation] = useState<boolean>(true);
   const [lang, setLang] = useState<LangCode>('pl-PL');
 
-  const [selectedConstructions, setSelectedConstructions] = useState<
-    Construction[]
+  const [selectedConstructionIds, setSelectedConstructionIds] = useState<
+    string[]
   >([]);
-  const [selectedEmployees, setSelectedEmployees] = useState<Employee[]>([]);
+  const [selectedEmployeeIds, setSelectedEmployeeIds] = useState<string[]>([]);
+
+  const [showInactiveEmployees, setShowInactiveEmployees] = useState(false);
+  const [showInactiveConstructions, setShowInactiveConstructions] =
+    useState(false);
+
+  const { data: allEmployees = [] } = useQuery({
+    queryKey: ['employees'],
+    queryFn: () => getEmployeeList(),
+  });
+
+  const { data: allConstructions = [] } = useQuery({
+    queryKey: ['constructions'],
+    queryFn: () => getConstructionList(),
+  });
+
+  const selectedConstructions = useMemo(
+    () =>
+      allConstructions.filter((c) => selectedConstructionIds.includes(c.id)),
+    [allConstructions, selectedConstructionIds]
+  );
+
+  const selectedEmployees = useMemo(
+    () => allEmployees.filter((e) => selectedEmployeeIds.includes(e.id)),
+    [allEmployees, selectedEmployeeIds]
+  );
 
   const [isFilterExpanded, setIsFilterExpanded] = useState(false);
 
@@ -467,8 +519,10 @@ export const PrintReportDialog: React.FC<PrintReportDialogProps> = ({
     setIsError(false);
     setReportLoading(false);
     setLang('pl-PL');
-    setSelectedConstructions([]);
-    setSelectedEmployees([]);
+    setSelectedConstructionIds([]);
+    setSelectedEmployeeIds([]);
+    setShowInactiveEmployees(false);
+    setShowInactiveConstructions(false);
     setIsFilterExpanded(false);
   };
 
@@ -496,11 +550,11 @@ export const PrintReportDialog: React.FC<PrintReportDialogProps> = ({
   };
 
   const handleSelectEmployees = (employees: Employee[]) => {
-    setSelectedEmployees(employees);
+    setSelectedEmployeeIds(employees.map((e) => e.id));
   };
 
   const handleSelectConstructions = (constructions: Construction[]) => {
-    setSelectedConstructions(constructions);
+    setSelectedConstructionIds(constructions.map((c) => c.id));
   };
 
   return (
@@ -533,8 +587,8 @@ export const PrintReportDialog: React.FC<PrintReportDialogProps> = ({
           ref={printContentRef}
           onLoading={(isLoading: boolean) => setReportLoading(isLoading)}
           lang={lang}
-          selectedConstructions={selectedConstructions}
-          selectedEmployees={selectedEmployees}
+          selectedConstructions={selectedConstructionIds}
+          selectedEmployees={selectedEmployeeIds}
         />
       </Box>
 
@@ -598,6 +652,14 @@ export const PrintReportDialog: React.FC<PrintReportDialogProps> = ({
               selectedEmployees={selectedEmployees}
               onSelectedConstructionsChange={handleSelectConstructions}
               onSelectedEmployeesChange={handleSelectEmployees}
+              showInactiveConstructions={showInactiveConstructions}
+              showInactiveEmployees={showInactiveEmployees}
+              handleShowInactiveConstructionsChange={
+                setShowInactiveConstructions
+              }
+              handleShowInactiveEmployeesChange={setShowInactiveEmployees}
+              employees={allEmployees}
+              constructions={allConstructions}
             />
           </Box>
         </Collapse>

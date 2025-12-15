@@ -155,7 +155,7 @@ export const FilterDialog: React.FC<FilterDialogProps> = ({
               size="small"
             />
           }
-          label={<Typography variant="caption">Pokaż zakończone</Typography>}
+          label={<Typography variant="caption">Uwzględnij zakończone budowy w filtrze</Typography>}
         />
         <Stack direction="row" spacing={1} justifyContent={'flex-end'}>
           <Button
@@ -225,7 +225,7 @@ export const FilterDialog: React.FC<FilterDialogProps> = ({
               size="small"
             />
           }
-          label={<Typography variant="caption">Pokaż nieaktywnych</Typography>}
+          label={<Typography variant="caption">Uwzględnij nieaktywnych pracowników w filtrze</Typography>}
         />
 
         <Stack direction="row" justifyContent={'flex-end'} spacing={1}>

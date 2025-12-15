@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Button,
   Box,
@@ -30,9 +30,7 @@ import 'dayjs/locale/pl';
 import WeekSelector from '../../../components/WeekSelector';
 import isoWeek from 'dayjs/plugin/isoWeek';
 import { useReactToPrint } from 'react-to-print';
-import type { Construction, Employee } from '../../../types';
 import FilterListIcon from '@mui/icons-material/FilterList';
-import { FiltersDialog } from './HoursTableDialogs';
 
 dayjs.extend(isoWeek);
 dayjs.extend(isBetween);
@@ -53,12 +51,10 @@ interface HoursTableControlsProps {
   onTableDelete?: () => void;
   tableBorder: string;
   contentRef: React.RefObject<HTMLDivElement | null>;
-  selectedConstructions: Construction[];
-  onSelectedConstructionsChange: (constructions: Construction[]) => void;
-  selectedEmployees: Employee[];
-  onSelectedEmployeesChange: (employees: Employee[]) => void;
+  showFilterBadge: boolean;
   handleCancelEdit: () => Promise<void>;
   handleFillWithSchedule: () => Promise<void>;
+  setIsFilterOpen: (val: boolean) => void;
 }
 
 const HoursTableControls = ({
@@ -77,15 +73,11 @@ const HoursTableControls = ({
   isCoping,
   tableBorder,
   contentRef,
-  selectedConstructions,
-  onSelectedConstructionsChange,
-  selectedEmployees,
-  onSelectedEmployeesChange,
+  showFilterBadge,
   handleCancelEdit,
   handleFillWithSchedule,
+  setIsFilterOpen,
 }: HoursTableControlsProps) => {
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
-
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const openMobileMenu = Boolean(anchorEl);
   const handleClickMobileMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -239,11 +231,8 @@ const HoursTableControls = ({
           <Divider />
           <MenuItem key={'filters'} disableRipple>
             <Badge
-              badgeContent={
-                selectedConstructions.length + selectedEmployees.length > 0
-                  ? ' '
-                  : 0
-              }
+              variant="dot"
+              badgeContent={showFilterBadge ? 1 : 0}
               color="primary"
               sx={{ width: '100%' }}
             >
@@ -454,11 +443,8 @@ const HoursTableControls = ({
             <Tooltip title="Filtry">
               <Badge
                 color="primary"
-                badgeContent={
-                  selectedConstructions.length + selectedEmployees.length > 0
-                    ? ' '
-                    : 0
-                }
+                variant="dot"
+                badgeContent={showFilterBadge ? 1 : 0}
               >
                 <IconButton
                   size="small"
@@ -601,20 +587,7 @@ const HoursTableControls = ({
     </Box>
   );
 
-  return (
-    <>
-      {containerWidth < 600 ? phone : desktop}
-
-      <FiltersDialog
-        isOpen={isFilterOpen}
-        onClose={() => setIsFilterOpen(false)}
-        onSelectedConstructionsChange={onSelectedConstructionsChange}
-        selectedEmployees={selectedEmployees}
-        onSelectedEmployeesChange={onSelectedEmployeesChange}
-        selectedConstructions={selectedConstructions}
-      />
-    </>
-  );
+  return containerWidth < 600 ? phone : desktop;
 };
 
 export default HoursTableControls;

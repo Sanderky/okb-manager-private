@@ -115,12 +115,6 @@ export default function App() {
     queryFn: getConstructionStats,
   });
 
-  const { isLoading: activeEmployeesLoading } = useQuery({
-    queryKey: ['employees', { status: true }],
-    queryFn: () => getEmployeeList(true),
-    enabled: !!user,
-  });
-
   const { isLoading: homeNoteLoading } = useQuery({
     queryKey: ['home', 'note'],
     queryFn: getHomeNote,
@@ -140,7 +134,6 @@ export default function App() {
           isContractorsLoading ||
           employeesLoading ||
           upcomingVacationsLoading ||
-          activeEmployeesLoading ||
           homeNoteLoading ||
           employeeStatsLoading ||
           constructionStatsLoading))

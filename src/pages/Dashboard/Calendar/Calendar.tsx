@@ -44,6 +44,13 @@ import { useDialogs } from '../../../hooks/useDialogs/useDialogs';
 
 dayjs.locale('pl');
 
+const STORAGE_KEY = 'calendar_filters';
+
+interface StoredFilters {
+  showInactive: boolean;
+  selectedEmployeeIds: string[];
+}
+
 const Calendar: React.FC = () => {
   const [containerRef, width] = useContainerBreakpoint();
   const [searchParams] = useSearchParams();
@@ -51,7 +58,33 @@ const Calendar: React.FC = () => {
   const [currentMonth, setCurrentMonth] = useState<Dayjs>(
     dayjs().startOf('month')
   );
-  const [selectedEmployees, setSelectedEmployees] = useState<Employee[]>([]);
+
+  const [showInactive, setShowInactive] = useState(() => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try {
+        return JSON.parse(saved).showInactive ?? false;
+      } catch {
+        console.error('Loading saved filters error');
+      }
+    }
+    return true;
+  });
+
+  const [selectedEmployeeIds, setSelectedEmployeeIds] = useState<string[]>(
+    () => {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        try {
+          return JSON.parse(saved).selectedEmployeeIds ?? [];
+        } catch {
+          console.log('Loading saved filters error');
+        }
+      }
+      return [];
+    }
+  );
+
   const [selectDay, setSelectDay] = useState<Dayjs | null>(null);
 
   const [activeDialog, setActiveDialog] = useState<ActiveDialog>({
@@ -92,6 +125,14 @@ const Calendar: React.FC = () => {
     queryKey: ['employees'],
     queryFn: () => getEmployeeList(),
   });
+
+  useEffect(() => {
+    const dataToSave: StoredFilters = {
+      showInactive,
+      selectedEmployeeIds: selectedEmployeeIds,
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
+  }, [showInactive, selectedEmployeeIds]);
 
   const monthKeys = useMemo(() => {
     const prevMonth = currentMonth.subtract(1, 'month');
@@ -179,10 +220,8 @@ const Calendar: React.FC = () => {
       let current = start.clone();
 
       const visibleVacations =
-        selectedEmployees.length > 0
-          ? vacations.filter((v) =>
-              selectedEmployees.some((emp) => emp.id === v.employeeId)
-            )
+        selectedEmployeeIds.length > 0
+          ? vacations.filter((v) => selectedEmployeeIds.includes(v.employeeId))
           : vacations;
 
       const groupSlotMap: Record<string, number> = {};
@@ -205,45 +244,37 @@ const Calendar: React.FC = () => {
             return today.isSameOrAfter(vStart) && today.isSameOrBefore(vEnd);
           });
 
-          const dayEvents: CalendarEvent[] = dayEventsRaw
-            .map((ev) => {
-              let employee = employees.find((e) => e.id === ev.employeeId);
+          const dayEvents: CalendarEvent[] = dayEventsRaw.map((ev) => {
+            const simpleEmployee: Employee = {
+              id: ev.employeeId,
+              name: ev.employeeName || 'Nieznany pracownik',
+              status: ev.employeeActive ?? true,
+              isContractor: false,
+              pesel: null,
+              address: null,
+              hourRate: null,
+              email: null,
+              phone: null,
+              birthPlace: null,
+              accountNumber: null,
+              contractStartDate: null,
+              contractEndDate: null,
+              contractIsPermanent: null,
+              a1StartDate: null,
+              a1EndDate: null,
+              note: null,
+              birthDate: null,
+            };
 
-              if (!employee && ev.employeeName) {
-                employee = {
-                  id: ev.employeeId,
-                  name: ev.employeeName,
-                  status: ev.employeeActive ?? false,
-                  isContractor: false,
-                  pesel: null,
-                  address: null,
-                  hourRate: null,
-                  email: null,
-                  phone: null,
-                  birthPlace: null,
-                  accountNumber: null,
-                  contractStartDate: null,
-                  contractEndDate: null,
-                  contractIsPermanent: null,
-                  a1StartDate: null,
-                  a1EndDate: null,
-                  note: null,
-                  birthDate: null,
-                };
-              }
-
-              if (!employee) return null;
-
-              return {
-                ...ev,
-                startDate: dayjs(ev.startDate),
-                endDate: dayjs(ev.endDate),
-                date: current.clone(),
-                employee: employee,
-                groupId: ev.id,
-              };
-            })
-            .filter(Boolean) as CalendarEvent[];
+            return {
+              ...ev,
+              startDate: dayjs(ev.startDate),
+              endDate: dayjs(ev.endDate),
+              date: current.clone(),
+              employee: simpleEmployee,
+              groupId: ev.id,
+            };
+          });
 
           dayEvents.sort((a, b) => {
             const durA = a.endDate.diff(a.startDate, 'day');
@@ -282,7 +313,7 @@ const Calendar: React.FC = () => {
       }
       return weeks;
     },
-    [vacations, employees, selectedEmployees]
+    [vacations, selectedEmployeeIds]
   );
 
   const monthGrid = useMemo(
@@ -516,7 +547,7 @@ const Calendar: React.FC = () => {
 
         <CalendarControls
           currentMonth={currentMonth}
-          selectedEmployees={selectedEmployees}
+          showFilterBadge={selectedEmployeeIds.length > 0}
           setIsFilterOpen={setIsFilterOpen}
           handleMonthChange={handleMonthChange}
           handleDatePickerChange={handleDatePickerChange}
@@ -539,11 +570,13 @@ const Calendar: React.FC = () => {
         </Box>
 
         <FilterDialog
+          showInactive={showInactive}
+          setShowInactive={(val) => setShowInactive(val)}
           isFilterOpen={isFilterOpen}
           setIsFilterOpen={setIsFilterOpen}
           employees={employees}
-          selectedEmployees={selectedEmployees}
-          setSelectedEmployees={setSelectedEmployees}
+          selectedEmployees={selectedEmployeeIds}
+          setSelectedEmployees={setSelectedEmployeeIds}
         />
 
         <AddEventDialog
@@ -584,6 +617,8 @@ const Calendar: React.FC = () => {
           onClose={() => setIsVacationReportOpen(false)}
           employees={employees}
           vacations={vacations}
+          showInactive={showInactive}
+          setShowInactive={(val) => setShowInactive(val)}
         />
       </Box>
     </PageContainer>

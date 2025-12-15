@@ -124,27 +124,15 @@ export default function ConstructionsList() {
     );
   }, [columnFilters]);
 
-  // const {
-  //   data: constructions,
-  //   isLoading,
-  //   error,
-  //   refetch,
-  // } = useQuery({
-  //   queryKey: ['constructions'],
-  //   queryFn: () => getConstructionList(true),
-  // });
-  const isStatusFilterActive = filters.status === 'true';
-
   const {
     data: constructions,
     isLoading,
     error,
     refetch,
-    // ...
   } = useQuery({
-    queryKey: ['constructions', isStatusFilterActive ? 'active' : 'all'],
+    queryKey: ['constructions'],
 
-    queryFn: () => getConstructionList(isStatusFilterActive),
+    queryFn: () => getConstructionList(),
   });
 
   const { data: contractors } = useQuery({
@@ -227,7 +215,7 @@ export default function ConstructionsList() {
     }
 
     if (filters.contractor) {
-      columnFilters.push({ id: 'contractor', value: filters.contractor });
+      columnFilters.push({ id: 'contractorName', value: filters.contractor });
     }
 
     if (filters.location) {
@@ -336,7 +324,6 @@ export default function ConstructionsList() {
         id: 'contractorName',
         accessorKey: 'contractorName',
         header: 'Wykonawca',
-
         filterFn: 'equals',
       },
       {
@@ -609,7 +596,7 @@ export default function ConstructionsList() {
       breadcrumbs={[{ title: 'Lista budów' }]}
       actions={[
         <Button
-          key='contractors'
+          key="contractors"
           variant="contained"
           onClick={() => setContractorsModalOpen(true)}
           startIcon={<Engineering />}
@@ -618,7 +605,7 @@ export default function ConstructionsList() {
           Wykonawcy
         </Button>,
         <Button
-          key='new'
+          key="new"
           variant="contained"
           onClick={handleCreateClick}
           startIcon={<AddIcon />}

@@ -85,6 +85,9 @@ export default function ConstructionEdit() {
         queryKey: ['construction', constructionId],
       });
       queryClient.invalidateQueries({ queryKey: ['constructions'] });
+      queryClient.invalidateQueries({ queryKey: ['vacations'] });
+      queryClient.invalidateQueries({ queryKey: ['schedules'] });
+      queryClient.invalidateQueries({ queryKey: ['workLogs'] });
       queryClient.invalidateQueries({ queryKey: ['contractors'] });
       notifications.show('Zmiany zostały pomyślnie zapisane.', {
         severity: 'success',

@@ -23,8 +23,6 @@ interface TableControlsProps {
   toWeek: Date;
   setFromWeek: (date: Date) => void;
   setToWeek: (date: Date) => void;
-  selectedEmployees: string[];
-  selectedCosntructions: string[];
   setIsFilterOpen: (open: boolean) => void;
   showVacations: boolean;
   setShowVacations: (show: boolean) => void;
@@ -32,6 +30,7 @@ interface TableControlsProps {
   setShowDates: (show: boolean) => void;
   activeTable: { type: number; week: dayjs.Dayjs };
   containerWidth: number;
+  showFilterBadge: boolean;
 }
 
 export const TableControls: React.FC<TableControlsProps> = ({
@@ -39,15 +38,14 @@ export const TableControls: React.FC<TableControlsProps> = ({
   toWeek,
   setFromWeek,
   setToWeek,
-  selectedEmployees,
   setIsFilterOpen,
   // showVacations,
   // setShowVacations,
   showDates,
   setShowDates,
-  selectedCosntructions,
   activeTable,
   containerWidth,
+  showFilterBadge,
 }) => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const openMobileMenu = Boolean(anchorEl);
@@ -171,11 +169,8 @@ export const TableControls: React.FC<TableControlsProps> = ({
           </MenuItem>
           <MenuItem disableRipple key={'filters'}>
             <Badge
-              badgeContent={
-                selectedEmployees.length + selectedCosntructions.length > 0
-                  ? ' '
-                  : 0
-              }
+              badgeContent={showFilterBadge ? ' ' : 0}
+              variant="dot"
               color="primary"
               sx={{ width: '100%' }}
             >
@@ -314,12 +309,9 @@ export const TableControls: React.FC<TableControlsProps> = ({
       </Stack>
       <Tooltip title="Filtry">
         <Badge
-          badgeContent={
-            selectedEmployees.length + selectedCosntructions.length > 0
-              ? ' '
-              : 0
-          }
+          badgeContent={showFilterBadge ? 1 : 0}
           color="primary"
+          variant="dot"
         >
           <IconButton
             size="small"

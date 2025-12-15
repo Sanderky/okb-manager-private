@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useMemo } from 'react';
 import {
   Button,
   Typography,
@@ -13,40 +13,48 @@ import {
   Divider,
 } from '@mui/material';
 import type { Construction, Employee } from '../../../types';
-import { useQuery } from '@tanstack/react-query';
-import { getEmployeeList } from '../../../services/employees';
-import { getConstructionList } from '../../../services/constructions';
 import 'dayjs/locale/pl';
 
-const useEmployeesConstructionsFilter = (
-  selectedConstructions: Construction[],
-  selectedEmployees: Employee[],
-  onSelectedConstructionsChange: (constructions: Construction[]) => void,
-  onSelectedEmployeesChange: (employees: Employee[]) => void
-) => {
-  const [showInactiveEmployees, setShowInactiveEmployees] = useState(false);
-  const [showInactiveConstructions, setShowInactiveConstructions] =
-    useState(false);
+interface EmployeesContructionsFiltersInterface {
+  selectedConstructions: Construction[];
+  onSelectedConstructionsChange: (constructions: Construction[]) => void;
+  selectedEmployees: Employee[];
+  onSelectedEmployeesChange: (employees: Employee[]) => void;
+  showInactiveEmployees: boolean;
+  showInactiveConstructions: boolean;
+  employees: Employee[];
+  constructions: Construction[];
+  handleShowInactiveConstructionsChange: (val: boolean) => void;
+  handleShowInactiveEmployeesChange: (val: boolean) => void;
+}
 
-  const { data: employees } = useQuery({
-    queryKey: ['employees'],
-    queryFn: () => getEmployeeList(),
-  });
+const EmployeesContructionsFilters = ({
+  selectedConstructions,
+  selectedEmployees,
+  onSelectedConstructionsChange,
+  onSelectedEmployeesChange,
+  showInactiveEmployees,
+  showInactiveConstructions,
+  employees,
+  constructions,
+  handleShowInactiveConstructionsChange,
+  handleShowInactiveEmployeesChange,
+}: EmployeesContructionsFiltersInterface) => {
+  const filteredEmployees = useMemo(() => {
+    if (showInactiveEmployees) return employees;
+    return employees.filter((e) => e.status);
+  }, [employees, showInactiveEmployees]);
 
-  const { data: constructions } = useQuery({
-    queryKey: ['constructions'],
-    queryFn: getConstructionList,
-  });
+  const filteredConstructions = useMemo(() => {
+    let result = constructions;
+    if (!showInactiveConstructions) {
+      result = result.filter((c) => c.status);
+    }
+    return result.sort((a, b) => a.name.localeCompare(b.name));
+  }, [constructions, showInactiveConstructions]);
 
-  const filteredEmployees = showInactiveEmployees
-    ? (employees ?? [])
-    : (employees?.filter((e) => e.status) ?? []);
-  const filteredConstructions = showInactiveConstructions
-    ? (constructions ?? [])
-    : (constructions?.filter((c) => c.status) ?? []);
-
-  const handleSelectConstructions = (constructions: Construction[]) => {
-    onSelectedConstructionsChange(constructions);
+  const handleSelectConstructions = (_: any, newValue: Construction[]) => {
+    onSelectedConstructionsChange(newValue);
   };
 
   const handleSelectAllConstructions = () => {
@@ -57,8 +65,8 @@ const useEmployeesConstructionsFilter = (
     onSelectedConstructionsChange([]);
   };
 
-  const handleSelectEmployees = (employees: Employee[]) => {
-    onSelectedEmployeesChange(employees);
+  const handleSelectEmployees = (_: any, newValue: Employee[]) => {
+    onSelectedEmployeesChange(newValue);
   };
 
   const handleSelectAllEmployees = () => {
@@ -67,76 +75,6 @@ const useEmployeesConstructionsFilter = (
 
   const handleDeselectAllEmployees = () => {
     onSelectedEmployeesChange([]);
-  };
-
-  const handleShowInactiveEmployeesChange = (show: boolean) =>
-    setShowInactiveEmployees(show);
-  const handleShowInactiveConstructionsChange = (show: boolean) =>
-    setShowInactiveConstructions(show);
-
-  return {
-    selectedConstructions,
-    selectedEmployees,
-    handleSelectEmployees,
-    handleSelectConstructions,
-    handleDeselectAllConstructions,
-    handleDeselectAllEmployees,
-    handleSelectAllConstructions,
-    handleSelectAllEmployees,
-    handleShowInactiveConstructionsChange,
-    handleShowInactiveEmployeesChange,
-    filteredConstructions,
-    filteredEmployees,
-    showInactiveConstructions,
-    showInactiveEmployees,
-  };
-};
-
-interface EmployeesContructionsFiltersInterface {
-  selectedConstructions: Construction[];
-  onSelectedConstructionsChange: (constructions: Construction[]) => void;
-  selectedEmployees: Employee[];
-  onSelectedEmployeesChange: (employees: Employee[]) => void;
-}
-
-const EmployeesContructionsFilters = ({
-  selectedConstructions,
-  selectedEmployees,
-  onSelectedConstructionsChange,
-  onSelectedEmployeesChange,
-}: EmployeesContructionsFiltersInterface) => {
-  const {
-    filteredConstructions,
-    filteredEmployees,
-    handleDeselectAllConstructions,
-    handleDeselectAllEmployees,
-    handleSelectAllConstructions,
-    handleSelectAllEmployees,
-    handleSelectConstructions,
-    handleSelectEmployees,
-    handleShowInactiveConstructionsChange,
-    handleShowInactiveEmployeesChange,
-    showInactiveEmployees,
-    showInactiveConstructions,
-  } = useEmployeesConstructionsFilter(
-    selectedConstructions,
-    selectedEmployees,
-    onSelectedConstructionsChange,
-    onSelectedEmployeesChange
-  );
-
-  const handleChangeConstructionFilter = (
-    _: React.SyntheticEvent<Element, Event>,
-    newValue: Construction[]
-  ) => {
-    handleSelectConstructions(newValue);
-  };
-
-  const handleChangeEmployeeFilter = (
-    _: React.SyntheticEvent<Element, Event>,
-    newValue: Employee[]
-  ) => {
-    handleSelectEmployees(newValue);
   };
 
   const isAllEmployeesSelected =
@@ -169,7 +107,7 @@ const EmployeesContructionsFilters = ({
           disableCloseOnSelect
           getOptionLabel={(option) => option.name}
           value={selectedConstructions}
-          onChange={handleChangeConstructionFilter}
+          onChange={handleSelectConstructions}
           isOptionEqualToValue={(option, value) => option.id === value.id}
           renderOption={(props, option, { selected }) => {
             const { key, ...optionProps } = props;
@@ -203,7 +141,11 @@ const EmployeesContructionsFilters = ({
             }
           />
         }
-        label={<Typography variant="caption">Pokaż zakończone</Typography>}
+        label={
+          <Typography variant="caption">
+            Uwzględnij zakończone budowy w filtrze
+          </Typography>
+        }
       />
       <Stack direction="row" spacing={1} justifyContent={'flex-end'}>
         <Button
@@ -233,7 +175,7 @@ const EmployeesContructionsFilters = ({
           disableCloseOnSelect
           getOptionLabel={(option) => option.name}
           value={selectedEmployees}
-          onChange={handleChangeEmployeeFilter}
+          onChange={handleSelectEmployees}
           isOptionEqualToValue={(option, value) => option.id === value.id}
           renderOption={(props, option, { selected }) => {
             const { key, ...optionProps } = props;
@@ -267,7 +209,11 @@ const EmployeesContructionsFilters = ({
             }
           />
         }
-        label={<Typography variant="caption">Pokaż nieaktywnych</Typography>}
+        label={
+          <Typography variant="caption">
+            Uwzględnij nieaktywnych pracowników w filtrze
+          </Typography>
+        }
       />
       <Stack direction="row" spacing={1} justifyContent={'flex-end'}>
         <Button

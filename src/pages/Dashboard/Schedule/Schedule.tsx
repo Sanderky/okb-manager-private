@@ -36,7 +36,7 @@ import {
   saveScheduleList,
 } from '../../../services/schedules';
 
-import type { Construction } from '../../../types';
+import type { Construction, Employee } from '../../../types';
 
 import useNotifications from '../../../hooks/useNotifications/useNotifications';
 import {
@@ -101,33 +101,45 @@ const ScheduleComponent = () => {
 
   const [selectedEmployees, setSelectedEmployees] = useState<string[]>(() => {
     const saved = localStorage.getItem(SCHEDULE_FILTERS_STORAGE_KEY);
-    if (!saved) return [];
-    const parsed: StoredFilters = JSON.parse(saved);
-    return parsed.selectedEmployeeIds || [];
+    if (saved) {
+      try {
+        return JSON.parse(saved).selectedEmployeeIds ?? [];
+      } catch {}
+    }
+    return [];
   });
 
   const [showInactive, setShowInactive] = useState<boolean>(() => {
     const saved = localStorage.getItem(SCHEDULE_FILTERS_STORAGE_KEY);
-    if (!saved) return false;
-    const parsed: StoredFilters = JSON.parse(saved);
-    return parsed.showInactive || false;
+    if (saved) {
+      try {
+        return JSON.parse(saved).showInactive ?? false;
+      } catch {}
+    }
+    return false;
   });
 
   const [selectedConstructions, setSelectedConstructions] = useState<string[]>(
     () => {
       const saved = localStorage.getItem(SCHEDULE_FILTERS_STORAGE_KEY);
-      if (!saved) return [];
-      const parsed: StoredFilters = JSON.parse(saved);
-      return parsed.selectedConstructionIds || [];
+      if (saved) {
+        try {
+          return JSON.parse(saved).selectedConstructionIds ?? [];
+        } catch {}
+      }
+      return [];
     }
   );
 
   const [showInactiveConstructions, setShowInactiveConstructions] =
     useState<boolean>(() => {
       const saved = localStorage.getItem(SCHEDULE_FILTERS_STORAGE_KEY);
-      if (!saved) return false;
-      const parsed: StoredFilters = JSON.parse(saved);
-      return parsed.showInactiveConstructions || false;
+      if (saved) {
+        try {
+          return JSON.parse(saved).showInactiveConstructions ?? false;
+        } catch {}
+      }
+      return false;
     });
 
   const notifications = useNotifications();
@@ -148,14 +160,15 @@ const ScheduleComponent = () => {
   }, [fromWeek, toWeek]);
 
   useEffect(() => {
+    const filtersToStore: StoredFilters = {
+      selectedEmployeeIds: selectedEmployees,
+      showInactive: showInactive,
+      selectedConstructionIds: selectedConstructions,
+      showInactiveConstructions: showInactiveConstructions,
+    };
     localStorage.setItem(
       SCHEDULE_FILTERS_STORAGE_KEY,
-      JSON.stringify({
-        selectedEmployeeIds: selectedEmployees,
-        showInactive,
-        selectedConstructionIds: selectedConstructions,
-        showInactiveConstructions,
-      })
+      JSON.stringify(filtersToStore)
     );
   }, [
     selectedEmployees,
@@ -187,7 +200,7 @@ const ScheduleComponent = () => {
     data: employees = [],
     isLoading: isLoadingEmployees,
     isError: isErrorEmployees,
-  } = useQuery({
+  } = useQuery<Employee[], Error>({
     queryKey: ['employees'],
     queryFn: () => getEmployeeList(),
   });
@@ -196,7 +209,7 @@ const ScheduleComponent = () => {
     data: constructions = [],
     isLoading: isLoadingConstructions,
     isError: isErrorConstructions,
-  } = useQuery({
+  } = useQuery<Construction[], Error>({
     queryKey: ['constructions'],
     queryFn: () => getConstructionList(),
   });
@@ -590,8 +603,9 @@ const ScheduleComponent = () => {
           toWeek={toWeek}
           setFromWeek={setFromWeek}
           setToWeek={setToWeek}
-          selectedEmployees={selectedEmployees}
-          selectedCosntructions={selectedConstructions}
+          showFilterBadge={
+            selectedEmployees.length + selectedConstructions.length > 0
+          }
           setIsFilterOpen={setIsFilterOpen}
           showVacations={showVacations}
           setShowVacations={setShowVacations}

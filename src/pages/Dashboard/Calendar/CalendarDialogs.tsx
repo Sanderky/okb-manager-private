@@ -47,8 +47,10 @@ interface FilterDialogProps {
   isFilterOpen: boolean;
   setIsFilterOpen: (open: boolean) => void;
   employees: Employee[];
-  selectedEmployees: Employee[];
-  setSelectedEmployees: (employees: Employee[]) => void;
+  selectedEmployees: string[];
+  setSelectedEmployees: (employees: string[]) => void;
+  showInactive: boolean;
+  setShowInactive: (val: boolean) => void;
 }
 
 export const FilterDialog: React.FC<FilterDialogProps> = ({
@@ -57,9 +59,9 @@ export const FilterDialog: React.FC<FilterDialogProps> = ({
   employees,
   selectedEmployees,
   setSelectedEmployees,
+  showInactive,
+  setShowInactive,
 }) => {
-  const [showInactive, setShowInactive] = useState<boolean>(false);
-
   const filteredEmployees = useMemo(() => {
     if (showInactive) {
       return employees;
@@ -67,8 +69,13 @@ export const FilterDialog: React.FC<FilterDialogProps> = ({
     return employees.filter((emp) => emp.status);
   }, [employees, showInactive]);
 
+  const selectedEmployeeObjects = useMemo(() => {
+    return employees.filter((e) => selectedEmployees.includes(e.id));
+  }, [employees, selectedEmployees]);
+
   const handleSelectAll = () => {
-    setSelectedEmployees([...filteredEmployees]);
+    const allIds = filteredEmployees.map((e) => e.id);
+    setSelectedEmployees(allIds);
   };
 
   const handleClear = () => {
@@ -76,8 +83,7 @@ export const FilterDialog: React.FC<FilterDialogProps> = ({
   };
 
   const isAllSelected =
-    selectedEmployees.length === filteredEmployees.length &&
-    filteredEmployees.length > 0;
+    selectedEmployees.length === employees.length && employees.length > 0;
 
   return (
     <BaseDialog
@@ -98,8 +104,10 @@ export const FilterDialog: React.FC<FilterDialogProps> = ({
           options={filteredEmployees}
           disableCloseOnSelect
           getOptionLabel={(opt) => opt.name}
-          value={selectedEmployees}
-          onChange={(_, newValue) => setSelectedEmployees(newValue)}
+          value={selectedEmployeeObjects}
+          onChange={(_, newValue) =>
+            setSelectedEmployees(newValue.map((e) => e.id))
+          }
           isOptionEqualToValue={(option, value) => option.id === value?.id}
           renderOption={(props, option, { selected }) => {
             const { key, ...optionProps } = props;
@@ -130,7 +138,11 @@ export const FilterDialog: React.FC<FilterDialogProps> = ({
             size="small"
           />
         }
-        label={<Typography variant="caption">Pokaż nieaktywnych</Typography>}
+        label={
+          <Typography variant="caption">
+            Uwzględnij nieaktywnych pracowników w filtrze
+          </Typography>
+        }
         sx={{ mt: 1 }}
       />
       <Stack direction="row" spacing={1} justifyContent={'flex-end'}>
@@ -719,6 +731,8 @@ interface VacationReportDialogProps {
   onClose: () => void;
   employees: Employee[];
   vacations: Vacation[];
+  showInactive: boolean;
+  setShowInactive: (val: boolean) => void;
 }
 
 interface VacationReportItem {
@@ -824,6 +838,8 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
   onClose,
   employees,
   vacations,
+  showInactive,
+  setShowInactive,
 }) => {
   const navigate = useNavigate();
   const [selectedEmployees, setSelectedEmployees] = useState<Employee[]>([]);
@@ -921,7 +937,7 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
     );
   }, [selectedEmployees, effectiveDateRange, uniqueVacations]);
 
-  const [showInactive, setShowInactive] = useState<boolean>(false);
+  // const [showInactive, setShowInactive] = useState<boolean>(false);
 
   const filteredEmployees = useMemo(() => {
     if (showInactive) {
@@ -1002,7 +1018,7 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
                 Pracownicy
               </Typography>
               <Typography variant="overline" sx={{ mb: 1.5, display: 'block' }}>
-                {selectedEmployees.length > 0
+                {selectedEmployees.length < filteredEmployees.length
                   ? `Wybrano: ${selectedEmployees.length} z ${filteredEmployees.length}`
                   : 'Wszyscy pracownicy'}
               </Typography>

@@ -33,6 +33,15 @@ import useNotifications from '../../../hooks/useNotifications/useNotifications';
 dayjs.extend(isoWeek);
 dayjs.extend(isBetween);
 
+const STORAGE_KEY = 'hours_table_filters';
+
+interface StoredFilters {
+  selectedConstructionIds: string[];
+  selectedEmployeeIds: string[];
+  showInactiveEmployees: boolean;
+  showInactiveConstructions: boolean;
+}
+
 export interface ConstructionsWithWorkHours {
   id: string;
   name: string;
@@ -58,10 +67,112 @@ const useHoursTable = (startWeek?: Date) => {
 
   const [localWorkHours, setLocalWorkHours] = useState<WorkHours[]>([]);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  const [selectedConstructions, setSelectedConstructions] = useState<
-    Construction[]
-  >([]);
-  const [selectedEmployees, setSelectedEmployees] = useState<Employee[]>([]);
+
+  const [showInactiveEmployees, setShowInactiveEmployees] = useState(() => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try {
+        return JSON.parse(saved).showInactiveEmployees ?? false;
+      } catch {
+        console.log('Loading saved filters error');
+      }
+    }
+    return false;
+  });
+
+  const [showInactiveConstructions, setShowInactiveConstructions] = useState(
+    () => {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        try {
+          return JSON.parse(saved).showInactiveConstructions ?? false;
+        } catch {
+          console.log('Loading saved filters error');
+        }
+      }
+      return false;
+    }
+  );
+
+  const [selectedConstructionIds, setSelectedConstructionIds] = useState<
+    string[]
+  >(() => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try {
+        return JSON.parse(saved).selectedConstructionIds ?? [];
+      } catch {
+        console.log('Loading saved filters error');
+      }
+    }
+    return [];
+  });
+
+  const [selectedEmployeeIds, setSelectedEmployeeIds] = useState<string[]>(
+    () => {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        try {
+          return JSON.parse(saved).selectedEmployeeIds ?? [];
+        } catch {
+          console.log('Loading saved filters error');
+        }
+      }
+      return [];
+    }
+  );
+
+  const {
+    data: employees = [],
+    isLoading: loadingEmployees,
+    error: employeesError,
+  } = useQuery({
+    queryKey: ['employees'],
+    queryFn: () => getEmployeeList(),
+  });
+
+  const {
+    data: constructions = [],
+    isLoading: loadingConstructions,
+    error: constructionsError,
+  } = useQuery({
+    queryKey: ['constructions'],
+    queryFn: () => getConstructionList(),
+  });
+
+  useEffect(() => {
+    const dataToSave: StoredFilters = {
+      selectedEmployeeIds,
+      selectedConstructionIds,
+      showInactiveEmployees,
+      showInactiveConstructions,
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
+  }, [
+    selectedEmployeeIds,
+    selectedConstructionIds,
+    showInactiveEmployees,
+    showInactiveConstructions,
+  ]);
+
+  const selectedConstructions = useMemo(() => {
+    return constructions.filter((c) => selectedConstructionIds.includes(c.id));
+  }, [constructions, selectedConstructionIds]);
+
+  const selectedEmployees = useMemo(() => {
+    return employees.filter((e) => selectedEmployeeIds.includes(e.id));
+  }, [employees, selectedEmployeeIds]);
+
+  const onSelectedConstructionsChange = useCallback(
+    (constructions: Construction[]) => {
+      setSelectedConstructionIds(constructions.map((c) => c.id));
+    },
+    []
+  );
+
+  const onSelectedEmployeesChange = useCallback((employees: Employee[]) => {
+    setSelectedEmployeeIds(employees.map((e) => e.id));
+  }, []);
 
   useEffect(() => {
     const handler = (e: BeforeUnloadEvent) => {
@@ -89,10 +200,6 @@ const useHoursTable = (startWeek?: Date) => {
     return () => document.removeEventListener('click', handleNavigation, true);
   }, [hasUnsavedChanges]);
 
-  const onSelectedConstructionsChange = (c: Construction[]) =>
-    setSelectedConstructions(c);
-  const onSelectedEmployeesChange = (e: Employee[]) => setSelectedEmployees(e);
-
   useEffect(() => {
     if (startWeek) setCurrentWeek(startWeek);
   }, [startWeek]);
@@ -108,16 +215,6 @@ const useHoursTable = (startWeek?: Date) => {
 
   const [selectedConstructionForEmployee, setSelectedConstructionForEmployee] =
     useState<Construction | null>(null);
-
-  const { data: employees } = useQuery({
-    queryKey: ['employees'],
-    queryFn: () => getEmployeeList(),
-  });
-
-  const { data: constructions } = useQuery({
-    queryKey: ['constructions'],
-    queryFn: () => getConstructionList(),
-  });
 
   const {
     data: workLogsRaw = [],
@@ -146,7 +243,6 @@ const useHoursTable = (startWeek?: Date) => {
           employeeId: log.employeeId,
           weekStart: currentWeek,
           hours: [0, 0, 0, 0, 0, 0, 0],
-          // WYPEŁNIAMY CACHE NAZWAMI
           employeeName: log.employeeName,
           employeeActive: log.employeeActive,
           constructionName: log.constructionName,
@@ -561,32 +657,43 @@ const useHoursTable = (startWeek?: Date) => {
     vacationMap,
   ]);
 
-  const getAvailableConstructions = useCallback(() => {
+  const availableConstructionsOptions = useMemo(() => {
+    const list = constructions;
+
     const usedIds = constructionsWithWorkHours.map((c) => c.id);
-    return (
-      constructions?.filter((c) => !usedIds.includes(c.id) && c.status) || []
-    );
+    return list.filter((c) => !usedIds.includes(c.id));
   }, [constructions, constructionsWithWorkHours]);
 
-  const getActiveEmployees = useCallback(
-    () => employees?.filter((e) => e.status) ?? [],
-    [employees]
+  const getAvailableConstructions = useCallback(
+    () => availableConstructionsOptions,
+    [availableConstructionsOptions]
   );
+
+  const getActiveEmployees = useCallback(() => {
+    return employees.filter((e) => e.status);
+  }, [employees]);
 
   const getAvailableEmployeesForConstruction = useCallback(
     (cId: string | undefined) => {
       if (!employees || !cId) return [];
       const group = constructionsWithWorkHours.find((c) => c.id === cId);
       const usedIds = group ? group.workHours.map((w) => w.employeeId) : [];
-      return employees.filter((e) => e.status && !usedIds.includes(e.id));
+
+      return employees.filter((e) => {
+        return e.status && !usedIds.includes(e.id);
+      });
     },
     [employees, constructionsWithWorkHours]
   );
 
   return {
     isLoading:
-      workHoursLoading || vacationsLoading,
-    loadingError: workHoursError || vacationsError,
+      loadingEmployees ||
+      loadingConstructions ||
+      workHoursLoading ||
+      vacationsLoading,
+    loadingError:
+      workHoursError || employeesError || vacationsError || constructionsError,
     totalHoursData,
     handleEmployeesAdded,
     handleDeleteConstruction,
@@ -618,6 +725,14 @@ const useHoursTable = (startWeek?: Date) => {
     getAvailableEmployeesForConstruction,
     getAvailableConstructions,
     getActiveEmployees,
+
+    showInactiveConstructions,
+    setShowInactiveConstructions,
+    showInactiveEmployees,
+    setShowInactiveEmployees,
+
+    employees,
+    constructions,
   };
 };
 
