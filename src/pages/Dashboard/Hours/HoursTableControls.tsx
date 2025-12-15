@@ -98,12 +98,13 @@ const HoursTableControls = ({
 
   const phone = (
     <Stack
-      gap={2}
+      gap={1}
       direction={'column'}
-      className="border-lightGray rounded-lg border bg-white px-3 py-3"
+      className="border-lightGray rounded-lg border bg-white"
       sx={{
         border: tableBorder,
         mb: 1,
+        p: 1,
       }}
     >
       <Stack
@@ -311,9 +312,9 @@ const HoursTableControls = ({
       <Stack direction={'row'}>
         <Tooltip title={'Poprzedni tydzień'}>
           <IconButton
-            size="small"
             className="rounded-l-lg rounded-r-none border"
             color="primary"
+            size="small"
             onClick={() => handleWeekChange('prev')}
             sx={(theme) => ({
               borderColor: theme.palette.primary.light,
@@ -322,13 +323,14 @@ const HoursTableControls = ({
               },
             })}
           >
-            <ChevronLeft />
+            <ChevronLeft fontSize="small" />
           </IconButton>
         </Tooltip>
         <Tooltip title={'Obecny tydzień'}>
           <Button
             variant="outlined"
             color="primary"
+            size="small"
             className="rounded-none border-x-0"
             onClick={() => handleWeekChange('current')}
             sx={(theme) => ({
@@ -355,7 +357,7 @@ const HoursTableControls = ({
               },
             })}
           >
-            <ChevronRight />
+            <ChevronRight fontSize="small" />
           </IconButton>
         </Tooltip>
       </Stack>
@@ -364,16 +366,17 @@ const HoursTableControls = ({
 
   const desktop = (
     <Box
-      className="border-lightGray mb-2 rounded-lg border bg-white px-3 py-3"
+      className="border-lightGray mb-2 rounded-lg border bg-white"
       sx={{
         display: { xs: 'none', sm: 'flex' },
         flexDirection: { sm: 'column-reverse', md: 'row' },
         gap: 2,
+        p: 1,
       }}
     >
       <Grid
         container
-        spacing={2}
+        spacing={1}
         justifyContent="space-between"
         sx={{
           alignItems: 'center',
@@ -394,11 +397,12 @@ const HoursTableControls = ({
                   },
                 })}
               >
-                <ChevronLeft />
+                <ChevronLeft fontSize="small" />
               </IconButton>
             </Tooltip>
             <Tooltip title={'Obecny tydzień'}>
               <Button
+                size="small"
                 variant="outlined"
                 color="primary"
                 className="rounded-none border-x-0"
@@ -426,7 +430,7 @@ const HoursTableControls = ({
                   },
                 })}
               >
-                <ChevronRight />
+                <ChevronRight fontSize="small" />
               </IconButton>
             </Tooltip>
           </Stack>
@@ -459,7 +463,7 @@ const HoursTableControls = ({
                     },
                   })}
                 >
-                  <FilterListIcon />
+                  <FilterListIcon fontSize="small" />
                 </IconButton>
               </Badge>
             </Tooltip>
@@ -475,7 +479,11 @@ const HoursTableControls = ({
           </Typography>
         </Grid>
       </Grid>
-      <Stack direction={'row'} sx={{ marginLeft: 'auto', alignItems: 'top' }}>
+
+      <Stack
+        direction={'row'}
+        sx={{ marginLeft: 'auto', alignItems: 'top', p: 0 }}
+      >
         <Box
           sx={{
             display: 'flex',
@@ -532,23 +540,31 @@ const HoursTableControls = ({
                 </Button>
               )}
               {editMode && [
-                <Tooltip key='copy' title="Kopiuj z innego tygodnia">
+                <Tooltip key="copy" title="Kopiuj z innego tygodnia">
                   <span>
                     <IconButton
                       disabled={isLoading || !editMode}
                       onClick={handleCopyDataDialogOpen}
                       loading={isCoping}
+                      sx={{
+                        p: 0,
+                        ml: 1,
+                      }}
                     >
                       <ContentCopy />
                     </IconButton>
                   </span>
                 </Tooltip>,
-                <Tooltip key='fill' title="Uzupełnij proponowane">
+                <Tooltip key="fill" title="Uzupełnij proponowane">
                   <span>
                     <IconButton
                       disabled={isLoading || !editMode}
                       onClick={handleFillWithSchedule}
                       loading={isCoping}
+                      sx={{
+                        p: 0,
+                        ml: 1,
+                      }}
                     >
                       <AutoFixHigh />
                     </IconButton>
@@ -563,20 +579,37 @@ const HoursTableControls = ({
                 disabled={isLoading}
                 onClick={reactToPrintFn}
                 loading={isLoading}
+                sx={{
+                  p: 0,
+                  ml: 1,
+                }}
               >
                 <Print />
               </IconButton>
             </span>
           </Tooltip>
           <Tooltip title={isExpanded ? 'Zwiń' : 'Rozwiń'}>
-            <IconButton onClick={handleToggleExpand}>
+            <IconButton
+              onClick={handleToggleExpand}
+              sx={{
+                p: 0,
+                ml: 1,
+              }}
+            >
               {isExpanded ? <ExpandLess /> : <ExpandMore />}
             </IconButton>
           </Tooltip>
           {readOnly && onTableDelete && (
             <Tooltip title="Usuń tabelę porównawczą">
               <span>
-                <IconButton disabled={isLoading} onClick={onTableDelete}>
+                <IconButton
+                  disabled={isLoading}
+                  onClick={onTableDelete}
+                  sx={{
+                    p: 0,
+                    ml: 1,
+                  }}
+                >
                   <Clear />
                 </IconButton>
               </span>

@@ -45,10 +45,13 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
   const phone = (
     <Stack
       direction={'column'}
-      gap={2}
+      gap={1}
       mb={1}
       width={'100%'}
-      className={'border-lightGray rounded-lg border bg-white px-3 py-3'}
+      className={'border-lightGray rounded-lg border bg-white'}
+      sx={{
+        p: 1,
+      }}
     >
       <Stack
         sx={{ flexGrow: 1 }}
@@ -82,6 +85,11 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
               <DatePicker
                 openTo="month"
                 views={['year', 'month']}
+                slotProps={{
+                  textField: {
+                    size: 'small',
+                  },
+                }}
                 sx={(theme) => ({
                   minWidth: 200,
                   '& .MuiPickersSectionList-root': {
@@ -96,7 +104,7 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
                   },
                   '& .MuiPickersInputBase-root': {
                     color: theme.palette.primary.main,
-                    fontWeight: 500,
+                    borderRadius: '8px',
                   },
                   '& .MuiButtonBase-root': {
                     color: theme.palette.primary.main,
@@ -151,7 +159,7 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
               },
             })}
           >
-            <ChevronLeft />
+            <ChevronLeft fontSize="small" />
           </IconButton>
         </Tooltip>
         <Tooltip title={'Obecy miesiąc'}>
@@ -159,6 +167,7 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
             variant="outlined"
             className="rounded-none border-x-0"
             color="primary"
+            size="small"
             onClick={() => handleMonthChange('today')}
             sx={(theme) => ({
               borderColor: theme.palette.primary.light,
@@ -184,7 +193,7 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
               },
             })}
           >
-            <ChevronRight />
+            <ChevronRight fontSize="small" />
           </IconButton>
         </Tooltip>
       </Stack>
@@ -197,10 +206,10 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
       direction={'row'}
       flexWrap={'wrap'}
       justifyContent={'flex-start'}
-      gap={2}
+      gap={1}
       width={'100%'}
-      minHeight={'66px'}
-      className={'border-lightGray mb-2 rounded-lg border bg-white px-3 py-3'}
+      className={'border-lightGray mb-2 rounded-lg border bg-white'}
+      p={1}
     >
       <Stack direction={'row'}>
         <Tooltip title={'Poprzedni miesiąc'}>
@@ -216,12 +225,13 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
               },
             })}
           >
-            <ChevronLeft />
+            <ChevronLeft fontSize="small" />
           </IconButton>
         </Tooltip>
         <Tooltip title={'Obecy miesiąc'}>
           <Button
             variant="outlined"
+            size="small"
             className="rounded-none border-x-0"
             color="primary"
             onClick={() => handleMonthChange('today')}
@@ -248,7 +258,7 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
               },
             })}
           >
-            <ChevronRight />
+            <ChevronRight fontSize="small" />
           </IconButton>
         </Tooltip>
       </Stack>
@@ -263,10 +273,19 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
         <DatePicker
           openTo="month"
           views={['year', 'month']}
+          slotProps={{
+            textField: {
+              size: 'small',
+            },
+          }}
           sx={(theme) => ({
             minWidth: 200,
+            '& .MuiIconButton-root': {
+              p: 1,
+            },
             '& .MuiPickersSectionList-root': {
-              padding: '7px 0',
+              // padding: '7px 0',
+              padding: '0',
               width: 'auto',
             },
             '&:hover .MuiPickersOutlinedInput-notchedOutline': {
@@ -276,8 +295,8 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
               borderColor: theme.palette.primary.light,
             },
             '& .MuiPickersInputBase-root': {
+              borderRadius: '8px',
               color: theme.palette.primary.main,
-              fontWeight: 500,
             },
             '& .MuiButtonBase-root': {
               color: theme.palette.primary.main,
@@ -305,7 +324,7 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
               },
             })}
           >
-            <FilterListIcon />
+            <FilterListIcon fontSize="small" />
           </IconButton>
         </Badge>
       </Tooltip>

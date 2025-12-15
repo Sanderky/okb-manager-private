@@ -60,10 +60,13 @@ export const TableControls: React.FC<TableControlsProps> = ({
     <Stack
       direction={'column'}
       flexWrap={'wrap'}
-      gap={2}
+      gap={1}
       mb={1}
       width={'100%'}
-      className={'border-lightGray rounded-lg border bg-white px-3 py-3'}
+      className={'border-lightGray rounded-lg border bg-white'}
+      sx={{
+        p: 1,
+      }}
     >
       <Stack
         sx={{ flexGrow: 1 }}
@@ -275,10 +278,11 @@ export const TableControls: React.FC<TableControlsProps> = ({
       direction={'row'}
       flexWrap={'wrap'}
       justifyContent={'flex-start'}
-      gap={2}
+      gap={1}
       mb={1}
       width={'100%'}
-      className={'border-lightGray rounded-lg border bg-white px-3 py-3'}
+      className={'border-lightGray rounded-lg border bg-white'}
+      sx={{ p: 1 }}
     >
       <Stack alignItems={'center'} direction={'row'} flexWrap={'wrap'} gap={2}>
         <WeekSelector
@@ -325,7 +329,7 @@ export const TableControls: React.FC<TableControlsProps> = ({
               },
             })}
           >
-            <FilterListIcon />
+            <FilterListIcon fontSize="small" />
           </IconButton>
         </Badge>
       </Tooltip>
@@ -343,7 +347,15 @@ export const TableControls: React.FC<TableControlsProps> = ({
             Urlopy
           </Typography>
         </Stack> */}
-        <Stack direction="column" alignItems="center" justifyContent="center">
+        <Stack
+          direction="row"
+          gap={0.5}
+          alignItems="center"
+          justifyContent="center"
+        >
+          <Typography variant="caption" sx={{ textAlign: 'center' }}>
+            Daty
+          </Typography>
           <Tooltip title="Ukrywanie szczegółowych dat">
             <Switch
               size="small"
@@ -352,9 +364,6 @@ export const TableControls: React.FC<TableControlsProps> = ({
               color="primary"
             />
           </Tooltip>
-          <Typography variant="caption" sx={{ textAlign: 'center' }}>
-            Daty
-          </Typography>
         </Stack>
       </Stack>
       <Stack

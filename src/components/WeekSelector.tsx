@@ -140,6 +140,13 @@ const WeekSelector: React.FC<WeekSelectorProps> = ({
             startIcon={<CalendarMonth />}
             onClick={handleClick}
             disabled={disabled}
+            size="small"
+            sx={(theme) => ({
+              borderColor: theme.palette.primary.light,
+              '&:hover': {
+                borderColor: theme.palette.primary.main,
+              },
+            })}
           >
             {`${formatDate(value)} - ${formatDate(getEndOfWeek(value))}`}
           </Button>
