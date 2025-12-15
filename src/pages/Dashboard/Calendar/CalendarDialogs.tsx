@@ -607,7 +607,7 @@ export const EventListDialog: React.FC<EventListDialogProps> = ({
       <Stack direction="column" spacing={1}>
         <TableContainer
           component={Paper}
-          className="shadow-none"
+          className="rounded-none shadow-none"
           sx={{ maxHeight: 600, overflow: 'auto' }}
         >
           <Table stickyHeader size="small">
@@ -619,10 +619,18 @@ export const EventListDialog: React.FC<EventListDialogProps> = ({
                   },
                 }}
               >
-                <TableCell>Pracownik</TableCell>
-                <TableCell>Okres urlopu</TableCell>
-                <TableCell>Długość</TableCell>
-                <TableCell>Status</TableCell>
+                <TableCell className="border-r border-b border-r-gray-500 border-b-gray-500">
+                  Pracownik
+                </TableCell>
+                <TableCell className="border-r border-b border-r-gray-500 border-b-gray-500">
+                  Okres urlopu
+                </TableCell>
+                <TableCell className="border-r border-b border-r-gray-500 border-b-gray-500">
+                  Długość
+                </TableCell>
+                <TableCell className="border-r border-b border-r-gray-500 border-b-gray-500">
+                  Status
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -644,25 +652,27 @@ export const EventListDialog: React.FC<EventListDialogProps> = ({
                       key={event.id}
                       onClick={() => handleEdit(event)}
                       sx={{
-                        border: 'none !important',
+                        // border: 'none !important',
                         backgroundColor: event.color,
                         cursor: 'pointer',
                         '&:hover': {
                           opacity: 0.8,
                         },
                         transition: 'all 0.2s ease',
-                        '& td, & th': {
+                        '&:last-child .MuiTableCell-root': {
                           borderBottom: 'none !important',
+                        },
+                        '& .MuiTableCell-root:last-child': {
                           borderRight: 'none !important',
                         },
                       }}
                     >
-                      <TableCell className="!py-3">
+                      <TableCell className="border-r border-b border-r-gray-500 border-b-gray-500 !py-3">
                         <Typography variant="body2" fontWeight="500" noWrap>
                           {event.employee?.name}
                         </Typography>
                       </TableCell>
-                      <TableCell className="!py-3">
+                      <TableCell className="border-r border-b border-r-gray-500 border-b-gray-500 !py-3">
                         <Stack direction="row" alignItems="center" spacing={1}>
                           <PlayArrowIcon
                             sx={{
@@ -688,12 +698,12 @@ export const EventListDialog: React.FC<EventListDialogProps> = ({
                           />
                         </Stack>
                       </TableCell>
-                      <TableCell className="!py-3">
+                      <TableCell className="border-r border-b border-r-gray-500 border-b-gray-500 !py-3">
                         <Typography variant="body2">
                           {duration} {duration < 2 ? 'dzień' : 'dni'}
                         </Typography>
                       </TableCell>
-                      <TableCell className="!py-3">
+                      <TableCell className="border-r border-b border-r-gray-500 border-b-gray-500 !py-3">
                         <Chip
                           size="small"
                           label={
