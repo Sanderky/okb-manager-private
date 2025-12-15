@@ -9,6 +9,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import NavigateNextRoundedIcon from '@mui/icons-material/NavigateNextRounded';
 import { Link } from 'react-router';
+import { useLayout } from '../context/LayoutContext';
 
 const PageHeaderBreadcrumbs = styled(Breadcrumbs)(({ theme }) => ({
   margin: theme.spacing(1, 0),
@@ -45,6 +46,26 @@ export interface PageContainerProps extends ContainerProps {
 export default function PageContainer(props: PageContainerProps) {
   const { children, breadcrumbs, actions = null } = props;
 
+  const { setHeaderHeight } = useLayout();
+
+  const headerRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    if (!headerRef.current) return;
+
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const elementHeight =
+          entry.borderBoxSize?.[0]?.blockSize || entry.contentRect.height;
+        setHeaderHeight(elementHeight + 48);
+      }
+    });
+
+    observer.observe(headerRef.current);
+
+    return () => observer.disconnect();
+  }, [setHeaderHeight]);
+
   return (
     <Box
       sx={{
@@ -66,6 +87,7 @@ export default function PageContainer(props: PageContainerProps) {
         spacing={0}
       >
         <Stack
+          ref={headerRef}
           direction={'row'}
           alignItems={'center'}
           flexWrap={'wrap'}

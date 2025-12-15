@@ -1,5 +1,5 @@
 import React, { useRef, useState, useCallback } from 'react';
-import { Button, Box, Typography, Divider, Stack } from '@mui/material';
+import { Button, Box, Typography, Stack } from '@mui/material';
 import HoursTable from './HoursTable';
 import { Add, Print, Summarize } from '@mui/icons-material';
 import { PrintReportDialog } from './HoursTableDialogs';
@@ -78,6 +78,14 @@ const Hours: React.FC = () => {
       actions={
         <>
           <Button
+            variant="contained"
+            size="small"
+            startIcon={<Add />}
+            onClick={handleAddComparisonTable}
+          >
+            Dodaj tabelkę porównawczą
+          </Button>
+          <Button
             size="small"
             onClick={() => reactToPrintFn()}
             startIcon={<Print />}
@@ -98,9 +106,20 @@ const Hours: React.FC = () => {
         </>
       }
     >
-      <Box ref={containerRef}>
-        <Stack direction="column" spacing={6}>
-          <HoursTable containerWidth={width} readOnly={false} tableId="main" onTableDataUpdate={(data) => handleTableDataUpdate('main', data)} />
+      <Box
+        ref={containerRef}
+        sx={{
+          direction: 'flex',
+          flex: 1,
+        }}
+      >
+        <Stack direction="column" spacing={4}>
+          <HoursTable
+            containerWidth={width}
+            readOnly={false}
+            tableId="main"
+            onTableDataUpdate={(data) => handleTableDataUpdate('main', data)}
+          />
 
           {comparisionTables.map((key) => (
             <Box key={key}>
@@ -108,7 +127,7 @@ const Hours: React.FC = () => {
                 variant="h5"
                 component={'div'}
                 mb={1}
-                sx={{ fontSize: '1.2rem' }}
+                sx={{ fontSize: '1rem' }}
               >
                 Tabela porównawcza {key}
               </Typography>
@@ -124,17 +143,6 @@ const Hours: React.FC = () => {
             </Box>
           ))}
         </Stack>
-
-        <Divider sx={{ mt: 5, mb: 5 }}>
-          <Button
-            variant="contained"
-            size="small"
-            startIcon={<Add />}
-            onClick={handleAddComparisonTable}
-          >
-            Dodaj tabelkę porównawczą
-          </Button>
-        </Divider>
 
         <PrintReportDialog
           open={printReportDialogOpen}

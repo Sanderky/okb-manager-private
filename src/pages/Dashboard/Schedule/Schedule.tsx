@@ -57,6 +57,7 @@ import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
 import KeyboardReturnIcon from '@mui/icons-material/KeyboardReturn';
 import useContainerBreakpoint from '../../../hooks/useContainerWidth';
 import { formatWeeksString } from '../Hours/HoursHelpers';
+import { useLayout } from '../../../context/LayoutContext';
 
 dayjs.extend(weekOfYear);
 dayjs.extend(isBetween);
@@ -238,6 +239,8 @@ const ScheduleComponent = () => {
   });
 
   const scheduleMap = useMemo(() => createScheduleMap(schedules), [schedules]);
+
+  const { headerHeight, topBarHeight } = useLayout();
 
   const weeks = useMemo(() => {
     const start = dayjs(fromWeek);
@@ -576,7 +579,19 @@ const ScheduleComponent = () => {
         </Button>
       }
     >
-      <Box ref={containerRef} sx={{ overflow: 'hidden' }} className="relative">
+      <Box
+        ref={containerRef}
+        sx={{
+          overflow: 'hidden',
+          minHeight: '400px',
+          maxHeight: `calc(100vh - ${headerHeight + topBarHeight}px)`,
+          // maxHeight: 'calc(100vh - 142.75px)',
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+        className="relative"
+      >
         {loading && (
           <Box
             sx={{
@@ -614,11 +629,23 @@ const ScheduleComponent = () => {
           activeTable={activeTable}
         />
 
-        <Box className="overflow-hidden rounded-lg border border-gray-300 bg-white">
+        <Box
+          className="overflow-hidden rounded-lg border border-gray-300 bg-white"
+          sx={{
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            minHeight: 0,
+          }}
+        >
           {activeTable.type === 0 ? (
             <TableContainer
               component={Box}
-              sx={{ overflowX: 'auto', width: '100%', maxHeight: '65vh' }}
+              sx={{
+                overflowX: 'auto',
+                width: '100%',
+                height: '100%',
+              }}
             >
               <Table
                 stickyHeader

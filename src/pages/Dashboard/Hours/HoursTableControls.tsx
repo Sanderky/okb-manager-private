@@ -55,6 +55,8 @@ interface HoursTableControlsProps {
   handleCancelEdit: () => Promise<void>;
   handleFillWithSchedule: () => Promise<void>;
   setIsFilterOpen: (val: boolean) => void;
+  setToolbarHeight: (val: number) => void
+  hasUnsavedChanges: boolean
 }
 
 const HoursTableControls = ({
@@ -77,6 +79,7 @@ const HoursTableControls = ({
   handleCancelEdit,
   handleFillWithSchedule,
   setIsFilterOpen,
+  setToolbarHeight
 }: HoursTableControlsProps) => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const openMobileMenu = Boolean(anchorEl);
@@ -86,6 +89,23 @@ const HoursTableControls = ({
   const handleCloseMobileMenu = () => {
     setAnchorEl(null);
   };
+
+  const toolbarRef = React.useRef<HTMLDivElement>(null);
+  
+    React.useEffect(() => {
+      if (!toolbarRef.current) return;
+  
+      const observer = new ResizeObserver((entries) => {
+        for (const entry of entries) {
+          const height = entry.borderBoxSize?.[0]?.blockSize || entry.contentRect.height;
+          setToolbarHeight(height + 8);
+        }
+      });
+  
+      observer.observe(toolbarRef.current);
+  
+      return () => observer.disconnect();
+    }, [setToolbarHeight]);
 
   const reactToPrintFn = useReactToPrint({
     contentRef: contentRef,
@@ -366,12 +386,13 @@ const HoursTableControls = ({
 
   const desktop = (
     <Box
-      className="border-lightGray mb-2 rounded-lg border bg-white"
+      className="border-lightGray rounded-lg border bg-white"
       sx={{
         display: { xs: 'none', sm: 'flex' },
         flexDirection: { sm: 'column-reverse', md: 'row' },
         gap: 2,
         p: 1,
+        mb: 1
       }}
     >
       <Grid
@@ -482,7 +503,7 @@ const HoursTableControls = ({
 
       <Stack
         direction={'row'}
-        sx={{ marginLeft: 'auto', alignItems: 'top', p: 0 }}
+        sx={{ marginLeft: 'auto', alignItems: 'top', p: 0}}
       >
         <Box
           sx={{
@@ -620,7 +641,9 @@ const HoursTableControls = ({
     </Box>
   );
 
-  return containerWidth < 600 ? phone : desktop;
+  return <Box ref={toolbarRef}>
+    {containerWidth < 600 ? phone : desktop}
+  </Box>
 };
 
 export default HoursTableControls;

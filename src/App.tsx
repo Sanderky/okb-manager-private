@@ -36,6 +36,7 @@ import { getHomeNote } from './services/home';
 import { getContractors } from './services/contractors';
 import { getEmployeeAlerts } from './services/alerts';
 import UpdatePassword from './pages/ForgotPassword/ForgotPassword';
+import { LayoutProvider } from './context/LayoutContext';
 
 const customTheme = createTheme({
   palette: {
@@ -142,51 +143,59 @@ export default function App() {
   return (
     <ThemeProvider theme={customTheme}>
       <CssBaseline enableColorScheme />
-      <NotificationsProvider>
-        <DialogsProvider>
-          <Router>
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route
-                element={<PrivateRoute isLoading={isLoading} user={user} />}
-              >
-                <Route path="/reset-password" element={<UpdatePassword />} />
-                <Route path="/" element={<DashboardLayout />}>
-                  <Route index element={<Navigate replace to="/home" />} />
-                  <Route path="home" element={<Home />} />
-                  <Route path="employees" element={<EmployeeList />} />
-                  <Route
-                    path="employees/:employeeId"
-                    element={<EmployeeShow />}
-                  />
-                  <Route
-                    path="employees/:employeeId/edit"
-                    element={<EmployeeEdit />}
-                  />
-                  <Route path="employees/create" element={<EmployeeCreate />} />
-                  <Route path="constructions" element={<ConstructionsList />} />
-                  <Route
-                    path="constructions/:constructionId"
-                    element={<ConstructionShow />}
-                  />
-                  <Route
-                    path="constructions/:constructionId/edit"
-                    element={<ConstructionEdit />}
-                  />
-                  <Route
-                    path="constructions/create"
-                    element={<ConstructionCreate />}
-                  />
-                  <Route path="schedule" element={<Schedule />} />
-                  <Route path="calendar" element={<VacationCalendar />} />
-                  <Route path="hours" element={<Hours />} />
-                  <Route path="*" element={<PageNotFound />} />
+      <LayoutProvider>
+        <NotificationsProvider>
+          <DialogsProvider>
+            <Router>
+              <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route
+                  element={<PrivateRoute isLoading={isLoading} user={user} />}
+                >
+                  <Route path="/reset-password" element={<UpdatePassword />} />
+                  <Route path="/" element={<DashboardLayout />}>
+                    <Route index element={<Navigate replace to="/home" />} />
+                    <Route path="home" element={<Home />} />
+                    <Route path="employees" element={<EmployeeList />} />
+                    <Route
+                      path="employees/:employeeId"
+                      element={<EmployeeShow />}
+                    />
+                    <Route
+                      path="employees/:employeeId/edit"
+                      element={<EmployeeEdit />}
+                    />
+                    <Route
+                      path="employees/create"
+                      element={<EmployeeCreate />}
+                    />
+                    <Route
+                      path="constructions"
+                      element={<ConstructionsList />}
+                    />
+                    <Route
+                      path="constructions/:constructionId"
+                      element={<ConstructionShow />}
+                    />
+                    <Route
+                      path="constructions/:constructionId/edit"
+                      element={<ConstructionEdit />}
+                    />
+                    <Route
+                      path="constructions/create"
+                      element={<ConstructionCreate />}
+                    />
+                    <Route path="schedule" element={<Schedule />} />
+                    <Route path="calendar" element={<VacationCalendar />} />
+                    <Route path="hours" element={<Hours />} />
+                    <Route path="*" element={<PageNotFound />} />
+                  </Route>
                 </Route>
-              </Route>
-            </Routes>
-          </Router>
-        </DialogsProvider>
-      </NotificationsProvider>
+              </Routes>
+            </Router>
+          </DialogsProvider>
+        </NotificationsProvider>
+      </LayoutProvider>
     </ThemeProvider>
   );
 }
