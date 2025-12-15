@@ -496,11 +496,10 @@ export default function EmployeeList() {
         Cell: ({ cell }) => (
           <Box
             component="span"
-            className={`rounded px-3 py-1 ${
-              cell.getValue<boolean>()
+            className={`rounded px-3 py-1 ${cell.getValue<boolean>()
                 ? 'bg-green-300/50 text-green-600'
                 : 'bg-red-300/50 text-red-600'
-            }`}
+              }`}
           >
             {cell.getValue<boolean>() ? 'Aktywny' : 'Nieaktywny'}
           </Box>
@@ -532,6 +531,7 @@ export default function EmployeeList() {
     },
     muiTableContainerProps: {
       sx: {
+        flex: '1 1 auto',
         '& *': {
           transition: 'none !important',
         },
@@ -574,6 +574,9 @@ export default function EmployeeList() {
         boxShadow: 'none',
         border: '1px solid #e0e0e0',
         borderRadius: '10px',
+        display: 'flex',
+        flexDirection: 'column',
+        flex: '1 1 auto',
       },
     },
     muiTableHeadCellProps: {
@@ -722,7 +725,7 @@ export default function EmployeeList() {
         </Button>
       }
     >
-      <Box sx={{ flex: 1, width: '100%' }}>
+      <Box sx={{ flex: 1, width: '100%', display: 'flex' }}>
         <LocalizationProvider
           localeText={
             plPL.components.MuiLocalizationProvider.defaultProps.localeText

@@ -580,6 +580,7 @@ const FileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
     },
     muiTableContainerProps: {
       sx: {
+        flex: '1 1 auto',
         // minHeight: '500px',
         // maxHeight: '500px',
         width: '100%',
@@ -594,6 +595,9 @@ const FileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
         boxShadow: 'none',
         border: '1px solid #e0e0e0',
         borderRadius: '10px',
+        display: 'flex',
+        flexDirection: 'column',
+        flex: '1 1 auto',
       },
     },
 
@@ -635,40 +639,40 @@ const FileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
     renderRowActionMenuItems: ({ row, closeMenu }) => [
       row.original.type === 'file'
         ? [
-            canOpenPreview(row.original) ? (
-              <MRT_ActionMenuItem
-                icon={<Visibility />}
-                key="preview"
-                label="Podgląd"
-                onClick={() => {
-                  handleOpenPreview(row.original as FileItem);
-                  closeMenu();
-                }}
-                table={table}
-              />
-            ) : null,
+          canOpenPreview(row.original) ? (
             <MRT_ActionMenuItem
-              icon={<OpenInNew />}
-              key="newTab"
-              label="Otwórz w nowej karcie"
+              icon={<Visibility />}
+              key="preview"
+              label="Podgląd"
               onClick={() => {
-                openFileInNewTab((row.original as FileItem).path);
+                handleOpenPreview(row.original as FileItem);
                 closeMenu();
               }}
               table={table}
-            />,
-            <MRT_ActionMenuItem
-              icon={<InfoOutline />}
-              key="details"
-              label="Szczegóły"
-              onClick={() => {
-                setSelectedFile(row.original as FileItem);
-                setIsDetailsDialogOpen(true);
-                closeMenu();
-              }}
-              table={table}
-            />,
-          ]
+            />
+          ) : null,
+          <MRT_ActionMenuItem
+            icon={<OpenInNew />}
+            key="newTab"
+            label="Otwórz w nowej karcie"
+            onClick={() => {
+              openFileInNewTab((row.original as FileItem).path);
+              closeMenu();
+            }}
+            table={table}
+          />,
+          <MRT_ActionMenuItem
+            icon={<InfoOutline />}
+            key="details"
+            label="Szczegóły"
+            onClick={() => {
+              setSelectedFile(row.original as FileItem);
+              setIsDetailsDialogOpen(true);
+              closeMenu();
+            }}
+            table={table}
+          />,
+        ]
         : null,
       <MRT_ActionMenuItem
         icon={<Download />}
@@ -784,10 +788,10 @@ const FileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
   });
 
   return (
-    <Box sx={{ width: '100%' }}>
+    <Box sx={{ width: '100%', flex: 1, display: 'flex', flexDirection: 'column' }}>
       <BaseDialog
         open={isUploadDialogOpen}
-        onClose={() => {}}
+        onClose={() => { }}
         title={'Przesyłanie plików'}
         showCloseButton={false}
       >
@@ -811,7 +815,7 @@ const FileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
         </>
       </BaseDialog>
 
-      <Box ref={dropRef} sx={{ position: 'relative' }}>
+      <Box ref={dropRef} sx={{ position: 'relative', flex: 1, display: 'flex' }}>
         {isDragOver && (
           <Paper
             sx={{

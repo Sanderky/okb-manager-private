@@ -376,11 +376,10 @@ export default function ConstructionsList() {
           return (
             <Box
               component="span"
-              className={`rounded-full px-2 py-1 font-medium ${
-                count > 0
+              className={`rounded-full px-2 py-1 font-medium ${count > 0
                   ? 'bg-green-100 text-green-800'
                   : 'bg-gray-100 text-gray-600'
-              }`}
+                }`}
             >
               {count}
             </Box>
@@ -405,11 +404,10 @@ export default function ConstructionsList() {
         Cell: ({ cell }) => (
           <Box
             component="span"
-            className={`rounded px-3 py-1 ${
-              cell.getValue<boolean>()
+            className={`rounded px-3 py-1 ${cell.getValue<boolean>()
                 ? 'bg-blue-300/50 text-blue-600'
                 : 'bg-amber-300/50 text-amber-600'
-            }`}
+              }`}
           >
             {cell.getValue<boolean>() ? 'W trakcie' : 'Zakończona'}
           </Box>
@@ -479,6 +477,7 @@ export default function ConstructionsList() {
     ),
     muiTableContainerProps: {
       sx: {
+        flex: '1 1 auto',
         '& *': {
           transition: 'none !important',
         },
@@ -489,6 +488,9 @@ export default function ConstructionsList() {
         boxShadow: 'none',
         border: '1px solid #e0e0e0',
         borderRadius: '10px',
+        display: 'flex',
+        flexDirection: 'column',
+        flex: '1 1 auto',
       },
     },
     muiTableHeadCellProps: {
@@ -615,7 +617,7 @@ export default function ConstructionsList() {
         </Button>,
       ]}
     >
-      <Box sx={{ flex: 1, width: '100%' }}>
+      <Box sx={{ flex: 1, width: '100%', display: 'flex' }}>
         <LocalizationProvider
           localeText={
             plPL.components.MuiLocalizationProvider.defaultProps.localeText
@@ -680,8 +682,8 @@ export default function ConstructionsList() {
                     value={
                       filters.contractor
                         ? contractorOptions.find(
-                            (opt) => opt.label === filters.contractor
-                          ) || null
+                          (opt) => opt.label === filters.contractor
+                        ) || null
                         : null
                     }
                     onChange={(_, newValue) => {

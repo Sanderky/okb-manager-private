@@ -205,7 +205,7 @@ export default function EmployeeShow() {
 
     return employee ? (
       <Box
-        sx={{ width: '100%', boxShadow: 1 }}
+        sx={{ width: '100%', boxShadow: 1, display: 'flex', flexDirection: 'column' }}
         className="rounded-lg bg-white p-2 pb-4 md:p-4 md:pt-2 lg:p-6 lg:pt-2"
       >
         <Grid
@@ -391,7 +391,10 @@ export default function EmployeeShow() {
         )}
 
         {tab === 1 && (
-          <Box>
+          <Box sx={{
+            flex: 1,
+            display: 'flex'
+          }}>
             <FileBrowser baseDirectory={`employees/${employee.id}/files`} />
           </Box>
         )}

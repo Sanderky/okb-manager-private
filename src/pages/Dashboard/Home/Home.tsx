@@ -667,7 +667,7 @@ const Home = () => {
         </Tabs>
       </Box>
 
-      <Grid container columns={12} spacing={{ xs: 1.5, md: 2, lg: 3 }}>
+      <Grid container columns={12} spacing={{ xs: 1.5, md: 2, lg: 3 }} sx={{ flex: 1 }}>
         {tab === 0 && (
           <>
             <Grid
@@ -885,7 +885,7 @@ const Home = () => {
           </>
         )}
         {tab === 1 && (
-          <Grid size={{ xs: 12 }}>
+          <Grid size={{ xs: 12 }} sx={{ flex: 1, display: 'flex' }}>
             <FileBrowser baseDirectory="general" />
           </Grid>
         )}

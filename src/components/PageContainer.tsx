@@ -58,7 +58,7 @@ export default function PageContainer(props: PageContainerProps) {
         sx={{
           flex: 1,
           pt: 2,
-          pb: 8,
+          pb: 2,
           px: { xs: 1, md: 2 },
           maxWidth: '1300px',
           overflow: 'auto',
