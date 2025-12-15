@@ -108,8 +108,7 @@ const Login = () => {
           />
         </div>
       ) : (
-        <Box className="flex flex-col h-screen">
-
+        <Box className="flex h-screen flex-col">
           <Box
             className="flex flex-col items-center justify-center py-8"
             sx={{
@@ -117,7 +116,6 @@ const Login = () => {
               px: { xs: 2, sm: 4 },
             }}
           >
-
             <Box
               className="relative w-full rounded-lg bg-white shadow"
               sx={{
@@ -218,11 +216,24 @@ const Login = () => {
                     Nie pamiętasz hasła?
                   </Button>
                 </div>
-                <Typography variant='caption'>
+                <Typography variant="caption">
                   {`Logując się, akceptujesz `}
-                  <Link href="/regulamin.pdf" target="_blank" rel="noopener noreferrer">Zasady użytkowania systemu</Link>
+                  <Link
+                    href="/regulamin.pdf"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Zasady użytkowania systemu
+                  </Link>
                   {` oraz potwierdzasz zapoznanie się z `}
-                  <Link href="/rodo.pdf" target="_blank" rel="noopener noreferrer">Informacją o przetwarzaniu danych (RODO)</Link>.
+                  <Link
+                    href="/rodo.pdf"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Informacją o przetwarzaniu danych (RODO)
+                  </Link>
+                  .
                 </Typography>
 
                 <Button
@@ -253,22 +264,37 @@ const Login = () => {
             </Box>
           </Box>
 
-          <footer
-          >
+          <footer>
             <Stack
               direction={'row'}
               justifyContent={'space-between'}
               sx={{
+                py: 0.25,
                 px: 1,
                 columnGap: 1,
-                rowGap: 1
+                rowGap: 1,
+                fontSize: { xs: '0.7rem', sm: '0.8rem' },
               }}
               flexWrap={'wrap'}
+              className="bg-gray-900/50 text-white"
             >
-
-              <Typography variant='caption' color='textSecondary'>Panel administracyjny dla pracowników. Dostęp tylko dla autoryzowanego personelu.</Typography>
-              <Typography variant='caption' color='textSecondary'>
-                &copy; {new Date().getFullYear()}, {import.meta.env.VITE_COMPANY_NAME}
+              <Typography
+                variant="caption"
+                sx={{
+                  fontSize: 'inherit',
+                }}
+              >
+                Panel administracyjny dla pracowników. Dostęp tylko dla
+                autoryzowanego personelu.
+              </Typography>
+              <Typography
+                variant="caption"
+                sx={{
+                  fontSize: 'inherit',
+                }}
+              >
+                &copy; {new Date().getFullYear()},{' '}
+                {import.meta.env.VITE_COMPANY_NAME}
               </Typography>
             </Stack>
           </footer>
