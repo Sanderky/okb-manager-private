@@ -13,7 +13,7 @@ import {
 import CloseIcon from '@mui/icons-material/Close';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { FileItem, FolderItem } from '../../types';
-import { Add, CropFree, Error, Remove } from '@mui/icons-material';
+import { Add, CropFree, Error, Remove, RotateLeft, RotateRight } from '@mui/icons-material';
 import * as StorageService from '../../services/storage';
 
 const ZoomStep = 0.2;
@@ -31,6 +31,7 @@ export const PreviewDialog = ({ open, onClose, file }: PreviewDialogProps) => {
   const [isError, setIsError] = useState(false);
   const [scale, setScale] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [rotation, setRotation] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
@@ -107,9 +108,18 @@ export const PreviewDialog = ({ open, onClose, file }: PreviewDialogProps) => {
     });
   };
 
+  const handleRotateLeft = () => {
+    setRotation((prev) => prev - 90);
+  };
+
+  const handleRotateRight = () => {
+    setRotation((prev) => prev + 90);
+  };
+
   const handleReset = () => {
     setScale(1);
     setPosition({ x: 0, y: 0 });
+    setRotation(0)
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -218,10 +228,10 @@ export const PreviewDialog = ({ open, onClose, file }: PreviewDialogProps) => {
                 alt={file.name}
                 style={{
                   scale: scale,
-                  transform: `translate(${position.x}px, ${position.y}px)`,
+                  transform: `translate(${position.x}px, ${position.y}px) rotate(${rotation}deg)`,
                   transformOrigin: 'center center',
                   maxHeight: '100%',
-                  maxWidth: '100%', // Zmieniono na 100% żeby nie wychodziło poza ekran przy starcie
+                  maxWidth: '100%',
                   display: isLoading ? 'none' : 'block',
                   cursor:
                     scale > 1 ? (isDragging ? 'grabbing' : 'grab') : 'default',
@@ -269,7 +279,6 @@ export const PreviewDialog = ({ open, onClose, file }: PreviewDialogProps) => {
             justifyContent: 'space-between',
             pl: { xs: 1, sm: 3 },
             pr: { xs: 1, sm: 3 },
-            minHeight: '64px',
           }}
         >
           <Typography
@@ -298,7 +307,7 @@ export const PreviewDialog = ({ open, onClose, file }: PreviewDialogProps) => {
                   <Add />
                 </IconButton>
 
-                <Divider orientation="vertical" flexItem />
+                {/* <Divider orientation="vertical" flexItem /> */}
 
                 <IconButton
                   onClick={handleScaleDown}
@@ -313,6 +322,20 @@ export const PreviewDialog = ({ open, onClose, file }: PreviewDialogProps) => {
                 <Tooltip title="Resetuj zoom i pozycję">
                   <IconButton onClick={handleReset} size="small">
                     <CropFree />
+                  </IconButton>
+                </Tooltip>
+
+                <Divider orientation="vertical" flexItem />
+
+                <Tooltip title="Obróć w lewo">
+                  <IconButton onClick={handleRotateLeft} size="small">
+                    <RotateLeft />
+                  </IconButton>
+                </Tooltip>
+
+                <Tooltip title="Obróć w prawo">
+                  <IconButton onClick={handleRotateRight} size="small">
+                    <RotateRight />
                   </IconButton>
                 </Tooltip>
               </Stack>
