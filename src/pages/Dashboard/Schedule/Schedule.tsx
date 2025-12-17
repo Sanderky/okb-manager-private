@@ -105,7 +105,9 @@ const ScheduleComponent = () => {
     if (saved) {
       try {
         return JSON.parse(saved).selectedEmployeeIds ?? [];
-      } catch {}
+      } catch {
+        console.error('Errow while loading fron local storage');
+      }
     }
     return [];
   });
@@ -115,7 +117,9 @@ const ScheduleComponent = () => {
     if (saved) {
       try {
         return JSON.parse(saved).showInactive ?? false;
-      } catch {}
+      } catch {
+        console.error('Errow while loading fron local storage');
+      }
     }
     return false;
   });
@@ -126,7 +130,9 @@ const ScheduleComponent = () => {
       if (saved) {
         try {
           return JSON.parse(saved).selectedConstructionIds ?? [];
-        } catch {}
+        } catch {
+          console.error('Errow while loading fron local storage');
+        }
       }
       return [];
     }
@@ -138,7 +144,9 @@ const ScheduleComponent = () => {
       if (saved) {
         try {
           return JSON.parse(saved).showInactiveConstructions ?? false;
-        } catch {}
+        } catch {
+          console.error('Errow while loading fron local storage');
+        }
       }
       return false;
     });
@@ -253,6 +261,11 @@ const ScheduleComponent = () => {
     }
     return arr;
   }, [fromWeek, toWeek]);
+
+  const employeesCount = useMemo(() => {
+    if (showInactive) return employees.length;
+    return employees.filter((emp) => emp.status).length;
+  }, [employees, showInactive]);
 
   const filteredEmployees = useMemo(() => {
     let result = employees;
@@ -620,7 +633,8 @@ const ScheduleComponent = () => {
           setFromWeek={setFromWeek}
           setToWeek={setToWeek}
           showFilterBadge={
-            selectedEmployees.length + selectedConstructions.length > 0
+            selectedEmployees.length + selectedConstructions.length > 0 ||
+            showInactive
           }
           setIsFilterOpen={setIsFilterOpen}
           showVacations={showVacations}
@@ -667,17 +681,10 @@ const ScheduleComponent = () => {
                         position: 'sticky',
                         left: 0,
                         zIndex: 4,
-                        width: '200px',
+                        width: { xs: '150px', sm: '200px' },
                       }}
                       className="bg-blue-200 px-3 py-2 text-center"
-                    >
-                      <Typography variant="overline" className="font-medium">
-                        Pracownicy:{' '}
-                        {selectedEmployees.length > 0
-                          ? `${selectedEmployees.length} / ${filteredEmployees.length}`
-                          : filteredEmployees.length}
-                      </Typography>
-                    </TableCell>
+                    ></TableCell>
                     {weeks.map((w, index) => {
                       const isBefore = w.isBefore(dayjs(), 'week');
                       const isAfter = w.isAfter(dayjs(), 'week');
@@ -707,7 +714,7 @@ const ScheduleComponent = () => {
                               position: 'absolute',
                               top: '50%',
                               right: 10,
-                              transform: 'translateY(-50%)',
+                              transform: 'translateY(-50%) rotate(90deg)',
                               opacity: 0,
                               transition: '0.3s',
                               '.group:hover &': { opacity: 1 },
@@ -736,7 +743,14 @@ const ScheduleComponent = () => {
               </Table>
             </TableContainer>
           ) : (
-            <TableContainer component={Box} sx={{ maxHeight: '65vh' }}>
+            <TableContainer
+              component={Box}
+              sx={{
+                overflowX: 'auto',
+                width: '100%',
+                height: '100%',
+              }}
+            >
               <Table stickyHeader sx={{ tableLayout: 'fixed', minWidth: 800 }}>
                 <TableHead>
                   <TableRow>
@@ -745,7 +759,7 @@ const ScheduleComponent = () => {
                         position: 'sticky',
                         left: 0,
                         zIndex: 4,
-                        width: '200px',
+                        width: { xs: '150px', sm: '200px' },
                       }}
                       className="cursor-pointer bg-blue-200 px-3 py-2 text-center"
                       onClick={() => setActiveTable((p) => ({ ...p, type: 0 }))}
@@ -816,25 +830,66 @@ const ScheduleComponent = () => {
               </Stack>
             )}
             <Stack
-              direction={'row'}
+              direction={{ xs: 'column', sm: 'row' }}
               justifyContent={'space-between'}
-              spacing={2}
               alignItems={'center'}
-              className="border-t border-t-gray-300 px-3 py-2"
+              className="border-t border-t-gray-300 px-3"
+              columnGap={2}
+              rowGap={0.5}
+              py={1}
             >
               {activeTable.type === 0 ? (
                 <>
+                  <Stack
+                    direction={'row'}
+                    spacing={2}
+                    alignItems={'center'}
+                    flexWrap={'wrap'}
+                    divider={
+                      <Box
+                        sx={{
+                          borderRight: '1px solid #ccc',
+                          height: '15px',
+                        }}
+                      />
+                    }
+                  >
+                    <Typography
+                      variant="overline"
+                      className="font-medium text-gray-500"
+                      sx={{
+                        lineHeight: 1,
+                      }}
+                    >
+                      Pracownicy:{' '}
+                      {selectedEmployees.length > 0
+                        ? `${selectedEmployees.length} / ${employeesCount}`
+                        : filteredEmployees.length}
+                    </Typography>
+                    <Typography
+                      variant="overline"
+                      className="font-medium text-gray-500"
+                      sx={{
+                        lineHeight: 1,
+                      }}
+                    >
+                      {weeks.length} {formatWeeksString(weeks.length, 'pl-PL')}
+                    </Typography>
+                  </Stack>
                   <Typography
                     variant="overline"
                     className="font-medium text-gray-500"
+                    sx={{
+                      lineHeight: 1,
+                    }}
                   >
-                    {weeks.length} {formatWeeksString(weeks.length, 'pl-PL')}
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    className="font-medium text-gray-500"
-                  >
-                    <Typography component={'span'} variant="inherit">
+                    <Typography
+                      component={'span'}
+                      variant="inherit"
+                      sx={{
+                        lineHeight: 1,
+                      }}
+                    >
                       Zakres:{' '}
                     </Typography>
                     {dayjs(fromWeek).format('DD.MM.YYYY')} -{' '}
@@ -843,15 +898,49 @@ const ScheduleComponent = () => {
                 </>
               ) : (
                 <>
+                  <Stack
+                    direction={'row'}
+                    spacing={2}
+                    alignItems={'center'}
+                    divider={
+                      <Box
+                        sx={{
+                          borderRight: '1px solid #ccc',
+                          height: '15px',
+                        }}
+                      />
+                    }
+                    flexWrap={'wrap'}
+                  >
+                    <Typography
+                      variant="overline"
+                      className="font-medium text-gray-500"
+                      sx={{
+                        lineHeight: 1,
+                      }}
+                    >
+                      Pracownicy:{' '}
+                      {selectedEmployees.length > 0
+                        ? `${selectedEmployees.length} / ${employeesCount}`
+                        : filteredEmployees.length}
+                    </Typography>
+                    <Typography
+                      variant="overline"
+                      className="font-medium text-gray-500"
+                      sx={{
+                        lineHeight: 1,
+                      }}
+                    >
+                      {activeTable.week.week()} Tydzień
+                    </Typography>
+                  </Stack>
                   <Typography
                     variant="overline"
                     className="font-medium text-gray-500"
-                  >
-                    {activeTable.week.week()} Tydzień
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    className="font-medium text-gray-500"
+                    sx={{
+                      flexShrink: 0,
+                      lineHeight: 1,
+                    }}
                   >
                     {activeTable.week.format('DD.MM.YYYY')} -{' '}
                     {activeTable.week.add(6, 'day').format('DD.MM.YYYY')}

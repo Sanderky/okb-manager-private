@@ -134,7 +134,6 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = React.memo(
                     flexGrow: 1,
                   }}
                   className={`${!employee.status && 'text-red-400'}`}
-                  noWrap
                 >
                   {employee.name}
                 </Typography>
@@ -188,23 +187,17 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = React.memo(
           className="bg-gray-100 px-3 py-2"
         >
           <Stack direction={'row'} alignItems={'center'}>
-            <Box
+            <Typography
               sx={{
-                width: '20px',
+                fontSize: {
+                  xs: '0.75rem',
+                  md: '0.85rem',
+                },
               }}
+              className={`${!employee.status && 'text-red-400'}`}
             >
-              <Typography
-                sx={{
-                  fontSize: {
-                    xs: '0.75rem',
-                    md: '0.85rem',
-                  },
-                }}
-                className={`${!employee.status && 'text-red-400'}`}
-              >
-                {index + 1}.
-              </Typography>
-            </Box>
+              {index + 1}.
+            </Typography>
             <Tooltip
               arrow
               placement="top"
@@ -223,7 +216,6 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = React.memo(
               }}
             >
               <Typography
-                noWrap
                 sx={{
                   flexGrow: 1,
                   fontSize: {

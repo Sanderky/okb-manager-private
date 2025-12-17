@@ -824,8 +824,13 @@ const HoursTable = ({
                         spacing={3}
                         alignItems="center"
                         justifyContent={'space-between'}
+                        pl={1}
                       >
-                        <Stack direction="row" alignItems="center" spacing={3}>
+                        <Stack
+                          direction="row"
+                          alignItems="center"
+                          columnGap={3}
+                        >
                           <Tooltip
                             title={
                               availableConstructions.length === 0 && editMode
@@ -883,14 +888,14 @@ const HoursTable = ({
                             sx={{ order: 3 }}
                           >
                             <Typography
-                              variant="caption"
-                              sx={{ fontWeight: 600, color: 'text.secondary' }}
+                              variant="overline"
+                              className="font-medium text-gray-500"
                             >
                               Budowy: {constructionsWithWorkHours.length}
                             </Typography>
                             <Typography
-                              variant="caption"
-                              sx={{ fontWeight: 600, color: 'text.secondary' }}
+                              variant="overline"
+                              className="font-medium text-gray-500"
                             >
                               Pracownicy: {employeesCount}
                             </Typography>
@@ -898,8 +903,8 @@ const HoursTable = ({
                         </Stack>
 
                         <Typography
-                          variant="caption"
-                          sx={{ fontWeight: 600, color: 'text.secondary' }}
+                          variant="overline"
+                          className="font-medium text-gray-500"
                         >
                           Suma całkowita:
                         </Typography>
@@ -917,8 +922,8 @@ const HoursTable = ({
                       }}
                     >
                       <Typography
-                        variant="caption"
-                        sx={{ fontWeight: 600, color: 'text.secondary' }}
+                        variant="overline"
+                        className="font-medium text-gray-500"
                       >
                         {constructionsWithWorkHours.length > 0
                           ? formatToPolishDecimal(totalHoursData.grandTotal)
