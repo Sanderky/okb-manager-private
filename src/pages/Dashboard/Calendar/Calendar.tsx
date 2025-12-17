@@ -15,7 +15,7 @@ import {
   updateVacation,
 } from '../../../services/vacations';
 import type { Employee, Vacation } from '../../../types';
-import { Close as CloseIcon } from '@mui/icons-material';
+import { Add, Close as CloseIcon } from '@mui/icons-material';
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
 import useNotifications from '../../../hooks/useNotifications/useNotifications';
@@ -492,15 +492,28 @@ const Calendar: React.FC = () => {
     <PageContainer
       breadcrumbs={[{ title: 'Kalendarz urlopów' }]}
       actions={
-        <Button
-          size="small"
-          onClick={() => setIsVacationReportOpen(true)}
-          variant="contained"
-          startIcon={<ListAltIcon />}
-          disabled={loading || employees.length === 0}
-        >
-          Wykaz urlopów
-        </Button>
+        [
+          <Button
+            key='add'
+            size="small"
+            onClick={() => setActiveDialog({ type: 'addEvent' })}
+            variant="contained"
+            startIcon={<Add />}
+            disabled={loading || employees.length === 0}
+          >
+            Dodaj urlop
+          </Button>,
+          <Button
+            key='report'
+            size="small"
+            onClick={() => setIsVacationReportOpen(true)}
+            variant="contained"
+            startIcon={<ListAltIcon />}
+            disabled={loading || employees.length === 0}
+          >
+            Wykaz urlopów
+          </Button>
+        ]
       }
     >
       <Box className="relative" ref={containerRef}>
