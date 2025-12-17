@@ -5,7 +5,7 @@ import TextField from '@mui/material/TextField';
 import { Box, Button, Typography, IconButton, InputAdornment, Alert } from '@mui/material';
 import { default as LogoIcon } from '@mui/icons-material/TokenOutlined';
 import useLoading from '../../hooks/useLoading';
-import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { ArrowBack, Visibility, VisibilityOff } from '@mui/icons-material';
 import { getRules, validateField } from '../Login/validation'
 
 const UpdatePassword = () => {
@@ -187,6 +187,10 @@ const UpdatePassword = () => {
                             })}
                         >
                             Zmień hasło
+                        </Button>
+
+                        <Button variant="text" onClick={() => navigate(-1)} color="inherit" startIcon={<ArrowBack />}>
+                            Wróć
                         </Button>
                     </form>
                 </Box>
