@@ -267,27 +267,25 @@ const WeekSelector: React.FC<WeekSelectorProps> = ({
 
               <TableBody>
                 {calendarWeeks.map((week, weekIndex) => {
-                  const weekStartTs = week.start.valueOf();
-                  const valueTs = value.valueOf();
+                  const weekStartTs = week.start.getTime();
+                  const valueTs = value.getTime();
 
                   const isSelected = weekStartTs === valueTs;
 
                   const isComparison =
                     comparisonDate &&
-                    weekStartTs ===
-                      dayjs(comparisonDate).startOf('week').valueOf();
+                    weekStartTs === getStartOfWeek(comparisonDate).getTime();
 
                   const isInRange =
                     comparisonDate &&
                     ((weekStartTs > valueTs &&
-                      weekStartTs <
-                        dayjs(comparisonDate).startOf('week').valueOf()) ||
+                      weekStartTs < getStartOfWeek(comparisonDate).getTime()) ||
                       (weekStartTs < valueTs &&
                         weekStartTs >
-                          dayjs(comparisonDate).startOf('week').valueOf()));
+                          getStartOfWeek(comparisonDate).getTime()));
 
                   const isHovered =
-                    hoveredWeek && weekStartTs === hoveredWeek.valueOf();
+                    hoveredWeek && weekStartTs === hoveredWeek.getTime();
 
                   return (
                     <TableRow
