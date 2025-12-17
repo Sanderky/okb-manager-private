@@ -123,6 +123,7 @@ export const TableControls: React.FC<TableControlsProps> = ({
 
                   setFromWeek(val);
                 }}
+                comparisonDate={toWeek}
               />
             </Stack>
           </MenuItem>
@@ -140,6 +141,7 @@ export const TableControls: React.FC<TableControlsProps> = ({
 
                   setToWeek(val);
                 }}
+                comparisonDate={fromWeek}
               />
             </Stack>
           </MenuItem>
@@ -296,6 +298,7 @@ export const TableControls: React.FC<TableControlsProps> = ({
 
             setFromWeek(val);
           }}
+          comparisonDate={toWeek}
         />
         <Typography>-</Typography>
         <WeekSelector
@@ -309,6 +312,7 @@ export const TableControls: React.FC<TableControlsProps> = ({
 
             setToWeek(val);
           }}
+          comparisonDate={fromWeek}
         />
       </Stack>
       <Tooltip title="Filtry">

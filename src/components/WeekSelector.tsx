@@ -22,7 +22,7 @@ import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { plPL } from '@mui/x-date-pickers/locales';
 import 'dayjs/locale/pl';
-import { Stack } from '@mui/system';
+import { alpha, Stack } from '@mui/system';
 
 function getStartOfWeek(date: Date): Date {
   const d = new Date(date);
@@ -56,12 +56,14 @@ interface WeekSelectorProps {
   onChange: (date: Date) => void;
   renderQuickActions?: boolean;
   disabled?: boolean;
+  comparisonDate?: Date;
 }
 
 const WeekSelector: React.FC<WeekSelectorProps> = ({
   value,
   onChange,
   disabled = false,
+  comparisonDate,
 }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const [hoveredWeek, setHoveredWeek] = useState<Date | null>(null);
@@ -129,6 +131,9 @@ const WeekSelector: React.FC<WeekSelectorProps> = ({
   const open = Boolean(anchorEl);
   const id = open ? 'week-selector-popover' : undefined;
 
+  const isStart = dayjs(value).isBefore(comparisonDate);
+  const isEnd = dayjs(value).isAfter(comparisonDate);
+
   const dayNames = ['Pn', 'Wt', 'Śr', 'Cz', 'Pt', 'Sb', 'Nd'];
 
   return (
@@ -143,9 +148,6 @@ const WeekSelector: React.FC<WeekSelectorProps> = ({
             size="small"
             sx={(theme) => ({
               borderColor: theme.palette.primary.light,
-              '&:hover': {
-                borderColor: theme.palette.primary.main,
-              },
             })}
           >
             {`${formatDate(value)} - ${formatDate(getEndOfWeek(value))}`}
@@ -182,6 +184,7 @@ const WeekSelector: React.FC<WeekSelectorProps> = ({
             boxSizing: 'border-box',
           }}
         >
+          {/* ... (Nagłówek kalendarza bez zmian) ... */}
           <Stack direction={'row'} sx={{ alignItems: 'center' }}>
             <IconButton
               onClick={() =>
@@ -264,10 +267,27 @@ const WeekSelector: React.FC<WeekSelectorProps> = ({
 
               <TableBody>
                 {calendarWeeks.map((week, weekIndex) => {
-                  const isSelected = week.start.getTime() === value.getTime();
+                  const weekStartTs = week.start.valueOf();
+                  const valueTs = value.valueOf();
+
+                  const isSelected = weekStartTs === valueTs;
+
+                  const isComparison =
+                    comparisonDate &&
+                    weekStartTs ===
+                      dayjs(comparisonDate).startOf('week').valueOf();
+
+                  const isInRange =
+                    comparisonDate &&
+                    ((weekStartTs > valueTs &&
+                      weekStartTs <
+                        dayjs(comparisonDate).startOf('week').valueOf()) ||
+                      (weekStartTs < valueTs &&
+                        weekStartTs >
+                          dayjs(comparisonDate).startOf('week').valueOf()));
+
                   const isHovered =
-                    hoveredWeek &&
-                    week.start.getTime() === hoveredWeek.getTime();
+                    hoveredWeek && weekStartTs === hoveredWeek.valueOf();
 
                   return (
                     <TableRow
@@ -289,31 +309,37 @@ const WeekSelector: React.FC<WeekSelectorProps> = ({
                           day.getMonth() === selectedMonth.month();
                         const isToday =
                           day.toDateString() === new Date().toDateString();
+
                         const getTextColor = () => {
-                          if (!isCurrentMonth) {
-                            return isSelected
-                              ? 'rgba(255,255,255,0.6)'
-                              : 'rgba(0,0,0,0.4)';
-                          } else {
-                            if (isSelected) {
-                              if (isToday) {
-                                return '#DBC569';
-                              }
-                              return 'primary.contrastText';
-                            }
-                            return isToday ? 'primary.main' : 'text.primary';
-                          }
+                          if (isSelected || isComparison)
+                            return 'primary.contrastText';
+
+                          if (!isCurrentMonth) return 'rgba(0,0,0,0.4)';
+
+                          return isToday ? 'primary.main' : 'text.primary';
                         };
+
                         const getBgColor = (theme: Theme) => {
                           if (isSelected) {
-                            if (isHovered)
-                              return `${theme.palette.primary.dark} !important`;
-                            return `${theme.palette.primary.main} !important`;
+                            if (isHovered) return theme.palette.primary.dark;
+                            return theme.palette.primary.main;
                           }
-                          if (isHovered)
-                            return `${theme.palette.action.hover} !important`;
+
+                          if (isComparison) {
+                            if (isHovered) return theme.palette.primary.light;
+                            return alpha(theme.palette.primary.dark, 0.45);
+                          }
+
+                          if (isInRange) {
+                            if (isHovered) return theme.palette.grey[300];
+                            return theme.palette.action.selected;
+                          }
+
+                          if (isHovered) return theme.palette.action.hover;
+
                           return 'transparent';
                         };
+
                         return (
                           <TableCell
                             key={dayIndex}
@@ -322,16 +348,27 @@ const WeekSelector: React.FC<WeekSelectorProps> = ({
                               color: getTextColor(),
                               py: 0.5,
                               border: 'none',
-                              backgroundColor: getBgColor(theme),
+                              backgroundColor: `${getBgColor(theme)} !important`,
                               textDecoration: isToday ? 'underline' : 'none',
-                              ...(dayIndex === 0 && {
-                                borderTopLeftRadius: '10px',
-                                borderBottomLeftRadius: '10px',
-                              }),
-                              ...(dayIndex === 6 && {
-                                borderTopRightRadius: '10px',
-                                borderBottomRightRadius: '10px',
-                              }),
+
+                              ...(!comparisonDate &&
+                                isSelected &&
+                                dayIndex === 6 && {
+                                  borderTopRightRadius: '10px',
+                                  borderBottomRightRadius: '10px',
+                                }),
+                              ...(((isComparison && !isStart) ||
+                                (!isComparison && isSelected && isStart)) &&
+                                dayIndex === 0 && {
+                                  borderTopLeftRadius: '10px',
+                                  borderBottomLeftRadius: '10px',
+                                }),
+                              ...(((isComparison && !isEnd) ||
+                                (!isComparison && isSelected && isEnd)) &&
+                                dayIndex === 6 && {
+                                  borderTopRightRadius: '10px',
+                                  borderBottomRightRadius: '10px',
+                                }),
                             })}
                           >
                             {day.getDate()}

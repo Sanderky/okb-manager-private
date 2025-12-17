@@ -60,143 +60,143 @@ export const AddConstructionWithEmployeeDialog: React.FC<
   availableConstructions,
   activeEmployees: employees,
 }) => {
-    const [selectedConstruction, setSelectedConstruction] = useState<string>('');
-    const [selectedEmployees, setSelectedEmployees] = useState<Employee[]>([]);
+  const [selectedConstruction, setSelectedConstruction] = useState<string>('');
+  const [selectedEmployees, setSelectedEmployees] = useState<Employee[]>([]);
 
-    const handleChangeEmployeeFilter = (
-      _: React.SyntheticEvent<Element, Event>,
-      newValue: Employee[]
-    ) => {
-      setSelectedEmployees(newValue);
-    };
-
-    const handleSelectAllEmployees = () => {
-      setSelectedEmployees(employees || []);
-    };
-
-    const handleDeselectAllEmployees = () => {
-      setSelectedEmployees([]);
-    };
-
-    const handleAdd = () => {
-      if (!selectedConstruction || selectedEmployees.length === 0) return;
-
-      const newWorkHoursArray: WorkHours[] = selectedEmployees.map((employee) => {
-        const workHoursData: Omit<WorkHours, 'id'> = {
-          constructionId: selectedConstruction,
-          employeeId: employee.id,
-          weekStart: currentWeek,
-          hours: [0, 0, 0, 0, 0, 0, 0],
-        };
-
-        return {
-          ...workHoursData,
-          id: `${workHoursData.constructionId}_${workHoursData.employeeId}_${workHoursData.weekStart.getTime()}`,
-        };
-      });
-
-      onSuccess(newWorkHoursArray);
-      setSelectedConstruction('');
-      setSelectedEmployees([]);
-      onClose();
-    };
-
-    const isAllSelected = selectedEmployees.length === employees.length;
-
-    return (
-      <BaseDialog
-        open={open}
-        onClose={onClose}
-        title="Dodaj nową budowę z pracownikami"
-        showConfirm={false}
-        actions={
-          <Stack direction="row" spacing={1}>
-            <Button
-              onClick={handleAdd}
-              variant="contained"
-              disabled={
-                !selectedConstruction ||
-                selectedEmployees.length === 0 ||
-                availableConstructions.length === 0
-              }
-            >
-              Dodaj ({selectedEmployees.length})
-            </Button>
-          </Stack>
-        }
-      >
-        <FormControl fullWidth sx={{ mt: 2 }}>
-          <Autocomplete
-            size="small"
-            value={
-              availableConstructions.find((c) => c.id === selectedConstruction) ||
-              null
-            }
-            onChange={(_, newValue) =>
-              setSelectedConstruction(newValue?.id || '')
-            }
-            options={availableConstructions}
-            getOptionLabel={(option) => option.name}
-            renderInput={(params) => (
-              <TextField {...params} label="Wybierz budowę" />
-            )}
-            noOptionsText={
-              availableConstructions.length === 0
-                ? 'Wszystkie budowy są już dodane do tabeli'
-                : 'Brak dostępnych opcji'
-            }
-          />
-        </FormControl>
-
-        <FormControl fullWidth sx={{ mt: 2 }}>
-          <Autocomplete
-            size="small"
-            multiple
-            options={employees || []}
-            disableCloseOnSelect
-            getOptionLabel={(option) => option.name}
-            value={selectedEmployees}
-            onChange={handleChangeEmployeeFilter}
-            isOptionEqualToValue={(option, value) => option.id === value.id}
-            renderOption={(props, option, { selected }) => {
-              const { key, ...optionProps } = props;
-              return (
-                <li key={key} {...optionProps}>
-                  <Checkbox checked={selected} />
-                  {option.name}
-                  {!option.status && (
-                    <Chip
-                      label="Nieaktywny"
-                      size="small"
-                      color="default"
-                      variant="outlined"
-                      sx={{ ml: 1, height: 20 }}
-                    />
-                  )}
-                </li>
-              );
-            }}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Wybierz pracowników"
-                placeholder={
-                  selectedEmployees.length === 0 ? 'Wybierz pracowników...' : ''
-                }
-              />
-            )}
-            noOptionsText="Brak dostępnych pracowników"
-          />
-        </FormControl>
-        <Stack direction="row" mt={1} spacing={1} justifyContent={'flex-end'}>
-          <Button onClick={handleSelectAllEmployees} disabled={isAllSelected}>
-            Wszystko
-          </Button>
-          <Button onClick={handleDeselectAllEmployees}>Wyczyść</Button>
-        </Stack>
-      </BaseDialog>
-    );
+  const handleChangeEmployeeFilter = (
+    _: React.SyntheticEvent<Element, Event>,
+    newValue: Employee[]
+  ) => {
+    setSelectedEmployees(newValue);
   };
+
+  const handleSelectAllEmployees = () => {
+    setSelectedEmployees(employees || []);
+  };
+
+  const handleDeselectAllEmployees = () => {
+    setSelectedEmployees([]);
+  };
+
+  const handleAdd = () => {
+    if (!selectedConstruction || selectedEmployees.length === 0) return;
+
+    const newWorkHoursArray: WorkHours[] = selectedEmployees.map((employee) => {
+      const workHoursData: Omit<WorkHours, 'id'> = {
+        constructionId: selectedConstruction,
+        employeeId: employee.id,
+        weekStart: currentWeek,
+        hours: [0, 0, 0, 0, 0, 0, 0],
+      };
+
+      return {
+        ...workHoursData,
+        id: `${workHoursData.constructionId}_${workHoursData.employeeId}_${workHoursData.weekStart.getTime()}`,
+      };
+    });
+
+    onSuccess(newWorkHoursArray);
+    setSelectedConstruction('');
+    setSelectedEmployees([]);
+    onClose();
+  };
+
+  const isAllSelected = selectedEmployees.length === employees.length;
+
+  return (
+    <BaseDialog
+      open={open}
+      onClose={onClose}
+      title="Dodaj nową budowę z pracownikami"
+      showConfirm={false}
+      actions={
+        <Stack direction="row" spacing={1}>
+          <Button
+            onClick={handleAdd}
+            variant="contained"
+            disabled={
+              !selectedConstruction ||
+              selectedEmployees.length === 0 ||
+              availableConstructions.length === 0
+            }
+          >
+            Dodaj ({selectedEmployees.length})
+          </Button>
+        </Stack>
+      }
+    >
+      <FormControl fullWidth sx={{ mt: 2 }}>
+        <Autocomplete
+          size="small"
+          value={
+            availableConstructions.find((c) => c.id === selectedConstruction) ||
+            null
+          }
+          onChange={(_, newValue) =>
+            setSelectedConstruction(newValue?.id || '')
+          }
+          options={availableConstructions}
+          getOptionLabel={(option) => option.name}
+          renderInput={(params) => (
+            <TextField {...params} label="Wybierz budowę" />
+          )}
+          noOptionsText={
+            availableConstructions.length === 0
+              ? 'Wszystkie budowy są już dodane do tabeli'
+              : 'Brak dostępnych opcji'
+          }
+        />
+      </FormControl>
+
+      <FormControl fullWidth sx={{ mt: 2 }}>
+        <Autocomplete
+          size="small"
+          multiple
+          options={employees || []}
+          disableCloseOnSelect
+          getOptionLabel={(option) => option.name}
+          value={selectedEmployees}
+          onChange={handleChangeEmployeeFilter}
+          isOptionEqualToValue={(option, value) => option.id === value.id}
+          renderOption={(props, option, { selected }) => {
+            const { key, ...optionProps } = props;
+            return (
+              <li key={key} {...optionProps}>
+                <Checkbox checked={selected} />
+                {option.name}
+                {!option.status && (
+                  <Chip
+                    label="Nieaktywny"
+                    size="small"
+                    color="default"
+                    variant="outlined"
+                    sx={{ ml: 1, height: 20 }}
+                  />
+                )}
+              </li>
+            );
+          }}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Wybierz pracowników"
+              placeholder={
+                selectedEmployees.length === 0 ? 'Wybierz pracowników...' : ''
+              }
+            />
+          )}
+          noOptionsText="Brak dostępnych pracowników"
+        />
+      </FormControl>
+      <Stack direction="row" mt={1} spacing={1} justifyContent={'flex-end'}>
+        <Button onClick={handleSelectAllEmployees} disabled={isAllSelected}>
+          Wszystko
+        </Button>
+        <Button onClick={handleDeselectAllEmployees}>Wyczyść</Button>
+      </Stack>
+    </BaseDialog>
+  );
+};
 
 interface AddEmployeeDialogProps {
   open: boolean;
@@ -443,18 +443,22 @@ export const FiltersDialog = ({
 interface PrintReportDialogProps {
   open: boolean;
   onClose: () => void;
-  defaultStartWeek?: Date
+  defaultStartWeek?: Date;
 }
 
 export const PrintReportDialog: React.FC<PrintReportDialogProps> = ({
   open,
   onClose,
-  defaultStartWeek
+  defaultStartWeek,
 }) => {
   const printContentRef = useRef<HTMLDivElement>(null);
 
-  const [startWeek, setStartWeek] = useState<Date>(defaultStartWeek ?? getPreviousWeek(new Date()));
-  const [endWeek, setEndWeek] = useState<Date>(defaultStartWeek ?? getStartOfWeek(new Date()));
+  const [startWeek, setStartWeek] = useState<Date>(
+    defaultStartWeek ?? getPreviousWeek(new Date())
+  );
+  const [endWeek, setEndWeek] = useState<Date>(
+    defaultStartWeek ?? getStartOfWeek(new Date())
+  );
 
   const [isError, setIsError] = useState<boolean>(false);
   const [reportLoading, setReportLoading] = useState<boolean>(true);
@@ -500,8 +504,8 @@ export const PrintReportDialog: React.FC<PrintReportDialogProps> = ({
 
   useEffect(() => {
     if (defaultStartWeek) {
-      setStartWeek(defaultStartWeek)
-      setEndWeek(defaultStartWeek)
+      setStartWeek(defaultStartWeek);
+      setEndWeek(defaultStartWeek);
     }
   }, [defaultStartWeek]);
 
@@ -600,12 +604,26 @@ export const PrintReportDialog: React.FC<PrintReportDialogProps> = ({
           </Alert>
         )}
         <Typography sx={{ mb: 0.5 }}>Tydzień początkowy:</Typography>
-        <WeekSelector value={startWeek} onChange={setStartWeek} />
-        <Typography variant='caption' mt={0.5}>{`Tydzień ${getWeekNumber(startWeek)}`}</Typography>
+        <WeekSelector
+          value={startWeek}
+          onChange={setStartWeek}
+          comparisonDate={endWeek}
+        />
+        <Typography
+          variant="caption"
+          mt={0.5}
+        >{`Tydzień ${getWeekNumber(startWeek)}`}</Typography>
 
         <Typography sx={{ mt: 2, mb: 0.5 }}>Tydzień końcowy:</Typography>
-        <WeekSelector value={endWeek} onChange={setEndWeek} />
-        <Typography variant='caption' mt={0.5}>{`Tydzień ${getWeekNumber(endWeek)}`}</Typography>
+        <WeekSelector
+          value={endWeek}
+          onChange={setEndWeek}
+          comparisonDate={startWeek}
+        />
+        <Typography
+          variant="caption"
+          mt={0.5}
+        >{`Tydzień ${getWeekNumber(endWeek)}`}</Typography>
 
         <Typography sx={{ mt: 2 }}>Wybrane tygodnie: {weeks.length}</Typography>
         <Divider sx={{ mt: 2 }} flexItem />
