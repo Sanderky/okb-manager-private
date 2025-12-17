@@ -39,6 +39,7 @@ import type { Employee, Vacation } from '../../../types';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Close as CloseIcon, Print as PrintIcon } from '@mui/icons-material';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'; // NOWY IMPORT
 import dayjs, { Dayjs } from 'dayjs';
 import { useReactToPrint } from 'react-to-print';
 import { plPL } from '@mui/x-date-pickers/locales';
@@ -352,6 +353,8 @@ interface EditEventDialogProps {
   handleDeleteEvent: (id?: string) => void;
   handleEditEvent: () => void;
   loading?: boolean;
+  onBack?: () => void;
+  canGoBack?: boolean;
 }
 
 export const EditEventDialog: React.FC<EditEventDialogProps> = ({
@@ -363,6 +366,8 @@ export const EditEventDialog: React.FC<EditEventDialogProps> = ({
   handleDeleteEvent,
   handleEditEvent,
   loading = false,
+  onBack,
+  canGoBack = false,
 }) => {
   const handleDescriptionChange = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -408,7 +413,16 @@ export const EditEventDialog: React.FC<EditEventDialogProps> = ({
     <BaseDialog
       open={activeDialog.type === 'editEvent'}
       onClose={handleModalClose}
-      title="Edytuj urlop"
+      title={
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <Typography variant="h6">Edytuj urlop</Typography>
+          {canGoBack && onBack && (
+            <IconButton onClick={onBack} size="small" sx={{ ml: -1 }}>
+              <ArrowBackIcon />
+            </IconButton>
+          )}
+        </Stack>
+      }
       loading={loading}
       disabled={!isFormValid}
       actions={
@@ -574,8 +588,9 @@ export const EventListDialog: React.FC<EventListDialogProps> = ({
   const handleEdit = (event: CalendarEvent) => {
     if (onEventClick) {
       onEventClick(event);
+    } else {
+      setActiveDialog({ type: 'editEvent' });
     }
-    setActiveDialog({ type: 'editEvent' });
   };
 
   return (

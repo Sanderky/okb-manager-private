@@ -90,6 +90,9 @@ const Calendar: React.FC = () => {
   const [activeDialog, setActiveDialog] = useState<ActiveDialog>({
     type: 'none',
   });
+
+  const [dialogHistory, setDialogHistory] = useState<ActiveDialog[]>([]);
+
   const [isFilterOpen, setIsFilterOpen] = useState<boolean>(false);
   const [isVacationReportOpen, setIsVacationReportOpen] =
     useState<boolean>(false);
@@ -370,9 +373,24 @@ const Calendar: React.FC = () => {
 
   const handleModalClose = useCallback(() => {
     setActiveDialog({ type: 'none' });
+    setDialogHistory([]);
     setCurrentEvent({} as CalendarEvent);
     setSelectDay(null);
     setValidationError('');
+  }, []);
+
+  const handleBack = useCallback(() => {
+    setDialogHistory((prev) => {
+      const newHistory = [...prev];
+      const previousDialog = newHistory.pop();
+
+      if (previousDialog) {
+        setActiveDialog(previousDialog);
+      } else {
+        setActiveDialog({ type: 'none' });
+      }
+      return newHistory;
+    });
   }, []);
 
   const isDayInRange = useCallback(
@@ -468,10 +486,17 @@ const Calendar: React.FC = () => {
     }
   };
 
-  const handleEventClick = useCallback((ev: CalendarEvent) => {
-    setCurrentEvent(ev);
-    setActiveDialog({ type: 'editEvent' });
-  }, []);
+  const handleEventClick = useCallback(
+    (ev: CalendarEvent) => {
+      if (activeDialog.type !== 'none') {
+        setDialogHistory((prev) => [...prev, activeDialog]);
+      }
+
+      setCurrentEvent(ev);
+      setActiveDialog({ type: 'editEvent' });
+    },
+    [activeDialog]
+  );
 
   const error = isErrorEmployees || isErrorVacations;
   const loading = isLoadingEmployees || isLoadingVacations;
@@ -493,25 +518,25 @@ const Calendar: React.FC = () => {
       breadcrumbs={[{ title: 'Kalendarz urlopów' }]}
       actions={
         [
-          <Button
+        <Button
             key='add'
-            size="small"
-            onClick={() => setActiveDialog({ type: 'addEvent' })}
-            variant="contained"
-            startIcon={<Add />}
-            disabled={loading || employees.length === 0}
-          >
-            Dodaj urlop
-          </Button>,
-          <Button
+          size="small"
+          onClick={() => setActiveDialog({ type: 'addEvent' })}
+          variant="contained"
+          startIcon={<Add />}
+          disabled={loading || employees.length === 0}
+        >
+          Dodaj urlop
+        </Button>,
+        <Button
             key='report'
-            size="small"
-            onClick={() => setIsVacationReportOpen(true)}
-            variant="contained"
-            startIcon={<ListAltIcon />}
-            disabled={loading || employees.length === 0}
-          >
-            Wykaz urlopów
+          size="small"
+          onClick={() => setIsVacationReportOpen(true)}
+          variant="contained"
+          startIcon={<ListAltIcon />}
+          disabled={loading || employees.length === 0}
+        >
+          Wykaz urlopów
           </Button>
         ]
       }
@@ -615,6 +640,8 @@ const Calendar: React.FC = () => {
           handleDeleteEvent={handleDeleteEvent}
           handleEditEvent={handleEditEvent}
           loading={actionLoading}
+          onBack={handleBack}
+          canGoBack={dialogHistory.length > 0}
         />
 
         <EventListDialog
