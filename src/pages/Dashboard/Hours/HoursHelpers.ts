@@ -44,6 +44,8 @@ export function formatDate(date: Date): string {
   return dayjs(date).format('DD.MM.YYYY');
 }
 
+export const getWeekNumber = (date: Date) => dayjs(date).isoWeek()
+
 export const getThreeMonthKeys = (week: Date): string[] => {
   const current = dayjs(week);
   return [

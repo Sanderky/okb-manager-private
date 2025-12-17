@@ -16,6 +16,8 @@ interface ReportTranslations {
   vacation: string;
   noData: string;
   fileNamePrefix: string;
+  constructions: string,
+  employees: string
 }
 
 const PL: ReportTranslations = {
@@ -29,6 +31,8 @@ const PL: ReportTranslations = {
   vacation: 'Urlop',
   noData: 'Brak danych',
   fileNamePrefix: 'Raport_godzin_',
+  constructions: 'Budowy',
+  employees: 'Pracownicy'
 };
 
 const DE: ReportTranslations = {
@@ -42,6 +46,8 @@ const DE: ReportTranslations = {
   vacation: 'Urlaub',
   noData: 'Keine Daten',
   fileNamePrefix: 'Arbeitszeitbericht_',
+  constructions: 'Baustellen',
+  employees: 'Mitarbeiter'
 };
 
 const Transations: Record<LangCode, ReportTranslations> = {

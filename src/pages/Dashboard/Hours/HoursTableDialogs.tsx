@@ -22,6 +22,7 @@ import 'dayjs/locale/pl';
 import {
   getPreviousWeek,
   getStartOfWeek,
+  getWeekNumber,
   getWeeksInRange,
 } from './HoursHelpers';
 import WeekSelector from '../../../components/WeekSelector';
@@ -100,7 +101,7 @@ export const AddConstructionWithEmployeeDialog: React.FC<
       onClose();
     };
 
-  const isAllSelected = selectedEmployees.length === employees.length;
+    const isAllSelected = selectedEmployees.length === employees.length;
 
     return (
       <BaseDialog
@@ -147,55 +148,55 @@ export const AddConstructionWithEmployeeDialog: React.FC<
           />
         </FormControl>
 
-      <FormControl fullWidth sx={{ mt: 2 }}>
-        <Autocomplete
-          size="small"
-          multiple
-          options={employees || []}
-          disableCloseOnSelect
-          getOptionLabel={(option) => option.name}
-          value={selectedEmployees}
-          onChange={handleChangeEmployeeFilter}
-          isOptionEqualToValue={(option, value) => option.id === value.id}
-          renderOption={(props, option, { selected }) => {
-            const { key, ...optionProps } = props;
-            return (
-              <li key={key} {...optionProps}>
-                <Checkbox checked={selected} />
-                {option.name}
-                {!option.status && (
-                  <Chip
-                    label="Nieaktywny"
-                    size="small"
-                    color="default"
-                    variant="outlined"
-                    sx={{ ml: 1, height: 20 }}
-                  />
-                )}
-              </li>
-            );
-          }}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              label="Wybierz pracowników"
-              placeholder={
-                selectedEmployees.length === 0 ? 'Wybierz pracowników...' : ''
-              }
-            />
-          )}
-          noOptionsText="Brak dostępnych pracowników"
-        />
-      </FormControl>
-      <Stack direction="row" mt={1} spacing={1} justifyContent={'flex-end'}>
-        <Button onClick={handleSelectAllEmployees} disabled={isAllSelected}>
-          Wszystko
-        </Button>
-        <Button onClick={handleDeselectAllEmployees}>Wyczyść</Button>
-      </Stack>
-    </BaseDialog>
-  );
-};
+        <FormControl fullWidth sx={{ mt: 2 }}>
+          <Autocomplete
+            size="small"
+            multiple
+            options={employees || []}
+            disableCloseOnSelect
+            getOptionLabel={(option) => option.name}
+            value={selectedEmployees}
+            onChange={handleChangeEmployeeFilter}
+            isOptionEqualToValue={(option, value) => option.id === value.id}
+            renderOption={(props, option, { selected }) => {
+              const { key, ...optionProps } = props;
+              return (
+                <li key={key} {...optionProps}>
+                  <Checkbox checked={selected} />
+                  {option.name}
+                  {!option.status && (
+                    <Chip
+                      label="Nieaktywny"
+                      size="small"
+                      color="default"
+                      variant="outlined"
+                      sx={{ ml: 1, height: 20 }}
+                    />
+                  )}
+                </li>
+              );
+            }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Wybierz pracowników"
+                placeholder={
+                  selectedEmployees.length === 0 ? 'Wybierz pracowników...' : ''
+                }
+              />
+            )}
+            noOptionsText="Brak dostępnych pracowników"
+          />
+        </FormControl>
+        <Stack direction="row" mt={1} spacing={1} justifyContent={'flex-end'}>
+          <Button onClick={handleSelectAllEmployees} disabled={isAllSelected}>
+            Wszystko
+          </Button>
+          <Button onClick={handleDeselectAllEmployees}>Wyczyść</Button>
+        </Stack>
+      </BaseDialog>
+    );
+  };
 
 interface AddEmployeeDialogProps {
   open: boolean;
@@ -598,10 +599,13 @@ export const PrintReportDialog: React.FC<PrintReportDialogProps> = ({
             Tydzień początkowy nie może być później niż końcowy
           </Alert>
         )}
-        <Typography>Tydzień początkowy</Typography>
+        <Typography sx={{ mb: 0.5 }}>Tydzień początkowy:</Typography>
         <WeekSelector value={startWeek} onChange={setStartWeek} />
-        <Typography sx={{ mt: 2 }}>Tydzień końcowy</Typography>
+        <Typography variant='caption' mt={0.5}>{`Tydzień ${getWeekNumber(startWeek)}`}</Typography>
+
+        <Typography sx={{ mt: 2, mb: 0.5 }}>Tydzień końcowy:</Typography>
         <WeekSelector value={endWeek} onChange={setEndWeek} />
+        <Typography variant='caption' mt={0.5}>{`Tydzień ${getWeekNumber(endWeek)}`}</Typography>
 
         <Typography sx={{ mt: 2 }}>Wybrane tygodnie: {weeks.length}</Typography>
         <Divider sx={{ mt: 2 }} flexItem />

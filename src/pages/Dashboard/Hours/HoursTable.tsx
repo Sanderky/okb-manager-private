@@ -150,8 +150,8 @@ const EditableCell = React.memo(
 
             '&:focus': isActive
               ? {
-                  boxShadow: `inset 0 0 0 2px ${theme.palette.primary.main}`,
-                }
+                boxShadow: `inset 0 0 0 2px ${theme.palette.primary.main}`,
+              }
               : {},
           },
         })}
@@ -652,7 +652,6 @@ const HoursTable = ({
           }}
         >
           <PrintableTable
-            printTitle={true}
             showVacation={true}
             constructionsWithWorkHours={dataSorted}
             weekDates={weekDates}
@@ -687,8 +686,8 @@ const HoursTable = ({
       />
       <Collapse in={isExpanded} timeout="auto" unmountOnExit>
         {!loadingError &&
-        !isTableLoading &&
-        constructionsWithWorkHours.length > 0 ? (
+          !isTableLoading &&
+          constructionsWithWorkHours.length > 0 ? (
           <Box sx={{ position: 'relative' }}>
             {isSaving && (
               <Box

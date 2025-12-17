@@ -531,7 +531,8 @@ const ScheduleComponent = () => {
         );
       });
 
-      if (items.length === 0) return renderEmptyCellIndicator && '';
+      // if (items.length === 0) return renderEmptyCellIndicator && '';
+      if (items.length === 0) return <></>;
 
       return (
         <Stack
