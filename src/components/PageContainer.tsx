@@ -47,7 +47,7 @@ export interface PageContainerProps extends ContainerProps {
 export default function PageContainer(props: PageContainerProps) {
   const { children, breadcrumbs, actions = null, fixedHeight = false } = props;
 
-  const { setHeaderHeight } = useLayout();
+  const { setHeaderHeight, topBarHeight } = useLayout();
 
   const headerRef = React.useRef<HTMLDivElement>(null);
 
@@ -74,7 +74,7 @@ export default function PageContainer(props: PageContainerProps) {
         flexDirection: 'column',
         alignItems: 'center',
         width: '100%',
-        height: fixedHeight ? 'calc(100vh - 64px)' : 'auto',
+        height: fixedHeight ? `calc(100vh - ${topBarHeight ?? 64}px)` : 'auto',
         overflowY: fixedHeight ? 'hidden' : 'auto',
         overflowX: 'hidden',
       }}
