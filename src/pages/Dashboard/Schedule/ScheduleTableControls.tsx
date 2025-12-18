@@ -58,8 +58,8 @@ export const TableControls: React.FC<TableControlsProps> = ({
 
   const phone = (
     <Stack
-      direction={'column'}
-      flexWrap={'wrap'}
+      direction={'row'}
+      justifyContent={'space-between'}
       gap={1}
       mb={1}
       width={'100%'}
@@ -68,85 +68,146 @@ export const TableControls: React.FC<TableControlsProps> = ({
         p: 1,
       }}
     >
-      <Stack
-        sx={{ flexGrow: 1 }}
-        alignItems={'center'}
-        direction={'row'}
-        justifyContent={'space-between'}
-      >
-        <Stack direction={'row'} alignItems={'center'} spacing={1}>
-          <Typography className="rounded-full border border-gray-700 px-3 py-1 font-semibold">
-            {dayjs(fromWeek).format('DD.MM.YYYY')} -{' '}
-            {dayjs(toWeek).add(6, 'day').format('DD.MM.YYYY')}
-          </Typography>
-          <Tooltip
-            title="Kliknij w datę tygodnia w nagłówku tabeli, aby wyświetlić szczegółowy widok tego tygodnia."
-            placement="top"
-            slotProps={{
-              popper: {
-                sx: {
-                  cursor: 'pointer',
-                },
-                modifiers: [
-                  {
-                    name: 'offset',
-                    options: {
-                      offset: [0, -14],
-                    },
-                  },
-                ],
-              },
-            }}
-          >
-            <InfoOutlineIcon />
-          </Tooltip>
-        </Stack>
-        <IconButton onClick={handleClickMobileMenu}>
-          <MoreHoriz />
-        </IconButton>
-        <Menu
-          anchorEl={anchorEl}
-          open={openMobileMenu}
-          onClose={handleCloseMobileMenu}
+      <Stack direction={'row'} alignItems={'center'} gap={1}>
+        <Typography
+          className="rounded-full border border-gray-700 px-3 py-1 font-semibold"
+          sx={{
+            fontSize: '0.8rem',
+          }}
         >
-          <MenuItem disableRipple key={'weekFrom'}>
-            <Stack>
-              <Typography sx={{ mr: 1 }}>Od: </Typography>
-              <WeekSelector
-                value={fromWeek}
-                onChange={(val) => {
-                  if (!val) return;
+          {dayjs(fromWeek).format('DD.MM.YY')} -{' '}
+          {dayjs(toWeek).add(6, 'day').format('DD.MM.YY')}
+        </Typography>
 
-                  if (toWeek && dayjs(val).isAfter(toWeek, 'week')) {
-                    return;
-                  }
+        {activeTable.type === 0 && (
+          <Stack direction={'row'}>
+            <IconButton
+              size="small"
+              color="primary"
+              className="rounded-l-lg rounded-r-none border"
+              sx={(theme) => ({
+                borderColor: theme.palette.primary.light,
+                '&:hover': {
+                  borderColor: theme.palette.primary.main,
+                },
+              })}
+              onClick={() => {
+                const prevWeek = dayjs(fromWeek)
+                  .subtract(1, 'week')
+                  .startOf('week')
+                  .toDate();
+                if (!toWeek || !dayjs(prevWeek).isAfter(dayjs(toWeek))) {
+                  setFromWeek(prevWeek);
+                }
+              }}
+            >
+              <ChevronLeft fontSize="small" />
+            </IconButton>
+            <Button
+              size="small"
+              variant="outlined"
+              className="rounded-none border-x-0"
+              sx={(theme) => ({
+                flexGrow: 1,
+                borderColor: theme.palette.primary.light,
+                '&:hover': {
+                  borderColor: theme.palette.primary.main,
+                },
+              })}
+              onClick={() => {
+                const currentWeek = dayjs().startOf('week').toDate();
+                setFromWeek(currentWeek);
+                if (dayjs(currentWeek).isAfter(dayjs(toWeek))) {
+                  setToWeek(currentWeek);
+                }
+              }}
+            >
+              Dziś
+            </Button>
+            <IconButton
+              color="primary"
+              size="small"
+              className="rounded-l-none rounded-r-lg border"
+              sx={(theme) => ({
+                // borderLeft: 'none !important',
+                borderColor: theme.palette.primary.light,
+                '&:hover': {
+                  borderColor: theme.palette.primary.main,
+                },
+              })}
+              onClick={() => {
+                const nextWeek = dayjs(fromWeek)
+                  .add(1, 'week')
+                  .startOf('week')
+                  .toDate();
+                if (dayjs(nextWeek).isAfter(dayjs(toWeek))) {
+                  setToWeek(nextWeek);
+                }
+                setFromWeek(nextWeek);
+              }}
+            >
+              <ChevronRight fontSize="small" />
+            </IconButton>
+          </Stack>
+        )}
+      </Stack>
 
-                  setFromWeek(val);
-                }}
-                comparisonDate={toWeek}
-              />
-            </Stack>
-          </MenuItem>
-          <MenuItem disableRipple key={'weekTo'}>
-            <Stack>
-              <Typography sx={{ mr: 1 }}>Do: </Typography>
-              <WeekSelector
-                value={toWeek}
-                onChange={(val) => {
-                  if (!val) return;
+      <IconButton onClick={handleClickMobileMenu}>
+        <MoreHoriz />
+      </IconButton>
+      <Menu
+        anchorEl={anchorEl}
+        open={openMobileMenu}
+        onClose={handleCloseMobileMenu}
+        slotProps={{
+          list: {
+            'aria-labelledby': 'long-button',
+          },
+          paper: {
+            sx: {
+              minWidth: '200px',
+            },
+          },
+        }}
+      >
+        <MenuItem disableRipple key={'weekFrom'}>
+          <Stack>
+            <Typography sx={{ mr: 1 }}>Od: </Typography>
+            <WeekSelector
+              value={fromWeek}
+              onChange={(val) => {
+                if (!val) return;
 
-                  if (fromWeek && dayjs(val).isBefore(fromWeek, 'week')) {
-                    return;
-                  }
+                if (toWeek && dayjs(val).isAfter(toWeek, 'week')) {
+                  return;
+                }
 
-                  setToWeek(val);
-                }}
-                comparisonDate={fromWeek}
-              />
-            </Stack>
-          </MenuItem>
-          <Divider />
-          {/* <MenuItem disableRipple key={'vacations'}>
+                setFromWeek(val);
+              }}
+              comparisonDate={toWeek}
+            />
+          </Stack>
+        </MenuItem>
+        <MenuItem disableRipple key={'weekTo'}>
+          <Stack>
+            <Typography sx={{ mr: 1 }}>Do: </Typography>
+            <WeekSelector
+              value={toWeek}
+              onChange={(val) => {
+                if (!val) return;
+
+                if (fromWeek && dayjs(val).isBefore(fromWeek, 'week')) {
+                  return;
+                }
+
+                setToWeek(val);
+              }}
+              comparisonDate={fromWeek}
+            />
+          </Stack>
+        </MenuItem>
+        <Divider />
+        {/* <MenuItem disableRipple key={'vacations'}>
             <Stack direction="row" alignItems="center" justifyContent="center">
               <Typography sx={{ textAlign: 'center' }}>Urlopy</Typography>
               <Tooltip title="Ukrywanie informacji o urlopach">
@@ -159,118 +220,47 @@ export const TableControls: React.FC<TableControlsProps> = ({
               </Tooltip>
             </Stack>
           </MenuItem> */}
-          <MenuItem disableRipple key={'dates'}>
-            <Stack direction="row" alignItems="center" justifyContent="center">
-              <Typography sx={{ textAlign: 'center' }}>Daty</Typography>
-              <Tooltip title="Ukrywanie szczegółowych dat">
-                <Switch
-                  size="small"
-                  checked={showDates}
-                  onChange={(e) => setShowDates(e.target.checked)}
-                  color="primary"
-                />
-              </Tooltip>
-            </Stack>
-          </MenuItem>
-          <MenuItem disableRipple key={'filters'}>
-            <Badge
-              badgeContent={showFilterBadge ? ' ' : 0}
-              variant="dot"
-              color="primary"
-              sx={{ width: '100%' }}
-            >
-              <Button
-                startIcon={<FilterListIcon />}
+        <MenuItem disableRipple key={'dates'}>
+          <Stack direction="row" alignItems="center" justifyContent="center">
+            <Typography sx={{ textAlign: 'center' }}>Daty</Typography>
+            <Tooltip title="Ukrywanie szczegółowych dat">
+              <Switch
                 size="small"
-                fullWidth
+                checked={showDates}
+                onChange={(e) => setShowDates(e.target.checked)}
                 color="primary"
-                className="rounded-lg border"
-                onClick={() => {
-                  setIsFilterOpen(true);
-                }}
-                sx={(theme) => ({
-                  borderColor: theme.palette.primary.light,
-                  '&:hover': {
-                    borderColor: theme.palette.primary.main,
-                  },
-                })}
-              >
-                Filtry
-              </Button>
-            </Badge>
-          </MenuItem>
-        </Menu>
-      </Stack>
-
-      {activeTable.type === 0 && (
-        <Stack direction={'row'}>
-          <IconButton
-            size="small"
+              />
+            </Tooltip>
+          </Stack>
+        </MenuItem>
+        <MenuItem disableRipple key={'filters'}>
+          <Badge
+            badgeContent={showFilterBadge ? ' ' : 0}
+            variant="dot"
             color="primary"
-            className="rounded-l-lg rounded-r-none border"
-            sx={(theme) => ({
-              borderColor: theme.palette.primary.light,
-              '&:hover': {
-                borderColor: theme.palette.primary.main,
-              },
-            })}
-            onClick={() => {
-              const prevWeek = dayjs(fromWeek)
-                .subtract(1, 'week')
-                .startOf('week')
-                .toDate();
-              if (!toWeek || !dayjs(prevWeek).isAfter(dayjs(toWeek))) {
-                setFromWeek(prevWeek);
-              }
-            }}
+            sx={{ width: '100%' }}
           >
-            <ChevronLeft />
-          </IconButton>
-          <Button
-            variant="outlined"
-            className="rounded-none border-x-0"
-            sx={(theme) => ({
-              flexGrow: 1,
-              borderColor: theme.palette.primary.light,
-              '&:hover': {
-                borderColor: theme.palette.primary.main,
-              },
-            })}
-            onClick={() => {
-              const currentWeek = dayjs().startOf('week').toDate();
-              setFromWeek(currentWeek);
-              if (dayjs(currentWeek).isAfter(dayjs(toWeek))) {
-                setToWeek(currentWeek);
-              }
-            }}
-          >
-            Bieżący tydzień
-          </Button>
-          <IconButton
-            color="primary"
-            size="small"
-            className="rounded-l-none rounded-r-lg border"
-            sx={(theme) => ({
-              borderColor: theme.palette.primary.light,
-              '&:hover': {
-                borderColor: theme.palette.primary.main,
-              },
-            })}
-            onClick={() => {
-              const nextWeek = dayjs(fromWeek)
-                .add(1, 'week')
-                .startOf('week')
-                .toDate();
-              if (dayjs(nextWeek).isAfter(dayjs(toWeek))) {
-                setToWeek(nextWeek);
-              }
-              setFromWeek(nextWeek);
-            }}
-          >
-            <ChevronRight />
-          </IconButton>
-        </Stack>
-      )}
+            <Button
+              startIcon={<FilterListIcon />}
+              size="small"
+              fullWidth
+              color="primary"
+              className="rounded-lg border"
+              onClick={() => {
+                setIsFilterOpen(true);
+              }}
+              sx={(theme) => ({
+                borderColor: theme.palette.primary.light,
+                '&:hover': {
+                  borderColor: theme.palette.primary.main,
+                },
+              })}
+            >
+              Filtry
+            </Button>
+          </Badge>
+        </MenuItem>
+      </Menu>
     </Stack>
   );
 

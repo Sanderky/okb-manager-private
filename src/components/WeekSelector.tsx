@@ -41,11 +41,11 @@ function getEndOfWeek(date: Date): Date {
   return end;
 }
 
-function formatDate(date: Date): string {
+function formatDate(date: Date, short: boolean = false): string {
   return date.toLocaleDateString('pl-PL', {
     day: '2-digit',
     month: '2-digit',
-    year: 'numeric',
+    year: short ? '2-digit' : 'numeric',
   });
 }
 
@@ -57,6 +57,7 @@ interface WeekSelectorProps {
   renderQuickActions?: boolean;
   disabled?: boolean;
   comparisonDate?: Date;
+  small?: boolean;
 }
 
 const WeekSelector: React.FC<WeekSelectorProps> = ({
@@ -64,6 +65,7 @@ const WeekSelector: React.FC<WeekSelectorProps> = ({
   onChange,
   disabled = false,
   comparisonDate,
+  small = false,
 }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const [hoveredWeek, setHoveredWeek] = useState<Date | null>(null);
@@ -142,7 +144,7 @@ const WeekSelector: React.FC<WeekSelectorProps> = ({
         <span>
           <Button
             variant="outlined"
-            startIcon={<CalendarMonth />}
+            startIcon={!small && <CalendarMonth />}
             onClick={handleClick}
             disabled={disabled}
             size="small"
@@ -150,7 +152,7 @@ const WeekSelector: React.FC<WeekSelectorProps> = ({
               borderColor: theme.palette.primary.light,
             })}
           >
-            {`${formatDate(value)} - ${formatDate(getEndOfWeek(value))}`}
+            {`${formatDate(value, small)} - ${formatDate(getEndOfWeek(value), small)}`}
           </Button>
         </span>
       </Tooltip>

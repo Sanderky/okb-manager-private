@@ -11,11 +11,7 @@ import {
   Divider,
 } from '@mui/material';
 import dayjs from 'dayjs';
-import {
-  getInitials,
-  WEEK_DAYS,
-  type CalendarGridProps,
-} from './CalendarHelpers';
+import { getInitials, type CalendarGridProps } from './CalendarHelpers';
 
 import { ExpandLess, ExpandMore } from '@mui/icons-material';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
@@ -62,7 +58,6 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
     return (
       <>
         <Grid container className="bg-gray-50">
-
           {monthGrid.map((week, wi) =>
             week.map((calendarDay, di) => {
               const { date: day, events, slots = {} } = calendarDay;
@@ -104,6 +99,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                   key={`${wi}-${di}`}
                   className={`border-t border-t-gray-300 p-1 ${isSelected && 'bg-blue-100'}`}
                   sx={{
+                    borderTop: wi === 0 ? 'none !important' : '',
                     borderLeft: di % 7 !== 0 ? '1px solid #ddd' : 'none',
                     p: '0 !important',
                     bgcolor: isCurrentMonth ? 'white' : '#fafafa',

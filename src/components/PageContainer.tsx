@@ -101,8 +101,8 @@ export const ResponsivePageActions = ({
                   if (element.props.onClick) element.props.onClick(e);
                   handleClose();
                 },
-                style: { justifyContent: 'flex-start', ...element.props.style },
-                sx: { ...element.props.sx, justifyContent: 'flex-start' },
+                style: { ...element.props.style },
+                sx: { ...element.props.sx },
                 variant: 'outlined',
               });
             }

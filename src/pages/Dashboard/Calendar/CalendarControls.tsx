@@ -10,7 +10,7 @@ import {
   MenuItem,
 } from '@mui/material';
 import FilterListIcon from '@mui/icons-material/FilterList';
-import { ChevronLeft, ChevronRight, MoreHoriz } from '@mui/icons-material';
+import { ArrowCircleDown, ChevronLeft, ChevronRight, ExpandLess, ExpandMore, MoreHoriz } from '@mui/icons-material';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import type { Dayjs } from 'dayjs';
@@ -44,7 +44,9 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
 
   const phone = (
     <Stack
-      direction={'column'}
+      direction={'row'}
+        justifyContent={'space-between'}
+      alignItems={'center'}
       gap={1}
       mb={1}
       width={'100%'}
@@ -53,19 +55,94 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
         p: 1,
       }}
     >
-      <Stack
-        sx={{ flexGrow: 1 }}
-        alignItems={'center'}
-        direction={'row'}
-        flexWrap={'wrap'}
-        justifyContent={'space-between'}
-      >
+
+
+        <Stack direction={'row'} gap={1}>
+
         <Typography
           textTransform={'capitalize'}
+          
           className="rounded-full border border-gray-700 px-3 py-1 font-semibold"
+          sx={{
+            fontSize: '0.8rem'
+          }}
         >
           {currentMonth.format('MMMM YYYY')}
         </Typography>
+
+
+        <Stack direction={'row'}>
+        <Tooltip title={'Poprzedni miesiąc'}>
+          <IconButton
+            size="small"
+            className="rounded-l-lg rounded-r-none border"
+            color="primary"
+            onClick={() => handleMonthChange('prev')}
+            sx={(theme) => ({
+              borderColor: theme.palette.primary.light,
+              '&:hover': {
+                borderColor: theme.palette.primary.main,
+              },
+            })}
+          >
+            <ChevronLeft fontSize="small" />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title={'Obecy miesiąc'}>
+          <Button
+            variant="outlined"
+            className="rounded-none border-x-0"
+            color="primary"
+            size="small"
+            onClick={() => handleMonthChange('today')}
+            sx={(theme) => ({
+              borderColor: theme.palette.primary.light,
+              flexGrow: 1,
+              '&:hover': {
+                borderColor: theme.palette.primary.main,
+              },
+            })}
+          >
+            Dziś
+          </Button>
+          {/* <IconButton
+            // className="rounded-none border-x-0"
+            className=" rounded-none border border-x-0"
+
+            color="primary"
+            size="small"
+            onClick={() => handleMonthChange('today')}
+            sx={(theme) => ({
+              borderColor: theme.palette.primary.light,
+              flexGrow: 1,
+              '&:hover': {
+                borderColor: theme.palette.primary.main,
+              },
+            })}
+          >
+            <ExpandMore fontSize="small" />
+          </IconButton> */}
+        </Tooltip>
+        <Tooltip title={'Następny miesiąc'}>
+          <IconButton
+            size="small"
+            color="primary"
+            className="rounded-l-none rounded-r-lg border"
+            onClick={() => handleMonthChange('next')}
+            sx={(theme) => ({
+              borderColor: theme.palette.primary.light,
+              '&:hover': {
+                borderColor: theme.palette.primary.main,
+              },
+            })}
+          >
+            <ChevronRight fontSize="small" />
+          </IconButton>
+        </Tooltip>
+      </Stack>
+        </Stack>
+
+
         <IconButton onClick={handleClickMobileMenu}>
           <MoreHoriz />
         </IconButton>
@@ -73,6 +150,16 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
           anchorEl={anchorEl}
           open={openMobileMenu}
           onClose={handleCloseMobileMenu}
+           slotProps={{
+          list: {
+            'aria-labelledby': 'long-button',
+          },
+          paper: {
+            sx: {
+              minWidth: '200px',
+            },
+          },
+        }}
         >
           <MenuItem disableRipple key={'datePicker'}>
             <LocalizationProvider
@@ -143,9 +230,9 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
             </Badge>
           </MenuItem>
         </Menu>
-      </Stack>
 
-      <Stack direction={'row'}>
+
+      {/* <Stack direction={'row'}>
         <Tooltip title={'Poprzedni miesiąc'}>
           <IconButton
             size="small"
@@ -196,7 +283,7 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
             <ChevronRight fontSize="small" />
           </IconButton>
         </Tooltip>
-      </Stack>
+      </Stack> */}
     </Stack>
   );
 
