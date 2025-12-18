@@ -148,7 +148,7 @@ export const FilterDialog: React.FC<FilterDialogProps> = ({
       />
       <Stack direction="row" spacing={1} justifyContent={'flex-end'}>
         <Button onClick={handleSelectAll} disabled={isAllSelected}>
-          Wszystko
+          Wszyscy
         </Button>
         <Button onClick={handleClear}>Wyczyść</Button>
       </Stack>
@@ -1108,7 +1108,7 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
               />
               <Stack direction="row" spacing={1} justifyContent={'flex-end'}>
                 <Button onClick={handleSelectAll} disabled={isAllSelected}>
-                  Wszystko
+                  Wszyscy
                 </Button>
 
                 <Button onClick={handleClear}>Wyczyść</Button>
