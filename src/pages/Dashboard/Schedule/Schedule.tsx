@@ -57,7 +57,6 @@ import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
 import KeyboardReturnIcon from '@mui/icons-material/KeyboardReturn';
 import useContainerBreakpoint from '../../../hooks/useContainerWidth';
 import { formatWeeksString } from '../Hours/HoursHelpers';
-import { useLayout } from '../../../context/LayoutContext';
 
 dayjs.extend(weekOfYear);
 dayjs.extend(isBetween);
@@ -247,8 +246,6 @@ const ScheduleComponent = () => {
   });
 
   const scheduleMap = useMemo(() => createScheduleMap(schedules), [schedules]);
-
-  const { headerHeight, topBarHeight } = useLayout();
 
   const weeks = useMemo(() => {
     const start = dayjs(fromWeek);
@@ -573,13 +570,14 @@ const ScheduleComponent = () => {
 
   if (error)
     return (
-      <PageContainer breadcrumbs={[{ title: 'Harmonogram' }]}>
+      <PageContainer fixedHeight={true} breadcrumbs={[{ title: 'Harmonogram' }]}>
         <Alert severity="error">Błąd danych.</Alert>
       </PageContainer>
     );
 
   return (
     <PageContainer
+    fixedHeight={true}
       breadcrumbs={[{ title: 'Harmonogram pracowników' }]}
       actions={
         <Button
@@ -596,15 +594,13 @@ const ScheduleComponent = () => {
       <Box
         ref={containerRef}
         sx={{
+          width: '100%',
+          height: '100%', 
           overflow: 'hidden',
-          minHeight: '400px',
-          maxHeight: `calc(100vh - ${headerHeight + topBarHeight}px)`,
-          // maxHeight: 'calc(100vh - 142.75px)',
-          flex: 1,
           display: 'flex',
           flexDirection: 'column',
+          position: 'relative',
         }}
-        className="relative"
       >
         {loading && (
           <Box
@@ -651,15 +647,16 @@ const ScheduleComponent = () => {
             display: 'flex',
             flexDirection: 'column',
             minHeight: 0,
+            // mt: 2,
           }}
         >
           {activeTable.type === 0 ? (
             <TableContainer
               component={Box}
               sx={{
-                overflowX: 'auto',
+               flex: 1,
+                overflow: 'auto',
                 width: '100%',
-                height: '100%',
               }}
             >
               <Table
@@ -746,9 +743,9 @@ const ScheduleComponent = () => {
             <TableContainer
               component={Box}
               sx={{
-                overflowX: 'auto',
+                flex: 1,
+                overflow: 'auto',
                 width: '100%',
-                height: '100%',
               }}
             >
               <Table stickyHeader sx={{ tableLayout: 'fixed', minWidth: 800 }}>
@@ -811,7 +808,7 @@ const ScheduleComponent = () => {
             </TableContainer>
           )}
 
-          <Box>
+          <Box sx={{flexShrink: 0}}>
             {filteredEmployees.length === 0 && (
               <Stack
                 direction={'column'}
