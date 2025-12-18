@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { styled } from '@mui/material/styles';
+import { styled, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Breadcrumbs, { breadcrumbsClasses } from '@mui/material/Breadcrumbs';
 import { type ContainerProps } from '@mui/material/Container';
@@ -10,6 +10,9 @@ import Typography from '@mui/material/Typography';
 import NavigateNextRoundedIcon from '@mui/icons-material/NavigateNextRounded';
 import { Link } from 'react-router';
 import { useLayout } from '../context/LayoutContext';
+import { IconButton, Menu } from '@mui/material';
+import { useMediaQuery } from '@mui/system';
+import { MoreHoriz, MoreVert } from '@mui/icons-material';
 
 const PageHeaderBreadcrumbs = styled(Breadcrumbs)(({ theme }) => ({
   margin: theme.spacing(1, 0),
@@ -31,6 +34,85 @@ const PageHeaderToolbar = styled('div')(({ theme }) => ({
   justifyContent: 'flex-end',
   flexWrap: 'wrap',
 }));
+
+export const ResponsivePageActions = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  if (!isMobile) {
+    return (
+      <Stack direction="row" spacing={1} alignItems="center">
+        {children}
+      </Stack>
+    );
+  }
+
+  return (
+    <>
+      <IconButton
+        aria-label="więcej akcji"
+        id="long-button"
+        aria-controls={open ? 'long-menu' : undefined}
+        aria-expanded={open ? 'true' : undefined}
+        aria-haspopup="true"
+        onClick={handleClick}
+      >
+        <MoreHoriz />
+      </IconButton>
+      <Menu
+        id="long-menu"
+        anchorEl={anchorEl}
+        open={open}
+        onClose={handleClose}
+        slotProps={{
+          list: {
+            'aria-labelledby': 'long-button',
+          },
+          paper: {
+            sx: {
+              minWidth: '200px',
+              maxWidth: '200px',
+            },
+          },
+        }}
+      >
+        <Box sx={{ p: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
+          {React.Children.map(children, (child) => {
+            if (React.isValidElement(child)) {
+              const element = child as React.ReactElement<any>;
+
+              return React.cloneElement(element, {
+                fullWidth: true,
+                onClick: (e: React.MouseEvent) => {
+                  if (element.props.onClick) element.props.onClick(e);
+                  handleClose();
+                },
+                style: { justifyContent: 'flex-start', ...element.props.style },
+                sx: { ...element.props.sx, justifyContent: 'flex-start' },
+                variant: 'outlined',
+              });
+            }
+            return child;
+          })}
+        </Box>
+      </Menu>
+    </>
+  );
+};
 
 export interface Breadcrumb {
   title: string;
@@ -156,7 +238,9 @@ export default function PageContainer(props: PageContainerProps) {
                 })
               : null}
           </PageHeaderBreadcrumbs>
-          <PageHeaderToolbar>{actions}</PageHeaderToolbar>
+          <PageHeaderToolbar>
+            <ResponsivePageActions>{actions}</ResponsivePageActions>
+          </PageHeaderToolbar>
         </Stack>
         <Box
           sx={{
