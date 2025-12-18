@@ -17,7 +17,6 @@ import Alert from '@mui/material/Alert';
 import {
   MaterialReactTable,
   MRT_ShowHideColumnsButton,
-  MRT_TablePagination,
   MRT_ToggleDensePaddingButton,
   MRT_ToggleGlobalFilterButton,
   useMaterialReactTable,
@@ -50,6 +49,7 @@ import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import { useEmployeeAlert } from '../../../context/EmployeeAlertContext';
 import { plPL } from '@mui/x-date-pickers/locales';
 import { sortByLastName } from './EmployeesHelpers';
+import { TablePagination } from '../../../components/TablePagination';
 
 interface EmployeesFilters {
   name: string;
@@ -156,7 +156,6 @@ export default function EmployeeList() {
       JSON.stringify(columnFilters) !== JSON.stringify(DefaultColumnFilters)
     );
   }, [columnFilters]);
-
 
   const {
     data: employees,
@@ -496,10 +495,11 @@ export default function EmployeeList() {
         Cell: ({ cell }) => (
           <Box
             component="span"
-            className={`rounded px-3 py-1 ${cell.getValue<boolean>()
+            className={`rounded px-3 py-1 ${
+              cell.getValue<boolean>()
                 ? 'bg-green-300/50 text-green-600'
                 : 'bg-red-300/50 text-red-600'
-              }`}
+            }`}
           >
             {cell.getValue<boolean>() ? 'Aktywny' : 'Nieaktywny'}
           </Box>
@@ -529,9 +529,12 @@ export default function EmployeeList() {
       pagination,
       columnOrder,
     },
+    enableStickyHeader: true,
     muiTableContainerProps: {
       sx: {
         flex: '1 1 auto',
+        minHeight: 0,
+        overflowY: 'auto',
         '& *': {
           transition: 'none !important',
         },
@@ -576,7 +579,9 @@ export default function EmployeeList() {
         borderRadius: '10px',
         display: 'flex',
         flexDirection: 'column',
-        flex: '1 1 auto',
+        height: '100%',
+
+        overflow: 'hidden',
       },
     },
     muiTableHeadCellProps: {
@@ -635,10 +640,15 @@ export default function EmployeeList() {
           const employeeAlerts = alertsMap.get(employeeId) || [];
           const hasAlert = employeeAlerts.length > 0;
 
+          const { pageIndex, pageSize } = table.getState().pagination;
+
           const visibleRows = table.getRowModel().rows;
 
-          const globalIndex =
-            visibleRows.findIndex((visibleRow) => visibleRow.id === row.id) + 1;
+          const relativeIndex = visibleRows.findIndex(
+            (visibleRow) => visibleRow.id === row.id
+          );
+
+          const globalIndex = pageIndex * pageSize + relativeIndex + 1;
 
           return (
             <Box>
@@ -663,40 +673,15 @@ export default function EmployeeList() {
         },
       },
     },
-    renderBottomToolbar: ({ table }) => (
-      <Stack
-        direction={{ xs: 'column', sm: 'row' }}
-        alignItems="center"
-        justifyContent="space-between"
-        spacing={1}
-      >
-        <Box
-          sx={{
-            fontSize: 12,
-            color: 'text.secondary',
-            textAlign: 'center',
-            pt: { xs: 2, sm: 0 },
-            px: { xs: 0, sm: 2 },
-          }}
-        >
-          Wynik: {table.getPrePaginationRowModel().rows.length} z{' '}
-          {tableData.length}
-        </Box>
-        <MRT_TablePagination table={table} />
-      </Stack>
-    ),
-    paginationDisplayMode: 'pages',
-    muiPaginationProps: {
-      color: 'primary',
-      rowsPerPageOptions: [5, 10, 25, 50, 100],
-      shape: 'rounded',
-      variant: 'outlined',
-    },
+    renderBottomToolbar: ({ table }) => <TablePagination table={table} />,
   });
 
   if (error) {
     return (
-      <PageContainer breadcrumbs={[{ title: 'Lista pracowników' }]}>
+      <PageContainer
+        breadcrumbs={[{ title: 'Lista pracowników' }]}
+        fixedHeight={true}
+      >
         <Alert
           severity="error"
           action={
@@ -713,6 +698,7 @@ export default function EmployeeList() {
 
   return (
     <PageContainer
+      fixedHeight={true}
       breadcrumbs={[{ title: 'Lista pracowników' }]}
       actions={
         <Button
@@ -725,7 +711,16 @@ export default function EmployeeList() {
         </Button>
       }
     >
-      <Box sx={{ flex: 1, width: '100%', display: 'flex' }}>
+      <Box
+        sx={{
+          flex: 1,
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+        }}
+      >
         <LocalizationProvider
           localeText={
             plPL.components.MuiLocalizationProvider.defaultProps.localeText
