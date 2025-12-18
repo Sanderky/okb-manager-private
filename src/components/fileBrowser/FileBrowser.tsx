@@ -534,15 +534,20 @@ const FileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
   const table = useMaterialReactTable({
     localization: MRT_Localization_PL,
     //pagination
-    enablePagination: true,
-    enableBottomToolbar: true,
-    enableStickyHeader: false,
+    // enablePagination: false,
+    // enableBottomToolbar: false,
+    // enableStickyHeader: true,
 
     //scroll
     // enableStickyHeader: true,
     // enablePagination: false,
     // enableBottomToolbar: false,
     //
+    enablePagination: false,
+    enableRowVirtualization: true,
+    enableStickyHeader: true,
+    enableBottomToolbar: false,
+    rowVirtualizerOptions: { overscan: 5 },
 
     muiPaginationProps: {
       color: 'primary',
@@ -580,9 +585,8 @@ const FileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
     },
     muiTableContainerProps: {
       sx: {
-        flex: '1 1 auto',
-        // minHeight: '500px',
-        // maxHeight: '500px',
+        height: '100%',
+        maxHeight: '100%',
         width: '100%',
       },
     },
@@ -639,40 +643,40 @@ const FileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
     renderRowActionMenuItems: ({ row, closeMenu }) => [
       row.original.type === 'file'
         ? [
-          canOpenPreview(row.original) ? (
+            canOpenPreview(row.original) ? (
+              <MRT_ActionMenuItem
+                icon={<Visibility />}
+                key="preview"
+                label="Podgląd"
+                onClick={() => {
+                  handleOpenPreview(row.original as FileItem);
+                  closeMenu();
+                }}
+                table={table}
+              />
+            ) : null,
             <MRT_ActionMenuItem
-              icon={<Visibility />}
-              key="preview"
-              label="Podgląd"
+              icon={<OpenInNew />}
+              key="newTab"
+              label="Otwórz w nowej karcie"
               onClick={() => {
-                handleOpenPreview(row.original as FileItem);
+                openFileInNewTab((row.original as FileItem).path);
                 closeMenu();
               }}
               table={table}
-            />
-          ) : null,
-          <MRT_ActionMenuItem
-            icon={<OpenInNew />}
-            key="newTab"
-            label="Otwórz w nowej karcie"
-            onClick={() => {
-              openFileInNewTab((row.original as FileItem).path);
-              closeMenu();
-            }}
-            table={table}
-          />,
-          <MRT_ActionMenuItem
-            icon={<InfoOutline />}
-            key="details"
-            label="Szczegóły"
-            onClick={() => {
-              setSelectedFile(row.original as FileItem);
-              setIsDetailsDialogOpen(true);
-              closeMenu();
-            }}
-            table={table}
-          />,
-        ]
+            />,
+            <MRT_ActionMenuItem
+              icon={<InfoOutline />}
+              key="details"
+              label="Szczegóły"
+              onClick={() => {
+                setSelectedFile(row.original as FileItem);
+                setIsDetailsDialogOpen(true);
+                closeMenu();
+              }}
+              table={table}
+            />,
+          ]
         : null,
       <MRT_ActionMenuItem
         icon={<Download />}
@@ -788,10 +792,19 @@ const FileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
   });
 
   return (
-    <Box sx={{ width: '100%', flex: 1, display: 'flex', flexDirection: 'column' }}>
+    <Box
+      sx={{
+        width: '100%',
+        height: '100%',
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+      }}
+    >
       <BaseDialog
         open={isUploadDialogOpen}
-        onClose={() => { }}
+        onClose={() => {}}
         title={'Przesyłanie plików'}
         showCloseButton={false}
       >
@@ -815,7 +828,17 @@ const FileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
         </>
       </BaseDialog>
 
-      <Box ref={dropRef} sx={{ position: 'relative', flex: 1, display: 'flex' }}>
+      <Box
+        ref={dropRef}
+        sx={{
+          position: 'relative',
+          flex: 1,
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+        }}
+      >
         {isDragOver && (
           <Paper
             sx={{

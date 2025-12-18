@@ -645,7 +645,10 @@ const Home = () => {
   }, [navigate]);
 
   return (
-    <PageContainer breadcrumbs={[{ title: 'Strona główna' }]}>
+    <PageContainer
+      breadcrumbs={[{ title: 'Strona główna' }]}
+      fixedHeight={tab === 1}
+    >
       <Box className="border-lightGray mb-3 overflow-hidden rounded-lg border bg-white px-2">
         <Tabs value={tab} onChange={handleTabChange}>
           <Tab
@@ -667,7 +670,22 @@ const Home = () => {
         </Tabs>
       </Box>
 
-      <Grid container columns={12} spacing={{ xs: 1.5, md: 2, lg: 3 }} sx={{ flex: 1 }}>
+      <Grid
+        container
+        columns={12}
+        spacing={{ xs: 1.5, md: 2, lg: 3 }}
+        sx={{
+          flex: 1,
+          minHeight: 0,
+
+          height: tab === 1 ? '100%' : 'auto',
+
+          display: 'flex',
+          flexDirection: tab === 1 ? 'column' : 'row',
+          alignContent: 'flex-start',
+          overflow: tab === 1 ? 'hidden' : 'visible',
+        }}
+      >
         {tab === 0 && (
           <>
             <Grid
@@ -885,7 +903,16 @@ const Home = () => {
           </>
         )}
         {tab === 1 && (
-          <Grid size={{ xs: 12 }} sx={{ flex: 1, display: 'flex' }}>
+          <Grid
+            size={{ xs: 12 }}
+            sx={{
+              flex: 1,
+              display: 'flex',
+              height: '100%',
+              minHeight: 0,
+              overflow: 'hidden',
+            }}
+          >
             <FileBrowser baseDirectory="general" />
           </Grid>
         )}

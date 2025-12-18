@@ -199,7 +199,13 @@ export default function ConstructionShow() {
 
     return construction ? (
       <Box
-        sx={{ width: '100%', boxShadow: 1, flex: 1, display: 'flex', flexDirection: 'column'}}
+        sx={{
+          width: '100%',
+          boxShadow: 1,
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+        }}
         className="rounded-lg bg-white p-2 pb-4 md:p-4 md:pt-2 lg:p-6 lg:pt-2"
       >
         <Grid
@@ -470,8 +476,8 @@ export default function ConstructionShow() {
         )}
         {tab === 1 && (
           <FileBrowser
-              baseDirectory={`constructions/${construction.id}/files`}
-            />
+            baseDirectory={`constructions/${construction.id}/files`}
+          />
         )}
         <FinishConstruction
           open={endDialogOpen}
@@ -508,6 +514,7 @@ export default function ConstructionShow() {
 
   return (
     <PageContainer
+      fixedHeight={tab === 1}
       title={`Budowa ${pageTitle}`}
       breadcrumbs={[
         { title: 'Budowy', path: '/constructions' },

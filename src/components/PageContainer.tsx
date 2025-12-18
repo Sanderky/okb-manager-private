@@ -41,10 +41,11 @@ export interface PageContainerProps extends ContainerProps {
   title?: string;
   breadcrumbs?: Breadcrumb[];
   actions?: React.ReactNode;
+  fixedHeight?: boolean;
 }
 
 export default function PageContainer(props: PageContainerProps) {
-  const { children, breadcrumbs, actions = null } = props;
+  const { children, breadcrumbs, actions = null, fixedHeight = false } = props;
 
   const { setHeaderHeight } = useLayout();
 
@@ -70,19 +71,25 @@ export default function PageContainer(props: PageContainerProps) {
     <Box
       sx={{
         display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'center',
-        minHeight: '100%',
+        flexDirection: 'column',
+        alignItems: 'center',
+        width: '100%',
+        height: fixedHeight ? 'calc(100vh - 64px)' : 'auto',
+        overflowY: fixedHeight ? 'hidden' : 'auto',
+        overflowX: 'hidden',
       }}
     >
       <Stack
         sx={{
-          flex: 1,
+          width: '100%',
+          maxWidth: '1300px',
           pt: 2,
           pb: 2,
           px: { xs: 1, md: 2 },
-          maxWidth: '1300px',
-          overflow: 'auto',
+          height: fixedHeight ? '100%' : 'auto',
+          minHeight: 0,
+          display: 'flex',
+          flexDirection: 'column',
         }}
         spacing={0}
       >
@@ -156,6 +163,9 @@ export default function PageContainer(props: PageContainerProps) {
             flex: 1,
             display: 'flex',
             flexDirection: 'column',
+            minHeight: 0,
+            height: fixedHeight ? '100%' : 'auto',
+            overflow: 'visible',
           }}
         >
           {children}
