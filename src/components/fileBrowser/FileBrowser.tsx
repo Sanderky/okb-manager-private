@@ -155,7 +155,6 @@ const FileBreadcrumps = ({
           display: 'flex',
           gap: 1,
           overflowX: 'scroll',
-          py: 1.5,
         }}
       >
         {pathParts.map((part, index) => {
@@ -558,7 +557,6 @@ const FileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
 
       variant: 'outlined',
     },
-    positionGlobalFilter: 'right',
 
     paginationDisplayMode: 'pages',
     layoutMode: 'grid',
@@ -598,7 +596,7 @@ const FileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
         width: '100%',
         boxShadow: 'none',
         border: '1px solid #e0e0e0',
-        borderRadius: '10px',
+        borderRadius: '10px 10px 0 0',
         display: 'flex',
         flexDirection: 'column',
         flex: '1 1 auto',
@@ -611,15 +609,24 @@ const FileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
         grow: false,
       },
     },
+    positionToolbarAlertBanner: 'none',
     muiTopToolbarProps: {
       sx: {
         width: '100%',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: 'auto',
+        p: 0,
+        pb: 0,
+        gap: 0,
       },
     },
 
     muiSearchTextFieldProps: {
       placeholder: 'Przeszukaj obecny katalog',
       variant: 'outlined',
+      size: 'small',
     },
     renderEmptyRowsFallback: () => (
       <Box
@@ -736,7 +743,8 @@ const FileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
       const selectedRows = table
         .getSelectedRowModel()
         .flatRows.map((row) => row.original);
-
+      const isSelectionMode = selectedRows.length > 0;
+      const totalElementsCount = table.getPrePaginationRowModel().rows.length;
       return (
         <Box sx={{ maxWidth: '100%' }}>
           <MRT_TopToolbar table={table} />
@@ -745,7 +753,6 @@ const FileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
             sx={{
               display: { xs: 'flex', sm: 'none' },
               gap: 2,
-              padding: 1,
               flexWrap: 'wrap',
             }}
           >
@@ -761,35 +768,78 @@ const FileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
               paddingRight: '10px',
               gap: 1,
               maxWidth: '100%',
+              pl: 1,
+              py: 0.5,
+              height: '40px',
+              bgcolor: isSelectionMode
+                ? 'rgba(25, 118, 210, 0.08)'
+                : 'transparent',
             }}
           >
-            <Tooltip title="Wróć">
-              <span>
-                <IconButton
-                  size="small"
-                  aria-label="delete"
-                  disabled={currentPath === baseDirectory}
-                  onClick={() =>
-                    changeCurrentPath(
-                      currentPath.substring(0, currentPath.lastIndexOf('/'))
-                    )
-                  }
-                >
-                  <ArrowBack />
-                </IconButton>
-              </span>
-            </Tooltip>
+            {isSelectionMode ? (
+              <Stack
+                direction="row"
+                alignItems="center"
+                justifyContent="space-between"
+                width="100%"
+                sx={{ pr: 1 }}
+              >
+                <Stack direction="row" alignItems="center" spacing={1}>
+                  <Check color="primary" sx={{ fontSize: 20 }} />
+                  <Typography
+                    variant="body2"
+                    fontWeight={500}
+                    color="primary.main"
+                  >
+                    Wybrano: {selectedRows.length} z {totalElementsCount}
+                  </Typography>
+                </Stack>
 
-            <FileBreadcrumps
-              path={currentPath}
-              baseDirectory={baseDirectory}
-              onClick={(path) => changeCurrentPath(path)}
-            />
+                <Button
+                  size="small"
+                  onClick={() => table.resetRowSelection()}
+                  sx={{ textTransform: 'none' }}
+                >
+                  Anuluj
+                </Button>
+              </Stack>
+            ) : (
+              <>
+                <Tooltip title="Wróć">
+                  <span>
+                    <IconButton
+                      size="small"
+                      aria-label="back"
+                      disabled={currentPath === baseDirectory}
+                      onClick={() =>
+                        changeCurrentPath(
+                          currentPath.substring(0, currentPath.lastIndexOf('/'))
+                        )
+                      }
+                    >
+                      <ArrowBack fontSize="small" />
+                    </IconButton>
+                  </span>
+                </Tooltip>
+
+                <FileBreadcrumps
+                  path={currentPath}
+                  baseDirectory={baseDirectory}
+                  onClick={(path) => changeCurrentPath(path)}
+                />
+              </>
+            )}
           </Box>
         </Box>
       );
     },
   });
+  const elementsCount = table.getPrePaginationRowModel().rows.length;
+  const getElementsText = () => {
+    if (elementsCount === 1) return 'element';
+    if (elementsCount > 1 && elementsCount < 5) return 'elementy';
+    return 'elementów';
+  };
 
   return (
     <Box
@@ -884,6 +934,24 @@ const FileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
         )}
         <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pl">
           <MaterialReactTable table={table} />
+          <Stack
+            direction={'row'}
+            sx={{
+              border: '1px solid #e0e0e0',
+              borderTop: 'none',
+              borderRadius: '0 0 10px 10px',
+              background: '#fff',
+              p: 1,
+            }}
+          >
+            <Typography
+              variant="overline"
+              className="font-medium text-gray-500"
+              sx={{
+                lineHeight: 1,
+              }}
+            >{`${elementsCount} ${getElementsText()}`}</Typography>
+          </Stack>
         </LocalizationProvider>
       </Box>
       <MoveItemsDialog
