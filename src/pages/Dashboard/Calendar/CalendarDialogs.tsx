@@ -415,12 +415,12 @@ export const EditEventDialog: React.FC<EditEventDialogProps> = ({
       onClose={handleModalClose}
       title={
         <Stack direction="row" alignItems="center" spacing={1}>
-          <Typography variant="h6">Edytuj urlop</Typography>
           {canGoBack && onBack && (
             <IconButton onClick={onBack} size="small" sx={{ ml: -1 }}>
               <ArrowBackIcon />
             </IconButton>
           )}
+          <Typography variant="h6">Edytuj urlop</Typography>
         </Stack>
       }
       loading={loading}

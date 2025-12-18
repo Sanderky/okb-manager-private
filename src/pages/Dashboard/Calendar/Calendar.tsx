@@ -478,7 +478,7 @@ const Calendar: React.FC = () => {
 
     const confirmed = await dialogs.confirm(
       'Czy na pewno chcesz usunąć ten urlop?',
-      { title: 'Usuwanie', severity: 'error', okText: 'Usuń' }
+      { title: 'Usuwanie', severity: 'error', okText: 'Usuń', cancelText: 'Anuluj' }
     );
 
     if (confirmed) {
