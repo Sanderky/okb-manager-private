@@ -62,21 +62,6 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
     return (
       <>
         <Grid container className="bg-gray-50">
-          {WEEK_DAYS.map((day, index) => (
-            <Grid
-              size={{ xs: 12 / 7 }}
-              key={index}
-              sx={{ textAlign: 'center', p: 1 }}
-            >
-              <Typography
-                variant="caption"
-                color="text.secondary"
-                sx={{ fontWeight: '700' }}
-              >
-                {day}
-              </Typography>
-            </Grid>
-          ))}
 
           {monthGrid.map((week, wi) =>
             week.map((calendarDay, di) => {
@@ -358,22 +343,6 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
             })
           )}
         </Grid>
-
-        <Stack
-          direction={'row'}
-          justifyContent={'space-between'}
-          spacing={2}
-          alignItems={'center'}
-          className="border-t border-t-gray-300 px-3 py-2"
-        >
-          <Typography
-            align="center"
-            variant="overline"
-            className="text-md w-full font-medium text-gray-500"
-          >
-            {currentMonth.format('MMMM YYYY')}
-          </Typography>
-        </Stack>
       </>
     );
   }

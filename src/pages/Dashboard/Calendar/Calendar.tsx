@@ -4,7 +4,9 @@ import {
   Box,
   Button,
   CircularProgress,
+  Grid,
   IconButton,
+  Typography,
 } from '@mui/material';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getEmployeeList } from '../../../services/employees';
@@ -34,6 +36,7 @@ import {
   type CalendarDay,
   type CalendarEvent,
   employeeColors,
+  WEEK_DAYS,
 } from './CalendarHelpers';
 import PageContainer from '../../../components/PageContainer';
 import useLoading from '../../../hooks/useLoading';
@@ -478,7 +481,12 @@ const Calendar: React.FC = () => {
 
     const confirmed = await dialogs.confirm(
       'Czy na pewno chcesz usunąć ten urlop?',
-      { title: 'Usuwanie', severity: 'error', okText: 'Usuń', cancelText: 'Anuluj' }
+      {
+        title: 'Usuwanie',
+        severity: 'error',
+        okText: 'Usuń',
+        cancelText: 'Anuluj',
+      }
     );
 
     if (confirmed) {
@@ -503,7 +511,10 @@ const Calendar: React.FC = () => {
 
   if (error) {
     return (
-      <PageContainer breadcrumbs={[{ title: 'Kalendarz urlopów' }]}>
+      <PageContainer
+        breadcrumbs={[{ title: 'Kalendarz urlopów' }]}
+        fixedHeight={true}
+      >
         <Box className="relative">
           <Alert severity="error">
             Wystąpił błąd podczas ładowania danych.
@@ -515,11 +526,11 @@ const Calendar: React.FC = () => {
 
   return (
     <PageContainer
+      fixedHeight={true}
       breadcrumbs={[{ title: 'Kalendarz urlopów' }]}
-      actions={
-        [
+      actions={[
         <Button
-            key='add'
+          key="add"
           size="small"
           onClick={() => setActiveDialog({ type: 'addEvent' })}
           variant="contained"
@@ -529,7 +540,7 @@ const Calendar: React.FC = () => {
           Dodaj urlop
         </Button>,
         <Button
-            key='report'
+          key="report"
           size="small"
           onClick={() => setIsVacationReportOpen(true)}
           variant="contained"
@@ -537,11 +548,20 @@ const Calendar: React.FC = () => {
           disabled={loading || employees.length === 0}
         >
           Wykaz urlopów
-          </Button>
-        ]
-      }
+        </Button>,
+      ]}
     >
-      <Box className="relative" ref={containerRef}>
+      <Box
+        className="relative"
+        ref={containerRef}
+        sx={{
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+        }}
+      >
         {loading && (
           <Box
             sx={{
@@ -593,8 +613,41 @@ const Calendar: React.FC = () => {
         />
 
         <Box
-          sx={{ overflow: 'hidden', userSelect: 'none', position: 'relative' }}
-          className="rounded-lg border border-gray-300"
+          sx={{
+            flexDirection: 'column',
+            minHeight: 0,
+            borderRadius: '8px 8px 0 0',
+          }}
+          className="border border-gray-300"
+        >
+          <Grid container>
+            {WEEK_DAYS.map((day, index) => (
+              <Grid
+                size={{ xs: 12 / 7 }}
+                key={index}
+                sx={{ textAlign: 'center', p: 1 }}
+              >
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ fontWeight: '700' }}
+                >
+                  {day}
+                </Typography>
+              </Grid>
+            ))}
+          </Grid>
+        </Box>
+        <Box
+          sx={{
+            flex: 1,
+            display: 'flex',
+            overflowX: 'hidden',
+            flexDirection: 'column',
+            overflowY: 'auto',
+            borderRadius: '0 0 8px 8px',
+          }}
+          className="border border-gray-300"
         >
           <CalendarGrid
             monthGrid={monthGrid}
