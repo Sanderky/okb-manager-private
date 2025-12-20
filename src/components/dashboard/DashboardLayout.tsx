@@ -113,11 +113,14 @@ export default function DashboardLayout() {
             <Toolbar sx={{ displayPrint: 'none', flexShrink: 0 }} />
             <Box
               ref={scrollableRef}
-              sx={{
+              sx={(theme) => ({
+                background: theme.palette.background.default,
                 flexGrow: 1,
-                overflowY: 'auto',
-              }}
-              className="bg-stone-100"
+
+                overflow: 'hidden',
+                display: 'flex',
+                flexDirection: 'column'
+              })}
             >
               <Outlet />
             </Box>

@@ -61,12 +61,12 @@ export const TableControls: React.FC<TableControlsProps> = ({
       direction={'row'}
       justifyContent={'space-between'}
       gap={1}
-      mb={1}
       width={'100%'}
-      className={'border-lightGray rounded-lg border bg-white'}
-      sx={{
+      sx={(theme) => ({
         p: 1,
-      }}
+        background: theme.palette.background.paper,
+        borderBottom: `1px solid ${theme.palette.divider}`
+      })}
     >
       <Stack direction={'row'} alignItems={'center'} gap={1}>
         <Typography
@@ -271,10 +271,12 @@ export const TableControls: React.FC<TableControlsProps> = ({
       flexWrap={'wrap'}
       justifyContent={'flex-start'}
       gap={1}
-      mb={1}
       width={'100%'}
-      className={'border-lightGray rounded-lg border bg-white'}
-      sx={{ p: 1 }}
+      sx={(theme) => ({
+        p: 1,
+        background: theme.palette.background.paper,
+        borderBottom: `1px solid ${theme.palette.divider}`
+      })}
     >
       <Stack alignItems={'center'} direction={'row'} flexWrap={'wrap'} gap={2}>
         <WeekSelector

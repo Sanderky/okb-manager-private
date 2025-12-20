@@ -126,12 +126,19 @@ export default function ConstructionCreate() {
       ]}
     >
       <Box
-        sx={{
+      sx={{
+        p: 2
+      }}
+      >
+
+      <Box
+        sx={theme => ({
           width: '100%',
           maxWidth: { sm: '100%', md: '1790px' },
           boxShadow: 1,
-        }}
-        className="rounded-lg bg-white p-3 md:p-4"
+          background: theme.palette.background.paper
+        })}
+        className="rounded-lg p-3 md:p-4"
       >
         <ConstructionForm
           formState={formState}
@@ -146,6 +153,7 @@ export default function ConstructionCreate() {
           isEditForm={false}
           registerFieldRef={registerFieldRef}
         />
+      </Box>
       </Box>
     </PageContainer>
   );

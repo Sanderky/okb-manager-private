@@ -350,16 +350,16 @@ export const PreviewDialog = ({ open, onClose, file }: PreviewDialogProps) => {
 
       <DialogContent
         dividers
-        sx={{
+        sx={theme => ({
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
           padding: 0,
-          backgroundColor: 'grey.100',
+          backgroundColor: theme.palette.background.default,
           overflow: 'hidden',
           cursor: isDragging ? 'grabbing' : 'default',
           position: 'relative',
-        }}
+        })}
         onMouseDown={(e) => e.preventDefault()}
       >
         {renderPreview()}

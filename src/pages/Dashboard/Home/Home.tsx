@@ -648,275 +648,263 @@ const Home = () => {
     <PageContainer
       breadcrumbs={[{ title: 'Strona główna' }]}
       fixedHeight={tab === 1}
+      renderTopToolbar={
+        <Box className="overflow-hidden" sx={(theme) => ({
+          background: theme.palette.background.paper,
+          borderBottom: `1px solid ${theme.palette.divider}`
+        })}>
+          <Tabs value={tab} onChange={handleTabChange}>
+            <Tab
+              label="Informacje"
+              sx={{
+                fontSize: { xs: '0.8rem', sm: '.85rem' },
+                minWidth: 0,
+              }}
+            />
+            <Tab
+              label="Pliki"
+              sx={{
+                fontSize: { xs: '0.8rem', sm: '.85rem' },
+                minWidth: { xs: 0, sm: 100 },
+              }}
+            />
+          </Tabs>
+        </Box>
+      }
     >
-      <Box className="border-lightGray mb-3 overflow-hidden rounded-lg border bg-white px-2">
-        <Tabs value={tab} onChange={handleTabChange}>
-          <Tab
-            label="Informacje"
-            sx={{
-              fontSize: { xs: '0.8rem', sm: '.85rem' },
-              padding: 2,
-              minWidth: 0,
-            }}
-          />
-          <Tab
-            label="Pliki"
-            sx={{
-              fontSize: { xs: '0.8rem', sm: '.85rem' },
-              padding: 2,
-              minWidth: { xs: 0, sm: 100 },
-            }}
-          />
-        </Tabs>
-      </Box>
+      {
+        tab === 0 ? (
+          <Box sx={{ p: 2 }}>
 
-      <Grid
-        container
-        columns={12}
-        spacing={{ xs: 1.5, md: 2, lg: 3 }}
-        sx={{
-          flex: 1,
-          minHeight: 0,
-
-          height: tab === 1 ? '100%' : 'auto',
-
-          display: 'flex',
-          flexDirection: tab === 1 ? 'column' : 'row',
-          alignContent: 'flex-start',
-          overflow: tab === 1 ? 'hidden' : 'visible',
-        }}
-      >
-        {tab === 0 && (
-          <>
             <Grid
               container
               columns={12}
               spacing={{ xs: 1.5, md: 2, lg: 3 }}
-              size={{ xs: 12, lg: 6 }}
-              alignContent={'flex-start'}
+              sx={{
+                minHeight: 0,
+              }}
             >
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <Card
-                  sx={{ boxShadow: 0, cursor: 'pointer' }}
-                  onClick={handleEmployeesClick}
-                  className="border-lightGray rounded-lg border hover:shadow-sm"
-                >
-                  {employeesLoading ? (
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        minHeight: '200px',
-                      }}
-                    >
-                      <CircularProgress />
-                    </Box>
-                  ) : (
-                    <>
-                      <CardContent className="p-4">
-                        <Stack
-                          direction="row"
-                          spacing={2}
-                          alignItems="center"
-                          justifyContent={'space-between'}
-                        >
-                          <Box>
-                            <Typography
-                              variant="body1"
-                              className="text-gray-600"
-                            >
-                              Pracownicy
-                            </Typography>
-                            <Typography variant="h4">
-                              {employeeStats?.active || 0}
-                            </Typography>
-                          </Box>
-                          <Avatar sx={{ bgcolor: 'primary.main' }}>
-                            <Person />
-                          </Avatar>
-                        </Stack>
-                      </CardContent>
-                      <Divider />
-                      <Box className="px-4 py-2">
-                        <Stack direction={'column'}>
-                          <Typography
-                            variant="overline"
-                            className="text-gray-600"
-                          >
-                            Zarchiwizowani:{' '}
-                            <Typography
-                              component={'span'}
-                              className="text-gray-800"
-                            >
-                              {Number(employeeStats?.total) -
-                                Number(employeeStats?.active) || 0}
-                            </Typography>
-                          </Typography>
-                          <Typography
-                            variant="overline"
-                            className="text-gray-600"
-                          >
-                            Wszyscy:{' '}
-                            <Typography
-                              component={'span'}
-                              className="text-gray-800"
-                            >
-                              {Number(employeeStats?.total) || 0}
-                            </Typography>
-                          </Typography>
-                        </Stack>
-                      </Box>
-                    </>
-                  )}
-                </Card>
-              </Grid>
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <Card
-                  sx={{ boxShadow: 0, cursor: 'pointer' }}
-                  onClick={handleConstructionsClick}
-                  className="border-lightGray rounded-lg border hover:shadow-sm"
-                >
-                  {constructionsLoading ? (
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        minHeight: '200px',
-                      }}
-                    >
-                      <CircularProgress />
-                    </Box>
-                  ) : (
-                    <>
-                      <CardContent className="p-4">
-                        <Stack
-                          direction="row"
-                          spacing={2}
-                          alignItems="center"
-                          justifyContent={'space-between'}
-                        >
-                          <Box>
-                            <Typography
-                              variant="body1"
-                              className="text-gray-600"
-                            >
-                              Aktywne budowy
-                            </Typography>
-                            <Typography variant="h4">
-                              {constructionStats?.active || 0}
-                            </Typography>
-                          </Box>
-                          <Avatar sx={{ bgcolor: 'secondary.main' }}>
-                            <Construction />
-                          </Avatar>
-                        </Stack>
-                      </CardContent>
-                      <Divider />
-                      <Box className="px-4 py-2">
-                        <Stack direction={'column'}>
-                          <Typography
-                            variant="overline"
-                            className="text-gray-600"
-                          >
-                            Zakończone:{' '}
-                            <Typography
-                              component={'span'}
-                              className="text-gray-800"
-                            >
-                              {Number(constructionStats?.total) -
-                                Number(constructionStats?.active) || 0}
-                            </Typography>
-                          </Typography>
-                          <Typography
-                            variant="overline"
-                            className="text-gray-600"
-                          >
-                            Wszystkie:{' '}
-                            <Typography
-                              component={'span'}
-                              className="text-gray-800"
-                            >
-                              {Number(constructionStats?.total) || 0}
-                            </Typography>
-                          </Typography>
-                        </Stack>
-                      </Box>
-                    </>
-                  )}
-                </Card>
-              </Grid>
+
               <Grid
-                size={{ xs: 12 }}
-                sx={{
-                  display: { xs: 'none', lg: 'block' },
-                }}
+                container
+                columns={12}
+                spacing={{ xs: 1.5, md: 2, lg: 3 }}
+                size={{ xs: 12, lg: 6 }}
+                alignContent={'flex-start'}
               >
-                <Card
-                  sx={{ boxShadow: 0 }}
-                  className="border-lightGray rounded-lg border"
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <Card
+                    sx={{ boxShadow: 0, cursor: 'pointer' }}
+                    onClick={handleEmployeesClick}
+                    className="border-lightGray rounded-lg border hover:shadow-sm"
+                  >
+                    {employeesLoading ? (
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          minHeight: '200px',
+                        }}
+                      >
+                        <CircularProgress />
+                      </Box>
+                    ) : (
+                      <>
+                        <CardContent className="p-4">
+                          <Stack
+                            direction="row"
+                            spacing={2}
+                            alignItems="center"
+                            justifyContent={'space-between'}
+                          >
+                            <Box>
+                              <Typography
+                                variant="body1"
+                                className="text-gray-600"
+                              >
+                                Pracownicy
+                              </Typography>
+                              <Typography variant="h4">
+                                {employeeStats?.active || 0}
+                              </Typography>
+                            </Box>
+                            <Avatar sx={{ bgcolor: 'primary.main' }}>
+                              <Person />
+                            </Avatar>
+                          </Stack>
+                        </CardContent>
+                        <Divider />
+                        <Box className="px-4 py-2">
+                          <Stack direction={'column'}>
+                            <Typography
+                              variant="overline"
+                              className="text-gray-600"
+                            >
+                              Zarchiwizowani:{' '}
+                              <Typography
+                                component={'span'}
+                                className="text-gray-800"
+                              >
+                                {Number(employeeStats?.total) -
+                                  Number(employeeStats?.active) || 0}
+                              </Typography>
+                            </Typography>
+                            <Typography
+                              variant="overline"
+                              className="text-gray-600"
+                            >
+                              Wszyscy:{' '}
+                              <Typography
+                                component={'span'}
+                                className="text-gray-800"
+                              >
+                                {Number(employeeStats?.total) || 0}
+                              </Typography>
+                            </Typography>
+                          </Stack>
+                        </Box>
+                      </>
+                    )}
+                  </Card>
+                </Grid>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <Card
+                    sx={{ boxShadow: 0, cursor: 'pointer' }}
+                    onClick={handleConstructionsClick}
+                    className="border-lightGray rounded-lg border hover:shadow-sm"
+                  >
+                    {constructionsLoading ? (
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          minHeight: '200px',
+                        }}
+                      >
+                        <CircularProgress />
+                      </Box>
+                    ) : (
+                      <>
+                        <CardContent className="p-4">
+                          <Stack
+                            direction="row"
+                            spacing={2}
+                            alignItems="center"
+                            justifyContent={'space-between'}
+                          >
+                            <Box>
+                              <Typography
+                                variant="body1"
+                                className="text-gray-600"
+                              >
+                                Aktywne budowy
+                              </Typography>
+                              <Typography variant="h4">
+                                {constructionStats?.active || 0}
+                              </Typography>
+                            </Box>
+                            <Avatar sx={{ bgcolor: 'secondary.main' }}>
+                              <Construction />
+                            </Avatar>
+                          </Stack>
+                        </CardContent>
+                        <Divider />
+                        <Box className="px-4 py-2">
+                          <Stack direction={'column'}>
+                            <Typography
+                              variant="overline"
+                              className="text-gray-600"
+                            >
+                              Zakończone:{' '}
+                              <Typography
+                                component={'span'}
+                                className="text-gray-800"
+                              >
+                                {Number(constructionStats?.total) -
+                                  Number(constructionStats?.active) || 0}
+                              </Typography>
+                            </Typography>
+                            <Typography
+                              variant="overline"
+                              className="text-gray-600"
+                            >
+                              Wszystkie:{' '}
+                              <Typography
+                                component={'span'}
+                                className="text-gray-800"
+                              >
+                                {Number(constructionStats?.total) || 0}
+                              </Typography>
+                            </Typography>
+                          </Stack>
+                        </Box>
+                      </>
+                    )}
+                  </Card>
+                </Grid>
+                <Grid
+                  size={{ xs: 12 }}
+                  sx={{
+                    display: { xs: 'none', lg: 'block' },
+                  }}
                 >
-                  <CardContent className="pb-0">
-                    <UpcomingVacation />
-                  </CardContent>
-                </Card>
+                  <Card
+                    sx={{ boxShadow: 0 }}
+                    className="border-lightGray rounded-lg border"
+                  >
+                    <CardContent className="pb-0">
+                      <UpcomingVacation />
+                    </CardContent>
+                  </Card>
+                </Grid>
               </Grid>
-            </Grid>
 
-            <Grid
-              container
-              columns={12}
-              spacing={{ xs: 1.5, md: 2, lg: 3 }}
-              size={{ xs: 12, lg: 6 }}
-              alignContent={'flex-start'}
-            >
+              <Grid
+                container
+                columns={12}
+                spacing={{ xs: 1.5, md: 2, lg: 3 }}
+                size={{ xs: 12, lg: 6 }}
+                alignContent={'flex-start'}
+              >
+                <Grid size={{ xs: 12 }}>
+                  <Card
+                    sx={{ boxShadow: 0 }}
+                    className="border-lightGray rounded-lg border"
+                  >
+                    <CardContent className="pb-0">
+                      <EmployeeAlerts />
+                    </CardContent>
+                  </Card>
+                </Grid>
+                <Grid
+                  size={{ xs: 12 }}
+                  sx={{
+                    display: { xs: 'block', lg: 'none' },
+                  }}
+                >
+                  <Card
+                    sx={{ boxShadow: 0 }}
+                    className="border-lightGray rounded-lg border"
+                  >
+                    <CardContent className="pb-0">
+                      <UpcomingVacation />
+                    </CardContent>
+                  </Card>
+                </Grid>
+              </Grid>
               <Grid size={{ xs: 12 }}>
-                <Card
-                  sx={{ boxShadow: 0 }}
-                  className="border-lightGray rounded-lg border"
-                >
-                  <CardContent className="pb-0">
-                    <EmployeeAlerts />
-                  </CardContent>
-                </Card>
-              </Grid>
-              <Grid
-                size={{ xs: 12 }}
-                sx={{
-                  display: { xs: 'block', lg: 'none' },
-                }}
-              >
-                <Card
-                  sx={{ boxShadow: 0 }}
-                  className="border-lightGray rounded-lg border"
-                >
-                  <CardContent className="pb-0">
-                    <UpcomingVacation />
-                  </CardContent>
-                </Card>
+                <HomeNote />
               </Grid>
             </Grid>
-            <Grid size={{ xs: 12 }}>
-              <HomeNote />
-            </Grid>
-          </>
-        )}
-        {tab === 1 && (
-          <Grid
-            size={{ xs: 12 }}
-            sx={{
-              flex: 1,
-              display: 'flex',
-              height: '100%',
-              minHeight: 0,
-              overflow: 'hidden',
-            }}
-          >
-            <FileBrowser baseDirectory="general" />
-          </Grid>
-        )}
-      </Grid>
+          </Box>
+        ) : (
+          <FileBrowser baseDirectory="general" />
+        )
+      }
+
+
     </PageContainer>
   );
 };

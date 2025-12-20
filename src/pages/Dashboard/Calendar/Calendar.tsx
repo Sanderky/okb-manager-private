@@ -613,12 +613,11 @@ const Calendar: React.FC = () => {
         />
 
         <Box
-          sx={{
+          sx={(theme) => ({
             flexDirection: 'column',
             minHeight: 0,
-            borderRadius: '8px 8px 0 0',
-          }}
-          className="border border-gray-300"
+            borderBottom: `1px solid ${theme.palette.divider}`
+          })}
         >
           <Grid container>
             {WEEK_DAYS.map((day, index) => (
@@ -645,9 +644,7 @@ const Calendar: React.FC = () => {
             overflowX: 'hidden',
             flexDirection: 'column',
             overflowY: 'auto',
-            borderRadius: '0 0 8px 8px',
           }}
-          className="border border-gray-300"
         >
           <CalendarGrid
             monthGrid={monthGrid}

@@ -47,13 +47,13 @@ const PaginationInput = ({ table }: { table: MRT_TableInstance<any> }) => {
       onKeyDown={(e: React.KeyboardEvent) => {
         if (e.key === 'Enter') handleCommit();
       }}
-      sx={{
+      sx={theme => ({
         width: '40px',
         padding: '4px',
         height: '30px',
         textAlign: 'center',
         fontSize: '13px',
-        border: '1px solid #e0e0e0',
+        border: `1px solid ${theme.palette.divider}`,
         borderRadius: '4px',
         '&:focus': {
           outline: 'none',
@@ -64,7 +64,7 @@ const PaginationInput = ({ table }: { table: MRT_TableInstance<any> }) => {
           margin: 0,
         },
         '-moz-appearance': 'textfield',
-      }}
+      })}
     />
   );
 };
@@ -80,15 +80,15 @@ export const TablePagination = ({ table }: TablePaginationProps) => {
 
   return (
     <Box
-      sx={{
+      sx={(theme) => ({
         display: 'flex',
         justifyContent: 'flex-start',
         alignItems: 'center',
         p: 1,
-        borderTop: '1px solid #e0e0e0',
+        borderTop: `1px solid ${theme.palette.divider}`,
         gap: 1,
-        backgroundColor: '#fff',
-      }}
+        backgroundColor: theme.palette.background.paper,
+      })}
     >
       <Stack
         direction="row"
@@ -133,16 +133,16 @@ export const TablePagination = ({ table }: TablePaginationProps) => {
         size="small"
         displayEmpty
         variant="outlined"
-        sx={{
+        sx={theme => ({
           height: '30px',
           fontSize: '13px',
           '.MuiOutlinedInput-notchedOutline': {
-            borderColor: '#e0e0e0',
+            borderColor: theme.palette.divider,
           },
           '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
             borderColor: 'primary.main',
           },
-        }}
+        })}
       >
         {[5, 10, 20, 50, 100].map((size) => (
           <MenuItem key={size} value={size} sx={{ fontSize: '13px' }}>

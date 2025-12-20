@@ -129,7 +129,7 @@ export default function DashboardSidebar({
             sx={{
               width: mini ? MINI_DRAWER_WIDTH : 'auto',
               // px: mini ? 0 : 2,
-              py: 2,
+              py: 0,
             }}
           >
             <DashboardSidebarPageItem

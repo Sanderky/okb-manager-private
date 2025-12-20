@@ -204,90 +204,50 @@ export default function EmployeeShow() {
       );
 
     return employee ? (
-      <Box
-        sx={{
-          width: '100%',
-          boxShadow: 1,
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-        className="rounded-lg bg-white p-2 pb-4 md:p-4 md:pt-2 lg:p-6 lg:pt-2"
-      >
-        <Grid
-          container
-          spacing={2}
-          alignItems={'center'}
-          columns={12}
-          sx={{ mb: 2 }}
+      tab === 0 ? (
+        <Box
+          sx={(theme) => ({
+            width: '100%',
+            boxShadow: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            background: theme.palette.background.paper
+          })}
+          className="p-2 pb-4 pt-4  md:p-4 lg:p-6 rounded-lg"
         >
-          <Grid size={{ xs: 12, sm: 8 }} sx={{ width: '100%!important' }}>
-            <Stack direction="row" alignItems="center" spacing={1}>
-              <Tabs value={tab} onChange={handleTabChange}>
-                <Tab
-                  label="Informacje"
-                  sx={{
-                    fontSize: { xs: '0.8rem', sm: '.85rem' },
-                    padding: 2,
-                    minWidth: 0,
-                  }}
-                />
-                <Tab
-                  label="Inne pliki"
-                  sx={{
-                    fontSize: { xs: '0.8rem', sm: '.85rem' },
-                    padding: 2,
-                    minWidth: { xs: 0, sm: 100 },
-                  }}
-                />
-              </Tabs>
-              <Stack
-                direction="row"
-                justifyContent="flex-end"
-                flexGrow={1}
-                spacing={{ xs: 1.5, sm: 3 }}
-                sx={{ pl: 1 }}
-              >
-                <Tooltip title="Edytuj pracownika">
-                  <IconButton
-                    onClick={handleEmployeeEdit}
-                    color="primary"
-                    className="rounded-full border"
-                    size="small"
-                  >
-                    <EditIcon />
-                  </IconButton>
-                </Tooltip>
-              </Stack>
-            </Stack>
-          </Grid>
-        </Grid>
-        {tab === 0 && (
+
           <Grid container spacing={{ xs: 2, lg: 3 }} columns={12}>
             <Grid size={{ xs: 12, lg: 6 }} sx={{ flexGrow: 1 }}>
               <Stack direction={'column'} spacing={{ xs: 2, lg: 3 }}>
                 <TableContainer
                   component={Paper}
-                  className="border-lightGray overflow-hidden rounded-lg border"
-                  sx={{ boxShadow: 'none' }}
+                  className="overflow-hidden rounded-lg"
+                  sx={theme => ({
+                    boxShadow: 'none',
+
+                    border: `1px solid ${theme.palette.divider}`
+                  })}
                 >
                   <Table>
                     <TableBody>
                       {personalFields.map(({ key, label }) => (
                         <TableRow
                           key={key}
-                          sx={{
+                          sx={theme => ({
                             borderBottom: '1px solid',
-                            borderColor: 'grey.300',
+                            borderColor: theme.palette.divider,
                             '&:last-child': { borderBottom: 'none' },
-                          }}
+                          })}
                         >
                           <TableCell
-                            sx={{
+                            sx={theme => ({
                               minWidth: { xs: '135px', sm: '150px' },
                               width: '30%',
                               border: 'none',
-                            }}
-                            className="border-r-lightGray border-r bg-gray-50 p-2 sm:px-4"
+                              background: theme.palette.background.default,
+                              borderRight: `1px solid ${theme.palette.divider}`
+                            })}
+                            className="p-2 sm:px-4"
                           >
                             <Typography
                               variant="body1"
@@ -326,7 +286,11 @@ export default function EmployeeShow() {
             <Grid size={{ xs: 12, lg: 6 }} sx={{ flexGrow: 1 }}>
               <Stack direction={'column'} spacing={2}>
                 {employeeVacation && employeeVacation.length > 0 && (
-                  <Box className="border-lightGray overflow-hidden rounded-lg border">
+                  <Box className="overflow-hidden rounded-lg border"
+                    sx={theme => ({
+                      borderColor: theme.palette.divider
+                    })}
+                  >
                     <table className="w-full">
                       <thead>
                         <tr className="bg-blue-100">
@@ -344,7 +308,16 @@ export default function EmployeeShow() {
                           </th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-gray-200">
+                      <TableBody
+                        sx={theme => ({
+                          '& > tr:not(:last-child) > td, & > tr:not(:last-child) > th': {
+                            borderBottom: `1px solid ${theme.palette.divider}`,
+                          },
+                          '& > tr:last-child > td, & > tr:last-child > th': {
+                            borderBottom: 'none',
+                          },
+                        })}
+                      >
                         {employeeVacation.map((empV) => (
                           <tr
                             key={empV.id}
@@ -362,7 +335,7 @@ export default function EmployeeShow() {
                             </td>
                           </tr>
                         ))}
-                      </tbody>
+                      </TableBody>
                     </table>
                   </Box>
                 )}
@@ -393,9 +366,9 @@ export default function EmployeeShow() {
               </Stack>
             </Grid>
           </Grid>
-        )}
 
-        {tab === 1 && (
+        </Box>)
+        : (
           <Box
             sx={{
               flex: 1,
@@ -404,8 +377,8 @@ export default function EmployeeShow() {
           >
             <FileBrowser baseDirectory={`employees/${employee.id}/files`} />
           </Box>
-        )}
-      </Box>
+        )
+
     ) : null;
   }, [
     loading,
@@ -459,8 +432,52 @@ export default function EmployeeShow() {
           ) : null}
         </Stack>
       }
+      renderTopToolbar={
+        <Stack direction="row" alignItems="center" spacing={1} sx={(theme) => ({
+          background: theme.palette.background.paper,
+          pr: 2,
+          borderBottom: `1px solid ${theme.palette.divider}`
+        })}>
+          <Tabs value={tab} onChange={handleTabChange}>
+            <Tab
+              label="Informacje"
+              sx={{
+                fontSize: { xs: '0.8rem', sm: '.85rem' },
+                padding: 2,
+                minWidth: 0,
+              }}
+            />
+            <Tab
+              label="Inne pliki"
+              sx={{
+                fontSize: { xs: '0.8rem', sm: '.85rem' },
+                padding: 2,
+                minWidth: { xs: 0, sm: 100 },
+              }}
+            />
+          </Tabs>
+          <Stack
+            direction="row"
+            justifyContent="flex-end"
+            flexGrow={1}
+            spacing={{ xs: 1.5, sm: 3 }}
+            sx={{ pl: 1 }}
+          >
+            <Tooltip title="Edytuj pracownika">
+              <IconButton
+                onClick={handleEmployeeEdit}
+                color="primary"
+                className="rounded-full border"
+                size="small"
+              >
+                <EditIcon />
+              </IconButton>
+            </Tooltip>
+          </Stack>
+        </Stack>
+      }
     >
-      <Box sx={{ display: 'flex', flex: 1, width: '100%' }}>{renderShow}</Box>
+      <Box sx={{ display: 'flex', flex: 1, width: '100%', p: tab === 0 ? 2 : 0, height: tab === 0 ? 'auto' : '100%' }}>{renderShow}</Box>
       <PreviewDialog
         open={isPreviewOpen}
         onClose={() => setIsPreviewOpen(false)}

@@ -113,7 +113,8 @@ const Hours: React.FC = () => {
           flex: 1,
         }}
       >
-        <Stack direction="column" spacing={4}>
+        <Stack direction="column" 
+        >
           <HoursTable
             containerWidth={width}
             readOnly={false}
@@ -123,14 +124,26 @@ const Hours: React.FC = () => {
 
           {comparisionTables.map((key) => (
             <Box key={key}>
-              <Typography
-                variant="h5"
-                component={'div'}
-                mb={1}
-                sx={{ fontSize: '1rem' }}
+              <Box 
+              sx={theme => ({
+                pt: 2,
+                px: 2,
+                  borderBottom: `1px solid ${theme.palette.divider}`
+
+                 })}
               >
-                Tabela porównawcza {key}
-              </Typography>
+
+                <Typography
+                  variant="h5"
+                  component={'div'}
+                  mb={1}
+                  sx={{ 
+                    fontSize: '1rem',
+      }}    
+                >
+                  Tabela porównawcza {key}
+                </Typography>
+              </Box>
 
               <HoursTable
                 containerWidth={width}

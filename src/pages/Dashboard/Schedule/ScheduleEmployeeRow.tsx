@@ -39,13 +39,17 @@ const ScheduleCell: React.FC<ScheduleCellProps> = React.memo(
 
     return (
       <TableCell
-        sx={{
+        sx={theme => ({
           cursor: isLoading ? 'default' : 'pointer',
           transition: '0.3s',
           textAlign: 'center',
           position: 'relative',
-        }}
-        className={`border-l border-l-gray-200 px-3 py-2 hover:bg-blue-100 ${!employee.status && 'bg-gray-100 *:!text-gray-500 hover:bg-gray-100'}`}
+          borderLeft: `1px solid ${theme.palette.divider}`,
+          '&:hover': {
+            background: employee.status ? theme.palette.schedule.hoverCell : theme.palette.background.default
+          }
+        })}
+        className={`px-3 py-2 ${!employee.status && '*:!text-gray-500'}`}
         onClick={(e) => {
           if (isLoading || !employee.status) {
             e.stopPropagation();
@@ -77,23 +81,25 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = React.memo(
     if (activeTable.type === 1) {
       return (
         <TableRow
-          className="hover:bg-blue-50"
-          sx={{
+          sx={theme => ({
             '&:hover': {
               '& .MuiTableCell-root:first-of-type': {
-                backgroundColor: `${employee.status && '#eff6ff !important'}`,
+                backgroundColor: `${employee.status && `${theme.palette.schedule.hoverRow} !important`}`,
               },
+              background: employee.status ? theme.palette.schedule.hoverRow : theme.palette.background.default
             },
-          }}
+            background: employee.status ? theme.palette.background.paper : theme.palette.background.default
+          })}
         >
           <TableCell
-            sx={{
+            sx={theme => ({
               position: 'sticky',
               left: 0,
               zIndex: 3,
               textAlign: 'center',
-            }}
-            className="bg-gray-100 px-3 py-2"
+              background: theme.palette.background.default
+            })}
+            className="px-3 py-2"
           >
             <Stack direction={'row'} alignItems={'center'}>
               <Typography
@@ -168,23 +174,25 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = React.memo(
 
     return (
       <TableRow
-        className="hover:bg-blue-50"
-        sx={{
+        sx={theme => ({
           '&:hover': {
             '& .MuiTableCell-root:first-of-type': {
-              backgroundColor: `${employee.status && '#eff6ff !important'}`,
+              backgroundColor: `${employee.status && `${theme.palette.schedule.hoverRow} !important`}`,
             },
+            background: employee.status ? theme.palette.schedule.hoverRow : theme.palette.background.default
           },
-        }}
+          background: employee.status ? theme.palette.background.paper : theme.palette.background.default
+        })}
       >
         <TableCell
-          sx={{
+          sx={theme => ({
             position: 'sticky',
             left: 0,
             zIndex: 3,
             textAlign: 'center',
-          }}
-          className="bg-gray-100 px-3 py-2"
+            background: theme.palette.background.default
+          })}
+          className="px-3 py-2"
         >
           <Stack direction={'row'} alignItems={'center'}>
             <Typography

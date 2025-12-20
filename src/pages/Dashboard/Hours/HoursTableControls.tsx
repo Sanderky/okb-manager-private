@@ -49,7 +49,6 @@ interface HoursTableControlsProps {
   isExpanded: boolean;
   isCoping: boolean;
   onTableDelete?: () => void;
-  tableBorder: string;
   contentRef: React.RefObject<HTMLDivElement | null>;
   showFilterBadge: boolean;
   handleCancelEdit: () => Promise<void>;
@@ -73,7 +72,6 @@ const HoursTableControls = ({
   isExpanded,
   onTableDelete,
   isCoping,
-  tableBorder,
   contentRef,
   showFilterBadge,
   handleCancelEdit,
@@ -122,12 +120,11 @@ const HoursTableControls = ({
       gap={1}
       direction={'row'}
       justifyContent={'space-between'}
-      className="border-lightGray rounded-lg border bg-white"
-      sx={{
-        border: tableBorder,
-        mb: 1,
+      sx={(theme) => ({
         p: 1,
-      }}
+        background: theme.palette.background.paper,
+        borderBottom: `1px solid ${theme.palette.divider}`
+      })}
     >
       <Stack
         spacing={1}
@@ -225,58 +222,58 @@ const HoursTableControls = ({
 
         {!readOnly && editMode
           ? [
-              <MenuItem key={'editMode'} disableRipple>
-                <Button
-                  size="small"
-                  fullWidth
-                  loading={isLoading}
-                  color="primary"
-                  variant={'contained'}
-                  onClick={() => {
-                    if (!isExpanded) handleToggleExpand();
-                    handleCloseMobileMenu();
-                    handleToggleEditMode();
-                  }}
-                >
-                  Zapisz
-                </Button>
-              </MenuItem>,
+            <MenuItem key={'editMode'} disableRipple>
+              <Button
+                size="small"
+                fullWidth
+                loading={isLoading}
+                color="primary"
+                variant={'contained'}
+                onClick={() => {
+                  if (!isExpanded) handleToggleExpand();
+                  handleCloseMobileMenu();
+                  handleToggleEditMode();
+                }}
+              >
+                Zapisz
+              </Button>
+            </MenuItem>,
 
-              <MenuItem key={'cancel'} disableRipple>
-                <Button
-                  size="small"
-                  fullWidth
-                  loading={isLoading}
-                  color="inherit"
-                  className="rounded-lg border"
-                  onClick={() => {
-                    handleCloseMobileMenu();
-                    handleCancelEdit();
-                  }}
-                >
-                  Anuluj
-                </Button>
-              </MenuItem>,
-            ]
+            <MenuItem key={'cancel'} disableRipple>
+              <Button
+                size="small"
+                fullWidth
+                loading={isLoading}
+                color="inherit"
+                className="rounded-lg border"
+                onClick={() => {
+                  handleCloseMobileMenu();
+                  handleCancelEdit();
+                }}
+              >
+                Anuluj
+              </Button>
+            </MenuItem>,
+          ]
           : !readOnly && (
-              <MenuItem key={'editMode'} disableRipple>
-                <Button
-                  size="small"
-                  fullWidth
-                  loading={isLoading}
-                  color="primary"
-                  // className="rounded-lg border"
-                  variant={'outlined'}
-                  onClick={() => {
-                    if (!isExpanded) handleToggleExpand();
-                    handleCloseMobileMenu();
-                    handleToggleEditMode();
-                  }}
-                >
-                  Edytuj
-                </Button>
-              </MenuItem>
-            )}
+            <MenuItem key={'editMode'} disableRipple>
+              <Button
+                size="small"
+                fullWidth
+                loading={isLoading}
+                color="primary"
+                // className="rounded-lg border"
+                variant={'outlined'}
+                onClick={() => {
+                  if (!isExpanded) handleToggleExpand();
+                  handleCloseMobileMenu();
+                  handleToggleEditMode();
+                }}
+              >
+                Edytuj
+              </Button>
+            </MenuItem>
+          )}
 
         {!readOnly && editMode && (
           <MenuItem key={'copy'} disableRipple>
@@ -400,16 +397,17 @@ const HoursTableControls = ({
 
   const desktop = (
     <Box
-      className="border-lightGray rounded-lg border bg-white"
-      sx={{
+      sx={(theme) => ({
+        p: 1,
+        background: theme.palette.background.paper,
+        borderBottom: `1px solid ${theme.palette.divider}`,
         display: { xs: 'none', sm: 'flex' },
         flexDirection: 'row',
         alignItems: 'center',
         flexWrap: 'wrap',
         gap: 1,
-        p: 1,
-        mb: 1,
-      }}
+      })}
+
     >
       <Stack direction={'row'}>
         <Tooltip title={'Poprzedni tydzień'}>

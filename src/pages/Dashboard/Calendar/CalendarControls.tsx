@@ -10,7 +10,7 @@ import {
   MenuItem,
 } from '@mui/material';
 import FilterListIcon from '@mui/icons-material/FilterList';
-import { ArrowCircleDown, ChevronLeft, ChevronRight, ExpandLess, ExpandMore, MoreHoriz } from '@mui/icons-material';
+import { ChevronLeft, ChevronRight, MoreHoriz } from '@mui/icons-material';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import type { Dayjs } from 'dayjs';
@@ -45,23 +45,24 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
   const phone = (
     <Stack
       direction={'row'}
-        justifyContent={'space-between'}
+      justifyContent={'space-between'}
       alignItems={'center'}
       gap={1}
       mb={1}
       width={'100%'}
-      className={'border-lightGray rounded-lg border bg-white'}
-      sx={{
+      sx={(theme) => ({
         p: 1,
-      }}
+        background: theme.palette.background.paper,
+        borderBottom: `1px solid ${theme.palette.divider}`
+      })}
     >
 
 
-        <Stack direction={'row'} gap={1}>
+      <Stack direction={'row'} gap={1}>
 
         <Typography
           textTransform={'capitalize'}
-          
+
           className="rounded-full border border-gray-700 px-3 py-1 font-semibold"
           sx={{
             fontSize: '0.8rem'
@@ -72,40 +73,40 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
 
 
         <Stack direction={'row'}>
-        <Tooltip title={'Poprzedni miesiąc'}>
-          <IconButton
-            size="small"
-            className="rounded-l-lg rounded-r-none border"
-            color="primary"
-            onClick={() => handleMonthChange('prev')}
-            sx={(theme) => ({
-              borderColor: theme.palette.primary.light,
-              '&:hover': {
-                borderColor: theme.palette.primary.main,
-              },
-            })}
-          >
-            <ChevronLeft fontSize="small" />
-          </IconButton>
-        </Tooltip>
-        <Tooltip title={'Obecy miesiąc'}>
-          <Button
-            variant="outlined"
-            className="rounded-none border-x-0"
-            color="primary"
-            size="small"
-            onClick={() => handleMonthChange('today')}
-            sx={(theme) => ({
-              borderColor: theme.palette.primary.light,
-              flexGrow: 1,
-              '&:hover': {
-                borderColor: theme.palette.primary.main,
-              },
-            })}
-          >
-            Dziś
-          </Button>
-          {/* <IconButton
+          <Tooltip title={'Poprzedni miesiąc'}>
+            <IconButton
+              size="small"
+              className="rounded-l-lg rounded-r-none border"
+              color="primary"
+              onClick={() => handleMonthChange('prev')}
+              sx={(theme) => ({
+                borderColor: theme.palette.primary.light,
+                '&:hover': {
+                  borderColor: theme.palette.primary.main,
+                },
+              })}
+            >
+              <ChevronLeft fontSize="small" />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title={'Obecy miesiąc'}>
+            <Button
+              variant="outlined"
+              className="rounded-none border-x-0"
+              color="primary"
+              size="small"
+              onClick={() => handleMonthChange('today')}
+              sx={(theme) => ({
+                borderColor: theme.palette.primary.light,
+                flexGrow: 1,
+                '&:hover': {
+                  borderColor: theme.palette.primary.main,
+                },
+              })}
+            >
+              Dziś
+            </Button>
+            {/* <IconButton
             // className="rounded-none border-x-0"
             className=" rounded-none border border-x-0"
 
@@ -122,35 +123,35 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
           >
             <ExpandMore fontSize="small" />
           </IconButton> */}
-        </Tooltip>
-        <Tooltip title={'Następny miesiąc'}>
-          <IconButton
-            size="small"
-            color="primary"
-            className="rounded-l-none rounded-r-lg border"
-            onClick={() => handleMonthChange('next')}
-            sx={(theme) => ({
-              borderColor: theme.palette.primary.light,
-              '&:hover': {
-                borderColor: theme.palette.primary.main,
-              },
-            })}
-          >
-            <ChevronRight fontSize="small" />
-          </IconButton>
-        </Tooltip>
-      </Stack>
+          </Tooltip>
+          <Tooltip title={'Następny miesiąc'}>
+            <IconButton
+              size="small"
+              color="primary"
+              className="rounded-l-none rounded-r-lg border"
+              onClick={() => handleMonthChange('next')}
+              sx={(theme) => ({
+                borderColor: theme.palette.primary.light,
+                '&:hover': {
+                  borderColor: theme.palette.primary.main,
+                },
+              })}
+            >
+              <ChevronRight fontSize="small" />
+            </IconButton>
+          </Tooltip>
         </Stack>
+      </Stack>
 
 
-        <IconButton onClick={handleClickMobileMenu}>
-          <MoreHoriz />
-        </IconButton>
-        <Menu
-          anchorEl={anchorEl}
-          open={openMobileMenu}
-          onClose={handleCloseMobileMenu}
-           slotProps={{
+      <IconButton onClick={handleClickMobileMenu}>
+        <MoreHoriz />
+      </IconButton>
+      <Menu
+        anchorEl={anchorEl}
+        open={openMobileMenu}
+        onClose={handleCloseMobileMenu}
+        slotProps={{
           list: {
             'aria-labelledby': 'long-button',
           },
@@ -160,76 +161,76 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
             },
           },
         }}
-        >
-          <MenuItem disableRipple key={'datePicker'}>
-            <LocalizationProvider
-              localeText={
-                plPL.components.MuiLocalizationProvider.defaultProps.localeText
-              }
-              dateAdapter={AdapterDayjs}
-              adapterLocale="pl"
-            >
-              <DatePicker
-                openTo="month"
-                views={['year', 'month']}
-                slotProps={{
-                  textField: {
-                    size: 'small',
-                  },
-                }}
-                sx={(theme) => ({
-                  minWidth: 200,
-                  '& .MuiPickersSectionList-root': {
-                    padding: '7px 0',
-                    width: 'auto',
-                  },
-                  '&:hover .MuiPickersOutlinedInput-notchedOutline': {
-                    borderColor: `${theme.palette.primary.main} !important`,
-                  },
-                  '& .MuiPickersOutlinedInput-notchedOutline': {
-                    borderColor: theme.palette.primary.light,
-                  },
-                  '& .MuiPickersInputBase-root': {
-                    color: theme.palette.primary.main,
-                    borderRadius: '8px',
-                  },
-                  '& .MuiButtonBase-root': {
-                    color: theme.palette.primary.main,
-                  },
-                })}
-                value={currentMonth}
-                onChange={handleDatePickerChange}
-              />
-            </LocalizationProvider>
-          </MenuItem>
-          <MenuItem
-            disableRipple
-            key={'filters'}
-            onClick={() => {
-              setIsFilterOpen(true);
-            }}
+      >
+        <MenuItem disableRipple key={'datePicker'}>
+          <LocalizationProvider
+            localeText={
+              plPL.components.MuiLocalizationProvider.defaultProps.localeText
+            }
+            dateAdapter={AdapterDayjs}
+            adapterLocale="pl"
           >
-            <Badge
-              badgeContent={showFilterBadge ? 1 : 0}
-              variant="dot"
+            <DatePicker
+              openTo="month"
+              views={['year', 'month']}
+              slotProps={{
+                textField: {
+                  size: 'small',
+                },
+              }}
+              sx={(theme) => ({
+                minWidth: 200,
+                '& .MuiPickersSectionList-root': {
+                  padding: '7px 0',
+                  width: 'auto',
+                },
+                '&:hover .MuiPickersOutlinedInput-notchedOutline': {
+                  borderColor: `${theme.palette.primary.main} !important`,
+                },
+                '& .MuiPickersOutlinedInput-notchedOutline': {
+                  borderColor: theme.palette.primary.light,
+                },
+                '& .MuiPickersInputBase-root': {
+                  color: theme.palette.primary.main,
+                  borderRadius: '8px',
+                },
+                '& .MuiButtonBase-root': {
+                  color: theme.palette.primary.main,
+                },
+              })}
+              value={currentMonth}
+              onChange={handleDatePickerChange}
+            />
+          </LocalizationProvider>
+        </MenuItem>
+        <MenuItem
+          disableRipple
+          key={'filters'}
+          onClick={() => {
+            setIsFilterOpen(true);
+          }}
+        >
+          <Badge
+            badgeContent={showFilterBadge ? 1 : 0}
+            variant="dot"
+            color="primary"
+            sx={{ width: '100%' }}
+          >
+            <Button
+              startIcon={<FilterListIcon />}
+              size="small"
+              fullWidth
               color="primary"
-              sx={{ width: '100%' }}
+              className="rounded-lg border"
+              onClick={() => {
+                setIsFilterOpen(true);
+              }}
             >
-              <Button
-                startIcon={<FilterListIcon />}
-                size="small"
-                fullWidth
-                color="primary"
-                className="rounded-lg border"
-                onClick={() => {
-                  setIsFilterOpen(true);
-                }}
-              >
-                Filtry
-              </Button>
-            </Badge>
-          </MenuItem>
-        </Menu>
+              Filtry
+            </Button>
+          </Badge>
+        </MenuItem>
+      </Menu>
 
 
       {/* <Stack direction={'row'}>
@@ -295,8 +296,11 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
       justifyContent={'flex-start'}
       gap={1}
       width={'100%'}
-      className={'border-lightGray mb-2 rounded-lg border bg-white'}
-      p={1}
+      sx={(theme) => ({
+        p: 1,
+        background: theme.palette.background.paper,
+        borderBottom: `1px solid ${theme.palette.divider}`
+      })}
     >
       <Stack direction={'row'}>
         <Tooltip title={'Poprzedni miesiąc'}>

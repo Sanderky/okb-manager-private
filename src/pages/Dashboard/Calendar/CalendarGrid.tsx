@@ -57,7 +57,9 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
 
     return (
       <>
-        <Grid container className="bg-gray-50">
+        <Grid container sx={theme => ({
+          borderBottom: `1px solid ${theme.palette.divider}`
+        })}>
           {monthGrid.map((week, wi) =>
             week.map((calendarDay, di) => {
               const { date: day, events, slots = {} } = calendarDay;
@@ -97,18 +99,18 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                 <Grid
                   size={{ xs: 12 / 7 }}
                   key={`${wi}-${di}`}
-                  className={`border-t border-t-gray-300 p-1 ${isSelected && 'bg-blue-100'}`}
-                  sx={{
-                    borderTop: wi === 0 ? 'none !important' : '',
-                    borderLeft: di % 7 !== 0 ? '1px solid #ddd' : 'none',
+                  className={`p-1`}
+                  sx={theme => ({
+                    borderTop: wi === 0 ? 'none !important' : `1px solid ${theme.palette.divider}`,
+                    borderLeft: di % 7 !== 0 ? `1px solid ${theme.palette.divider}` : 'none',
                     p: '0 !important',
-                    bgcolor: isCurrentMonth ? 'white' : '#fafafa',
+                    bgcolor: isSelected ? theme.palette.calendar.selectedDay : (isCurrentMonth ? theme.palette.background.paper : theme.palette.calendar.dayOut),
                     ':hover': {
-                      background: selectDay ? 'lightskyblue' : '#f0f0f0',
+                      background: selectDay ? theme.palette.calendar.hoverSelectedDay : theme.palette.calendar.hoverDay,
                     },
                     position: 'relative',
                     cursor: 'pointer',
-                  }}
+                  })}
                   onClick={() => onDayClick(day)}
                 >
                   <Typography

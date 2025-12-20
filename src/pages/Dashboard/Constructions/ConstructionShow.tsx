@@ -198,116 +198,51 @@ export default function ConstructionShow() {
     }
 
     return construction ? (
-      <Box
-        sx={{
-          width: '100%',
-          boxShadow: 1,
-          flex: 1,
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-        className="rounded-lg bg-white p-2 pb-4 md:p-4 md:pt-2 lg:p-6 lg:pt-2"
-      >
-        <Grid
-          container
-          spacing={2}
-          alignItems={'center'}
-          columns={12}
-          sx={{ mb: 2 }}
+      tab === 0 ?
+        <Box
+          sx={theme => ({
+            width: '100%',
+            boxShadow: 1,
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            background: theme.palette.background.paper
+          })}
+          className="rounded-lg p-2 pb-4 pt-4 md:p-4 md:pt-2 lg:p-6"
         >
-          <Grid size={{ xs: 12, sm: 8 }} sx={{ width: '100%!important' }}>
-            <Stack direction="row" alignItems="center" spacing={1}>
-              <Tabs value={tab} onChange={handleTabChange}>
-                <Tab
-                  label="Informacje"
-                  sx={{
-                    fontSize: { xs: '0.8rem', sm: '.85rem' },
-                    padding: 2,
-                    minWidth: 0,
-                  }}
-                />
-                <Tab
-                  label="Pliki"
-                  sx={{
-                    fontSize: { xs: '0.8rem', sm: '.85rem' },
-                    padding: 2,
-                    minWidth: { xs: 0, sm: 100 },
-                  }}
-                />
-              </Tabs>
-              <Stack
-                direction="row"
-                justifyContent="flex-end"
-                flexGrow={1}
-                spacing={{ xs: 1.5, sm: 3 }}
-                sx={{ pl: 1 }}
-              >
-                <Tooltip title="Edytuj budowę">
-                  <IconButton
-                    onClick={handleConstructionEdit}
-                    color="primary"
-                    className="rounded-full border"
-                    size="small"
-                  >
-                    <EditIcon />
-                  </IconButton>
-                </Tooltip>
-                {isInProgress ? (
-                  <Tooltip title="Zakończ budowę">
-                    <IconButton
-                      onClick={openEndDialog}
-                      color="warning"
-                      size="small"
-                      className="rounded-full border border-amber-500 bg-amber-50/50"
-                    >
-                      <EventAvailableIcon />
-                    </IconButton>
-                  </Tooltip>
-                ) : (
-                  <Tooltip title="Wznów budowę">
-                    <IconButton
-                      onClick={() => setResumeDialogOpen(true)}
-                      color="success"
-                      size="small"
-                      className="rounded-full border border-green-500 bg-green-50/50"
-                    >
-                      <EventRepeatIcon />
-                    </IconButton>
-                  </Tooltip>
-                )}
-              </Stack>
-            </Stack>
-          </Grid>
-        </Grid>
-        {tab === 0 && (
           <Grid container spacing={{ xs: 2 }} columns={12}>
             <Grid size={{ xs: 12, lg: 6 }} sx={{ flexGrow: 1 }}>
               <Stack direction={'column'} spacing={{ xs: 2, lg: 3 }}>
                 <TableContainer
                   component={Paper}
-                  className="border-lightGray overflow-hidden rounded-lg border"
-                  sx={{ boxShadow: 'none' }}
+                  className="overflow-hidden rounded-lg"
+                  sx={theme => ({
+                    boxShadow: 'none',
+                    border: `1px solid ${theme.palette.divider}`
+                  })}
                 >
                   <Table>
                     <TableBody>
                       {personalFields.map(({ key, label }) => (
                         <TableRow
                           key={key}
-                          sx={{
+                          sx={theme => ({
                             borderBottom: '1px solid',
-                            borderColor: 'grey.300',
+                            borderColor: theme.palette.divider,
                             '&:last-child': {
                               borderBottom: 'none',
                             },
-                          }}
+                          })}
                         >
                           <TableCell
-                            sx={{
+                            sx={theme => ({
                               minWidth: { xs: '135px', sm: '150px' },
                               width: '30%',
                               border: 'none',
-                            }}
-                            className="border-r-lightGray border-r bg-gray-50 p-2 sm:px-4"
+                              background: theme.palette.background.default,
+                              borderRight: `1px solid ${theme.palette.divider}`
+                            })}
+                            className="p-2 sm:px-4"
                           >
                             <Typography
                               variant="body1"
@@ -407,10 +342,11 @@ export default function ConstructionShow() {
 
             <Grid
               size={{ xs: 12, lg: 6 }}
-              className="border-lightGray overflow-hidden rounded-lg border"
-              sx={{
+              className="overflow-hidden rounded-lg"
+              sx={theme => ({
                 alignSelf: 'flex-start',
-              }}
+                border: `1px solid ${theme.palette.divider}`
+              })}
             >
               <table className="w-full">
                 <thead>
@@ -430,9 +366,18 @@ export default function ConstructionShow() {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200">
+                <TableBody
+                  sx={theme => ({
+                    '& > tr:not(:last-child) > td, & > tr:not(:last-child) > th': {
+                      borderBottom: `1px solid ${theme.palette.divider}`,
+                    },
+                    '& > tr:last-child > td, & > tr:last-child > th': {
+                      borderBottom: 'none',
+                    },
+                  })}
+                >
                   {activeScheduleEmployees &&
-                  activeScheduleEmployees.length > 0 ? (
+                    activeScheduleEmployees.length > 0 ? (
                     activeScheduleEmployees.map((employee) => {
                       return (
                         <tr
@@ -469,27 +414,26 @@ export default function ConstructionShow() {
                       </td>
                     </tr>
                   )}
-                </tbody>
+                </TableBody>
               </table>
             </Grid>
           </Grid>
-        )}
-        {tab === 1 && (
-          <FileBrowser
-            baseDirectory={`constructions/${construction.id}/files`}
+
+          <FinishConstruction
+            open={endDialogOpen}
+            onClose={closeEndDialog}
+            construction={construction}
           />
-        )}
-        <FinishConstruction
-          open={endDialogOpen}
-          onClose={closeEndDialog}
-          construction={construction}
+          <ResumeConstruction
+            open={resumeDialogOpen}
+            onClose={() => setResumeDialogOpen(false)}
+            construction={construction}
+          />
+        </Box>
+        :
+        <FileBrowser
+          baseDirectory={`constructions/${construction.id}/files`}
         />
-        <ResumeConstruction
-          open={resumeDialogOpen}
-          onClose={() => setResumeDialogOpen(false)}
-          construction={construction}
-        />
-      </Box>
     ) : null;
   }, [
     loading,
@@ -546,8 +490,77 @@ export default function ConstructionShow() {
           ) : null}
         </Stack>
       }
+      renderTopToolbar={
+        <Stack direction="row" alignItems="center" spacing={1}
+          sx={theme => ({
+            background: theme.palette.background.paper,
+            borderBottom: `1px solid ${theme.palette.divider}`,
+            pr: 2
+          })}
+        >
+          <Tabs value={tab} onChange={handleTabChange}>
+            <Tab
+              label="Informacje"
+              sx={{
+                fontSize: { xs: '0.8rem', sm: '.85rem' },
+                padding: 2,
+                minWidth: 0,
+              }}
+            />
+            <Tab
+              label="Pliki"
+              sx={{
+                fontSize: { xs: '0.8rem', sm: '.85rem' },
+                padding: 2,
+                minWidth: { xs: 0, sm: 100 },
+              }}
+            />
+          </Tabs>
+          <Stack
+            direction="row"
+            justifyContent="flex-end"
+            flexGrow={1}
+            spacing={{ xs: 1.5, sm: 3 }}
+            sx={{ pl: 1 }}
+          >
+            <Tooltip title="Edytuj budowę">
+              <IconButton
+                onClick={handleConstructionEdit}
+                color="primary"
+                className="rounded-full border"
+                size="small"
+              >
+                <EditIcon />
+              </IconButton>
+            </Tooltip>
+            {isInProgress ? (
+              <Tooltip title="Zakończ budowę">
+                <IconButton
+                  onClick={openEndDialog}
+                  color="warning"
+                  size="small"
+                  className="rounded-full border border-amber-500 bg-amber-50/50"
+                >
+                  <EventAvailableIcon />
+                </IconButton>
+              </Tooltip>
+            ) : (
+              <Tooltip title="Wznów budowę">
+                <IconButton
+                  onClick={() => setResumeDialogOpen(true)}
+                  color="success"
+                  size="small"
+                  className="rounded-full border border-green-500 bg-green-50/50"
+                >
+                  <EventRepeatIcon />
+                </IconButton>
+              </Tooltip>
+            )}
+          </Stack>
+        </Stack>
+      }
     >
-      <Box sx={{ display: 'flex', flex: 1, width: '100%' }}>{renderShow}</Box>
+      <Box sx={{ display: 'flex', flex: 1, width: '100%', p: tab === 0 ? 2 : 0, height: tab === 0 ? 'auto' : '100%' }}>{renderShow}</Box>
     </PageContainer>
   );
 }

@@ -139,20 +139,28 @@ export default function EmployeeCreate() {
     >
       <Box
         sx={{
-          width: '100%',
-          maxWidth: { sm: '100%', md: '1790px' },
-          boxShadow: 1,
+          p: 2
         }}
-        className="rounded-lg bg-white p-3 md:p-4"
       >
-        <EmployeeForm
-          formState={formState}
-          onFieldChange={handleFieldChange}
-          onSubmit={handleSubmit}
-          isSubmitting={actionLoading}
-          isEditForm={false}
-          registerFieldRef={registerFieldRef}
-        />
+
+        <Box
+          sx={theme => ({
+            width: '100%',
+            maxWidth: { sm: '100%', md: '1790px' },
+            boxShadow: 1,
+            background: theme.palette.background.paper
+          })}
+          className="rounded-lg p-3 md:p-4"
+        >
+          <EmployeeForm
+            formState={formState}
+            onFieldChange={handleFieldChange}
+            onSubmit={handleSubmit}
+            isSubmitting={actionLoading}
+            isEditForm={false}
+            registerFieldRef={registerFieldRef}
+          />
+        </Box>
       </Box>
     </PageContainer>
   );

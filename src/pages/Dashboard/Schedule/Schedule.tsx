@@ -577,7 +577,8 @@ const ScheduleComponent = () => {
 
   return (
     <PageContainer
-    fixedHeight={true}
+
+      fixedHeight={true}
       breadcrumbs={[{ title: 'Harmonogram pracowników' }]}
       actions={
         <Button
@@ -590,12 +591,151 @@ const ScheduleComponent = () => {
           Drukuj
         </Button>
       }
+      renderBottomToolbar={
+        <Box sx={theme => ({ flexShrink: 0, background: theme.palette.background.paper, borderTop: `1px solid ${theme.palette.divider}` })}>
+          {filteredEmployees.length === 0 && (
+            <Stack
+              direction={'column'}
+              justifyContent={'center'}
+              alignItems={'center'}
+              sx={{ py: 5 }}
+            >
+              <Typography
+                variant="body1"
+                align="center"
+                className="px-4 font-normal text-gray-500"
+              >
+                Nie znaleziono pracowników
+              </Typography>
+            </Stack>
+          )}
+          <Stack
+            direction={{ xs: 'column', sm: 'row' }}
+            justifyContent={'space-between'}
+            alignItems={'center'}
+            className="px-3"
+            columnGap={2}
+            rowGap={0.5}
+            py={1}
+          >
+            {activeTable.type === 0 ? (
+              <>
+                <Stack
+                  direction={'row'}
+                  spacing={2}
+                  alignItems={'center'}
+                  flexWrap={'wrap'}
+                  divider={
+                    <Box
+                      sx={(theme) => ({
+                        borderRight: `1px solid ${theme.palette.divider}`,
+                        height: '15px',
+                      })}
+                    />
+                  }
+                >
+                  <Typography
+                    variant="overline"
+                    className="font-medium text-gray-500"
+                    sx={{
+                      lineHeight: 1,
+                    }}
+                  >
+                    Pracownicy:{' '}
+                    {selectedEmployees.length > 0
+                      ? `${selectedEmployees.length} / ${employeesCount}`
+                      : filteredEmployees.length}
+                  </Typography>
+                  <Typography
+                    variant="overline"
+                    className="font-medium text-gray-500"
+                    sx={{
+                      lineHeight: 1,
+                    }}
+                  >
+                    {weeks.length} {formatWeeksString(weeks.length, 'pl-PL')}
+                  </Typography>
+                </Stack>
+                <Typography
+                  variant="overline"
+                  className="font-medium text-gray-500"
+                  sx={{
+                    lineHeight: 1,
+                  }}
+                >
+                  <Typography
+                    component={'span'}
+                    variant="inherit"
+                    sx={{
+                      lineHeight: 1,
+                    }}
+                  >
+                    Zakres:{' '}
+                  </Typography>
+                  {dayjs(fromWeek).format('DD.MM.YYYY')} -{' '}
+                  {dayjs(toWeek).add(6, 'day').format('DD.MM.YYYY')}
+                </Typography>
+              </>
+            ) : (
+              <>
+                <Stack
+                  direction={'row'}
+                  spacing={2}
+                  alignItems={'center'}
+                  divider={
+                    <Box
+                      sx={{
+                        borderRight: '1px solid #ccc',
+                        height: '15px',
+                      }}
+                    />
+                  }
+                  flexWrap={'wrap'}
+                >
+                  <Typography
+                    variant="overline"
+                    className="font-medium text-gray-500"
+                    sx={{
+                      lineHeight: 1,
+                    }}
+                  >
+                    Pracownicy:{' '}
+                    {selectedEmployees.length > 0
+                      ? `${selectedEmployees.length} / ${employeesCount}`
+                      : filteredEmployees.length}
+                  </Typography>
+                  <Typography
+                    variant="overline"
+                    className="font-medium text-gray-500"
+                    sx={{
+                      lineHeight: 1,
+                    }}
+                  >
+                    {activeTable.week.week()} Tydzień
+                  </Typography>
+                </Stack>
+                <Typography
+                  variant="overline"
+                  className="font-medium text-gray-500"
+                  sx={{
+                    flexShrink: 0,
+                    lineHeight: 1,
+                  }}
+                >
+                  {activeTable.week.format('DD.MM.YYYY')} -{' '}
+                  {activeTable.week.add(6, 'day').format('DD.MM.YYYY')}
+                </Typography>
+              </>
+            )}
+          </Stack>
+        </Box>
+      }
     >
       <Box
         ref={containerRef}
         sx={{
           width: '100%',
-          height: '100%', 
+          height: '100%',
           overflow: 'hidden',
           display: 'flex',
           flexDirection: 'column',
@@ -641,23 +781,25 @@ const ScheduleComponent = () => {
         />
 
         <Box
-          className="overflow-hidden rounded-lg border border-gray-300 bg-white"
-          sx={{
+          className="overflow-hidden"
+          sx={(theme) => ({
             flex: 1,
             display: 'flex',
             flexDirection: 'column',
             minHeight: 0,
-            // mt: 2,
-          }}
+            background: theme.palette.background.paper
+          })}
         >
           {activeTable.type === 0 ? (
             <TableContainer
               component={Box}
-              sx={{
-               flex: 1,
+              sx={theme => ({
+                flex: 1,
                 overflow: 'auto',
                 width: '100%',
-              }}
+                background: theme.palette.background.default
+
+              })}
             >
               <Table
                 stickyHeader
@@ -674,13 +816,14 @@ const ScheduleComponent = () => {
                 >
                   <TableRow>
                     <TableCell
-                      sx={{
+                      sx={theme => ({
                         position: 'sticky',
                         left: 0,
                         zIndex: 4,
                         width: { xs: '150px', sm: '200px' },
-                      }}
-                      className="bg-blue-200 px-3 py-2 text-center"
+                        background: theme.palette.schedule.accent
+                      })}
+                      className="px-3 py-2 text-center"
                     ></TableCell>
                     {weeks.map((w, index) => {
                       const isBefore = w.isBefore(dayjs(), 'week');
@@ -688,7 +831,11 @@ const ScheduleComponent = () => {
                       return (
                         <TableCell
                           key={index}
-                          className={`cursor-pointer border-l border-l-gray-300 px-3 py-2 ${isBefore ? 'bg-red-200' : isAfter ? 'bg-gray-100' : 'bg-green-200'} group relative`}
+                          sx={theme => ({
+                            background: isBefore ? theme.palette.schedule.past : isAfter ? theme.palette.background.default : theme.palette.schedule.current,
+                            borderLeft: `1px solid ${theme.palette.divider}`
+                          })}
+                          className={`cursor-pointer px-3 py-2 group relative`}
                           onClick={() => setActiveTable({ type: 1, week: w })}
                         >
                           <Typography
@@ -742,23 +889,26 @@ const ScheduleComponent = () => {
           ) : (
             <TableContainer
               component={Box}
-              sx={{
+              sx={theme => ({
                 flex: 1,
                 overflow: 'auto',
                 width: '100%',
-              }}
+                background: theme.palette.background.default
+
+              })}
             >
               <Table stickyHeader sx={{ tableLayout: 'fixed', minWidth: 800 }}>
                 <TableHead>
                   <TableRow>
                     <TableCell
-                      sx={{
+                      sx={theme => ({
                         position: 'sticky',
                         left: 0,
                         zIndex: 4,
                         width: { xs: '150px', sm: '200px' },
-                      }}
-                      className="cursor-pointer bg-blue-200 px-3 py-2 text-center"
+                        background: theme.palette.schedule.accent
+                      })}
+                      className="cursor-pointer px-3 py-2 text-center"
                       onClick={() => setActiveTable((p) => ({ ...p, type: 0 }))}
                     >
                       <KeyboardReturnIcon />
@@ -769,8 +919,12 @@ const ScheduleComponent = () => {
                       return (
                         <TableCell
                           key={i}
-                          sx={{ width: '150px' }}
-                          className={`border-l border-l-gray-300 bg-gray-100 px-3 py-2 ${isToday && 'bg-green-100'}`}
+                          sx={theme => ({
+                            width: '150px',
+                            background: isToday ? theme.palette.schedule.current : theme.palette.background.default,
+                            borderLeft: `1px solid ${theme.palette.divider}`
+                          })}
+                          className={`px-3 py-2`}
                         >
                           <Typography
                             className="block text-center font-semibold"
@@ -808,144 +962,6 @@ const ScheduleComponent = () => {
             </TableContainer>
           )}
 
-          <Box sx={{flexShrink: 0}}>
-            {filteredEmployees.length === 0 && (
-              <Stack
-                direction={'column'}
-                justifyContent={'center'}
-                alignItems={'center'}
-                sx={{ py: 5 }}
-                className="border-b border-gray-300"
-              >
-                <Typography
-                  variant="body1"
-                  align="center"
-                  className="px-4 font-normal text-gray-500"
-                >
-                  Nie znaleziono pracowników
-                </Typography>
-              </Stack>
-            )}
-            <Stack
-              direction={{ xs: 'column', sm: 'row' }}
-              justifyContent={'space-between'}
-              alignItems={'center'}
-              className="border-t border-t-gray-300 px-3"
-              columnGap={2}
-              rowGap={0.5}
-              py={1}
-            >
-              {activeTable.type === 0 ? (
-                <>
-                  <Stack
-                    direction={'row'}
-                    spacing={2}
-                    alignItems={'center'}
-                    flexWrap={'wrap'}
-                    divider={
-                      <Box
-                        sx={{
-                          borderRight: '1px solid #ccc',
-                          height: '15px',
-                        }}
-                      />
-                    }
-                  >
-                    <Typography
-                      variant="overline"
-                      className="font-medium text-gray-500"
-                      sx={{
-                        lineHeight: 1,
-                      }}
-                    >
-                      Pracownicy:{' '}
-                      {selectedEmployees.length > 0
-                        ? `${selectedEmployees.length} / ${employeesCount}`
-                        : filteredEmployees.length}
-                    </Typography>
-                    <Typography
-                      variant="overline"
-                      className="font-medium text-gray-500"
-                      sx={{
-                        lineHeight: 1,
-                      }}
-                    >
-                      {weeks.length} {formatWeeksString(weeks.length, 'pl-PL')}
-                    </Typography>
-                  </Stack>
-                  <Typography
-                    variant="overline"
-                    className="font-medium text-gray-500"
-                    sx={{
-                      lineHeight: 1,
-                    }}
-                  >
-                    <Typography
-                      component={'span'}
-                      variant="inherit"
-                      sx={{
-                        lineHeight: 1,
-                      }}
-                    >
-                      Zakres:{' '}
-                    </Typography>
-                    {dayjs(fromWeek).format('DD.MM.YYYY')} -{' '}
-                    {dayjs(toWeek).add(6, 'day').format('DD.MM.YYYY')}
-                  </Typography>
-                </>
-              ) : (
-                <>
-                  <Stack
-                    direction={'row'}
-                    spacing={2}
-                    alignItems={'center'}
-                    divider={
-                      <Box
-                        sx={{
-                          borderRight: '1px solid #ccc',
-                          height: '15px',
-                        }}
-                      />
-                    }
-                    flexWrap={'wrap'}
-                  >
-                    <Typography
-                      variant="overline"
-                      className="font-medium text-gray-500"
-                      sx={{
-                        lineHeight: 1,
-                      }}
-                    >
-                      Pracownicy:{' '}
-                      {selectedEmployees.length > 0
-                        ? `${selectedEmployees.length} / ${employeesCount}`
-                        : filteredEmployees.length}
-                    </Typography>
-                    <Typography
-                      variant="overline"
-                      className="font-medium text-gray-500"
-                      sx={{
-                        lineHeight: 1,
-                      }}
-                    >
-                      {activeTable.week.week()} Tydzień
-                    </Typography>
-                  </Stack>
-                  <Typography
-                    variant="overline"
-                    className="font-medium text-gray-500"
-                    sx={{
-                      flexShrink: 0,
-                      lineHeight: 1,
-                    }}
-                  >
-                    {activeTable.week.format('DD.MM.YYYY')} -{' '}
-                    {activeTable.week.add(6, 'day').format('DD.MM.YYYY')}
-                  </Typography>
-                </>
-              )}
-            </Stack>
-          </Box>
         </Box>
 
         <Menu
@@ -1007,17 +1023,21 @@ const ScheduleComponent = () => {
                 <TextField
                   {...params}
                   label="Budowa"
-                  InputProps={{
-                    ...params.InputProps,
-                    endAdornment: (
-                      <>
-                        {loadingCells.has(getCellKey(activeCell)) ? (
-                          <CircularProgress size={20} />
-                        ) : null}
-                        {params.InputProps.endAdornment}
-                      </>
-                    ),
-                  }}
+                  slotProps={
+                    {
+                      input: {
+                        ...params.InputProps,
+                        endAdornment: (
+                          <>
+                            {loadingCells.has(getCellKey(activeCell)) ? (
+                              <CircularProgress size={20} />
+                            ) : null}
+                            {params.InputProps.endAdornment}
+                          </>
+                        ),
+                      }
+                    }
+                  }
                 />
               )}
             />

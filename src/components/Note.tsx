@@ -33,6 +33,7 @@ import {
   Typography,
 } from '@mui/material';
 import { useState, useEffect } from 'react';
+import { palette } from '@mui/system';
 
 const MenuBar = ({ editor }: { editor: Editor }) => {
   // Read the current editor's state, and re-render the component when it changes
@@ -341,7 +342,12 @@ export const Note = ({ content, onSave, loading = false }: NoteProps) => {
   };
 
   return (
-    <Box className="rounded-lg border border-dashed border-gray-300 bg-white">
+    <Box className="rounded-lg border border-dashed"
+      sx={theme => ({
+        background: theme.palette.background.paper,
+        borderColor: theme.palette.divider
+      })}
+    >
       <Stack
         direction="row"
         alignItems={'center'}
@@ -448,7 +454,7 @@ export const NoteBase = ({
     ],
     editorProps: {
       attributes: {
-        class: 'rounded-sm border border-gray-300 bg-white px-4 py-4 note',
+        class: 'focus:outline-none',
         spellcheck: 'false',
       },
     },
@@ -476,21 +482,34 @@ export const NoteBase = ({
 
   return loading ? (
     <Box
-      className="note rounded-sm border border-gray-300 bg-white px-2 py-1"
-      sx={{
+      className="note rounded-sm px-2 py-1"
+      sx={theme => ({
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-      }}
+        background: theme.palette.background.paper,
+        border: `1px solid ${theme.palette.divider}`
+
+      })}
     >
       <CircularProgress />
     </Box>
   ) : (
     <>
       {renderToolbar && <MenuBar editor={editor} />}
+      <Box
+        className='rounded-sm px-4 py-4 note'
+        sx={theme => (
+          {
+            border: `1px solid ${theme.palette.divider}`,
+            background: theme.palette.background.paper
+          }
+        )}
+      >
 
-      <EditorContent editor={editor} />
+        <EditorContent editor={editor} />
+      </Box>
     </>
   );
 };

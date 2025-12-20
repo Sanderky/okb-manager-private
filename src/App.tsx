@@ -38,7 +38,56 @@ import { getEmployeeAlerts } from './services/alerts';
 import UpdatePassword from './pages/ForgotPassword/ForgotPassword';
 import { LayoutProvider } from './context/LayoutContext';
 
+declare module '@mui/material/styles' {
+  // 1. Mówimy, że w gotowym 'theme.palette' będą te nowe pola
+  interface Palette {
+    schedule: {
+      past: string,
+      current: string,
+      accent: string,
+      hoverRow: string,
+      hoverCell: string
+    },
+    calendar: {
+      hoverDay: string,
+      selectedDay: string,
+      hoverSelectedDay: string,
+      dayOut: string
+    }
+
+  }
+
+  interface Theme {
+    hoursTable: {
+      borderBold: string
+    }
+  }
+
+  interface ThemeOptions {
+    hoursTable: {
+      borderBold: string
+    }
+  }
+
+  interface PaletteOptions {
+    schedule?: {
+      past: string,
+      current: string,
+      accent: string,
+      hoverRow: string,
+      hoverCell: string
+    },
+    calendar?: {
+      hoverDay: string,
+      selectedDay: string,
+      hoverSelectedDay: string,
+      dayOut: string
+    }
+  }
+}
+
 const customTheme = createTheme({
+
   palette: {
     primary: {
       main: '#6366F1',
@@ -52,12 +101,32 @@ const customTheme = createTheme({
       dark: '#A16207',
       contrastText: '#000000',
     },
+    background: {
+      paper: '#fff',
+      default: '#f5f5f4'
+    },
+    schedule: {
+      past: '#fecaca',
+      current: '#bbf7d0',
+      accent: '#bfdbfe',
+      hoverRow: "#eff6ff",
+      hoverCell: "#dbeafe"
+    },
+    calendar: {
+      hoverDay: '#f0f0f0',
+      selectedDay: '#dbeafe',
+      hoverSelectedDay: '#87CEFA',
+      dayOut: '#fafafa'
+    }
     // secondary: {
     //   main: 'rgba(253, 224, 71, 0.35)',
     //   light: 'rgba(254, 234, 132, 0.35)',
     //   dark: 'rgba(161, 98, 7, 1)',
     //   contrastText: '#000000',
     // }
+  },
+  hoursTable: {
+    borderBold: '1px solid #333'
   },
   components: {
     MuiButton: {
@@ -129,15 +198,15 @@ export default function App() {
 
   const isLoading = Boolean(
     authLoading ||
-      (user &&
-        (constructionsLoading ||
-          isAlertsLoading ||
-          isContractorsLoading ||
-          employeesLoading ||
-          upcomingVacationsLoading ||
-          homeNoteLoading ||
-          employeeStatsLoading ||
-          constructionStatsLoading))
+    (user &&
+      (constructionsLoading ||
+        isAlertsLoading ||
+        isContractorsLoading ||
+        employeesLoading ||
+        upcomingVacationsLoading ||
+        homeNoteLoading ||
+        employeeStatsLoading ||
+        constructionStatsLoading))
   );
 
   return (

@@ -43,17 +43,14 @@ import {
   sortConstructionsWithWorkHours,
 } from './HoursHelpers';
 import type { TableData } from './Hours';
-import { useLayout } from '../../../context/LayoutContext';
 
 dayjs.extend(isoWeek);
 dayjs.extend(isBetween);
 
-const borderBold = '1px solid #333';
 const numberCellMaxWidth = '20px';
 const numberCellPadding = 0.5;
 const redAlert = 'bg-red-300';
 const orangeAlert = 'bg-amber-300';
-const tableBorder = '1px solid rgb(224, 224, 224)';
 
 interface EditableCellProps {
   value: number;
@@ -197,6 +194,7 @@ const TableRows = React.memo(
     handleOpenAddEmployeeDialog,
     getAvailableEmployeesForConstruction,
   }: TableRowsProps) => {
+
     return constructionsWithWorkHours.map((construction) => {
       const availableEmployees = getAvailableEmployeesForConstruction(
         construction.id
@@ -209,12 +207,12 @@ const TableRows = React.memo(
                 <TableCell
                   rowSpan={construction.workHours.length + 1}
                   align="center"
-                  sx={{
-                    borderRight: tableBorder,
+                  sx={theme => ({
+                    borderRight: `1px solid ${theme.palette.divider}`,
                     fontWeight: 'bold',
                     verticalAlign: 'middle',
-                    borderBottom: borderBold,
-                  }}
+                    borderBottom: theme.hoursTable.borderBold,
+                  })}
                 >
                   <Typography
                     onClick={() =>
@@ -254,13 +252,13 @@ const TableRows = React.memo(
 
               <TableCell
                 align="center"
-                sx={{
+                sx={theme => ({
                   verticalAlign: 'middle',
                   p: numberCellPadding,
                   position: 'relative',
-                  borderRight: tableBorder,
-                  borderBottom: tableBorder,
-                }}
+                  borderRight: `1px solid ${theme.palette.divider}`,
+                  borderBottom: `1px solid ${theme.palette.divider}`,
+                })}
               >
                 <Typography
                   onClick={() =>
@@ -308,12 +306,12 @@ const TableRows = React.memo(
                     className={
                       hour > 24 ? redAlert : hour > 10 ? orangeAlert : ''
                     }
-                    sx={{
-                      borderBottom: tableBorder,
+                    sx={theme => ({
+                      borderBottom: `1px solid ${theme.palette.divider}`,
                       p: 0,
-                      borderRight: tableBorder,
+                      borderRight: `1px solid ${theme.palette.divider}`,
                       height: '33px',
-                    }}
+                    })}
                   >
                     <EditableCell
                       value={hour}
@@ -329,12 +327,12 @@ const TableRows = React.memo(
 
               <TableCell
                 align="center"
-                sx={{
+                sx={theme => ({
                   width: numberCellMaxWidth,
                   minWidth: '20px',
                   p: numberCellPadding,
-                  borderBottom: tableBorder,
-                }}
+                  borderBottom: `1px solid ${theme.palette.divider}`,
+                })}
               >
                 <Typography
                   className="text-center font-semibold"
@@ -347,13 +345,13 @@ const TableRows = React.memo(
           ))}
           <TableRow>
             <TableCell
-              sx={{
-                borderBottom: borderBold,
+              sx={theme => ({
+                borderBottom: theme.hoursTable.borderBold,
                 p: 0,
                 pl: 1,
-                borderRight: tableBorder,
-                background: '#fff',
-              }}
+                borderRight: `1px solid ${theme.palette.divider}`,
+                background: theme.palette.background.paper,
+              })}
               colSpan={8}
             >
               <Tooltip
@@ -380,8 +378,7 @@ const TableRows = React.memo(
             </TableCell>
             <TableCell
               align="center"
-              className="bg-blue-200"
-              sx={{ borderBottom: borderBold, p: 0.5 }}
+              sx={theme => ({ borderBottom: theme.hoursTable.borderBold, p: 0.5, background: theme.palette.schedule.accent })}
             >
               <Typography className="text-center font-semibold" variant="body2">
                 {formatToPolishDecimal(construction.totalHours)}
@@ -554,7 +551,7 @@ const HoursTable = ({
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   const [toolbarHeight, setToolbarHeight] = useState(0);
-  const { headerHeight, topBarHeight } = useLayout();
+  // const { headerHeight, topBarHeight } = useLayout();
 
   const {
     isLoading,
@@ -675,7 +672,6 @@ const HoursTable = ({
         isExpanded={isExpanded}
         isCoping={isCoping}
         onTableDelete={onTableDelete}
-        tableBorder={tableBorder}
         contentRef={printContentRef}
         handleCancelEdit={handleCancelEdit}
         handleFillWithSchedule={handleFillWithSchedule}
@@ -710,24 +706,22 @@ const HoursTable = ({
               </Box>
             )}
             <TableContainer
-              className="border-lightGray rounded-lg border bg-white"
               sx={(theme) => ({
+                background: theme.palette.background.paper,
                 position: 'relative',
-                outline: editMode
-                  ? `2px solid ${theme.palette.primary.main} !important`
-                  : '',
-                maxHeight: `calc(100vh - ${headerHeight + topBarHeight + toolbarHeight}px)`,
+                // maxHeight: `calc(100vh - ${headerHeight + topBarHeight + toolbarHeight}px)`,
+                maxHeight: `500px`,
               })}
             >
               <Table size="small" stickyHeader>
                 <TableHead>
                   <TableRow>
                     <TableCell
-                      className="bg-gray-100"
-                      sx={{
-                        borderRight: tableBorder,
-                        borderBottom: borderBold,
-                      }}
+                      sx={theme => ({
+                        borderRight: `1px solid ${theme.palette.divider}`,
+                        borderBottom: theme.hoursTable.borderBold,
+                        background: theme.palette.background.default
+                      })}
                       align="center"
                     >
                       <Typography
@@ -738,11 +732,11 @@ const HoursTable = ({
                       </Typography>
                     </TableCell>
                     <TableCell
-                      className="bg-gray-100"
-                      sx={{
-                        borderRight: tableBorder,
-                        borderBottom: borderBold,
-                      }}
+                      sx={theme => ({
+                        borderRight: `1px solid ${theme.palette.divider}`,
+                        borderBottom: theme.hoursTable.borderBold,
+                        background: theme.palette.background.default
+                      })}
                       align="center"
                     >
                       <Typography
@@ -754,13 +748,13 @@ const HoursTable = ({
                     </TableCell>
                     {weekDates.map((date, index) => (
                       <TableCell
-                        className="bg-gray-100"
                         key={`${date.getTime()}-${index}`}
                         align="center"
-                        sx={{
-                          borderRight: tableBorder,
-                          borderBottom: borderBold,
-                        }}
+                        sx={theme => ({
+                          borderRight: `1px solid ${theme.palette.divider}`,
+                          borderBottom: theme.hoursTable.borderBold,
+                          background: theme.palette.background.default
+                        })}
                       >
                         <Typography
                           className="block text-center font-semibold"
@@ -780,9 +774,11 @@ const HoursTable = ({
                       </TableCell>
                     ))}
                     <TableCell
-                      className="bg-gray-100"
                       align="center"
-                      sx={{ borderBottom: borderBold }}
+                      sx={theme => ({
+                        borderBottom: theme.hoursTable.borderBold,
+                        background: theme.palette.background.default
+                      })}
                     >
                       <Typography
                         className="text-center font-semibold"
@@ -809,15 +805,17 @@ const HoursTable = ({
                 <TableFooter>
                   <TableRow>
                     <TableCell
-                      className="border-lightGray border-t border-b bg-white"
                       colSpan={9}
-                      sx={{
+                      sx={theme => ({
                         position: 'sticky',
                         bottom: -1,
                         zIndex: 2,
                         p: 0,
                         pl: 1,
-                      }}
+                        borderTop: `1px solid ${theme.palette.divider}`,
+                        borderBottom: `1px solid ${theme.palette.divider}`,
+                        background: theme.palette.background.paper
+                      })}
                     >
                       <Stack
                         direction="row"
@@ -879,10 +877,10 @@ const HoursTable = ({
                             alignItems={'center'}
                             divider={
                               <Box
-                                sx={{
-                                  borderRight: '1px solid #ccc',
+                                sx={theme => ({
+                                  borderRight: `1px solid ${theme.palette.divider}`,
                                   height: '15px',
-                                }}
+                                })}
                               />
                             }
                             sx={{ order: 3 }}
@@ -913,13 +911,15 @@ const HoursTable = ({
 
                     <TableCell
                       align="center"
-                      className="border-lightGray border-t bg-white"
-                      sx={{
+                      sx={theme => ({
                         position: 'sticky',
                         bottom: -1,
                         p: 0,
                         zIndex: 2,
-                      }}
+                        background: theme.palette.background.paper,
+                        borderTop: `1px solid ${theme.palette.divider}`,
+                        borderBottom: `1px solid ${theme.palette.divider}`,
+                      })}
                     >
                       <Typography
                         variant="overline"

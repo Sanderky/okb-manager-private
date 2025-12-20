@@ -260,12 +260,13 @@ export default function ConstructionEdit() {
         <Grid container columns={12} spacing={{ xs: 3, lg: 2 }}>
           <Grid size={{ xs: 12, lg: 8, xl: 9 }}>
             <Box
-              sx={{
+              sx={theme => ({
                 width: '100%',
                 maxWidth: { sm: '100%', md: '1790px' },
                 boxShadow: 1,
-              }}
-              className="rounded-lg bg-white p-3 md:p-4"
+                background: theme.palette.background.paper
+              })}
+              className="rounded-lg p-3 md:p-4"
             >
               <ConstructionForm
                 formState={formState}
@@ -492,7 +493,7 @@ export default function ConstructionEdit() {
         </Stack>
       }
     >
-      <Box sx={{ display: 'flex', flex: 1, width: '100%' }}>
+      <Box sx={{ display: 'flex', flex: 1, width: '100%', p:2 }}>
         {renderContent()}
       </Box>
     </PageContainer>

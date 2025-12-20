@@ -9,10 +9,9 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import NavigateNextRoundedIcon from '@mui/icons-material/NavigateNextRounded';
 import { Link } from 'react-router';
-import { useLayout } from '../context/LayoutContext';
 import { IconButton, Menu } from '@mui/material';
 import { useMediaQuery } from '@mui/system';
-import { MoreHoriz, MoreVert } from '@mui/icons-material';
+import { MoreHoriz } from '@mui/icons-material';
 
 const PageHeaderBreadcrumbs = styled(Breadcrumbs)(({ theme }) => ({
   margin: theme.spacing(1, 0),
@@ -124,50 +123,26 @@ export interface PageContainerProps extends ContainerProps {
   breadcrumbs?: Breadcrumb[];
   actions?: React.ReactNode;
   fixedHeight?: boolean;
+  renderBottomToolbar?: React.ReactNode;
+  renderTopToolbar?: React.ReactNode;
 }
 
 export default function PageContainer(props: PageContainerProps) {
-  const { children, breadcrumbs, actions = null, fixedHeight = false } = props;
-
-  const { setHeaderHeight, topBarHeight } = useLayout();
-
-  const headerRef = React.useRef<HTMLDivElement>(null);
-
-  React.useEffect(() => {
-    if (!headerRef.current) return;
-
-    const observer = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        const elementHeight =
-          entry.borderBoxSize?.[0]?.blockSize || entry.contentRect.height;
-        setHeaderHeight(elementHeight + 48);
-      }
-    });
-
-    observer.observe(headerRef.current);
-
-    return () => observer.disconnect();
-  }, [setHeaderHeight]);
+  const { children, breadcrumbs, renderBottomToolbar, renderTopToolbar, actions = null, fixedHeight = false } = props;
 
   return (
     <Box
       sx={{
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'center',
         width: '100%',
-        height: fixedHeight ? `calc(100vh - ${topBarHeight ?? 64}px)` : 'auto',
-        overflowY: fixedHeight ? 'hidden' : 'auto',
-        overflowX: 'hidden',
+        height: '100%',
+        overflow: 'hidden',
       }}
     >
       <Stack
         sx={{
           width: '100%',
-          maxWidth: '1300px',
-          pt: 2,
-          pb: 2,
-          px: { xs: 1, md: 2 },
           height: fixedHeight ? '100%' : 'auto',
           minHeight: 0,
           display: 'flex',
@@ -176,14 +151,16 @@ export default function PageContainer(props: PageContainerProps) {
         spacing={0}
       >
         <Stack
-          ref={headerRef}
           direction={'row'}
           alignItems={'center'}
           flexWrap={'wrap'}
-          sx={{
-            mb: 2,
+          sx={(theme) => ({
+            minHeight: '47px',
+            p: 1,
             gap: 2,
-          }}
+            backgroundColor: theme.palette.background.paper,
+            borderBottom: `1px solid ${theme.palette.divider}`
+          })}
         >
           <PageHeaderBreadcrumbs
             aria-label="breadcrumb"
@@ -198,62 +175,90 @@ export default function PageContainer(props: PageContainerProps) {
           >
             {breadcrumbs
               ? breadcrumbs.map((breadcrumb, index) => {
-                  return breadcrumb.path ? (
-                    <MuiLink
-                      key={index}
-                      component={Link}
-                      underline="hover"
-                      color="inherit"
-                      to={breadcrumb.path}
-                      sx={{
-                        maxWidth: 250,
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                        display: 'inline-block',
-                        verticalAlign: 'middle',
-                      }}
-                      title={breadcrumb.title}
-                    >
-                      {breadcrumb.title}
-                    </MuiLink>
-                  ) : (
-                    <Typography
-                      key={index}
-                      sx={{
-                        color: 'text.primary',
-                        fontWeight: 600,
-                        maxWidth: 250,
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                        display: 'inline-block',
-                        verticalAlign: 'middle',
-                      }}
-                      title={breadcrumb.title}
-                    >
-                      {breadcrumb.title}
-                    </Typography>
-                  );
-                })
+                return breadcrumb.path ? (
+                  <MuiLink
+                    key={index}
+                    component={Link}
+                    underline="hover"
+                    color="inherit"
+                    to={breadcrumb.path}
+                    sx={{
+                      maxWidth: 250,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      display: 'inline-block',
+                      verticalAlign: 'middle',
+                    }}
+                    title={breadcrumb.title}
+                  >
+                    {breadcrumb.title}
+                  </MuiLink>
+                ) : (
+                  <Typography
+                    key={index}
+                    sx={{
+                      color: 'text.primary',
+                      fontWeight: 600,
+                      maxWidth: 250,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      display: 'inline-block',
+                      verticalAlign: 'middle',
+                    }}
+                    title={breadcrumb.title}
+                  >
+                    {breadcrumb.title}
+                  </Typography>
+                );
+              })
               : null}
           </PageHeaderBreadcrumbs>
           <PageHeaderToolbar>
             <ResponsivePageActions>{actions}</ResponsivePageActions>
           </PageHeaderToolbar>
         </Stack>
+        {renderTopToolbar &&
+
+          <Box
+            sx={{
+              flexShrink: 0,
+            }}
+          >
+            {renderTopToolbar}
+          </Box>
+        }
+
         <Box
           sx={{
+
             flex: 1,
+
+
+            minHeight: 0,
+
+            overflowY: fixedHeight ? 'hidden' : 'auto',
+            overflowX: 'hidden',
+
             display: 'flex',
             flexDirection: 'column',
-            minHeight: 0,
-            height: fixedHeight ? '100%' : 'auto',
-            overflow: 'visible',
+
           }}
         >
           {children}
         </Box>
+        {renderBottomToolbar &&
+
+          <Box
+            sx={{
+              flexShrink: 0,
+
+            }}
+          >
+            {renderBottomToolbar}
+          </Box>
+        }
       </Stack>
     </Box>
   );

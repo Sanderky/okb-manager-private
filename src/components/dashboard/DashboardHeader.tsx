@@ -63,26 +63,6 @@ export default function DashboardHeader({
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  const { setTopBarHeight } = useLayout();
-
-  const appBarRef = React.useRef<HTMLDivElement>(null);
-
-  React.useEffect(() => {
-    if (!appBarRef.current) return;
-
-    const observer = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        const height =
-          entry.borderBoxSize?.[0]?.blockSize || entry.contentRect.height;
-        setTopBarHeight(height);
-      }
-    });
-
-    observer.observe(appBarRef.current);
-
-    return () => observer.disconnect();
-  }, [setTopBarHeight]);
-
   const handleMenuOpen = React.useCallback(() => {
     onToggleMenu(!menuOpen);
   }, [menuOpen, onToggleMenu]);
@@ -143,7 +123,6 @@ export default function DashboardHeader({
 
   return (
     <AppBar
-      ref={appBarRef}
       color="inherit"
       position="absolute"
       sx={{

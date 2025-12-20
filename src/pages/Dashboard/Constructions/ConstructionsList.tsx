@@ -96,6 +96,342 @@ const DefaultColumnsOrder = [
   'endDate',
 ];
 
+interface FiltersDialogProps {
+  filtersModalOpen: boolean,
+  handleCloseFilters: () => void,
+  filters: ConstructionsFilters,
+  setFilters: (val: ConstructionsFilters) => void,
+  handleCloseAndReset: () => void,
+  handleApplyFilters: () => void,
+  contractorOptions: {
+    label: string;
+    id: string;
+  }[]
+}
+
+const FiltersDialog = ({ filtersModalOpen, handleCloseFilters, filters, setFilters, handleApplyFilters, handleCloseAndReset, contractorOptions }: FiltersDialogProps) => {
+  return (
+    <Dialog
+      open={filtersModalOpen}
+      onClose={handleCloseFilters}
+      maxWidth="md"
+      fullWidth
+      slotProps={{
+        paper: {
+          sx: {
+            borderRadius: 2,
+            width: '95%',
+            m: 0,
+          },
+        },
+      }}
+    >
+      <DialogTitle className="p-3 sm:p-5">
+        <Stack
+          direction={'row'}
+          alignItems={'center'}
+          justifyContent={'space-between'}
+        >
+          <Typography variant="h6">Filtry budów</Typography>
+          <IconButton onClick={handleCloseFilters}>
+            <CloseIcon fontSize="inherit" />
+          </IconButton>
+        </Stack>
+      </DialogTitle>
+      <DialogContent dividers className="p-3 sm:p-5">
+        <Grid container spacing={2}>
+          <Grid size={{ xs: 12, sm: 6 }}>
+            <FormLabel className="mb-2 block">Nazwa</FormLabel>
+            <TextField
+              size="small"
+              fullWidth
+              value={filters.name ?? ''}
+              onChange={(e) =>
+                setFilters({ ...filters, name: e.target.value })
+              }
+            />
+          </Grid>
+          <Grid size={{ xs: 12, sm: 6 }}>
+            <FormLabel className="mb-2 block">Wykonawca</FormLabel>
+            <Autocomplete
+              options={contractorOptions}
+              getOptionLabel={(option) => option.label || ''}
+              isOptionEqualToValue={(option, value) =>
+                option.id === value.id
+              }
+              value={
+                filters.contractor
+                  ? contractorOptions.find(
+                    (opt) => opt.label === filters.contractor
+                  ) || null
+                  : null
+              }
+              onChange={(_, newValue) => {
+                setFilters({
+                  ...filters,
+                  contractor: newValue ? newValue.label : '',
+                });
+              }}
+              size="small"
+              renderInput={(params) => (
+                <TextField {...params} size="small" fullWidth />
+              )}
+            />
+          </Grid>
+          <Grid size={{ xs: 12, md: 6 }}>
+            <FormLabel className="mb-2 block">Adres</FormLabel>
+            <TextField
+              size="small"
+              fullWidth
+              value={filters.location ?? ''}
+              onChange={(e) =>
+                setFilters({ ...filters, location: e.target.value })
+              }
+            />
+          </Grid>
+
+          <Grid size={{ xs: 12, md: 6 }}>
+            <FormLabel className="mb-2 block">Data rozpoczęcia</FormLabel>
+            <Stack
+              direction={{
+                xs: 'column',
+                sm: 'row',
+              }}
+              alignItems={'center'}
+              spacing={1}
+            >
+              <DatePicker
+                label="Od"
+                openTo="month"
+                views={['year', 'month', 'day']}
+                value={filters.startDateFrom ?? null}
+                onChange={(newValue) =>
+                  setFilters({ ...filters, startDateFrom: newValue })
+                }
+                slotProps={{
+                  field: {
+                    clearable: true,
+                    onClear: () =>
+                      setFilters({
+                        ...filters,
+                        startDateFrom: null,
+                      }),
+                  },
+                  textField: {
+                    fullWidth: true,
+                    size: 'small',
+                  },
+                }}
+              />
+              <Typography
+                sx={{
+                  display: {
+                    xs: 'none',
+                    sm: 'block',
+                  },
+                }}
+              >
+                -
+              </Typography>
+              <DatePicker
+                label="Do"
+                openTo="month"
+                views={['year', 'month', 'day']}
+                value={filters.startDateTo ?? null}
+                onChange={(newValue) =>
+                  setFilters({ ...filters, startDateTo: newValue })
+                }
+                slotProps={{
+                  field: {
+                    clearable: true,
+                    onClear: () =>
+                      setFilters({
+                        ...filters,
+                        startDateTo: null,
+                      }),
+                  },
+                  textField: {
+                    fullWidth: true,
+                    size: 'small',
+                  },
+                }}
+                minDate={filters.startDateFrom || undefined}
+              />
+            </Stack>
+          </Grid>
+
+          <Grid size={{ xs: 12, md: 6 }}>
+            <FormLabel className="mb-2 block">Data zakończenia</FormLabel>
+            <Stack
+              direction={{
+                xs: 'column',
+                sm: 'row',
+              }}
+              alignItems={'center'}
+              spacing={1}
+            >
+              <DatePicker
+                label="Od"
+                openTo="month"
+                views={['year', 'month', 'day']}
+                value={filters.endDateFrom ?? null}
+                onChange={(newValue) =>
+                  setFilters({ ...filters, endDateFrom: newValue })
+                }
+                slotProps={{
+                  field: {
+                    clearable: true,
+                    onClear: () =>
+                      setFilters({
+                        ...filters,
+                        endDateFrom: null,
+                      }),
+                  },
+                  textField: {
+                    fullWidth: true,
+                    size: 'small',
+                  },
+                }}
+              />
+              <Typography
+                sx={{
+                  display: {
+                    xs: 'none',
+                    sm: 'block',
+                  },
+                }}
+              >
+                -
+              </Typography>
+              <DatePicker
+                label="Do"
+                openTo="month"
+                views={['year', 'month', 'day']}
+                value={filters.endDateTo ?? null}
+                onChange={(newValue) =>
+                  setFilters({ ...filters, endDateTo: newValue })
+                }
+                slotProps={{
+                  field: {
+                    clearable: true,
+                    onClear: () =>
+                      setFilters({
+                        ...filters,
+                        endDateTo: null,
+                      }),
+                  },
+                  textField: {
+                    fullWidth: true,
+                    size: 'small',
+                  },
+                }}
+                minDate={filters.endDateFrom || undefined}
+              />
+            </Stack>
+          </Grid>
+
+          <Grid size={{ xs: 12, sm: 6 }}>
+            <FormLabel className="mb-2 block">
+              Liczba pracowników
+            </FormLabel>
+            <Stack
+              direction={{
+                xs: 'column',
+                sm: 'row',
+              }}
+              alignItems={'center'}
+              spacing={1}
+            >
+              <TextField
+                size="small"
+                fullWidth
+                type="number"
+                value={filters.employeeCountMin ?? ''}
+                onChange={(e) =>
+                  setFilters({
+                    ...filters,
+                    employeeCountMin: e.target.value,
+                  })
+                }
+                slotProps={{
+                  htmlInput: {
+                    min: 0,
+                  },
+                }}
+                label="Min."
+              />
+              <TextField
+                size="small"
+                fullWidth
+                type="number"
+                value={filters.employeeCountMax ?? ''}
+                onChange={(e) =>
+                  setFilters({
+                    ...filters,
+                    employeeCountMax: e.target.value,
+                  })
+                }
+                slotProps={{
+                  htmlInput: {
+                    min: 0,
+                  },
+                }}
+                label="Max."
+              />
+            </Stack>
+          </Grid>
+
+          <Grid size={{ xs: 12, sm: 6 }}>
+            <FormControl fullWidth>
+              <FormLabel className="mb-2 block">Status</FormLabel>
+              <Select
+                size="small"
+                value={filters.status ?? ''}
+                displayEmpty
+                onChange={(e) =>
+                  setFilters({ ...filters, status: e.target.value })
+                }
+              >
+                <MenuItem value="">Wszystkie</MenuItem>
+                <MenuItem value="true">W trakcie</MenuItem>
+                <MenuItem value="false">Zakończone</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+        </Grid>
+      </DialogContent>
+      <DialogActions className="p-3 sm:p-5">
+        <Stack
+          direction={{
+            xs: 'column',
+            sm: 'row',
+          }}
+          alignItems={{
+            xs: 'stretch',
+            sm: 'center',
+          }}
+          justifyContent={'flex-end'}
+          spacing={1}
+          sx={{
+            width: '100%',
+          }}
+        >
+          <Button
+            onClick={handleCloseAndReset}
+            variant="outlined"
+            color="primary"
+          >
+            Wyczyść filtry
+          </Button>
+          <Button onClick={handleApplyFilters} variant="contained">
+            Zastosuj filtry
+          </Button>
+        </Stack>
+      </DialogActions>
+    </Dialog>
+  )
+}
+
 export default function ConstructionsList() {
   const navigate = useNavigate();
   const {
@@ -376,11 +712,10 @@ export default function ConstructionsList() {
           return (
             <Box
               component="span"
-              className={`rounded-full px-2 py-1 font-medium ${
-                count > 0
+              className={`rounded-full px-2 py-1 font-medium ${count > 0
                   ? 'bg-green-100 text-green-800'
                   : 'bg-gray-100 text-gray-600'
-              }`}
+                }`}
             >
               {count}
             </Box>
@@ -405,11 +740,10 @@ export default function ConstructionsList() {
         Cell: ({ cell }) => (
           <Box
             component="span"
-            className={`rounded px-3 py-1 ${
-              cell.getValue<boolean>()
+            className={`rounded px-3 py-1 ${cell.getValue<boolean>()
                 ? 'bg-blue-300/50 text-blue-600'
                 : 'bg-amber-300/50 text-amber-600'
-            }`}
+              }`}
           >
             {cell.getValue<boolean>() ? 'W trakcie' : 'Zakończona'}
           </Box>
@@ -488,11 +822,17 @@ export default function ConstructionsList() {
         },
       },
     },
+    muiTopToolbarProps: {
+      sx: (theme) => ({
+        backgroundColor: theme.palette.background.paper
+      })
+    },
+
     muiTablePaperProps: {
       sx: {
         bboxShadow: 'none',
-        border: '1px solid #e0e0e0',
-        borderRadius: '10px',
+        borderRadius: '0',
+        borderLeft: 'none !important',
         display: 'flex',
         flexDirection: 'column',
         height: '100%',
@@ -501,10 +841,7 @@ export default function ConstructionsList() {
     },
     muiTableHeadCellProps: {
       sx: {
-        borderTop: '1px solid #e0e0e0',
-        borderLeft: '1px solid #e0e0e0',
         fontWeight: '600',
-        color: '#374151',
         fontSize: '14px',
         '& .Mui-TableHeadCell-Content': {
           justifyContent: 'center',
@@ -514,16 +851,17 @@ export default function ConstructionsList() {
       className: 'first:border-l-0',
     },
     muiTableBodyCellProps: {
-      sx: {
-        borderLeft: '1px solid #e0e0e0',
+      sx: (theme) => ({
+        borderLeft: `1px solid ${theme.palette.divider}`,
         justifyContent: 'center',
         textAlign: 'center',
-      },
+      }),
     },
     muiTableBodyRowProps: ({ row }) => {
       return {
         onClick: () => handleRowClick(row),
-        sx: {
+        sx: (theme) => ({
+          backgroundColor: theme.palette.background.paper,
           cursor: 'pointer',
           '&:hover': {
             background: '#5fadff14 !important',
@@ -531,7 +869,7 @@ export default function ConstructionsList() {
           'td:after': {
             display: 'none',
           },
-        },
+        })
       };
     },
     muiTableHeadRowProps: {
@@ -551,7 +889,7 @@ export default function ConstructionsList() {
         enableResizing: false,
       },
     },
-    renderBottomToolbar: ({ table }) => <TablePagination table={table} />,
+    enableBottomToolbar: false
   });
 
   if (error) {
@@ -576,6 +914,7 @@ export default function ConstructionsList() {
 
   return (
     <PageContainer
+      renderBottomToolbar={<TablePagination table={table} />}
       fixedHeight={true}
       breadcrumbs={[{ title: 'Lista budów' }]}
       actions={[
@@ -622,324 +961,15 @@ export default function ConstructionsList() {
             onClose={() => setContractorsModalOpen(false)}
           />
 
-          <Dialog
-            open={filtersModalOpen}
-            onClose={handleCloseFilters}
-            maxWidth="md"
-            fullWidth
-            slotProps={{
-              paper: {
-                sx: {
-                  borderRadius: 2,
-                  width: '95%',
-                  m: 0,
-                },
-              },
-            }}
-          >
-            <DialogTitle className="p-3 sm:p-5">
-              <Stack
-                direction={'row'}
-                alignItems={'center'}
-                justifyContent={'space-between'}
-              >
-                <Typography variant="h6">Filtry budów</Typography>
-                <IconButton onClick={handleCloseFilters}>
-                  <CloseIcon fontSize="inherit" />
-                </IconButton>
-              </Stack>
-            </DialogTitle>
-            <DialogContent dividers className="p-3 sm:p-5">
-              <Grid container spacing={2}>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <FormLabel className="mb-2 block">Nazwa</FormLabel>
-                  <TextField
-                    size="small"
-                    fullWidth
-                    value={filters.name ?? ''}
-                    onChange={(e) =>
-                      setFilters({ ...filters, name: e.target.value })
-                    }
-                  />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <FormLabel className="mb-2 block">Wykonawca</FormLabel>
-                  <Autocomplete
-                    options={contractorOptions}
-                    getOptionLabel={(option) => option.label || ''}
-                    isOptionEqualToValue={(option, value) =>
-                      option.id === value.id
-                    }
-                    value={
-                      filters.contractor
-                        ? contractorOptions.find(
-                            (opt) => opt.label === filters.contractor
-                          ) || null
-                        : null
-                    }
-                    onChange={(_, newValue) => {
-                      setFilters({
-                        ...filters,
-                        contractor: newValue ? newValue.label : '',
-                      });
-                    }}
-                    size="small"
-                    renderInput={(params) => (
-                      <TextField {...params} size="small" fullWidth />
-                    )}
-                  />
-                </Grid>
-                <Grid size={{ xs: 12, md: 6 }}>
-                  <FormLabel className="mb-2 block">Adres</FormLabel>
-                  <TextField
-                    size="small"
-                    fullWidth
-                    value={filters.location ?? ''}
-                    onChange={(e) =>
-                      setFilters({ ...filters, location: e.target.value })
-                    }
-                  />
-                </Grid>
-
-                <Grid size={{ xs: 12, md: 6 }}>
-                  <FormLabel className="mb-2 block">Data rozpoczęcia</FormLabel>
-                  <Stack
-                    direction={{
-                      xs: 'column',
-                      sm: 'row',
-                    }}
-                    alignItems={'center'}
-                    spacing={1}
-                  >
-                    <DatePicker
-                      label="Od"
-                      openTo="month"
-                      views={['year', 'month', 'day']}
-                      value={filters.startDateFrom ?? null}
-                      onChange={(newValue) =>
-                        setFilters({ ...filters, startDateFrom: newValue })
-                      }
-                      slotProps={{
-                        field: {
-                          clearable: true,
-                          onClear: () =>
-                            setFilters({
-                              ...filters,
-                              startDateFrom: null,
-                            }),
-                        },
-                        textField: {
-                          fullWidth: true,
-                          size: 'small',
-                        },
-                      }}
-                    />
-                    <Typography
-                      sx={{
-                        display: {
-                          xs: 'none',
-                          sm: 'block',
-                        },
-                      }}
-                    >
-                      -
-                    </Typography>
-                    <DatePicker
-                      label="Do"
-                      openTo="month"
-                      views={['year', 'month', 'day']}
-                      value={filters.startDateTo ?? null}
-                      onChange={(newValue) =>
-                        setFilters({ ...filters, startDateTo: newValue })
-                      }
-                      slotProps={{
-                        field: {
-                          clearable: true,
-                          onClear: () =>
-                            setFilters({
-                              ...filters,
-                              startDateTo: null,
-                            }),
-                        },
-                        textField: {
-                          fullWidth: true,
-                          size: 'small',
-                        },
-                      }}
-                      minDate={filters.startDateFrom || undefined}
-                    />
-                  </Stack>
-                </Grid>
-
-                <Grid size={{ xs: 12, md: 6 }}>
-                  <FormLabel className="mb-2 block">Data zakończenia</FormLabel>
-                  <Stack
-                    direction={{
-                      xs: 'column',
-                      sm: 'row',
-                    }}
-                    alignItems={'center'}
-                    spacing={1}
-                  >
-                    <DatePicker
-                      label="Od"
-                      openTo="month"
-                      views={['year', 'month', 'day']}
-                      value={filters.endDateFrom ?? null}
-                      onChange={(newValue) =>
-                        setFilters({ ...filters, endDateFrom: newValue })
-                      }
-                      slotProps={{
-                        field: {
-                          clearable: true,
-                          onClear: () =>
-                            setFilters({
-                              ...filters,
-                              endDateFrom: null,
-                            }),
-                        },
-                        textField: {
-                          fullWidth: true,
-                          size: 'small',
-                        },
-                      }}
-                    />
-                    <Typography
-                      sx={{
-                        display: {
-                          xs: 'none',
-                          sm: 'block',
-                        },
-                      }}
-                    >
-                      -
-                    </Typography>
-                    <DatePicker
-                      label="Do"
-                      openTo="month"
-                      views={['year', 'month', 'day']}
-                      value={filters.endDateTo ?? null}
-                      onChange={(newValue) =>
-                        setFilters({ ...filters, endDateTo: newValue })
-                      }
-                      slotProps={{
-                        field: {
-                          clearable: true,
-                          onClear: () =>
-                            setFilters({
-                              ...filters,
-                              endDateTo: null,
-                            }),
-                        },
-                        textField: {
-                          fullWidth: true,
-                          size: 'small',
-                        },
-                      }}
-                      minDate={filters.endDateFrom || undefined}
-                    />
-                  </Stack>
-                </Grid>
-
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <FormLabel className="mb-2 block">
-                    Liczba pracowników
-                  </FormLabel>
-                  <Stack
-                    direction={{
-                      xs: 'column',
-                      sm: 'row',
-                    }}
-                    alignItems={'center'}
-                    spacing={1}
-                  >
-                    <TextField
-                      size="small"
-                      fullWidth
-                      type="number"
-                      value={filters.employeeCountMin ?? ''}
-                      onChange={(e) =>
-                        setFilters({
-                          ...filters,
-                          employeeCountMin: e.target.value,
-                        })
-                      }
-                      slotProps={{
-                        htmlInput: {
-                          min: 0,
-                        },
-                      }}
-                      label="Min."
-                    />
-                    <TextField
-                      size="small"
-                      fullWidth
-                      type="number"
-                      value={filters.employeeCountMax ?? ''}
-                      onChange={(e) =>
-                        setFilters({
-                          ...filters,
-                          employeeCountMax: e.target.value,
-                        })
-                      }
-                      slotProps={{
-                        htmlInput: {
-                          min: 0,
-                        },
-                      }}
-                      label="Max."
-                    />
-                  </Stack>
-                </Grid>
-
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <FormControl fullWidth>
-                    <FormLabel className="mb-2 block">Status</FormLabel>
-                    <Select
-                      size="small"
-                      value={filters.status ?? ''}
-                      displayEmpty
-                      onChange={(e) =>
-                        setFilters({ ...filters, status: e.target.value })
-                      }
-                    >
-                      <MenuItem value="">Wszystkie</MenuItem>
-                      <MenuItem value="true">W trakcie</MenuItem>
-                      <MenuItem value="false">Zakończone</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Grid>
-              </Grid>
-            </DialogContent>
-            <DialogActions className="p-3 sm:p-5">
-              <Stack
-                direction={{
-                  xs: 'column',
-                  sm: 'row',
-                }}
-                alignItems={{
-                  xs: 'stretch',
-                  sm: 'center',
-                }}
-                justifyContent={'flex-end'}
-                spacing={1}
-                sx={{
-                  width: '100%',
-                }}
-              >
-                <Button
-                  onClick={handleCloseAndReset}
-                  variant="outlined"
-                  color="primary"
-                >
-                  Wyczyść filtry
-                </Button>
-                <Button onClick={handleApplyFilters} variant="contained">
-                  Zastosuj filtry
-                </Button>
-              </Stack>
-            </DialogActions>
-          </Dialog>
+          <FiltersDialog
+            filtersModalOpen={filtersModalOpen}
+            setFilters={setFilters}
+            filters={filters}
+            handleApplyFilters={handleApplyFilters}
+            handleCloseFilters={handleCloseFilters}
+            handleCloseAndReset={handleCloseAndReset}
+            contractorOptions={contractorOptions}
+          />
         </LocalizationProvider>
       </Box>
     </PageContainer>
