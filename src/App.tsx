@@ -19,7 +19,7 @@ import EmployeeEdit from './pages/Dashboard/Employees/EmployeeEdit';
 import EmployeeCreate from './pages/Dashboard/Employees/EmployeeCreate';
 import ConstructionEdit from './pages/Dashboard/Constructions/ConstructionEdit';
 import Home from './pages/Dashboard/Home/Home';
-import VacationCalendar from './pages/Dashboard/Calendar/Calendar';
+import VacationCalendar from './pages/Dashboard/Vacations/Calendar';
 import Hours from './pages/Dashboard/Hours/Hours';
 import Schedule from './pages/Dashboard/Schedule/Schedule';
 import PageNotFound from './pages/PageNotFound/PageNotFound';
@@ -255,7 +255,7 @@ export default function App() {
                       element={<ConstructionCreate />}
                     />
                     <Route path="schedule" element={<Schedule />} />
-                    <Route path="calendar" element={<VacationCalendar />} />
+                    <Route path="vacations" element={<VacationCalendar />} />
                     <Route path="hours" element={<Hours />} />
                     <Route path="*" element={<PageNotFound />} />
                   </Route>

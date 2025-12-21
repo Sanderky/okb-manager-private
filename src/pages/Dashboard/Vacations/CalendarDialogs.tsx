@@ -25,6 +25,8 @@ import {
   TableRow,
   Paper,
   FormControlLabel,
+  InputAdornment,
+  Tooltip,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -37,7 +39,7 @@ import {
 } from './CalendarHelpers';
 import type { Employee, Vacation } from '../../../types';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { Close as CloseIcon, Print as PrintIcon } from '@mui/icons-material';
+import { AccountCircle, Close as CloseIcon, Print as PrintIcon } from '@mui/icons-material';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'; // NOWY IMPORT
 import dayjs, { Dayjs } from 'dayjs';
@@ -369,6 +371,8 @@ export const EditEventDialog: React.FC<EditEventDialogProps> = ({
   onBack,
   canGoBack = false,
 }) => {
+  const navigate = useNavigate();
+
   const handleDescriptionChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -405,6 +409,10 @@ export const EditEventDialog: React.FC<EditEventDialogProps> = ({
 
   const handleDelete = () => {
     handleDeleteEvent();
+  };
+
+  const handleClickOnEmployee = () => {
+    navigate(`/employees/${currentEvent.employee.id}`);
   };
 
   const isFormValid = currentEvent.color;
@@ -454,7 +462,18 @@ export const EditEventDialog: React.FC<EditEventDialogProps> = ({
           value={currentEvent.employee?.name ?? ''}
           fullWidth
           slotProps={{
-            input: { readOnly: true },
+            input: {
+              readOnly: true,
+              endAdornment: (
+                <InputAdornment position="end">
+                  <Tooltip title='Przejdź do pracownika'>
+                    <IconButton onClick={handleClickOnEmployee}>
+                      <AccountCircle />
+                    </IconButton>
+                  </Tooltip>
+                </InputAdornment>
+              ),
+            },
           }}
           sx={{
             '& .MuiInputBase-root': {
