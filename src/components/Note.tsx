@@ -33,7 +33,6 @@ import {
   Typography,
 } from '@mui/material';
 import { useState, useEffect } from 'react';
-import { palette } from '@mui/system';
 
 const MenuBar = ({ editor }: { editor: Editor }) => {
   // Read the current editor's state, and re-render the component when it changes
@@ -468,6 +467,9 @@ export const NoteBase = ({
   useEffect(() => {
     if (editor) {
       editor.setEditable(editable);
+      if (editable) {
+        editor.commands.focus();
+      }
     }
   }, [editor, editable]);
 

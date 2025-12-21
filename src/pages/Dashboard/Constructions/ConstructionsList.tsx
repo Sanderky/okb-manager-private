@@ -957,6 +957,7 @@ export default function ConstructionsList() {
         >
           <MaterialReactTable table={table} />
           <ContractorsDialog
+          constructions={constructions}
             open={contractorsModalOpen}
             onClose={() => setContractorsModalOpen(false)}
           />

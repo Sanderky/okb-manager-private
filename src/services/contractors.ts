@@ -6,6 +6,7 @@ const TABLE_NAME = 'contractors';
 const mapToContractor = (data: any): Contractor => ({
   id: data.id,
   name: data.name,
+  note: data.note || null,
   constructionsCount: data?.constructions[0]?.count
 });
 
@@ -40,16 +41,20 @@ export const addContractor = async (name: string): Promise<string> => {
   return data.id;
 };
 
-export const updateContractor = async ({
-  id,
-  name,
-}: {
-  id: string;
-  name: string;
-}): Promise<void> => {
+
+export const updateContractor = async (
+  id: string,
+  data: Partial<Contractor>
+): Promise<void> => {
+
+
+  const payload: any = {};
+  if (data.name !== undefined) payload.name = data.name;
+  if (data.note !== undefined) payload.note = data.note;
+
   const { error } = await supabase
     .from(TABLE_NAME)
-    .update({ name })
+    .update(payload)
     .eq('id', id);
 
   if (error) throw error;

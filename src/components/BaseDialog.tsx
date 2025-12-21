@@ -33,6 +33,7 @@ export interface BaseDialogProps {
   showCloseButton?: boolean;
   loading?: boolean;
   disabled?: boolean;
+  hideBackdrop?: boolean;
 
   titleSx?: object;
   contentSx?: object;
@@ -58,6 +59,7 @@ export const BaseDialog: React.FC<BaseDialogProps> = ({
   showCloseButton = true,
   loading = false,
   disabled = false,
+  hideBackdrop=false,
   titleSx = { px: { xs: 2, md: 3 }, py: 2 },
   contentSx = { px: { xs: 1.5, md: 3 } },
   actionsSx = { px: { xs: 1.5, md: 3 }, py: 2 },
@@ -117,6 +119,7 @@ export const BaseDialog: React.FC<BaseDialogProps> = ({
       onClose={loading ? undefined : onClose}
       maxWidth={maxWidth}
       fullWidth={fullWidth}
+      hideBackdrop={hideBackdrop}
       slotProps={{
         paper: {
           sx: {
