@@ -52,6 +52,8 @@ export const ResponsivePageActions = ({
     setAnchorEl(null);
   };
 
+  if(!children) return
+
   if (!isMobile) {
     return (
       <Stack direction="row" spacing={1} alignItems="center">
