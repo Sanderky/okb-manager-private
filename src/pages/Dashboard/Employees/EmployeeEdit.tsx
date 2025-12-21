@@ -495,7 +495,7 @@ export default function EmployeeEdit() {
         </Stack>
       }
     >
-      <Box sx={{ display: 'flex', flex: 1, width: '100%', p: 2 }}>
+      <Box sx={{ display: 'flex', flex: 1, width: '100%', px: error ? 0 : { xs: 0.5, sm: 2 }, py: error ? 0 : 2 }}>
         {renderContent()}
       </Box>
     </PageContainer>

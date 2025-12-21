@@ -208,7 +208,7 @@ export default function ConstructionShow() {
             flexDirection: 'column',
             background: theme.palette.background.paper
           })}
-          className="rounded-lg p-2 pb-4 pt-4 md:p-4 md:pt-2 lg:p-6"
+          className="rounded-lg p-2 md:p-4 lg:p-6"
         >
           <Grid container spacing={{ xs: 2 }} columns={12}>
             <Grid size={{ xs: 12, lg: 6 }} sx={{ flexGrow: 1 }}>
@@ -458,7 +458,7 @@ export default function ConstructionShow() {
 
   return (
     <PageContainer
-      fixedHeight={tab === 1}
+      fixedHeight={loading || tab === 1}
       title={`Budowa ${pageTitle}`}
       breadcrumbs={[
         { title: 'Budowy', path: '/constructions' },
@@ -560,7 +560,7 @@ export default function ConstructionShow() {
         </Stack>
       }
     >
-      <Box sx={{ display: 'flex', flex: 1, width: '100%', p: tab === 0 ? 2 : 0, height: tab === 0 ? 'auto' : '100%' }}>{renderShow}</Box>
+      <Box sx={{ display: 'flex', flex: 1, width: '100%', py: !error && tab === 0 ? 2 : 0, px: tab === 0 && !error ? { xs: 0.5, sm: 2 } : 0, height: tab === 0 ? 'auto' : '100%' }}>{renderShow}</Box>
     </PageContainer>
   );
 }

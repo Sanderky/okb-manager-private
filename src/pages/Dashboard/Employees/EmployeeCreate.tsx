@@ -139,7 +139,7 @@ export default function EmployeeCreate() {
     >
       <Box
         sx={{
-          p: 2
+          px: { xs: 0.5, sm: 2 }, py: 2
         }}
       >
 

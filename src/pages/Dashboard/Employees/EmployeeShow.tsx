@@ -213,7 +213,7 @@ export default function EmployeeShow() {
             flexDirection: 'column',
             background: theme.palette.background.paper
           })}
-          className="p-2 pb-4 pt-4  md:p-4 lg:p-6 rounded-lg"
+          className="p-2 md:p-4 lg:p-6 rounded-lg"
         >
 
           <Grid container spacing={{ xs: 2, lg: 3 }} columns={12}>
@@ -400,7 +400,7 @@ export default function EmployeeShow() {
 
   return (
     <PageContainer
-      fixedHeight={tab === 1}
+      fixedHeight={loading || tab === 1}
       title={`Pracownik ${pageTitle}`}
       breadcrumbs={[
         { title: 'Pracownicy', path: '/employees' },
@@ -477,7 +477,7 @@ export default function EmployeeShow() {
         </Stack>
       }
     >
-      <Box sx={{ display: 'flex', flex: 1, width: '100%', p: tab === 0 ? 2 : 0, height: tab === 0 ? 'auto' : '100%' }}>{renderShow}</Box>
+      <Box sx={{ display: 'flex', flex: 1, width: '100%', py: !error && tab === 0 ? 2 : 0, px: !error && tab === 0 ? { xs: 0.5, sm: 2 } : 0, height: tab === 0 ? 'auto' : '100%' }}>{renderShow}</Box>
       <PreviewDialog
         open={isPreviewOpen}
         onClose={() => setIsPreviewOpen(false)}

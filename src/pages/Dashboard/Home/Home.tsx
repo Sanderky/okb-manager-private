@@ -674,7 +674,7 @@ const Home = () => {
     >
       {
         tab === 0 ? (
-          <Box sx={{ p: 2 }}>
+          <Box sx={{ px: { xs: 0.5, sm: 2 }, py: 2 }}>
 
             <Grid
               container
