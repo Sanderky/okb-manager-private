@@ -154,11 +154,11 @@ export default function DashboardSidebar({
               selected={!!matchPath('/employees/*', pathname)}
             />
             <DashboardSidebarPageItem
-              id="events"
-              title="Kalendarz"
+              id="vacations"
+              title="Urlopy"
               icon={<CalendarMonthIcon />}
-              href="/calendar"
-              selected={!!matchPath('/calendar/*', pathname)}
+              href="/vacations"
+              selected={!!matchPath('/vacations/*', pathname)}
             />
             <DashboardSidebarPageItem
               id="schedule"
