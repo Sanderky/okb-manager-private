@@ -357,7 +357,6 @@ const Calendar: React.FC = () => {
           ...prev,
           startDate: day,
           endDate: day,
-          color: employeeColors[0],
         }));
       } else {
         const start = selectDay.isBefore(day) ? selectDay : day;
@@ -366,7 +365,6 @@ const Calendar: React.FC = () => {
           ...prev,
           startDate: start,
           endDate: end,
-          color: prev.color || employeeColors[0],
         }));
         setActiveDialog({ type: 'addEvent' });
       }

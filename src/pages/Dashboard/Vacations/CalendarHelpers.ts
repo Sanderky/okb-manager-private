@@ -73,6 +73,32 @@ export const employeeColors = [
   '#BCAAA4', // Beżowy
 ];
 
+
+// export const stringToColor = (str: string, s = 65, l = 45) => {
+//   let hash = 0;
+//   for (let i = 0; i < str.length; i++) {
+//     hash = str.charCodeAt(i) + ((hash << 5) - hash);
+//   }
+
+//   const h = Math.abs(hash % 360);
+
+//   return `hsl(${h}, ${s}%, ${l}%)`;
+// };
+
+export const stringToColor = (str: string) => {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+
+  const goldenAngle = 137.508;
+  const h = Math.abs((hash * goldenAngle) % 360);
+  const l = 40 + (Math.abs(hash) % 20);
+  const s = 65;
+
+  return `hsl(${h}, ${s}%, ${l}%)`;
+};
+
 export const validateVacation = (
   employeeId: string,
   startDate: Dayjs,

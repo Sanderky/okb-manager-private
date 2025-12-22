@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useRef } from 'react';
+import React, { useMemo, useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   FormControl,
@@ -27,6 +27,7 @@ import {
   FormControlLabel,
   InputAdornment,
   Tooltip,
+  useTheme,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -34,6 +35,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import BaseDialog from '../../../components/BaseDialog';
 import {
   employeeColors,
+  stringToColor,
   type ActiveDialog,
   type CalendarEvent,
 } from './CalendarHelpers';
@@ -216,6 +218,13 @@ export const AddEventDialog: React.FC<AddEventDialogProps> = ({
   };
 
   const isFormValid = currentEvent.employee && currentEvent.color;
+  const theme = useTheme()
+
+  const generatedColor = currentEvent.employee ? stringToColor(currentEvent.employee?.id) : theme.palette.background.paper
+
+  useEffect(() => {
+    handleColorChange(generatedColor)
+  }, [currentEvent.employee])
 
   return (
     <BaseDialog
@@ -234,7 +243,9 @@ export const AddEventDialog: React.FC<AddEventDialogProps> = ({
           options={employees.filter((e) => e.status)}
           getOptionLabel={(opt) => opt?.name}
           value={currentEvent.employee ?? null}
-          onChange={(_, newValue) => handleEmployeeChange(newValue!)}
+          onChange={(_, newValue) => handleEmployeeChange(newValue!)
+
+          }
           isOptionEqualToValue={(option, value) => option.id === value.id}
           renderOption={(props, option) => {
             const { key, ...optionProps } = props;
@@ -318,7 +329,22 @@ export const AddEventDialog: React.FC<AddEventDialogProps> = ({
               {validationError}
             </Typography>
           )}
-          <Stack direction="row" gap={1} sx={{ mt: 1 }} flexWrap="wrap">
+
+
+          <Box
+            key={'generated'}
+            sx={{
+              mt: 1,
+              width: 58,
+              height: 25,
+              backgroundColor: generatedColor,
+              cursor: 'pointer',
+              borderRadius: 1,
+              border: currentEvent.color === generatedColor || !currentEvent.color ? '2px solid #000' : (!currentEvent.employee ? `1px solid ${theme.palette.divider}` : ''),
+            }}
+            onClick={() => handleColorChange(generatedColor)}
+          />
+          <Stack direction="row" gap={1} flexWrap="wrap" mt={1}>
             {employeeColors.map((color) => (
               <Box
                 key={color}
@@ -416,6 +442,14 @@ export const EditEventDialog: React.FC<EditEventDialogProps> = ({
   };
 
   const isFormValid = currentEvent.color;
+
+  const theme = useTheme()
+
+  const generatedColor = currentEvent.employee ? stringToColor(currentEvent.employee?.id) : theme.palette.background.paper
+
+  useEffect(() => {
+    handleColorChange(generatedColor)
+  }, [currentEvent.employee])
 
   return (
     <BaseDialog
@@ -540,6 +574,19 @@ export const EditEventDialog: React.FC<EditEventDialogProps> = ({
               {validationError}
             </Typography>
           )}
+          <Box
+            key={'generated'}
+            sx={{
+              mt: 1,
+              width: 58,
+              height: 25,
+              backgroundColor: generatedColor,
+              cursor: 'pointer',
+              borderRadius: 1,
+              border: currentEvent.color === generatedColor ? '2px solid #000' : (!currentEvent.employee ? `1px solid ${theme.palette.divider}` : ''),
+            }}
+            onClick={() => handleColorChange(generatedColor)}
+          />
           <Stack direction="row" gap={1} sx={{ mt: 1 }} flexWrap="wrap">
             {employeeColors.map((color) => (
               <Box
