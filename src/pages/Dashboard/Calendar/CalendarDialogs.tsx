@@ -383,23 +383,30 @@ const EventForm: React.FC<EventFormProps> = ({
 interface AddEventDialogProps {
   open: boolean;
   currentEvent: Partial<CalendarEvent>;
-  setCurrentEvent: React.Dispatch<React.SetStateAction<Partial<CalendarEvent>>>;
   validationError: string;
   employees: Employee[];
   constructions: Construction[];
   handleModalClose: () => void;
-  handleAddEvent: () => void;
+  handleAddEvent: (eventData: Partial<CalendarEvent>) => void; // <--- ZMIANA: funkcja przyjmuje dane
   loading?: boolean;
 }
 
 export const AddEventDialog: React.FC<AddEventDialogProps> = ({
   open,
   currentEvent,
-  setCurrentEvent,
   ...props
 }) => {
+  const [internalEvent, setInternalEvent] =
+    useState<Partial<CalendarEvent>>(currentEvent);
+
+  useEffect(() => {
+    if (open) {
+      setInternalEvent(currentEvent);
+    }
+  }, [open, currentEvent]);
+
   const handleUpdate = (updates: Partial<CalendarEvent>) => {
-    setCurrentEvent((prev) => ({ ...prev, ...updates }));
+    setInternalEvent((prev) => ({ ...prev, ...updates }));
   };
 
   const { getEventColor } = useEventColor();
@@ -408,17 +415,17 @@ export const AddEventDialog: React.FC<AddEventDialogProps> = ({
     <BaseDialog
       open={open}
       onClose={props.handleModalClose}
-      onConfirm={props.handleAddEvent}
+      onConfirm={() => props.handleAddEvent(internalEvent)}
       title="Nowe wydarzenie"
       confirmText="Dodaj"
       titleSx={{
-        background: getEventColor(currentEvent.severity ?? 'info'),
+        background: getEventColor(internalEvent.severity ?? 'info'),
       }}
       loading={props.loading}
       showCancel={false}
     >
       <EventForm
-        currentEvent={currentEvent}
+        currentEvent={internalEvent}
         setEvent={handleUpdate}
         employees={props.employees}
         constructions={props.constructions}

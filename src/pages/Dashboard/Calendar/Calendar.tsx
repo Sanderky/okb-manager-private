@@ -307,8 +307,8 @@ const Calendar: React.FC = () => {
     resetOnClose();
   }, []);
 
-  const handleAddEvent = () => {
-    const { startDate, endDate, severity, title } = currentEvent;
+  const handleAddEvent = (eventData: Partial<CalendarEvent>) => {
+    const { startDate, endDate, severity, title } = eventData;
 
     const validation = validateCalendarEvent(
       title!,
@@ -322,14 +322,14 @@ const Calendar: React.FC = () => {
     }
 
     const payload: Partial<InfoEvent> = {
-      title: currentEvent.title,
-      description: currentEvent.description,
-      severity: currentEvent.severity,
+      title: eventData.title,
+      description: eventData.description,
+      severity: eventData.severity,
       startDate: startDate!.toDate(),
       endDate: endDate!.toDate(),
-      employeeIds: currentEvent.employeeIds,
-      constructionIds: currentEvent.constructionIds,
-      groupId: currentEvent.groupId,
+      employeeIds: eventData.employeeIds,
+      constructionIds: eventData.constructionIds,
+      groupId: eventData.groupId,
     };
 
     addMutation(payload);
@@ -526,7 +526,6 @@ const Calendar: React.FC = () => {
         <AddEventDialog
           open={addDialogOpen}
           currentEvent={currentEvent}
-          setCurrentEvent={setCurrentEvent}
           validationError={validationError}
           employees={employees}
           constructions={constructions}
