@@ -193,9 +193,15 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                             left: 0,
                             right: 0,
                             bgcolor: eventColor,
-                            px: 1,
-                            ml: isStart ? 1 : '-1px',
-                            mr: isEnd ? 1 : '-1px',
+                            px: { xs: 0.5, md: 1 },
+                            ml: {
+                              xs: isStart ? 0 : '-1px',
+                              md: isStart ? 1 : '-1px',
+                            },
+                            mr: {
+                              xs: isEnd ? 0 : '-1px',
+                              md: isEnd ? 1 : '-1px',
+                            },
                             border:
                               ev.severity === 'employee'
                                 ? '1px dashed black'
