@@ -5,8 +5,8 @@ export type EmployeeAttachmentType = 'id_card' | 'contract' | 'a1' | 'other';
 export interface Contractor {
   id: string;
   name: string;
-  note?: string,
-  constructionsCount?: number
+  note?: string;
+  constructionsCount?: number;
 }
 
 export interface Construction {
@@ -138,6 +138,27 @@ export interface Vacation {
 
   employeeName?: string;
   employeeActive?: boolean;
+}
+
+export type InfoEventSeverity =
+  | 'info'
+  | 'warning'
+  | 'error'
+  | 'success'
+  | 'employee'
+  | 'hotel'
+  | 'other';
+
+export interface InfoEvent {
+  id: string;
+  groupId?: string;
+  title: string;
+  startDate: Date;
+  endDate: Date;
+  severity: InfoEventSeverity;
+  description?: string;
+  employeeIds: string[];
+  constructionIds: string[];
 }
 
 export interface EmployeeAlert {

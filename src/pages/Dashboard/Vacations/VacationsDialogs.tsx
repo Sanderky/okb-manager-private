@@ -38,7 +38,7 @@ import {
   stringToColor,
   type ActiveDialog,
   type CalendarEvent,
-} from './CalendarHelpers';
+} from './VacationsHelpers';
 import type { Employee, Vacation } from '../../../types';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { AccountCircle, Close as CloseIcon, Print as PrintIcon } from '@mui/icons-material';

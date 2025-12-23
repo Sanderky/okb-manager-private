@@ -53,24 +53,19 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
       sx={(theme) => ({
         p: 1,
         background: theme.palette.background.paper,
-        borderBottom: `1px solid ${theme.palette.divider}`
+        borderBottom: `1px solid ${theme.palette.divider}`,
       })}
     >
-
-
       <Stack direction={'row'} gap={1}>
-
         <Typography
           textTransform={'capitalize'}
-
           className="rounded-full border border-gray-700 px-3 py-1 font-semibold"
           sx={{
-            fontSize: '0.8rem'
+            fontSize: '0.8rem',
           }}
         >
           {currentMonth.format('MMMM YYYY')}
         </Typography>
-
 
         <Stack direction={'row'}>
           <Tooltip title={'Poprzedni miesiąc'}>
@@ -106,23 +101,6 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
             >
               Dziś
             </Button>
-            {/* <IconButton
-            // className="rounded-none border-x-0"
-            className=" rounded-none border border-x-0"
-
-            color="primary"
-            size="small"
-            onClick={() => handleMonthChange('today')}
-            sx={(theme) => ({
-              borderColor: theme.palette.primary.light,
-              flexGrow: 1,
-              '&:hover': {
-                borderColor: theme.palette.primary.main,
-              },
-            })}
-          >
-            <ExpandMore fontSize="small" />
-          </IconButton> */}
           </Tooltip>
           <Tooltip title={'Następny miesiąc'}>
             <IconButton
@@ -142,7 +120,6 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
           </Tooltip>
         </Stack>
       </Stack>
-
 
       <IconButton onClick={handleClickMobileMenu}>
         <MoreHoriz />
@@ -231,60 +208,6 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
           </Badge>
         </MenuItem>
       </Menu>
-
-
-      {/* <Stack direction={'row'}>
-        <Tooltip title={'Poprzedni miesiąc'}>
-          <IconButton
-            size="small"
-            className="rounded-l-lg rounded-r-none border"
-            color="primary"
-            onClick={() => handleMonthChange('prev')}
-            sx={(theme) => ({
-              borderColor: theme.palette.primary.light,
-              '&:hover': {
-                borderColor: theme.palette.primary.main,
-              },
-            })}
-          >
-            <ChevronLeft fontSize="small" />
-          </IconButton>
-        </Tooltip>
-        <Tooltip title={'Obecy miesiąc'}>
-          <Button
-            variant="outlined"
-            className="rounded-none border-x-0"
-            color="primary"
-            size="small"
-            onClick={() => handleMonthChange('today')}
-            sx={(theme) => ({
-              borderColor: theme.palette.primary.light,
-              flexGrow: 1,
-              '&:hover': {
-                borderColor: theme.palette.primary.main,
-              },
-            })}
-          >
-            Dziś
-          </Button>
-        </Tooltip>
-        <Tooltip title={'Następny miesiąc'}>
-          <IconButton
-            size="small"
-            color="primary"
-            className="rounded-l-none rounded-r-lg border"
-            onClick={() => handleMonthChange('next')}
-            sx={(theme) => ({
-              borderColor: theme.palette.primary.light,
-              '&:hover': {
-                borderColor: theme.palette.primary.main,
-              },
-            })}
-          >
-            <ChevronRight fontSize="small" />
-          </IconButton>
-        </Tooltip>
-      </Stack> */}
     </Stack>
   );
 
@@ -299,7 +222,7 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
       sx={(theme) => ({
         p: 1,
         background: theme.palette.background.paper,
-        borderBottom: `1px solid ${theme.palette.divider}`
+        borderBottom: `1px solid ${theme.palette.divider}`,
       })}
     >
       <Stack direction={'row'}>

@@ -1,0 +1,40 @@
+import { darken, useTheme } from '@mui/material';
+import { useCallback } from 'react';
+import type { InfoEventSeverity } from '../../../types';
+
+export const useEventColor = () => {
+  const theme = useTheme();
+
+  const getEventColor = useCallback(
+    (severity: InfoEventSeverity) => {
+      switch (severity) {
+        case 'error':
+          return theme.palette.error.main;
+        case 'warning':
+          return theme.palette.warning.main;
+        case 'success':
+          return theme.palette.success.main;
+        case 'info':
+          return theme.palette.info.main;
+        case 'hotel':
+          return theme.palette.secondary.main;
+        case 'employee':
+          return theme.palette.background.default;
+        default:
+          return theme.palette.primary.main;
+      }
+    },
+    [theme]
+  );
+
+  const getEventTextColor = useCallback(
+    (severity: InfoEventSeverity) => {
+      const eventColor = getEventColor(severity);
+      const isLightColor = theme.palette.getContrastText(eventColor) !== '#fff';
+      return isLightColor ? darken(eventColor, 0.55) : '#ffffff';
+    },
+    [theme]
+  );
+
+  return { getEventColor, getEventTextColor };
+};

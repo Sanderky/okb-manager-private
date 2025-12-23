@@ -19,7 +19,7 @@ import EmployeeEdit from './pages/Dashboard/Employees/EmployeeEdit';
 import EmployeeCreate from './pages/Dashboard/Employees/EmployeeCreate';
 import ConstructionEdit from './pages/Dashboard/Constructions/ConstructionEdit';
 import Home from './pages/Dashboard/Home/Home';
-import VacationCalendar from './pages/Dashboard/Vacations/Calendar';
+import VacationCalendar from './pages/Dashboard/Vacations/Vacations';
 import Hours from './pages/Dashboard/Hours/Hours';
 import Schedule from './pages/Dashboard/Schedule/Schedule';
 import PageNotFound from './pages/PageNotFound/PageNotFound';
@@ -37,9 +37,9 @@ import { getContractors } from './services/contractors';
 import { getEmployeeAlerts } from './services/alerts';
 import UpdatePassword from './pages/ForgotPassword/ForgotPassword';
 import { LayoutProvider } from './context/LayoutContext';
+import Calendar from './pages/Dashboard/Calendar/Calendar';
 
 declare module '@mui/material/styles' {
-  // 1. Mówimy, że w gotowym 'theme.palette' będą te nowe pola
   interface Palette {
     schedule: {
       past: string,
@@ -256,6 +256,7 @@ export default function App() {
                     />
                     <Route path="schedule" element={<Schedule />} />
                     <Route path="vacations" element={<VacationCalendar />} />
+                    <Route path="calendar" element={<Calendar />} />
                     <Route path="hours" element={<Hours />} />
                     <Route path="*" element={<PageNotFound />} />
                   </Route>

@@ -21,15 +21,15 @@ import { Add, Close as CloseIcon } from '@mui/icons-material';
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
 import useNotifications from '../../../hooks/useNotifications/useNotifications';
-import { CalendarGrid } from './CalendarGrid';
-import { CalendarControls } from './CalendarControls';
+import { CalendarGrid } from './VacationsGrid';
+import { CalendarControls } from './VacationsControls';
 import {
   FilterDialog,
   AddEventDialog,
   EventListDialog,
   EditEventDialog,
   VacationReportDialog,
-} from './CalendarDialogs';
+} from './VacationsDialogs';
 import {
   validateVacation,
   type ActiveDialog,
@@ -37,7 +37,7 @@ import {
   type CalendarEvent,
   employeeColors,
   WEEK_DAYS,
-} from './CalendarHelpers';
+} from './VacationsHelpers';
 import PageContainer from '../../../components/PageContainer';
 import useLoading from '../../../hooks/useLoading';
 import ListAltIcon from '@mui/icons-material/ListAlt';

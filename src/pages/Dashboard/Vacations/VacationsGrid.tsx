@@ -11,7 +11,7 @@ import {
   Divider,
 } from '@mui/material';
 import dayjs from 'dayjs';
-import { getInitials, type CalendarGridProps } from './CalendarHelpers';
+import { getInitials, type CalendarGridProps } from './VacationsHelpers';
 
 import { ExpandLess, ExpandMore } from '@mui/icons-material';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
