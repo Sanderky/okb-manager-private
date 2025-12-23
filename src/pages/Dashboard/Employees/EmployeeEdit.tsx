@@ -86,6 +86,7 @@ export default function EmployeeEdit() {
       queryClient.invalidateQueries({ queryKey: ['vacations'] });
       queryClient.invalidateQueries({ queryKey: ['schedules'] });
       queryClient.invalidateQueries({ queryKey: ['workLogs'] });
+      queryClient.invalidateQueries({ queryKey: ['alerts'] });
       notifications.show('Dane pracownika zostały zaktualizowane.', {
         severity: 'success',
         autoHideDuration: 5000,
@@ -176,6 +177,9 @@ export default function EmployeeEdit() {
 
   const deleteMutation = useMutation({
     mutationFn: () => removeEmployee(employeeId!),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['alerts'] });
+    }
   });
   const handleDeleteClick = useCallback(() => {
     setDeleteConfirmation('');

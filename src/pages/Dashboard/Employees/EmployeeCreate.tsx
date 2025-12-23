@@ -39,6 +39,7 @@ export default function EmployeeCreate() {
       createEmployee(newEmployee as Employee),
     onSuccess: (newEmployeeId) => {
       queryClient.invalidateQueries({ queryKey: ['employees'] });
+      queryClient.invalidateQueries({ queryKey: ['alerts'] });
       notifications.show('Pracownik został utworzony.', {
         severity: 'success',
         autoHideDuration: 5000,
