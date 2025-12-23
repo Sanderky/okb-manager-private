@@ -419,7 +419,17 @@ const Calendar: React.FC = () => {
     isLoadingEmployees || isLoadingConstructions || isLoadingEvents;
   const error = isErrorEmployees || isErrorConstructions || isErrorEvents;
 
-  if (error) return <Alert severity="error">Błąd danych</Alert>;
+  if (error) {
+    return (
+      <PageContainer breadcrumbs={[{ title: 'Kalendarz' }]} fixedHeight={true}>
+        <Box className="relative">
+          <Alert severity="error">
+            Wystąpił błąd podczas ładowania danych.
+          </Alert>
+        </Box>
+      </PageContainer>
+    );
+  }
 
   return (
     <PageContainer
@@ -450,9 +460,23 @@ const Calendar: React.FC = () => {
         }}
       >
         {loading && (
-          <CircularProgress
-            sx={{ position: 'absolute', top: '50%', left: '50%' }}
-          />
+          <Box
+            sx={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              backgroundColor: 'rgba(255, 255, 255, 0.5)',
+              zIndex: 100,
+              borderRadius: 'inherit',
+            }}
+          >
+            <CircularProgress />
+          </Box>
         )}
 
         <IconButton
