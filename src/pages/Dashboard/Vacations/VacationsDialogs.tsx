@@ -25,9 +25,10 @@ import {
   TableRow,
   Paper,
   FormControlLabel,
-  InputAdornment,
   Tooltip,
   useTheme,
+  type SxProps,
+  type Theme,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -36,14 +37,19 @@ import BaseDialog from '../../../components/BaseDialog';
 import {
   employeeColors,
   stringToColor,
-  type ActiveDialog,
+  type CalendarDay,
   type CalendarEvent,
 } from './VacationsHelpers';
 import type { Employee, Vacation } from '../../../types';
-import DeleteIcon from '@mui/icons-material/Delete';
-import { AccountCircle, Close as CloseIcon, Print as PrintIcon } from '@mui/icons-material';
+import {
+  Add,
+  CalendarMonth,
+  Close as CloseIcon,
+  Person,
+  Print as PrintIcon,
+} from '@mui/icons-material';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack'; // NOWY IMPORT
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import dayjs, { Dayjs } from 'dayjs';
 import { useReactToPrint } from 'react-to-print';
 import { plPL } from '@mui/x-date-pickers/locales';
@@ -160,93 +166,46 @@ export const FilterDialog: React.FC<FilterDialogProps> = ({
   );
 };
 
-interface AddEventDialogProps {
-  activeDialog: ActiveDialog;
+interface VacationFormProps {
   currentEvent: CalendarEvent;
-  setCurrentEvent: (event: CalendarEvent) => void;
-  validationError: string;
+  setEvent: (updates: Partial<CalendarEvent>) => void;
   employees: Employee[];
-  handleModalClose: () => void;
-  handleEmployeeChange: (employee: Employee) => void;
-  handleAddEvent: () => void;
-  loading?: boolean;
+  validationError: string;
+  loading: boolean;
+  isNew: boolean;
 }
 
-export const AddEventDialog: React.FC<AddEventDialogProps> = ({
-  activeDialog,
+const VacationForm: React.FC<VacationFormProps> = ({
   currentEvent,
-  setCurrentEvent,
-  validationError,
+  setEvent,
   employees,
-  handleModalClose,
-  handleEmployeeChange,
-  handleAddEvent,
-  loading = false,
+  validationError,
+  loading,
+  isNew,
 }) => {
-  const handleDescriptionChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setCurrentEvent({
-      ...currentEvent,
-      description: event.target.value,
-    });
-  };
+  const theme = useTheme();
 
-  const handleColorChange = (color: string) => {
-    setCurrentEvent({
-      ...currentEvent,
-      color: color,
-    });
-  };
-
-  const handleStartDateChange = (date: Dayjs | null) => {
-    if (date) {
-      setCurrentEvent({
-        ...currentEvent,
-        startDate: date,
-      });
-    }
-  };
-
-  const handleEndDateChange = (date: Dayjs | null) => {
-    if (date) {
-      setCurrentEvent({
-        ...currentEvent,
-        endDate: date,
-      });
-    }
-  };
-
-  const isFormValid = currentEvent.employee && currentEvent.color;
-  const theme = useTheme()
-
-  const generatedColor = currentEvent.employee ? stringToColor(currentEvent.employee?.id) : theme.palette.background.paper
-
-  useEffect(() => {
-    handleColorChange(generatedColor)
-  }, [currentEvent.employee])
+  const generatedColor = currentEvent.employee
+    ? stringToColor(currentEvent.employee.id)
+    : theme.palette.background.paper;
 
   return (
-    <BaseDialog
-      open={activeDialog.type === 'addEvent'}
-      onClose={handleModalClose}
-      onConfirm={handleAddEvent}
-      title="Dodaj urlop"
-      confirmText="Zapisz urlop"
-      loading={loading}
-      disabled={!isFormValid}
-      showCancel={false}
-    >
-      <Stack spacing={2}>
+    <Stack spacing={2} sx={{ mt: 1 }}>
+      {isNew ? (
         <Autocomplete
           size="small"
           options={employees.filter((e) => e.status)}
-          getOptionLabel={(opt) => opt?.name}
+          getOptionLabel={(opt) => opt?.name || ''}
           value={currentEvent.employee ?? null}
-          onChange={(_, newValue) => handleEmployeeChange(newValue!)
+          onChange={(_, newValue) => {
+            const newColor = newValue ? stringToColor(newValue.id) : undefined;
 
-          }
-          isOptionEqualToValue={(option, value) => option.id === value.id}
+            setEvent({
+              employee: newValue!,
+              ...(newColor && { color: newColor }),
+            });
+          }}
+          isOptionEqualToValue={(option, value) => option.id === value?.id}
           renderOption={(props, option) => {
             const { key, ...optionProps } = props;
             return (
@@ -270,226 +229,7 @@ export const AddEventDialog: React.FC<AddEventDialogProps> = ({
           )}
           disabled={loading}
         />
-
-        <TextField
-          label="Opis"
-          multiline
-          rows={4}
-          value={currentEvent.description || ''}
-          onChange={handleDescriptionChange}
-          disabled={loading}
-        />
-
-        <LocalizationProvider
-          localeText={
-            plPL.components.MuiLocalizationProvider.defaultProps.localeText
-          }
-          dateAdapter={AdapterDayjs}
-          adapterLocale="pl"
-        >
-          <Stack direction="row" spacing={{ xs: 1, sm: 2 }}>
-            <DatePicker
-              label="Data rozpoczęcia *"
-              openTo="month"
-              views={['year', 'month', 'day']}
-              value={currentEvent.startDate || null}
-              onChange={handleStartDateChange}
-              slotProps={{
-                textField: {
-                  size: 'small',
-                  fullWidth: true,
-                },
-              }}
-            />
-            <DatePicker
-              label="Data zakończenia *"
-              openTo="month"
-              views={['year', 'month', 'day']}
-              value={currentEvent.endDate || null}
-              onChange={handleEndDateChange}
-              slotProps={{
-                textField: {
-                  size: 'small',
-                  fullWidth: true,
-                },
-              }}
-              minDate={currentEvent.startDate || null}
-            />
-          </Stack>
-        </LocalizationProvider>
-
-        <Box>
-          <FormLabel>Wybierz kolor *</FormLabel>
-          {!currentEvent.color && validationError && (
-            <Typography
-              variant="caption"
-              color="error"
-              sx={{ display: 'block', mt: 0.5 }}
-            >
-              {validationError}
-            </Typography>
-          )}
-
-
-          <Box
-            key={'generated'}
-            sx={{
-              mt: 1,
-              width: 58,
-              height: 25,
-              backgroundColor: generatedColor,
-              cursor: 'pointer',
-              borderRadius: 1,
-              border: currentEvent.color === generatedColor || !currentEvent.color ? '2px solid #000' : (!currentEvent.employee ? `1px solid ${theme.palette.divider}` : ''),
-            }}
-            onClick={() => handleColorChange(generatedColor)}
-          />
-          <Stack direction="row" gap={1} flexWrap="wrap" mt={1}>
-            {employeeColors.map((color) => (
-              <Box
-                key={color}
-                sx={{
-                  width: 25,
-                  height: 25,
-                  backgroundColor: color,
-                  cursor: 'pointer',
-                  borderRadius: 1,
-                  border: currentEvent.color === color ? '2px solid #000' : '',
-                }}
-                onClick={() => handleColorChange(color)}
-              />
-            ))}
-          </Stack>
-        </Box>
-
-        {validationError && validationError.includes('urlop w dniach') && (
-          <Alert severity="error">{validationError}</Alert>
-        )}
-      </Stack>
-    </BaseDialog>
-  );
-};
-
-interface EditEventDialogProps {
-  activeDialog: ActiveDialog;
-  currentEvent: CalendarEvent;
-  setCurrentEvent: (event: CalendarEvent) => void;
-  validationError: string;
-  employees: Employee[];
-  handleModalClose: () => void;
-  handleEmployeeChange: (employee: Employee) => void;
-  handleDeleteEvent: (id?: string) => void;
-  handleEditEvent: () => void;
-  loading?: boolean;
-  onBack?: () => void;
-  canGoBack?: boolean;
-}
-
-export const EditEventDialog: React.FC<EditEventDialogProps> = ({
-  activeDialog,
-  currentEvent,
-  setCurrentEvent,
-  validationError,
-  handleModalClose,
-  handleDeleteEvent,
-  handleEditEvent,
-  loading = false,
-  onBack,
-  canGoBack = false,
-}) => {
-  const navigate = useNavigate();
-
-  const handleDescriptionChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setCurrentEvent({
-      ...currentEvent,
-      description: event.target.value,
-    });
-  };
-
-  const handleColorChange = (color: string) => {
-    setCurrentEvent({
-      ...currentEvent,
-      color: color,
-    });
-  };
-
-  const handleStartDateChange = (date: Dayjs | null) => {
-    if (date) {
-      setCurrentEvent({
-        ...currentEvent,
-        startDate: date,
-      });
-    }
-  };
-
-  const handleEndDateChange = (date: Dayjs | null) => {
-    if (date) {
-      setCurrentEvent({
-        ...currentEvent,
-        endDate: date,
-      });
-    }
-  };
-
-  const handleDelete = () => {
-    handleDeleteEvent();
-  };
-
-  const handleClickOnEmployee = () => {
-    navigate(`/employees/${currentEvent.employee.id}`);
-  };
-
-  const isFormValid = currentEvent.color;
-
-  const theme = useTheme()
-
-  const generatedColor = currentEvent.employee ? stringToColor(currentEvent.employee?.id) : theme.palette.background.paper
-
-  useEffect(() => {
-    handleColorChange(generatedColor)
-  }, [currentEvent.employee])
-
-  return (
-    <BaseDialog
-      open={activeDialog.type === 'editEvent'}
-      onClose={handleModalClose}
-      title={
-        <Stack direction="row" alignItems="center" spacing={1}>
-          {canGoBack && onBack && (
-            <IconButton onClick={onBack} size="small" sx={{ ml: -1 }}>
-              <ArrowBackIcon />
-            </IconButton>
-          )}
-          <Typography variant="h6">Edytuj urlop</Typography>
-        </Stack>
-      }
-      loading={loading}
-      disabled={!isFormValid}
-      actions={
-        <>
-          <Button
-            variant="outlined"
-            color="error"
-            onClick={handleDelete}
-            loading={loading}
-            startIcon={<DeleteIcon />}
-            sx={{ mr: 'auto' }}
-          >
-            Usuń urlop
-          </Button>
-          <Button
-            variant="contained"
-            onClick={handleEditEvent}
-            loading={loading}
-          >
-            Zapisz zmiany
-          </Button>
-        </>
-      }
-    >
-      <Stack spacing={2}>
+      ) : (
         <TextField
           size="small"
           label="Pracownik"
@@ -498,15 +238,6 @@ export const EditEventDialog: React.FC<EditEventDialogProps> = ({
           slotProps={{
             input: {
               readOnly: true,
-              endAdornment: (
-                <InputAdornment position="end">
-                  <Tooltip title='Przejdź do pracownika'>
-                    <IconButton onClick={handleClickOnEmployee}>
-                      <AccountCircle />
-                    </IconButton>
-                  </Tooltip>
-                </InputAdornment>
-              ),
             },
           }}
           sx={{
@@ -515,128 +246,410 @@ export const EditEventDialog: React.FC<EditEventDialogProps> = ({
             },
           }}
         />
+      )}
 
-        <TextField
-          label="Opis"
-          multiline
-          rows={4}
-          value={currentEvent.description || ''}
-          onChange={handleDescriptionChange}
-          disabled={loading}
-        />
+      <TextField
+        label="Opis"
+        multiline
+        minRows={4}
+        slotProps={{
+          input: {
+            spellCheck: false,
+          },
+        }}
+        value={currentEvent.description || ''}
+        onChange={(e) => setEvent({ description: e.target.value })}
+        disabled={loading}
+      />
 
-        <LocalizationProvider
-          localeText={
-            plPL.components.MuiLocalizationProvider.defaultProps.localeText
-          }
-          dateAdapter={AdapterDayjs}
-          adapterLocale="pl"
-        >
-          <Stack direction="row" spacing={{ xs: 1, sm: 2 }}>
-            <DatePicker
-              label="Data rozpoczęcia *"
-              openTo="month"
-              views={['year', 'month', 'day']}
-              value={currentEvent.startDate || null}
-              onChange={handleStartDateChange}
-              slotProps={{
-                textField: {
-                  size: 'small',
-                  fullWidth: true,
-                },
-              }}
-            />
-            <DatePicker
-              label="Data zakończenia *"
-              value={currentEvent.endDate || null}
-              openTo="month"
-              views={['year', 'month', 'day']}
-              onChange={handleEndDateChange}
-              slotProps={{
-                textField: {
-                  size: 'small',
-                  fullWidth: true,
-                },
-              }}
-              minDate={currentEvent.startDate || null}
-            />
-          </Stack>
-        </LocalizationProvider>
+      <LocalizationProvider
+        localeText={
+          plPL.components.MuiLocalizationProvider.defaultProps.localeText
+        }
+        dateAdapter={AdapterDayjs}
+        adapterLocale="pl"
+      >
+        <Stack direction="row" spacing={{ xs: 1, sm: 2 }}>
+          <DatePicker
+            label="Data rozpoczęcia *"
+            openTo="month"
+            views={['year', 'month', 'day']}
+            value={currentEvent.startDate || null}
+            onChange={(date) => date && setEvent({ startDate: date })}
+            slotProps={{
+              textField: {
+                size: 'small',
+                fullWidth: true,
+              },
+            }}
+            disabled={loading}
+          />
+          <DatePicker
+            label="Data zakończenia *"
+            openTo="month"
+            views={['year', 'month', 'day']}
+            value={currentEvent.endDate || null}
+            onChange={(date) => date && setEvent({ endDate: date })}
+            slotProps={{
+              textField: {
+                size: 'small',
+                fullWidth: true,
+              },
+            }}
+            minDate={currentEvent.startDate || undefined}
+            disabled={loading}
+          />
+        </Stack>
+      </LocalizationProvider>
 
-        <Box>
-          <FormLabel>Wybierz kolor *</FormLabel>
-          {!currentEvent.color && validationError && (
-            <Typography
-              variant="caption"
-              color="error"
-              sx={{ display: 'block', mt: 0.5 }}
-            >
-              {validationError}
-            </Typography>
-          )}
+      <Box>
+        <FormLabel>Wybierz kolor *</FormLabel>
+        {!currentEvent.color && validationError && (
+          <Typography
+            variant="caption"
+            color="error"
+            sx={{ display: 'block', mt: 0.5 }}
+          >
+            {validationError}
+          </Typography>
+        )}
+
+        <Stack direction="row" gap={1} flexWrap="wrap" mt={1}>
           <Box
             key={'generated'}
             sx={{
-              mt: 1,
               width: 58,
               height: 25,
               backgroundColor: generatedColor,
               cursor: 'pointer',
               borderRadius: 1,
-              border: currentEvent.color === generatedColor ? '2px solid #000' : (!currentEvent.employee ? `1px solid ${theme.palette.divider}` : ''),
+              border:
+                currentEvent.color === generatedColor || !currentEvent.color
+                  ? '2px solid #000'
+                  : !currentEvent.employee
+                    ? `1px solid ${theme.palette.divider}`
+                    : '',
             }}
-            onClick={() => handleColorChange(generatedColor)}
+            onClick={() => setEvent({ color: generatedColor })}
           />
-          <Stack direction="row" gap={1} sx={{ mt: 1 }} flexWrap="wrap">
-            {employeeColors.map((color) => (
-              <Box
-                key={color}
-                sx={{
-                  width: 25,
-                  height: 25,
-                  backgroundColor: color,
-                  cursor: 'pointer',
-                  borderRadius: 1,
-                  border: currentEvent.color === color ? '2px solid #000' : '',
-                }}
-                onClick={() => handleColorChange(color)}
-              />
-            ))}
-          </Stack>
-        </Box>
+          {employeeColors.map((color) => (
+            <Box
+              key={color}
+              sx={{
+                width: 25,
+                height: 25,
+                backgroundColor: color,
+                cursor: 'pointer',
+                borderRadius: 1,
+                border: currentEvent.color === color ? '2px solid #000' : '',
+              }}
+              onClick={() => setEvent({ color: color })}
+            />
+          ))}
+        </Stack>
+      </Box>
 
-        {validationError && <Alert severity="error">{validationError}</Alert>}
+      {validationError && validationError.includes('urlop w dniach') && (
+        <Alert severity="error">{validationError}</Alert>
+      )}
+    </Stack>
+  );
+};
+
+interface AddVacationDialogProps {
+  open: boolean;
+  currentEvent: CalendarEvent;
+  validationError: string;
+  employees: Employee[];
+  handleModalClose: () => void;
+  handleAddEvent: (eventToSave: CalendarEvent) => void;
+  loading?: boolean;
+}
+
+export const AddVacationDialog: React.FC<AddVacationDialogProps> = ({
+  open,
+  currentEvent,
+  validationError,
+  employees,
+  handleModalClose,
+  handleAddEvent,
+  loading = false,
+}) => {
+  const [internalEvent, setInternalEvent] =
+    useState<CalendarEvent>(currentEvent);
+
+  useEffect(() => {
+    if (open) {
+      setInternalEvent(currentEvent);
+    }
+  }, [open, currentEvent]);
+
+  const handleUpdate = (updates: Partial<CalendarEvent>) => {
+    setInternalEvent((prev) => ({ ...prev, ...updates }));
+  };
+
+  const isFormValid = internalEvent.employee && internalEvent.color;
+
+  return (
+    <BaseDialog
+      open={open}
+      onClose={handleModalClose}
+      onConfirm={() => handleAddEvent(internalEvent)}
+      title="Dodaj urlop"
+      confirmText="Zapisz urlop"
+      loading={loading}
+      disabled={!isFormValid}
+      showCancel={false}
+    >
+      <VacationForm
+        isNew={true}
+        currentEvent={internalEvent}
+        setEvent={handleUpdate}
+        employees={employees}
+        validationError={validationError}
+        loading={loading}
+      />
+    </BaseDialog>
+  );
+};
+
+interface VacationDetailsProps {
+  event: CalendarEvent;
+  onNavigateToEmployee: () => void;
+}
+
+const VacationDetails: React.FC<VacationDetailsProps> = ({
+  event,
+  onNavigateToEmployee,
+}) => {
+  const displayDate = event.startDate?.isSame(event.endDate)
+    ? event.startDate?.format('DD.MM.YYYY') || '-'
+    : `${event.startDate?.format('DD.MM.YYYY') || '-'} — ${event.endDate?.format('DD.MM.YYYY') || '-'}`;
+
+  return (
+    <Stack spacing={2}>
+      <Stack direction="row" alignItems="center" gap={1} mb={1}>
+        <Tooltip title="Przejdź do pracownika">
+          <IconButton onClick={onNavigateToEmployee} sx={{ p: 0 }}>
+            <Person color="action" fontSize="small" />
+          </IconButton>
+        </Tooltip>
+        <Typography variant="subtitle2" color="text.secondary">
+          {event.employee?.name ?? ''}{' '}
+          {event.employee?.status ? '' : '(nieaktywny)'}
+        </Typography>
       </Stack>
+
+      <Stack
+        direction="row"
+        alignItems="center"
+        spacing={1}
+        color="text.secondary"
+      >
+        <CalendarMonth fontSize="small" />
+        <Typography variant="body2" fontWeight={500}>
+          {displayDate}
+        </Typography>
+      </Stack>
+
+      <Box>
+        <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+          Opis
+        </Typography>
+        <Typography>{event.description || 'Brak opisu'}</Typography>
+      </Box>
+
+      <Box>
+        <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+          Kolor oznaczenia
+        </Typography>
+        <Box
+          sx={{
+            width: 58,
+            height: 25,
+            bgcolor: event.color || '#ccc',
+            borderRadius: 1,
+            border: '1px solid rgba(0,0,0,0.1)',
+          }}
+        />
+      </Box>
+    </Stack>
+  );
+};
+
+export default VacationDetails;
+
+interface EditVacationDialogProps {
+  open: boolean;
+  currentEvent: CalendarEvent;
+  validationError: string;
+  employees: Employee[];
+  handleModalClose: () => void;
+  handleDeleteEvent: () => void;
+  handleEditEvent: (eventToSave: CalendarEvent) => void;
+  loading?: boolean;
+  onBack?: () => void;
+  canGoBack?: boolean;
+  handleResetError?: () => void;
+}
+
+export const EditVacationDialog: React.FC<EditVacationDialogProps> = ({
+  open,
+  currentEvent,
+  validationError,
+  employees,
+  handleModalClose,
+  handleDeleteEvent,
+  handleEditEvent,
+  loading = false,
+  onBack,
+  canGoBack = false,
+  handleResetError,
+}) => {
+  const navigate = useNavigate();
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [internalEvent, setInternalEvent] =
+    useState<CalendarEvent>(currentEvent);
+
+  useEffect(() => {
+    if (open) {
+      setInternalEvent(currentEvent);
+      setIsEditing(false);
+    }
+  }, [open, currentEvent]);
+
+  const handleUpdate = (updates: Partial<CalendarEvent>) => {
+    setInternalEvent((prev) => ({ ...prev, ...updates }));
+  };
+
+  const handleStartEditing = () => {
+    setInternalEvent(currentEvent);
+    setIsEditing(true);
+  };
+
+  const handleCancelEditing = () => {
+    setInternalEvent(currentEvent);
+    setIsEditing(false);
+    if (handleResetError) handleResetError();
+  };
+
+  const handleSave = () => {
+    handleEditEvent(internalEvent);
+  };
+
+  const handleClickOnEmployee = () => {
+    if (currentEvent.employee?.id) {
+      navigate(`/employees/${currentEvent.employee.id}`);
+    }
+  };
+
+  return (
+    <BaseDialog
+      open={open}
+      onClose={handleModalClose}
+      title={
+        <Stack direction="row" alignItems="center" spacing={1}>
+          {canGoBack && onBack && (
+            <IconButton
+              onClick={onBack}
+              size="small"
+              sx={{ ml: -1, color: 'inherit' }}
+            >
+              <ArrowBackIcon />
+            </IconButton>
+          )}
+          <Typography variant="h6">
+            {isEditing ? 'Edytuj urlop' : 'Szczegóły urlopu'}
+          </Typography>
+        </Stack>
+      }
+      loading={loading}
+      disabled={isEditing && (!internalEvent.employee || !internalEvent.color)}
+      actions={
+        isEditing ? (
+          <>
+            <Button
+              variant="outlined"
+              color="inherit"
+              onClick={handleCancelEditing}
+              disabled={loading}
+              sx={{ mr: 'auto' }}
+            >
+              Anuluj
+            </Button>
+            <Button variant="contained" onClick={handleSave} disabled={loading}>
+              Zapisz zmiany
+            </Button>
+          </>
+        ) : (
+          <>
+            <Button
+              variant="outlined"
+              color="error"
+              onClick={handleDeleteEvent}
+              disabled={loading}
+              sx={{ mr: 'auto' }}
+            >
+              Usuń
+            </Button>
+            <Button
+              variant="outlined"
+              onClick={handleStartEditing}
+              disabled={loading}
+            >
+              Edytuj
+            </Button>
+          </>
+        )
+      }
+    >
+      {isEditing ? (
+        <VacationForm
+          isNew={false}
+          currentEvent={internalEvent}
+          setEvent={handleUpdate}
+          employees={employees}
+          validationError={validationError}
+          loading={loading}
+        />
+      ) : (
+        <VacationDetails
+          event={internalEvent}
+          onNavigateToEmployee={handleClickOnEmployee}
+        />
+      )}
     </BaseDialog>
   );
 };
 
 interface EventListDialogProps {
-  activeDialog: ActiveDialog;
-  handleModalClose: () => void;
-  setActiveDialog: (dialog: ActiveDialog) => void;
+  open: boolean;
+  onClose: () => void;
+  onEventClick: (event: CalendarEvent) => void;
+  selectedDayData: CalendarDay | null;
   loading?: boolean;
-  onEventClick?: (event: CalendarEvent) => void;
+  onAddButtonClick: (date?: Dayjs | undefined) => void;
 }
 
 export const EventListDialog: React.FC<EventListDialogProps> = ({
-  activeDialog,
-  handleModalClose,
-  setActiveDialog,
   onEventClick,
+  open,
+  onClose,
+  selectedDayData,
+  onAddButtonClick,
+  loading,
 }) => {
-  const isEventListDialog = activeDialog.type === 'moreEvents';
-
   const sortedEvents = useMemo(() => {
-    if (!isEventListDialog) return [];
+    if (!selectedDayData) return [];
 
-    const events = [...activeDialog.day.events];
+    const events = selectedDayData?.events ?? [];
 
     return events.sort((a, b) => {
-      const aIsStart = activeDialog.day.date.isSame(a.startDate, 'day');
-      const aIsEnd = activeDialog.day.date.isSame(a.endDate, 'day');
-      const bIsStart = activeDialog.day.date.isSame(b.startDate, 'day');
-      const bIsEnd = activeDialog.day.date.isSame(b.endDate, 'day');
+      const aIsStart = selectedDayData.date.isSame(a.startDate, 'day');
+      const aIsEnd = selectedDayData.date.isSame(a.endDate, 'day');
+      const bIsStart = selectedDayData.date.isSame(b.startDate, 'day');
+      const bIsEnd = selectedDayData.date.isSame(b.endDate, 'day');
 
       if (aIsStart && !aIsEnd && !(bIsStart && !bIsEnd)) return -1;
       if (bIsStart && !bIsEnd && !(aIsStart && !aIsEnd)) return 1;
@@ -649,37 +662,37 @@ export const EventListDialog: React.FC<EventListDialogProps> = ({
 
       return a.startDate.valueOf() - b.startDate.valueOf();
     });
-  }, [isEventListDialog]);
-
-  const handleEdit = (event: CalendarEvent) => {
-    if (onEventClick) {
-      onEventClick(event);
-    } else {
-      setActiveDialog({ type: 'editEvent' });
-    }
-  };
+  }, [selectedDayData]);
 
   return (
     <BaseDialog
-      open={isEventListDialog}
-      onClose={handleModalClose}
+      open={open}
+      onClose={onClose}
       title={
-        isEventListDialog && (
-          <Stack direction={'row'} alignItems={'center'} spacing={1}>
-            <Typography variant="h6">
-              Urlopy ({activeDialog.day.events.length})
-            </Typography>
-            <span>-</span>
-            <Chip
-              color="primary"
-              label={activeDialog.day.date.format('DD.MM.YYYY')}
-            />
-          </Stack>
-        )
+        <Stack direction={'row'} alignItems={'center'} spacing={1}>
+          <Typography variant="h6">
+            Urlopy ({selectedDayData?.events.length})
+          </Typography>
+          <span>-</span>
+          <Chip
+            color="primary"
+            label={selectedDayData?.date.format('DD.MM.YYYY')}
+          />
+        </Stack>
+      }
+      actions={
+        <Button
+          key="add"
+          variant="contained"
+          startIcon={<Add />}
+          disabled={loading}
+          onClick={() => onAddButtonClick(selectedDayData?.date)}
+        >
+          Dodaj
+        </Button>
       }
       showConfirm={false}
       cancelText="Zamknij"
-      actions={<></>}
       maxWidth="md"
       contentSx={{
         p: 0,
@@ -709,19 +722,16 @@ export const EventListDialog: React.FC<EventListDialogProps> = ({
                 <TableCell className="border-r border-b border-r-gray-500 border-b-gray-500">
                   Długość
                 </TableCell>
-                <TableCell className="border-r border-b border-r-gray-500 border-b-gray-500">
-                  Status
-                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {isEventListDialog ? (
+              {sortedEvents.length > 0 && selectedDayData ? (
                 sortedEvents.map((event) => {
-                  const isStart = activeDialog.day.date.isSame(
+                  const isStart = selectedDayData?.date.isSame(
                     event.startDate,
                     'day'
                   );
-                  const isEnd = activeDialog.day.date.isSame(
+                  const isEnd = selectedDayData?.date.isSame(
                     event.endDate,
                     'day'
                   );
@@ -731,7 +741,7 @@ export const EventListDialog: React.FC<EventListDialogProps> = ({
                   return (
                     <TableRow
                       key={event.id}
-                      onClick={() => handleEdit(event)}
+                      onClick={() => onEventClick(event)}
                       sx={{
                         // border: 'none !important',
                         backgroundColor: event.color,
@@ -749,7 +759,16 @@ export const EventListDialog: React.FC<EventListDialogProps> = ({
                       }}
                     >
                       <TableCell className="border-r border-b border-r-gray-500 border-b-gray-500 !py-3">
-                        <Typography variant="body2" fontWeight="500" noWrap>
+                        <Typography
+                          variant="body2"
+                          fontWeight="500"
+                          noWrap
+                          sx={{
+                            textDecoration: event.employee?.status
+                              ? 'none'
+                              : 'line-through',
+                          }}
+                        >
                           {event.employee?.name}
                         </Typography>
                       </TableCell>
@@ -783,19 +802,6 @@ export const EventListDialog: React.FC<EventListDialogProps> = ({
                         <Typography variant="body2">
                           {duration} {duration < 2 ? 'dzień' : 'dni'}
                         </Typography>
-                      </TableCell>
-                      <TableCell className="border-r border-b border-r-gray-500 border-b-gray-500 !py-3">
-                        <Chip
-                          size="small"
-                          label={
-                            event.employee?.status ? 'Aktywny' : 'Nieaktywny'
-                          }
-                          className={`${event.employee?.status ? 'bg-green-600' : 'bg-red-400'} rounded-sm font-semibold text-white uppercase`}
-                          sx={{
-                            fontSize: '0.7rem',
-                            height: 20,
-                          }}
-                        />
                       </TableCell>
                     </TableRow>
                   );

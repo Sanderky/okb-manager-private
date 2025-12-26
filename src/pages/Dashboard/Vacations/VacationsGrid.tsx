@@ -24,13 +24,13 @@ const MAX_EVENT_HEIGHT_PHONE = 18;
 
 export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
   ({
+    onMoreClick,
     monthGrid,
     currentMonth,
     selectDay,
     onDayClick,
     isDayInRange,
     handleEventClick,
-    setActiveDialog,
   }) => {
     const theme = useTheme();
 
@@ -57,9 +57,12 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
 
     return (
       <>
-        <Grid container sx={theme => ({
-          borderBottom: `1px solid ${theme.palette.divider}`
-        })}>
+        <Grid
+          container
+          sx={(theme) => ({
+            borderBottom: `1px solid ${theme.palette.divider}`,
+          })}
+        >
           {monthGrid.map((week, wi) =>
             week.map((calendarDay, di) => {
               const { date: day, events, slots = {} } = calendarDay;
@@ -92,21 +95,34 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                 return slot >= MAX_EVENTS || !ev.employee;
               }).length;
 
-              const showMoreLink =
+              const showExpandLink =
                 events.length > MAX_EVENTS || hasHiddenEvents;
+              const showMoreLink = events.length > 1 || hasHiddenEvents;
 
               return (
                 <Grid
                   size={{ xs: 12 / 7 }}
                   key={`${wi}-${di}`}
                   className={`p-1`}
-                  sx={theme => ({
-                    borderTop: wi === 0 ? 'none !important' : `1px solid ${theme.palette.divider}`,
-                    borderLeft: di % 7 !== 0 ? `1px solid ${theme.palette.divider}` : 'none',
+                  sx={(theme) => ({
+                    borderTop:
+                      wi === 0
+                        ? 'none !important'
+                        : `1px solid ${theme.palette.divider}`,
+                    borderLeft:
+                      di % 7 !== 0
+                        ? `1px solid ${theme.palette.divider}`
+                        : 'none',
                     p: '0 !important',
-                    bgcolor: isSelected ? theme.palette.calendar.selectedDay : (isCurrentMonth ? theme.palette.background.paper : theme.palette.calendar.dayOut),
+                    bgcolor: isSelected
+                      ? theme.palette.calendar.selectedDay
+                      : isCurrentMonth
+                        ? theme.palette.background.paper
+                        : theme.palette.calendar.dayOut,
                     ':hover': {
-                      background: selectDay ? theme.palette.calendar.hoverSelectedDay : theme.palette.calendar.hoverDay,
+                      background: selectDay
+                        ? theme.palette.calendar.hoverSelectedDay
+                        : theme.palette.calendar.hoverDay,
                     },
                     position: 'relative',
                     cursor: 'pointer',
@@ -177,8 +193,14 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                             right: 0,
                             bgcolor: ev.color,
                             px: 1,
-                            ml: isStart ? 1 : '-1px',
-                            mr: isEnd ? 1 : '-1px',
+                            ml: {
+                              xs: isStart ? 0 : '-1px',
+                              md: isStart ? 1 : '-1px',
+                            },
+                            mr: {
+                              xs: isEnd ? 0 : '-1px',
+                              md: isEnd ? 1 : '-1px',
+                            },
 
                             fontSize: '0.7rem',
                             overflow: 'hidden',
@@ -267,10 +289,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                           underline="none"
                           onClick={(e) => {
                             e.stopPropagation();
-                            setActiveDialog({
-                              type: 'moreEvents',
-                              day: calendarDay,
-                            });
+                            onMoreClick(calendarDay);
                           }}
                           sx={{
                             flex: 1,
@@ -284,57 +303,57 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                             }}
                           />
                         </Link>
-                        {hasHiddenEvents && [
-                          <Divider key="d" orientation="vertical" flexItem />,
-                          <Link
-                            key="l"
-                            component="button"
-                            underline="none"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleToggleExpand(wi);
-                            }}
-                            sx={{
-                              fontSize: { xs: '0.80rem' },
-                              fontWeight: 600,
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              flex: 1,
-                              gap: { xs: 0, sm: 0.25 },
-                            }}
-                            className="hover:bg-gray-900/15"
-                          >
-                            {isExpanded ? (
-                              <ExpandLess
-                                sx={{
-                                  width: { xs: '15px', sm: '20px' },
-                                  maxHeight: '100%',
-                                  position: 'relative',
-                                  left: '-3px',
-                                  marginRight: { xs: '-5px', md: 0 },
-                                }}
-                              />
-                            ) : (
-                              <ExpandMore
-                                sx={{
-                                  width: { xs: '15px', sm: '20px' },
-                                  maxHeight: '100%',
-                                  position: 'relative',
-                                  left: '-3px',
-                                  marginRight: { xs: '-5px', md: 0 },
-                                }}
-                              />
-                            )}
-                            {!isExpanded && (
-                              <Typography component={'span'} variant="inherit">
-                                {hiddenEventsCount}
-                              </Typography>
-                            )}
-                          </Link>,
-                        ]}
                       </>
                     )}
+                    {showExpandLink && [
+                      <Divider key="d" orientation="vertical" flexItem />,
+                      <Link
+                        key="l"
+                        component="button"
+                        underline="none"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleToggleExpand(wi);
+                        }}
+                        sx={{
+                          fontSize: { xs: '0.80rem' },
+                          fontWeight: 600,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          flex: 1,
+                          gap: { xs: 0, sm: 0.25 },
+                        }}
+                        className="hover:bg-gray-900/15"
+                      >
+                        {isExpanded ? (
+                          <ExpandLess
+                            sx={{
+                              width: { xs: '15px', sm: '20px' },
+                              maxHeight: '100%',
+                              position: 'relative',
+                              left: '-3px',
+                              marginRight: { xs: '-5px', md: 0 },
+                            }}
+                          />
+                        ) : (
+                          <ExpandMore
+                            sx={{
+                              width: { xs: '15px', sm: '20px' },
+                              maxHeight: '100%',
+                              position: 'relative',
+                              left: '-3px',
+                              marginRight: { xs: '-5px', md: 0 },
+                            }}
+                          />
+                        )}
+                        {!isExpanded && (
+                          <Typography component={'span'} variant="inherit">
+                            {hiddenEventsCount}
+                          </Typography>
+                        )}
+                      </Link>,
+                    ]}
                   </Stack>
                 </Grid>
               );

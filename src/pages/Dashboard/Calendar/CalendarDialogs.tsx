@@ -387,7 +387,7 @@ interface AddEventDialogProps {
   employees: Employee[];
   constructions: Construction[];
   handleModalClose: () => void;
-  handleAddEvent: (eventData: Partial<CalendarEvent>) => void; // <--- ZMIANA: funkcja przyjmuje dane
+  handleAddEvent: (eventData: Partial<CalendarEvent>) => void;
   loading?: boolean;
 }
 

@@ -25,17 +25,15 @@ import { CalendarGrid } from './VacationsGrid';
 import { CalendarControls } from './VacationsControls';
 import {
   FilterDialog,
-  AddEventDialog,
+  AddVacationDialog,
   EventListDialog,
-  EditEventDialog,
+  EditVacationDialog,
   VacationReportDialog,
 } from './VacationsDialogs';
 import {
   validateVacation,
-  type ActiveDialog,
   type CalendarDay,
   type CalendarEvent,
-  employeeColors,
   WEEK_DAYS,
 } from './VacationsHelpers';
 import PageContainer from '../../../components/PageContainer';
@@ -81,7 +79,7 @@ const Calendar: React.FC = () => {
         try {
           return JSON.parse(saved).selectedEmployeeIds ?? [];
         } catch {
-          console.log('Loading saved filters error');
+          console.error('Loading saved filters error');
         }
       }
       return [];
@@ -89,20 +87,18 @@ const Calendar: React.FC = () => {
   );
 
   const [selectDay, setSelectDay] = useState<Dayjs | null>(null);
-
-  const [activeDialog, setActiveDialog] = useState<ActiveDialog>({
-    type: 'none',
-  });
-
-  const [dialogHistory, setDialogHistory] = useState<ActiveDialog[]>([]);
+  const [currentEvent, setCurrentEvent] = useState<CalendarEvent>(
+    {} as CalendarEvent
+  );
 
   const [isFilterOpen, setIsFilterOpen] = useState<boolean>(false);
   const [isVacationReportOpen, setIsVacationReportOpen] =
     useState<boolean>(false);
 
-  const [currentEvent, setCurrentEvent] = useState<CalendarEvent>(
-    {} as CalendarEvent
-  );
+  const [activeDayDate, setActiveDayDate] = useState<Dayjs | null>(null);
+  const [eventsDialogOpen, setEventsDialogOpen] = useState(false);
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [validationError, setValidationError] = useState<string>('');
 
   const notifications = useNotifications();
@@ -170,7 +166,7 @@ const Calendar: React.FC = () => {
       notifications.show('Urlop został pomyślnie utworzony.', {
         severity: 'success',
       });
-      handleModalClose();
+      setAddDialogOpen(false);
     },
     onError: (err) => {
       console.error(err);
@@ -192,7 +188,7 @@ const Calendar: React.FC = () => {
       notifications.show('Urlop został zaktualizowany.', {
         severity: 'success',
       });
-      handleModalClose();
+      setEditDialogOpen(false);
     },
     onError: (err) => {
       console.error(err);
@@ -209,7 +205,7 @@ const Calendar: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['schedules'] });
       queryClient.invalidateQueries({ queryKey: ['workLogs'] });
       notifications.show('Urlop usunięty.', { severity: 'info' });
-      handleModalClose();
+      setEditDialogOpen(false);
     },
     onError: (err) => {
       console.error(err);
@@ -330,7 +326,7 @@ const Calendar: React.FC = () => {
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        handleModalClose();
+        resetOnClose();
       }
     };
     window.addEventListener('keydown', handleKey);
@@ -366,33 +362,65 @@ const Calendar: React.FC = () => {
           startDate: start,
           endDate: end,
         }));
-        setActiveDialog({ type: 'addEvent' });
+        setAddDialogOpen(true);
       }
     },
     [selectDay]
   );
 
-  const handleModalClose = useCallback(() => {
-    setActiveDialog({ type: 'none' });
-    setDialogHistory([]);
+  const handleEventClick = (ev?: CalendarEvent) => {
+    if (ev) {
+      setCurrentEvent({ ...ev });
+      setEditDialogOpen(true);
+    }
+  };
+
+  const resetOnClose = useCallback(() => {
     setCurrentEvent({} as CalendarEvent);
     setSelectDay(null);
     setValidationError('');
   }, []);
 
-  const handleBack = useCallback(() => {
-    setDialogHistory((prev) => {
-      const newHistory = [...prev];
-      const previousDialog = newHistory.pop();
-
-      if (previousDialog) {
-        setActiveDialog(previousDialog);
-      } else {
-        setActiveDialog({ type: 'none' });
-      }
-      return newHistory;
-    });
+  const handleAddDialogClose = useCallback(() => {
+    setAddDialogOpen(false);
+    resetOnClose();
   }, []);
+
+  const handleEventsDialogClose = useCallback(() => {
+    setEventsDialogOpen(false);
+  }, []);
+
+  const handleEditDialogClose = useCallback(() => {
+    setEditDialogOpen(false);
+    resetOnClose();
+  }, []);
+
+  const handleOnAddEventButtonClick = useCallback((date?: Dayjs) => {
+    setSelectDay(dayjs());
+    setCurrentEvent((prev) => ({
+      ...prev,
+      startDate: date ?? dayjs(),
+      endDate: date ?? dayjs(),
+    }));
+    setAddDialogOpen(true);
+  }, []);
+
+  const handleOnMoreClick = (data: CalendarDay) => {
+    setActiveDayDate(data.date);
+    setEventsDialogOpen(true);
+  };
+
+  const activeDayData = useMemo(() => {
+    if (!activeDayDate) return null;
+
+    for (const week of monthGrid) {
+      const foundDay = week.find((day) =>
+        day.date.isSame(activeDayDate, 'day')
+      );
+      if (foundDay) return foundDay;
+    }
+    return null;
+  }, [monthGrid, activeDayDate]);
 
   const isDayInRange = useCallback(
     (day: Dayjs) => {
@@ -405,18 +433,8 @@ const Calendar: React.FC = () => {
     [currentEvent]
   );
 
-  const handleEmployeeChange = useCallback((newValue: Employee) => {
-    setCurrentEvent((prev) => ({
-      ...prev,
-      employee: newValue,
-    }));
-    setValidationError('');
-  }, []);
-
-  const handleAddEvent = () => {
-    if (!currentEvent.employee) return;
-
-    const { employee, startDate, endDate, description, color } = currentEvent;
+  const handleAddEvent = (eventData: CalendarEvent) => {
+    const { employee, startDate, endDate, description, color } = eventData;
 
     const validation = validateVacation(
       employee.id,
@@ -440,10 +458,10 @@ const Calendar: React.FC = () => {
     });
   };
 
-  const handleEditEvent = () => {
-    if (!currentEvent.groupId) return;
+  const handleEditEvent = (eventData: CalendarEvent) => {
+    if (!eventData.groupId) return;
 
-    const { employee, startDate, endDate, description, color } = currentEvent;
+    const { employee, startDate, endDate, description, color } = eventData;
 
     const otherVacations = vacations.filter(
       (v) => v.id !== currentEvent.groupId
@@ -462,7 +480,7 @@ const Calendar: React.FC = () => {
     }
 
     updateMutation({
-      id: currentEvent.groupId,
+      id: eventData.groupId,
       data: {
         employeeId: employee.id,
         startDate: startDate.toDate(),
@@ -473,36 +491,19 @@ const Calendar: React.FC = () => {
     });
   };
 
-  const handleDeleteEvent = async (id?: string) => {
-    const targetId = id || currentEvent.groupId;
-    if (!targetId) return;
-
-    const confirmed = await dialogs.confirm(
-      'Czy na pewno chcesz usunąć ten urlop?',
-      {
-        title: 'Usuwanie',
+  const handleDeleteEvent = async () => {
+    if (!currentEvent.id) return;
+    if (
+      await dialogs.confirm('Czy na pewno chcesz usunąć ten urlop?', {
         severity: 'error',
         okText: 'Usuń',
         cancelText: 'Anuluj',
-      }
-    );
-
-    if (confirmed) {
-      deleteMutation(targetId);
+        title: 'Usuwanie urlopu',
+      })
+    ) {
+      deleteMutation(currentEvent.id);
     }
   };
-
-  const handleEventClick = useCallback(
-    (ev: CalendarEvent) => {
-      if (activeDialog.type !== 'none') {
-        setDialogHistory((prev) => [...prev, activeDialog]);
-      }
-
-      setCurrentEvent(ev);
-      setActiveDialog({ type: 'editEvent' });
-    },
-    [activeDialog]
-  );
 
   const error = isErrorEmployees || isErrorVacations;
   const loading = isLoadingEmployees || isLoadingVacations;
@@ -530,7 +531,7 @@ const Calendar: React.FC = () => {
         <Button
           key="add"
           size="small"
-          onClick={() => setActiveDialog({ type: 'addEvent' })}
+          onClick={() => handleOnAddEventButtonClick()}
           variant="contained"
           startIcon={<Add />}
           disabled={loading || employees.length === 0}
@@ -595,7 +596,7 @@ const Calendar: React.FC = () => {
           }}
           className="border bg-red-100"
           onClick={() => {
-            handleModalClose();
+            resetOnClose();
           }}
         >
           <CloseIcon />
@@ -614,7 +615,7 @@ const Calendar: React.FC = () => {
           sx={(theme) => ({
             flexDirection: 'column',
             minHeight: 0,
-            borderBottom: `1px solid ${theme.palette.divider}`
+            borderBottom: `1px solid ${theme.palette.divider}`,
           })}
         >
           <Grid container>
@@ -651,7 +652,7 @@ const Calendar: React.FC = () => {
             onDayClick={handleDayClick}
             isDayInRange={isDayInRange}
             handleEventClick={handleEventClick}
-            setActiveDialog={setActiveDialog}
+            onMoreClick={handleOnMoreClick}
           />
         </Box>
 
@@ -665,38 +666,33 @@ const Calendar: React.FC = () => {
           setSelectedEmployees={setSelectedEmployeeIds}
         />
 
-        <AddEventDialog
-          activeDialog={activeDialog}
+        <AddVacationDialog
+          open={addDialogOpen}
           currentEvent={currentEvent}
-          setCurrentEvent={setCurrentEvent}
           validationError={validationError}
           employees={employees}
-          handleModalClose={handleModalClose}
-          handleEmployeeChange={handleEmployeeChange}
+          handleModalClose={handleAddDialogClose}
           handleAddEvent={handleAddEvent}
           loading={actionLoading}
         />
-
-        <EditEventDialog
-          activeDialog={activeDialog}
+        <EditVacationDialog
+          handleResetError={() => setValidationError('')}
+          open={editDialogOpen}
           currentEvent={currentEvent}
-          setCurrentEvent={setCurrentEvent}
           validationError={validationError}
           employees={employees}
-          handleModalClose={handleModalClose}
-          handleEmployeeChange={handleEmployeeChange}
+          handleModalClose={handleEditDialogClose}
           handleDeleteEvent={handleDeleteEvent}
           handleEditEvent={handleEditEvent}
           loading={actionLoading}
-          onBack={handleBack}
-          canGoBack={dialogHistory.length > 0}
         />
 
         <EventListDialog
-          activeDialog={activeDialog}
-          handleModalClose={handleModalClose}
-          setActiveDialog={setActiveDialog}
-          loading={actionLoading}
+          loading={loading}
+          onAddButtonClick={handleOnAddEventButtonClick}
+          open={eventsDialogOpen}
+          onClose={handleEventsDialogClose}
+          selectedDayData={activeDayData}
           onEventClick={handleEventClick}
         />
 

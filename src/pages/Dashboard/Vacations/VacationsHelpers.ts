@@ -28,13 +28,13 @@ export interface CalendarEvent {
 }
 
 export interface CalendarGridProps {
+  onMoreClick: (data: CalendarDay) => void;
   monthGrid: CalendarDay[][];
   currentMonth: Dayjs;
   selectDay: Dayjs | null;
   onDayClick: (day: Dayjs) => void;
   isDayInRange: (day: Dayjs) => boolean;
   handleEventClick: (event: CalendarEvent) => void;
-  setActiveDialog: (dialog: ActiveDialog) => void;
 }
 
 export interface CalendarDay {
