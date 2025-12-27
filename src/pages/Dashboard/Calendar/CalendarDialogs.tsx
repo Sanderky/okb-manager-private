@@ -506,7 +506,6 @@ export const EditEventDialog: React.FC<EditEventDialogProps> = ({
               disabled={props.loading}
               color="inherit"
               variant="outlined"
-              size="small"
               sx={{ mr: 'auto' }}
             >
               Anuluj
@@ -515,7 +514,6 @@ export const EditEventDialog: React.FC<EditEventDialogProps> = ({
               key="save"
               variant="contained"
               onClick={handleSave}
-              size="small"
               disabled={props.loading}
             >
               Zapisz
@@ -529,15 +527,10 @@ export const EditEventDialog: React.FC<EditEventDialogProps> = ({
               disabled={props.loading}
               variant="outlined"
               sx={{ mr: 'auto' }}
-              size="small"
             >
               Usuń
             </Button>
-            <Button
-              variant="outlined"
-              size="small"
-              onClick={handleStartEditing}
-            >
+            <Button variant="outlined" onClick={handleStartEditing}>
               Edytuj
             </Button>
           </>
@@ -595,7 +588,18 @@ export const EventListDialog: React.FC<EventListDialogProps> = ({
     <BaseDialog
       open={open}
       onClose={onClose}
-      title={`Wydarzenia dnia ${selectedDayData?.date.format('DD.MM.YYYY')}`}
+      title={
+        <Stack direction={'row'} alignItems={'center'} spacing={1}>
+          <Typography variant="h6">
+            Wydarzenia ({selectedDayData?.events.length})
+          </Typography>
+          <span>-</span>
+          <Chip
+            color="primary"
+            label={selectedDayData?.date.format('DD.MM.YYYY')}
+          />
+        </Stack>
+      }
       showConfirm={false}
       cancelText="Zamknij"
       maxWidth="md"
@@ -606,7 +610,6 @@ export const EventListDialog: React.FC<EventListDialogProps> = ({
           variant="contained"
           startIcon={<Add />}
           disabled={loading}
-          size="small"
           onClick={() => onAddButtonClick(selectedDayData?.date)}
         >
           Dodaj

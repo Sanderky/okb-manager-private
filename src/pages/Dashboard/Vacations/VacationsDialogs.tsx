@@ -27,8 +27,6 @@ import {
   FormControlLabel,
   Tooltip,
   useTheme,
-  type SxProps,
-  type Theme,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -36,6 +34,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import BaseDialog from '../../../components/BaseDialog';
 import {
   employeeColors,
+  getDateStr,
   stringToColor,
   type CalendarDay,
   type CalendarEvent,
@@ -435,10 +434,6 @@ const VacationDetails: React.FC<VacationDetailsProps> = ({
   event,
   onNavigateToEmployee,
 }) => {
-  const displayDate = event.startDate?.isSame(event.endDate)
-    ? event.startDate?.format('DD.MM.YYYY') || '-'
-    : `${event.startDate?.format('DD.MM.YYYY') || '-'} — ${event.endDate?.format('DD.MM.YYYY') || '-'}`;
-
   return (
     <Stack spacing={2}>
       <Stack direction="row" alignItems="center" gap={1} mb={1}>
@@ -461,7 +456,7 @@ const VacationDetails: React.FC<VacationDetailsProps> = ({
       >
         <CalendarMonth fontSize="small" />
         <Typography variant="body2" fontWeight={500}>
-          {displayDate}
+          {getDateStr(event.startDate, event.endDate)}
         </Typography>
       </Stack>
 
@@ -721,22 +716,11 @@ export const EventListDialog: React.FC<EventListDialogProps> = ({
         >
           <Table stickyHeader size="small">
             <TableHead>
-              <TableRow
-                sx={{
-                  '& .MuiTableCell-root:last-child': {
-                    borderRight: 'none !important',
-                  },
-                }}
-              >
-                <TableCell className="border-r border-b border-r-gray-500 border-b-gray-500">
-                  Pracownik
-                </TableCell>
-                <TableCell className="border-r border-b border-r-gray-500 border-b-gray-500">
-                  Okres urlopu
-                </TableCell>
-                <TableCell className="border-r border-b border-r-gray-500 border-b-gray-500">
-                  Długość
-                </TableCell>
+              <TableRow>
+                <TableCell>Pracownik</TableCell>
+                <TableCell>Okres urlopu</TableCell>
+                <TableCell>Długość</TableCell>
+                <TableCell>Kolor</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -756,24 +740,13 @@ export const EventListDialog: React.FC<EventListDialogProps> = ({
                   return (
                     <TableRow
                       key={event.id}
+                      hover
                       onClick={() => onEventClick(event)}
                       sx={{
-                        // border: 'none !important',
-                        backgroundColor: event.color,
                         cursor: 'pointer',
-                        '&:hover': {
-                          opacity: 0.8,
-                        },
-                        transition: 'all 0.2s ease',
-                        '&:last-child .MuiTableCell-root': {
-                          borderBottom: 'none !important',
-                        },
-                        '& .MuiTableCell-root:last-child': {
-                          borderRight: 'none !important',
-                        },
                       }}
                     >
-                      <TableCell className="border-r border-b border-r-gray-500 border-b-gray-500 !py-3">
+                      <TableCell>
                         <Typography
                           variant="body2"
                           fontWeight="500"
@@ -787,7 +760,7 @@ export const EventListDialog: React.FC<EventListDialogProps> = ({
                           {event.employeeName}
                         </Typography>
                       </TableCell>
-                      <TableCell className="border-r border-b border-r-gray-500 border-b-gray-500 !py-3">
+                      <TableCell align="center">
                         <Stack direction="row" alignItems="center" spacing={1}>
                           <PlayArrowIcon
                             sx={{
@@ -797,11 +770,7 @@ export const EventListDialog: React.FC<EventListDialogProps> = ({
                           />
 
                           <Typography variant="body2">
-                            {event.startDate.format('DD.MM.YYYY')}
-                          </Typography>
-                          <Typography variant="body2">–</Typography>
-                          <Typography variant="body2">
-                            {event.endDate.format('DD.MM.YYYY')}
+                            {getDateStr(event.startDate, event.endDate)}
                           </Typography>
 
                           <PlayArrowIcon
@@ -813,10 +782,16 @@ export const EventListDialog: React.FC<EventListDialogProps> = ({
                           />
                         </Stack>
                       </TableCell>
-                      <TableCell className="border-r border-b border-r-gray-500 border-b-gray-500 !py-3">
+                      <TableCell>
                         <Typography variant="body2">
                           {duration} {duration < 2 ? 'dzień' : 'dni'}
                         </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Chip
+                          size="small"
+                          sx={{ background: event.color, minWidth: '50px' }}
+                        />
                       </TableCell>
                     </TableRow>
                   );

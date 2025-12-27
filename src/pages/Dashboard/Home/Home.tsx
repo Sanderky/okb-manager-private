@@ -50,6 +50,7 @@ import {
 import { getHomeNote, saveHomeNote } from '../../../services/home';
 import { EventsBox } from '../../../components/EventsBox';
 import { getNearestUpcomingEvents } from '../../../services/calendar';
+import { getDateStr } from '../Vacations/VacationsHelpers';
 
 interface EmployeeAlertsSettingsProps {
   isOpen: boolean;
@@ -538,8 +539,7 @@ const UpcomingVacation = () => {
                       {vacation.employeeName}
                     </Typography>
                     <Typography variant="body2">
-                      {dayjs(vacation.startDate).format('DD.MM.YYYY')} -{' '}
-                      {dayjs(vacation.endDate).format('DD.MM.YYYY')}
+                      {getDateStr(vacation.startDate, vacation.endDate)}
                     </Typography>
                   </ListItem>
                 ))

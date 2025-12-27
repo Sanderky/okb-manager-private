@@ -171,3 +171,14 @@ export const getInitials = (name: string): string => {
   const last = parts[parts.length - 1]?.charAt(0) ?? '';
   return `${first}. ${last}.`.toUpperCase();
 };
+
+export const getDateStr = (
+  start: Date | Dayjs | undefined,
+  end: Date | Dayjs | undefined
+) => {
+  if (!start || !end) return '-';
+  const startDate = dayjs(start);
+  const endDate = dayjs(end);
+  if (startDate.isSame(endDate)) return startDate.format('DD.MM.YYYY');
+  return `${startDate.format('DD.MM.YYYY')} - ${endDate.format('DD.MM.YYYY')}`;
+};

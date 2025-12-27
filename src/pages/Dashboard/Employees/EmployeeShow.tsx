@@ -39,6 +39,7 @@ import useEmployeeAttachments from './useAttachment';
 import AttachmentBox from './AttachmentBox';
 import { EventsListTable } from '../../../components/EventsBox';
 import { getUpcomingEventsForEmployee } from '../../../services/calendar';
+import { getDateStr } from '../Vacations/VacationsHelpers';
 
 export interface FieldInfo {
   key: keyof Employee;
@@ -356,8 +357,7 @@ export default function EmployeeShow() {
                                   variant="body2"
                                   className="text-gray-700"
                                 >
-                                  {dayjs(empV.startDate).format('DD.MM.YYYY')} -{' '}
-                                  {dayjs(empV.endDate).format('DD.MM.YYYY')}
+                                  {getDateStr(empV.startDate, empV.endDate)}
                                 </Typography>
                               </td>
                             </tr>
