@@ -112,7 +112,7 @@ const useUpcomingEvents = ({ type = 'all', entityId }: EventsBoxProps) => {
 
   const handleEventClick = (event: InfoEvent, scrollToTop = false) => {
     const startMonth = dayjs(event.startDate).format('YYYY-MM');
-    navigate(`/calendar?month=${startMonth}`);
+    navigate(`/calendar?month=${startMonth}&eventId=${event.id}`);
     scrollToTop && scrollToTopFn();
   };
 

@@ -185,9 +185,12 @@ const VacationForm: React.FC<VacationFormProps> = ({
 }) => {
   const theme = useTheme();
 
-  const generatedColor = currentEvent.employee
-    ? stringToColor(currentEvent.employee.id)
+  const generatedColor = currentEvent.employeeId
+    ? stringToColor(currentEvent.employeeId)
     : theme.palette.background.paper;
+
+  const selectedEmployee =
+    employees.find((e) => e.id === currentEvent.employeeId) || null;
 
   return (
     <Stack spacing={2} sx={{ mt: 1 }}>
@@ -196,14 +199,24 @@ const VacationForm: React.FC<VacationFormProps> = ({
           size="small"
           options={employees.filter((e) => e.status)}
           getOptionLabel={(opt) => opt?.name || ''}
-          value={currentEvent.employee ?? null}
+          value={selectedEmployee}
           onChange={(_, newValue) => {
-            const newColor = newValue ? stringToColor(newValue.id) : undefined;
+            if (newValue) {
+              const newColor = stringToColor(newValue.id);
 
-            setEvent({
-              employee: newValue!,
-              ...(newColor && { color: newColor }),
-            });
+              setEvent({
+                employeeId: newValue.id,
+                employeeName: newValue.name,
+                employeeActive: newValue.status,
+                color: currentEvent.color || newColor,
+              });
+            } else {
+              setEvent({
+                employeeId: '',
+                employeeName: '',
+                employeeActive: false,
+              });
+            }
           }}
           isOptionEqualToValue={(option, value) => option.id === value?.id}
           renderOption={(props, option) => {
@@ -218,9 +231,9 @@ const VacationForm: React.FC<VacationFormProps> = ({
             <TextField
               {...params}
               label="Pracownik *"
-              error={!!validationError && !currentEvent.employee?.id}
+              error={!!validationError && !currentEvent.employeeId}
               helperText={
-                validationError && !currentEvent.employee?.id
+                validationError && !currentEvent.employeeId
                   ? validationError
                   : ''
               }
@@ -233,7 +246,7 @@ const VacationForm: React.FC<VacationFormProps> = ({
         <TextField
           size="small"
           label="Pracownik"
-          value={currentEvent.employee?.name ?? ''}
+          value={currentEvent.employeeName ?? ''}
           fullWidth
           slotProps={{
             input: {
@@ -326,7 +339,7 @@ const VacationForm: React.FC<VacationFormProps> = ({
               border:
                 currentEvent.color === generatedColor || !currentEvent.color
                   ? '2px solid #000'
-                  : !currentEvent.employee
+                  : !currentEvent.employeeId
                     ? `1px solid ${theme.palette.divider}`
                     : '',
             }}
@@ -388,7 +401,7 @@ export const AddVacationDialog: React.FC<AddVacationDialogProps> = ({
     setInternalEvent((prev) => ({ ...prev, ...updates }));
   };
 
-  const isFormValid = internalEvent.employee && internalEvent.color;
+  const isFormValid = internalEvent.employeeId && internalEvent.color;
 
   return (
     <BaseDialog
@@ -435,8 +448,8 @@ const VacationDetails: React.FC<VacationDetailsProps> = ({
           </IconButton>
         </Tooltip>
         <Typography variant="subtitle2" color="text.secondary">
-          {event.employee?.name ?? ''}{' '}
-          {event.employee?.status ? '' : '(nieaktywny)'}
+          {event.employeeName ?? ''}{' '}
+          {event.employeeActive ? '' : '(nieaktywny)'}
         </Typography>
       </Stack>
 
@@ -539,8 +552,8 @@ export const EditVacationDialog: React.FC<EditVacationDialogProps> = ({
   };
 
   const handleClickOnEmployee = () => {
-    if (currentEvent.employee?.id) {
-      navigate(`/employees/${currentEvent.employee.id}`);
+    if (currentEvent.employeeId) {
+      navigate(`/employees/${currentEvent.employeeId}`);
     }
   };
 
@@ -565,7 +578,9 @@ export const EditVacationDialog: React.FC<EditVacationDialogProps> = ({
         </Stack>
       }
       loading={loading}
-      disabled={isEditing && (!internalEvent.employee || !internalEvent.color)}
+      disabled={
+        isEditing && (!internalEvent.employeeId || !internalEvent.color)
+      }
       actions={
         isEditing ? (
           <>
@@ -764,12 +779,12 @@ export const EventListDialog: React.FC<EventListDialogProps> = ({
                           fontWeight="500"
                           noWrap
                           sx={{
-                            textDecoration: event.employee?.status
+                            textDecoration: event.employeeActive
                               ? 'none'
                               : 'line-through',
                           }}
                         >
-                          {event.employee?.name}
+                          {event.employeeName}
                         </Typography>
                       </TableCell>
                       <TableCell className="border-r border-b border-r-gray-500 border-b-gray-500 !py-3">

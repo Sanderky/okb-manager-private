@@ -46,7 +46,7 @@ dayjs.locale('pl');
 
 const Calendar: React.FC = () => {
   const [containerRef, width] = useContainerBreakpoint();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [currentMonth, setCurrentMonth] = useState<Dayjs>(
     dayjs().startOf('month')
@@ -149,6 +149,31 @@ const Calendar: React.FC = () => {
     onError: () => notifications.show('Błąd usuwania.', { severity: 'error' }),
     onSettled: stopActionLoading,
   });
+
+  useEffect(() => {
+    const eventId = searchParams.get('eventId');
+    if (eventId && events.length > 0 && !isLoadingEvents) {
+      const foundEvent = events.find((e) => e.id === eventId);
+
+      if (foundEvent) {
+        const eventToOpen: CalendarEvent = {
+          id: foundEvent.id,
+          title: foundEvent.title,
+          groupId: foundEvent.groupId,
+          date: dayjs(foundEvent.startDate),
+          startDate: dayjs(foundEvent.startDate),
+          endDate: dayjs(foundEvent.endDate),
+          severity: foundEvent.severity,
+          description: foundEvent.description,
+          employeeIds: foundEvent.employeeIds || [],
+          constructionIds: foundEvent.constructionIds || [],
+        };
+
+        setCurrentEvent(eventToOpen);
+        setEditDialogOpen(true);
+      }
+    }
+  }, [searchParams, events, isLoadingEvents]);
 
   const generateMonthGrid = useCallback(
     (month: Dayjs) => {
@@ -285,12 +310,20 @@ const Calendar: React.FC = () => {
   const handleEventClick = (ev: CalendarEvent) => {
     setCurrentEvent({ ...ev });
     setEditDialogOpen(true);
+    const startMonth = dayjs(ev.startDate).format('YYYY-MM');
+
+    searchParams.append('month', startMonth);
+    searchParams.append('eventId', ev.id ?? '');
+    setSearchParams(searchParams);
   };
 
   const resetOnClose = useCallback(() => {
     setCurrentEvent({});
     setSelectDay(null);
     setValidationError('');
+    searchParams.delete('eventId');
+    searchParams.delete('month');
+    setSearchParams(searchParams);
   }, []);
 
   const handleAddDialogClose = useCallback(() => {

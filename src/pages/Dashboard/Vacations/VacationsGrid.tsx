@@ -87,12 +87,12 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
 
               const hasHiddenEvents = events.some((ev) => {
                 const slot = slots[ev.id];
-                return slot >= MAX_EVENTS || !ev.employee;
+                return slot >= MAX_EVENTS || !ev.employeeId;
               });
 
               const hiddenEventsCount = events.filter((ev) => {
                 const slot = slots[ev.id];
-                return slot >= MAX_EVENTS || !ev.employee;
+                return slot >= MAX_EVENTS || !ev.employeeId;
               }).length;
 
               const showExpandLink =
@@ -172,7 +172,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
 
                       const shouldHideEvent = () => {
                         if (isExpanded) return false;
-                        if (slot >= maxSlots || !ev.employee) return true;
+                        if (slot >= maxSlots || !ev.employeeId) return true;
                       };
 
                       return (
@@ -216,7 +216,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                             cursor: 'pointer',
                             textAlign: showName ? 'left' : 'right',
                           }}
-                          className={`${!ev.employee.status && 'italic line-through'}`}
+                          className={`${!ev.employeeActive && 'italic line-through'}`}
                         >
                           <Typography
                             sx={{
@@ -232,7 +232,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                               lineHeight: `${MAX_EVENT_HEIGHT}px`,
                             }}
                           >
-                            {ev.employee.name}
+                            {ev.employeeName}
                           </Typography>
                           <Typography
                             sx={{
@@ -246,7 +246,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                               lineHeight: `${MAX_EVENT_HEIGHT}px`,
                             }}
                           >
-                            {getInitials(ev.employee.name)}
+                            {getInitials(ev.employeeName)}
                           </Typography>
 
                           {isWeekStart && !isStart && (

@@ -465,7 +465,7 @@ const UpcomingVacation = () => {
 
   const handleVacationClick = (vacation: any) => {
     const startMonth = dayjs(vacation.startDate).format('YYYY-MM');
-    navigate(`/vacations?month=${startMonth}`);
+    navigate(`/vacations?month=${startMonth}&vacationId=${vacation.id}`);
     scrollToTop();
   };
 

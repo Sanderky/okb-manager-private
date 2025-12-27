@@ -18,10 +18,12 @@ export const WEEK_DAYS = [
 
 export interface CalendarEvent {
   id: string;
-  employee: Employee;
-  date: Dayjs;
+  employeeName: string;
+  employeeId: string;
+  employeeActive: boolean;
   startDate: Dayjs;
   endDate: Dayjs;
+  date: Dayjs;
   // groupId: string;
   color: string;
   description?: string;
@@ -72,7 +74,6 @@ export const employeeColors = [
   '#A1887F', // Brązowy
   '#BCAAA4', // Beżowy
 ];
-
 
 // export const stringToColor = (str: string, s = 65, l = 45) => {
 //   let hash = 0;

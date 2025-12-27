@@ -54,7 +54,7 @@ interface StoredFilters {
 
 const Calendar: React.FC = () => {
   const [containerRef, width] = useContainerBreakpoint();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [currentMonth, setCurrentMonth] = useState<Dayjs>(
     dayjs().startOf('month')
@@ -214,6 +214,31 @@ const Calendar: React.FC = () => {
     onSettled: () => stopActionLoading(),
   });
 
+  useEffect(() => {
+    const vacationId = searchParams.get('vacationId');
+
+    if (vacationId && vacations.length > 0 && !isLoadingVacations) {
+      const foundVacation = vacations.find((v) => v.id === vacationId);
+
+      if (foundVacation) {
+        const eventToOpen: CalendarEvent = {
+          id: foundVacation.id,
+          date: dayjs(foundVacation.startDate),
+          employeeId: foundVacation.employeeId,
+          employeeName: foundVacation.employeeName ?? 'Nieznany pracownik',
+          employeeActive: foundVacation.employeeActive ?? false,
+          startDate: dayjs(foundVacation.startDate),
+          endDate: dayjs(foundVacation.endDate),
+          color: foundVacation.color,
+          description: foundVacation.description,
+        };
+
+        setCurrentEvent(eventToOpen);
+        setEditDialogOpen(true);
+      }
+    }
+  }, [searchParams, vacations, isLoadingVacations]);
+
   const generateMonthGrid = useCallback(
     (month: Dayjs) => {
       const start = month.startOf('month').startOf('week');
@@ -247,34 +272,15 @@ const Calendar: React.FC = () => {
           });
 
           const dayEvents: CalendarEvent[] = dayEventsRaw.map((ev) => {
-            const simpleEmployee: Employee = {
-              id: ev.employeeId,
-              name: ev.employeeName || 'Nieznany pracownik',
-              status: ev.employeeActive ?? true,
-              isContractor: false,
-              pesel: null,
-              address: null,
-              hourRate: null,
-              email: null,
-              phone: null,
-              birthPlace: null,
-              accountNumber: null,
-              contractStartDate: null,
-              contractEndDate: null,
-              contractIsPermanent: null,
-              a1StartDate: null,
-              a1EndDate: null,
-              note: null,
-              birthDate: null,
-            };
-
             return {
               ...ev,
               id: ev.id!,
               startDate: dayjs(ev.startDate),
               endDate: dayjs(ev.endDate),
               date: current.clone(),
-              employee: simpleEmployee,
+              employeeId: ev.employeeId,
+              employeeName: ev.employeeName ?? 'Nieznany pracownik',
+              employeeActive: ev.employeeActive ?? false,
             };
           });
 
@@ -372,6 +378,10 @@ const Calendar: React.FC = () => {
     if (ev) {
       setCurrentEvent({ ...ev });
       setEditDialogOpen(true);
+      const startMonth = dayjs(ev.startDate).format('YYYY-MM');
+      searchParams.append('month', startMonth);
+      searchParams.append('vacationId', ev.id);
+      setSearchParams(searchParams);
     }
   };
 
@@ -379,6 +389,9 @@ const Calendar: React.FC = () => {
     setCurrentEvent({} as CalendarEvent);
     setSelectDay(null);
     setValidationError('');
+    searchParams.delete('vacationId');
+    searchParams.delete('month');
+    setSearchParams(searchParams);
   }, []);
 
   const handleAddDialogClose = useCallback(() => {
@@ -434,10 +447,10 @@ const Calendar: React.FC = () => {
   );
 
   const handleAddEvent = (eventData: CalendarEvent) => {
-    const { employee, startDate, endDate, description, color } = eventData;
+    const { employeeId, startDate, endDate, description, color } = eventData;
 
     const validation = validateVacation(
-      employee.id,
+      employeeId,
       startDate,
       endDate,
       vacations,
@@ -450,7 +463,7 @@ const Calendar: React.FC = () => {
     }
 
     addMutation({
-      employeeId: employee.id,
+      employeeId: employeeId,
       startDate: startDate.toDate(),
       endDate: endDate.toDate(),
       description,
@@ -461,13 +474,12 @@ const Calendar: React.FC = () => {
   const handleEditEvent = (eventData: CalendarEvent) => {
     if (!eventData.id) return;
 
-    const { employee, startDate, endDate, description, color } = eventData;
+    const { employeeId, startDate, endDate, description, color } = eventData;
 
-    // Filtrujemy po ID
     const otherVacations = vacations.filter((v) => v.id !== currentEvent.id);
 
     const validation = validateVacation(
-      employee.id,
+      employeeId,
       startDate,
       endDate,
       otherVacations,
@@ -482,7 +494,7 @@ const Calendar: React.FC = () => {
     updateMutation({
       id: eventData.id,
       data: {
-        employeeId: employee.id,
+        employeeId: employeeId,
         startDate: startDate.toDate(),
         endDate: endDate.toDate(),
         description,
