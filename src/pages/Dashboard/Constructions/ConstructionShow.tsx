@@ -198,17 +198,17 @@ export default function ConstructionShow() {
     }
 
     return construction ? (
-      tab === 0 ?
+      tab === 0 ? (
         <Box
-          sx={theme => ({
+          sx={(theme) => ({
             width: '100%',
-            boxShadow: 1,
+            // boxShadow: 1,
             flex: 1,
             display: 'flex',
             flexDirection: 'column',
-            background: theme.palette.background.paper
+            background: theme.palette.background.paper,
           })}
-          className="rounded-lg p-2 md:p-4 lg:p-6"
+          className="border-lightGray rounded-lg border p-2 md:p-4 lg:p-6"
         >
           <Grid container spacing={{ xs: 2 }} columns={12}>
             <Grid size={{ xs: 12, lg: 6 }} sx={{ flexGrow: 1 }}>
@@ -216,9 +216,9 @@ export default function ConstructionShow() {
                 <TableContainer
                   component={Paper}
                   className="overflow-hidden rounded-lg"
-                  sx={theme => ({
+                  sx={(theme) => ({
                     boxShadow: 'none',
-                    border: `1px solid ${theme.palette.divider}`
+                    border: `1px solid ${theme.palette.divider}`,
                   })}
                 >
                   <Table>
@@ -226,7 +226,7 @@ export default function ConstructionShow() {
                       {personalFields.map(({ key, label }) => (
                         <TableRow
                           key={key}
-                          sx={theme => ({
+                          sx={(theme) => ({
                             borderBottom: '1px solid',
                             borderColor: theme.palette.divider,
                             '&:last-child': {
@@ -235,12 +235,12 @@ export default function ConstructionShow() {
                           })}
                         >
                           <TableCell
-                            sx={theme => ({
+                            sx={(theme) => ({
                               minWidth: { xs: '135px', sm: '150px' },
                               width: '30%',
                               border: 'none',
                               background: theme.palette.background.default,
-                              borderRight: `1px solid ${theme.palette.divider}`
+                              borderRight: `1px solid ${theme.palette.divider}`,
                             })}
                             className="p-2 sm:px-4"
                           >
@@ -343,9 +343,9 @@ export default function ConstructionShow() {
             <Grid
               size={{ xs: 12, lg: 6 }}
               className="overflow-hidden rounded-lg"
-              sx={theme => ({
+              sx={(theme) => ({
                 alignSelf: 'flex-start',
-                border: `1px solid ${theme.palette.divider}`
+                border: `1px solid ${theme.palette.divider}`,
               })}
             >
               <table className="w-full">
@@ -367,17 +367,18 @@ export default function ConstructionShow() {
                   </tr>
                 </thead>
                 <TableBody
-                  sx={theme => ({
-                    '& > tr:not(:last-child) > td, & > tr:not(:last-child) > th': {
-                      borderBottom: `1px solid ${theme.palette.divider}`,
-                    },
+                  sx={(theme) => ({
+                    '& > tr:not(:last-child) > td, & > tr:not(:last-child) > th':
+                      {
+                        borderBottom: `1px solid ${theme.palette.divider}`,
+                      },
                     '& > tr:last-child > td, & > tr:last-child > th': {
                       borderBottom: 'none',
                     },
                   })}
                 >
                   {activeScheduleEmployees &&
-                    activeScheduleEmployees.length > 0 ? (
+                  activeScheduleEmployees.length > 0 ? (
                     activeScheduleEmployees.map((employee) => {
                       return (
                         <tr
@@ -430,10 +431,9 @@ export default function ConstructionShow() {
             construction={construction}
           />
         </Box>
-        :
-        <FileBrowser
-          baseDirectory={`constructions/${construction.id}/files`}
-        />
+      ) : (
+        <FileBrowser baseDirectory={`constructions/${construction.id}/files`} />
+      )
     ) : null;
   }, [
     loading,
@@ -491,11 +491,14 @@ export default function ConstructionShow() {
         </Stack>
       }
       renderTopToolbar={
-        <Stack direction="row" alignItems="center" spacing={1}
-          sx={theme => ({
+        <Stack
+          direction="row"
+          alignItems="center"
+          spacing={1}
+          sx={(theme) => ({
             background: theme.palette.background.paper,
             borderBottom: `1px solid ${theme.palette.divider}`,
-            pr: 2
+            pr: 2,
           })}
         >
           <Tabs value={tab} onChange={handleTabChange}>
@@ -560,7 +563,18 @@ export default function ConstructionShow() {
         </Stack>
       }
     >
-      <Box sx={{ display: 'flex', flex: 1, width: '100%', py: !error && tab === 0 ? 2 : 0, px: tab === 0 && !error ? { xs: 0.5, sm: 2 } : 0, height: tab === 0 ? 'auto' : '100%' }}>{renderShow}</Box>
+      <Box
+        sx={{
+          display: 'flex',
+          flex: 1,
+          width: '100%',
+          py: !error && tab === 0 ? 2 : 0,
+          px: tab === 0 && !error ? { xs: 0.5, sm: 2 } : 0,
+          height: tab === 0 ? 'auto' : '100%',
+        }}
+      >
+        {renderShow}
+      </Box>
     </PageContainer>
   );
 }

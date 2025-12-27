@@ -263,10 +263,10 @@ export default function ConstructionEdit() {
               sx={theme => ({
                 width: '100%',
                 maxWidth: { sm: '100%', md: '1790px' },
-                boxShadow: 1,
+                // boxShadow: 1,
                 background: theme.palette.background.paper
               })}
-              className="rounded-lg p-3 md:p-4"
+              className="rounded-lg p-3 md:p-4 border-lightGray border"
             >
               <ConstructionForm
                 formState={formState}

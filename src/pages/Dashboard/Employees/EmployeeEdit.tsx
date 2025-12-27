@@ -179,7 +179,7 @@ export default function EmployeeEdit() {
     mutationFn: () => removeEmployee(employeeId!),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['alerts'] });
-    }
+    },
   });
   const handleDeleteClick = useCallback(() => {
     setDeleteConfirmation('');
@@ -284,14 +284,14 @@ export default function EmployeeEdit() {
         <Grid container columns={12} spacing={{ xs: 3, lg: 2 }}>
           <Grid size={{ xs: 12, lg: 8, xl: 9 }}>
             <Box
-              sx={theme => ({
+              sx={(theme) => ({
                 width: '100%',
                 maxWidth: { sm: '100%', md: '1790px' },
                 position: 'relative',
-                boxShadow: 1,
-                background: theme.palette.background.paper
+                // boxShadow: 1,
+                background: theme.palette.background.paper,
               })}
-              className="rounded-lg p-3 md:p-4"
+              className="border-lightGray rounded-lg border p-3 md:p-4"
             >
               <EmployeeForm
                 formState={formState}
@@ -499,7 +499,15 @@ export default function EmployeeEdit() {
         </Stack>
       }
     >
-      <Box sx={{ display: 'flex', flex: 1, width: '100%', px: error ? 0 : { xs: 0.5, sm: 2 }, py: error ? 0 : 2 }}>
+      <Box
+        sx={{
+          display: 'flex',
+          flex: 1,
+          width: '100%',
+          px: error ? 0 : { xs: 0.5, sm: 2 },
+          py: error ? 0 : 2,
+        }}
+      >
         {renderContent()}
       </Box>
     </PageContainer>

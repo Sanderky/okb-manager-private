@@ -208,24 +208,23 @@ export default function EmployeeShow() {
         <Box
           sx={(theme) => ({
             width: '100%',
-            boxShadow: 1,
+            // boxShadow: 1,
             display: 'flex',
             flexDirection: 'column',
-            background: theme.palette.background.paper
+            background: theme.palette.background.paper,
           })}
-          className="p-2 md:p-4 lg:p-6 rounded-lg"
+          className="border-lightGray rounded-lg border p-2 md:p-4 lg:p-6"
         >
-
           <Grid container spacing={{ xs: 2, lg: 3 }} columns={12}>
             <Grid size={{ xs: 12, lg: 6 }} sx={{ flexGrow: 1 }}>
               <Stack direction={'column'} spacing={{ xs: 2, lg: 3 }}>
                 <TableContainer
                   component={Paper}
                   className="overflow-hidden rounded-lg"
-                  sx={theme => ({
+                  sx={(theme) => ({
                     boxShadow: 'none',
 
-                    border: `1px solid ${theme.palette.divider}`
+                    border: `1px solid ${theme.palette.divider}`,
                   })}
                 >
                   <Table>
@@ -233,19 +232,19 @@ export default function EmployeeShow() {
                       {personalFields.map(({ key, label }) => (
                         <TableRow
                           key={key}
-                          sx={theme => ({
+                          sx={(theme) => ({
                             borderBottom: '1px solid',
                             borderColor: theme.palette.divider,
                             '&:last-child': { borderBottom: 'none' },
                           })}
                         >
                           <TableCell
-                            sx={theme => ({
+                            sx={(theme) => ({
                               minWidth: { xs: '135px', sm: '150px' },
                               width: '30%',
                               border: 'none',
                               background: theme.palette.background.default,
-                              borderRight: `1px solid ${theme.palette.divider}`
+                              borderRight: `1px solid ${theme.palette.divider}`,
                             })}
                             className="p-2 sm:px-4"
                           >
@@ -286,9 +285,10 @@ export default function EmployeeShow() {
             <Grid size={{ xs: 12, lg: 6 }} sx={{ flexGrow: 1 }}>
               <Stack direction={'column'} spacing={2}>
                 {employeeVacation && employeeVacation.length > 0 && (
-                  <Box className="overflow-hidden rounded-lg border"
-                    sx={theme => ({
-                      borderColor: theme.palette.divider
+                  <Box
+                    className="overflow-hidden rounded-lg border"
+                    sx={(theme) => ({
+                      borderColor: theme.palette.divider,
                     })}
                   >
                     <table className="w-full">
@@ -309,10 +309,11 @@ export default function EmployeeShow() {
                         </tr>
                       </thead>
                       <TableBody
-                        sx={theme => ({
-                          '& > tr:not(:last-child) > td, & > tr:not(:last-child) > th': {
-                            borderBottom: `1px solid ${theme.palette.divider}`,
-                          },
+                        sx={(theme) => ({
+                          '& > tr:not(:last-child) > td, & > tr:not(:last-child) > th':
+                            {
+                              borderBottom: `1px solid ${theme.palette.divider}`,
+                            },
                           '& > tr:last-child > td, & > tr:last-child > th': {
                             borderBottom: 'none',
                           },
@@ -366,19 +367,17 @@ export default function EmployeeShow() {
               </Stack>
             </Grid>
           </Grid>
-
-        </Box>)
-        : (
-          <Box
-            sx={{
-              flex: 1,
-              display: 'flex',
-            }}
-          >
-            <FileBrowser baseDirectory={`employees/${employee.id}/files`} />
-          </Box>
-        )
-
+        </Box>
+      ) : (
+        <Box
+          sx={{
+            flex: 1,
+            display: 'flex',
+          }}
+        >
+          <FileBrowser baseDirectory={`employees/${employee.id}/files`} />
+        </Box>
+      )
     ) : null;
   }, [
     loading,
@@ -433,11 +432,16 @@ export default function EmployeeShow() {
         </Stack>
       }
       renderTopToolbar={
-        <Stack direction="row" alignItems="center" spacing={1} sx={(theme) => ({
-          background: theme.palette.background.paper,
-          pr: 2,
-          borderBottom: `1px solid ${theme.palette.divider}`
-        })}>
+        <Stack
+          direction="row"
+          alignItems="center"
+          spacing={1}
+          sx={(theme) => ({
+            background: theme.palette.background.paper,
+            pr: 2,
+            borderBottom: `1px solid ${theme.palette.divider}`,
+          })}
+        >
           <Tabs value={tab} onChange={handleTabChange}>
             <Tab
               label="Informacje"
@@ -477,7 +481,18 @@ export default function EmployeeShow() {
         </Stack>
       }
     >
-      <Box sx={{ display: 'flex', flex: 1, width: '100%', py: !error && tab === 0 ? 2 : 0, px: !error && tab === 0 ? { xs: 0.5, sm: 2 } : 0, height: tab === 0 ? 'auto' : '100%' }}>{renderShow}</Box>
+      <Box
+        sx={{
+          display: 'flex',
+          flex: 1,
+          width: '100%',
+          py: !error && tab === 0 ? 2 : 0,
+          px: !error && tab === 0 ? { xs: 0.5, sm: 2 } : 0,
+          height: tab === 0 ? 'auto' : '100%',
+        }}
+      >
+        {renderShow}
+      </Box>
       <PreviewDialog
         open={isPreviewOpen}
         onClose={() => setIsPreviewOpen(false)}

@@ -140,18 +140,18 @@ export default function EmployeeCreate() {
     >
       <Box
         sx={{
-          px: { xs: 0.5, sm: 2 }, py: 2
+          px: { xs: 0.5, sm: 2 },
+          py: 2,
         }}
       >
-
         <Box
-          sx={theme => ({
+          sx={(theme) => ({
             width: '100%',
             maxWidth: { sm: '100%', md: '1790px' },
-            boxShadow: 1,
-            background: theme.palette.background.paper
+            // boxShadow: 1,
+            background: theme.palette.background.paper,
           })}
-          className="rounded-lg p-3 md:p-4"
+          className="border-lightGray rounded-lg border p-3 md:p-4"
         >
           <EmployeeForm
             formState={formState}
