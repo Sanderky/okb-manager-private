@@ -19,6 +19,7 @@ import { default as LogoIcon } from '@mui/icons-material/TokenOutlined';
 import Loading from '../../components/Loading';
 import useLoading from '../../hooks/useLoading';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
+import AppFooter from '../../components/Footer';
 
 type FormValues = {
   email: string;
@@ -264,40 +265,7 @@ const Login = () => {
             </Box>
           </Box>
 
-          <footer>
-            <Stack
-              direction={'row'}
-              justifyContent={'space-between'}
-              sx={{
-                py: 0.25,
-                px: 1,
-                columnGap: 1,
-                rowGap: 1,
-                fontSize: { xs: '0.7rem', sm: '0.8rem' },
-              }}
-              flexWrap={'wrap'}
-              className="bg-gray-900/50 text-white"
-            >
-              <Typography
-                variant="caption"
-                sx={{
-                  fontSize: 'inherit',
-                }}
-              >
-                Panel administracyjny dla pracowników. Dostęp tylko dla
-                autoryzowanego personelu.
-              </Typography>
-              <Typography
-                variant="caption"
-                sx={{
-                  fontSize: 'inherit',
-                }}
-              >
-                &copy; {new Date().getFullYear()},{' '}
-                {import.meta.env.VITE_COMPANY_NAME}
-              </Typography>
-            </Stack>
-          </footer>
+          <AppFooter />
         </Box>
       )}
     </section>
