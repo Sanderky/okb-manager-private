@@ -409,12 +409,7 @@ const ContractorDetails = ({
         </Button>
       </Stack>
 
-      <Note
-        content={contractor.note ?? ''}
-        onSave={(note) => onSaveNote(contractor.id, note)}
-      />
-
-      <Box pt={2}>
+      <Box pt={2} pb={2}>
         <Typography fontWeight={'600'} fontSize={'1.2rem'}>Lista budów:</Typography>
         {(!constructions || constructions?.length === 0) ? (
           <Typography>Brak budów</Typography>
@@ -461,6 +456,12 @@ const ContractorDetails = ({
           </>
         )}
       </Box>
+
+      <Note
+        content={contractor.note ?? ''}
+        onSave={(note) => onSaveNote(contractor.id, note)}
+      />
+
     </Stack>
   );
 };
