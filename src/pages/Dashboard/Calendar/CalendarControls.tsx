@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Stack,
   Typography,
@@ -7,18 +7,34 @@ import {
   Tooltip,
   Menu,
   MenuItem,
+  Badge,
+  Popover,
+  Checkbox,
+  FormControlLabel,
+  FormGroup,
 } from '@mui/material';
-import { ChevronLeft, ChevronRight, MoreHoriz } from '@mui/icons-material';
+import {
+  ChevronLeft,
+  ChevronRight,
+  FilterList,
+  MoreHoriz,
+} from '@mui/icons-material';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import type { Dayjs } from 'dayjs';
 import { plPL } from '@mui/x-date-pickers/locales';
+import { AVAILABLE_SEVERITIES, getSeverityLabel } from './CalendarHelpers';
+import type { InfoEventSeverity } from '../../../types';
 
 interface CalendarControlsProps {
   currentMonth: Dayjs;
   handleMonthChange: (action: 'prev' | 'next' | 'today') => void;
   handleDatePickerChange: (value: Dayjs | null) => void;
   containerWidth: number;
+  selectedSeverities: InfoEventSeverity[];
+  setSelectedSeverities: React.Dispatch<
+    React.SetStateAction<InfoEventSeverity[]>
+  >;
 }
 
 export const CalendarControls: React.FC<CalendarControlsProps> = ({
@@ -26,6 +42,8 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
   handleMonthChange,
   handleDatePickerChange,
   containerWidth,
+  selectedSeverities,
+  setSelectedSeverities,
 }) => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const openMobileMenu = Boolean(anchorEl);
@@ -35,6 +53,70 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
   const handleCloseMobileMenu = () => {
     setAnchorEl(null);
   };
+
+  const [anchorElFilters, setAnchorElFilters] =
+    useState<HTMLButtonElement | null>(null);
+
+  const handleOpenPopover = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorElFilters(event.currentTarget);
+  };
+
+  const handleClosePopover = () => {
+    setAnchorElFilters(null);
+  };
+
+  const popoverOpen = Boolean(anchorElFilters);
+  const popoverId = popoverOpen ? 'simple-popover' : undefined;
+
+  const handleFilterChange = (severity: InfoEventSeverity) => {
+    setSelectedSeverities((prev) => {
+      if (prev.includes(severity)) {
+        return prev.filter((s) => s !== severity);
+      } else {
+        return [...prev, severity];
+      }
+    });
+  };
+
+  const isFiltered = selectedSeverities.length < AVAILABLE_SEVERITIES.length;
+
+  const filtersContent = (
+    <Popover
+      id={popoverId}
+      open={popoverOpen}
+      anchorEl={anchorElFilters}
+      onClose={handleClosePopover}
+      anchorOrigin={{
+        vertical: 'bottom',
+        horizontal: 'left',
+      }}
+    >
+      <FormGroup sx={{ p: 2 }}>
+        <Typography
+          variant="caption"
+          color="textSecondary"
+          sx={{ mb: 1, display: 'block' }}
+        >
+          Pokaż typy wydarzeń:
+        </Typography>
+        {AVAILABLE_SEVERITIES.map((sev) => (
+          <FormControlLabel
+            key={sev}
+            control={
+              <Checkbox
+                checked={selectedSeverities.includes(sev)}
+                onChange={() => handleFilterChange(sev)}
+                size="small"
+              />
+            }
+            label={
+              <Typography variant="body2">{getSeverityLabel(sev)}</Typography>
+            }
+          />
+        ))}
+      </FormGroup>
+    </Popover>
+  );
 
   const phone = (
     <Stack
@@ -174,6 +256,27 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
             />
           </LocalizationProvider>
         </MenuItem>
+
+        <MenuItem>
+          <Badge
+            color="primary"
+            variant="dot"
+            badgeContent={isFiltered ? 1 : 0}
+          >
+            <Button
+              startIcon={<FilterList />}
+              size="small"
+              fullWidth
+              color="primary"
+              className="rounded-lg border"
+              aria-describedby={popoverId}
+              onClick={handleOpenPopover}
+            >
+              Filtry
+            </Button>
+          </Badge>
+          {filtersContent}
+        </MenuItem>
       </Menu>
     </Stack>
   );
@@ -287,6 +390,28 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
           onChange={handleDatePickerChange}
         />
       </LocalizationProvider>
+
+      <Tooltip title="Filtry">
+        <Badge badgeContent={isFiltered ? 1 : 0} variant="dot" color="primary">
+          <IconButton
+            size="small"
+            color="primary"
+            className="rounded-lg border"
+            aria-describedby={popoverId}
+            onClick={handleOpenPopover}
+            sx={(theme) => ({
+              borderColor: theme.palette.primary.light,
+              '&:hover': {
+                borderColor: theme.palette.primary.main,
+              },
+            })}
+          >
+            <FilterList fontSize="small" />
+          </IconButton>
+        </Badge>
+      </Tooltip>
+
+      {filtersContent}
 
       <Stack
         sx={{ flexGrow: 1 }}

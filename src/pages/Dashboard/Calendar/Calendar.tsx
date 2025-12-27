@@ -18,7 +18,7 @@ import {
   updateCalendarEvent,
 } from '../../../services/calendar';
 
-import type { InfoEvent } from '../../../types';
+import type { InfoEvent, InfoEventSeverity } from '../../../types';
 import { Add, Close } from '@mui/icons-material';
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
@@ -35,6 +35,7 @@ import {
   type CalendarDay,
   type CalendarEvent,
   WEEK_DAYS,
+  AVAILABLE_SEVERITIES,
 } from './CalendarHelpers';
 import PageContainer from '../../../components/PageContainer';
 import useLoading from '../../../hooks/useLoading';
@@ -44,6 +45,8 @@ import { useDialogs } from '../../../hooks/useDialogs/useDialogs';
 
 dayjs.locale('pl');
 
+const CALENDAR_FILTERS_STORAGE_KEY = 'calendar_view_filters';
+
 const Calendar: React.FC = () => {
   const [containerRef, width] = useContainerBreakpoint();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -51,6 +54,27 @@ const Calendar: React.FC = () => {
   const [currentMonth, setCurrentMonth] = useState<Dayjs>(
     dayjs().startOf('month')
   );
+
+  const [selectedSeverities, setSelectedSeverities] = useState<
+    InfoEventSeverity[]
+  >(() => {
+    try {
+      const saved = localStorage.getItem(CALENDAR_FILTERS_STORAGE_KEY);
+      if (saved) {
+        return JSON.parse(saved);
+      }
+    } catch (error) {
+      console.error('Błąd odczytu filtrów kalendarza z localStorage', error);
+    }
+    return AVAILABLE_SEVERITIES;
+  });
+
+  useEffect(() => {
+    localStorage.setItem(
+      CALENDAR_FILTERS_STORAGE_KEY,
+      JSON.stringify(selectedSeverities)
+    );
+  }, [selectedSeverities]);
 
   const [selectDay, setSelectDay] = useState<Dayjs | null>(null);
   const [activeDayDate, setActiveDayDate] = useState<Dayjs | null>(null);
@@ -199,7 +223,12 @@ const Calendar: React.FC = () => {
             const vStart = dayjs(ev.startDate).startOf('day');
             const vEnd = dayjs(ev.endDate).endOf('day');
             const today = current.startOf('day');
-            return today.isSameOrAfter(vStart) && today.isSameOrBefore(vEnd);
+
+            const isDateMatch =
+              today.isSameOrAfter(vStart) && today.isSameOrBefore(vEnd);
+            const isSeverityMatch = selectedSeverities.includes(ev.severity);
+
+            return isDateMatch && isSeverityMatch;
           });
 
           const uiEvents: CalendarEvent[] = dbEventsForDay.map((ev) => ({
@@ -223,7 +252,6 @@ const Calendar: React.FC = () => {
 
           uiEvents.forEach((ev) => {
             const id = ev.id!;
-
             if (groupSlotMap[id] === undefined) {
               const free = getFreeSlot();
               groupSlotMap[id] = free;
@@ -253,9 +281,8 @@ const Calendar: React.FC = () => {
       }
       return weeks;
     },
-    [events]
+    [events, selectedSeverities]
   );
-
   const monthGrid = useMemo(
     () => generateMonthGrid(currentMonth),
     [currentMonth, generateMonthGrid]
@@ -534,6 +561,8 @@ const Calendar: React.FC = () => {
         </IconButton>
 
         <CalendarControls
+          selectedSeverities={selectedSeverities}
+          setSelectedSeverities={setSelectedSeverities}
           currentMonth={currentMonth}
           handleMonthChange={(a) =>
             setCurrentMonth((prev) =>
