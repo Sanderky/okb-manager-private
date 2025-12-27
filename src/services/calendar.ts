@@ -113,6 +113,61 @@ export async function getCalendarEventsForMonths(
   return data.map(mapEventFromDB);
 }
 
+export const getNearestUpcomingEvents = async (
+  limit: number = 10
+): Promise<InfoEvent[]> => {
+  const today = dayjs().format('YYYY-MM-DD');
+
+  const { data, error } = await supabase
+    .from(TABLE_NAME)
+    .select('*')
+    .gte('start_date', today)
+    .order('start_date', { ascending: true })
+    .limit(limit);
+
+  if (error) throw error;
+
+  return data.map(mapEventFromDB);
+};
+
+export const getUpcomingEventsForEmployee = async (
+  employeeId: string,
+  limit: number = 10
+): Promise<InfoEvent[]> => {
+  const today = dayjs().format('YYYY-MM-DD');
+
+  const { data, error } = await supabase
+    .from(TABLE_NAME)
+    .select('*')
+    .contains('employee_ids', [employeeId])
+    .gte('start_date', today)
+    .order('start_date', { ascending: true })
+    .limit(limit);
+
+  if (error) throw error;
+
+  return data.map(mapEventFromDB);
+};
+
+export const getUpcomingEventsForConstruction = async (
+  constructionId: string,
+  limit: number = 10
+): Promise<InfoEvent[]> => {
+  const today = dayjs().format('YYYY-MM-DD');
+
+  const { data, error } = await supabase
+    .from(TABLE_NAME)
+    .select('*')
+    .contains('construction_ids', [constructionId])
+    .gte('start_date', today)
+    .order('start_date', { ascending: true })
+    .limit(limit);
+
+  if (error) throw error;
+
+  return data.map(mapEventFromDB);
+};
+
 export const getEventsForEmployee = async (
   employeeId: string
 ): Promise<InfoEvent[]> => {

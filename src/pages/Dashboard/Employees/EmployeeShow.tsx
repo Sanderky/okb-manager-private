@@ -37,6 +37,7 @@ import { useScroll } from '../../../context/ScrollContext';
 import { fetchAlertsSettings } from '../../../services/settings';
 import useEmployeeAttachments from './useAttachment';
 import AttachmentBox from './AttachmentBox';
+import { EventsListTable } from '../../../components/EventsBox';
 
 export interface FieldInfo {
   key: keyof Employee;
@@ -213,7 +214,7 @@ export default function EmployeeShow() {
             flexDirection: 'column',
             background: theme.palette.background.paper,
           })}
-          className="border-lightGray rounded-lg border p-2 md:p-4 lg:p-6"
+          className="rounded-lg p-2 md:p-4 lg:p-6"
         >
           <Grid container spacing={{ xs: 2, lg: 3 }} columns={12}>
             <Grid size={{ xs: 12, lg: 6 }} sx={{ flexGrow: 1 }}>
@@ -282,8 +283,24 @@ export default function EmployeeShow() {
               </Stack>
             </Grid>
 
-            <Grid size={{ xs: 12, lg: 6 }} sx={{ flexGrow: 1 }}>
-              <Stack direction={'column'} spacing={2}>
+            <Grid
+              container
+              size={{ xs: 12, lg: 6 }}
+              spacing={{ xs: 2, lg: 3 }}
+              columns={12}
+            >
+              <Grid
+                size={12}
+                className="overflow-hidden rounded-lg"
+                sx={(theme) => ({
+                  alignSelf: 'flex-start',
+                  border: `1px solid ${theme.palette.divider}`,
+                })}
+              >
+                <EventsListTable type="employee" entityId={employee.id} />
+              </Grid>
+
+              <Grid size={12} sx={{ flexGrow: 1 }}>
                 {employeeVacation && employeeVacation.length > 0 && (
                   <Box
                     className="overflow-hidden rounded-lg border"
@@ -340,31 +357,35 @@ export default function EmployeeShow() {
                     </table>
                   </Box>
                 )}
+              </Grid>
 
-                <AttachmentBox
-                  label="Dowód osobisty"
-                  type="id_card"
-                  hook={attachmentsHook}
-                  employee={employee}
-                  onPreview={handleOpenPreview}
-                />
-                <AttachmentBox
-                  label="Umowa zatrudnienia"
-                  type="contract"
-                  hook={attachmentsHook}
-                  employee={employee}
-                  onPreview={handleOpenPreview}
-                  dateFields={contractFields}
-                />
-                <AttachmentBox
-                  label="A1"
-                  type="a1"
-                  hook={attachmentsHook}
-                  employee={employee}
-                  onPreview={handleOpenPreview}
-                  dateFields={a1Fields}
-                />
-              </Stack>
+              <Grid size={12} sx={{ flexGrow: 1 }}>
+                <Stack direction={'column'} spacing={2}>
+                  <AttachmentBox
+                    label="Dowód osobisty"
+                    type="id_card"
+                    hook={attachmentsHook}
+                    employee={employee}
+                    onPreview={handleOpenPreview}
+                  />
+                  <AttachmentBox
+                    label="Umowa zatrudnienia"
+                    type="contract"
+                    hook={attachmentsHook}
+                    employee={employee}
+                    onPreview={handleOpenPreview}
+                    dateFields={contractFields}
+                  />
+                  <AttachmentBox
+                    label="A1"
+                    type="a1"
+                    hook={attachmentsHook}
+                    employee={employee}
+                    onPreview={handleOpenPreview}
+                    dateFields={a1Fields}
+                  />
+                </Stack>
+              </Grid>
             </Grid>
           </Grid>
         </Box>

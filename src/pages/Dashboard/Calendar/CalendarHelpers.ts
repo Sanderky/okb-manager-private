@@ -48,6 +48,15 @@ export interface CalendarDay {
   slots?: Record<string, number>;
 }
 
+export const AVAILABLE_SEVERITIES: InfoEventSeverity[] = [
+  'info',
+  'warning',
+  'error',
+  'success',
+  'hotel',
+  'other',
+];
+
 export const getSeverityLabel = (severity: InfoEventSeverity): string => {
   switch (severity) {
     case 'error':

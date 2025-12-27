@@ -29,6 +29,7 @@ import {
   getSeverityLabel,
   type CalendarEvent,
   type CalendarDay,
+  AVAILABLE_SEVERITIES,
 } from './CalendarHelpers';
 import type { Construction, Employee, InfoEventSeverity } from '../../../types';
 import { plPL } from '@mui/x-date-pickers/locales';
@@ -232,16 +233,7 @@ const EventForm: React.FC<EventFormProps> = ({
           },
         }}
       >
-        {(
-          [
-            'info',
-            'warning',
-            'error',
-            'success',
-            'hotel',
-            'other',
-          ] as InfoEventSeverity[]
-        ).map((sev) => (
+        {AVAILABLE_SEVERITIES.map((sev) => (
           <MenuItem key={sev} value={sev}>
             {getSeverityLabel(sev)}
           </MenuItem>

@@ -46,6 +46,7 @@ import { Note } from '../../../components/Note';
 
 import PeopleIcon from '@mui/icons-material/People';
 import { FinishConstruction, ResumeConstruction } from './ConstructionDialogs';
+import { EventsListTable } from '../../../components/EventsBox';
 
 const personalFields = [
   { key: 'name', label: 'Nazwa budowy' },
@@ -210,7 +211,7 @@ export default function ConstructionShow() {
           })}
           className="border-lightGray rounded-lg border p-2 md:p-4 lg:p-6"
         >
-          <Grid container spacing={{ xs: 2 }} columns={12}>
+          <Grid container spacing={{ xs: 2 }} columns={12} sx={{}}>
             <Grid size={{ xs: 12, lg: 6 }} sx={{ flexGrow: 1 }}>
               <Stack direction={'column'} spacing={{ xs: 2, lg: 3 }}>
                 <TableContainer
@@ -341,82 +342,106 @@ export default function ConstructionShow() {
             </Grid>
 
             <Grid
+              container
               size={{ xs: 12, lg: 6 }}
-              className="overflow-hidden rounded-lg"
-              sx={(theme) => ({
-                alignSelf: 'flex-start',
-                border: `1px solid ${theme.palette.divider}`,
-              })}
+              spacing={{ xs: 2 }}
+              columns={12}
+              alignContent={'flex-start'}
             >
-              <table className="w-full">
-                <thead>
-                  <tr className="bg-blue-100">
-                    <th className="px-4 py-3 text-left">
-                      <Stack
-                        direction={'row'}
-                        alignItems={'center'}
-                        spacing={1}
-                      >
-                        <PeopleIcon />
-                        <Typography variant="subtitle2" fontWeight="600">
-                          Pracownicy na budowie dziś (
-                          {activeScheduleEmployees?.length}):
-                        </Typography>
-                      </Stack>
-                    </th>
-                  </tr>
-                </thead>
-                <TableBody
-                  sx={(theme) => ({
-                    '& > tr:not(:last-child) > td, & > tr:not(:last-child) > th':
-                      {
-                        borderBottom: `1px solid ${theme.palette.divider}`,
-                      },
-                    '& > tr:last-child > td, & > tr:last-child > th': {
-                      borderBottom: 'none',
-                    },
-                  })}
-                >
-                  {activeScheduleEmployees &&
-                  activeScheduleEmployees.length > 0 ? (
-                    activeScheduleEmployees.map((employee) => {
-                      return (
-                        <tr
-                          key={employee.id}
-                          onClick={() => navigate(`/employees/${employee.id}`)}
-                          className="cursor-pointer transition-colors hover:bg-blue-50 active:bg-blue-100"
+              <Grid
+                size={12}
+                className="overflow-hidden rounded-lg"
+                sx={(theme) => ({
+                  alignSelf: 'flex-start',
+                  border: `1px solid ${theme.palette.divider}`,
+                })}
+              >
+                <table className="w-full">
+                  <thead>
+                    <tr className="bg-blue-100">
+                      <th className="px-4 py-3 text-left">
+                        <Stack
+                          direction={'row'}
+                          alignItems={'center'}
+                          spacing={1}
                         >
-                          <td className="px-4 py-3">
-                            <Stack
-                              direction={'row'}
-                              alignItems={'center'}
-                              spacing={1}
-                            >
-                              <Typography
-                                variant="body2"
-                                className="font-medium text-gray-800"
-                              >
-                                {employee.name}
-                              </Typography>
-                              {employee.isContractor && (
-                                <Chip label={'Kontraktor'} size="small" />
-                              )}
-                            </Stack>
-                          </td>
-                        </tr>
-                      );
-                    })
-                  ) : (
-                    <tr>
-                      <td className="px-4 py-3">
-                        <Typography variant="body2" className="text-gray-500">
-                          Brak pracowników na budowie
-                        </Typography>
-                      </td>
+                          <PeopleIcon className="text-blue-800" />
+                          <Typography variant="subtitle2" fontWeight="600">
+                            Pracownicy na budowie dziś (
+                            {activeScheduleEmployees?.length}):
+                          </Typography>
+                        </Stack>
+                      </th>
                     </tr>
-                  )}
-                </TableBody>
-              </table>
+                  </thead>
+                  <TableBody
+                    sx={(theme) => ({
+                      '& > tr:not(:last-child) > td, & > tr:not(:last-child) > th':
+                        {
+                          borderBottom: `1px solid ${theme.palette.divider}`,
+                        },
+                      '& > tr:last-child > td, & > tr:last-child > th': {
+                        borderBottom: 'none',
+                      },
+                    })}
+                  >
+                    {activeScheduleEmployees &&
+                    activeScheduleEmployees.length > 0 ? (
+                      activeScheduleEmployees.map((employee) => {
+                        return (
+                          <tr
+                            key={employee.id}
+                            onClick={() =>
+                              navigate(`/employees/${employee.id}`)
+                            }
+                            className="cursor-pointer transition-colors hover:bg-blue-50 active:bg-blue-100"
+                          >
+                            <td className="px-4 py-3">
+                              <Stack
+                                direction={'row'}
+                                alignItems={'center'}
+                                spacing={1}
+                              >
+                                <Typography
+                                  variant="body2"
+                                  className="font-medium text-gray-800"
+                                >
+                                  {employee.name}
+                                </Typography>
+                                {employee.isContractor && (
+                                  <Chip label={'Kontraktor'} size="small" />
+                                )}
+                              </Stack>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    ) : (
+                      <tr>
+                        <td className="px-4 py-3">
+                          <Typography variant="body2" className="text-gray-500">
+                            Brak pracowników na budowie
+                          </Typography>
+                        </td>
+                      </tr>
+                    )}
+                  </TableBody>
+                </table>
+              </Grid>
+
+              <Grid
+                size={12}
+                className="overflow-hidden rounded-lg"
+                sx={(theme) => ({
+                  alignSelf: 'flex-start',
+                  border: `1px solid ${theme.palette.divider}`,
+                })}
+              >
+                <EventsListTable
+                  type="construction"
+                  entityId={construction.id}
+                />
+              </Grid>
             </Grid>
           </Grid>
 

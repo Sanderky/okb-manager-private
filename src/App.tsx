@@ -38,56 +38,55 @@ import { getEmployeeAlerts } from './services/alerts';
 import UpdatePassword from './pages/ForgotPassword/ForgotPassword';
 import { LayoutProvider } from './context/LayoutContext';
 import Calendar from './pages/Dashboard/Calendar/Calendar';
+import { getNearestUpcomingEvents } from './services/calendar';
 
 declare module '@mui/material/styles' {
   interface Palette {
     schedule: {
-      past: string,
-      current: string,
-      accent: string,
-      hoverRow: string,
-      hoverCell: string
-    },
+      past: string;
+      current: string;
+      accent: string;
+      hoverRow: string;
+      hoverCell: string;
+    };
     calendar: {
-      hoverDay: string,
-      selectedDay: string,
-      hoverSelectedDay: string,
-      dayOut: string
-    }
-
+      hoverDay: string;
+      selectedDay: string;
+      hoverSelectedDay: string;
+      dayOut: string;
+    };
   }
 
   interface Theme {
     hoursTable: {
-      borderBold: string
-    }
+      borderBold: string;
+    };
   }
 
   interface ThemeOptions {
     hoursTable: {
-      borderBold: string
-    }
+      borderBold: string;
+    };
   }
 
   interface PaletteOptions {
     schedule?: {
-      past: string,
-      current: string,
-      accent: string,
-      hoverRow: string,
-      hoverCell: string
-    },
+      past: string;
+      current: string;
+      accent: string;
+      hoverRow: string;
+      hoverCell: string;
+    };
     calendar?: {
-      hoverDay: string,
-      selectedDay: string,
-      hoverSelectedDay: string,
-      dayOut: string
-    }
+      hoverDay: string;
+      selectedDay: string;
+      hoverSelectedDay: string;
+      dayOut: string;
+    };
   }
 }
 
 const customTheme = createTheme({
-
   palette: {
     primary: {
       main: '#6366F1',
@@ -103,21 +102,21 @@ const customTheme = createTheme({
     },
     background: {
       paper: '#fff',
-      default: '#f5f5f4'
+      default: '#f5f5f4',
     },
     schedule: {
       past: '#fecaca',
       current: '#bbf7d0',
       accent: '#bfdbfe',
-      hoverRow: "#eff6ff",
-      hoverCell: "#dbeafe"
+      hoverRow: '#eff6ff',
+      hoverCell: '#dbeafe',
     },
     calendar: {
       hoverDay: '#f0f0f0',
       selectedDay: '#dbeafe',
       hoverSelectedDay: '#87CEFA',
-      dayOut: '#fafafa'
-    }
+      dayOut: '#fafafa',
+    },
     // secondary: {
     //   main: 'rgba(253, 224, 71, 0.35)',
     //   light: 'rgba(254, 234, 132, 0.35)',
@@ -126,7 +125,7 @@ const customTheme = createTheme({
     // }
   },
   hoursTable: {
-    borderBold: '1px solid #333'
+    borderBold: '1px solid #333',
   },
   components: {
     MuiButton: {
@@ -196,17 +195,23 @@ export default function App() {
     queryFn: getEmployeeAlerts,
   });
 
+  const { isLoading: upcomingEventsLoading } = useQuery({
+    queryKey: ['calendarEvents', 'upcoming', 'all', undefined],
+    queryFn: async () => getNearestUpcomingEvents(),
+  });
+
   const isLoading = Boolean(
     authLoading ||
-    (user &&
-      (constructionsLoading ||
-        isAlertsLoading ||
-        isContractorsLoading ||
-        employeesLoading ||
-        upcomingVacationsLoading ||
-        homeNoteLoading ||
-        employeeStatsLoading ||
-        constructionStatsLoading))
+      (user &&
+        (constructionsLoading ||
+          isAlertsLoading ||
+          isContractorsLoading ||
+          employeesLoading ||
+          upcomingVacationsLoading ||
+          homeNoteLoading ||
+          employeeStatsLoading ||
+          constructionStatsLoading ||
+          upcomingEventsLoading))
   );
 
   return (
