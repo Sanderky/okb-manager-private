@@ -47,6 +47,7 @@ import { Note } from '../../../components/Note';
 import PeopleIcon from '@mui/icons-material/People';
 import { FinishConstruction, ResumeConstruction } from './ConstructionDialogs';
 import { EventsListTable } from '../../../components/EventsBox';
+import { getUpcomingEventsForConstruction } from '../../../services/calendar';
 
 const personalFields = [
   { key: 'name', label: 'Nazwa budowy' },
@@ -94,6 +95,13 @@ export default function ConstructionShow() {
       getEmployeesByScheduledConstruction([constructionId!], dayjs().toDate()),
     enabled: !!constructionId,
   });
+
+  const { data: upcomingEvents = [], isLoading: isUpcomingEventsLoading } =
+    useQuery({
+      queryKey: ['calendarEvents', 'upcoming', 'construction', constructionId],
+      queryFn: () => getUpcomingEventsForConstruction(constructionId ?? ''),
+      enabled: !!constructionId,
+    });
 
   useEffect(() => {
     if (construction) {
@@ -166,7 +174,10 @@ export default function ConstructionShow() {
   }, [scheduleEmployees]);
 
   const error = errorConstruction || errorScheduleEmployees;
-  const loading = isLoadingConstruction || isScheduleEmployeesLoading;
+  const loading =
+    isLoadingConstruction ||
+    isScheduleEmployeesLoading ||
+    isUpcomingEventsLoading;
 
   const renderShow = useMemo(() => {
     if (loading) {
@@ -207,13 +218,13 @@ export default function ConstructionShow() {
             display: 'flex',
             flexDirection: 'column',
             background: theme.palette.background.paper,
-            border: `1px solid ${theme.palette.divider}`
+            border: `1px solid ${theme.palette.divider}`,
           })}
           className="rounded-lg p-2 md:p-4 lg:p-6"
         >
-          <Grid container spacing={{xs: 2, lg: 3}} columns={12} sx={{}}>
+          <Grid container spacing={{ xs: 2, lg: 3 }} columns={12} sx={{}}>
             <Grid size={{ xs: 12, lg: 6 }} sx={{ flexGrow: 1 }}>
-              <Stack direction={'column'} spacing={{xs: 2, lg: 3}}>
+              <Stack direction={'column'} spacing={{ xs: 2, lg: 3 }}>
                 <TableContainer
                   component={Paper}
                   className="overflow-hidden rounded-lg"
@@ -344,7 +355,7 @@ export default function ConstructionShow() {
             <Grid
               container
               size={{ xs: 12, lg: 6 }}
-              spacing={{xs: 2, lg: 3}}
+              spacing={{ xs: 2, lg: 3 }}
               columns={12}
               alignContent={'flex-start'}
             >
@@ -437,10 +448,7 @@ export default function ConstructionShow() {
                   border: `1px solid ${theme.palette.divider}`,
                 })}
               >
-                <EventsListTable
-                  type="construction"
-                  entityId={construction.id}
-                />
+                <EventsListTable type="construction" events={upcomingEvents} />
               </Grid>
             </Grid>
           </Grid>

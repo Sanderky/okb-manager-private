@@ -170,7 +170,7 @@ export default function App() {
 
   const { isLoading: upcomingVacationsLoading } = useQuery({
     queryKey: ['vacations', 'upcoming-vacations'],
-    queryFn: getUpcomingVacations,
+    queryFn: () => getUpcomingVacations(),
     enabled: !!user,
   });
 
@@ -196,7 +196,7 @@ export default function App() {
   });
 
   const { isLoading: upcomingEventsLoading } = useQuery({
-    queryKey: ['calendarEvents', 'upcoming', 'all', undefined],
+    queryKey: ['calendarEvents', 'upcoming', 'all'],
     queryFn: async () => getNearestUpcomingEvents(),
   });
 

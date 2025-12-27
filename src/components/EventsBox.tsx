@@ -23,15 +23,9 @@ import {
   FilterList,
   Notifications,
 } from '@mui/icons-material';
-import { useQuery } from '@tanstack/react-query';
 import { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Loading from './Loading';
-import {
-  getNearestUpcomingEvents,
-  getUpcomingEventsForConstruction,
-  getUpcomingEventsForEmployee,
-} from '../services/calendar';
 import { useEventColor } from '../pages/Dashboard/Calendar/useEventColor';
 import type { InfoEvent, InfoEventSeverity } from '../types';
 import {
@@ -42,11 +36,15 @@ import {
 const EVENTS_FILTER_STORAGE_KEY = 'eventsBox_filters';
 
 interface EventsBoxProps {
+  events: InfoEvent[];
   type?: 'all' | 'employee' | 'construction';
-  entityId?: string;
+  isLoading?: boolean;
 }
 
-const useUpcomingEvents = ({ type = 'all', entityId }: EventsBoxProps) => {
+const useUpcomingEvents = ({
+  type = 'all',
+  events: upcomingEvents,
+}: EventsBoxProps) => {
   const navigate = useNavigate();
   const { scrollToTop: scrollToTopFn } = useScroll();
 
@@ -70,20 +68,6 @@ const useUpcomingEvents = ({ type = 'all', entityId }: EventsBoxProps) => {
       JSON.stringify(selectedSeverities)
     );
   }, [selectedSeverities]);
-
-  const { data: upcomingEvents = [], isLoading } = useQuery({
-    queryKey: ['calendarEvents', 'upcoming', type, entityId],
-    queryFn: async () => {
-      if (type === 'employee' && entityId) {
-        return getUpcomingEventsForEmployee(entityId);
-      }
-      if (type === 'construction' && entityId) {
-        return getUpcomingEventsForConstruction(entityId);
-      }
-      return getNearestUpcomingEvents();
-    },
-    enabled: type === 'all' || !!entityId,
-  });
 
   const handleFilterChange = (severity: InfoEventSeverity) => {
     setSelectedSeverities((prev) => {
@@ -188,20 +172,22 @@ const useUpcomingEvents = ({ type = 'all', entityId }: EventsBoxProps) => {
     handleEventClick,
     getTitle,
     filteredEvents,
-    isLoading,
     renderFilters,
   };
 };
 
-export const EventsBox = ({ type = 'all', entityId }: EventsBoxProps) => {
+export const EventsBox = ({
+  events,
+  isLoading,
+  type = 'all',
+}: EventsBoxProps) => {
   const {
     filteredEvents,
     handleEventClick,
     getDateStr,
     getTitle,
-    isLoading,
     renderFilters,
-  } = useUpcomingEvents({ type, entityId });
+  } = useUpcomingEvents({ type, events });
   const [isExpanded, setIsExpanded] = useState(false);
 
   const MAX_VISIBLE_ITEMS = 2;
@@ -312,15 +298,14 @@ export const EventsBox = ({ type = 'all', entityId }: EventsBoxProps) => {
   );
 };
 
-export const EventsListTable = ({ type = 'all', entityId }: EventsBoxProps) => {
+export const EventsListTable = ({ type = 'all', events }: EventsBoxProps) => {
   const {
     filteredEvents,
     handleEventClick,
     getDateStr,
     getTitle,
-    isLoading,
     renderFilters,
-  } = useUpcomingEvents({ type, entityId });
+  } = useUpcomingEvents({ type, events });
 
   const { getEventColor, getEventTextColor } = useEventColor();
 

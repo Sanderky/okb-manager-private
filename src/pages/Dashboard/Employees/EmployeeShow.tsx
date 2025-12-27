@@ -38,6 +38,7 @@ import { fetchAlertsSettings } from '../../../services/settings';
 import useEmployeeAttachments from './useAttachment';
 import AttachmentBox from './AttachmentBox';
 import { EventsListTable } from '../../../components/EventsBox';
+import { getUpcomingEventsForEmployee } from '../../../services/calendar';
 
 export interface FieldInfo {
   key: keyof Employee;
@@ -119,6 +120,13 @@ export default function EmployeeShow() {
     queryFn: fetchAlertsSettings,
   });
 
+  const { data: upcomingEvents = [], isLoading: isUpcomingEventsLoading } =
+    useQuery({
+      queryKey: ['calendarEvents', 'upcoming', 'employee', employeeId],
+      queryFn: () => getUpcomingEventsForEmployee(employeeId ?? ''),
+      enabled: !!employeeId,
+    });
+
   useEffect(() => {
     if (employee) setNotFound(false);
     else if (!isEmployeeLoading) setNotFound(true);
@@ -180,7 +188,8 @@ export default function EmployeeShow() {
   };
 
   const error = errorEmployee || errorEmployeeVacation;
-  const loading = isEmployeeLoading || isEmployeeVacationLoading;
+  const loading =
+    isEmployeeLoading || isEmployeeVacationLoading || isUpcomingEventsLoading;
 
   const renderShow = useMemo(() => {
     if (loading) return <Loading message="Ładowanie danych pracownika..." />;
@@ -296,7 +305,7 @@ export default function EmployeeShow() {
                   border: `1px solid ${theme.palette.divider}`,
                 })}
               >
-                <EventsListTable type="employee" entityId={employee.id} />
+                <EventsListTable type="employee" events={upcomingEvents} />
               </Grid>
 
               <Grid size={12}>

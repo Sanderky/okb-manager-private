@@ -49,6 +49,7 @@ import {
 } from '../../../services/settings';
 import { getHomeNote, saveHomeNote } from '../../../services/home';
 import { EventsBox } from '../../../components/EventsBox';
+import { getNearestUpcomingEvents } from '../../../services/calendar';
 
 interface EmployeeAlertsSettingsProps {
   isOpen: boolean;
@@ -523,13 +524,13 @@ const UpcomingVacation = () => {
                   <ListItem
                     key={vacation.groupId}
                     onClick={() => handleVacationClick(vacation)}
-                    sx={theme => ({
+                    sx={(theme) => ({
                       display: 'flex',
                       flexDirection: 'column',
                       cursor: 'pointer',
                       alignItems: 'flex-start',
                       mb: 1,
-                      border: `1px solid ${theme.palette.divider}`
+                      border: `1px solid ${theme.palette.divider}`,
                     })}
                     className={`rounded-md bg-blue-50/50 text-blue-950 last:mb-0 hover:bg-blue-100`}
                   >
@@ -621,6 +622,12 @@ const Home = () => {
       queryFn: getConstructionStats,
     }
   );
+
+  const { data: upcomingEvents = [], isLoading: isUpcomingEventsLoading } =
+    useQuery({
+      queryKey: ['calendarEvents', 'upcoming', 'all'],
+      queryFn: () => getNearestUpcomingEvents(),
+    });
 
   const handleEmployeesClick = useCallback(() => {
     navigate('/employees');
@@ -884,7 +891,10 @@ const Home = () => {
                   })}
                 >
                   <CardContent className="pb-0">
-                    <EventsBox />
+                    <EventsBox
+                      events={upcomingEvents}
+                      isLoading={isUpcomingEventsLoading}
+                    />
                   </CardContent>
                 </Card>
               </Grid>
