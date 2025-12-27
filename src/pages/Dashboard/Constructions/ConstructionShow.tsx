@@ -203,17 +203,17 @@ export default function ConstructionShow() {
         <Box
           sx={(theme) => ({
             width: '100%',
-            // boxShadow: 1,
             flex: 1,
             display: 'flex',
             flexDirection: 'column',
             background: theme.palette.background.paper,
+            border: `1px solid ${theme.palette.divider}`
           })}
-          className="border-lightGray rounded-lg border p-2 md:p-4 lg:p-6"
+          className="rounded-lg p-2 md:p-4 lg:p-6"
         >
-          <Grid container spacing={{ xs: 2 }} columns={12} sx={{}}>
+          <Grid container spacing={{xs: 2, lg: 3}} columns={12} sx={{}}>
             <Grid size={{ xs: 12, lg: 6 }} sx={{ flexGrow: 1 }}>
-              <Stack direction={'column'} spacing={{ xs: 2, lg: 3 }}>
+              <Stack direction={'column'} spacing={{xs: 2, lg: 3}}>
                 <TableContainer
                   component={Paper}
                   className="overflow-hidden rounded-lg"
@@ -344,7 +344,7 @@ export default function ConstructionShow() {
             <Grid
               container
               size={{ xs: 12, lg: 6 }}
-              spacing={{ xs: 2 }}
+              spacing={{xs: 2, lg: 3}}
               columns={12}
               alignContent={'flex-start'}
             >

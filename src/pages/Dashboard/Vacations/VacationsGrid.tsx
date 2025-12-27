@@ -86,12 +86,12 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
               };
 
               const hasHiddenEvents = events.some((ev) => {
-                const slot = slots[ev.groupId];
+                const slot = slots[ev.id];
                 return slot >= MAX_EVENTS || !ev.employee;
               });
 
               const hiddenEventsCount = events.filter((ev) => {
-                const slot = slots[ev.groupId];
+                const slot = slots[ev.id];
                 return slot >= MAX_EVENTS || !ev.employee;
               }).length;
 
@@ -155,7 +155,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                       const isEnd = ev.date.isSame(ev.endDate, 'day');
 
                       const isWeekStart = di === 0;
-                      const slot = slots[ev.groupId];
+                      const slot = slots[ev.id];
                       const isLightColor =
                         theme.palette.getContrastText(ev.color) !== '#fff';
                       const textColor = isLightColor

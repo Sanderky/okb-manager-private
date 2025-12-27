@@ -19,7 +19,7 @@ import {
   CircularProgress,
 } from '@mui/material';
 import PageContainer from '../../../components/PageContainer';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getEmployeeStats } from '../../../services/employees';
@@ -48,7 +48,7 @@ import {
   updateAlertsSettings,
 } from '../../../services/settings';
 import { getHomeNote, saveHomeNote } from '../../../services/home';
-import {EventsBox} from '../../../components/EventsBox';
+import { EventsBox } from '../../../components/EventsBox';
 
 interface EmployeeAlertsSettingsProps {
   isOpen: boolean;
@@ -449,34 +449,13 @@ const UpcomingVacation = () => {
   const navigate = useNavigate();
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const { data: upcomingVacations, isLoading } = useQuery({
+  const { data: upcomingVacations = [], isLoading } = useQuery({
     queryKey: ['vacations', 'upcoming-vacations'],
-    queryFn: getUpcomingVacations,
+    queryFn: () => getUpcomingVacations(),
   });
 
-  const groupedVacations = useMemo(() => {
-    if (!upcomingVacations) return [];
-
-    const uniqueGroups = new Map();
-
-    upcomingVacations.forEach((vacation) => {
-      if (!vacation.employeeActive) return;
-
-      if (!uniqueGroups.has(vacation.groupId)) {
-        uniqueGroups.set(vacation.groupId, {
-          ...vacation,
-          employeeName: vacation.employeeName ?? 'Nieznany pracownik',
-        });
-      }
-    });
-
-    return Array.from(uniqueGroups.values()).sort(
-      (a, b) => dayjs(a.startDate).valueOf() - dayjs(b.startDate).valueOf()
-    );
-  }, [upcomingVacations]);
-
   const MAX_VISIBLE_ITEMS = 2;
-  const hasMoreItems = groupedVacations.length > MAX_VISIBLE_ITEMS;
+  const hasMoreItems = upcomingVacations.length > MAX_VISIBLE_ITEMS;
 
   const toggleExpanded = () => {
     setIsExpanded(!isExpanded);
@@ -510,7 +489,7 @@ const UpcomingVacation = () => {
         </Typography>
         {hasMoreItems && (
           <Chip
-            label={`${groupedVacations.length} ${groupedVacations.length > 4 ? 'urlopów' : 'urlopy'}`}
+            label={`${upcomingVacations.length} ${upcomingVacations.length > 4 ? 'urlopów' : 'urlopy'}`}
             size="small"
             color="primary"
             variant="outlined"
@@ -532,7 +511,7 @@ const UpcomingVacation = () => {
             }}
           >
             <List className="mb-2">
-              {groupedVacations.length === 0 ? (
+              {upcomingVacations.length === 0 ? (
                 <Stack direction={'row'} spacing={1}>
                   <Done />
                   <Typography color={'textSecondary'}>
@@ -540,18 +519,19 @@ const UpcomingVacation = () => {
                   </Typography>
                 </Stack>
               ) : (
-                groupedVacations.map((vacation) => (
+                upcomingVacations.map((vacation) => (
                   <ListItem
                     key={vacation.groupId}
                     onClick={() => handleVacationClick(vacation)}
-                    sx={{
+                    sx={theme => ({
                       display: 'flex',
                       flexDirection: 'column',
                       cursor: 'pointer',
                       alignItems: 'flex-start',
                       mb: 1,
-                    }}
-                    className={`border-lightGray rounded-md border bg-blue-50/50 text-blue-950 last:mb-0 hover:bg-blue-100`}
+                      border: `1px solid ${theme.palette.divider}`
+                    })}
+                    className={`rounded-md bg-blue-50/50 text-blue-950 last:mb-0 hover:bg-blue-100`}
                   >
                     <Typography variant="subtitle2">
                       {vacation.employeeName}

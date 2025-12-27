@@ -17,12 +17,12 @@ export const WEEK_DAYS = [
 ];
 
 export interface CalendarEvent {
-  id?: string;
+  id: string;
   employee: Employee;
   date: Dayjs;
   startDate: Dayjs;
   endDate: Dayjs;
-  groupId: string;
+  // groupId: string;
   color: string;
   description?: string;
 }

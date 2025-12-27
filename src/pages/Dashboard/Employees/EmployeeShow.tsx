@@ -209,7 +209,6 @@ export default function EmployeeShow() {
         <Box
           sx={(theme) => ({
             width: '100%',
-            // boxShadow: 1,
             display: 'flex',
             flexDirection: 'column',
             background: theme.palette.background.paper,
@@ -217,7 +216,7 @@ export default function EmployeeShow() {
           className="rounded-lg p-2 md:p-4 lg:p-6"
         >
           <Grid container spacing={{ xs: 2, lg: 3 }} columns={12}>
-            <Grid size={{ xs: 12, lg: 6 }} sx={{ flexGrow: 1 }}>
+            <Grid size={{ xs: 12, lg: 6 }}>
               <Stack direction={'column'} spacing={{ xs: 2, lg: 3 }}>
                 <TableContainer
                   component={Paper}
@@ -300,8 +299,8 @@ export default function EmployeeShow() {
                 <EventsListTable type="employee" entityId={employee.id} />
               </Grid>
 
-              <Grid size={12} sx={{ flexGrow: 1 }}>
-                {employeeVacation && employeeVacation.length > 0 && (
+              <Grid size={12}>
+                {employeeVacation && (
                   <Box
                     className="overflow-hidden rounded-lg border"
                     sx={(theme) => ({
@@ -319,7 +318,7 @@ export default function EmployeeShow() {
                             >
                               <CalendarMonthIcon className="text-blue-800" />
                               <Typography variant="subtitle2" fontWeight="600">
-                                Nadchodzące urlopy pracownika:
+                                {`Nadchodzące urlopy pracownika (${employeeVacation.length}):`}
                               </Typography>
                             </Stack>
                           </th>
@@ -336,31 +335,44 @@ export default function EmployeeShow() {
                           },
                         })}
                       >
-                        {employeeVacation.map((empV) => (
-                          <tr
-                            key={empV.id}
-                            onClick={() => handleVacationClick(empV)}
-                            className="cursor-pointer transition-colors hover:bg-blue-50/50 active:bg-blue-100"
-                          >
+                        {employeeVacation.length > 0 ? (
+                          employeeVacation.map((empV) => (
+                            <tr
+                              key={empV.id}
+                              onClick={() => handleVacationClick(empV)}
+                              className="cursor-pointer transition-colors hover:bg-blue-50/50 active:bg-blue-100"
+                            >
+                              <td className="px-4 py-3">
+                                <Typography
+                                  variant="body2"
+                                  className="text-gray-700"
+                                >
+                                  {dayjs(empV.startDate).format('DD.MM.YYYY')} -{' '}
+                                  {dayjs(empV.endDate).format('DD.MM.YYYY')}
+                                </Typography>
+                              </td>
+                            </tr>
+                          ))
+                        ) : (
+                          <tr>
                             <td className="px-4 py-3">
                               <Typography
                                 variant="body2"
                                 className="text-gray-700"
                               >
-                                {dayjs(empV.startDate).format('DD.MM.YYYY')} -{' '}
-                                {dayjs(empV.endDate).format('DD.MM.YYYY')}
+                                Brak urlopów
                               </Typography>
                             </td>
                           </tr>
-                        ))}
+                        )}
                       </TableBody>
                     </table>
                   </Box>
                 )}
               </Grid>
 
-              <Grid size={12} sx={{ flexGrow: 1 }}>
-                <Stack direction={'column'} spacing={2}>
+              <Grid size={12}>
+                <Stack direction={'column'} spacing={{ xs: 2, lg: 3 }}>
                   <AttachmentBox
                     label="Dowód osobisty"
                     type="id_card"

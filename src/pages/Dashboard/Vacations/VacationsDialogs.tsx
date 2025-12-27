@@ -1002,7 +1002,7 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
     const reportItems: VacationReportItem[] = [];
 
     selectedEmployees.forEach((employee) => {
-      const employeeVacations = uniqueVacations.filter((vacation) => {
+      const employeeVacations = vacations.filter((vacation) => {
         if (vacation.employeeId !== employee.id) return false;
 
         const vacationStart = dayjs(vacation.startDate).startOf('day');
@@ -1032,7 +1032,7 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
         dayjs(a.vacation.startDate).valueOf() -
         dayjs(b.vacation.startDate).valueOf()
     );
-  }, [selectedEmployees, effectiveDateRange, uniqueVacations]);
+  }, [selectedEmployees, effectiveDateRange, vacations]);
 
   // const [showInactive, setShowInactive] = useState<boolean>(false);
 
@@ -1282,7 +1282,7 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
                     <TableBody>
                       {generatedReport.map(({ employee, vacation }, index) => (
                         <TableRow
-                          key={`${employee.id}-${vacation.groupId}-${index}`}
+                          key={`${employee.id}-${vacation.id}-${index}`}
                           sx={{ cursor: 'pointer' }}
                           onClick={() =>
                             handleEmployeeProfileClick(employee.id)

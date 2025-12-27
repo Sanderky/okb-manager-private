@@ -141,7 +141,20 @@ export async function getVacationListForMonths(
   return data.map(mapVacationFromDB);
 }
 
-export const getUpcomingVacations = async (): Promise<Vacation[]> => {
+export const removeEmployeeVacations = async (
+  employeeId: string
+): Promise<void> => {
+  const { error } = await supabase
+    .from('vacations')
+    .delete()
+    .eq('employee_id', employeeId);
+
+  if (error) throw error;
+};
+
+export const getUpcomingVacations = async (
+  limit: number = 10
+): Promise<Vacation[]> => {
   const today = dayjs().format('YYYY-MM-DD');
 
   const { data, error } = await supabase
@@ -152,8 +165,10 @@ export const getUpcomingVacations = async (): Promise<Vacation[]> => {
       employees ( name, status )
     `
     )
+
     .gte('end_date', today)
-    .order('start_date', { ascending: true });
+    .order('start_date', { ascending: true })
+    .limit(limit);
 
   if (error) throw error;
 
@@ -161,7 +176,8 @@ export const getUpcomingVacations = async (): Promise<Vacation[]> => {
 };
 
 export const getUpcomingVacationsForEmployee = async (
-  employeeId: string
+  employeeId: string,
+  limit: number = 10
 ): Promise<Vacation[]> => {
   const today = dayjs().format('YYYY-MM-DD');
 
@@ -170,28 +186,20 @@ export const getUpcomingVacationsForEmployee = async (
     .select('*')
     .eq('employee_id', employeeId)
     .gte('end_date', today)
-    .order('start_date', { ascending: true });
+    .order('start_date', { ascending: true })
+    .limit(limit);
 
   if (error) throw error;
 
-  return data.map((row) => ({
-    id: row.id,
-    employeeId: row.employee_id,
-    startDate: new Date(row.start_date),
-    endDate: new Date(row.end_date),
-    color: row.color,
-    description: row.description,
-    groupId: row.group_id,
-  }));
-};
-
-export const removeEmployeeVacations = async (
-  employeeId: string
-): Promise<void> => {
-  const { error } = await supabase
-    .from('vacations')
-    .delete()
-    .eq('employee_id', employeeId);
-
-  if (error) throw error;
+  return data.map(
+    (row) =>
+      ({
+        id: row.id,
+        employeeId: row.employee_id,
+        startDate: new Date(row.start_date),
+        endDate: new Date(row.end_date),
+        color: row.color,
+        description: row.description,
+      }) as Vacation
+  );
 };

@@ -270,11 +270,11 @@ const Calendar: React.FC = () => {
 
             return {
               ...ev,
+              id: ev.id!,
               startDate: dayjs(ev.startDate),
               endDate: dayjs(ev.endDate),
               date: current.clone(),
               employee: simpleEmployee,
-              groupId: ev.id,
             };
           });
 
@@ -285,11 +285,11 @@ const Calendar: React.FC = () => {
           });
 
           dayEvents.forEach((ev) => {
-            const gid = ev.groupId!;
-            if (groupSlotMap[gid] === undefined) {
+            const id = ev.id;
+            if (groupSlotMap[id] === undefined) {
               const free = getFreeSlot();
-              groupSlotMap[gid] = free;
-              activeSlots[free] = gid;
+              groupSlotMap[id] = free;
+              activeSlots[free] = id;
             }
           });
 
@@ -301,8 +301,8 @@ const Calendar: React.FC = () => {
 
           dayEvents.forEach((ev) => {
             if (current.isSame(ev.endDate, 'day')) {
-              const gid = ev.groupId!;
-              const slot = groupSlotMap[gid];
+              const id = ev.id;
+              const slot = groupSlotMap[id];
               if (slot !== undefined) {
                 delete activeSlots[slot];
               }
@@ -459,13 +459,13 @@ const Calendar: React.FC = () => {
   };
 
   const handleEditEvent = (eventData: CalendarEvent) => {
-    if (!eventData.groupId) return;
+    if (!eventData.id) return;
 
     const { employee, startDate, endDate, description, color } = eventData;
 
-    const otherVacations = vacations.filter(
-      (v) => v.id !== currentEvent.groupId
-    );
+    // Filtrujemy po ID
+    const otherVacations = vacations.filter((v) => v.id !== currentEvent.id);
+
     const validation = validateVacation(
       employee.id,
       startDate,
@@ -480,7 +480,7 @@ const Calendar: React.FC = () => {
     }
 
     updateMutation({
-      id: eventData.groupId,
+      id: eventData.id,
       data: {
         employeeId: employee.id,
         startDate: startDate.toDate(),
