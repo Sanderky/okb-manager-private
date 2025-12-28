@@ -597,7 +597,7 @@ const Calendar: React.FC = () => {
           </Grid>
         </Box>
 
-        <Box sx={{ flex: 1, overflow: 'auto' }}>
+        <Box sx={{ flex: 1, overflowY: 'auto', overflowX: 'hidden' }}>
           <CalendarGrid
             onMoreClick={handleOnMoreClick}
             monthGrid={monthGrid}
