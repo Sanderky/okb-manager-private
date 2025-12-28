@@ -9,6 +9,16 @@ export interface Contractor {
   constructionsCount?: number;
 }
 
+export interface Lodging {
+  id: string;
+  name: string;
+  address: string;
+  startDate: Date;
+  endDate: Date;
+  employeeIds: string[];
+  description?: string;
+}
+
 export interface Construction {
   id: string;
   name: string;

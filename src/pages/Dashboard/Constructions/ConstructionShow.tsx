@@ -48,6 +48,7 @@ import PeopleIcon from '@mui/icons-material/People';
 import { FinishConstruction, ResumeConstruction } from './ConstructionDialogs';
 import { EventsListTable } from '../../../components/EventsBox';
 import { getUpcomingEventsForConstruction } from '../../../services/calendar';
+import { openGoogleMaps } from '../../../utils';
 
 const personalFields = [
   { key: 'name', label: 'Nazwa budowy' },
@@ -287,17 +288,7 @@ export default function ConstructionShow() {
                                     ? 'navy'
                                     : 'inherit',
                                 }}
-                                onClick={() => {
-                                  if (construction?.location) {
-                                    const address = encodeURIComponent(
-                                      construction.location
-                                    );
-                                    window.open(
-                                      `https://www.google.com/maps/search/?api=1&query=${address}`,
-                                      '_blank'
-                                    );
-                                  }
-                                }}
+                                onClick={() => openGoogleMaps(construction?.location)}
                               >
                                 {(() => {
                                   const value =

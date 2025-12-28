@@ -39,6 +39,7 @@ import UpdatePassword from './pages/ForgotPassword/ForgotPassword';
 import { LayoutProvider } from './context/LayoutContext';
 import Calendar from './pages/Dashboard/Calendar/Calendar';
 import { getNearestUpcomingEvents } from './services/calendar';
+import LodgingsManager from './pages/Dashboard/Lodgings/Lodgings';
 
 declare module '@mui/material/styles' {
   interface Palette {
@@ -259,6 +260,7 @@ export default function App() {
                       path="constructions/create"
                       element={<ConstructionCreate />}
                     />
+                    <Route path="lodgings" element={<LodgingsManager />} />
                     <Route path="schedule" element={<Schedule />} />
                     <Route path="vacations" element={<VacationCalendar />} />
                     <Route path="calendar" element={<Calendar />} />

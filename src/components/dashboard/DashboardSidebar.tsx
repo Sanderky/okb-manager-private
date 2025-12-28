@@ -19,7 +19,7 @@ import {
   getDrawerSxTransitionMixin,
   getDrawerWidthTransitionMixin,
 } from '../../mixins';
-import { Event, Schedule } from '@mui/icons-material';
+import { Event, Hotel, Schedule } from '@mui/icons-material';
 
 export interface DashboardSidebarProps {
   expanded?: boolean;
@@ -152,6 +152,13 @@ export default function DashboardSidebar({
               icon={<PersonIcon />}
               href="/employees"
               selected={!!matchPath('/employees/*', pathname)}
+            />
+            <DashboardSidebarPageItem
+              id="lodgings"
+              title="Zakwaterowania"
+              icon={<Hotel />}
+              href="/lodgings"
+              selected={!!matchPath('/lodgings/*', pathname)}
             />
             <DashboardSidebarPageItem
               id="vacations"
