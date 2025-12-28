@@ -493,7 +493,7 @@ const NoTable = ({
                   color="primary"
                   disabled={availableConstructions.length === 0}
                 >
-                  Dodaj budowę
+                  Dodaj pierwszą budowę
                 </Button>
               </span>
             </Tooltip>
@@ -513,16 +513,13 @@ const NoTable = ({
 
   return (
     <Box
-      className="border-lightGray rounded-lg border bg-gray-50"
       sx={(theme) => ({
         minHeight: '300px',
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        outline: editMode
-          ? `2px solid ${theme.palette.primary.main} !important`
-          : '',
+        borderBottom: `1px solid ${theme.palette.divider}`
       })}
     >
       {content}
