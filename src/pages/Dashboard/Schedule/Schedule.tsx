@@ -593,22 +593,6 @@ const ScheduleComponent = () => {
       }
       renderBottomToolbar={
         <Box sx={theme => ({ flexShrink: 0, background: theme.palette.background.paper, borderTop: `1px solid ${theme.palette.divider}` })}>
-          {filteredEmployees.length === 0 && (
-            <Stack
-              direction={'column'}
-              justifyContent={'center'}
-              alignItems={'center'}
-              sx={{ py: 5 }}
-            >
-              <Typography
-                variant="body1"
-                align="center"
-                className="px-4 font-normal text-gray-500"
-              >
-                Nie znaleziono pracowników
-              </Typography>
-            </Stack>
-          )}
           <Stack
             direction={{ xs: 'column', sm: 'row' }}
             justifyContent={'space-between'}

@@ -540,7 +540,6 @@ const LodgingsManager = () => {
           })}
         >
           <Stack
-            flexWrap={'wrap'}
             direction={'row'}
             alignItems={'center'}
             className="px-3"
@@ -548,24 +547,39 @@ const LodgingsManager = () => {
             rowGap={0.5}
             py={1}
           >
-            <Typography
-              variant="overline"
-              className="font-medium text-gray-500"
-              sx={{
-                lineHeight: 1,
-              }}
+            <Stack
+              direction={'row'}
+              spacing={2}
+              alignItems={'center'}
+              flexWrap={'wrap'}
+              divider={
+                <Box
+                  sx={(theme) => ({
+                    borderRight: `1px solid ${theme.palette.divider}`,
+                    height: '15px',
+                  })}
+                />
+              }
             >
-              {`Zakwaterowani dziś: ${stats.accommodatedEmployees}/${stats.totalEmployees}`}
-            </Typography>
-            <Typography
-              variant="overline"
-              className="font-medium text-gray-500"
-              sx={{
-                lineHeight: 1,
-              }}
-            >
-              {`Noclegi: ${stats.activeLodgingsCount}/${stats.totalLodgings}`}
-            </Typography>
+              <Typography
+                variant="overline"
+                className="font-medium text-gray-500"
+                sx={{
+                  lineHeight: 1,
+                }}
+              >
+                {`Zakwaterowani dziś: ${stats.accommodatedEmployees}/${stats.totalEmployees}`}
+              </Typography>
+              <Typography
+                variant="overline"
+                className="font-medium text-gray-500"
+                sx={{
+                  lineHeight: 1,
+                }}
+              >
+                {`Noclegi: ${stats.activeLodgingsCount}/${stats.totalLodgings}`}
+              </Typography>
+            </Stack>
           </Stack>
         </Box>
       }
