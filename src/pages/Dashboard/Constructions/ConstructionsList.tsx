@@ -53,6 +53,7 @@ import { ContractorsDialog } from '../../../components/ContractorsDialog';
 import { Engineering } from '@mui/icons-material';
 import { getContractors } from '../../../services/contractors';
 import { TablePagination } from '../../../components/TablePagination';
+import Loading from '../../../components/Loading';
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
@@ -97,19 +98,27 @@ const DefaultColumnsOrder = [
 ];
 
 interface FiltersDialogProps {
-  filtersModalOpen: boolean,
-  handleCloseFilters: () => void,
-  filters: ConstructionsFilters,
-  setFilters: (val: ConstructionsFilters) => void,
-  handleCloseAndReset: () => void,
-  handleApplyFilters: () => void,
+  filtersModalOpen: boolean;
+  handleCloseFilters: () => void;
+  filters: ConstructionsFilters;
+  setFilters: (val: ConstructionsFilters) => void;
+  handleCloseAndReset: () => void;
+  handleApplyFilters: () => void;
   contractorOptions: {
     label: string;
     id: string;
-  }[]
+  }[];
 }
 
-const FiltersDialog = ({ filtersModalOpen, handleCloseFilters, filters, setFilters, handleApplyFilters, handleCloseAndReset, contractorOptions }: FiltersDialogProps) => {
+const FiltersDialog = ({
+  filtersModalOpen,
+  handleCloseFilters,
+  filters,
+  setFilters,
+  handleApplyFilters,
+  handleCloseAndReset,
+  contractorOptions,
+}: FiltersDialogProps) => {
   return (
     <Dialog
       open={filtersModalOpen}
@@ -146,9 +155,7 @@ const FiltersDialog = ({ filtersModalOpen, handleCloseFilters, filters, setFilte
               size="small"
               fullWidth
               value={filters.name ?? ''}
-              onChange={(e) =>
-                setFilters({ ...filters, name: e.target.value })
-              }
+              onChange={(e) => setFilters({ ...filters, name: e.target.value })}
             />
           </Grid>
           <Grid size={{ xs: 12, sm: 6 }}>
@@ -156,14 +163,12 @@ const FiltersDialog = ({ filtersModalOpen, handleCloseFilters, filters, setFilte
             <Autocomplete
               options={contractorOptions}
               getOptionLabel={(option) => option.label || ''}
-              isOptionEqualToValue={(option, value) =>
-                option.id === value.id
-              }
+              isOptionEqualToValue={(option, value) => option.id === value.id}
               value={
                 filters.contractor
                   ? contractorOptions.find(
-                    (opt) => opt.label === filters.contractor
-                  ) || null
+                      (opt) => opt.label === filters.contractor
+                    ) || null
                   : null
               }
               onChange={(_, newValue) => {
@@ -331,9 +336,7 @@ const FiltersDialog = ({ filtersModalOpen, handleCloseFilters, filters, setFilte
           </Grid>
 
           <Grid size={{ xs: 12, sm: 6 }}>
-            <FormLabel className="mb-2 block">
-              Liczba pracowników
-            </FormLabel>
+            <FormLabel className="mb-2 block">Liczba pracowników</FormLabel>
             <Stack
               direction={{
                 xs: 'column',
@@ -429,8 +432,8 @@ const FiltersDialog = ({ filtersModalOpen, handleCloseFilters, filters, setFilte
         </Stack>
       </DialogActions>
     </Dialog>
-  )
-}
+  );
+};
 
 export default function ConstructionsList() {
   const navigate = useNavigate();
@@ -446,6 +449,7 @@ export default function ConstructionsList() {
     setColumnFilters,
     columnOrder,
     setColumnOrder,
+    isLoading: isSettingsLoading,
   } = useTableState('constructions', DefaultColumnFilters, DefaultColumnsOrder);
 
   const [filtersModalOpen, setFiltersModalOpen] = useState(false);
@@ -712,10 +716,11 @@ export default function ConstructionsList() {
           return (
             <Box
               component="span"
-              className={`rounded-full px-2 py-1 font-medium ${count > 0
+              className={`rounded-full px-2 py-1 font-medium ${
+                count > 0
                   ? 'bg-green-100 text-green-800'
                   : 'bg-gray-100 text-gray-600'
-                }`}
+              }`}
             >
               {count}
             </Box>
@@ -740,10 +745,11 @@ export default function ConstructionsList() {
         Cell: ({ cell }) => (
           <Box
             component="span"
-            className={`rounded px-3 py-1 ${cell.getValue<boolean>()
+            className={`rounded px-3 py-1 ${
+              cell.getValue<boolean>()
                 ? 'bg-blue-300/50 text-blue-600'
                 : 'bg-amber-300/50 text-amber-600'
-              }`}
+            }`}
           >
             {cell.getValue<boolean>() ? 'W trakcie' : 'Zakończona'}
           </Box>
@@ -769,6 +775,7 @@ export default function ConstructionsList() {
 
   const table = useMaterialReactTable({
     localization,
+    autoResetPageIndex: false,
     columns,
     data: tableData,
     layoutMode: 'semantic',
@@ -824,8 +831,8 @@ export default function ConstructionsList() {
     },
     muiTopToolbarProps: {
       sx: (theme) => ({
-        backgroundColor: theme.palette.background.paper
-      })
+        backgroundColor: theme.palette.background.paper,
+      }),
     },
 
     muiTablePaperProps: {
@@ -869,7 +876,7 @@ export default function ConstructionsList() {
           'td:after': {
             display: 'none',
           },
-        })
+        }),
       };
     },
     muiTableHeadRowProps: {
@@ -889,7 +896,7 @@ export default function ConstructionsList() {
         enableResizing: false,
       },
     },
-    enableBottomToolbar: false
+    enableBottomToolbar: false,
   });
 
   if (error) {
@@ -908,6 +915,26 @@ export default function ConstructionsList() {
         >
           Wystąpił błąd podczas ładowania listy budów.
         </Alert>
+      </PageContainer>
+    );
+  }
+
+  if (isSettingsLoading || isLoading) {
+    return (
+      <PageContainer
+        fixedHeight={true}
+        breadcrumbs={[{ title: 'Lista budów' }]}
+      >
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '100%',
+          }}
+        >
+          <Loading />
+        </Box>
       </PageContainer>
     );
   }
@@ -957,7 +984,7 @@ export default function ConstructionsList() {
         >
           <MaterialReactTable table={table} />
           <ContractorsDialog
-          constructions={constructions}
+            constructions={constructions}
             open={contractorsModalOpen}
             onClose={() => setContractorsModalOpen(false)}
           />

@@ -50,6 +50,7 @@ import { useEmployeeAlert } from '../../../context/EmployeeAlertContext';
 import { plPL } from '@mui/x-date-pickers/locales';
 import { sortByLastName } from './EmployeesHelpers';
 import { TablePagination } from '../../../components/TablePagination';
+import Loading from '../../../components/Loading';
 
 interface EmployeesFilters {
   name: string;
@@ -119,15 +120,22 @@ const ColumnOrderDefault = [
 ];
 
 interface FiltersDialogProps {
-  filtersModalOpen: boolean,
-  handleCloseFilters: () => void,
-  filters: EmployeesFilters,
-  setFilters: (val: EmployeesFilters) => void,
-  handleCloseAndReset: () => void,
-  handleApplyFilters: () => void
+  filtersModalOpen: boolean;
+  handleCloseFilters: () => void;
+  filters: EmployeesFilters;
+  setFilters: (val: EmployeesFilters) => void;
+  handleCloseAndReset: () => void;
+  handleApplyFilters: () => void;
 }
 
-const FiltersDialog = ({ filtersModalOpen, handleCloseFilters, filters, setFilters, handleApplyFilters, handleCloseAndReset }: FiltersDialogProps) => {
+const FiltersDialog = ({
+  filtersModalOpen,
+  handleCloseFilters,
+  filters,
+  setFilters,
+  handleApplyFilters,
+  handleCloseAndReset,
+}: FiltersDialogProps) => {
   return (
     <Dialog
       open={filtersModalOpen}
@@ -164,9 +172,7 @@ const FiltersDialog = ({ filtersModalOpen, handleCloseFilters, filters, setFilte
               size="small"
               fullWidth
               value={filters.name ?? ''}
-              onChange={(e) =>
-                setFilters({ ...filters, name: e.target.value })
-              }
+              onChange={(e) => setFilters({ ...filters, name: e.target.value })}
             />
           </Grid>
           <Grid size={{ xs: 12, sm: 6 }}>
@@ -297,9 +303,7 @@ const FiltersDialog = ({ filtersModalOpen, handleCloseFilters, filters, setFilte
             </Stack>
           </Grid>
           <Grid size={{ xs: 12, md: 6 }}>
-            <FormLabel className="mb-2 block">
-              Miejsce urodzenia
-            </FormLabel>
+            <FormLabel className="mb-2 block">Miejsce urodzenia</FormLabel>
             <TextField
               size="small"
               fullWidth
@@ -380,9 +384,7 @@ const FiltersDialog = ({ filtersModalOpen, handleCloseFilters, filters, setFilte
           </Grid>
 
           <Grid size={{ xs: 12, md: 6 }}>
-            <FormLabel className="mb-2 block">
-              Data rozpoczęcia umowy
-            </FormLabel>
+            <FormLabel className="mb-2 block">Data rozpoczęcia umowy</FormLabel>
             <Stack
               direction={{
                 xs: 'column',
@@ -457,9 +459,7 @@ const FiltersDialog = ({ filtersModalOpen, handleCloseFilters, filters, setFilte
             </Stack>
           </Grid>
           <Grid size={{ xs: 12, md: 6 }}>
-            <FormLabel className="mb-2 block">
-              Data zakończenia umowy
-            </FormLabel>
+            <FormLabel className="mb-2 block">Data zakończenia umowy</FormLabel>
             <Stack
               direction={{
                 xs: 'column',
@@ -535,9 +535,7 @@ const FiltersDialog = ({ filtersModalOpen, handleCloseFilters, filters, setFilte
           </Grid>
 
           <Grid size={{ xs: 12, md: 6 }}>
-            <FormLabel className="mb-2 block">
-              Data rozpoczęcia A1
-            </FormLabel>
+            <FormLabel className="mb-2 block">Data rozpoczęcia A1</FormLabel>
             <Stack
               direction={{
                 xs: 'column',
@@ -606,9 +604,7 @@ const FiltersDialog = ({ filtersModalOpen, handleCloseFilters, filters, setFilte
             </Stack>
           </Grid>
           <Grid size={{ xs: 12, md: 6 }}>
-            <FormLabel className="mb-2 block">
-              Data zakończenia A1
-            </FormLabel>
+            <FormLabel className="mb-2 block">Data zakończenia A1</FormLabel>
             <Stack
               direction={{
                 xs: 'column',
@@ -707,8 +703,8 @@ const FiltersDialog = ({ filtersModalOpen, handleCloseFilters, filters, setFilte
         </Stack>
       </DialogActions>
     </Dialog>
-  )
-}
+  );
+};
 
 export default function EmployeeList() {
   const navigate = useNavigate();
@@ -724,6 +720,7 @@ export default function EmployeeList() {
     setColumnFilters,
     columnOrder,
     setColumnOrder,
+    isLoading: isSettingsLoading,
   } = useTableState('employees', DefaultColumnFilters, ColumnOrderDefault);
 
   const { alerts } = useEmployeeAlert();
@@ -1087,10 +1084,11 @@ export default function EmployeeList() {
         Cell: ({ cell }) => (
           <Box
             component="span"
-            className={`rounded px-3 py-1 ${cell.getValue<boolean>()
+            className={`rounded px-3 py-1 ${
+              cell.getValue<boolean>()
                 ? 'bg-green-300/50 text-green-600'
                 : 'bg-red-300/50 text-red-600'
-              }`}
+            }`}
           >
             {cell.getValue<boolean>() ? 'Aktywny' : 'Nieaktywny'}
           </Box>
@@ -1111,6 +1109,7 @@ export default function EmployeeList() {
     localization,
     columns,
     data: tableData,
+    autoResetPageIndex: false,
     layoutMode: 'semantic',
     state: {
       columnFilters,
@@ -1175,8 +1174,8 @@ export default function EmployeeList() {
     },
     muiTopToolbarProps: {
       sx: (theme) => ({
-        backgroundColor: theme.palette.background.paper
-      })
+        backgroundColor: theme.palette.background.paper,
+      }),
     },
     muiTableHeadCellProps: {
       sx: {
@@ -1244,7 +1243,7 @@ export default function EmployeeList() {
 
           return (
             <Box>
-              <Typography className={`${hasAlert && 'text-amber-500'}`}>
+              <Typography fontSize={'0.9rem'} className={`${hasAlert && 'text-amber-500'}`}>
                 {globalIndex}
               </Typography>
               {hasAlert && (
@@ -1265,8 +1264,7 @@ export default function EmployeeList() {
         },
       },
     },
-    enableBottomToolbar: false
-
+    enableBottomToolbar: false,
   });
 
   if (error) {
@@ -1285,6 +1283,26 @@ export default function EmployeeList() {
         >
           Nie udało się załadować listy pracowników.
         </Alert>
+      </PageContainer>
+    );
+  }
+
+  if (isSettingsLoading || isLoading) {
+    return (
+      <PageContainer
+        fixedHeight={true}
+        breadcrumbs={[{ title: 'Lista pracowników' }]}
+      >
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '100%',
+          }}
+        >
+          <Loading />
+        </Box>
       </PageContainer>
     );
   }
@@ -1332,7 +1350,6 @@ export default function EmployeeList() {
             handleCloseFilters={handleCloseFilters}
             handleCloseAndReset={handleCloseAndReset}
           />
-
         </LocalizationProvider>
       </Box>
     </PageContainer>
