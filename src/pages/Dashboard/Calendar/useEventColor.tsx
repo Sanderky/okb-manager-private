@@ -9,15 +9,15 @@ export const useEventColor = () => {
     (severity: InfoEventSeverity) => {
       switch (severity) {
         case 'error':
-          return theme.palette.error.main;
+          return theme.palette.error.light;
         case 'warning':
-          return theme.palette.warning.main;
+          return theme.palette.warning.light;
         case 'success':
-          return theme.palette.success.main;
+          return theme.palette.success.light;
         case 'info':
-          return theme.palette.info.main;
+          return theme.palette.info.light;
         case 'hotel':
-          return theme.palette.secondary.main;
+          return theme.palette.secondary.light;
         case 'employee':
           return theme.palette.background.default;
         default:
