@@ -265,7 +265,7 @@ const ContractorsList = ({ setOpenNote, handleAdd, isFetching, isFetchingError, 
               </TableRow>
             ) : (
               contractors?.map((contractor, index) => (
-                <TableRow hover>
+                <TableRow hover key={contractor.id}>
                   <TableCell
                     sx={{
                       textAlign: 'center',

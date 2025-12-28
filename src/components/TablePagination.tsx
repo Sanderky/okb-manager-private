@@ -60,10 +60,10 @@ const PaginationInput = ({ table }: { table: MRT_TableInstance<any> }) => {
           borderColor: 'primary.main',
         },
         '&::-webkit-inner-spin-button, &::-webkit-outer-spin-button': {
-          '-webkit-appearance': 'none',
+          WebkitAppearance: 'none',
           margin: 0,
         },
-        '-moz-appearance': 'textfield',
+        MozAppearance: 'textfield',
       })}
     />
   );

@@ -837,7 +837,7 @@ export default function ConstructionsList() {
 
     muiTablePaperProps: {
       sx: {
-        bboxShadow: 'none',
+        boxShadow: 'none',
         borderRadius: '0',
         borderLeft: 'none !important',
         display: 'flex',
