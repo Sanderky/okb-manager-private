@@ -43,6 +43,10 @@ import LodgingsManager from './pages/Dashboard/Lodgings/Lodgings';
 
 declare module '@mui/material/styles' {
   interface Palette {
+    hours: {
+      warning: string;
+      error: string;
+    };
     loadingOverlay: string;
     tableHover: string;
     vacation: string;
@@ -114,6 +118,10 @@ declare module '@mui/material/styles' {
       hoverRow: string;
       hoverCell: string;
     };
+    hours: {
+      warning: string;
+      error: string;
+    };
     calendar?: {
       hoverDay: string;
       selectedDay: string;
@@ -136,6 +144,10 @@ declare module '@mui/material/styles' {
 
 const customTheme = createTheme({
   palette: {
+    hours: {
+      error: alpha('#d50000', 0.3),
+      warning: alpha('#ef6c00', 0.3),
+    },
     tableHover: '#5fadff14',
     loadingOverlay: 'rgba(255, 255, 255, 0.5)',
     primary: {

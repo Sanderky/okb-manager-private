@@ -49,8 +49,6 @@ dayjs.extend(isBetween);
 
 const numberCellMaxWidth = '20px';
 const numberCellPadding = 0.5;
-const redAlert = 'bg-red-300';
-const orangeAlert = 'bg-amber-300';
 
 interface EditableCellProps {
   value: number;
@@ -302,14 +300,17 @@ const TableRows = React.memo(
                   <TableCell
                     key={`${workHour.id}-${dayIndex}`}
                     align="center"
-                    className={
-                      hour > 24 ? redAlert : hour > 10 ? orangeAlert : ''
-                    }
                     sx={(theme) => ({
                       borderBottom: `1px solid ${theme.palette.divider}`,
                       p: 0,
                       borderRight: `1px solid ${theme.palette.divider}`,
                       height: '33px',
+                      background:
+                        hour > 24
+                          ? theme.palette.hours.error
+                          : hour > 10
+                            ? theme.palette.hours.warning
+                            : '',
                     })}
                   >
                     <EditableCell
