@@ -330,7 +330,7 @@ const VacationForm: React.FC<VacationFormProps> = ({
           <Box
             key={'generated'}
             sx={{
-              width: 58,
+              width: 35,
               height: 25,
               backgroundColor: generatedColor,
               cursor: 'pointer',
@@ -473,7 +473,7 @@ const VacationDetails: React.FC<VacationDetailsProps> = ({
         </Typography>
         <Box
           sx={{
-            width: 58,
+            width: 50,
             height: 25,
             bgcolor: event.color || '#ccc',
             borderRadius: 1,
@@ -790,7 +790,11 @@ export const EventListDialog: React.FC<EventListDialogProps> = ({
                       <TableCell>
                         <Chip
                           size="small"
-                          sx={{ background: event.color, minWidth: '50px' }}
+                          sx={{
+                            background: event.color,
+                            minWidth: '50px',
+                            borderRadius: 1,
+                          }}
                         />
                       </TableCell>
                     </TableRow>

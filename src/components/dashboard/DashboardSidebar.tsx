@@ -6,20 +6,22 @@ import Drawer from '@mui/material/Drawer';
 import List from '@mui/material/List';
 import Toolbar from '@mui/material/Toolbar';
 import type {} from '@mui/material/themeCssVarsAugmentation';
-import PersonIcon from '@mui/icons-material/Person';
+// import PersonIcon from '@mui/icons-material/Person';
 import ConstructionIcon from '@mui/icons-material/Construction';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import { BeachAccess } from '@mui/icons-material';
 import HomeIcon from '@mui/icons-material/Home';
 import { matchPath, useLocation } from 'react-router';
 import DashboardSidebarContext from '../../context/DashboardSidebarContext';
 import { DRAWER_WIDTH, MINI_DRAWER_WIDTH } from '../../constants';
 import DashboardSidebarPageItem from './DashboardSidebarPageItem';
 import EventNoteIcon from '@mui/icons-material/EventNote';
+import PeopleIcon from '@mui/icons-material/People';
 import {
   getDrawerSxTransitionMixin,
   getDrawerWidthTransitionMixin,
 } from '../../mixins';
-import { Event, Hotel, Schedule } from '@mui/icons-material';
+import { Hotel, Schedule } from '@mui/icons-material';
 
 export interface DashboardSidebarProps {
   expanded?: boolean;
@@ -149,7 +151,7 @@ export default function DashboardSidebar({
             <DashboardSidebarPageItem
               id="employees"
               title="Pracownicy"
-              icon={<PersonIcon />}
+              icon={<PeopleIcon />}
               href="/employees"
               selected={!!matchPath('/employees/*', pathname)}
             />
@@ -163,14 +165,14 @@ export default function DashboardSidebar({
             <DashboardSidebarPageItem
               id="vacations"
               title="Kalendarz"
-              icon={<Event />}
+              icon={<CalendarMonthIcon />}
               href="/calendar"
               selected={!!matchPath('/calendar/*', pathname)}
             />
             <DashboardSidebarPageItem
               id="vacations"
               title="Urlopy"
-              icon={<CalendarMonthIcon />}
+              icon={<BeachAccess />}
               href="/vacations"
               selected={!!matchPath('/vacations/*', pathname)}
             />
