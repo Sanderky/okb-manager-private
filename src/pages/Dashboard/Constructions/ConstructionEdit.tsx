@@ -265,8 +265,9 @@ export default function ConstructionEdit() {
                 maxWidth: { sm: '100%', md: '1790px' },
                 // boxShadow: 1,
                 background: theme.palette.background.paper,
+                border: `1px solid ${theme.palette.divider}`
               })}
-              className="border-lightGray rounded-lg border p-3 md:p-4"
+              className="rounded-lg p-3 md:p-4"
             >
               <ConstructionForm
                 formState={formState}

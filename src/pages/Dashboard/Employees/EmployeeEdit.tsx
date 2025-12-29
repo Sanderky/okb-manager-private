@@ -290,8 +290,9 @@ export default function EmployeeEdit() {
                 position: 'relative',
                 // boxShadow: 1,
                 background: theme.palette.background.paper,
+                border: `1px solid ${theme.palette.divider}`
               })}
-              className="border-lightGray rounded-lg border p-3 md:p-4"
+              className="rounded-lg p-3 md:p-4"
             >
               <EmployeeForm
                 formState={formState}
@@ -377,8 +378,8 @@ export default function EmployeeEdit() {
               className="rounded-lg p-3"
               maxWidth={'400px'}
               sx={(theme) => ({
-                border: `1px solid ${theme.palette.warning.main}`,
-                background: alpha(theme.palette.warning.main, 0.1),
+                border: `1px solid ${theme.palette.error.main}`,
+                background: alpha(theme.palette.error.main, 0.1),
               })}
             >
               <div>

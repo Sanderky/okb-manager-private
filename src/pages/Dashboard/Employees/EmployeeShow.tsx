@@ -226,6 +226,7 @@ export default function EmployeeShow() {
             display: 'flex',
             flexDirection: 'column',
             background: theme.palette.background.paper,
+            border: `1px solid ${theme.palette.divider}`
           })}
           className="rounded-lg p-2 md:p-4 lg:p-6"
         >
