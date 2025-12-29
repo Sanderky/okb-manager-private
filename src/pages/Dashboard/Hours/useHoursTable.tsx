@@ -455,34 +455,37 @@ const useHoursTable = (startWeek?: Date) => {
 
   const handleToggleExpand = () => setIsExpanded((p) => !p);
 
-  const handleHoursChange = useCallback((id: string, idx: number, val: number | string) => {
-    const num = typeof val === 'string' ? parseFloat(val) || 0 : val;
+  const handleHoursChange = useCallback(
+    (id: string, idx: number, val: number | string) => {
+      const num = typeof val === 'string' ? parseFloat(val) || 0 : val;
 
-    setLocalWorkHours((prevWorkHours) => {
-      const index = prevWorkHours.findIndex((w) => w.id === id);
-      if (index === -1) return prevWorkHours;
+      setLocalWorkHours((prevWorkHours) => {
+        const index = prevWorkHours.findIndex((w) => w.id === id);
+        if (index === -1) return prevWorkHours;
 
-      const item = prevWorkHours[index];
+        const item = prevWorkHours[index];
 
-      if (item.hours[idx] === num) return prevWorkHours;
+        if (item.hours[idx] === num) return prevWorkHours;
 
-      const newHours = [...item.hours];
-      newHours[idx] = num;
+        const newHours = [...item.hours];
+        newHours[idx] = num;
 
-      const simpleTotal = newHours.reduce((acc, curr) => acc + curr, 0);
+        const simpleTotal = newHours.reduce((acc, curr) => acc + curr, 0);
 
-      const newWorkHours = [...prevWorkHours];
-      newWorkHours[index] = {
-        ...item,
-        hours: newHours,
-        total: simpleTotal
-      };
+        const newWorkHours = [...prevWorkHours];
+        newWorkHours[index] = {
+          ...item,
+          hours: newHours,
+          total: simpleTotal,
+        };
 
-      return newWorkHours;
-    });
+        return newWorkHours;
+      });
 
-    setHasUnsavedChanges(true);
-  }, []);
+      setHasUnsavedChanges(true);
+    },
+    []
+  );
 
   const handleWeekChange = (dir: 'prev' | 'current' | 'next') => {
     const go = () => {
@@ -503,41 +506,47 @@ const useHoursTable = (startWeek?: Date) => {
   const isEmployeeOnVacation = (id: string, d: Date) =>
     vacationMap.get(id)?.has(dayjs(d).format('YYYY-MM-DD')) ?? false;
 
-  const handleDeleteEmployee = async (id: string, en: string, cn: string) => {
-    const confirmed = await dialogs.confirm(
-      `Usunąć pracownika ${en} z budowy ${cn}?`,
-      {
-        severity: 'error',
-        okText: 'Usuń',
-        cancelText: 'Anuluj',
-        title: 'Usuwanie pracownika',
+  const handleDeleteEmployee = useCallback(
+    async (id: string, en: string, cn: string) => {
+      const confirmed = await dialogs.confirm(
+        `Usunąć pracownika ${en} z budowy ${cn}?`,
+        {
+          severity: 'error',
+          okText: 'Usuń',
+          cancelText: 'Anuluj',
+          title: 'Usuwanie pracownika',
+        }
+      );
+
+      if (confirmed) {
+        setLocalWorkHours((p) => p.filter((x) => x.id !== id));
+        setHasUnsavedChanges(true);
       }
-    );
+    },
+    [dialogs]
+  );
 
-    if (confirmed) {
-      setLocalWorkHours((p) => p.filter((x) => x.id !== id));
-      setHasUnsavedChanges(true);
-    }
-  };
+  const handleDeleteConstruction = useCallback(
+    async (id: string, n: string) => {
+      const confirmed = await dialogs.confirm(
+        `Usunąć budowę ${n} łącznie ze wszystkimi pracownikami?`,
+        {
+          severity: 'error',
+          okText: 'Usuń',
+          cancelText: 'Anuluj',
+          title: 'Usuwanie budowy',
+        }
+      );
 
-  const handleDeleteConstruction = async (id: string, n: string) => {
-    const confirmed = await dialogs.confirm(
-      `Usunąć budowę ${n} łącznie ze wszystkimi pracownikami?`,
-      {
-        severity: 'error',
-        okText: 'Usuń',
-        cancelText: 'Anuluj',
-        title: 'Usuwanie budowy',
+      if (confirmed) {
+        setLocalWorkHours((p) => p.filter((x) => x.constructionId !== id));
+        setHasUnsavedChanges(true);
       }
-    );
+    },
+    []
+  );
 
-    if (confirmed) {
-      setLocalWorkHours((p) => p.filter((x) => x.constructionId !== id));
-      setHasUnsavedChanges(true);
-    }
-  };
-
-  const handleEmployeesAdded = (arr: WorkHours[]) => {
+  const handleEmployeesAdded = useCallback((arr: WorkHours[]) => {
     setLocalWorkHours((p) => {
       const s = new Set(p.map((x) => `${x.constructionId}_${x.employeeId}`));
       const f = arr.filter(
@@ -558,7 +567,7 @@ const useHoursTable = (startWeek?: Date) => {
       return [...p, ...enriched];
     });
     setHasUnsavedChanges(true);
-  };
+  }, []);
   const handleConstructionWithEmployeeAdded = handleEmployeesAdded;
   const handleCancelEdit = async () => {
     if (

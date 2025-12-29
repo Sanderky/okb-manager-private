@@ -1,4 +1,10 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import React, {
+  useState,
+  useRef,
+  useEffect,
+  useMemo,
+  useCallback,
+} from 'react';
 import {
   Table,
   TableBody,
@@ -50,6 +56,40 @@ dayjs.extend(isBetween);
 const numberCellMaxWidth = '20px';
 const numberCellPadding = 0.5;
 
+const inputStyles = {
+  textAlign: 'center',
+  backgroundColor: 'transparent',
+  padding: 0,
+  height: '100%',
+  flexGrow: 1,
+} as const;
+
+const areConstructionsEqual = (
+  prev: ConstructionsWithWorkHours,
+  next: ConstructionsWithWorkHours
+) => {
+  if (prev === next) return true;
+  if (prev.id !== next.id) return false;
+  if (prev.isActive !== next.isActive) return false;
+  if (prev.totalHours !== next.totalHours) return false;
+  if (prev.workHours.length !== next.workHours.length) return false;
+
+  for (let i = 0; i < prev.workHours.length; i++) {
+    const pWh = prev.workHours[i];
+    const nWh = next.workHours[i];
+
+    if (pWh.id !== nWh.id) return false;
+    if (pWh.total !== nWh.total) return false;
+    if (pWh.isActive !== nWh.isActive) return false;
+
+    for (let j = 0; j < 7; j++) {
+      if (pWh.hours[j] !== nWh.hours[j]) return false;
+    }
+  }
+
+  return true;
+};
+
 interface EditableCellProps {
   value: number;
   id: string;
@@ -84,9 +124,9 @@ const EditableCell = React.memo(
 
       if (numVal !== value) {
         onCommit(id, dayIndex, numVal);
+      } else {
+        setLocalValue(numVal > 0 ? numVal.toString() : '');
       }
-
-      setLocalValue(numVal > 0 ? numVal.toString() : '');
     };
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -94,9 +134,6 @@ const EditableCell = React.memo(
         (e.target as HTMLElement).blur();
       }
     };
-    useEffect(() => {
-      setLocalValue(value > 0 ? value.toString() : '');
-    }, [value]);
 
     if (isHoliday) {
       return (
@@ -119,30 +156,23 @@ const EditableCell = React.memo(
           max,
           step: 0.5,
           style: {
-            textAlign: 'center',
-            backgroundColor: 'transparent',
-            padding: 0,
+            ...inputStyles,
             caretColor: isActive ? 'auto' : 'transparent',
-            height: '100%',
-            flexGrow: 1,
           },
         }}
         sx={(theme) => ({
           width: '100%',
           height: '100%',
-
           fontSize: '0.875rem',
           fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
           '& .MuiInputBase-input': {
             height: '100% !important',
             color: isActive ? 'black' : 'inherit',
-
             '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': {
               WebkitAppearance: 'none',
               margin: 0,
             },
             '&[type=number]': { MozAppearance: 'textfield' },
-
             '&:focus': isActive
               ? {
                   boxShadow: `inset 0 0 0 2px ${theme.palette.primary.main}`,
@@ -157,246 +187,272 @@ const EditableCell = React.memo(
     return (
       prev.value === next.value &&
       prev.isHoliday === next.isHoliday &&
-      prev.isActive === next.isActive
+      prev.isActive === next.isActive &&
+      prev.id === next.id &&
+      prev.dayIndex === next.dayIndex
     );
   }
 );
+
+interface ConstructionRowProps {
+  construction: ConstructionsWithWorkHours;
+  editMode: boolean;
+  activeEmployees: Employee[];
+  handleDeleteConstruction: (id: string, name: string) => void;
+  handleDeleteEmployee: (id: string, empName: string, consName: string) => void;
+  handleHoursChange: (id: string, dayIdx: number, val: number | string) => void;
+  handleOpenAddEmployeeDialog: (id: string) => void;
+}
+
+const ConstructionRow = React.memo(
+  ({
+    construction,
+    editMode,
+    activeEmployees,
+    handleDeleteConstruction,
+    handleDeleteEmployee,
+    handleHoursChange,
+    handleOpenAddEmployeeDialog,
+  }: ConstructionRowProps) => {
+    const availableEmployeesForThisRow = useMemo(() => {
+      const assignedIds = new Set(
+        construction.workHours.map((wh) => wh.employeeId)
+      );
+      return activeEmployees.filter((e) => !assignedIds.has(e.id));
+    }, [activeEmployees, construction.workHours]);
+
+    return (
+      <React.Fragment>
+        {construction.workHours.map((workHour, employeeIndex) => (
+          <TableRow key={workHour.id}>
+            {employeeIndex === 0 && (
+              <TableCell
+                rowSpan={construction.workHours.length + 1}
+                align="center"
+                sx={(theme) => ({
+                  borderRight: `1px solid ${theme.palette.divider}`,
+                  fontWeight: 'bold',
+                  verticalAlign: 'middle',
+                  borderBottom: theme.hoursTable.borderBold,
+                })}
+              >
+                <Typography
+                  onClick={() =>
+                    editMode &&
+                    handleDeleteConstruction(construction.id, construction.name)
+                  }
+                  sx={{
+                    textDecoration: !construction.isActive
+                      ? 'line-through'
+                      : 'none',
+                    color: !construction.isActive
+                      ? 'text.disabled'
+                      : 'text.primary',
+                    cursor: editMode ? 'pointer' : 'text',
+                    fontSize: { xs: '0.75rem', md: '0.85rem' },
+                    fontWeight: 600,
+                    '&:hover': {
+                      textDecoration: editMode
+                        ? 'underline'
+                        : !construction.isActive
+                          ? 'line-through'
+                          : 'none',
+                    },
+                  }}
+                >
+                  {construction.name}
+                </Typography>
+              </TableCell>
+            )}
+
+            <TableCell
+              align="center"
+              sx={(theme) => ({
+                verticalAlign: 'middle',
+                p: numberCellPadding,
+                position: 'relative',
+                borderRight: `1px solid ${theme.palette.divider}`,
+                borderBottom: `1px solid ${theme.palette.divider}`,
+              })}
+            >
+              <Typography
+                onClick={() =>
+                  editMode &&
+                  handleDeleteEmployee(
+                    workHour.id,
+                    workHour.employeeName,
+                    construction.name
+                  )
+                }
+                sx={{
+                  textDecoration: !workHour.isActive ? 'line-through' : 'none',
+                  color: !workHour.isActive ? 'text.disabled' : 'text.primary',
+                  cursor: editMode ? 'pointer' : 'text',
+                  fontWeight: 600,
+                  fontSize: { xs: '0.75rem', md: '0.85rem' },
+                  '&:hover': {
+                    textDecoration: editMode
+                      ? 'underline'
+                      : !workHour.isActive
+                        ? 'line-through'
+                        : 'none',
+                  },
+                }}
+              >
+                {workHour.employeeName}
+              </Typography>
+            </TableCell>
+
+            {workHour.hours.map((hour, dayIndex) => {
+              const isVacation = workHour.isOnVacation[dayIndex];
+              return (
+                <TableCell
+                  key={`${workHour.id}-${dayIndex}`}
+                  align="center"
+                  sx={(theme) => ({
+                    borderBottom: `1px solid ${theme.palette.divider}`,
+                    p: 0,
+                    borderRight: `1px solid ${theme.palette.divider}`,
+                    height: '33px',
+                    background:
+                      hour > 24
+                        ? theme.palette.hours.error
+                        : hour > 10
+                          ? theme.palette.hours.warning
+                          : '',
+                  })}
+                >
+                  <EditableCell
+                    value={hour}
+                    id={workHour.id}
+                    dayIndex={dayIndex}
+                    isHoliday={isVacation}
+                    isActive={editMode}
+                    onCommit={handleHoursChange}
+                  />
+                </TableCell>
+              );
+            })}
+
+            <TableCell
+              align="center"
+              sx={(theme) => ({
+                width: numberCellMaxWidth,
+                minWidth: '20px',
+                p: numberCellPadding,
+                borderBottom: `1px solid ${theme.palette.divider}`,
+              })}
+            >
+              <Typography className="text-center font-semibold" variant="body2">
+                {formatToPolishDecimal(workHour.total)}
+              </Typography>
+            </TableCell>
+          </TableRow>
+        ))}
+        <TableRow>
+          <TableCell
+            sx={(theme) => ({
+              borderBottom: theme.hoursTable.borderBold,
+              p: 0,
+              pl: 1,
+              borderRight: `1px solid ${theme.palette.divider}`,
+              background: theme.palette.background.paper,
+            })}
+            colSpan={8}
+          >
+            <Tooltip
+              title={
+                availableEmployeesForThisRow.length === 0
+                  ? 'Wszyscy pracownicy zostali już dodani'
+                  : ''
+              }
+            >
+              <span>
+                <Button
+                  startIcon={<Add />}
+                  disabled={availableEmployeesForThisRow.length === 0}
+                  onClick={() => handleOpenAddEmployeeDialog(construction.id)}
+                  size="small"
+                  sx={{
+                    visibility: editMode ? 'visible' : 'hidden',
+                  }}
+                >
+                  Dodaj pracowników
+                </Button>
+              </span>
+            </Tooltip>
+          </TableCell>
+          <TableCell
+            align="center"
+            sx={(theme) => ({
+              borderBottom: theme.hoursTable.borderBold,
+              p: 0.5,
+              background: theme.palette.schedule.accent,
+            })}
+          >
+            <Typography className="text-center font-semibold" variant="body2">
+              {formatToPolishDecimal(construction.totalHours)}
+            </Typography>
+          </TableCell>
+        </TableRow>
+      </React.Fragment>
+    );
+  },
+  (prev, next) => {
+    const isStable =
+      prev.editMode === next.editMode &&
+      prev.activeEmployees === next.activeEmployees &&
+      prev.handleDeleteConstruction === next.handleDeleteConstruction &&
+      prev.handleHoursChange === next.handleHoursChange;
+
+    if (!isStable) return false;
+
+    return areConstructionsEqual(prev.construction, next.construction);
+  }
+);
+
 interface TableRowsProps {
   constructionsWithWorkHours: ConstructionsWithWorkHours[];
   editMode: boolean;
-  handleDeleteConstruction: (
-    constructionId: string,
-    constructionName: string
-  ) => Promise<void>;
-  handleDeleteEmployee: (
-    workHoursId: string,
-    employeeName: string,
-    constructionName: string
-  ) => void;
+  activeEmployees: Employee[];
+  handleDeleteConstruction: (id: string, name: string) => void;
+  handleDeleteEmployee: (id: string, empName: string, consName: string) => void;
   handleHoursChange: (
-    workHourId: string,
+    id: string,
     dayIndex: number,
     value: string | number
   ) => void;
   handleOpenAddEmployeeDialog: (constructionId: string) => void;
-  getAvailableEmployeesForConstruction: (constructionId: string) => Employee[];
 }
 
 const TableRows = React.memo(
   ({
     constructionsWithWorkHours,
     editMode,
+    activeEmployees,
     handleDeleteConstruction,
     handleDeleteEmployee,
     handleHoursChange,
     handleOpenAddEmployeeDialog,
-    getAvailableEmployeesForConstruction,
   }: TableRowsProps) => {
-    return constructionsWithWorkHours.map((construction) => {
-      const availableEmployees = getAvailableEmployeesForConstruction(
-        construction.id
-      );
-      return (
-        <React.Fragment key={construction.id}>
-          {construction.workHours.map((workHour, employeeIndex) => (
-            <TableRow key={workHour.id}>
-              {employeeIndex === 0 && (
-                <TableCell
-                  rowSpan={construction.workHours.length + 1}
-                  align="center"
-                  sx={(theme) => ({
-                    borderRight: `1px solid ${theme.palette.divider}`,
-                    fontWeight: 'bold',
-                    verticalAlign: 'middle',
-                    borderBottom: theme.hoursTable.borderBold,
-                  })}
-                >
-                  <Typography
-                    onClick={() =>
-                      editMode &&
-                      handleDeleteConstruction(
-                        construction.id,
-                        construction.name
-                      )
-                    }
-                    sx={{
-                      textDecoration: !construction.isActive
-                        ? 'line-through'
-                        : 'none',
-                      color: !construction.isActive
-                        ? 'text.disabled'
-                        : 'text.primary',
-                      cursor: editMode ? 'pointer' : 'text',
-                      fontSize: {
-                        xs: '0.75rem',
-                        md: '0.85rem',
-                      },
-                      fontWeight: 600,
-                      '&:hover': {
-                        textDecoration: editMode
-                          ? 'underline'
-                          : !construction.isActive
-                            ? 'line-through'
-                            : 'none',
-                      },
-                    }}
-                  >
-                    {/* {`${constructionIndex + 1}. ${construction.name}`} */}
-                    {construction.name}
-                  </Typography>
-                </TableCell>
-              )}
-
-              <TableCell
-                align="center"
-                sx={(theme) => ({
-                  verticalAlign: 'middle',
-                  p: numberCellPadding,
-                  position: 'relative',
-                  borderRight: `1px solid ${theme.palette.divider}`,
-                  borderBottom: `1px solid ${theme.palette.divider}`,
-                })}
-              >
-                <Typography
-                  onClick={() =>
-                    editMode &&
-                    handleDeleteEmployee(
-                      workHour.id,
-                      workHour.employeeName,
-                      construction.name
-                    )
-                  }
-                  sx={{
-                    textDecoration: !workHour.isActive
-                      ? 'line-through'
-                      : 'none',
-                    color: !workHour.isActive
-                      ? 'text.disabled'
-                      : 'text.primary',
-                    cursor: editMode ? 'pointer' : 'text',
-                    fontWeight: 600,
-                    fontSize: {
-                      xs: '0.75rem',
-                      md: '0.85rem',
-                    },
-                    '&:hover': {
-                      textDecoration: editMode
-                        ? 'underline'
-                        : !workHour.isActive
-                          ? 'line-through'
-                          : 'none',
-                    },
-                  }}
-                >
-                  {/* {`${employeeIndex + 1}. ${workHour.employeeName}`} */}
-                  {workHour.employeeName}
-                </Typography>
-              </TableCell>
-
-              {workHour.hours.map((hour, dayIndex) => {
-                const isVacation = workHour.isOnVacation[dayIndex];
-
-                return (
-                  <TableCell
-                    key={`${workHour.id}-${dayIndex}`}
-                    align="center"
-                    sx={(theme) => ({
-                      borderBottom: `1px solid ${theme.palette.divider}`,
-                      p: 0,
-                      borderRight: `1px solid ${theme.palette.divider}`,
-                      height: '33px',
-                      background:
-                        hour > 24
-                          ? theme.palette.hours.error
-                          : hour > 10
-                            ? theme.palette.hours.warning
-                            : '',
-                    })}
-                  >
-                    <EditableCell
-                      value={hour}
-                      id={workHour.id}
-                      dayIndex={dayIndex}
-                      isHoliday={isVacation}
-                      isActive={editMode}
-                      onCommit={handleHoursChange}
-                    />
-                  </TableCell>
-                );
-              })}
-
-              <TableCell
-                align="center"
-                sx={(theme) => ({
-                  width: numberCellMaxWidth,
-                  minWidth: '20px',
-                  p: numberCellPadding,
-                  borderBottom: `1px solid ${theme.palette.divider}`,
-                })}
-              >
-                <Typography
-                  className="text-center font-semibold"
-                  variant="body2"
-                >
-                  {formatToPolishDecimal(workHour.total)}
-                </Typography>
-              </TableCell>
-            </TableRow>
-          ))}
-          <TableRow>
-            <TableCell
-              sx={(theme) => ({
-                borderBottom: theme.hoursTable.borderBold,
-                p: 0,
-                pl: 1,
-                borderRight: `1px solid ${theme.palette.divider}`,
-                background: theme.palette.background.paper,
-              })}
-              colSpan={8}
-            >
-              <Tooltip
-                title={
-                  availableEmployees.length === 0
-                    ? 'Wszyscy pracownicy zostali już dodani'
-                    : ''
-                }
-              >
-                <span>
-                  <Button
-                    startIcon={<Add />}
-                    disabled={availableEmployees.length === 0}
-                    onClick={() => handleOpenAddEmployeeDialog(construction.id)}
-                    size="small"
-                    sx={{
-                      visibility: editMode ? 'visible' : 'hidden',
-                    }}
-                  >
-                    Dodaj pracowników
-                  </Button>
-                </span>
-              </Tooltip>
-            </TableCell>
-            <TableCell
-              align="center"
-              sx={(theme) => ({
-                borderBottom: theme.hoursTable.borderBold,
-                p: 0.5,
-                background: theme.palette.schedule.accent,
-              })}
-            >
-              <Typography className="text-center font-semibold" variant="body2">
-                {formatToPolishDecimal(construction.totalHours)}
-              </Typography>
-            </TableCell>
-          </TableRow>
-        </React.Fragment>
-      );
-    });
+    return constructionsWithWorkHours.map((construction) => (
+      <ConstructionRow
+        key={construction.id}
+        construction={construction}
+        editMode={editMode}
+        activeEmployees={activeEmployees}
+        handleDeleteConstruction={handleDeleteConstruction}
+        handleDeleteEmployee={handleDeleteEmployee}
+        handleHoursChange={handleHoursChange}
+        handleOpenAddEmployeeDialog={handleOpenAddEmployeeDialog}
+      />
+    ));
   },
   (prev, next) => {
     return (
       prev.constructionsWithWorkHours === next.constructionsWithWorkHours &&
-      prev.editMode === next.editMode
+      prev.editMode === next.editMode &&
+      prev.activeEmployees === next.activeEmployees
     );
   }
 );
@@ -593,37 +649,47 @@ const HoursTable = ({
     constructions,
   } = useHoursTable();
 
+  const tableDataPayload = useMemo(
+    () => ({
+      weekStart: currentWeek,
+      constructionsWithWorkHours,
+      weekDates,
+      totalHoursData,
+    }),
+    [currentWeek, constructionsWithWorkHours, weekDates, totalHoursData]
+  );
+
   useEffect(() => {
     if (onTableDataUpdate && !isLoading && !loadingError) {
-      onTableDataUpdate({
-        weekStart: currentWeek,
-        constructionsWithWorkHours,
-        weekDates,
-        totalHoursData,
-      });
+      onTableDataUpdate(tableDataPayload);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    currentWeek,
-    constructionsWithWorkHours,
-    isLoading,
-    loadingError,
-    totalHoursData,
-    weekDates,
-  ]);
+  }, [tableDataPayload, isLoading, loadingError, onTableDataUpdate]);
 
   const dataSorted = useMemo(() => {
     return sortConstructionsWithWorkHours(constructionsWithWorkHours);
   }, [constructionsWithWorkHours]);
 
-  const handleOpenAddEmployeeDialog = (constructionId: string) => {
-    onSelectedConstructionForEmployeeChange(constructionId);
-    setAddEmployeeDialogOpen(true);
-  };
+  const activeEmployees = useMemo(
+    () => getActiveEmployees(),
+    [getActiveEmployees]
+  );
 
-  const handleCopyDataDialogOpen = () => {
+  const handleOpenAddEmployeeDialog = useCallback(
+    (constructionId: string) => {
+      onSelectedConstructionForEmployeeChange(constructionId);
+      setAddEmployeeDialogOpen(true);
+    },
+    [onSelectedConstructionForEmployeeChange]
+  );
+
+  const handleCopyDataDialogOpen = useCallback(() => {
     setCopyDataDialogOpen(true);
-  };
+  }, []);
+
+  const handleAddConstructionClick = useCallback(() => {
+    setAddConstructionDialogOpen(true);
+  }, []);
+  // ---------------------------------------------
 
   const printContentRef = useRef<HTMLDivElement>(null);
   const isTableLoading = isCoping || isFilling || isLoading;
@@ -634,6 +700,33 @@ const HoursTable = ({
       return acc + construction.workHours.length;
     }, 0);
   }, [constructionsWithWorkHours]);
+
+  const tableHeaders = useMemo(
+    () =>
+      weekDates.map((date, index) => (
+        <TableCell
+          key={`${date.getTime()}-${index}`}
+          align="center"
+          sx={(theme) => ({
+            borderRight: `1px solid ${theme.palette.divider}`,
+            borderBottom: theme.hoursTable.borderBold,
+            background: theme.palette.background.default,
+          })}
+        >
+          <Typography
+            className="block text-center font-semibold"
+            variant="caption"
+          >
+            {date.toLocaleDateString('pl-PL', { weekday: 'short' })}
+          </Typography>
+          <Typography className="text-center font-semibold" variant="body2">
+            {date.getDate().toString().padStart(2, '0')}.
+            {(date.getMonth() + 1).toString().padStart(2, '0')}
+          </Typography>
+        </TableCell>
+      )),
+    [weekDates]
+  );
 
   return (
     <Box>
@@ -684,20 +777,20 @@ const HoursTable = ({
           <Box sx={{ position: 'relative' }}>
             {isSaving && (
               <Box
-                sx={{
+                sx={(theme) => ({
                   position: 'absolute',
                   top: 0,
                   left: 0,
                   right: 0,
                   bottom: 0,
-                  backgroundColor: 'rgba(255, 255, 255, 0.5)',
+                  backgroundColor: theme.palette.loadingOverlay,
                   zIndex: 10,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   backdropFilter: 'blur(2px)',
                   borderRadius: '8px',
-                }}
+                })}
               >
                 <CircularProgress size={40} />
               </Box>
@@ -706,7 +799,6 @@ const HoursTable = ({
               sx={(theme) => ({
                 background: theme.palette.background.paper,
                 position: 'relative',
-                // maxHeight: `calc(100vh - ${headerHeight + topBarHeight + toolbarHeight}px)`,
                 maxHeight: `500px`,
               })}
             >
@@ -743,33 +835,7 @@ const HoursTable = ({
                         Pracownik
                       </Typography>
                     </TableCell>
-                    {weekDates.map((date, index) => (
-                      <TableCell
-                        key={`${date.getTime()}-${index}`}
-                        align="center"
-                        sx={(theme) => ({
-                          borderRight: `1px solid ${theme.palette.divider}`,
-                          borderBottom: theme.hoursTable.borderBold,
-                          background: theme.palette.background.default,
-                        })}
-                      >
-                        <Typography
-                          className="block text-center font-semibold"
-                          variant="caption"
-                        >
-                          {date.toLocaleDateString('pl-PL', {
-                            weekday: 'short',
-                          })}
-                        </Typography>
-                        <Typography
-                          className="text-center font-semibold"
-                          variant="body2"
-                        >
-                          {date.getDate().toString().padStart(2, '0')}.
-                          {(date.getMonth() + 1).toString().padStart(2, '0')}
-                        </Typography>
-                      </TableCell>
-                    ))}
+                    {tableHeaders}
                     <TableCell
                       align="center"
                       sx={(theme) => ({
@@ -794,9 +860,7 @@ const HoursTable = ({
                     handleOpenAddEmployeeDialog={handleOpenAddEmployeeDialog}
                     constructionsWithWorkHours={dataSorted}
                     editMode={editMode}
-                    getAvailableEmployeesForConstruction={
-                      getAvailableEmployeesForConstruction
-                    }
+                    activeEmployees={activeEmployees}
                   />
                 </TableBody>
                 <TableFooter>
@@ -844,9 +908,7 @@ const HoursTable = ({
                                   visibility: editMode ? 'visible' : 'hidden',
                                 }}
                                 startIcon={<Add />}
-                                onClick={() =>
-                                  setAddConstructionDialogOpen(true)
-                                }
+                                onClick={handleAddConstructionClick}
                                 size="small"
                                 variant="text"
                                 color="primary"
@@ -936,7 +998,7 @@ const HoursTable = ({
             editMode={editMode}
             error={loadingError}
             handleCopyDataDialogOpen={handleCopyDataDialogOpen}
-            handleAddConstruction={() => setAddConstructionDialogOpen(true)}
+            handleAddConstruction={handleAddConstructionClick}
             availableConstructions={availableConstructions}
           />
         )}
