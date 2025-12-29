@@ -476,17 +476,6 @@ export default function ConstructionShow() {
               </Grid>
             </Grid>
           </Grid>
-
-          <FinishConstruction
-            open={endDialogOpen}
-            onClose={closeEndDialog}
-            construction={construction}
-          />
-          <ResumeConstruction
-            open={resumeDialogOpen}
-            onClose={() => setResumeDialogOpen(false)}
-            construction={construction}
-          />
         </Box>
       ) : (
         <FileBrowser baseDirectory={`constructions/${construction.id}/files`} />
@@ -640,6 +629,20 @@ export default function ConstructionShow() {
         }}
       >
         {renderShow}
+        {construction && (
+          <>
+            <FinishConstruction
+              open={endDialogOpen}
+              onClose={closeEndDialog}
+              construction={construction}
+            />
+            <ResumeConstruction
+              open={resumeDialogOpen}
+              onClose={() => setResumeDialogOpen(false)}
+              construction={construction}
+            />
+          </>
+        )}
       </Box>
     </PageContainer>
   );
