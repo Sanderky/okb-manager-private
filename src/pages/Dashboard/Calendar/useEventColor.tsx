@@ -42,6 +42,8 @@ export const useEventColor = () => {
           return theme.palette.secondary.contrastText;
         case 'employee':
           return theme.palette.text.primary;
+        case 'other':
+          return theme.palette.primary.contrastText;
         default:
           return theme.palette.text.primary;
       }
