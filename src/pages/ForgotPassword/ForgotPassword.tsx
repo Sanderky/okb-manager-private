@@ -10,6 +10,7 @@ import {
   InputAdornment,
   Alert,
   Stack,
+  alpha,
 } from '@mui/material';
 import { default as LogoIcon } from '@mui/icons-material/TokenOutlined';
 import useLoading from '../../hooks/useLoading';
@@ -84,15 +85,23 @@ const UpdatePassword = () => {
           }}
         >
           <Box
-            className="relative w-full rounded-lg bg-white shadow"
-            sx={{
+            className="relative w-full rounded-lg shadow"
+            sx={(theme) => ({
               maxWidth: { xs: '100%', sm: '450px' },
               py: 3,
               px: { xs: 2, sm: 3 },
-            }}
+              background: theme.palette.background.paper,
+            })}
           >
-            <h1 className="text-dark absolute -top-8 left-1/2 mb-6 inline-flex -translate-x-1/2 flex-row items-end justify-center rounded-lg bg-white/50 px-4 py-2 font-medium shadow">
-              <LogoIcon className="text-4xl" />
+            <Typography
+              variant="h1"
+              component={'div'}
+              sx={(theme) => ({
+                background: alpha(theme.palette.background.paper, 0.5),
+              })}
+              className="absolute -top-8 left-1/2 mb-6 inline-flex -translate-x-1/2 flex-row items-end justify-center rounded-lg px-4 py-2 font-medium shadow"
+            >
+              <LogoIcon className="text-4xl" sx={{ color: 'text.primary' }} />
               <Typography
                 component={'span'}
                 className="text-4xl font-medium text-shadow-sm/20"
@@ -103,14 +112,17 @@ const UpdatePassword = () => {
                 OKB
               </Typography>
               <Typography
+                color="textPrimary"
                 component={'span'}
                 className="text-2xl font-medium underline"
               >
                 manager
               </Typography>
-            </h1>
+            </Typography>
 
-            <h2 className="text-dark mt-6 mb-8 text-xl">Reset hasła</h2>
+            <Typography variant="h2" className="mt-6 mb-8 text-xl">
+              Reset hasła
+            </Typography>
 
             <form className="space-y-6" noValidate onSubmit={handleSubmit}>
               <TextField

@@ -23,6 +23,7 @@ import {
   Stack,
   Divider,
   CircularProgress,
+  alpha,
 } from '@mui/material';
 import {
   Folder,
@@ -610,10 +611,8 @@ const FileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
     },
     positionToolbarAlertBanner: 'none',
     muiTableBodyRowProps: {
-
       sx: (theme) => ({
         backgroundColor: theme.palette.background.paper,
-
       }),
     },
     muiTopToolbarProps: {
@@ -626,7 +625,7 @@ const FileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
         p: 0,
         pb: 0,
         gap: 0,
-        background: theme.palette.background.paper
+        background: theme.palette.background.paper,
       }),
     },
 
@@ -657,40 +656,40 @@ const FileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
     renderRowActionMenuItems: ({ row, closeMenu }) => [
       row.original.type === 'file'
         ? [
-          canOpenPreview(row.original) ? (
+            canOpenPreview(row.original) ? (
+              <MRT_ActionMenuItem
+                icon={<Visibility />}
+                key="preview"
+                label="Podgląd"
+                onClick={() => {
+                  handleOpenPreview(row.original as FileItem);
+                  closeMenu();
+                }}
+                table={table}
+              />
+            ) : null,
             <MRT_ActionMenuItem
-              icon={<Visibility />}
-              key="preview"
-              label="Podgląd"
+              icon={<OpenInNew />}
+              key="newTab"
+              label="Otwórz w nowej karcie"
               onClick={() => {
-                handleOpenPreview(row.original as FileItem);
+                openFileInNewTab((row.original as FileItem).path);
                 closeMenu();
               }}
               table={table}
-            />
-          ) : null,
-          <MRT_ActionMenuItem
-            icon={<OpenInNew />}
-            key="newTab"
-            label="Otwórz w nowej karcie"
-            onClick={() => {
-              openFileInNewTab((row.original as FileItem).path);
-              closeMenu();
-            }}
-            table={table}
-          />,
-          <MRT_ActionMenuItem
-            icon={<InfoOutline />}
-            key="details"
-            label="Szczegóły"
-            onClick={() => {
-              setSelectedFile(row.original as FileItem);
-              setIsDetailsDialogOpen(true);
-              closeMenu();
-            }}
-            table={table}
-          />,
-        ]
+            />,
+            <MRT_ActionMenuItem
+              icon={<InfoOutline />}
+              key="details"
+              label="Szczegóły"
+              onClick={() => {
+                setSelectedFile(row.original as FileItem);
+                setIsDetailsDialogOpen(true);
+                closeMenu();
+              }}
+              table={table}
+            />,
+          ]
         : null,
       <MRT_ActionMenuItem
         icon={<Download />}
@@ -861,7 +860,7 @@ const FileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
     >
       <BaseDialog
         open={isUploadDialogOpen}
-        onClose={() => { }}
+        onClose={() => {}}
         title={'Przesyłanie plików'}
         showCloseButton={false}
       >
@@ -898,7 +897,7 @@ const FileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
       >
         {isDragOver && (
           <Paper
-            sx={{
+            sx={(theme) => ({
               position: 'absolute',
               top: 0,
               left: 0,
@@ -909,11 +908,11 @@ const FileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
               flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              backgroundColor: 'rgba(25, 118, 210, 0.1)',
-              border: '2px dashed #1976d2',
+              backgroundColor: alpha(theme.palette.accent.main, 0.5),
+              border: `2px dashed ${theme.palette.accent.superDark}`,
               borderRadius: '0',
               pointerEvents: 'none',
-            }}
+            })}
           >
             <Box
               sx={(theme) => ({
@@ -951,7 +950,8 @@ const FileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
           >
             <Typography
               variant="overline"
-              className="font-medium text-gray-500"
+              className="font-medium"
+              color="textSecondary"
               sx={{
                 lineHeight: 1,
               }}

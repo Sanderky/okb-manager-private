@@ -589,7 +589,11 @@ const Calendar: React.FC = () => {
                 key={i}
                 sx={{ textAlign: 'center', p: 1 }}
               >
-                <Typography variant="caption" fontWeight="bold">
+                <Typography
+                  variant="caption"
+                  fontWeight="bold"
+                  color="textSecondary"
+                >
                   {d}
                 </Typography>
               </Grid>

@@ -22,6 +22,7 @@ import EventRepeatIcon from '@mui/icons-material/EventRepeat';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 
 import {
+  alpha,
   Chip,
   IconButton,
   Paper,
@@ -285,21 +286,33 @@ export default function ConstructionShow() {
                                     ? 'pointer'
                                     : 'default',
                                   color: construction?.location
-                                    ? 'navy'
+                                    ? 'location'
                                     : 'inherit',
                                 }}
-                                onClick={() => openGoogleMaps(construction?.location)}
+                                onClick={() =>
+                                  openGoogleMaps(construction?.location)
+                                }
                               >
                                 {(() => {
                                   const value =
                                     construction[key as keyof Construction];
                                   if (!value) {
-                                    return <em className="text-gray-400">-</em>;
+                                    return (
+                                      <Typography
+                                        fontWeight={'bold'}
+                                        color="textSecondary"
+                                      >
+                                        -
+                                      </Typography>
+                                    );
                                   }
                                   return (
                                     <>
                                       {String(value)}{' '}
-                                      <LocationOnIcon fontSize="small" />
+                                      <LocationOnIcon
+                                        fontSize="small"
+                                        sx={{ color: 'location' }}
+                                      />
                                     </>
                                   );
                                 })()}
@@ -307,13 +320,20 @@ export default function ConstructionShow() {
                             ) : (
                               <Typography
                                 variant="body1"
-                                className="text-dark text-sm font-semibold sm:text-base"
+                                className="text-sm font-semibold sm:text-base"
                               >
                                 {(() => {
                                   const value =
                                     construction[key as keyof Construction];
                                   if (!value && key !== 'status') {
-                                    return <em className="text-gray-400">-</em>;
+                                    return (
+                                      <Typography
+                                        fontWeight={'bold'}
+                                        color="textSecondary"
+                                      >
+                                        -
+                                      </Typography>
+                                    );
                                   }
                                   if (
                                     key === 'startDate' ||
@@ -360,21 +380,25 @@ export default function ConstructionShow() {
               >
                 <table className="w-full">
                   <thead>
-                    <tr className="bg-blue-100">
+                    <TableRow
+                      sx={(theme) => ({
+                        background: theme.palette.accent.main,
+                      })}
+                    >
                       <th className="px-4 py-3 text-left">
                         <Stack
                           direction={'row'}
                           alignItems={'center'}
                           spacing={1}
                         >
-                          <PeopleIcon className="text-blue-800" />
+                          <PeopleIcon sx={{ color: 'accent.superDark' }} />
                           <Typography variant="subtitle2" fontWeight="600">
                             Pracownicy na budowie dziś (
                             {activeScheduleEmployees?.length}):
                           </Typography>
                         </Stack>
                       </th>
-                    </tr>
+                    </TableRow>
                   </thead>
                   <TableBody
                     sx={(theme) => ({
@@ -391,12 +415,20 @@ export default function ConstructionShow() {
                     activeScheduleEmployees.length > 0 ? (
                       activeScheduleEmployees.map((employee) => {
                         return (
-                          <tr
+                          <TableRow
                             key={employee.id}
                             onClick={() =>
                               navigate(`/employees/${employee.id}`)
                             }
-                            className="cursor-pointer transition-colors hover:bg-blue-50 active:bg-blue-100"
+                            className="cursor-pointer transition-colors"
+                            sx={(theme) => ({
+                              ':hover': {
+                                background: theme.palette.accent.light,
+                              },
+                              ':active': {
+                                background: theme.palette.accent.main,
+                              },
+                            })}
                           >
                             <td className="px-4 py-3">
                               <Stack
@@ -406,7 +438,8 @@ export default function ConstructionShow() {
                               >
                                 <Typography
                                   variant="body2"
-                                  className="font-medium text-gray-800"
+                                  color="textSecondary"
+                                  className="font-medium"
                                 >
                                   {employee.name}
                                 </Typography>
@@ -415,13 +448,13 @@ export default function ConstructionShow() {
                                 )}
                               </Stack>
                             </td>
-                          </tr>
+                          </TableRow>
                         );
                       })
                     ) : (
                       <tr>
                         <td className="px-4 py-3">
-                          <Typography variant="body2" className="text-gray-500">
+                          <Typography variant="body2" color="textSecondary">
                             Brak pracowników na budowie
                           </Typography>
                         </td>
@@ -496,19 +529,20 @@ export default function ConstructionShow() {
             ) : (
               <Chip
                 label={isInProgress ? 'W trakcie' : 'Zakończona'}
-                className={
-                  isInProgress
-                    ? 'bg-blue-300/50 text-blue-600'
-                    : 'bg-amber-300/50 text-amber-600'
-                }
                 variant="filled"
-                sx={{
+                sx={(theme) => ({
                   borderRadius: 1,
                   p: 0.5,
                   ml: 2,
                   textTransform: 'uppercase',
                   fontWeight: 600,
-                }}
+                  color: isInProgress
+                    ? theme.palette.status.construction.active.text
+                    : theme.palette.status.construction.inactive.text,
+                  background: isInProgress
+                    ? theme.palette.status.construction.active.background
+                    : theme.palette.status.construction.inactive.background,
+                })}
               />
             )
           ) : null}
@@ -566,7 +600,11 @@ export default function ConstructionShow() {
                   onClick={openEndDialog}
                   color="warning"
                   size="small"
-                  className="rounded-full border border-amber-500 bg-amber-50/50"
+                  sx={(theme) => ({
+                    border: `1px solid ${theme.palette.warning.main}`,
+                    background: alpha(theme.palette.warning.main, 0.1),
+                  })}
+                  className="rounded-full"
                 >
                   <EventAvailableIcon />
                 </IconButton>
@@ -577,7 +615,11 @@ export default function ConstructionShow() {
                   onClick={() => setResumeDialogOpen(true)}
                   color="success"
                   size="small"
-                  className="rounded-full border border-green-500 bg-green-50/50"
+                  className="rounded-full"
+                  sx={(theme) => ({
+                    border: `1px solid ${theme.palette.success.main}`,
+                    background: alpha(theme.palette.success.main, 0.1),
+                  })}
                 >
                   <EventRepeatIcon />
                 </IconButton>

@@ -16,7 +16,7 @@ import EmployeeForm, {
 import PageContainer from '../../../components/PageContainer';
 import { AlertTitle, Chip, Stack, TextField, Typography } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
-import { Grid } from '@mui/system';
+import { alpha, Grid } from '@mui/system';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import useNotifications from '../../../hooks/useNotifications/useNotifications';
@@ -310,8 +310,12 @@ export default function EmployeeEdit() {
                 justifyContent={{ xs: 'flex-start' }}
                 alignItems={{ xs: 'stretch', sm: 'flex-start' }}
                 spacing={{ xs: 1, xl: 2 }}
-                className="mb-4 rounded-lg border border-amber-500/25 bg-amber-600/5! p-3"
+                className="mb-4 rounded-lg p-3"
                 maxWidth={'400px'}
+                sx={(theme) => ({
+                  border: `1px solid ${theme.palette.warning.main}`,
+                  background: alpha(theme.palette.warning.main, 0.1),
+                })}
               >
                 <div>
                   <Typography variant="body1" sx={{ fontWeight: 600 }}>
@@ -338,8 +342,12 @@ export default function EmployeeEdit() {
                 justifyContent={{ xs: 'flex-start' }}
                 alignItems={{ xs: 'stretch', sm: 'flex-start' }}
                 spacing={{ xs: 1, xl: 2 }}
-                className="mb-4 rounded-lg border border-green-500/25 bg-green-600/5! p-3"
+                className="mb-4 rounded-lg p-3"
                 maxWidth={'400px'}
+                sx={(theme) => ({
+                  border: `1px solid ${theme.palette.success.main}`,
+                  background: alpha(theme.palette.success.main, 0.1),
+                })}
               >
                 <div>
                   <Typography variant="body1" sx={{ fontWeight: 600 }}>
@@ -366,8 +374,12 @@ export default function EmployeeEdit() {
               justifyContent={{ xs: 'flex-start' }}
               alignItems={{ xs: 'stretch', sm: 'flex-start' }}
               spacing={{ xs: 1, xl: 2 }}
-              className="rounded-lg border border-red-500/25 bg-red-600/5! p-3"
+              className="rounded-lg p-3"
               maxWidth={'400px'}
+              sx={(theme) => ({
+                border: `1px solid ${theme.palette.warning.main}`,
+                background: alpha(theme.palette.warning.main, 0.1),
+              })}
             >
               <div>
                 <Typography variant="body1" sx={{ fontWeight: 600 }}>

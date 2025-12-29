@@ -17,6 +17,7 @@ import {
   Button,
   Alert,
   CircularProgress,
+  alpha,
 } from '@mui/material';
 import PageContainer from '../../../components/PageContainer';
 import { useCallback, useEffect, useState } from 'react';
@@ -362,7 +363,7 @@ const EmployeeAlerts = () => {
         }}
       >
         <Stack direction={'row'} alignItems={'center'} spacing={1}>
-          <ReportProblemIcon className="text-yellow-500" />
+          <ReportProblemIcon color="warning" />
           <Typography variant="body1" className="font-medium">
             Uwagi dotyczące pracowników
           </Typography>
@@ -409,7 +410,7 @@ const EmployeeAlerts = () => {
                 <ListItem
                   key={alert.id}
                   onClick={() => navigate(`/employees/${alert.employeeId}`)}
-                  sx={{
+                  sx={(theme) => ({
                     display: 'flex',
                     flexDirection: 'column',
                     cursor: 'pointer',
@@ -417,8 +418,22 @@ const EmployeeAlerts = () => {
                     borderLeftWidth: '8px',
                     alignItems: 'flex-start',
                     mb: 2,
-                  }}
-                  className={`${alert.severity === 'error' ? 'border-l-red-400' : 'border-l-yellow-400'} ${alert.severity === 'error' ? 'hover:bg-red-200' : 'hover:bg-amber-200'} ${alert.severity === 'error' ? 'bg-red-100' : 'bg-amber-100'} last:mb-0`}
+
+                    borderLeftColor:
+                      alert.severity === 'error'
+                        ? theme.palette.error.main
+                        : theme.palette.warning.main,
+                    background:
+                      alert.severity === 'error'
+                        ? alpha(theme.palette.error.main, 0.4)
+                        : alpha(theme.palette.warning.main, 0.4),
+                    ':hover': {
+                      background:
+                        alert.severity === 'error'
+                          ? theme.palette.error.main
+                          : theme.palette.warning.main,
+                    },
+                  })}
                 >
                   <Typography variant="subtitle2">{alert.title}</Typography>
                   <Typography variant="body2">{alert.message}</Typography>
@@ -430,11 +445,7 @@ const EmployeeAlerts = () => {
       </Box>
       {hasMoreItems && (
         <Box sx={{ textAlign: 'center', mb: 1 }}>
-          <IconButton
-            onClick={toggleExpanded}
-            size="small"
-            className="text-gray-400"
-          >
+          <IconButton onClick={toggleExpanded} size="small">
             {isExpanded ? <ExpandLess /> : <ExpandMore />}
           </IconButton>
         </Box>
@@ -532,8 +543,12 @@ const UpcomingVacation = () => {
                       alignItems: 'flex-start',
                       mb: 1,
                       border: `1px solid ${theme.palette.divider}`,
+                      background: theme.palette.accent.light,
+                      ':hover': {
+                        background: theme.palette.accent.main,
+                      },
                     })}
-                    className={`rounded-md bg-blue-50/50 text-blue-950 last:mb-0 hover:bg-blue-100`}
+                    className={`rounded-md last:mb-0`}
                   >
                     <Typography variant="subtitle2">
                       {vacation.employeeName}
@@ -548,11 +563,7 @@ const UpcomingVacation = () => {
           </Box>
           {hasMoreItems && (
             <Box sx={{ textAlign: 'center', mb: 1 }}>
-              <IconButton
-                onClick={toggleExpanded}
-                size="small"
-                className="text-gray-400"
-              >
+              <IconButton onClick={toggleExpanded} size="small">
                 {isExpanded ? <ExpandLess /> : <ExpandMore />}
               </IconButton>
             </Box>
@@ -716,10 +727,7 @@ const Home = () => {
                           justifyContent={'space-between'}
                         >
                           <Box>
-                            <Typography
-                              variant="body1"
-                              className="text-gray-600"
-                            >
+                            <Typography variant="body1" color="textSecondary">
                               Pracownicy
                             </Typography>
                             <Typography variant="h4">
@@ -734,28 +742,16 @@ const Home = () => {
                       <Divider />
                       <Box className="px-4 py-2">
                         <Stack direction={'column'}>
-                          <Typography
-                            variant="overline"
-                            className="text-gray-600"
-                          >
+                          <Typography variant="overline" color="textSecondary">
                             Zarchiwizowani:{' '}
-                            <Typography
-                              component={'span'}
-                              className="text-gray-800"
-                            >
+                            <Typography component={'span'} color="textPrimary">
                               {Number(employeeStats?.total) -
                                 Number(employeeStats?.active) || 0}
                             </Typography>
                           </Typography>
-                          <Typography
-                            variant="overline"
-                            className="text-gray-600"
-                          >
+                          <Typography variant="overline" color="textSecondary">
                             Wszyscy:{' '}
-                            <Typography
-                              component={'span'}
-                              className="text-gray-800"
-                            >
+                            <Typography component={'span'} color="textPrimary">
                               {Number(employeeStats?.total) || 0}
                             </Typography>
                           </Typography>
@@ -796,10 +792,7 @@ const Home = () => {
                           justifyContent={'space-between'}
                         >
                           <Box>
-                            <Typography
-                              variant="body1"
-                              className="text-gray-600"
-                            >
+                            <Typography variant="body1" color="textSecondary">
                               Aktywne budowy
                             </Typography>
                             <Typography variant="h4">
@@ -814,28 +807,16 @@ const Home = () => {
                       <Divider />
                       <Box className="px-4 py-2">
                         <Stack direction={'column'}>
-                          <Typography
-                            variant="overline"
-                            className="text-gray-600"
-                          >
+                          <Typography variant="overline" color="textSecondary">
                             Zakończone:{' '}
-                            <Typography
-                              component={'span'}
-                              className="text-gray-800"
-                            >
+                            <Typography component={'span'} color="textPrimary">
                               {Number(constructionStats?.total) -
                                 Number(constructionStats?.active) || 0}
                             </Typography>
                           </Typography>
-                          <Typography
-                            variant="overline"
-                            className="text-gray-600"
-                          >
+                          <Typography variant="overline" color="textSecondary">
                             Wszystkie:{' '}
-                            <Typography
-                              component={'span'}
-                              className="text-gray-800"
-                            >
+                            <Typography component={'span'} color="textPrimary">
                               {Number(constructionStats?.total) || 0}
                             </Typography>
                           </Typography>

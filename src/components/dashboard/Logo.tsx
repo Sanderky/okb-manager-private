@@ -3,7 +3,7 @@ import { Typography } from '@mui/material';
 
 export default function Logo() {
   return (
-    <h1 className="text-dark inline-flex flex-row items-center justify-center font-medium">
+    <h1 className="inline-flex flex-row items-center justify-center font-medium">
       <LogoIcon className="text-3xl" />
       <div>
         <Typography

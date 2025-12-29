@@ -3,7 +3,6 @@ import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import {
-  type AlertsSettings,
   type Attachment,
   type Employee,
   type EmployeeAlert,
@@ -11,11 +10,14 @@ import {
 } from '../../../types';
 import {
   Alert,
+  alpha,
   CircularProgress,
   Grid,
   IconButton,
   Menu,
   MenuItem,
+  useTheme,
+  type Theme,
 } from '@mui/material';
 import * as StorageService from '../../../services/storage';
 import {
@@ -40,7 +42,8 @@ const generateDateBox = (
   key: keyof Employee,
   label: string,
   employeeData: Employee | null,
-  alerts: EmployeeAlert[] // ZMIANA: Przekazujemy listę alertów zamiast ustawień
+  alerts: EmployeeAlert[],
+  theme: Theme
 ) => {
   if (!employeeData) return null;
 
@@ -53,6 +56,10 @@ const generateDateBox = (
 
   let displayValue: React.ReactNode;
   let activeAlert = null;
+
+  let textColor = theme.palette.text.primary;
+  let borderColor = theme.palette.text.primary;
+  let bgColor = '';
 
   if (isContractEndDate && isPermanent) {
     displayValue = 'Umowa na czas nieokreślony';
@@ -71,18 +78,24 @@ const generateDateBox = (
       );
     }
   } else {
-    displayValue = <em className="text-gray-400">Brak</em>;
+    textColor = theme.palette.text.disabled;
+    borderColor = theme.palette.text.disabled;
+    displayValue = <em>Brak</em>;
   }
 
-  let dateStyles = '';
   if (activeAlert) {
     if (activeAlert.severity === 'error') {
-      dateStyles = 'border-red-500/25! bg-red-500/10! text-red-700!';
+      textColor = theme.palette.error.dark;
+      borderColor = theme.palette.error.main;
+      bgColor = alpha(theme.palette.error.main, 0.1);
     } else if (activeAlert.severity === 'warning') {
-      dateStyles = 'border-amber-500/25! bg-amber-500/10! text-amber-600!';
+      textColor = theme.palette.warning.dark;
+      borderColor = theme.palette.warning.main;
+      bgColor = alpha(theme.palette.warning.main, 0.1);
     }
   } else if (isPermanent) {
-    dateStyles = '!text-gray-700';
+    textColor = theme.palette.text.primary;
+    borderColor = theme.palette.text.primary;
   }
 
   return (
@@ -99,7 +112,12 @@ const generateDateBox = (
         </Typography>
         <Typography
           variant="body2"
-          className={`border-lightGray rounded border px-3 py-1 text-gray-700 ${dateStyles}`}
+          className={`rounded px-3 py-1`}
+          sx={{
+            border: `1px solid ${borderColor}`,
+            background: bgColor,
+            color: textColor,
+          }}
         >
           {displayValue}
         </Typography>
@@ -349,10 +367,20 @@ const AttachmentBox = ({
     }
   };
 
+  const theme = useTheme();
+
   return (
     <Box
-      className={`rounded-lg p-3 md:p-5 md:pb-3 ${isDragging ? 'bg-blue-100' : 'bg-blue-50/50'} ${isDragging ? 'border border-dashed border-blue-500' : 'border border-blue-700/25'}`}
-      sx={{ position: 'relative' }}
+      className={`rounded-lg p-3 md:p-5 md:pb-3`}
+      sx={(theme) => ({
+        position: 'relative',
+        background: isDragging
+          ? theme.palette.accent.main
+          : theme.palette.accent.light,
+        border: isDragging
+          ? `1px dashed ${theme.palette.accent.superDark}`
+          : `1px solid ${theme.palette.accent.dark}`,
+      })}
       width={'100%'}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
@@ -408,7 +436,7 @@ const AttachmentBox = ({
       ) : (
         <Box marginBottom={2}>
           <Stack direction={'row'} alignItems={'center'} gap={1}>
-            <HighlightOff className="text-gray-500" />
+            <HighlightOff sx={{ color: 'text.secondary' }} />
             <Typography variant="body2">Brak załączników</Typography>
           </Stack>
         </Box>
@@ -418,11 +446,14 @@ const AttachmentBox = ({
         <Grid
           container
           spacing={2}
-          className="border-t border-blue-700/25"
-          sx={{ pt: 2, mt: 0 }}
+          sx={(theme) => ({
+            pt: 2,
+            mt: 0,
+            borderTop: `1px solid ${theme.palette.accent.dark}`,
+          })}
         >
           {dateFields.map(({ key, label }) => {
-            return generateDateBox(key, label, employee, employeeAlerts);
+            return generateDateBox(key, label, employee, employeeAlerts, theme);
           })}
         </Grid>
       )}

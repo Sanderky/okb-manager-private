@@ -185,15 +185,19 @@ export default function DashboardHeader({
                   size="small"
                   sx={{ ml: 2 }}
                 >
-                  <AccountCircleIcon className="text-dark text-3xl" />
+                  <AccountCircleIcon
+                    className="text-3xl"
+                    sx={{ color: 'text.primary' }}
+                  />
                   <Typography
                     variant="body2"
+                    color="textPrimary"
                     sx={{
                       ml: 1,
                       display: { xs: 'none', sm: 'block' },
                       textTransform: 'none',
                     }}
-                    className="text-dark font-medium"
+                    className="font-medium"
                   >
                     {user?.user_metadata.display_name ??
                       user?.email ??
@@ -260,8 +264,8 @@ export default function DashboardHeader({
                 />
                 <MenuItem
                   onClick={handleClickOpenSettings}
-                  sx={{ minHeight: 35 }}
-                  className="border-b-gray-200 sm:border-b"
+                  sx={{ minHeight: 35, borderColor: 'divider' }}
+                  className="sm:border-b"
                 >
                   <ListItemIcon>
                     <Settings fontSize="small" />

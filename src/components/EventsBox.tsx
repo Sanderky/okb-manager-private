@@ -12,6 +12,7 @@ import {
   Popover,
   Stack,
   TableBody,
+  TableRow,
   Typography,
 } from '@mui/material';
 import dayjs from 'dayjs';
@@ -283,11 +284,7 @@ export const EventsBox = ({
           </Box>
           {hasMoreItems && (
             <Box sx={{ textAlign: 'center', mb: 1 }}>
-              <IconButton
-                onClick={toggleExpanded}
-                size="small"
-                className="text-gray-400"
-              >
+              <IconButton onClick={toggleExpanded} size="small">
                 {isExpanded ? <ExpandLess /> : <ExpandMore />}
               </IconButton>
             </Box>
@@ -312,7 +309,7 @@ export const EventsListTable = ({ type = 'all', events }: EventsBoxProps) => {
   return (
     <table className="w-full">
       <thead>
-        <tr className="bg-blue-100">
+        <TableRow sx={(theme) => ({ background: theme.palette.accent.main })}>
           <th className="px-4 py-3 text-left">
             <Stack
               direction={'row'}
@@ -321,7 +318,7 @@ export const EventsListTable = ({ type = 'all', events }: EventsBoxProps) => {
               justifyContent={'space-between'}
             >
               <Stack direction={'row'} alignItems={'center'} spacing={1}>
-                <Notifications className="text-blue-800" />
+                <Notifications sx={{ color: 'accent.superDark' }} />
                 <Typography variant="subtitle2" fontWeight="600">
                   {`${getTitle()} (${filteredEvents.length}):`}
                 </Typography>
@@ -330,7 +327,7 @@ export const EventsListTable = ({ type = 'all', events }: EventsBoxProps) => {
               {renderFilters}
             </Stack>
           </th>
-        </tr>
+        </TableRow>
       </thead>
       <TableBody
         sx={(theme) => ({
@@ -345,10 +342,18 @@ export const EventsListTable = ({ type = 'all', events }: EventsBoxProps) => {
         {filteredEvents && filteredEvents.length > 0 ? (
           filteredEvents.map((event) => {
             return (
-              <tr
+              <TableRow
                 key={event.id}
                 onClick={() => handleEventClick(event)}
-                className="cursor-pointer transition-colors hover:bg-blue-50 active:bg-blue-100"
+                className="cursor-pointer transition-colors"
+                sx={(theme) => ({
+                  ':hover': {
+                    background: theme.palette.accent.light,
+                  },
+                  ':active': {
+                    background: theme.palette.accent.main,
+                  },
+                })}
               >
                 <td className="px-4 py-3">
                   <Stack direction={'column'}>
@@ -360,7 +365,8 @@ export const EventsListTable = ({ type = 'all', events }: EventsBoxProps) => {
                     >
                       <Typography
                         variant="body2"
-                        className="font-medium text-gray-800"
+                        className="font-medium"
+                        color="textSecondary"
                       >
                         {event.title}
                       </Typography>
@@ -379,13 +385,13 @@ export const EventsListTable = ({ type = 'all', events }: EventsBoxProps) => {
                     </Typography>
                   </Stack>
                 </td>
-              </tr>
+              </TableRow>
             );
           })
         ) : (
           <tr>
             <td className="px-4 py-3">
-              <Typography variant="body2" className="text-gray-500">
+              <Typography variant="body2" color="textSecondary">
                 Brak nadchodzących wydarzeń
               </Typography>
             </td>

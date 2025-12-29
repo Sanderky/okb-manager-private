@@ -9,7 +9,7 @@ import {
   IconButton,
   InputAdornment,
   Link,
-  Stack,
+  alpha,
   Typography,
 } from '@mui/material';
 import ForgotPassword from './ForgotPassword';
@@ -118,14 +118,22 @@ const Login = () => {
             }}
           >
             <Box
-              className="relative w-full rounded-lg bg-white shadow"
-              sx={{
+              className="relative w-full rounded-lg shadow"
+              sx={(theme) => ({
                 maxWidth: { xs: '100%', sm: '450px' },
                 py: 3,
                 px: { xs: 2, sm: 3 },
-              }}
+                background: theme.palette.background.paper,
+              })}
             >
-              <h1 className="text-dark absolute -top-8 left-1/2 mb-6 inline-flex -translate-x-1/2 flex-row items-end justify-center rounded-lg bg-white/50 px-4 py-2 font-medium shadow">
+              <Typography
+                variant="h1"
+                component={'div'}
+                sx={(theme) => ({
+                  background: alpha(theme.palette.background.paper, 0.5),
+                })}
+                className="absolute -top-8 left-1/2 mb-6 inline-flex -translate-x-1/2 flex-row items-end justify-center rounded-lg px-4 py-2 font-medium shadow"
+              >
                 <LogoIcon className="text-4xl" />
                 <Typography
                   component={'span'}
@@ -139,13 +147,14 @@ const Login = () => {
                 <Typography
                   component={'span'}
                   className="text-2xl font-medium underline"
+                  color="textPrimary"
                 >
                   manager
                 </Typography>
-              </h1>
-              <h2 className="text-dark mt-6 mb-8 text-xl">
+              </Typography>
+              <Typography variant="h2" className="mt-6 mb-8 text-xl">
                 Zaloguj się do swojego konta
-              </h2>
+              </Typography>
 
               <form className="space-y-4" noValidate onSubmit={handleSubmit}>
                 <TextField
@@ -243,8 +252,8 @@ const Login = () => {
                   variant="contained"
                   sx={(theme) => ({
                     width: '100%',
-                    border: `1px solid darkGray`,
-                    background: '#fff',
+                    border: `1px solid ${theme.palette.text.primary}`,
+                    background: theme.palette.background.paper,
                     color: theme.palette.text.primary,
                     mt: 2,
                     py: 1.5,

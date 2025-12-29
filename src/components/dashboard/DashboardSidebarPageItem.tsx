@@ -178,9 +178,8 @@ export default function DashboardSidebarPageItem({
                   alignItems: 'center',
                   justifyContent: mini ? 'center' : 'auto',
                   minWidth: mini ? 'auto' : 40,
-                  color: selected ? 'inherit' : 'lightSlateGray',
+                  color: selected ? 'inherit' : 'text.disabled',
                 }}
-                // className={`${selected ? 'inherit' : 'text-gray-500'}`}
               >
                 {icon ?? null}
                 {!icon && mini ? (

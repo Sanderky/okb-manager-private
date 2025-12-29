@@ -135,9 +135,10 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
       <Stack direction={'row'} gap={1}>
         <Typography
           textTransform={'capitalize'}
-          className="rounded-full border border-gray-700 px-3 py-1 font-semibold"
+          className="rounded-full border px-3 py-1 font-semibold"
           sx={{
             fontSize: '0.8rem',
+            borderColor: 'text.primary'
           }}
         >
           {currentMonth.format('MMMM YYYY')}
@@ -422,7 +423,10 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
       >
         <Typography
           textTransform={'capitalize'}
-          className="rounded-full border border-gray-700 px-3 py-1 font-semibold"
+          className="rounded-full border px-3 py-1 font-semibold"
+          sx={{
+            borderColor: 'text.primary'
+          }}
         >
           {currentMonth.format('MMMM YYYY')}
         </Typography>

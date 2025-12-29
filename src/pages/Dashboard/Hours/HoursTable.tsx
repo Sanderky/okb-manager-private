@@ -102,7 +102,7 @@ const EditableCell = React.memo(
 
     if (isHoliday) {
       return (
-        <Typography variant="body2" className="font-medium text-amber-700">
+        <Typography color="vacation" variant="body2" className="font-medium">
           Urlop
         </Typography>
       );
@@ -147,8 +147,8 @@ const EditableCell = React.memo(
 
             '&:focus': isActive
               ? {
-                boxShadow: `inset 0 0 0 2px ${theme.palette.primary.main}`,
-              }
+                  boxShadow: `inset 0 0 0 2px ${theme.palette.primary.main}`,
+                }
               : {},
           },
         })}
@@ -194,7 +194,6 @@ const TableRows = React.memo(
     handleOpenAddEmployeeDialog,
     getAvailableEmployeesForConstruction,
   }: TableRowsProps) => {
-
     return constructionsWithWorkHours.map((construction) => {
       const availableEmployees = getAvailableEmployeesForConstruction(
         construction.id
@@ -207,7 +206,7 @@ const TableRows = React.memo(
                 <TableCell
                   rowSpan={construction.workHours.length + 1}
                   align="center"
-                  sx={theme => ({
+                  sx={(theme) => ({
                     borderRight: `1px solid ${theme.palette.divider}`,
                     fontWeight: 'bold',
                     verticalAlign: 'middle',
@@ -252,7 +251,7 @@ const TableRows = React.memo(
 
               <TableCell
                 align="center"
-                sx={theme => ({
+                sx={(theme) => ({
                   verticalAlign: 'middle',
                   p: numberCellPadding,
                   position: 'relative',
@@ -306,7 +305,7 @@ const TableRows = React.memo(
                     className={
                       hour > 24 ? redAlert : hour > 10 ? orangeAlert : ''
                     }
-                    sx={theme => ({
+                    sx={(theme) => ({
                       borderBottom: `1px solid ${theme.palette.divider}`,
                       p: 0,
                       borderRight: `1px solid ${theme.palette.divider}`,
@@ -327,7 +326,7 @@ const TableRows = React.memo(
 
               <TableCell
                 align="center"
-                sx={theme => ({
+                sx={(theme) => ({
                   width: numberCellMaxWidth,
                   minWidth: '20px',
                   p: numberCellPadding,
@@ -345,7 +344,7 @@ const TableRows = React.memo(
           ))}
           <TableRow>
             <TableCell
-              sx={theme => ({
+              sx={(theme) => ({
                 borderBottom: theme.hoursTable.borderBold,
                 p: 0,
                 pl: 1,
@@ -378,7 +377,11 @@ const TableRows = React.memo(
             </TableCell>
             <TableCell
               align="center"
-              sx={theme => ({ borderBottom: theme.hoursTable.borderBold, p: 0.5, background: theme.palette.schedule.accent })}
+              sx={(theme) => ({
+                borderBottom: theme.hoursTable.borderBold,
+                p: 0.5,
+                background: theme.palette.schedule.accent,
+              })}
             >
               <Typography className="text-center font-semibold" variant="body2">
                 {formatToPolishDecimal(construction.totalHours)}
@@ -519,7 +522,7 @@ const NoTable = ({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        borderBottom: `1px solid ${theme.palette.divider}`
+        borderBottom: `1px solid ${theme.palette.divider}`,
       })}
     >
       {content}
@@ -679,8 +682,8 @@ const HoursTable = ({
       />
       <Collapse in={isExpanded} timeout="auto" unmountOnExit>
         {!loadingError &&
-          !isTableLoading &&
-          constructionsWithWorkHours.length > 0 ? (
+        !isTableLoading &&
+        constructionsWithWorkHours.length > 0 ? (
           <Box sx={{ position: 'relative' }}>
             {isSaving && (
               <Box
@@ -714,10 +717,10 @@ const HoursTable = ({
                 <TableHead>
                   <TableRow>
                     <TableCell
-                      sx={theme => ({
+                      sx={(theme) => ({
                         borderRight: `1px solid ${theme.palette.divider}`,
                         borderBottom: theme.hoursTable.borderBold,
-                        background: theme.palette.background.default
+                        background: theme.palette.background.default,
                       })}
                       align="center"
                     >
@@ -729,10 +732,10 @@ const HoursTable = ({
                       </Typography>
                     </TableCell>
                     <TableCell
-                      sx={theme => ({
+                      sx={(theme) => ({
                         borderRight: `1px solid ${theme.palette.divider}`,
                         borderBottom: theme.hoursTable.borderBold,
-                        background: theme.palette.background.default
+                        background: theme.palette.background.default,
                       })}
                       align="center"
                     >
@@ -747,10 +750,10 @@ const HoursTable = ({
                       <TableCell
                         key={`${date.getTime()}-${index}`}
                         align="center"
-                        sx={theme => ({
+                        sx={(theme) => ({
                           borderRight: `1px solid ${theme.palette.divider}`,
                           borderBottom: theme.hoursTable.borderBold,
-                          background: theme.palette.background.default
+                          background: theme.palette.background.default,
                         })}
                       >
                         <Typography
@@ -772,9 +775,9 @@ const HoursTable = ({
                     ))}
                     <TableCell
                       align="center"
-                      sx={theme => ({
+                      sx={(theme) => ({
                         borderBottom: theme.hoursTable.borderBold,
-                        background: theme.palette.background.default
+                        background: theme.palette.background.default,
                       })}
                     >
                       <Typography
@@ -803,7 +806,7 @@ const HoursTable = ({
                   <TableRow>
                     <TableCell
                       colSpan={9}
-                      sx={theme => ({
+                      sx={(theme) => ({
                         position: 'sticky',
                         bottom: -1,
                         zIndex: 2,
@@ -811,7 +814,7 @@ const HoursTable = ({
                         pl: 1,
                         borderTop: `1px solid ${theme.palette.divider}`,
                         borderBottom: `1px solid ${theme.palette.divider}`,
-                        background: theme.palette.background.paper
+                        background: theme.palette.background.paper,
                       })}
                     >
                       <Stack
@@ -874,7 +877,7 @@ const HoursTable = ({
                             alignItems={'center'}
                             divider={
                               <Box
-                                sx={theme => ({
+                                sx={(theme) => ({
                                   borderRight: `1px solid ${theme.palette.divider}`,
                                   height: '15px',
                                 })}
@@ -884,23 +887,22 @@ const HoursTable = ({
                           >
                             <Typography
                               variant="overline"
-                              className="font-medium text-gray-500"
+                              color="textSecondary"
+                              className="font-medium"
                             >
                               Budowy: {constructionsWithWorkHours.length}
                             </Typography>
                             <Typography
                               variant="overline"
-                              className="font-medium text-gray-500"
+                              color="textSecondary"
+                              className="font-medium"
                             >
                               Pracownicy: {employeesCount}
                             </Typography>
                           </Stack>
                         </Stack>
 
-                        <Typography
-                          variant="overline"
-                          className="font-medium text-gray-500"
-                        >
+                        <Typography variant="overline" className="font-medium">
                           Suma całkowita:
                         </Typography>
                       </Stack>
@@ -908,7 +910,7 @@ const HoursTable = ({
 
                     <TableCell
                       align="center"
-                      sx={theme => ({
+                      sx={(theme) => ({
                         position: 'sticky',
                         bottom: -1,
                         p: 0,
@@ -918,10 +920,7 @@ const HoursTable = ({
                         borderBottom: `1px solid ${theme.palette.divider}`,
                       })}
                     >
-                      <Typography
-                        variant="overline"
-                        className="font-medium text-gray-500"
-                      >
+                      <Typography variant="overline" className="font-medium">
                         {constructionsWithWorkHours.length > 0
                           ? formatToPolishDecimal(totalHoursData.grandTotal)
                           : '-'}

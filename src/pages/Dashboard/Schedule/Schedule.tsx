@@ -415,7 +415,11 @@ const ScheduleComponent = () => {
       if (!isWeek) {
         if (hasVacation) {
           return (
-            <Typography className="font-medium text-amber-700" variant="body2">
+            <Typography
+              color="vacation"
+              className="font-medium"
+              variant="body2"
+            >
               Urlop
             </Typography>
           );
@@ -498,7 +502,7 @@ const ScheduleComponent = () => {
             component="div"
             key="vac"
             sx={{
-              color: '#b45309',
+              color: 'vacation',
               fontSize: '0.75rem',
               fontWeight: 500,
               lineHeight: 1.3,
@@ -570,14 +574,16 @@ const ScheduleComponent = () => {
 
   if (error)
     return (
-      <PageContainer fixedHeight={true} breadcrumbs={[{ title: 'Harmonogram' }]}>
+      <PageContainer
+        fixedHeight={true}
+        breadcrumbs={[{ title: 'Harmonogram' }]}
+      >
         <Alert severity="error">Błąd danych.</Alert>
       </PageContainer>
     );
 
   return (
     <PageContainer
-
       fixedHeight={true}
       breadcrumbs={[{ title: 'Harmonogram pracowników' }]}
       actions={
@@ -592,7 +598,13 @@ const ScheduleComponent = () => {
         </Button>
       }
       renderBottomToolbar={
-        <Box sx={theme => ({ flexShrink: 0, background: theme.palette.background.paper, borderTop: `1px solid ${theme.palette.divider}` })}>
+        <Box
+          sx={(theme) => ({
+            flexShrink: 0,
+            background: theme.palette.background.paper,
+            borderTop: `1px solid ${theme.palette.divider}`,
+          })}
+        >
           <Stack
             direction={{ xs: 'column', sm: 'row' }}
             justifyContent={'space-between'}
@@ -620,7 +632,8 @@ const ScheduleComponent = () => {
                 >
                   <Typography
                     variant="overline"
-                    className="font-medium text-gray-500"
+                    className="font-medium"
+                    color="textSecondary"
                     sx={{
                       lineHeight: 1,
                     }}
@@ -632,7 +645,8 @@ const ScheduleComponent = () => {
                   </Typography>
                   <Typography
                     variant="overline"
-                    className="font-medium text-gray-500"
+                    color="textSecondary"
+                    className="font-medium"
                     sx={{
                       lineHeight: 1,
                     }}
@@ -642,7 +656,8 @@ const ScheduleComponent = () => {
                 </Stack>
                 <Typography
                   variant="overline"
-                  className="font-medium text-gray-500"
+                  color="textSecondary"
+                  className="font-medium"
                   sx={{
                     lineHeight: 1,
                   }}
@@ -668,17 +683,18 @@ const ScheduleComponent = () => {
                   alignItems={'center'}
                   divider={
                     <Box
-                      sx={{
-                        borderRight: '1px solid #ccc',
+                      sx={(theme) => ({
+                        borderRight: `1px solid ${theme.palette.divider}`,
                         height: '15px',
-                      }}
+                      })}
                     />
                   }
                   flexWrap={'wrap'}
                 >
                   <Typography
                     variant="overline"
-                    className="font-medium text-gray-500"
+                    color="textSecondary"
+                    className="font-medium"
                     sx={{
                       lineHeight: 1,
                     }}
@@ -690,7 +706,8 @@ const ScheduleComponent = () => {
                   </Typography>
                   <Typography
                     variant="overline"
-                    className="font-medium text-gray-500"
+                    color="textSecondary"
+                    className="font-medium"
                     sx={{
                       lineHeight: 1,
                     }}
@@ -700,7 +717,8 @@ const ScheduleComponent = () => {
                 </Stack>
                 <Typography
                   variant="overline"
-                  className="font-medium text-gray-500"
+                  color="textSecondary"
+                  className="font-medium"
                   sx={{
                     flexShrink: 0,
                     lineHeight: 1,
@@ -771,18 +789,17 @@ const ScheduleComponent = () => {
             display: 'flex',
             flexDirection: 'column',
             minHeight: 0,
-            background: theme.palette.background.paper
+            background: theme.palette.background.paper,
           })}
         >
           {activeTable.type === 0 ? (
             <TableContainer
               component={Box}
-              sx={theme => ({
+              sx={(theme) => ({
                 flex: 1,
                 overflow: 'auto',
                 width: '100%',
-                background: theme.palette.background.default
-
+                background: theme.palette.background.default,
               })}
             >
               <Table
@@ -800,12 +817,12 @@ const ScheduleComponent = () => {
                 >
                   <TableRow>
                     <TableCell
-                      sx={theme => ({
+                      sx={(theme) => ({
                         position: 'sticky',
                         left: 0,
                         zIndex: 4,
                         width: { xs: '150px', sm: '200px' },
-                        background: theme.palette.schedule.accent
+                        background: theme.palette.schedule.accent,
                       })}
                       className="px-3 py-2 text-center"
                     ></TableCell>
@@ -815,16 +832,21 @@ const ScheduleComponent = () => {
                       return (
                         <TableCell
                           key={index}
-                          sx={theme => ({
-                            background: isBefore ? theme.palette.schedule.past : isAfter ? theme.palette.background.default : theme.palette.schedule.current,
-                            borderLeft: `1px solid ${theme.palette.divider}`
+                          sx={(theme) => ({
+                            background: isBefore
+                              ? theme.palette.schedule.past
+                              : isAfter
+                                ? theme.palette.background.default
+                                : theme.palette.schedule.current,
+                            borderLeft: `1px solid ${theme.palette.divider}`,
                           })}
-                          className={`cursor-pointer px-3 py-2 group relative`}
+                          className={`group relative cursor-pointer px-3 py-2`}
                           onClick={() => setActiveTable({ type: 1, week: w })}
                         >
                           <Typography
-                            className="block text-center font-semibold text-gray-700/50"
+                            className="block text-center font-semibold"
                             variant="caption"
+                            color="textDisabled"
                           >
                             [{w.week()}]
                           </Typography>
@@ -873,24 +895,23 @@ const ScheduleComponent = () => {
           ) : (
             <TableContainer
               component={Box}
-              sx={theme => ({
+              sx={(theme) => ({
                 flex: 1,
                 overflow: 'auto',
                 width: '100%',
-                background: theme.palette.background.default
-
+                background: theme.palette.background.default,
               })}
             >
               <Table stickyHeader sx={{ tableLayout: 'fixed', minWidth: 800 }}>
                 <TableHead>
                   <TableRow>
                     <TableCell
-                      sx={theme => ({
+                      sx={(theme) => ({
                         position: 'sticky',
                         left: 0,
                         zIndex: 4,
                         width: { xs: '150px', sm: '200px' },
-                        background: theme.palette.schedule.accent
+                        background: theme.palette.schedule.accent,
                       })}
                       className="cursor-pointer px-3 py-2 text-center"
                       onClick={() => setActiveTable((p) => ({ ...p, type: 0 }))}
@@ -903,10 +924,12 @@ const ScheduleComponent = () => {
                       return (
                         <TableCell
                           key={i}
-                          sx={theme => ({
+                          sx={(theme) => ({
                             width: '150px',
-                            background: isToday ? theme.palette.schedule.current : theme.palette.background.default,
-                            borderLeft: `1px solid ${theme.palette.divider}`
+                            background: isToday
+                              ? theme.palette.schedule.current
+                              : theme.palette.background.default,
+                            borderLeft: `1px solid ${theme.palette.divider}`,
                           })}
                           className={`px-3 py-2`}
                         >
@@ -945,7 +968,6 @@ const ScheduleComponent = () => {
               </Table>
             </TableContainer>
           )}
-
         </Box>
 
         <Menu
@@ -1007,21 +1029,19 @@ const ScheduleComponent = () => {
                 <TextField
                   {...params}
                   label="Budowa"
-                  slotProps={
-                    {
-                      input: {
-                        ...params.InputProps,
-                        endAdornment: (
-                          <>
-                            {loadingCells.has(getCellKey(activeCell)) ? (
-                              <CircularProgress size={20} />
-                            ) : null}
-                            {params.InputProps.endAdornment}
-                          </>
-                        ),
-                      }
-                    }
-                  }
+                  slotProps={{
+                    input: {
+                      ...params.InputProps,
+                      endAdornment: (
+                        <>
+                          {loadingCells.has(getCellKey(activeCell)) ? (
+                            <CircularProgress size={20} />
+                          ) : null}
+                          {params.InputProps.endAdornment}
+                        </>
+                      ),
+                    },
+                  }}
                 />
               )}
             />

@@ -47,7 +47,7 @@ const PaginationInput = ({ table }: { table: MRT_TableInstance<any> }) => {
       onKeyDown={(e: React.KeyboardEvent) => {
         if (e.key === 'Enter') handleCommit();
       }}
-      sx={theme => ({
+      sx={(theme) => ({
         width: '40px',
         padding: '4px',
         height: '30px',
@@ -110,7 +110,8 @@ export const TablePagination = ({ table }: TablePaginationProps) => {
           <Typography
             whiteSpace={'nowrap'}
             variant="overline"
-            className="font-medium text-gray-500"
+            className="font-medium"
+            color="textSecondary"
             sx={{ lineHeight: 1, textTransform: 'none' }}
           >
             z {pageCount}
@@ -133,7 +134,7 @@ export const TablePagination = ({ table }: TablePaginationProps) => {
         size="small"
         displayEmpty
         variant="outlined"
-        sx={theme => ({
+        sx={(theme) => ({
           height: '30px',
           fontSize: '13px',
           '.MuiOutlinedInput-notchedOutline': {
@@ -153,8 +154,9 @@ export const TablePagination = ({ table }: TablePaginationProps) => {
 
       <Typography
         variant="overline"
-        className="font-medium text-gray-500"
+        className="font-medium"
         sx={{ lineHeight: 1, textAlign: 'center' }}
+        color="textSecondary"
       >
         {totalRows} wyników
       </Typography>

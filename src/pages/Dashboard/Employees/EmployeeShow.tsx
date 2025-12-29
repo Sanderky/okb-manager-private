@@ -174,7 +174,11 @@ export default function EmployeeShow() {
   const formatFieldValue = (key: string, value: any) => {
     if (key === 'isContractor') return value ? 'Tak' : 'Nie';
     if (value === null || value === undefined || value === '')
-      return <em className="text-gray-400">-</em>;
+      return (
+        <Typography color="textSecondary" fontWeight={'bold'}>
+          -
+        </Typography>
+      );
     if (key === 'birthDate' && value instanceof Date)
       return dayjs(value).format('DD.MM.YYYY');
     if (key === 'hourRate' && typeof value === 'number') return `${value} €/h`;
@@ -260,7 +264,8 @@ export default function EmployeeShow() {
                           >
                             <Typography
                               variant="body1"
-                              className="text-sm font-medium text-gray-500"
+                              className="text-sm font-medium"
+                              color="textSecondary"
                             >
                               {label}:
                             </Typography>
@@ -278,7 +283,8 @@ export default function EmployeeShow() {
                           >
                             <Typography
                               variant="body1"
-                              className="text-dark text-sm font-semibold sm:text-base"
+                              className="text-sm font-semibold sm:text-base"
+                              color="textPrimary"
                             >
                               {formatFieldValue(key, employee[key])}
                             </Typography>
@@ -319,20 +325,26 @@ export default function EmployeeShow() {
                   >
                     <table className="w-full">
                       <thead>
-                        <tr className="bg-blue-100">
+                        <TableRow
+                          sx={(theme) => ({
+                            background: theme.palette.accent.main,
+                          })}
+                        >
                           <th className="px-4 py-3 text-left">
                             <Stack
                               direction={'row'}
                               alignItems={'center'}
                               spacing={1}
                             >
-                              <CalendarMonthIcon className="text-blue-800" />
+                              <CalendarMonthIcon
+                                sx={{ color: 'accent.superDark' }}
+                              />
                               <Typography variant="subtitle2" fontWeight="600">
                                 {`Nadchodzące urlopy pracownika (${employeeVacation.length}):`}
                               </Typography>
                             </Stack>
                           </th>
-                        </tr>
+                        </TableRow>
                       </thead>
                       <TableBody
                         sx={(theme) => ({
@@ -347,28 +359,33 @@ export default function EmployeeShow() {
                       >
                         {employeeVacation.length > 0 ? (
                           employeeVacation.map((empV) => (
-                            <tr
+                            <TableRow
                               key={empV.id}
                               onClick={() => handleVacationClick(empV)}
-                              className="cursor-pointer transition-colors hover:bg-blue-50/50 active:bg-blue-100"
+                              className="cursor-pointer transition-colors"
+                              sx={(theme) => ({
+                                ':hover': {
+                                  background: theme.palette.accent.light,
+                                },
+                                ':active': {
+                                  background: theme.palette.accent.main,
+                                },
+                              })}
                             >
                               <td className="px-4 py-3">
                                 <Typography
                                   variant="body2"
-                                  className="text-gray-700"
+                                  color="textSecondary"
                                 >
                                   {getDateStr(empV.startDate, empV.endDate)}
                                 </Typography>
                               </td>
-                            </tr>
+                            </TableRow>
                           ))
                         ) : (
                           <tr>
                             <td className="px-4 py-3">
-                              <Typography
-                                variant="body2"
-                                className="text-gray-700"
-                              >
+                              <Typography variant="body2" color="textSecondary">
                                 Brak urlopów
                               </Typography>
                             </td>
@@ -455,19 +472,20 @@ export default function EmployeeShow() {
             ) : (
               <Chip
                 label={employee?.status ? 'Aktywny' : 'Nieaktywny'}
-                className={
-                  employee?.status
-                    ? 'bg-green-300/50 text-green-600'
-                    : 'bg-red-300/50 text-red-600'
-                }
                 variant="filled"
-                sx={{
+                sx={(theme) => ({
                   borderRadius: 1,
                   p: 0.5,
                   ml: 2,
                   textTransform: 'uppercase',
                   fontWeight: 600,
-                }}
+                  color: employee?.status
+                    ? theme.palette.status.employee.active.text
+                    : theme.palette.status.employee.inactive.text,
+                  background: employee?.status
+                    ? theme.palette.status.employee.active.background
+                    : theme.palette.status.employee.inactive.background,
+                })}
               />
             )
           ) : null}

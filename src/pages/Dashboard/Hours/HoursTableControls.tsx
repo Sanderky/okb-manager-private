@@ -616,7 +616,10 @@ const HoursTableControls = ({
       </Stack>
       <Typography
         textTransform={'capitalize'}
-        className="rounded-full border border-gray-700 px-3 py-1 font-semibold"
+        className="rounded-full border px-3 py-1 font-semibold"
+        sx={{
+            borderColor: 'text.primary'
+          }}
       >
         Tydzień {dayjs(currentWeek).isoWeek()}
       </Typography>

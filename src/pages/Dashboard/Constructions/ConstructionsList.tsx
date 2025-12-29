@@ -716,11 +716,17 @@ export default function ConstructionsList() {
           return (
             <Box
               component="span"
-              className={`rounded-full px-2 py-1 font-medium ${
-                count > 0
-                  ? 'bg-green-100 text-green-800'
-                  : 'bg-gray-100 text-gray-600'
-              }`}
+              className={`rounded-full px-2 py-1 font-medium`}
+              sx={(theme) => ({
+                color:
+                  count > 0
+                    ? theme.palette.status.employee.active.text
+                    : theme.palette.text.secondary,
+                background:
+                  count > 0
+                    ? theme.palette.status.employee.active.background
+                    : theme.palette.background.default,
+              })}
             >
               {count}
             </Box>
@@ -745,11 +751,15 @@ export default function ConstructionsList() {
         Cell: ({ cell }) => (
           <Box
             component="span"
-            className={`rounded px-3 py-1 ${
-              cell.getValue<boolean>()
-                ? 'bg-blue-300/50 text-blue-600'
-                : 'bg-amber-300/50 text-amber-600'
-            }`}
+            className={`rounded px-3 py-1`}
+            sx={(theme) => ({
+              background: cell.getValue<boolean>()
+                ? theme.palette.status.construction.active.background
+                : theme.palette.status.construction.inactive.background,
+              color: cell.getValue<boolean>()
+                ? theme.palette.status.construction.active.text
+                : theme.palette.status.construction.inactive.text,
+            })}
           >
             {cell.getValue<boolean>() ? 'W trakcie' : 'Zakończona'}
           </Box>
@@ -871,7 +881,7 @@ export default function ConstructionsList() {
           backgroundColor: theme.palette.background.paper,
           cursor: 'pointer',
           '&:hover': {
-            background: '#5fadff14 !important',
+            background: `${theme.palette.tableHover} !important`,
           },
           'td:after': {
             display: 'none',

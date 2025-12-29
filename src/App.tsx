@@ -23,7 +23,7 @@ import VacationCalendar from './pages/Dashboard/Vacations/Vacations';
 import Hours from './pages/Dashboard/Hours/Hours';
 import Schedule from './pages/Dashboard/Schedule/Schedule';
 import PageNotFound from './pages/PageNotFound/PageNotFound';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { alpha, createTheme, ThemeProvider } from '@mui/material/styles';
 import { useAuth } from './context/AuthContext';
 import {
   getConstructionList,
@@ -43,6 +43,9 @@ import LodgingsManager from './pages/Dashboard/Lodgings/Lodgings';
 
 declare module '@mui/material/styles' {
   interface Palette {
+    tableHover: string
+    vacation: string;
+    location: string;
     schedule: {
       past: string;
       current: string;
@@ -55,6 +58,17 @@ declare module '@mui/material/styles' {
       selectedDay: string;
       hoverSelectedDay: string;
       dayOut: string;
+      currentDay: string;
+    };
+    status: {
+      employee: Status;
+      construction: Status;
+    };
+    accent: {
+      light: string;
+      main: string;
+      dark: string;
+      superDark: string;
     };
   }
 
@@ -70,7 +84,27 @@ declare module '@mui/material/styles' {
     };
   }
 
+  interface Status {
+    active: {
+      text: string;
+      background: string;
+    };
+    inactive: {
+      text: string;
+      background: string;
+    };
+  }
+
   interface PaletteOptions {
+    tableHover: string
+    accent: {
+      light: string;
+      main: string;
+      dark: string;
+      superDark: string;
+    };
+    vacation: string;
+    location: string;
     schedule?: {
       past: string;
       current: string;
@@ -83,12 +117,18 @@ declare module '@mui/material/styles' {
       selectedDay: string;
       hoverSelectedDay: string;
       dayOut: string;
+      currentDay: string;
+    };
+    status: {
+      employee: Status;
+      construction: Status;
     };
   }
 }
 
 const customTheme = createTheme({
   palette: {
+    tableHover: '#5fadff14',
     primary: {
       main: '#6366F1',
       light: '#8184F5',
@@ -101,6 +141,15 @@ const customTheme = createTheme({
       dark: '#A16207',
       contrastText: '#000000',
     },
+    vacation: '#b45309',
+    location: '#000080',
+    accent: {
+      light: '#eff6ff80',
+      main: '#dbeafe',
+      dark: '#1d4ed840',
+      superDark: '#1e40af',
+    },
+
     background: {
       paper: '#fff',
       default: '#f5f5f4',
@@ -117,6 +166,29 @@ const customTheme = createTheme({
       selectedDay: '#dbeafe',
       hoverSelectedDay: '#87CEFA',
       dayOut: '#fafafa',
+      currentDay: '#1d4ed8',
+    },
+    status: {
+      employee: {
+        active: {
+          text: '#16a34a',
+          background: alpha('#86efac', 0.5),
+        },
+        inactive: {
+          text: '#dc2626',
+          background: alpha('#fca5a5', 0.5),
+        },
+      },
+      construction: {
+        active: {
+          text: '#2563eb',
+          background: alpha('#93c5fd', 0.5),
+        },
+        inactive: {
+          text: '#d97706',
+          background: alpha('#fcd34d', 0.5),
+        },
+      },
     },
     // secondary: {
     //   main: 'rgba(253, 224, 71, 0.35)',

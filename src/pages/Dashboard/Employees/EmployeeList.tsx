@@ -925,7 +925,11 @@ export default function EmployeeList() {
           const hasAlert = employeeAlerts.length > 0;
 
           return (
-            <Box className={`${hasAlert && 'text-amber-500'}`}>
+            <Box
+              sx={(theme) => ({
+                color: hasAlert ? theme.palette.warning.dark : '',
+              })}
+            >
               {renderedCellValue}
             </Box>
           );
@@ -973,9 +977,9 @@ export default function EmployeeList() {
         Cell: ({ cell }) => (
           <Box className="w-full text-center">
             {cell.getValue<boolean>() ? (
-              <CheckBoxIcon className="text-gray-500" />
+              <CheckBoxIcon sx={{ color: 'textSecondary' }} />
             ) : (
-              <CheckBoxOutlineBlankIcon className="text-gray-500" />
+              <CheckBoxOutlineBlankIcon sx={{ color: 'textSecondary' }} />
             )}
           </Box>
         ),
@@ -1084,11 +1088,15 @@ export default function EmployeeList() {
         Cell: ({ cell }) => (
           <Box
             component="span"
-            className={`rounded px-3 py-1 ${
-              cell.getValue<boolean>()
-                ? 'bg-green-300/50 text-green-600'
-                : 'bg-red-300/50 text-red-600'
-            }`}
+            className={`rounded px-3 py-1`}
+            sx={(theme) => ({
+              background: cell.getValue<boolean>()
+                ? theme.palette.status.employee.active.background
+                : theme.palette.status.employee.inactive.background,
+              color: cell.getValue<boolean>()
+                ? theme.palette.status.employee.active.text
+                : theme.palette.status.employee.inactive.text,
+            })}
           >
             {cell.getValue<boolean>() ? 'Aktywny' : 'Nieaktywny'}
           </Box>
@@ -1201,7 +1209,7 @@ export default function EmployeeList() {
         backgroundColor: theme.palette.background.paper,
         cursor: 'pointer',
         '&:hover': {
-          background: '#5fadff14 !important',
+          background: `${theme.palette.tableHover} !important`,
         },
         'td:after': {
           display: 'none',
@@ -1243,7 +1251,12 @@ export default function EmployeeList() {
 
           return (
             <Box>
-              <Typography fontSize={'0.9rem'} className={`${hasAlert && 'text-amber-500'}`}>
+              <Typography
+                fontSize={'0.9rem'}
+                sx={(theme) => ({
+                  color: hasAlert ? theme.palette.warning.dark : '',
+                })}
+              >
                 {globalIndex}
               </Typography>
               {hasAlert && (

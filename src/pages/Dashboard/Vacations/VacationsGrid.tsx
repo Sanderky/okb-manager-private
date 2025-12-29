@@ -136,9 +136,10 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                       fontWeight: '500',
                       pt: 1,
                       pb: '5px',
+                      color: isToday ? 'calendar.currentDay' : '',
                     }}
                     variant="body2"
-                    className={`${isToday && 'font-bold text-blue-700 underline'}`}
+                    className={`${isToday && 'font-bold underline'}`}
                   >
                     {day.date()}
                   </Typography>

@@ -333,12 +333,12 @@ const LodgingCard: React.FC<LodgingCardProps> = ({
                   }}
                   onClick={() => openGoogleMaps(lodging.address)}
                 >
-                  <LocationOn fontSize="small" sx={{ color: 'navy' }} />
+                  <LocationOn fontSize="small" sx={{ color: 'location' }} />
                   <Typography
                     variant="body2"
                     color="text.secondary"
                     sx={{
-                      color: 'navy',
+                      color: 'location',
                     }}
                   >
                     {lodging.address}
@@ -563,7 +563,8 @@ const LodgingsManager = () => {
             >
               <Typography
                 variant="overline"
-                className="font-medium text-gray-500"
+                className="font-medium"
+                color="textSecondary"
                 sx={{
                   lineHeight: 1,
                 }}
@@ -572,7 +573,8 @@ const LodgingsManager = () => {
               </Typography>
               <Typography
                 variant="overline"
-                className="font-medium text-gray-500"
+                color="textSecondary"
+                className="font-medium"
                 sx={{
                   lineHeight: 1,
                 }}

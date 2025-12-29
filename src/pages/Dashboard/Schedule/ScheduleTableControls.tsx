@@ -70,9 +70,10 @@ export const TableControls: React.FC<TableControlsProps> = ({
     >
       <Stack direction={'row'} alignItems={'center'} gap={1}>
         <Typography
-          className="rounded-full border border-gray-700 px-3 py-1 font-semibold"
+          className="rounded-full border 0 px-3 py-1 font-semibold"
           sx={{
             fontSize: '0.8rem',
+            borderColor: 'text.primary'
           }}
         >
           {dayjs(fromWeek).format('DD.MM.YY')} -{' '}
@@ -371,12 +372,13 @@ export const TableControls: React.FC<TableControlsProps> = ({
         justifyContent={{ xs: 'flex-start', md: 'flex-end' }}
       >
         <Typography
-          className="rounded-full border border-gray-700 px-3 py-1 font-semibold"
+          className="rounded-full border px-3 py-1 font-semibold"
           sx={{
             display: {
               xs: 'none',
               sm: 'block',
             },
+            borderColor: 'text.primary'
           }}
         >
           {dayjs(fromWeek).format('DD.MM.YYYY')} -{' '}
