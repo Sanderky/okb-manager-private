@@ -1,4 +1,4 @@
-import { darken, useTheme } from '@mui/material';
+import { useTheme } from '@mui/material';
 import { useCallback } from 'react';
 import type { InfoEventSeverity } from '../../../types';
 
@@ -9,15 +9,15 @@ export const useEventColor = () => {
     (severity: InfoEventSeverity) => {
       switch (severity) {
         case 'error':
-          return theme.palette.error.light;
+          return theme.palette.error.main;
         case 'warning':
-          return theme.palette.warning.light;
+          return theme.palette.warning.main;
         case 'success':
-          return theme.palette.success.light;
+          return theme.palette.success.main;
         case 'info':
-          return theme.palette.info.light;
+          return theme.palette.info.main;
         case 'hotel':
-          return theme.palette.secondary.light;
+          return theme.palette.secondary.main;
         case 'employee':
           return theme.palette.background.default;
         default:

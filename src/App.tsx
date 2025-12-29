@@ -144,6 +144,31 @@ declare module '@mui/material/styles' {
 
 const customTheme = createTheme({
   palette: {
+    error: {
+      main: '#d32f2f',
+      light: '#ffcdd2',
+      dark: '#c62828',
+      contrastText: '#fff',
+    },
+    warning: {
+      main: '#ed6c02',
+      light: '#ffcc80',
+      dark: '#e65100',
+      contrastText: '#fff',
+    },
+    info: {
+      main: '#0288d1',
+      light: '#b3e5fc',
+      dark: '#01579b',
+      contrastText: '#fff',
+    },
+    success: {
+      main: '#2e7d32',
+      light: '#a5d6a7',
+      dark: '#1b5e20',
+      contrastText: '#fff',
+    },
+
     hours: {
       error: alpha('#d50000', 0.3),
       warning: alpha('#ef6c00', 0.3),
