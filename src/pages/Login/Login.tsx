@@ -94,190 +94,209 @@ const Login = () => {
   };
 
   return (
-    <section className="relative bg-(image:--primary-gradient)">
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute inset-0 -z-10 bg-[linear-gradient(to_right,#e4e4e7_1px,transparent_1px),linear-gradient(to_bottom,#e4e4e7_1px,transparent_1px)] bg-[size:6rem_4rem]"></div>
-      </div>
-      {user || initialLoading ? (
-        <div className="flex h-screen flex-col items-center justify-center px-6 py-8">
-          <Loading
-            message={
-              initialLoading
-                ? 'Sprawdzanie autoryzacji...'
-                : 'Przekierowywanie...'
-            }
-          />
-        </div>
-      ) : (
-        <Box className="flex h-screen flex-col">
-          <Box
-            className="flex flex-col items-center justify-center py-8"
-            sx={{
-              flexGrow: 1,
-              px: { xs: 2, sm: 4 },
-            }}
-          >
+    <Box
+      component="section"
+      className="relative h-screen w-full overflow-hidden"
+      sx={(theme) => ({
+        background: theme.palette.background.gradient,
+      })}
+    >
+      <Box
+        sx={(theme) => ({
+          position: 'absolute',
+          inset: 0,
+          zIndex: 0,
+          pointerEvents: 'none',
+          backgroundImage: theme.palette.background.grid,
+          backgroundSize: '6rem 4rem',
+        })}
+      />
+      <Box sx={{ position: 'relative', zIndex: 1, height: '100%' }}>
+        {user || initialLoading ? (
+          <div className="flex h-screen flex-col items-center justify-center px-6 py-8">
+            <Loading
+              message={
+                initialLoading
+                  ? 'Sprawdzanie autoryzacji...'
+                  : 'Przekierowywanie...'
+              }
+            />
+          </div>
+        ) : (
+          <Box className="flex h-screen flex-col">
             <Box
-              className="relative w-full rounded-lg shadow"
-              sx={(theme) => ({
-                maxWidth: { xs: '100%', sm: '450px' },
-                py: 3,
-                px: { xs: 2, sm: 3 },
-                background: theme.palette.background.paper,
-              })}
+              className="flex flex-col items-center justify-center py-8"
+              sx={{
+                flexGrow: 1,
+                px: { xs: 2, sm: 4 },
+              }}
             >
-              <Typography
-                variant="h1"
-                component={'div'}
+              <Box
+                className="relative w-full rounded-lg shadow"
                 sx={(theme) => ({
-                  background: alpha(theme.palette.background.paper, 0.5),
+                  maxWidth: { xs: '100%', sm: '450px' },
+                  py: 3,
+                  px: { xs: 2, sm: 3 },
+                  background: theme.palette.background.paper,
                 })}
-                className="absolute -top-8 left-1/2 mb-6 inline-flex -translate-x-1/2 flex-row items-end justify-center rounded-lg px-4 py-2 font-medium shadow"
               >
-                <LogoIcon className="text-4xl" />
                 <Typography
-                  component={'span'}
-                  className="text-4xl font-medium text-shadow-sm/20"
+                  variant="h1"
+                  component={'div'}
                   sx={(theme) => ({
-                    color: theme.palette.secondary.main,
+                    background: alpha(theme.palette.background.paper, 0.5),
                   })}
+                  className="absolute -top-8 left-1/2 mb-6 inline-flex -translate-x-1/2 flex-row items-end justify-center rounded-lg px-4 py-2 font-medium shadow"
                 >
-                  OKB
-                </Typography>
-                <Typography
-                  component={'span'}
-                  className="text-2xl font-medium underline"
-                  color="textPrimary"
-                >
-                  manager
-                </Typography>
-              </Typography>
-              <Typography variant="h2" className="mt-6 mb-8 text-xl">
-                Zaloguj się do swojego konta
-              </Typography>
-
-              <form className="space-y-4" noValidate onSubmit={handleSubmit}>
-                <TextField
-                  size="small"
-                  error={!!errors.email}
-                  required
-                  fullWidth
-                  id="email"
-                  label="Email"
-                  name="email"
-                  autoFocus
-                  helperText={errors.email}
-                  value={values.email}
-                  onChange={handleChange}
-                  disabled={actionLoading}
-                  slotProps={{
-                    input: { className: 'rounded-lg' },
-                  }}
-                />
-                <TextField
-                  size="small"
-                  error={!!errors.password}
-                  required
-                  fullWidth
-                  name="password"
-                  label="Hasło"
-                  type={showPassword ? 'text' : 'password'}
-                  id="password"
-                  helperText={errors.password}
-                  value={values.password}
-                  onChange={handleChange}
-                  disabled={actionLoading}
-                  slotProps={{
-                    input: {
-                      className: 'rounded-lg',
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton
-                            onClick={() => setShowPassword((prev) => !prev)}
-                            edge="end"
-                          >
-                            {showPassword ? <VisibilityOff /> : <Visibility />}
-                          </IconButton>
-                        </InputAdornment>
-                      ),
-                    },
-                  }}
-                />
-
-                {credentialError && (
-                  <Alert severity="error">
-                    Wprowadzono niepoprawny email lub hasło.
-                  </Alert>
-                )}
-
-                <div>
-                  <Button
-                    onClick={() => setForgotOpen(true)}
-                    variant="text"
+                  <LogoIcon className="text-4xl" />
+                  <Typography
+                    component={'span'}
+                    className="text-4xl font-medium text-shadow-sm/20"
                     sx={(theme) => ({
-                      color: theme.palette.primary.main,
-                      p: 0,
+                      color: theme.palette.secondary.main,
+                    })}
+                  >
+                    OKB
+                  </Typography>
+                  <Typography
+                    component={'span'}
+                    className="text-2xl font-medium underline"
+                    color="textPrimary"
+                  >
+                    manager
+                  </Typography>
+                </Typography>
+                <Typography variant="h2" className="mt-6 mb-8 text-xl">
+                  Zaloguj się do swojego konta
+                </Typography>
+
+                <form className="space-y-4" noValidate onSubmit={handleSubmit}>
+                  <TextField
+                    size="small"
+                    error={!!errors.email}
+                    required
+                    fullWidth
+                    id="email"
+                    label="Email"
+                    name="email"
+                    autoFocus
+                    helperText={errors.email}
+                    value={values.email}
+                    onChange={handleChange}
+                    disabled={actionLoading}
+                    slotProps={{
+                      input: { className: 'rounded-lg' },
+                    }}
+                  />
+                  <TextField
+                    size="small"
+                    error={!!errors.password}
+                    required
+                    fullWidth
+                    name="password"
+                    label="Hasło"
+                    type={showPassword ? 'text' : 'password'}
+                    id="password"
+                    helperText={errors.password}
+                    value={values.password}
+                    onChange={handleChange}
+                    disabled={actionLoading}
+                    slotProps={{
+                      input: {
+                        className: 'rounded-lg',
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <IconButton
+                              onClick={() => setShowPassword((prev) => !prev)}
+                              edge="end"
+                            >
+                              {showPassword ? (
+                                <VisibilityOff />
+                              ) : (
+                                <Visibility />
+                              )}
+                            </IconButton>
+                          </InputAdornment>
+                        ),
+                      },
+                    }}
+                  />
+
+                  {credentialError && (
+                    <Alert severity="error">
+                      Wprowadzono niepoprawny email lub hasło.
+                    </Alert>
+                  )}
+
+                  <div>
+                    <Button
+                      onClick={() => setForgotOpen(true)}
+                      variant="text"
+                      sx={(theme) => ({
+                        color: theme.palette.primary.main,
+                        p: 0,
+                        '&:hover': {
+                          textDecoration: 'underline',
+                          background: 'transparent',
+                        },
+                      })}
+                    >
+                      Nie pamiętasz hasła?
+                    </Button>
+                  </div>
+                  <Typography variant="caption">
+                    {`Logując się, akceptujesz `}
+                    <Link
+                      href="/regulamin.pdf"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Zasady użytkowania systemu
+                    </Link>
+                    {` oraz potwierdzasz zapoznanie się z `}
+                    <Link
+                      href="/rodo.pdf"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Informacją o przetwarzaniu danych (RODO)
+                    </Link>
+                    .
+                  </Typography>
+
+                  <Button
+                    type="submit"
+                    loading={actionLoading}
+                    variant="contained"
+                    sx={(theme) => ({
+                      width: '100%',
+                      border: `1px solid ${theme.palette.text.primary}`,
+                      background: theme.palette.background.paper,
+                      color: theme.palette.text.primary,
+                      mt: 2,
+                      py: 1.5,
                       '&:hover': {
-                        textDecoration: 'underline',
-                        background: 'transparent',
+                        boxShadow: 'none',
+                        background: theme.palette.secondary.main,
                       },
                     })}
                   >
-                    Nie pamiętasz hasła?
+                    Zaloguj się
                   </Button>
-                </div>
-                <Typography variant="caption">
-                  {`Logując się, akceptujesz `}
-                  <Link
-                    href="/regulamin.pdf"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Zasady użytkowania systemu
-                  </Link>
-                  {` oraz potwierdzasz zapoznanie się z `}
-                  <Link
-                    href="/rodo.pdf"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Informacją o przetwarzaniu danych (RODO)
-                  </Link>
-                  .
-                </Typography>
+                </form>
 
-                <Button
-                  type="submit"
-                  loading={actionLoading}
-                  variant="contained"
-                  sx={(theme) => ({
-                    width: '100%',
-                    border: `1px solid ${theme.palette.text.primary}`,
-                    background: theme.palette.background.paper,
-                    color: theme.palette.text.primary,
-                    mt: 2,
-                    py: 1.5,
-                    '&:hover': {
-                      boxShadow: 'none',
-                      background: theme.palette.secondary.main,
-                    },
-                  })}
-                >
-                  Zaloguj się
-                </Button>
-              </form>
-
-              <ForgotPassword
-                open={forgotOpen}
-                handleClose={() => setForgotOpen(false)}
-              />
+                <ForgotPassword
+                  open={forgotOpen}
+                  handleClose={() => setForgotOpen(false)}
+                />
+              </Box>
             </Box>
-          </Box>
 
-          <AppFooter />
-        </Box>
-      )}
-    </section>
+            <AppFooter />
+          </Box>
+        )}
+      </Box>
+    </Box>
   );
 };
 

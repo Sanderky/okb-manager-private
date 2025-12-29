@@ -43,7 +43,8 @@ import LodgingsManager from './pages/Dashboard/Lodgings/Lodgings';
 
 declare module '@mui/material/styles' {
   interface Palette {
-    tableHover: string
+    loadingOverlay: string;
+    tableHover: string;
     vacation: string;
     location: string;
     schedule: {
@@ -96,7 +97,8 @@ declare module '@mui/material/styles' {
   }
 
   interface PaletteOptions {
-    tableHover: string
+    loadingOverlay: string;
+    tableHover: string;
     accent: {
       light: string;
       main: string;
@@ -124,11 +126,18 @@ declare module '@mui/material/styles' {
       construction: Status;
     };
   }
+  interface TypeBackground {
+    default: string;
+    paper: string;
+    grid: string;
+    gradient: string;
+  }
 }
 
 const customTheme = createTheme({
   palette: {
     tableHover: '#5fadff14',
+    loadingOverlay: 'rgba(255, 255, 255, 0.5)',
     primary: {
       main: '#6366F1',
       light: '#8184F5',
@@ -153,6 +162,8 @@ const customTheme = createTheme({
     background: {
       paper: '#fff',
       default: '#f5f5f4',
+      grid: 'linear-gradient(to right, #e4e4e7 1px, transparent 1px), linear-gradient(to bottom, #e4e4e7 1px, transparent 1px)',
+      gradient: 'linear-gradient(150deg, #fcfbf5 30%, #ffd85f80 100%)',
     },
     schedule: {
       past: '#fecaca',

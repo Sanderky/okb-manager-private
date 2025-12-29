@@ -72,10 +72,24 @@ const UpdatePassword = () => {
   };
 
   return (
-    <section className="relative bg-(image:--primary-gradient)">
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute inset-0 -z-10 bg-[linear-gradient(to_right,#e4e4e7_1px,transparent_1px),linear-gradient(to_bottom,#e4e4e7_1px,transparent_1px)] bg-[size:6rem_4rem]"></div>
-      </div>
+    <Box
+      component="section"
+      className="relative h-screen w-full overflow-hidden"
+      sx={(theme) => ({
+        background: theme.palette.background.gradient,
+      })}
+    >
+      <Box
+        sx={(theme) => ({
+          position: 'absolute',
+          inset: 0,
+          zIndex: 0,
+          pointerEvents: 'none',
+          backgroundImage: theme.palette.background.grid,
+          backgroundSize: '6rem 4rem',
+        })}
+      />
+
       <Box className="flex h-screen flex-col">
         <Box
           className="flex flex-col items-center justify-center py-8"
@@ -221,7 +235,7 @@ const UpdatePassword = () => {
         </Box>
         <AppFooter />
       </Box>
-    </section>
+    </Box>
   );
 };
 

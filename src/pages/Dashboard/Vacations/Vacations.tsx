@@ -575,7 +575,7 @@ const Calendar: React.FC = () => {
       >
         {loading && (
           <Box
-            sx={{
+            sx={theme => ({
               position: 'absolute',
               top: 0,
               left: 0,
@@ -584,10 +584,10 @@ const Calendar: React.FC = () => {
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',
-              backgroundColor: 'rgba(255, 255, 255, 0.5)',
+              backgroundColor: theme.palette.loadingOverlay,
               zIndex: 100,
               borderRadius: 'inherit',
-            }}
+            })}
           >
             <CircularProgress />
           </Box>
