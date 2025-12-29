@@ -799,7 +799,8 @@ const HoursTable = ({
               sx={(theme) => ({
                 background: theme.palette.background.paper,
                 position: 'relative',
-                maxHeight: `500px`,
+                maxHeight: `calc(100vh - 162px)`,
+                // maxHeight: `500px`,
               })}
             >
               <Table size="small" stickyHeader>
