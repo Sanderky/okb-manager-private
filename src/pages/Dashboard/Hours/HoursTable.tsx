@@ -550,9 +550,6 @@ const HoursTable = ({
   const [addEmployeeDialogOpen, setAddEmployeeDialogOpen] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
-  const [toolbarHeight, setToolbarHeight] = useState(0);
-  // const { headerHeight, topBarHeight } = useLayout();
-
   const {
     isLoading,
     currentWeek,
@@ -658,7 +655,6 @@ const HoursTable = ({
       </Box>
       <HoursTableControls
         hasUnsavedChanges={hasUnsavedChanges}
-        setToolbarHeight={setToolbarHeight}
         containerWidth={containerWidth}
         isLoading={isTableLoading || isSaving}
         currentWeek={currentWeek}

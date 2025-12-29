@@ -8,7 +8,6 @@ import {
   Stack,
   Tooltip,
   Divider,
-  Grid,
   Menu,
   Badge,
 } from '@mui/material';
@@ -54,7 +53,6 @@ interface HoursTableControlsProps {
   handleCancelEdit: () => Promise<void>;
   handleFillWithSchedule: () => Promise<void>;
   setIsFilterOpen: (val: boolean) => void;
-  setToolbarHeight: (val: number) => void;
   hasUnsavedChanges: boolean;
 }
 
@@ -76,8 +74,7 @@ const HoursTableControls = ({
   showFilterBadge,
   handleCancelEdit,
   handleFillWithSchedule,
-  setIsFilterOpen,
-  setToolbarHeight,
+  setIsFilterOpen
 }: HoursTableControlsProps) => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const openMobileMenu = Boolean(anchorEl);
@@ -88,23 +85,6 @@ const HoursTableControls = ({
     setAnchorEl(null);
   };
 
-  const toolbarRef = React.useRef<HTMLDivElement>(null);
-
-  React.useEffect(() => {
-    if (!toolbarRef.current) return;
-
-    const observer = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        const height =
-          entry.borderBoxSize?.[0]?.blockSize || entry.contentRect.height;
-        setToolbarHeight(height + 8);
-      }
-    });
-
-    observer.observe(toolbarRef.current);
-
-    return () => observer.disconnect();
-  }, [setToolbarHeight]);
 
   const reactToPrintFn = useReactToPrint({
     contentRef: contentRef,
@@ -626,7 +606,7 @@ const HoursTableControls = ({
     </Box>
   );
 
-  return <Box ref={toolbarRef}>{containerWidth < 600 ? phone : desktop}</Box>;
+  return <Box>{containerWidth < 600 ? phone : desktop}</Box>;
 };
 
 export default HoursTableControls;
