@@ -143,7 +143,8 @@ const getDesignTokens = (mode: PaletteMode) => ({
           },
 
           vacation: '#b45309',
-          location: '#000080',
+          location: '#60a5fa',
+          // location: '#000080',
 
           accent: {
             light: '#eff6ff80',

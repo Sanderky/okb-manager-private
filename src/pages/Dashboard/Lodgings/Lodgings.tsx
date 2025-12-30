@@ -14,6 +14,7 @@ import {
   Divider,
   FormControl,
   Checkbox,
+  Tooltip,
 } from '@mui/material';
 import {
   Add,
@@ -325,25 +326,28 @@ const LodgingCard: React.FC<LodgingCardProps> = ({
             </Stack>
             {lodging.address && (
               <Stack direction="row" spacing={1} alignItems="center">
-                <Stack
-                  spacing={1}
-                  direction={'row'}
-                  sx={{
-                    cursor: 'pointer',
-                  }}
-                  onClick={() => openGoogleMaps(lodging.address)}
-                >
-                  <LocationOn fontSize="small" sx={{ color: 'location' }} />
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
+                <Tooltip title="Otwórz w Google Maps">
+                  <Stack
+                    spacing={1}
+                    direction={'row'}
                     sx={{
-                      color: 'location',
+                      cursor: 'pointer',
                     }}
+                    onClick={() => openGoogleMaps(lodging.address)}
                   >
-                    {lodging.address}
-                  </Typography>
-                </Stack>
+                    <LocationOn fontSize="small" sx={{ color: 'location' }} />
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{
+                        color: 'location',
+                        ':hover': { textDecoration: 'underline'}
+                      }}
+                    >
+                      {lodging.address}
+                    </Typography>
+                  </Stack>
+                </Tooltip>
               </Stack>
             )}
           </Box>

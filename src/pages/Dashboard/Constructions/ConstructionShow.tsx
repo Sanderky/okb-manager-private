@@ -267,6 +267,7 @@ export default function ConstructionShow() {
                           </TableCell>
 
                           <TableCell
+                          align='right'
                             sx={{
                               border: 'none',
                               maxWidth: '100%',
@@ -278,45 +279,49 @@ export default function ConstructionShow() {
                             className="p-2 sm:px-4"
                           >
                             {key === 'location' ? (
-                              <Typography
-                                variant="body1"
-                                className="text-sm font-semibold sm:text-base"
-                                sx={{
-                                  cursor: construction?.location
-                                    ? 'pointer'
-                                    : 'default',
-                                  color: construction?.location
-                                    ? 'location'
-                                    : 'inherit',
-                                }}
-                                onClick={() =>
-                                  openGoogleMaps(construction?.location)
-                                }
-                              >
-                                {(() => {
-                                  const value =
-                                    construction[key as keyof Construction];
-                                  if (!value) {
-                                    return (
-                                      <Typography
-                                        fontWeight={'bold'}
-                                        color="textSecondary"
-                                      >
-                                        -
-                                      </Typography>
-                                    );
+                              <Tooltip title="Otwórz w Google Maps">
+                                <Typography
+                                  variant="body1"
+                                  className="text-sm font-semibold sm:text-base"
+                                  sx={{
+                                    display: 'inline-block',
+                                    cursor: construction?.location
+                                      ? 'pointer'
+                                      : 'default',
+                                    color: construction?.location
+                                      ? 'location'
+                                      : 'inherit',
+                                    ':hover': { textDecoration: 'underline'}
+                                  }}
+                                  onClick={() =>
+                                    openGoogleMaps(construction?.location)
                                   }
-                                  return (
-                                    <>
-                                      {String(value)}{' '}
-                                      <LocationOnIcon
-                                        fontSize="small"
-                                        sx={{ color: 'location' }}
-                                      />
-                                    </>
-                                  );
-                                })()}
-                              </Typography>
+                                >
+                                  {(() => {
+                                    const value =
+                                      construction[key as keyof Construction];
+                                    if (!value) {
+                                      return (
+                                        <Typography
+                                          fontWeight={'bold'}
+                                          color="textSecondary"
+                                        >
+                                          -
+                                        </Typography>
+                                      );
+                                    }
+                                    return (
+                                      <>
+                                        {String(value)}{' '}
+                                        <LocationOnIcon
+                                          fontSize="small"
+                                          sx={{ color: 'location' }}
+                                        />
+                                      </>
+                                    );
+                                  })()}
+                                </Typography>
+                              </Tooltip>
                             ) : (
                               <Typography
                                 variant="body1"
@@ -498,6 +503,7 @@ export default function ConstructionShow() {
     resumeDialogOpen,
     handleBack,
     navigate,
+    upcomingEvents
   ]);
 
   const pageTitle = construction?.name || '...';
