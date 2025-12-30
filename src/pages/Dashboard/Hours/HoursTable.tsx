@@ -224,7 +224,15 @@ const ConstructionRow = React.memo(
     return (
       <React.Fragment>
         {construction.workHours.map((workHour, employeeIndex) => (
-          <TableRow key={workHour.id}>
+          <TableRow
+            key={workHour.id}
+            sx={(theme) => ({
+              transition: 'background-color 0.2s',
+              '&:hover': {
+                background: theme.palette.tableHover,
+              },
+            })}
+          >
             {employeeIndex === 0 && (
               <TableCell
                 rowSpan={construction.workHours.length + 1}
@@ -234,6 +242,7 @@ const ConstructionRow = React.memo(
                   fontWeight: 'bold',
                   verticalAlign: 'middle',
                   borderBottom: theme.hoursTable.borderBold,
+                  backgroundColor: theme.palette.background.paper,
                 })}
               >
                 <Typography
