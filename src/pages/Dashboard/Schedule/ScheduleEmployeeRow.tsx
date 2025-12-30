@@ -40,10 +40,11 @@ const ScheduleCell: React.FC<ScheduleCellProps> = React.memo(
     return (
       <TableCell
         sx={(theme) => ({
-          cursor: isLoading ? 'default' : 'pointer',
+          cursor: isLoading || !employee.status ? 'default' : 'pointer',
           transition: '0.3s',
           textAlign: 'center',
           position: 'relative',
+          color: employee.status ? 'inherit' : theme.palette.text.disabled,
           borderLeft: `1px solid ${theme.palette.divider}`,
           '&:hover': {
             background: employee.status
@@ -51,7 +52,7 @@ const ScheduleCell: React.FC<ScheduleCellProps> = React.memo(
               : theme.palette.background.default,
           },
         })}
-        className={`px-3 py-2 ${!employee.status && '*:!text-gray-500'}`}
+        className={`px-3 py-2`}
         onClick={(e) => {
           if (isLoading || !employee.status) {
             e.stopPropagation();
@@ -112,7 +113,6 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = React.memo(
                 label={index + 1}
                 variant="outlined"
                 size="small"
-                className={`${!employee.status && 'text-red-400'}`}
                 sx={{ mr: 1 }}
               />
               {/* <Typography
@@ -151,8 +151,9 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = React.memo(
                     },
                     fontWeight: 600,
                     flexGrow: 1,
+                    textDecoration: employee.status ? 'none' : 'line-through',
+                    color: employee.status ? 'inherit' : 'text.disabled',
                   }}
-                  className={`${!employee.status && 'text-red-400'}`}
                 >
                   {employee.name}
                 </Typography>
@@ -216,7 +217,6 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = React.memo(
               label={index + 1}
               variant="outlined"
               size="small"
-              className={`${!employee.status && 'text-red-400'}`}
               sx={{ mr: 1 }}
             />
             <Tooltip
@@ -244,8 +244,9 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = React.memo(
                     md: '0.85rem',
                   },
                   fontWeight: 600,
+                  textDecoration: employee.status ? 'none' : 'line-through',
+                  color: employee.status ? 'inherit' : 'text.disabled',
                 }}
-                className={`${!employee.status && 'text-red-400'}`}
               >
                 {employee.name}
               </Typography>
