@@ -175,7 +175,7 @@ export default function EmployeeShow() {
     if (key === 'isContractor') return value ? 'Tak' : 'Nie';
     if (value === null || value === undefined || value === '')
       return (
-        <Typography color="textSecondary" fontWeight={'bold'}>
+        <Typography component={'span'} color="textSecondary" fontWeight={'bold'}>
           -
         </Typography>
       );
