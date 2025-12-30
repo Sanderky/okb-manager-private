@@ -965,22 +965,6 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
     navigate(`/employees/${employeeId}`);
   };
 
-  const uniqueVacations = useMemo(() => {
-    const grouped = vacations.reduce(
-      (acc, vacation) => {
-        const key = vacation.groupId || vacation.id;
-
-        if (!acc[key]) {
-          acc[key] = vacation;
-        }
-        return acc;
-      },
-      {} as Record<string, Vacation>
-    );
-
-    return Object.values(grouped);
-  }, [vacations]);
-
   const effectiveDateRange = useMemo(() => {
     const start =
       dateRange.start || dayjs().subtract(1, 'month').startOf('day');

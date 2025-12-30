@@ -5,7 +5,7 @@ import useWeekReport from './useWeeksReport';
 const useAvailableConstructionsInRange = (weekStarts: Date[]) => {
   const { weeksData, isLoading, error } = useWeekReport({
     weekStarts,
-    selectedConstructions: [],
+    selectedConstructionIds: [],
   });
 
   const availableConstructions = useMemo(() => {

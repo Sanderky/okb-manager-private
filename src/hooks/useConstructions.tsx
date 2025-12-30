@@ -28,10 +28,10 @@ function validateConstruction(
     ];
   }
 
-  if (!construction.contractor) {
+  if (!construction.contractorId) {
     issues = [
       ...issues,
-      { message: translations.contractorReq, path: ['contractor'] },
+      { message: translations.contractorReq, path: ['contractorId'] },
     ];
   }
 
