@@ -384,6 +384,7 @@ const LodgingCard: React.FC<LodgingCardProps> = ({
                   ':hover': {
                     scale: '1.05',
                   },
+                  textDecoration: emp.status ? '' : 'line-through'
                 }}
               />
             ))

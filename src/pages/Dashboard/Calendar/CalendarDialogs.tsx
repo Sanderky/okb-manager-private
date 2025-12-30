@@ -139,6 +139,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({
                   ':hover': {
                     scale: '1.05',
                   },
+                  textDecoration: emp.status ? '' : 'line-through'
                 }}
               />
             ))}
@@ -168,6 +169,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({
                   ':hover': {
                     transform: 'scale(1.05)',
                   },
+                  textDecoration: constr.status ? '' : 'line-through'
                 }}
               />
             ))}
