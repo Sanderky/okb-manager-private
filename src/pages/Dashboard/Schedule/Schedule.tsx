@@ -746,7 +746,7 @@ const ScheduleComponent = () => {
       >
         {loading && (
           <Box
-            sx={theme => ({
+            sx={(theme) => ({
               position: 'absolute',
               top: 0,
               left: 0,
@@ -807,9 +807,16 @@ const ScheduleComponent = () => {
                 sx={{
                   tableLayout: 'fixed',
                   minWidth: {
-                    xs: `${50 + 50 * weeks.length}%`,
-                    md: `${20 + (80 * weeks.length) / 4}%`,
+                    xs: `${50 + (50 / 1) * weeks.length}%`,
+                    sm: `${30 + (70 / 2) * weeks.length}%`,
+                    md: `${25 + (75 / 3) * weeks.length}%`,
+                    lg: `${15 + (85 / 4) * weeks.length}%`,
+                    xl: `${15 + (85 / 7) * weeks.length}%`,
                   },
+                  // minWidth: {
+                  //   xs: `${50 + 50 * weeks.length}%`,
+                  //   md: `${20 + (80 * weeks.length) / 4}%`,
+                  // },
                 }}
               >
                 <TableHead
@@ -821,8 +828,14 @@ const ScheduleComponent = () => {
                         position: 'sticky',
                         left: 0,
                         zIndex: 4,
-                        width: { xs: '150px', sm: '200px' },
+                        // width: { xs: '150px', sm: '200px' },
                         background: theme.palette.schedule.accent,
+                        width: {
+                          xs: '50%',
+                          sm: '30%',
+                          md: '25%',
+                          lg: '15%',
+                        },
                       })}
                       className="px-3 py-2 text-center"
                     ></TableCell>
@@ -839,6 +852,13 @@ const ScheduleComponent = () => {
                                 ? theme.palette.background.default
                                 : theme.palette.schedule.current,
                             borderLeft: `1px solid ${theme.palette.divider}`,
+                            width: {
+                              xs: `${50 / Math.min(weeks.length, 1)}%`,
+                              sm: `${70 / Math.min(weeks.length, 2)}%`,
+                              md: `${75 / Math.min(weeks.length, 3)}%`,
+                              lg: `${85 / Math.min(weeks.length, 4)}%`,
+                              xl: `${85 / Math.min(weeks.length, 7)}%`,
+                            },
                           })}
                           className={`group relative cursor-pointer px-3 py-2`}
                           onClick={() => setActiveTable({ type: 1, week: w })}

@@ -6,7 +6,7 @@ import {
   Tooltip,
   CircularProgress,
   Stack,
-  Box,
+  Chip,
 } from '@mui/material';
 import { Dayjs } from 'dayjs';
 import type { Employee } from '../../../types';
@@ -39,15 +39,17 @@ const ScheduleCell: React.FC<ScheduleCellProps> = React.memo(
 
     return (
       <TableCell
-        sx={theme => ({
+        sx={(theme) => ({
           cursor: isLoading ? 'default' : 'pointer',
           transition: '0.3s',
           textAlign: 'center',
           position: 'relative',
           borderLeft: `1px solid ${theme.palette.divider}`,
           '&:hover': {
-            background: employee.status ? theme.palette.schedule.hoverCell : theme.palette.background.default
-          }
+            background: employee.status
+              ? theme.palette.schedule.hoverCell
+              : theme.palette.background.default,
+          },
         })}
         className={`px-3 py-2 ${!employee.status && '*:!text-gray-500'}`}
         onClick={(e) => {
@@ -81,28 +83,39 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = React.memo(
     if (activeTable.type === 1) {
       return (
         <TableRow
-          sx={theme => ({
+          sx={(theme) => ({
             '&:hover': {
               '& .MuiTableCell-root:first-of-type': {
                 backgroundColor: `${employee.status && `${theme.palette.schedule.hoverRow} !important`}`,
               },
-              background: employee.status ? theme.palette.schedule.hoverRow : theme.palette.background.default
+              background: employee.status
+                ? theme.palette.schedule.hoverRow
+                : theme.palette.background.default,
             },
-            background: employee.status ? theme.palette.background.paper : theme.palette.background.default
+            background: employee.status
+              ? theme.palette.background.paper
+              : theme.palette.background.default,
           })}
         >
           <TableCell
-            sx={theme => ({
+            sx={(theme) => ({
               position: 'sticky',
               left: 0,
               zIndex: 3,
               textAlign: 'center',
-              background: theme.palette.background.default
+              background: theme.palette.background.default,
             })}
             className="px-3 py-2"
           >
             <Stack direction={'row'} alignItems={'center'}>
-              <Typography
+              <Chip
+                label={index + 1}
+                variant="outlined"
+                size="small"
+                className={`${!employee.status && 'text-red-400'}`}
+                sx={{ mr: 1 }}
+              />
+              {/* <Typography
                 sx={{
                   fontSize: {
                     xs: '0.75rem',
@@ -112,7 +125,7 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = React.memo(
                 className={`${!employee.status && 'text-red-400'}`}
               >
                 {index + 1}.
-              </Typography>
+              </Typography> */}
               <Tooltip
                 arrow
                 placement="top"
@@ -174,38 +187,38 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = React.memo(
 
     return (
       <TableRow
-        sx={theme => ({
+        sx={(theme) => ({
           '&:hover': {
             '& .MuiTableCell-root:first-of-type': {
               backgroundColor: `${employee.status && `${theme.palette.schedule.hoverRow} !important`}`,
             },
-            background: employee.status ? theme.palette.schedule.hoverRow : theme.palette.background.default
+            background: employee.status
+              ? theme.palette.schedule.hoverRow
+              : theme.palette.background.default,
           },
-          background: employee.status ? theme.palette.background.paper : theme.palette.background.default
+          background: employee.status
+            ? theme.palette.background.paper
+            : theme.palette.background.default,
         })}
       >
         <TableCell
-          sx={theme => ({
+          sx={(theme) => ({
             position: 'sticky',
             left: 0,
             zIndex: 3,
             textAlign: 'center',
-            background: theme.palette.background.default
+            background: theme.palette.background.default,
           })}
           className="px-3 py-2"
         >
           <Stack direction={'row'} alignItems={'center'}>
-            <Typography
-              sx={{
-                fontSize: {
-                  xs: '0.75rem',
-                  md: '0.85rem',
-                },
-              }}
+            <Chip
+              label={index + 1}
+              variant="outlined"
+              size="small"
               className={`${!employee.status && 'text-red-400'}`}
-            >
-              {index + 1}.
-            </Typography>
+              sx={{ mr: 1 }}
+            />
             <Tooltip
               arrow
               placement="top"
