@@ -56,6 +56,9 @@ const Calendar: React.FC = () => {
   const [containerRef, width] = useContainerBreakpoint();
   const [searchParams, setSearchParams] = useSearchParams();
 
+  const [eventClickSearchParams, setEventClickSearchParams] =
+    useState<boolean>(false);
+
   const [currentMonth, setCurrentMonth] = useState<Dayjs>(
     dayjs().startOf('month')
   );
@@ -113,7 +116,7 @@ const Calendar: React.FC = () => {
 
   useEffect(() => {
     const monthFromUrl = searchParams.get('month');
-    if (monthFromUrl) {
+    if (monthFromUrl && !eventClickSearchParams) {
       const month = dayjs(monthFromUrl).startOf('month');
       setCurrentMonth(month);
     }
@@ -382,6 +385,7 @@ const Calendar: React.FC = () => {
       searchParams.append('month', startMonth);
       searchParams.append('vacationId', ev.id);
       setSearchParams(searchParams);
+      setEventClickSearchParams(true);
     }
   };
 
@@ -392,6 +396,7 @@ const Calendar: React.FC = () => {
     searchParams.delete('vacationId');
     searchParams.delete('month');
     setSearchParams(searchParams);
+    setEventClickSearchParams(false);
   }, []);
 
   const handleAddDialogClose = useCallback(() => {
@@ -575,7 +580,7 @@ const Calendar: React.FC = () => {
       >
         {loading && (
           <Box
-            sx={theme => ({
+            sx={(theme) => ({
               position: 'absolute',
               top: 0,
               left: 0,

@@ -85,6 +85,9 @@ const Calendar: React.FC = () => {
   const [currentEvent, setCurrentEvent] = useState<Partial<CalendarEvent>>({});
   const [validationError, setValidationError] = useState<string>('');
 
+  const [eventClickSearchParams, setEventClickSearchParams] =
+    useState<boolean>(false);
+
   const notifications = useNotifications();
   const dialogs = useDialogs();
   const queryClient = useQueryClient();
@@ -97,7 +100,7 @@ const Calendar: React.FC = () => {
 
   useEffect(() => {
     const monthFromUrl = searchParams.get('month');
-    if (monthFromUrl) {
+    if (monthFromUrl && !eventClickSearchParams) {
       setCurrentMonth(dayjs(monthFromUrl).startOf('month'));
     }
   }, [searchParams]);
@@ -342,6 +345,7 @@ const Calendar: React.FC = () => {
     searchParams.append('month', startMonth);
     searchParams.append('eventId', ev.id ?? '');
     setSearchParams(searchParams);
+    setEventClickSearchParams(true);
   };
 
   const resetOnClose = useCallback(() => {
@@ -351,6 +355,7 @@ const Calendar: React.FC = () => {
     searchParams.delete('eventId');
     searchParams.delete('month');
     setSearchParams(searchParams);
+    setEventClickSearchParams(false);
   }, []);
 
   const handleAddDialogClose = useCallback(() => {
@@ -521,7 +526,7 @@ const Calendar: React.FC = () => {
       >
         {loading && (
           <Box
-            sx={theme => ({
+            sx={(theme) => ({
               position: 'absolute',
               top: 0,
               left: 0,
