@@ -40,7 +40,7 @@ import ConstructionIcon from '@mui/icons-material/Construction';
 import { useNavigate } from 'react-router-dom';
 import { Add } from '@mui/icons-material';
 import type { Dayjs } from 'dayjs';
-import { fontWeight } from '@mui/system';
+import { getDateStr } from '../Vacations/VacationsHelpers';
 
 interface EventDetailsProps {
   event: Partial<CalendarEvent>;
@@ -65,9 +65,6 @@ const EventDetails: React.FC<EventDetailsProps> = ({
   const assignedConstructions = constructions.filter((c) =>
     event.constructionIds?.includes(c.id)
   );
-  const displayDate = event.startDate?.isSame(event.endDate)
-    ? event.startDate?.format('DD.MM.YYYY')
-    : `${event.startDate?.format('DD.MM.YYYY')} — ${event.endDate?.format('DD.MM.YYYY')}`;
 
   const { getEventColor, getEventTextColor } = useEventColor();
 
@@ -89,8 +86,6 @@ const EventDetails: React.FC<EventDetailsProps> = ({
               bgcolor: getEventColor(event.severity || 'info'),
               color: getEventTextColor(event.severity || 'info'),
               border: 'none',
-              // fontWeight: 500,
-              // fontSize: '0.7rem',
             }}
           />
           <Stack
@@ -101,7 +96,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({
           >
             <CalendarMonthIcon fontSize="small" />
             <Typography variant="body2" fontWeight={500}>
-              {displayDate}
+              {getDateStr(event.startDate, event.endDate, true)}
             </Typography>
           </Stack>
         </Stack>
@@ -151,7 +146,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({
                   ':hover': {
                     scale: '1.05',
                   },
-                  textDecoration: emp.status ? '' : 'line-through'
+                  textDecoration: emp.status ? '' : 'line-through',
                 }}
               />
             ))}
@@ -181,7 +176,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({
                   ':hover': {
                     transform: 'scale(1.05)',
                   },
-                  textDecoration: constr.status ? '' : 'line-through'
+                  textDecoration: constr.status ? '' : 'line-through',
                 }}
               />
             ))}

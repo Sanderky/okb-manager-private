@@ -378,7 +378,7 @@ export default function EmployeeShow() {
                                   variant="body2"
                                   color="textSecondary"
                                 >
-                                  {getDateStr(empV.startDate, empV.endDate)}
+                                  {getDateStr(empV.startDate, empV.endDate, true)}
                                 </Typography>
                               </td>
                             </TableRow>

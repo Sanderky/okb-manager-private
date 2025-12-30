@@ -174,11 +174,13 @@ export const getInitials = (name: string): string => {
 
 export const getDateStr = (
   start: Date | Dayjs | undefined,
-  end: Date | Dayjs | undefined
+  end: Date | Dayjs | undefined,
+  showCount = false
 ) => {
   if (!start || !end) return '-';
   const startDate = dayjs(start);
   const endDate = dayjs(end);
+  const count = endDate.diff(startDate, 'day') + 1;
   if (startDate.isSame(endDate)) return startDate.format('DD.MM.YYYY');
-  return `${startDate.format('DD.MM.YYYY')} - ${endDate.format('DD.MM.YYYY')}`;
+  return `${startDate.format('DD.MM.YYYY')} - ${endDate.format('DD.MM.YYYY')}${showCount ? ` (${count} dni)` : ''}`;
 };

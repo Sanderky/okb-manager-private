@@ -33,6 +33,7 @@ import {
   AVAILABLE_SEVERITIES,
   getSeverityLabel,
 } from '../pages/Dashboard/Calendar/CalendarHelpers';
+import { getDateStr } from '../pages/Dashboard/Vacations/VacationsHelpers';
 
 const EVENTS_FILTER_STORAGE_KEY = 'eventsBox_filters';
 
@@ -101,14 +102,6 @@ const useUpcomingEvents = ({
     scrollToTop && scrollToTopFn();
   };
 
-  const getDateStr = (start: Date, end: Date) => {
-    if (!start || !end) return '-';
-    const startDate = dayjs(start);
-    const endDate = dayjs(end);
-    if (startDate.isSame(endDate)) return startDate.format('DD.MM.YYYY');
-    return `${startDate.format('DD.MM.YYYY')} - ${endDate.format('DD.MM.YYYY')}`;
-  };
-
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
 
   const handleOpenPopover = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -169,7 +162,6 @@ const useUpcomingEvents = ({
   );
 
   return {
-    getDateStr,
     handleEventClick,
     getTitle,
     filteredEvents,
@@ -182,13 +174,8 @@ export const EventsBox = ({
   isLoading,
   type = 'all',
 }: EventsBoxProps) => {
-  const {
-    filteredEvents,
-    handleEventClick,
-    getDateStr,
-    getTitle,
-    renderFilters,
-  } = useUpcomingEvents({ type, events });
+  const { filteredEvents, handleEventClick, getTitle, renderFilters } =
+    useUpcomingEvents({ type, events });
   const [isExpanded, setIsExpanded] = useState(false);
 
   const MAX_VISIBLE_ITEMS = 2;
@@ -275,7 +262,7 @@ export const EventsBox = ({
                   >
                     <Typography variant="subtitle2">{event.title}</Typography>
                     <Typography variant="body2">
-                      {getDateStr(event.startDate, event.endDate)}
+                      {getDateStr(event.startDate, event.endDate, true)}
                     </Typography>
                   </ListItem>
                 ))
@@ -296,13 +283,8 @@ export const EventsBox = ({
 };
 
 export const EventsListTable = ({ type = 'all', events }: EventsBoxProps) => {
-  const {
-    filteredEvents,
-    handleEventClick,
-    getDateStr,
-    getTitle,
-    renderFilters,
-  } = useUpcomingEvents({ type, events });
+  const { filteredEvents, handleEventClick, getTitle, renderFilters } =
+    useUpcomingEvents({ type, events });
 
   const { getEventColor, getEventTextColor } = useEventColor();
 
@@ -381,7 +363,7 @@ export const EventsListTable = ({ type = 'all', events }: EventsBoxProps) => {
                       />
                     </Stack>
                     <Typography variant="caption" color="text.secondary">
-                      {getDateStr(event.startDate, event.endDate)}
+                      {getDateStr(event.startDate, event.endDate, true)}
                     </Typography>
                   </Stack>
                 </td>

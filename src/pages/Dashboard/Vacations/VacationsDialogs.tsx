@@ -456,16 +456,18 @@ const VacationDetails: React.FC<VacationDetailsProps> = ({
       >
         <CalendarMonth fontSize="small" />
         <Typography variant="body2" fontWeight={500}>
-          {getDateStr(event.startDate, event.endDate)}
+          {getDateStr(event.startDate, event.endDate, true)}
         </Typography>
       </Stack>
 
-      <Box>
-        <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-          Opis
-        </Typography>
-        <Typography>{event.description || 'Brak opisu'}</Typography>
-      </Box>
+      {event.description && (
+        <Box>
+          <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+            Opis
+          </Typography>
+          <Typography>{event.description || 'Brak opisu'}</Typography>
+        </Box>
+      )}
 
       <Box>
         <Typography variant="subtitle2" color="text.secondary" gutterBottom>
