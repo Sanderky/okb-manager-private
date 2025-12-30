@@ -278,6 +278,8 @@ const Login = () => {
                       '&:hover': {
                         boxShadow: 'none',
                         background: theme.palette.secondary.main,
+                        color: theme.palette.secondary.contrastText,
+                        borderColor: theme.palette.secondary.contrastText,
                       },
                     })}
                   >

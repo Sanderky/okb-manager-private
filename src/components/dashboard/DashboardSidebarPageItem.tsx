@@ -127,10 +127,21 @@ export default function DashboardSidebarPageItem({
             height: mini ? 70 : 'auto',
             py: 1,
             bgcolor: selected
-              ? `${theme.palette.secondary.light} !important`
+              ? `${theme.palette.mode === 'light' ? theme.palette.secondary.light : theme.palette.secondary.main} !important`
               : 'none',
+
             '&:hover': {
               background: selected ? 'none' : theme.palette.secondary.light,
+              color:
+                theme.palette.mode === 'light'
+                  ? ''
+                  : theme.palette.secondary.dark,
+              svg: {
+                color:
+                  theme.palette.mode === 'light'
+                    ? ''
+                    : theme.palette.secondary.dark,
+              },
             },
             color: selected
               ? theme.palette.secondary.dark
