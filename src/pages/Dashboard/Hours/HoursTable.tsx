@@ -167,7 +167,7 @@ const EditableCell = React.memo(
           fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
           '& .MuiInputBase-input': {
             height: '100% !important',
-            color: isActive ? 'black' : 'inherit',
+            color: theme.palette.text.primary,
             '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': {
               WebkitAppearance: 'none',
               margin: 0,
@@ -689,7 +689,6 @@ const HoursTable = ({
   const handleAddConstructionClick = useCallback(() => {
     setAddConstructionDialogOpen(true);
   }, []);
-  // ---------------------------------------------
 
   const printContentRef = useRef<HTMLDivElement>(null);
   const isTableLoading = isCoping || isFilling || isLoading;

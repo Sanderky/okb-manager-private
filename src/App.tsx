@@ -199,7 +199,7 @@ const customTheme = createTheme({
     background: {
       paper: '#fff',
       default: '#f5f5f4',
-      grid: 'linear-gradient(to right, #e4e4e7 1px, transparent 1px), linear-gradient(to bottom, #e4e4e7 1px, transparent 1px)',
+      grid: 'linear-gradient(to right, #e4e4e780 1px, transparent 1px), linear-gradient(to bottom, #e4e4e780 1px, transparent 1px)',
       gradient: 'linear-gradient(150deg, #fcfbf5 30%, #ffd85f80 100%)',
     },
     schedule: {

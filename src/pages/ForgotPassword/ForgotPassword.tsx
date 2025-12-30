@@ -90,7 +90,7 @@ const UpdatePassword = () => {
         })}
       />
 
-      <Box className="flex h-screen flex-col">
+      <Box sx={{ position: 'relative', zIndex: 1, height: '100%' }} className="flex h-screen flex-col">
         <Box
           className="flex flex-col items-center justify-center py-8"
           sx={{
