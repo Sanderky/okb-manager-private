@@ -23,9 +23,9 @@ import {
 import Logout from '@mui/icons-material/Logout';
 
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import { Settings } from '@mui/icons-material';
+import { Brightness4, Brightness7, Settings } from '@mui/icons-material';
 import UserSettingsDialog from './UserSettingsDialog';
-import { useLayout } from '../../context/LayoutContext';
+import { useColorMode } from '../../context/ThemeContext';
 
 const AppBar = styled(MuiAppBar)(({ theme }) => ({
   borderWidth: 0,
@@ -76,6 +76,8 @@ export default function DashboardHeader({
   const open = Boolean(anchorEl);
 
   const [openSettings, setOpenSettings] = React.useState(false);
+
+  const { toggleColorMode, mode } = useColorMode();
 
   const handleClickOpenSettings = () => {
     setOpenSettings(true);
@@ -262,6 +264,19 @@ export default function DashboardHeader({
                     display: { xs: 'block', sm: 'none' },
                   }}
                 />
+                <MenuItem
+                  onClick={toggleColorMode}
+                  sx={{ minHeight: 35, mb: 2 }}
+                >
+                  <ListItemIcon>
+                    {mode === 'dark' ? (
+                      <Brightness7 fontSize="small" />
+                    ) : (
+                      <Brightness4 fontSize="small" />
+                    )}
+                  </ListItemIcon>
+                  Motyw
+                </MenuItem>
                 <MenuItem
                   onClick={handleClickOpenSettings}
                   sx={{ minHeight: 35, borderColor: 'divider' }}
