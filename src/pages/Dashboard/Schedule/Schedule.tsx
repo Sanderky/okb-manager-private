@@ -57,6 +57,7 @@ import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
 import KeyboardReturnIcon from '@mui/icons-material/KeyboardReturn';
 import useContainerBreakpoint from '../../../hooks/useContainerWidth';
 import { formatWeeksString } from '../Hours/HoursHelpers';
+import { useNavigate } from 'react-router-dom';
 
 dayjs.extend(weekOfYear);
 dayjs.extend(isBetween);
@@ -561,6 +562,15 @@ const ScheduleComponent = () => {
     },
     [scheduleMap, checkIsVacation, constructions, showVacations, showDates]
   );
+  const navigate = useNavigate();
+
+  const handleOnEmployeeClick = useCallback(
+    (id: string) => {
+      navigate('/employees/' + id);
+    },
+    [navigate]
+  );
+
   const error =
     isErrorConstructions ||
     isErrorEmployees ||
@@ -907,6 +917,7 @@ const ScheduleComponent = () => {
                       loadingCells={loadingCells}
                       getCellKey={getCellKey}
                       index={index}
+                      onEmployeeClick={handleOnEmployeeClick}
                     />
                   ))}
                 </TableBody>
@@ -973,6 +984,7 @@ const ScheduleComponent = () => {
                 <TableBody>
                   {filteredEmployees.map((emp, index) => (
                     <EmployeeRow
+                      onEmployeeClick={handleOnEmployeeClick}
                       key={emp.id}
                       employee={emp}
                       weeks={weeks}

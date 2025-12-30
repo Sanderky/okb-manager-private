@@ -21,6 +21,7 @@ interface EmployeeRowProps {
   loadingCells: Set<string>;
   getCellKey: (cell: ICell) => string;
   index: number;
+  onEmployeeClick: (id: string) => void;
 }
 
 interface ScheduleCellProps {
@@ -77,6 +78,7 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = React.memo(
     loadingCells,
     getCellKey,
     index,
+    onEmployeeClick,
   }) => {
     // const theme = useTheme();
     // const isXs = useMediaQuery(theme.breakpoints.only('xs'));
@@ -144,11 +146,13 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = React.memo(
                 }}
               >
                 <Typography
+                  onClick={() => onEmployeeClick(employee.id)}
                   sx={{
                     fontSize: {
                       xs: '0.75rem',
                       md: '0.85rem',
                     },
+                    cursor: 'pointer',
                     fontWeight: 600,
                     flexGrow: 1,
                     textDecoration: employee.status ? 'none' : 'line-through',
@@ -237,7 +241,9 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = React.memo(
               }}
             >
               <Typography
+                onClick={() => onEmployeeClick(employee.id)}
                 sx={{
+                  cursor: 'pointer',
                   flexGrow: 1,
                   fontSize: {
                     xs: '0.75rem',
