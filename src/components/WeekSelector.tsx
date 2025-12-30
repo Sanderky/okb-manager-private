@@ -22,7 +22,7 @@ import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { plPL } from '@mui/x-date-pickers/locales';
 import 'dayjs/locale/pl';
-import { alpha, Stack } from '@mui/system';
+import { Stack } from '@mui/system';
 
 function getStartOfWeek(date: Date): Date {
   const d = new Date(date);
@@ -186,7 +186,6 @@ const WeekSelector: React.FC<WeekSelectorProps> = ({
             boxSizing: 'border-box',
           }}
         >
-          {/* ... (Nagłówek kalendarza bez zmian) ... */}
           <Stack direction={'row'} sx={{ alignItems: 'center' }}>
             <IconButton
               onClick={() =>
@@ -310,11 +309,11 @@ const WeekSelector: React.FC<WeekSelectorProps> = ({
                         const isToday =
                           day.toDateString() === new Date().toDateString();
 
-                        const getTextColor = () => {
-                          if (isSelected || isComparison)
-                            return 'primary.contrastText';
+                        const getTextColor = (theme: Theme) => {
+                          if (isSelected) return 'primary.contrastText';
 
-                          if (!isCurrentMonth) return 'rgba(0,0,0,0.4)';
+                          if (!isCurrentMonth)
+                            return theme.palette.text.disabled;
 
                           return isToday ? 'primary.main' : 'text.primary';
                         };
@@ -325,17 +324,15 @@ const WeekSelector: React.FC<WeekSelectorProps> = ({
                             return theme.palette.primary.main;
                           }
 
-                          if (isComparison) {
-                            if (isHovered) return theme.palette.primary.light;
-                            return alpha(theme.palette.primary.dark, 0.45);
-                          }
-
-                          if (isInRange) {
-                            if (isHovered) return theme.palette.grey[300];
+                          if (isInRange || isComparison) {
+                            if (isHovered)
+                              return theme.palette.mode === 'light'
+                                ? theme.palette.action.active
+                                : theme.palette.action.hover;
                             return theme.palette.action.selected;
                           }
 
-                          if (isHovered) return theme.palette.action.hover;
+                          if (isHovered) return theme.palette.tableHover;
 
                           return 'transparent';
                         };
@@ -345,7 +342,7 @@ const WeekSelector: React.FC<WeekSelectorProps> = ({
                             key={dayIndex}
                             sx={(theme) => ({
                               fontWeight: isToday ? 'bold' : 'normal',
-                              color: getTextColor(),
+                              color: getTextColor(theme),
                               py: 0.5,
                               border: 'none',
                               backgroundColor: `${getBgColor(theme)} !important`,
