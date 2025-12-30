@@ -128,6 +128,9 @@ const getDesignTokens = (mode: PaletteMode) => ({
           },
           tableHover: '#5fadff14',
           loadingOverlay: 'rgba(255, 255, 255, 0.5)',
+          action: {
+            hover: '#5fadff14',
+          },
 
           primary: {
             main: '#6366F1',
@@ -162,11 +165,11 @@ const getDesignTokens = (mode: PaletteMode) => ({
             past: '#fecaca',
             current: '#bbf7d0',
             accent: '#bfdbfe',
-            hoverRow: '#eff6ff',
-            hoverCell: '#dbeafe',
+            hoverRow: '#5fadff14',
+            hoverCell: '#5fadff30',
           },
           calendar: {
-            hoverDay: '#f0f0f0',
+            hoverDay: '#5fadff14',
             selectedDay: '#dbeafe',
             hoverSelectedDay: '#87CEFA',
             dayOut: '#fafafa',
@@ -221,6 +224,9 @@ const getDesignTokens = (mode: PaletteMode) => ({
             warning: 'rgba(237, 108, 2, 0.25)',
           },
           tableHover: 'rgba(255, 255, 255, 0.05)',
+          action: {
+            hover: 'rgba(255, 255, 255, 0.05)',
+          },
           loadingOverlay: 'rgba(0, 0, 0, 0.2)',
 
           primary: {
@@ -255,11 +261,11 @@ const getDesignTokens = (mode: PaletteMode) => ({
             past: 'rgba(69, 10, 10, 1)',
             current: 'rgba(5, 46, 22, 1)',
             accent: 'rgba(23, 37, 84, 1)',
-            hoverRow: 'rgba(255, 255, 255, 0.03)',
+            hoverRow: 'rgba(255, 255, 255, 0.05)',
             hoverCell: 'rgba(255, 255, 255, 0.08)',
           },
           calendar: {
-            hoverDay: '#27272a',
+            hoverDay: 'rgba(255, 255, 255, 0.05)',
             selectedDay: '#312e81',
             hoverSelectedDay: '#3730a3',
             dayOut: '#09090b',
