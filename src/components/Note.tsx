@@ -35,7 +35,6 @@ import {
 import { useState, useEffect } from 'react';
 
 const MenuBar = ({ editor }: { editor: Editor }) => {
-  // Read the current editor's state, and re-render the component when it changes
   const editorState = useEditorState({
     editor,
     selector: (ctx) => {
@@ -341,10 +340,11 @@ export const Note = ({ content, onSave, loading = false }: NoteProps) => {
   };
 
   return (
-    <Box className="rounded-lg border border-dashed"
-      sx={theme => ({
+    <Box
+      className="rounded-lg border border-dashed"
+      sx={(theme) => ({
         background: theme.palette.background.paper,
-        borderColor: theme.palette.divider
+        borderColor: theme.palette.divider,
       })}
     >
       <Stack
@@ -375,7 +375,10 @@ export const Note = ({ content, onSave, loading = false }: NoteProps) => {
                 onClick={handleSaveNote}
                 size="small"
                 color="success"
-                className="rounded-full border border-green-500 bg-green-50/50"
+                className="rounded-full border"
+                sx={(theme) => ({
+                  borderColor: theme.palette.success.main,
+                })}
                 disabled={loading || !editNote}
               >
                 <CheckIcon />
@@ -387,10 +390,13 @@ export const Note = ({ content, onSave, loading = false }: NoteProps) => {
               size="small"
               onClick={editNote ? handleCancelEdit : () => setEditNote(true)}
               color={!editNote ? 'primary' : 'inherit'}
-              className={`rounded-lg border ${editNote ? 'border-red-500 bg-red-50/50' : ''}`}
+              className={`rounded-lg border`}
+              sx={(theme) => ({
+                borderColor: editNote ? theme.palette.error.main : '',
+              })}
             >
               {editNote ? (
-                <CloseIcon className="text-red-400" />
+                <CloseIcon sx={{ color: 'error.main' }} />
               ) : (
                 <EditNoteIcon />
               )}
@@ -485,14 +491,13 @@ export const NoteBase = ({
   return loading ? (
     <Box
       className="note rounded-sm px-2 py-1"
-      sx={theme => ({
+      sx={(theme) => ({
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
         background: theme.palette.background.paper,
-        border: `1px solid ${theme.palette.divider}`
-
+        border: `1px solid ${theme.palette.divider}`,
       })}
     >
       <CircularProgress />
@@ -501,15 +506,12 @@ export const NoteBase = ({
     <>
       {renderToolbar && <MenuBar editor={editor} />}
       <Box
-        className='rounded-sm px-4 py-4 note'
-        sx={theme => (
-          {
-            border: `1px solid ${theme.palette.divider}`,
-            background: theme.palette.background.paper
-          }
-        )}
+        className="note rounded-sm px-4 py-4"
+        sx={(theme) => ({
+          border: `1px solid ${theme.palette.divider}`,
+          background: theme.palette.background.paper,
+        })}
       >
-
         <EditorContent editor={editor} />
       </Box>
     </>

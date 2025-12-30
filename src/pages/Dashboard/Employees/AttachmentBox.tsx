@@ -85,13 +85,15 @@ const generateDateBox = (
 
   if (activeAlert) {
     if (activeAlert.severity === 'error') {
-      textColor = theme.palette.error.dark;
+      textColor = theme.palette.error.main;
       borderColor = theme.palette.error.main;
-      bgColor = alpha(theme.palette.error.main, 0.1);
+      // bgColor = alpha(theme.palette.error.main, 0.1);
+      bgColor = '';
     } else if (activeAlert.severity === 'warning') {
-      textColor = theme.palette.warning.dark;
+      textColor = theme.palette.warning.main;
       borderColor = theme.palette.warning.main;
-      bgColor = alpha(theme.palette.warning.main, 0.1);
+      // bgColor = alpha(theme.palette.warning.main, 0.1);
+      bgColor = '';
     }
   } else if (isPermanent) {
     textColor = theme.palette.text.primary;

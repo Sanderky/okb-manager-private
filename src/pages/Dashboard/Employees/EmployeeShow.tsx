@@ -453,6 +453,7 @@ export default function EmployeeShow() {
     handleOpenPreview,
     alertsSettings,
     attachmentsHook,
+    upcomingEvents
   ]);
 
   const pageTitle = employee?.name || 'Szczegóły Pracownika';
