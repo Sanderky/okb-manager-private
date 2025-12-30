@@ -89,10 +89,12 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = React.memo(
           sx={(theme) => ({
             '&:hover': {
               '& .MuiTableCell-root:first-of-type': {
-                backgroundColor: `${employee.status && `${theme.palette.schedule.hoverRow} !important`}`,
+                background: employee.status
+                  ? `linear-gradient(${theme.palette.schedule.hoverRow}, ${theme.palette.schedule.hoverRow}), ${theme.palette.background.paper} !important`
+                  : undefined,
               },
               background: employee.status
-                ? theme.palette.schedule.hoverRow
+                ? `linear-gradient(${theme.palette.schedule.hoverRow}, ${theme.palette.schedule.hoverRow}), ${theme.palette.background.paper}`
                 : theme.palette.background.default,
             },
             background: employee.status
@@ -195,10 +197,12 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = React.memo(
         sx={(theme) => ({
           '&:hover': {
             '& .MuiTableCell-root:first-of-type': {
-              backgroundColor: `${employee.status && `${theme.palette.schedule.hoverRow} !important`}`,
+              background: employee.status
+                ? `linear-gradient(${theme.palette.schedule.hoverRow}, ${theme.palette.schedule.hoverRow}), ${theme.palette.background.paper} !important`
+                : undefined,
             },
             background: employee.status
-              ? theme.palette.schedule.hoverRow
+              ? `linear-gradient(${theme.palette.schedule.hoverRow}, ${theme.palette.schedule.hoverRow}), ${theme.palette.background.paper}`
               : theme.palette.background.default,
           },
           background: employee.status

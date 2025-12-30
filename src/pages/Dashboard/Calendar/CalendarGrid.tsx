@@ -124,8 +124,8 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                         : theme.palette.calendar.dayOut,
                     ':hover': {
                       background: selectDay
-                        ? theme.palette.calendar.hoverSelectedDay
-                        : theme.palette.calendar.hoverDay,
+                        ? `linear-gradient(${theme.palette.calendar.hoverSelectedDay}, ${theme.palette.calendar.hoverSelectedDay}), ${theme.palette.background.paper}`
+                        : `linear-gradient(${theme.palette.calendar.hoverDay}, ${theme.palette.calendar.hoverDay}), ${theme.palette.background.paper}`,
                     },
                     position: 'relative',
                     cursor: 'pointer',
