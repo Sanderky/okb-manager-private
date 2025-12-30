@@ -40,6 +40,7 @@ import ConstructionIcon from '@mui/icons-material/Construction';
 import { useNavigate } from 'react-router-dom';
 import { Add } from '@mui/icons-material';
 import type { Dayjs } from 'dayjs';
+import { fontWeight } from '@mui/system';
 
 interface EventDetailsProps {
   event: Partial<CalendarEvent>;
@@ -67,6 +68,9 @@ const EventDetails: React.FC<EventDetailsProps> = ({
   const displayDate = event.startDate?.isSame(event.endDate)
     ? event.startDate?.format('DD.MM.YYYY')
     : `${event.startDate?.format('DD.MM.YYYY')} — ${event.endDate?.format('DD.MM.YYYY')}`;
+
+  const { getEventColor, getEventTextColor } = useEventColor();
+
   return (
     <Stack spacing={2.5} sx={{ mt: 1 }}>
       <Stack spacing={1}>
@@ -80,6 +84,14 @@ const EventDetails: React.FC<EventDetailsProps> = ({
             label={getSeverityLabel(event.severity || 'info')}
             size="small"
             variant="outlined"
+            sx={{
+              minWidth: '50px',
+              bgcolor: getEventColor(event.severity || 'info'),
+              color: getEventTextColor(event.severity || 'info'),
+              border: 'none',
+              // fontWeight: 500,
+              // fontSize: '0.7rem',
+            }}
           />
           <Stack
             direction="row"
@@ -95,12 +107,12 @@ const EventDetails: React.FC<EventDetailsProps> = ({
         </Stack>
         <Divider />
         <Box>
-          <Typography variant="h6" fontWeight="bold" gutterBottom>
+          <Typography variant="subtitle1" fontWeight={500} gutterBottom>
             {event.title || 'Bez tytułu'}
           </Typography>
           {event.description ? (
             <Typography
-              variant="body1"
+              variant="overline"
               sx={{ whiteSpace: 'pre-wrap', color: 'text.primary' }}
             >
               {event.description}
@@ -403,18 +415,33 @@ export const AddEventDialog: React.FC<AddEventDialogProps> = ({
     setInternalEvent((prev) => ({ ...prev, ...updates }));
   };
 
-  const { getEventColor } = useEventColor();
+  const { getEventColor, getEventTextColor } = useEventColor();
 
   return (
     <BaseDialog
       open={open}
       onClose={props.handleModalClose}
       onConfirm={() => props.handleAddEvent(internalEvent)}
-      title="Nowe wydarzenie"
+      // title="Nowe wydarzenie"
       confirmText="Dodaj"
       titleSx={{
         background: getEventColor(internalEvent.severity ?? 'info'),
+        '& .MuiButtonBase-root': {
+          color: getEventTextColor(internalEvent.severity ?? 'info'),
+        },
       }}
+      title={
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <Typography
+            variant="h6"
+            sx={{
+              color: getEventTextColor(internalEvent.severity ?? 'info'),
+            }}
+          >
+            Nowe wydarzenie
+          </Typography>
+        </Stack>
+      }
       loading={props.loading}
       showCancel={false}
     >
@@ -482,7 +509,7 @@ export const EditEventDialog: React.FC<EditEventDialogProps> = ({
     props.handleEditEvent(internalEvent);
   };
 
-  const { getEventColor } = useEventColor();
+  const { getEventColor, getEventTextColor } = useEventColor();
 
   return (
     <BaseDialog
@@ -490,10 +517,18 @@ export const EditEventDialog: React.FC<EditEventDialogProps> = ({
       onClose={props.handleModalClose}
       titleSx={{
         background: getEventColor(internalEvent.severity ?? 'info'),
+        '& .MuiButtonBase-root': {
+          color: getEventTextColor(internalEvent.severity ?? 'info'),
+        },
       }}
       title={
         <Stack direction="row" alignItems="center" spacing={1}>
-          <Typography variant="h6">
+          <Typography
+            variant="h6"
+            sx={{
+              color: getEventTextColor(internalEvent.severity ?? 'info'),
+            }}
+          >
             {isEditing ? 'Edycja wydarzenia' : 'Szczegóły wydarzenia'}
           </Typography>
         </Stack>
