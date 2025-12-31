@@ -72,6 +72,7 @@ const useContractors = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['contractors'] });
       queryClient.invalidateQueries({ queryKey: ['constructions'] });
+      queryClient.invalidateQueries({ queryKey: ['construction'] });
       notifications.show('Zapisano zmiany', { severity: 'success' });
     },
     onError: (error) => {
