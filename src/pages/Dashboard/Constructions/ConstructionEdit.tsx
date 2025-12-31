@@ -149,7 +149,9 @@ export default function ConstructionEdit() {
         ...formState.values,
         name: formState.values.name?.trim(),
         location: formState.values.location?.trim(),
-        contractorId: formState.values.contractorId?.trim(),
+        contractorId: formState.values.contractorId 
+          ? formState.values.contractorId
+          : null,
         status: !shouldBeInactive(formState.values.endDate),
       };
 

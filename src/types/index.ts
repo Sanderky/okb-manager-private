@@ -25,7 +25,7 @@ export interface Construction {
   status: boolean;
   location: string | null;
 
-  contractorId: string | null;
+  contractorId?: string | null;
   contractorName?: string | null;
 
   startDate: Date;
