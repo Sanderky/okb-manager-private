@@ -60,7 +60,6 @@ const useContractors = () => {
     },
   });
 
-
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<Contractor> }) =>
       updateContractor(id, data),
@@ -76,13 +75,18 @@ const useContractors = () => {
       notifications.show('Zapisano zmiany', { severity: 'success' });
     },
     onError: (error) => {
-      notifications.show('Błąd zapisu: ' + error.message, { severity: 'error' });
-    }
+      notifications.show('Błąd zapisu: ' + error.message, {
+        severity: 'error',
+      });
+    },
   });
 
   const handleSaveNote = useCallback(
     async (contractorId: string, newNote: string) => {
-      await updateMutation.mutateAsync({ id: contractorId, data: { note: newNote } });
+      await updateMutation.mutateAsync({
+        id: contractorId,
+        data: { note: newNote },
+      });
     },
     [updateMutation]
   );
@@ -93,11 +97,10 @@ const useContractors = () => {
       queryClient.invalidateQueries({ queryKey: ['contractors'] });
       queryClient.invalidateQueries({ queryKey: ['constructions'] });
       notifications.show('Wykonawca został usunięty', { severity: 'success' });
-
     },
     onError: () => {
       notifications.show('Błąd podczas usuwania', { severity: 'error' });
-    }
+    },
   });
 
   const handleEdit = useCallback(
@@ -143,10 +146,10 @@ const useContractors = () => {
         }
       );
       if (confirmation) {
-        await deleteMutation.mutateAsync(contractor.id)
-        return true
-      };
-      return false
+        await deleteMutation.mutateAsync(contractor.id);
+        return true;
+      }
+      return false;
     },
     [dialogs, deleteMutation]
   );
@@ -190,19 +193,26 @@ const useContractors = () => {
     handleAdd,
     handleDelete,
     handleEdit,
-    handleSaveNote
+    handleSaveNote,
   };
 };
 
 interface ContractorsListProps {
-  setOpenNote: (contractorId: string) => void,
-  isLoading: boolean,
-  isFetching: boolean,
-  contractors: Contractor[] | undefined,
-  isFetchingError: boolean,
-  handleAdd: (newName: string) => void
+  setOpenNote: (contractorId: string) => void;
+  isLoading: boolean;
+  isFetching: boolean;
+  contractors: Contractor[] | undefined;
+  isFetchingError: boolean;
+  handleAdd: (newName: string) => void;
 }
-const ContractorsList = ({ setOpenNote, handleAdd, isFetching, isFetchingError, isLoading, contractors }: ContractorsListProps) => {
+const ContractorsList = ({
+  setOpenNote,
+  handleAdd,
+  isFetching,
+  isFetchingError,
+  isLoading,
+  contractors,
+}: ContractorsListProps) => {
   const [newName, setNewName] = useState('');
 
   const onAdd = () => {
@@ -220,24 +230,33 @@ const ContractorsList = ({ setOpenNote, handleAdd, isFetching, isFetchingError, 
     return <Alert severity="error">Nie udało się pobrać danych.</Alert>;
 
   return (
-    <Box>
+    <Box
+      sx={{
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+      }}
+    >
       <TableContainer
         component={Paper}
         variant="outlined"
-        sx={{
-          maxHeight: '55vh',
-          overflow: 'auto',
+        sx={(theme) => ({
+          flex: 1,
+          overflowY: 'auto',
           borderRadius: 0,
-        }}
+          border: 'none',
+          borderBottom: `1px solid ${theme.palette.divider}`,
+        })}
       >
         <Table
           size="small"
           stickyHeader
           sx={{
             '& .MuiTableBody-root .MuiTableRow-root:last-child .MuiTableCell-root':
-            {
-              borderBottom: 'none !important',
-            },
+              {
+                borderBottom: 'none !important',
+              },
           }}
         >
           <TableHead>
@@ -251,10 +270,10 @@ const ContractorsList = ({ setOpenNote, handleAdd, isFetching, isFetchingError, 
             </TableRow>
           </TableHead>
           <TableBody>
-            {!contractors || contractors.length == 0 ? (
+            {!contractors || contractors.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={3}
+                  colSpan={4}
                   sx={{
                     textAlign: 'center',
                     py: 3,
@@ -266,19 +285,20 @@ const ContractorsList = ({ setOpenNote, handleAdd, isFetching, isFetchingError, 
             ) : (
               contractors?.map((contractor, index) => (
                 <TableRow hover key={contractor.id}>
-                  <TableCell
-                    sx={{
-                      textAlign: 'center',
-                    }}
-                  >
+                  <TableCell sx={{ textAlign: 'center' }}>
                     {index + 1}
                   </TableCell>
                   <TableCell sx={{ minWidth: 160, width: 'min-content' }}>
                     {contractor.name}
                   </TableCell>
-                  <TableCell align='center'>{contractor.constructionsCount ?? '-'}</TableCell>
+                  <TableCell align="center">
+                    {contractor.constructionsCount ?? '-'}
+                  </TableCell>
                   <TableCell sx={{ minWidth: 160 }} className="border-b">
-                    <IconButton onClick={() => setOpenNote(contractor.id)} disabled={isLoading}>
+                    <IconButton
+                      onClick={() => setOpenNote(contractor.id)}
+                      disabled={isLoading}
+                    >
                       <EditDocument />
                     </IconButton>
                   </TableCell>
@@ -288,13 +308,15 @@ const ContractorsList = ({ setOpenNote, handleAdd, isFetching, isFetchingError, 
           </TableBody>
         </Table>
       </TableContainer>
+
       <Stack
         direction={'row'}
-        spacing={3}
+        spacing={2}
         sx={{
-          px: 2,
-          pb: 1,
-          pt: 2,
+          p: 2,
+          bgcolor: 'background.paper',
+          zIndex: 2,
+          flexShrink: 0,
         }}
       >
         <TextField
@@ -312,6 +334,7 @@ const ContractorsList = ({ setOpenNote, handleAdd, isFetching, isFetchingError, 
           variant="contained"
           onClick={onAdd}
           disabled={!newName.trim()}
+          sx={{ whiteSpace: 'nowrap' }}
           loading={isLoading}
         >
           Dodaj
@@ -321,7 +344,6 @@ const ContractorsList = ({ setOpenNote, handleAdd, isFetching, isFetchingError, 
   );
 };
 
-
 const ITEMS_PER_PAGE = 10;
 
 interface ContractorDetailsProps {
@@ -330,7 +352,7 @@ interface ContractorDetailsProps {
   onEdit: (newName: string, contractor: Contractor) => void;
   onDelete: (contractor: Contractor) => void;
   isLoading: boolean;
-  constructions: Construction[] | undefined
+  constructions: Construction[] | undefined;
 }
 
 const ContractorDetails = ({
@@ -339,7 +361,7 @@ const ContractorDetails = ({
   onDelete,
   isLoading,
   onSaveNote,
-  constructions: allConstructions
+  constructions: allConstructions,
 }: ContractorDetailsProps) => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [localName, setLocalName] = useState(contractor.name);
@@ -351,12 +373,14 @@ const ContractorDetails = ({
 
   const handleCancel = () => {
     setIsEditMode(false);
-    setLocalName(contractor.name)
+    setLocalName(contractor.name);
   };
 
   const constructions = useMemo(() => {
-    return allConstructions?.filter(c => c.contractorId === contractor.id) || []
-  }, [allConstructions, contractor])
+    return (
+      allConstructions?.filter((c) => c.contractorId === contractor.id) || []
+    );
+  }, [allConstructions, contractor]);
 
   useEffect(() => {
     setPage(1);
@@ -386,32 +410,56 @@ const ContractorDetails = ({
 
       <Stack direction={'row'} spacing={1} justifyContent={'space-between'}>
         <Stack direction={'row'} spacing={1}>
-
           {isEditMode ? (
             [
-              <Button key='save' onClick={handleSave} variant="contained" size="small" disabled={isLoading}>
+              <Button
+                key="save"
+                onClick={handleSave}
+                variant="contained"
+                size="small"
+                disabled={isLoading}
+              >
                 Zapisz
               </Button>,
-              <Button key='cancel' onClick={handleCancel} color='inherit' variant="outlined" size="small" disabled={isLoading}>
+              <Button
+                key="cancel"
+                onClick={handleCancel}
+                color="inherit"
+                variant="outlined"
+                size="small"
+                disabled={isLoading}
+              >
                 Anuluj
-              </Button>
-
+              </Button>,
             ]
           ) : (
-            <Button key='edit' color="primary" variant="outlined" size="small" onClick={() => setIsEditMode(true)}>
+            <Button
+              key="edit"
+              color="primary"
+              variant="outlined"
+              size="small"
+              onClick={() => setIsEditMode(true)}
+            >
               Edytuj nazwę
             </Button>
           )}
         </Stack>
 
-        <Button key='delete' color="error" variant="outlined" size="small" onClick={() => onDelete(contractor)} disabled={isLoading}>
+        <Button
+          key="delete"
+          color="error"
+          variant="outlined"
+          size="small"
+          onClick={() => onDelete(contractor)}
+          disabled={isLoading}
+        >
           Usuń wykonawcę
         </Button>
       </Stack>
 
       <Box pt={2} pb={2}>
-        <Typography fontWeight={'600'} fontSize={'1.2rem'}>Lista budów:</Typography>
-        {(!constructions || constructions?.length === 0) ? (
+        <Typography fontWeight={'600'}>Lista budów:</Typography>
+        {!constructions || constructions?.length === 0 ? (
           <Typography>Brak budów</Typography>
         ) : (
           <>
@@ -420,16 +468,23 @@ const ContractorDetails = ({
                 const realIndex = (page - 1) * ITEMS_PER_PAGE + index + 1;
 
                 return (
-                  <ListItem key={c.id} divider={index !== paginatedConstructions.length - 1}>
+                  <ListItem
+                    key={c.id}
+                    divider={index !== paginatedConstructions.length - 1}
+                  >
                     <Link
                       to={`/constructions/${c.id}`}
-                      style={{ textDecoration: 'none', color: 'inherit', width: '100%' }}
+                      style={{
+                        textDecoration: 'none',
+                        color: 'inherit',
+                        width: '100%',
+                      }}
                     >
                       <Typography
                         sx={{
                           textDecoration: c.status ? 'none' : 'line-through',
                           color: c.status ? 'text.primary' : 'text.disabled',
-                          '&:hover': { color: 'primary.main' }
+                          '&:hover': { color: 'primary.main' },
                         }}
                       >
                         {`${realIndex}. ${c.name}`}
@@ -461,40 +516,35 @@ const ContractorDetails = ({
         content={contractor.note ?? ''}
         onSave={(note) => onSaveNote(contractor.id, note)}
       />
-
     </Stack>
   );
 };
 
-
-
-
-
-
 interface ContractorsDialogProps {
   open: boolean;
   onClose: () => void;
-  constructions: Construction[] | undefined
+  constructions: Construction[] | undefined;
 }
 export const ContractorsDialog = ({
   open,
   onClose,
-  constructions
+  constructions,
 }: ContractorsDialogProps) => {
-  const [activeNoteContractor, setActiveNoteContractor] = useState<string | null>(null);
+  const [activeNoteContractor, setActiveNoteContractor] = useState<
+    string | null
+  >(null);
 
-  const hook =
-    useContractors();
+  const hook = useContractors();
   const activeContractor = useMemo(() => {
-    return hook.contractors?.find(c => c.id === activeNoteContractor)
-  }, [activeNoteContractor, hook.contractors])
+    return hook.contractors?.find((c) => c.id === activeNoteContractor);
+  }, [activeNoteContractor, hook.contractors]);
 
   const handleDelete = async (contractor: Contractor) => {
-    const result = await hook.handleDelete(contractor)
+    const result = await hook.handleDelete(contractor);
     if (result) {
-      setActiveNoteContractor(null)
+      setActiveNoteContractor(null);
     }
-  }
+  };
 
   return (
     <BaseDialog
@@ -506,17 +556,22 @@ export const ContractorsDialog = ({
       contentSx={{
         p: 0,
         position: 'relative',
-        overflowY: activeContractor ? 'hidden' : 'auto'
+        overflow: 'hidden',
+        height: '70vh',
+        display: 'flex',
+        flexDirection: 'column',
       }}
     >
       {activeContractor && (
         <Box
           sx={(theme) => ({
             position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0, // Przyklejamy do dołu
             zIndex: 10,
             backgroundColor: theme.palette.background.paper,
-            height: '100%',
-            width: '100%',
             display: 'flex',
             flexDirection: 'column',
           })}
@@ -535,21 +590,16 @@ export const ContractorsDialog = ({
             <IconButton onClick={() => setActiveNoteContractor(null)}>
               <ArrowBack />
             </IconButton>
-            <Typography>
-              Szczegóły:
-            </Typography>
-            <Typography fontWeight="bold">
-              {activeContractor.name}
-            </Typography>
+            <Typography>Szczegóły:</Typography>
+            <Typography fontWeight="bold">{activeContractor.name}</Typography>
           </Stack>
-
 
           <Box
             sx={{
-              flexGrow: 1,
+              flex: 1,
               overflowY: 'auto',
-              p: 2,
               minHeight: 0,
+              p: 2,
             }}
           >
             <ContractorDetails
@@ -563,10 +613,8 @@ export const ContractorsDialog = ({
           </Box>
         </Box>
       )}
-      <ContractorsList
-        setOpenNote={setActiveNoteContractor}
-        {...hook}
-      />
+
+      <ContractorsList setOpenNote={setActiveNoteContractor} {...hook} />
     </BaseDialog>
   );
 };
