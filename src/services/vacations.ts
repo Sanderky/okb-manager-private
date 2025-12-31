@@ -76,7 +76,8 @@ export async function updateVacation(id: string, data: Partial<Vacation>) {
   if (data.startDate) updatePayload.start_date = toSqlDate(data.startDate);
   if (data.endDate) updatePayload.end_date = toSqlDate(data.endDate);
   if (data.color) updatePayload.color = data.color;
-  if (data.description) updatePayload.description = data.description;
+  if (data.description !== undefined)
+    updatePayload.description = data.description;
 
   const { data: updatedRecord, error } = await supabase
     .from('vacations')
