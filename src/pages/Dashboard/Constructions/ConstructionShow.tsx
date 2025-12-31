@@ -305,6 +305,7 @@ export default function ConstructionShow() {
                                         <Typography
                                           fontWeight={'bold'}
                                           color="textSecondary"
+                                          component={'span'}
                                         >
                                           -
                                         </Typography>
@@ -335,6 +336,7 @@ export default function ConstructionShow() {
                                       <Typography
                                         fontWeight={'bold'}
                                         color="textSecondary"
+                                        component={'span'}
                                       >
                                         -
                                       </Typography>

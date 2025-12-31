@@ -337,7 +337,7 @@ const VacationForm: React.FC<VacationFormProps> = ({
               borderRadius: 1,
               border:
                 currentEvent.color === generatedColor || !currentEvent.color
-                  ? '2px solid #000'
+                  ? `2px solid ${theme.palette.text.primary}`
                   : !currentEvent.employeeId
                     ? `1px solid ${theme.palette.divider}`
                     : '',
@@ -347,14 +347,17 @@ const VacationForm: React.FC<VacationFormProps> = ({
           {employeeColors.map((color) => (
             <Box
               key={color}
-              sx={{
+              sx={(theme) => ({
                 width: 25,
                 height: 25,
                 backgroundColor: color,
                 cursor: 'pointer',
                 borderRadius: 1,
-                border: currentEvent.color === color ? '2px solid #000' : '',
-              }}
+                border:
+                  currentEvent.color === color
+                    ? `2px solid ${theme.palette.text.primary}`
+                    : '',
+              })}
               onClick={() => setEvent({ color: color })}
             />
           ))}

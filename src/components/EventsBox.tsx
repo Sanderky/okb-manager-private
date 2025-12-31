@@ -28,10 +28,10 @@ import { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Loading from './Loading';
 import { useEventColor } from '../pages/Dashboard/Calendar/useEventColor';
-import type { InfoEvent, InfoEventSeverity } from '../types';
+import type { EventCategory, InfoEvent } from '../types';
 import {
-  AVAILABLE_SEVERITIES,
-  getSeverityLabel,
+  AVAILABLE_CATEGORIES,
+  getCategoryLabel,
 } from '../pages/Dashboard/Calendar/CalendarHelpers';
 import { getDateStr } from '../pages/Dashboard/Vacations/VacationsHelpers';
 
@@ -43,49 +43,49 @@ interface EventsBoxProps {
   isLoading?: boolean;
 }
 
-const useUpcomingEvents = ({
+export const useUpcomingEvents = ({
   type = 'all',
   events: upcomingEvents,
 }: EventsBoxProps) => {
   const navigate = useNavigate();
   const { scrollToTop: scrollToTopFn } = useScroll();
 
-  const [selectedSeverities, setSelectedSeverities] = useState<
-    InfoEventSeverity[]
-  >(() => {
-    try {
-      const saved = localStorage.getItem(EVENTS_FILTER_STORAGE_KEY);
-      if (saved) {
-        return JSON.parse(saved);
+  const [selectedCategories, setSelectedCategories] = useState<EventCategory[]>(
+    () => {
+      try {
+        const saved = localStorage.getItem(EVENTS_FILTER_STORAGE_KEY);
+        if (saved) {
+          return JSON.parse(saved);
+        }
+      } catch (error) {
+        console.error('Błąd odczytu filtrów z localStorage', error);
       }
-    } catch (error) {
-      console.error('Błąd odczytu filtrów z localStorage', error);
+      return AVAILABLE_CATEGORIES;
     }
-    return AVAILABLE_SEVERITIES;
-  });
+  );
 
   useEffect(() => {
     localStorage.setItem(
       EVENTS_FILTER_STORAGE_KEY,
-      JSON.stringify(selectedSeverities)
+      JSON.stringify(selectedCategories)
     );
-  }, [selectedSeverities]);
+  }, [selectedCategories]);
 
-  const handleFilterChange = (severity: InfoEventSeverity) => {
-    setSelectedSeverities((prev) => {
-      if (prev.includes(severity)) {
-        return prev.filter((s) => s !== severity);
+  const handleFilterChange = (category: EventCategory) => {
+    setSelectedCategories((prev) => {
+      if (prev.includes(category)) {
+        return prev.filter((c) => c !== category);
       } else {
-        return [...prev, severity];
+        return [...prev, category];
       }
     });
   };
 
   const filteredEvents = useMemo(() => {
     return upcomingEvents.filter((event) =>
-      selectedSeverities.includes(event.severity)
+      selectedCategories.includes(event.category)
     );
-  }, [upcomingEvents, selectedSeverities]);
+  }, [upcomingEvents, selectedCategories]);
 
   const getTitle = () => {
     if (type === 'construction') return 'Wydarzenia na budowie';
@@ -94,12 +94,12 @@ const useUpcomingEvents = ({
   };
 
   const filtersActive =
-    selectedSeverities.length !== AVAILABLE_SEVERITIES.length;
+    selectedCategories.length !== AVAILABLE_CATEGORIES.length;
 
   const handleEventClick = (event: InfoEvent, scrollToTop = false) => {
     const startMonth = dayjs(event.startDate).format('YYYY-MM');
     navigate(`/calendar?month=${startMonth}&eventId=${event.id}`);
-    scrollToTop && scrollToTopFn();
+    if (scrollToTop) scrollToTopFn();
   };
 
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
@@ -141,18 +141,18 @@ const useUpcomingEvents = ({
             p: 1,
           }}
         >
-          {AVAILABLE_SEVERITIES.map((sev) => (
+          {AVAILABLE_CATEGORIES.map((cat) => (
             <FormControlLabel
-              key={sev}
+              key={cat}
               control={
                 <Checkbox
-                  checked={selectedSeverities.includes(sev)}
-                  onChange={() => handleFilterChange(sev)}
+                  checked={selectedCategories.includes(cat)}
+                  onChange={() => handleFilterChange(cat)}
                   size="small"
                 />
               }
               label={
-                <Typography variant="body2">{getSeverityLabel(sev)}</Typography>
+                <Typography variant="body2">{getCategoryLabel(cat)}</Typography>
               }
             />
           ))}
@@ -252,15 +252,32 @@ export const EventsBox = ({
                       cursor: 'pointer',
                       alignItems: 'flex-start',
                       mb: 1,
-                      background: getEventColor(event.severity),
-                      color: getEventTextColor(event.severity),
+                      background: getEventColor(event.color),
+                      color: getEventTextColor(event.color),
                       ':hover': {
-                        background: darken(getEventColor(event.severity), 0.2),
+                        background: darken(getEventColor(event.color), 0.2),
                       },
                     }}
                     className={`rounded-md last:mb-0`}
                   >
-                    <Typography variant="subtitle2">{event.title}</Typography>
+                    <Stack
+                      direction={'row'}
+                      justifyContent={'space-between'}
+                      width={'100%'}
+                      alignItems={'center'}
+                    >
+                      <Typography variant="subtitle2">{event.title}</Typography>
+                      <Chip
+                        label={getCategoryLabel(event.category)}
+                        variant="outlined"
+                        sx={{
+                          color: getEventTextColor(event.color),
+                          borderColor: getEventTextColor(event.color),
+                          minWidth: '50px',
+                        }}
+                        size="small"
+                      />
+                    </Stack>
                     <Typography variant="body2">
                       {getDateStr(event.startDate, event.endDate, true)}
                     </Typography>
@@ -353,10 +370,10 @@ export const EventsListTable = ({ type = 'all', events }: EventsBoxProps) => {
                         {event.title}
                       </Typography>
                       <Chip
-                        label={getSeverityLabel(event.severity)}
+                        label={getCategoryLabel(event.category)}
                         sx={{
-                          color: getEventTextColor(event.severity),
-                          background: getEventColor(event.severity),
+                          color: getEventTextColor(event.color),
+                          background: getEventColor(event.color),
                           minWidth: '50px',
                         }}
                         size="small"

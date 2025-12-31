@@ -23,18 +23,16 @@ import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import type { Dayjs } from 'dayjs';
 import { plPL } from '@mui/x-date-pickers/locales';
-import { AVAILABLE_SEVERITIES, getSeverityLabel } from './CalendarHelpers';
-import type { InfoEventSeverity } from '../../../types';
+import { AVAILABLE_CATEGORIES, getCategoryLabel } from './CalendarHelpers';
+import type { EventCategory } from '../../../types';
 
 interface CalendarControlsProps {
   currentMonth: Dayjs;
   handleMonthChange: (action: 'prev' | 'next' | 'today') => void;
   handleDatePickerChange: (value: Dayjs | null) => void;
   containerWidth: number;
-  selectedSeverities: InfoEventSeverity[];
-  setSelectedSeverities: React.Dispatch<
-    React.SetStateAction<InfoEventSeverity[]>
-  >;
+  selectedCategories: EventCategory[];
+  setSelectedCategories: React.Dispatch<React.SetStateAction<EventCategory[]>>;
 }
 
 export const CalendarControls: React.FC<CalendarControlsProps> = ({
@@ -42,8 +40,8 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
   handleMonthChange,
   handleDatePickerChange,
   containerWidth,
-  selectedSeverities,
-  setSelectedSeverities,
+  selectedCategories,
+  setSelectedCategories,
 }) => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const openMobileMenu = Boolean(anchorEl);
@@ -68,17 +66,17 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
   const popoverOpen = Boolean(anchorElFilters);
   const popoverId = popoverOpen ? 'simple-popover' : undefined;
 
-  const handleFilterChange = (severity: InfoEventSeverity) => {
-    setSelectedSeverities((prev) => {
-      if (prev.includes(severity)) {
-        return prev.filter((s) => s !== severity);
+  const handleFilterChange = (category: EventCategory) => {
+    setSelectedCategories((prev) => {
+      if (prev.includes(category)) {
+        return prev.filter((s) => s !== category);
       } else {
-        return [...prev, severity];
+        return [...prev, category];
       }
     });
   };
 
-  const isFiltered = selectedSeverities.length < AVAILABLE_SEVERITIES.length;
+  const isFiltered = selectedCategories.length < AVAILABLE_CATEGORIES.length;
 
   const filtersContent = (
     <Popover
@@ -99,18 +97,18 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
         >
           Pokaż typy wydarzeń:
         </Typography>
-        {AVAILABLE_SEVERITIES.map((sev) => (
+        {AVAILABLE_CATEGORIES.map((sev) => (
           <FormControlLabel
             key={sev}
             control={
               <Checkbox
-                checked={selectedSeverities.includes(sev)}
+                checked={selectedCategories.includes(sev)}
                 onChange={() => handleFilterChange(sev)}
                 size="small"
               />
             }
             label={
-              <Typography variant="body2">{getSeverityLabel(sev)}</Typography>
+              <Typography variant="body2">{getCategoryLabel(sev)}</Typography>
             }
           />
         ))}
@@ -138,7 +136,7 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
           className="rounded-full border px-3 py-1 font-semibold"
           sx={{
             fontSize: '0.8rem',
-            borderColor: 'text.primary'
+            borderColor: 'text.primary',
           }}
         >
           {currentMonth.format('MMMM YYYY')}
@@ -425,7 +423,7 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
           textTransform={'capitalize'}
           className="rounded-full border px-3 py-1 font-semibold"
           sx={{
-            borderColor: 'text.primary'
+            borderColor: 'text.primary',
           }}
         >
           {currentMonth.format('MMMM YYYY')}

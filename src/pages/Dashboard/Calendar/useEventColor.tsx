@@ -1,25 +1,25 @@
 import { useTheme } from '@mui/material';
 import { useCallback } from 'react';
-import type { InfoEventSeverity } from '../../../types';
+import type { EventColor } from '../../../types';
 
 export const useEventColor = () => {
   const theme = useTheme();
 
   const getEventColor = useCallback(
-    (severity: InfoEventSeverity) => {
-      switch (severity) {
-        case 'error':
-          return theme.palette.error.main;
-        case 'warning':
-          return theme.palette.warning.main;
-        case 'success':
-          return theme.palette.success.main;
-        case 'info':
-          return theme.palette.info.main;
-        case 'hotel':
+    (color: EventColor): string => {
+      switch (color) {
+        case 'primary':
+          return theme.palette.primary.main;
+        case 'secondary':
           return theme.palette.secondary.main;
-        case 'employee':
-          return theme.palette.background.default;
+        case 'red':
+          return theme.palette.error.main;
+        case 'orange':
+          return theme.palette.warning.main;
+        case 'green':
+          return theme.palette.success.main;
+        case 'blue':
+          return theme.palette.info.main;
         default:
           return theme.palette.primary.main;
       }
@@ -28,36 +28,13 @@ export const useEventColor = () => {
   );
 
   const getEventTextColor = useCallback(
-    (severity: InfoEventSeverity) => {
-      switch (severity) {
-        case 'error':
-          return theme.palette.error.contrastText;
-        case 'warning':
-          return theme.palette.warning.contrastText;
-        case 'success':
-          return theme.palette.success.contrastText;
-        case 'info':
-          return theme.palette.info.contrastText;
-        case 'hotel':
-          return theme.palette.secondary.contrastText;
-        case 'employee':
-          return theme.palette.text.primary;
-        case 'other':
-          return theme.palette.primary.contrastText;
-        default:
-          return theme.palette.text.primary;
-      }
+    (color: EventColor): string => {
+      const bgColor = getEventColor(color);
+
+      return theme.palette.getContrastText(bgColor);
     },
-    [theme]
+    [theme, getEventColor]
   );
-  // const getEventTextColor = useCallback(
-  //   (severity: InfoEventSeverity) => {
-  //     const eventColor = getEventColor(severity);
-  //     const isLightColor = theme.palette.getContrastText(eventColor) !== '#fff';
-  //     return isLightColor ? darken(eventColor, 0.55) : '#ffffff';
-  //   },
-  //   [theme]
-  // );
 
   return { getEventColor, getEventTextColor };
 };

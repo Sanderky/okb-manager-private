@@ -16,7 +16,6 @@ import {
   TableRow,
   Paper,
   MenuItem,
-  InputAdornment,
   Divider,
   FormControl,
   Checkbox,
@@ -26,12 +25,17 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import BaseDialog from '../../../components/BaseDialog';
 import {
-  getSeverityLabel,
+  getCategoryLabel,
   type CalendarEvent,
   type CalendarDay,
-  AVAILABLE_SEVERITIES,
+  AVAILABLE_CATEGORIES,
 } from './CalendarHelpers';
-import type { Construction, Employee, InfoEventSeverity } from '../../../types';
+import type {
+  Construction,
+  Employee,
+  EventCategory,
+  EventColor,
+} from '../../../types';
 import { plPL } from '@mui/x-date-pickers/locales';
 import { useEventColor } from './useEventColor';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
@@ -41,6 +45,15 @@ import { useNavigate } from 'react-router-dom';
 import { Add } from '@mui/icons-material';
 import type { Dayjs } from 'dayjs';
 import { getDateStr } from '../Vacations/VacationsHelpers';
+
+const COLORS_LIST: EventColor[] = [
+  'red',
+  'orange',
+  'blue',
+  'green',
+  'primary',
+  'secondary',
+];
 
 interface EventDetailsProps {
   event: Partial<CalendarEvent>;
@@ -66,8 +79,6 @@ const EventDetails: React.FC<EventDetailsProps> = ({
     event.constructionIds?.includes(c.id)
   );
 
-  const { getEventColor, getEventTextColor } = useEventColor();
-
   return (
     <Stack spacing={2.5} sx={{ mt: 1 }}>
       <Stack spacing={1}>
@@ -78,14 +89,11 @@ const EventDetails: React.FC<EventDetailsProps> = ({
           gap={1}
         >
           <Chip
-            label={getSeverityLabel(event.severity || 'info')}
+            label={getCategoryLabel(event.category || 'info')}
             size="small"
             variant="outlined"
             sx={{
               minWidth: '50px',
-              bgcolor: getEventColor(event.severity || 'info'),
-              color: getEventTextColor(event.severity || 'info'),
-              border: 'none',
             }}
           />
           <Stack
@@ -215,39 +223,50 @@ const EventForm: React.FC<EventFormProps> = ({
     return employees.filter((e) => e.status);
   }, [employees]);
   return (
-    <Stack spacing={3} sx={{ mt: 1 }}>
+    <Stack rowGap={2} sx={{ mt: 1 }}>
       <TextField
         select
-        label="Typ wydarzenia *"
+        label="Kategoria *"
         size="small"
-        value={currentEvent.severity || 'info'}
+        value={currentEvent.category || 'other'}
         onChange={(e) =>
-          setEvent({ severity: e.target.value as InfoEventSeverity })
+          setEvent({ category: e.target.value as EventCategory })
         }
         disabled={loading}
-        slotProps={{
-          input: {
-            startAdornment: (
-              <InputAdornment position="start">
-                <Box
-                  sx={{
-                    width: 12,
-                    height: 12,
-                    borderRadius: '50%',
-                    bgcolor: getEventColor(currentEvent.severity || 'info'),
-                  }}
-                />
-              </InputAdornment>
-            ),
-          },
-        }}
+        sx={{ flex: 1 }}
       >
-        {AVAILABLE_SEVERITIES.map((sev) => (
-          <MenuItem key={sev} value={sev}>
-            {getSeverityLabel(sev)}
+        {AVAILABLE_CATEGORIES.map((cat) => (
+          <MenuItem key={cat} value={cat}>
+            {getCategoryLabel(cat)}
           </MenuItem>
         ))}
       </TextField>
+
+      <Box>
+        <Typography variant="caption" color="textSecondary" p={0} m={0}>
+          Wybierz kolor *
+        </Typography>
+
+        <Stack direction="row" gap={1} flexWrap="wrap" mt={1}>
+          {COLORS_LIST.map((color) => (
+            <Box
+              key={color}
+              sx={(theme) => ({
+                width: 25,
+                height: 25,
+                backgroundColor: getEventColor(color || 'blue'),
+                cursor: 'pointer',
+                borderRadius: 1,
+                border:
+                  currentEvent.color === color
+                    ? `2px solid ${theme.palette.text.primary}`
+                    : '',
+              })}
+              onClick={() => setEvent({ color: color })}
+            />
+          ))}
+        </Stack>
+      </Box>
 
       <TextField
         label="Tytuł wydarzenia *"
@@ -417,12 +436,11 @@ export const AddEventDialog: React.FC<AddEventDialogProps> = ({
       open={open}
       onClose={props.handleModalClose}
       onConfirm={() => props.handleAddEvent(internalEvent)}
-      // title="Nowe wydarzenie"
       confirmText="Dodaj"
       titleSx={{
-        background: getEventColor(internalEvent.severity ?? 'info'),
+        background: getEventColor(internalEvent.color ?? 'blue'),
         '& .MuiButtonBase-root': {
-          color: getEventTextColor(internalEvent.severity ?? 'info'),
+          color: getEventTextColor(internalEvent.color ?? 'blue'),
         },
       }}
       title={
@@ -430,7 +448,7 @@ export const AddEventDialog: React.FC<AddEventDialogProps> = ({
           <Typography
             variant="h6"
             sx={{
-              color: getEventTextColor(internalEvent.severity ?? 'info'),
+              color: getEventTextColor(internalEvent.color ?? 'blue'),
             }}
           >
             Nowe wydarzenie
@@ -469,7 +487,7 @@ interface EditEventDialogProps {
 export const EditEventDialog: React.FC<EditEventDialogProps> = ({
   open,
   currentEvent,
-  setCurrentEvent,
+  // setCurrentEvent,
   handleResetError,
   ...props
 }) => {
@@ -511,9 +529,9 @@ export const EditEventDialog: React.FC<EditEventDialogProps> = ({
       open={open}
       onClose={props.handleModalClose}
       titleSx={{
-        background: getEventColor(internalEvent.severity ?? 'info'),
+        background: getEventColor(internalEvent.color ?? 'blue'),
         '& .MuiButtonBase-root': {
-          color: getEventTextColor(internalEvent.severity ?? 'info'),
+          color: getEventTextColor(internalEvent.color ?? 'blue'),
         },
       }}
       title={
@@ -521,7 +539,7 @@ export const EditEventDialog: React.FC<EditEventDialogProps> = ({
           <Typography
             variant="h6"
             sx={{
-              color: getEventTextColor(internalEvent.severity ?? 'info'),
+              color: getEventTextColor(internalEvent.color ?? 'blue'),
             }}
           >
             {isEditing ? 'Edycja wydarzenia' : 'Szczegóły wydarzenia'}
@@ -686,12 +704,12 @@ export const EventListDialog: React.FC<EventListDialogProps> = ({
                 </TableCell>
                 <TableCell align="center">
                   <Chip
-                    label={getSeverityLabel(event.severity)}
+                    label={getCategoryLabel(event.category)}
                     size="small"
                     sx={{
                       minWidth: '50px',
-                      bgcolor: getEventColor(event.severity),
-                      color: getEventTextColor(event.severity),
+                      bgcolor: getEventColor(event.color),
+                      color: getEventTextColor(event.color),
                       fontWeight: 500,
                       fontSize: '0.7rem',
                     }}

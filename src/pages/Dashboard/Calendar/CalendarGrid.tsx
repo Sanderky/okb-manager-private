@@ -161,8 +161,8 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                       const isWeekStart = di === 0;
                       const slot = getSlot(ev);
 
-                      const eventColor = getEventColor(ev.severity);
-                      const textColor = getEventTextColor(ev.severity);
+                      const eventColor = getEventColor(ev.color);
+                      const textColor = getEventTextColor(ev.color);
 
                       const showName = isStart || isWeekStart;
 
@@ -203,10 +203,6 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                               xs: isEnd ? 0 : '-1px',
                               md: isEnd ? 1 : '-1px',
                             },
-                            border:
-                              ev.severity === 'employee'
-                                ? '1px dashed black'
-                                : 'none',
                             fontSize: '0.7rem',
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',

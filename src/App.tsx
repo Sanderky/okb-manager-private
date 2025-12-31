@@ -52,6 +52,7 @@ export default function App() {
   const { isLoading: isContractorsLoading } = useQuery({
     queryKey: ['contractors'],
     queryFn: getContractors,
+    enabled: !!user,
   });
 
   const { isLoading: constructionsLoading } = useQuery({
@@ -69,11 +70,13 @@ export default function App() {
   const { isLoading: employeeStatsLoading } = useQuery({
     queryKey: ['employees', 'stats'],
     queryFn: getEmployeeStats,
+    enabled: !!user,
   });
 
   const { isLoading: constructionStatsLoading } = useQuery({
     queryKey: ['constructions', 'stats'],
     queryFn: getConstructionStats,
+    enabled: !!user,
   });
 
   const { isLoading: homeNoteLoading } = useQuery({
@@ -85,11 +88,13 @@ export default function App() {
   const { isLoading: isAlertsLoading } = useQuery({
     queryKey: ['alerts'],
     queryFn: getEmployeeAlerts,
+    enabled: !!user,
   });
 
   const { isLoading: upcomingEventsLoading } = useQuery({
     queryKey: ['calendarEvents', 'upcoming', 'all'],
     queryFn: async () => getNearestUpcomingEvents(),
+    enabled: !!user,
   });
 
   const isLoading = Boolean(
