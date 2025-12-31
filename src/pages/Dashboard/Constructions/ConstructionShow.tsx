@@ -181,6 +181,101 @@ export default function ConstructionShow() {
     isScheduleEmployeesLoading ||
     isUpcomingEventsLoading;
 
+  const handleNavigateToContractor = useCallback(
+    (id: string) => {
+      if(!id) return;
+      navigate(`/constructions?view=contractors&contractorId=${id}`);
+    },
+    [navigate]
+  );
+
+  const renderInfoCell = useCallback(
+    (
+      construction: Construction,
+      key: string,
+      value: string | boolean | Date | null | undefined
+    ) => {
+      if (!construction || !value) {
+        return (
+          <Typography
+            fontWeight={'bold'}
+            color="textSecondary"
+            component={'span'}
+          >
+            -
+          </Typography>
+        );
+      } else {
+        if (key === 'location') {
+          return (
+            <Tooltip title="Otwórz w Google Maps">
+              <Typography
+                variant="body1"
+                className="text-sm font-semibold sm:text-base"
+                sx={{
+                  display: 'inline-block',
+                  cursor: construction?.location ? 'pointer' : 'default',
+                  color: construction?.location ? 'location' : 'inherit',
+                  ':hover': { textDecoration: 'underline' },
+                }}
+                onClick={() => openGoogleMaps(construction.location)}
+              >
+                {String(value)}{' '}
+                <LocationOnIcon fontSize="small" sx={{ color: 'location' }} />
+              </Typography>
+            </Tooltip>
+          );
+        }
+
+        if (key === 'contractorName') {
+          return (
+            <Tooltip title="Przejdź do wykonawcy">
+              <Typography
+                variant="body1"
+                className="text-sm font-semibold sm:text-base"
+                color="textPrimary"
+                sx={{
+                  display: 'inline-block',
+                  cursor: construction?.location ? 'pointer' : 'default',
+                  ':hover': { textDecoration: 'underline' },
+                }}
+                onClick={() =>
+                  handleNavigateToContractor(construction.contractorId ?? '')
+                }
+              >
+                {String(value)}
+              </Typography>
+            </Tooltip>
+          );
+        }
+
+        if (
+          (key === 'startDate' || key === 'endDate') &&
+          value instanceof Date
+        ) {
+          return (
+            <Typography
+              variant="body1"
+              className="text-sm font-semibold sm:text-base"
+            >
+              {dayjs(value).format('DD.MM.YYYY')}
+            </Typography>
+          );
+        }
+
+        return (
+          <Typography
+            variant="body1"
+            className="text-sm font-semibold sm:text-base"
+          >
+            {String(value)}
+          </Typography>
+        );
+      }
+    },
+    [handleNavigateToContractor]
+  );
+
   const renderShow = useMemo(() => {
     if (loading) {
       return <Loading message="Ładowanie danych budowy..." />;
@@ -267,7 +362,7 @@ export default function ConstructionShow() {
                           </TableCell>
 
                           <TableCell
-                          align='right'
+                            align="right"
                             sx={{
                               border: 'none',
                               maxWidth: '100%',
@@ -278,83 +373,10 @@ export default function ConstructionShow() {
                             }}
                             className="p-2 sm:px-4"
                           >
-                            {key === 'location' ? (
-                              <Tooltip title="Otwórz w Google Maps">
-                                <Typography
-                                  variant="body1"
-                                  className="text-sm font-semibold sm:text-base"
-                                  sx={{
-                                    display: 'inline-block',
-                                    cursor: construction?.location
-                                      ? 'pointer'
-                                      : 'default',
-                                    color: construction?.location
-                                      ? 'location'
-                                      : 'inherit',
-                                    ':hover': { textDecoration: 'underline'}
-                                  }}
-                                  onClick={() =>
-                                    openGoogleMaps(construction?.location)
-                                  }
-                                >
-                                  {(() => {
-                                    const value =
-                                      construction[key as keyof Construction];
-                                    if (!value) {
-                                      return (
-                                        <Typography
-                                          fontWeight={'bold'}
-                                          color="textSecondary"
-                                          component={'span'}
-                                        >
-                                          -
-                                        </Typography>
-                                      );
-                                    }
-                                    return (
-                                      <>
-                                        {String(value)}{' '}
-                                        <LocationOnIcon
-                                          fontSize="small"
-                                          sx={{ color: 'location' }}
-                                        />
-                                      </>
-                                    );
-                                  })()}
-                                </Typography>
-                              </Tooltip>
-                            ) : (
-                              <Typography
-                                variant="body1"
-                                className="text-sm font-semibold sm:text-base"
-                              >
-                                {(() => {
-                                  const value =
-                                    construction[key as keyof Construction];
-                                  if (!value && key !== 'status') {
-                                    return (
-                                      <Typography
-                                        fontWeight={'bold'}
-                                        color="textSecondary"
-                                        component={'span'}
-                                      >
-                                        -
-                                      </Typography>
-                                    );
-                                  }
-                                  if (
-                                    key === 'startDate' ||
-                                    key === 'endDate'
-                                  ) {
-                                    if (value instanceof Date === false)
-                                      return (
-                                        <em className="text-gray-400">-</em>
-                                      );
-                                    return dayjs(value).format('DD.MM.YYYY');
-                                  }
-                                  return String(value);
-                                })()}
-                              </Typography>
+                            {renderInfoCell(
+                              construction,
+                              key,
+                              construction[key as keyof Construction]
                             )}
                           </TableCell>
                         </TableRow>
@@ -505,7 +527,8 @@ export default function ConstructionShow() {
     resumeDialogOpen,
     handleBack,
     navigate,
-    upcomingEvents
+    upcomingEvents,
+    renderInfoCell
   ]);
 
   const pageTitle = construction?.name || '...';

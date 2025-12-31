@@ -7,7 +7,7 @@ import Tooltip from '@mui/material/Tooltip';
 import AddIcon from '@mui/icons-material/Add';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import FilterListIcon from '@mui/icons-material/FilterList';
-import { useNavigate } from 'react-router';
+import { useNavigate, useSearchParams } from 'react-router';
 import PageContainer from '../../../components/PageContainer';
 import { getConstructionList } from '../../../services/constructions';
 import { useQuery } from '@tanstack/react-query';
@@ -436,7 +436,6 @@ const FiltersDialog = ({
 };
 
 export default function ConstructionsList() {
-  const navigate = useNavigate();
   const {
     setColumnVisibility,
     setDensity,
@@ -452,8 +451,10 @@ export default function ConstructionsList() {
     isLoading: isSettingsLoading,
   } = useTableState('constructions', DefaultColumnFilters, DefaultColumnsOrder);
 
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const [filtersModalOpen, setFiltersModalOpen] = useState(false);
-  const [contractorsModalOpen, setContractorsModalOpen] = useState(false);
 
   const { filters, setFilters, resetFilters } =
     useFormFilters<ConstructionsFilters>('constructions', DefaultFiltersState);
@@ -463,6 +464,25 @@ export default function ConstructionsList() {
       JSON.stringify(columnFilters) !== JSON.stringify(DefaultColumnFilters)
     );
   }, [columnFilters]);
+
+  const contractorsModalOpen =
+    searchParams.get('view') === 'contractors' ||
+    !!searchParams.get('contractorId');
+
+  const handleOpenContractors = () => {
+    setSearchParams((prev) => {
+      prev.set('view', 'contractors');
+      return prev;
+    });
+  };
+
+  const handleCloseContractors = () => {
+    setSearchParams((prev) => {
+      prev.delete('view');
+      prev.delete('contractorId');
+      return prev;
+    });
+  };
 
   const {
     data: constructions,
@@ -958,7 +978,7 @@ export default function ConstructionsList() {
         <Button
           key="contractors"
           variant="contained"
-          onClick={() => setContractorsModalOpen(true)}
+          onClick={handleOpenContractors}
           startIcon={<Engineering />}
           size="small"
         >
@@ -996,7 +1016,7 @@ export default function ConstructionsList() {
           <ContractorsDialog
             constructions={constructions}
             open={contractorsModalOpen}
-            onClose={() => setContractorsModalOpen(false)}
+            onClose={handleCloseContractors}
           />
 
           <FiltersDialog

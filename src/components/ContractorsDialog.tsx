@@ -32,7 +32,7 @@ import type { Construction, Contractor } from '../types';
 import useNotifications from '../hooks/useNotifications/useNotifications';
 import { Note } from './Note';
 import { ArrowBack, EditDocument } from '@mui/icons-material';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 
 const useContractors = () => {
   const queryClient = useQueryClient();
@@ -460,7 +460,7 @@ const ContractorDetails = ({
       <Box pt={2} pb={2}>
         <Typography fontWeight={'600'}>Lista budów:</Typography>
         {!constructions || constructions?.length === 0 ? (
-          <Typography variant='overline'>Brak budów</Typography>
+          <Typography variant="overline">Brak budów</Typography>
         ) : (
           <>
             <List dense>
@@ -481,7 +481,7 @@ const ContractorDetails = ({
                       }}
                     >
                       <Typography
-                      variant='caption'
+                        variant="caption"
                         sx={{
                           textDecoration: c.status ? 'none' : 'line-through',
                           color: c.status ? 'text.primary' : 'text.disabled',
@@ -531,9 +531,19 @@ export const ContractorsDialog = ({
   onClose,
   constructions,
 }: ContractorsDialogProps) => {
-  const [activeNoteContractor, setActiveNoteContractor] = useState<
-    string | null
-  >(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeNoteContractor = searchParams.get('contractorId');
+
+  const handleSetActiveContractor = (id: string | null) => {
+    setSearchParams((prev) => {
+      if (id) {
+        prev.set('contractorId', id);
+      } else {
+        prev.delete('contractorId');
+      }
+      return prev;
+    });
+  };
 
   const hook = useContractors();
   const activeContractor = useMemo(() => {
@@ -543,7 +553,7 @@ export const ContractorsDialog = ({
   const handleDelete = async (contractor: Contractor) => {
     const result = await hook.handleDelete(contractor);
     if (result) {
-      setActiveNoteContractor(null);
+      handleSetActiveContractor(null);
     }
   };
 
@@ -588,7 +598,7 @@ export const ContractorsDialog = ({
               flexShrink: 0,
             })}
           >
-            <IconButton onClick={() => setActiveNoteContractor(null)}>
+            <IconButton onClick={() => handleSetActiveContractor(null)}>
               <ArrowBack />
             </IconButton>
             <Typography>Szczegóły:</Typography>
@@ -615,7 +625,7 @@ export const ContractorsDialog = ({
         </Box>
       )}
 
-      <ContractorsList setOpenNote={setActiveNoteContractor} {...hook} />
+      <ContractorsList setOpenNote={handleSetActiveContractor} {...hook} />
     </BaseDialog>
   );
 };
