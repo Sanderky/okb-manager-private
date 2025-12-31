@@ -115,8 +115,8 @@ const EventDetails: React.FC<EventDetailsProps> = ({
           </Typography>
           {event.description ? (
             <Typography
-              variant="overline"
-              sx={{ whiteSpace: 'pre-wrap', color: 'text.primary' }}
+              variant="body2"
+              sx={{ whiteSpace: 'pre-wrap', color: 'text.secondary' }}
             >
               {event.description}
             </Typography>
