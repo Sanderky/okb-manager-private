@@ -299,57 +299,59 @@ const LodgingCard: React.FC<LodgingCardProps> = ({
           alignItems="flex-start"
         >
           <Box pr={2}>
-            <Typography
-              variant="h6"
-              component="div"
-              gutterBottom
-              fontWeight={isActive ? 600 : 400}
-              sx={{ lineHeight: 1.2 }}
-            >
-              {lodging.name}
-            </Typography>
-            <Stack direction="row" spacing={1} alignItems="center" mb={0.5}>
-              <DateRange fontSize="small" color="action" />
-              <Typography variant="body2" color="text.secondary">
-                {dayjs(lodging.startDate).format('DD.MM')} -{' '}
-                {dayjs(lodging.endDate).format('DD.MM.YYYY')}
+            <Stack direction="column" spacing={2}>
+              <Typography
+                variant="h6"
+                component="div"
+                gutterBottom
+                fontWeight={isActive ? 600 : 400}
+                sx={{ lineHeight: 1.2 }}
+              >
+                {lodging.name}
               </Typography>
-              {isActive && (
-                <Chip
-                  label="Aktywny"
-                  color="success"
-                  size="small"
-                  variant="outlined"
-                  sx={{ height: 20, fontSize: '0.65rem' }}
-                />
+              <Stack direction="row" spacing={1} alignItems="center" mb={0.5}>
+                <DateRange fontSize="small" color="action" />
+                <Typography variant="body2" color="text.secondary">
+                  {dayjs(lodging.startDate).format('DD.MM')} -{' '}
+                  {dayjs(lodging.endDate).format('DD.MM.YYYY')}
+                </Typography>
+                {isActive && (
+                  <Chip
+                    label="Aktywny"
+                    color="success"
+                    size="small"
+                    variant="outlined"
+                    sx={{ height: 20, fontSize: '0.65rem' }}
+                  />
+                )}
+              </Stack>
+              {lodging.address && (
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <Tooltip title="Otwórz w Google Maps">
+                    <Stack
+                      spacing={1}
+                      direction={'row'}
+                      sx={{
+                        cursor: 'pointer',
+                      }}
+                      onClick={() => openGoogleMaps(lodging.address)}
+                    >
+                      <LocationOn fontSize="small" sx={{ color: 'location' }} />
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{
+                          color: 'location',
+                          ':hover': { textDecoration: 'underline' },
+                        }}
+                      >
+                        {lodging.address}
+                      </Typography>
+                    </Stack>
+                  </Tooltip>
+                </Stack>
               )}
             </Stack>
-            {lodging.address && (
-              <Stack direction="row" spacing={1} alignItems="center">
-                <Tooltip title="Otwórz w Google Maps">
-                  <Stack
-                    spacing={1}
-                    direction={'row'}
-                    sx={{
-                      cursor: 'pointer',
-                    }}
-                    onClick={() => openGoogleMaps(lodging.address)}
-                  >
-                    <LocationOn fontSize="small" sx={{ color: 'location' }} />
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      sx={{
-                        color: 'location',
-                        ':hover': { textDecoration: 'underline'}
-                      }}
-                    >
-                      {lodging.address}
-                    </Typography>
-                  </Stack>
-                </Tooltip>
-              </Stack>
-            )}
           </Box>
           <Box>
             <IconButton size="small" onClick={() => onEdit(lodging)}>
@@ -388,7 +390,7 @@ const LodgingCard: React.FC<LodgingCardProps> = ({
                   ':hover': {
                     scale: '1.05',
                   },
-                  textDecoration: emp.status ? '' : 'line-through'
+                  textDecoration: emp.status ? '' : 'line-through',
                 }}
               />
             ))
