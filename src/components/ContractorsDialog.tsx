@@ -460,7 +460,7 @@ const ContractorDetails = ({
       <Box pt={2} pb={2}>
         <Typography fontWeight={'600'}>Lista budów:</Typography>
         {!constructions || constructions?.length === 0 ? (
-          <Typography>Brak budów</Typography>
+          <Typography variant='overline'>Brak budów</Typography>
         ) : (
           <>
             <List dense>
@@ -481,6 +481,7 @@ const ContractorDetails = ({
                       }}
                     >
                       <Typography
+                      variant='caption'
                         sx={{
                           textDecoration: c.status ? 'none' : 'line-through',
                           color: c.status ? 'text.primary' : 'text.disabled',
@@ -569,7 +570,7 @@ export const ContractorsDialog = ({
             top: 0,
             left: 0,
             right: 0,
-            bottom: 0, // Przyklejamy do dołu
+            bottom: 0,
             zIndex: 10,
             backgroundColor: theme.palette.background.paper,
             display: 'flex',
