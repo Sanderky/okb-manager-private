@@ -340,6 +340,8 @@ const ScheduleComponent = () => {
       const startOfWeek = date.startOf('week');
 
       if (isWeek) {
+        const notSavedDays: string[] = [];
+
         for (let i = 0; i < 7; i++) {
           const day = startOfWeek.add(i, 'day');
           const hasVacation = checkIsVacation(empId, day);
@@ -350,7 +352,19 @@ const ScheduleComponent = () => {
               date: day.toDate(),
               constructionId: value?.id ?? null,
             });
+          } else if (hasVacation && i !== 6) {
+            notSavedDays.push(day.format('DD.MM.YYYY'));
           }
+        }
+
+        if (notSavedDays.length > 0) {
+          notifications.show(
+            `Nie zapisano ${notSavedDays.length} ${notSavedDays.length === 1 ? 'dnia' : 'dni'} (urlop)`,
+            {
+              severity: 'info',
+              autoHideDuration: 5000,
+            }
+          );
         }
       } else {
         entriesToSave.push({
@@ -370,7 +384,7 @@ const ScheduleComponent = () => {
         });
       }
     },
-    [checkIsVacation, updateScheduleMutation, getCellKey]
+    [checkIsVacation, updateScheduleMutation, getCellKey, notifications]
   );
 
   const handleShowInputConstruction = useCallback(
