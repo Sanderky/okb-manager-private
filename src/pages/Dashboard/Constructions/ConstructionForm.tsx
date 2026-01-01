@@ -176,7 +176,7 @@ export default function ConstructionForm(props: ConstructionFormProps) {
       noValidate
       autoComplete="off"
       onReset={onReset}
-      sx={{ width: '100%', overflowY: 'auto' }}
+      sx={{ width: '100%', overflowY: 'auto', position: 'relative' }}
     >
       <Alert severity="info" className="mb-3 px-3 py-0 font-medium">
         Pola oznaczone * są obowiązkowe.
@@ -385,6 +385,7 @@ export default function ConstructionForm(props: ConstructionFormProps) {
             startIcon={<ArrowBackIcon />}
             type="reset"
             color="inherit"
+            disabled={isSubmitting}
           >
             Anuluj
           </Button>

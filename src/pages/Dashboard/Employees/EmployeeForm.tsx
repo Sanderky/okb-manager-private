@@ -340,23 +340,6 @@ export default function EmployeeForm(props: EmployeeFormProps) {
           spacing={2.5}
           sx={{ position: 'relative', maxWidth: '100%' }}
         >
-          {isSubmitting && (
-            <Box
-              sx={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                backgroundColor: 'rgba(255, 255, 255, 0.5)',
-                zIndex: 1,
-                borderRadius: 'inherit',
-              }}
-            />
-          )}
 
           <Grid width={'100%'}>
             <Alert severity="info" className="mb-3 px-3 py-0 font-medium">
