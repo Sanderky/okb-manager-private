@@ -263,9 +263,9 @@ const ContractorsList = ({
           <TableHead>
             <TableRow>
               <TableCell width="5%">Lp.</TableCell>
-              <TableCell width="55%">Nazwa</TableCell>
+              <TableCell width="75%">Nazwa</TableCell>
               <TableCell width="10%">Budowy</TableCell>
-              <TableCell width="30%" className="border-b">
+              <TableCell width="10%" className="border-b">
                 Akcje
               </TableCell>
             </TableRow>

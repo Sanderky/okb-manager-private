@@ -27,13 +27,8 @@ import { getEmployeeStats } from '../../../services/employees';
 import { getConstructionStats } from '../../../services/constructions';
 import FileBrowser from '../../../components/fileBrowser/FileBrowser';
 import { useEmployeeAlert } from '../../../context/EmployeeAlertContext';
-import {
-  BeachAccess,
-  Construction,
-  Done,
-  Person,
-  Settings,
-} from '@mui/icons-material';
+import { BeachAccess, Construction, Done, Settings } from '@mui/icons-material';
+import PeopleIcon from '@mui/icons-material/People';
 import useNotifications from '../../../hooks/useNotifications/useNotifications';
 import type { AlertsSettings } from '../../../types';
 import ReportProblemIcon from '@mui/icons-material/ReportProblem';
@@ -769,7 +764,7 @@ const Home = () => {
                             </Typography>
                           </Box>
                           <Avatar sx={{ bgcolor: 'primary.main' }}>
-                            <Person />
+                            <PeopleIcon />
                           </Avatar>
                         </Stack>
                       </CardContent>
