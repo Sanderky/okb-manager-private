@@ -233,7 +233,7 @@ export const EventsBox = ({
             '&:after': {
               content: '""',
               pointerEvents: 'none',
-              display: isExpanded ? 'none' : 'block',
+              display: isExpanded && !isLoading ? 'none' : 'block',
               position: 'absolute',
               top: 0,
               left: 0,
