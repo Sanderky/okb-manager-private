@@ -198,10 +198,10 @@ const getDesignTokens = (mode: PaletteMode) => ({
             },
           },
           event: {
-            red: alpha('#cb0b0a', 0.75),
-            orange: alpha('#fb8500', 0.75),
-            green: alpha('#16db65', 0.75),
-            blue: alpha('#2196f3', 0.75),
+            red: '#d23a3a',
+            orange: '#f7a33a',
+            green: '#5fd79a',
+            blue: '#60afff',
           },
         }
       : {
@@ -306,10 +306,10 @@ const getDesignTokens = (mode: PaletteMode) => ({
             },
           },
           event: {
-            red: alpha('#ff6b7a', 0.75),
-            orange: alpha('#ffb703', 0.75),
-            green: alpha('#4ade80', 0.75),
-            blue: alpha('#60a5fa', 0.75),
+            red: '#ff8f9a',
+            orange: '#ffc84a',
+            green: '#7be3a1',
+            blue: '#7fb8fb',
           },
         }),
   },
