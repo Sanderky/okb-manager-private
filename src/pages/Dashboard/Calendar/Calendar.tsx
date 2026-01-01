@@ -76,6 +76,19 @@ const Calendar: React.FC = () => {
     );
   }, [selectedCategories]);
 
+  useEffect(() => {
+    if (!searchParams.has('month')) {
+      const now = dayjs().format('YYYY-MM');
+      setSearchParams(
+        (prev) => {
+          prev.set('month', now);
+          return prev;
+        },
+        { replace: true }
+      );
+    }
+  }, []);
+
   const [selectDay, setSelectDay] = useState<Dayjs | null>(null);
   const [activeDayDate, setActiveDayDate] = useState<Dayjs | null>(null);
   const [eventsDialogOpen, setEventsDialogOpen] = useState(false);
@@ -87,6 +100,14 @@ const Calendar: React.FC = () => {
 
   const [eventClickSearchParams, setEventClickSearchParams] =
     useState<boolean>(false);
+
+  const changeMonth = useCallback(
+    (newMonth: Dayjs) => {
+      searchParams.set('month', newMonth.format('YYYY-MM'));
+      setSearchParams(searchParams);
+    },
+    [searchParams, setSearchParams]
+  );
 
   const notifications = useNotifications();
   const dialogs = useDialogs();
@@ -346,10 +367,12 @@ const Calendar: React.FC = () => {
     setCurrentEvent({ ...ev });
     setEditDialogOpen(true);
     const startMonth = dayjs(ev.startDate).format('YYYY-MM');
-
-    searchParams.append('month', startMonth);
-    searchParams.append('eventId', ev.id ?? '');
-    setSearchParams(searchParams);
+    setSearchParams((prev) => {
+      const newParams = new URLSearchParams(prev);
+      newParams.set('month', startMonth);
+      newParams.append('eventId', ev.id ?? '');
+      return newParams;
+    });
     setEventClickSearchParams(true);
   };
 
@@ -357,16 +380,18 @@ const Calendar: React.FC = () => {
     setCurrentEvent({});
     setSelectDay(null);
     setValidationError('');
-    searchParams.delete('eventId');
-    searchParams.delete('month');
-    setSearchParams(searchParams);
+    setSearchParams((prev) => {
+      const newParams = new URLSearchParams(prev);
+      newParams.delete('eventId');
+      return newParams;
+    });
     setEventClickSearchParams(false);
-  }, []);
+  }, [setSearchParams]);
 
   const handleAddDialogClose = useCallback(() => {
     setAddDialogOpen(false);
     resetOnClose();
-  }, []);
+  }, [resetOnClose]);
 
   const handleEventsDialogClose = useCallback(() => {
     setEventsDialogOpen(false);
@@ -375,7 +400,7 @@ const Calendar: React.FC = () => {
   const handleEditDialogClose = useCallback(() => {
     setEditDialogOpen(false);
     resetOnClose();
-  }, []);
+  }, [resetOnClose]);
 
   const handleAddEvent = (eventData: Partial<CalendarEvent>) => {
     const { startDate, endDate, category, title } = eventData;
@@ -480,6 +505,32 @@ const Calendar: React.FC = () => {
     setEventsDialogOpen(true);
   };
 
+  const handleMonthChangeControl = useCallback(
+    (action: 'prev' | 'next' | 'today') => {
+      let newMonth = currentMonth.clone();
+
+      if (action === 'today') {
+        newMonth = dayjs().startOf('month');
+      } else if (action === 'prev') {
+        newMonth = newMonth.subtract(1, 'month');
+      } else if (action === 'next') {
+        newMonth = newMonth.add(1, 'month');
+      }
+
+      changeMonth(newMonth);
+    },
+    [currentMonth, changeMonth]
+  );
+
+  const handleDatePickerChangeControl = useCallback(
+    (newValue: Dayjs | null) => {
+      if (newValue) {
+        changeMonth(newValue);
+      }
+    },
+    [changeMonth]
+  );
+
   const activeDayData = useMemo(() => {
     if (!activeDayDate) return null;
 
@@ -581,16 +632,8 @@ const Calendar: React.FC = () => {
           selectedCategories={selectedCategories}
           setSelectedCategories={setSelectedCategories}
           currentMonth={currentMonth}
-          handleMonthChange={(a) =>
-            setCurrentMonth((prev) =>
-              a === 'today'
-                ? dayjs().startOf('month')
-                : a === 'prev'
-                  ? prev.subtract(1, 'month')
-                  : prev.add(1, 'month')
-            )
-          }
-          handleDatePickerChange={(v) => v && setCurrentMonth(v)}
+          handleMonthChange={handleMonthChangeControl}
+          handleDatePickerChange={handleDatePickerChangeControl}
           containerWidth={width}
         />
 
