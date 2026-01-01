@@ -39,8 +39,6 @@ declare module '@mui/material/styles' {
       superDark: string;
     };
     event: {
-      primary: string;
-      secondary: string;
       red: string;
       orange: string;
       green: string;
@@ -84,8 +82,6 @@ declare module '@mui/material/styles' {
     };
     status: { employee: Status; construction: Status };
     event?: {
-      primary: string;
-      secondary: string;
       red: string;
       orange: string;
       green: string;
@@ -202,7 +198,7 @@ const getDesignTokens = (mode: PaletteMode) => ({
             },
           },
           event: {
-            red: alpha('#ef233c', 0.75),
+            red: alpha('#cb0b0a', 0.75),
             orange: alpha('#fb8500', 0.75),
             green: alpha('#16db65', 0.75),
             blue: alpha('#2196f3', 0.75),
