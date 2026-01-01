@@ -74,16 +74,19 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
               const isExpanded = expandedWeeks.has(wi);
 
               const getDayBoxHeight = () => {
-                const eventsCount = events.length;
-                const hasEvents = eventsCount > 0;
                 const baseHeight = MAX_EVENTS * 24 + 23;
 
-                if (hasEvents && isExpanded) {
-                  const expandedHeight = eventsCount * 24 + 23;
-                  return Math.max(expandedHeight, baseHeight);
-                } else {
+                if (!isExpanded) {
                   return baseHeight;
                 }
+
+                const maxSlot = events.reduce((max, ev) => {
+                  const slot = getSlot(ev);
+                  return Math.max(max, slot);
+                }, 0);
+
+                const requiredSlots = Math.max(maxSlot + 1, MAX_EVENTS);
+                return requiredSlots * 24 + 23;
               };
 
               const getSlot = (ev: any) => slots[ev.id || 'temp'] ?? 0;
