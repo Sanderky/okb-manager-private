@@ -263,18 +263,18 @@ export const EventsBox = ({
                   <ListItem
                     key={event.groupId}
                     onClick={() => handleEventClick(event, true)}
-                    sx={{
+                    sx={(theme) => ({
                       display: 'flex',
                       flexDirection: 'column',
                       cursor: 'pointer',
                       alignItems: 'flex-start',
                       mb: 1,
-                      background: getEventColor(event.color),
-                      color: getEventTextColor(event.color),
+                      border: `1px solid ${theme.palette.divider}`,
+                      background: theme.palette.accent.light,
                       ':hover': {
-                        background: darken(getEventColor(event.color), 0.2),
+                        background: theme.palette.accent.main,
                       },
-                    }}
+                    })}
                     className={`rounded-md last:mb-0`}
                   >
                     <Stack
@@ -286,10 +286,10 @@ export const EventsBox = ({
                       <Typography variant="subtitle2">{event.title}</Typography>
                       <Chip
                         label={getCategoryLabel(event.category)}
-                        variant="outlined"
+                        variant="filled"
                         sx={{
                           color: getEventTextColor(event.color),
-                          borderColor: getEventTextColor(event.color),
+                          backgroundColor: getEventColor(event.color),
                           minWidth: '50px',
                         }}
                         size="small"
