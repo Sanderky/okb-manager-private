@@ -396,10 +396,10 @@ const ScheduleComponent = () => {
       const target = event.currentTarget as HTMLElement;
       const row = target.closest('tr');
       if (row) {
-        row.style.backgroundColor = theme.palette.schedule.accent;
+        row.style.backgroundColor = theme.palette.schedule.hoverRow;
         (
           row.querySelector('td:first-child') as HTMLElement
-        ).style.backgroundColor = theme.palette.schedule.accent;
+        ).style.backgroundColor = theme.palette.schedule.hoverRow;
       }
       target.style.backgroundColor = theme.palette.schedule.hoverCell;
 
