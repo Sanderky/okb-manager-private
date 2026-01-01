@@ -151,12 +151,13 @@ export default function EmployeeEdit() {
           contractEndDate: formState.values.contractIsPermanent
             ? null
             : (formState.values.contractEndDate ?? null),
-          pesel: formState.values.pesel?.trim() ?? null,
-          address: formState.values.address?.trim() ?? null,
-          email: formState.values.email?.trim() ?? null,
-          phone: formState.values.phone?.trim() ?? null,
-          birthPlace: formState.values.birthPlace?.trim() ?? null,
-          accountNumber: formState.values.accountNumber?.trim() ?? null,
+
+          pesel: formState.values.pesel?.trim() || null,
+          address: formState.values.address?.trim() || null,
+          email: formState.values.email?.trim() || null,
+          phone: formState.values.phone?.trim() || null,
+          birthPlace: formState.values.birthPlace?.trim() || null,
+          accountNumber: formState.values.accountNumber?.trim() || null,
           hourRate: toNumberOrNull(formState.values.hourRate) ?? null,
         };
         await updateMutation.mutateAsync(updateData);
@@ -290,7 +291,7 @@ export default function EmployeeEdit() {
                 position: 'relative',
                 // boxShadow: 1,
                 background: theme.palette.background.paper,
-                border: `1px solid ${theme.palette.divider}`
+                border: `1px solid ${theme.palette.divider}`,
               })}
               className="rounded-lg p-3 md:p-4"
             >
