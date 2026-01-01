@@ -105,6 +105,7 @@ const Calendar: React.FC = () => {
     (newMonth: Dayjs) => {
       searchParams.set('month', newMonth.format('YYYY-MM'));
       setSearchParams(searchParams);
+      setEventClickSearchParams(false);
     },
     [searchParams, setSearchParams]
   );
@@ -385,7 +386,6 @@ const Calendar: React.FC = () => {
       newParams.delete('eventId');
       return newParams;
     });
-    // setEventClickSearchParams(false);
   }, [setSearchParams]);
 
   const handleAddDialogClose = useCallback(() => {
