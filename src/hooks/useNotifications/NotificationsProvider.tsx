@@ -91,6 +91,9 @@ function Notification({
       key={notificationKey}
       {...snackbarSlotProps}
       anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+      sx={{
+        bottom: `50px !important`,
+      }}
     >
       <Badge badgeContent={badge} color="primary" sx={{ width: '100%' }}>
         {severity ? (
