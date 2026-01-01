@@ -18,8 +18,14 @@ import { useAuth } from '../../context/AuthContext';
 import { default as LogoIcon } from '@mui/icons-material/TokenOutlined';
 import Loading from '../../components/Loading';
 import useLoading from '../../hooks/useLoading';
-import { Visibility, VisibilityOff } from '@mui/icons-material';
+import {
+  Brightness4,
+  Brightness7,
+  Visibility,
+  VisibilityOff,
+} from '@mui/icons-material';
 import AppFooter from '../../components/Footer';
+import { useColorMode } from '../../context/ThemeContext';
 
 type FormValues = {
   email: string;
@@ -42,6 +48,8 @@ const Login = () => {
   const [credentialError, setCredentialError] = useState(false);
   const [forgotOpen, setForgotOpen] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  const { mode, toggleColorMode } = useColorMode();
 
   useEffect(() => {
     if (!initialLoading && user) {
@@ -124,6 +132,29 @@ const Login = () => {
           </div>
         ) : (
           <Box className="flex h-screen flex-col">
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'flex-end',
+                p: 1,
+              }}
+            >
+              <Button
+                startIcon={
+                  mode === 'dark' ? (
+                    <Brightness7 fontSize="small" />
+                  ) : (
+                    <Brightness4 fontSize="small" />
+                  )
+                }
+                onClick={toggleColorMode}
+                variant="text"
+                color="inherit"
+                size="small"
+              >
+                Motyw
+              </Button>
+            </Box>
             <Box
               className="flex flex-col items-center justify-center py-8"
               sx={{

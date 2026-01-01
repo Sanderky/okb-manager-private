@@ -14,12 +14,21 @@ import {
 } from '@mui/material';
 import { default as LogoIcon } from '@mui/icons-material/TokenOutlined';
 import useLoading from '../../hooks/useLoading';
-import { ArrowBack, Visibility, VisibilityOff } from '@mui/icons-material';
+import {
+  ArrowBack,
+  Brightness4,
+  Brightness7,
+  Visibility,
+  VisibilityOff,
+} from '@mui/icons-material';
 import { getRules, validateField } from '../Login/validation';
 import AppFooter from '../../components/Footer';
+import { useColorMode } from '../../context/ThemeContext';
 
 const UpdatePassword = () => {
   const navigate = useNavigate();
+  const { mode, toggleColorMode } = useColorMode();
+
   const {
     loading: actionLoading,
     startLoading: startActionLoading,
@@ -80,6 +89,29 @@ const UpdatePassword = () => {
       })}
     >
       <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'flex-end',
+          p: 1,
+        }}
+      >
+        <Button
+          startIcon={
+            mode === 'dark' ? (
+              <Brightness7 fontSize="small" />
+            ) : (
+              <Brightness4 fontSize="small" />
+            )
+          }
+          onClick={toggleColorMode}
+          variant="text"
+          color="inherit"
+          size="small"
+        >
+          Motyw
+        </Button>
+      </Box>
+      <Box
         sx={(theme) => ({
           position: 'absolute',
           inset: 0,
@@ -90,7 +122,10 @@ const UpdatePassword = () => {
         })}
       />
 
-      <Box sx={{ position: 'relative', zIndex: 1, height: '100%' }} className="flex h-screen flex-col">
+      <Box
+        sx={{ position: 'relative', zIndex: 1, height: '100%' }}
+        className="flex h-screen flex-col"
+      >
         <Box
           className="flex flex-col items-center justify-center py-8"
           sx={{
