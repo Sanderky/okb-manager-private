@@ -13,13 +13,13 @@ export const useEventColor = () => {
         case 'secondary':
           return theme.palette.secondary.main;
         case 'red':
-          return theme.palette.error.main;
+          return theme.palette.event.red;
         case 'orange':
-          return theme.palette.warning.main;
+          return theme.palette.event.orange;
         case 'green':
-          return theme.palette.success.main;
+          return theme.palette.event.green;
         case 'blue':
-          return theme.palette.info.main;
+          return theme.palette.event.blue;
         default:
           return theme.palette.primary.main;
       }

@@ -38,6 +38,14 @@ declare module '@mui/material/styles' {
       dark: string;
       superDark: string;
     };
+    event: {
+      primary: string;
+      secondary: string;
+      red: string;
+      orange: string;
+      green: string;
+      blue: string;
+    };
   }
 
   interface Theme {
@@ -75,6 +83,14 @@ declare module '@mui/material/styles' {
       currentDay: string;
     };
     status: { employee: Status; construction: Status };
+    event?: {
+      primary: string;
+      secondary: string;
+      red: string;
+      orange: string;
+      green: string;
+      blue: string;
+    };
   }
 
   interface TypeBackground {
@@ -185,6 +201,12 @@ const getDesignTokens = (mode: PaletteMode) => ({
               inactive: { text: '#d97706', background: alpha('#fcd34d', 0.5) },
             },
           },
+          event: {
+            red: alpha('#ef233c', 0.75),
+            orange: alpha('#fb8500', 0.75),
+            green: alpha('#16db65', 0.75),
+            blue: alpha('#2196f3', 0.75),
+          },
         }
       : {
           // ==============================
@@ -286,6 +308,12 @@ const getDesignTokens = (mode: PaletteMode) => ({
                 background: 'rgba(120, 53, 15, 0.4)',
               },
             },
+          },
+          event: {
+            red: alpha('#ff6b7a', 0.75),
+            orange: alpha('#ffb703', 0.75),
+            green: alpha('#4ade80', 0.75),
+            blue: alpha('#60a5fa', 0.75),
           },
         }),
   },
