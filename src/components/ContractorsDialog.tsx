@@ -295,7 +295,7 @@ const ContractorsList = ({
                   <TableCell align="center">
                     {contractor.constructionsCount ?? '-'}
                   </TableCell>
-                  <TableCell sx={{ minWidth: 160 }} className="border-b">
+                  <TableCell className="border-b">
                     <IconButton
                       onClick={() => setOpenNote(contractor.id)}
                       disabled={isLoading}
