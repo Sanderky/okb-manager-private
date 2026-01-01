@@ -385,7 +385,7 @@ const Calendar: React.FC = () => {
       newParams.delete('eventId');
       return newParams;
     });
-    setEventClickSearchParams(false);
+    // setEventClickSearchParams(false);
   }, [setSearchParams]);
 
   const handleAddDialogClose = useCallback(() => {

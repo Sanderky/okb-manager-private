@@ -137,6 +137,7 @@ const Calendar: React.FC = () => {
 
   useEffect(() => {
     const monthFromUrl = searchParams.get('month');
+
     if (monthFromUrl && !eventClickSearchParams) {
       const month = dayjs(monthFromUrl).startOf('month');
       setCurrentMonth(month);
@@ -411,7 +412,7 @@ const Calendar: React.FC = () => {
       newParams.delete('vacationId');
       return newParams;
     });
-    setEventClickSearchParams(false);
+    // setEventClickSearchParams(false);
   }, [setSearchParams]);
 
   const handleAddDialogClose = useCallback(() => {
