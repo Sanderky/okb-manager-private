@@ -21,6 +21,7 @@ import {
   Typography,
   Button,
   Stack,
+  useTheme,
 } from '@mui/material';
 import dayjs, { Dayjs } from 'dayjs';
 import weekOfYear from 'dayjs/plugin/weekOfYear';
@@ -99,6 +100,8 @@ const ScheduleComponent = () => {
   const [showVacations, setShowVacations] = useState(true);
   const [showDates, setShowDates] = useState(true);
   const [loadingCells, setLoadingCells] = useState<Set<string>>(new Set());
+
+  const theme = useTheme();
 
   const [selectedEmployees, setSelectedEmployees] = useState<string[]>(() => {
     const saved = localStorage.getItem(SCHEDULE_FILTERS_STORAGE_KEY);
@@ -379,17 +382,17 @@ const ScheduleComponent = () => {
       const target = event.currentTarget as HTMLElement;
       const row = target.closest('tr');
       if (row) {
-        row.style.backgroundColor = '#eff6ff';
+        row.style.backgroundColor = theme.palette.schedule.accent;
         (
           row.querySelector('td:first-child') as HTMLElement
-        ).style.backgroundColor = '#eff6ff';
+        ).style.backgroundColor = theme.palette.schedule.accent;
       }
-      target.style.backgroundColor = '#dbeafe';
+      target.style.backgroundColor = theme.palette.schedule.hoverCell;
 
       setCellAnchorEl(target);
       setActiveCell(cell);
     },
-    [checkIsVacation]
+    [checkIsVacation, theme]
   );
 
   const handleCellMenuClose = useCallback(() => {
