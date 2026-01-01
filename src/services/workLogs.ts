@@ -1,10 +1,7 @@
 import { supabase } from '../supabase';
 import type { WorkLogEntry } from '../types';
-import dayjs, { Dayjs } from 'dayjs';
-
-const toSqlDate = (date: Date | string | Dayjs) => {
-  return dayjs(date).format('YYYY-MM-DD');
-};
+import dayjs from 'dayjs';
+import { toSqlDate } from '../utils';
 
 const mapToWorkLog = (row: any): WorkLogEntry => ({
   id: row.id,
@@ -115,17 +112,15 @@ export const saveWorkLogDay = async (
 ): Promise<void> => {
   const dateStr = toSqlDate(date);
   if (hours >= 0) {
-    const { error } = await supabase
-      .from('work_logs')
-      .upsert(
-        {
-          employee_id: employeeId,
-          construction_id: constructionId,
-          date: dateStr,
-          hours,
-        },
-        { onConflict: 'employee_id, construction_id, date' }
-      );
+    const { error } = await supabase.from('work_logs').upsert(
+      {
+        employee_id: employeeId,
+        construction_id: constructionId,
+        date: dateStr,
+        hours,
+      },
+      { onConflict: 'employee_id, construction_id, date' }
+    );
     if (error) throw error;
   } else {
     const { error } = await supabase

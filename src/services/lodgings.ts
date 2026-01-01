@@ -1,6 +1,6 @@
 import { supabase } from '../supabase';
 import type { Lodging } from '../types';
-import dayjs from 'dayjs';
+import { toSqlDate } from '../utils';
 
 const TABLE_NAME = 'lodgings';
 const JOIN_TABLE = 'lodging_employees';
@@ -15,9 +15,6 @@ const mapLodgingFromDB = (row: any): Lodging => ({
   description: row.description,
 });
 
-const toSqlDate = (date: Date | string): string => {
-  return dayjs(date).format('YYYY-MM-DD');
-};
 
 export const getLodgings = async (): Promise<Lodging[]> => {
   const { data, error } = await supabase

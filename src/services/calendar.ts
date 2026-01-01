@@ -4,6 +4,7 @@ import dayjs from 'dayjs';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import isBetween from 'dayjs/plugin/isBetween';
 import minMax from 'dayjs/plugin/minMax';
+import { toSqlDate } from '../utils';
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isBetween);
@@ -37,10 +38,6 @@ const mapEventFromDB = (row: any): InfoEvent => ({
   constructionIds:
     row.calendar_event_constructions?.map((r: any) => r.construction_id) || [],
 });
-
-const toSqlDate = (date: Date | string): string => {
-  return dayjs(date).format('YYYY-MM-DD');
-};
 
 export const createCalendarEvent = async (
   data: Partial<InfoEvent>

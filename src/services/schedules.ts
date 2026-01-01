@@ -1,9 +1,8 @@
 import { supabase } from '../supabase';
 import type { ScheduleEntry, Employee } from '../types';
-import dayjs, { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
+import { toSqlDate } from '../utils';
 
-const toSqlDate = (date: Date | string | Dayjs) =>
-  dayjs(date).format('YYYY-MM-DD');
 
 const mapToScheduleEntry = (row: any): ScheduleEntry => ({
   id: row.id,

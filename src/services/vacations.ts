@@ -4,6 +4,7 @@ import dayjs from 'dayjs';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import isBetween from 'dayjs/plugin/isBetween';
 import minMax from 'dayjs/plugin/minMax';
+import { toSqlDate } from '../utils';
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isBetween);
@@ -21,9 +22,7 @@ const mapVacationFromDB = (row: any): Vacation => ({
   employeeName: row.employees?.name,
   employeeActive: row.employees?.status,
 });
-const toSqlDate = (date: Date | string): string => {
-  return dayjs(date).format('YYYY-MM-DD');
-};
+
 
 export const createVacation = async (
   data: Partial<Vacation>

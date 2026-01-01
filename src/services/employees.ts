@@ -1,10 +1,6 @@
 import { supabase } from '../supabase';
 import type { Employee } from '../types';
-
-const toSqlDate = (date?: Date | null): string | null => {
-  if (!date) return null;
-  return date.toISOString().split('T')[0];
-};
+import { toSqlDate } from '../utils';
 
 const mapToEmployee = (data: any): Employee => ({
   id: data.id,
