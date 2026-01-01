@@ -1,4 +1,5 @@
 import {
+  alpha,
   Badge,
   Box,
   Checkbox,
@@ -34,6 +35,7 @@ import {
   getCategoryLabel,
 } from '../pages/Dashboard/Calendar/CalendarHelpers';
 import { getDateStr } from '../pages/Dashboard/Vacations/VacationsHelpers';
+import { ThemeContext } from '@emotion/react';
 
 const EVENTS_FILTER_STORAGE_KEY = 'eventsBox_filters';
 
@@ -226,7 +228,7 @@ export const EventsBox = ({
         </Stack>
       ) : (
         <Box
-          sx={{
+          sx={(theme) => ({
             position: 'relative',
             '&:after': {
               content: '""',
@@ -237,9 +239,9 @@ export const EventsBox = ({
               left: 0,
               width: '100%',
               height: 'calc(100% - 34px)',
-              boxShadow: 'inset 0px -25px 10px -15px rgba(255, 255, 255, 1)',
+              boxShadow: `inset 0px -25px 10px -15px ${alpha(theme.palette.background.paper, 1)}`,
             },
-          }}
+          })}
         >
           <Box
             sx={{

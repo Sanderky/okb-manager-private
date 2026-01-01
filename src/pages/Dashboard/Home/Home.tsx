@@ -516,7 +516,7 @@ const UpcomingVacation = () => {
         </Stack>
       ) : (
         <Box
-          sx={{
+          sx={(theme) => ({
             position: 'relative',
             '&:after': {
               content: '""',
@@ -527,9 +527,9 @@ const UpcomingVacation = () => {
               left: 0,
               width: '100%',
               height: 'calc(100% - 34px)',
-              boxShadow: 'inset 0px -25px 10px -15px rgba(255, 255, 255, 1)',
+              boxShadow: `inset 0px -25px 10px -15px ${alpha(theme.palette.background.paper, 1)}`,
             },
-          }}
+          })}
         >
           <Box
             sx={{
