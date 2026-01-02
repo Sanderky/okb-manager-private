@@ -340,7 +340,7 @@ const EmployeeAlerts = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isSettingsDialogOpen, setIsSettingsDialogOpen] = useState(false);
 
-  const MAX_VISIBLE_ITEMS = 3;
+  const MAX_VISIBLE_ITEMS = 2;
   const hasMoreItems = alerts.length > MAX_VISIBLE_ITEMS;
 
   const toggleExpanded = () => {
@@ -407,7 +407,7 @@ const EmployeeAlerts = () => {
         >
           <Box
             sx={{
-              maxHeight: isExpanded ? 'none' : hasMoreItems ? 265 : 230,
+              maxHeight: isExpanded ? 'none' : 180,
               overflow: 'auto',
               position: 'relative',
             }}
@@ -430,7 +430,7 @@ const EmployeeAlerts = () => {
                       borderRadius: '4px',
                       borderLeftWidth: '8px',
                       alignItems: 'flex-start',
-                      mb: 2,
+                      mb: 1,
 
                       borderLeftColor:
                         alert.severity === 'error'
