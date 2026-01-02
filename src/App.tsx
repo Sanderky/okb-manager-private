@@ -41,7 +41,7 @@ import LodgingsManager from './pages/Dashboard/Lodgings/Lodgings';
 import { ThemeContextProvider } from './context/ThemeContext';
 
 export default function App() {
-  const { user, initialLoading: authLoading } = useAuth();
+  const { user, initialLoading: authLoading, error } = useAuth();
 
   const { isLoading: employeesLoading } = useQuery({
     queryKey: ['employees'],
@@ -120,7 +120,13 @@ export default function App() {
               <Routes>
                 <Route path="/login" element={<Login />} />
                 <Route
-                  element={<PrivateRoute isLoading={isLoading} user={user} />}
+                  element={
+                    <PrivateRoute
+                      isError={Boolean(error)}
+                      isLoading={isLoading}
+                      user={user}
+                    />
+                  }
                 >
                   <Route path="/reset-password" element={<UpdatePassword />} />
                   <Route path="/" element={<DashboardLayout />}>

@@ -4,7 +4,7 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseKey) {
-  throw new Error('Brakuje zmiennych środowiskowych Supabase!');
+  throw new Error('Błąd inicjalizacji Supabase! Brak URL lub klucza.');
 }
 
 export const supabase = createClient(supabaseUrl, supabaseKey);

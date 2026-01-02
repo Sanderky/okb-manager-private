@@ -7,13 +7,13 @@ import React, {
 } from 'react';
 import { supabase } from '../supabase';
 import { logout as authLogout } from '../services/auth';
-import type { User, Session } from '@supabase/supabase-js';
-
+import type { User, Session, AuthError } from '@supabase/supabase-js';
 interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
   initialLoading: boolean;
+  error: AuthError | Error | null;
   logout: () => Promise<void>;
 }
 
@@ -36,11 +36,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [initialLoading, setInitialLoading] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<AuthError | Error | null>(null);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      if (error) {
+        console.error('Auth Session Error:', error);
+        setError(error);
+      } else {
+        setSession(session);
+        setUser(session?.user ?? null);
+      }
       setInitialLoading(false);
     });
 
@@ -50,6 +56,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setSession(session);
       setUser(session?.user ?? null);
       setInitialLoading(false);
+      if (session) setError(null);
     });
 
     return () => subscription.unsubscribe();
@@ -59,8 +66,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setLoading(true);
     try {
       await authLogout();
-    } catch (error) {
-      console.error('Logout error:', error);
+      setError(null);
+    } catch (err) {
+      console.error('Logout error:', err);
+      setError(err instanceof Error ? err : new Error('Logout failed'));
     } finally {
       setLoading(false);
     }
@@ -71,6 +80,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     session,
     loading: initialLoading || loading,
     initialLoading,
+    error,
     logout,
   };
 
