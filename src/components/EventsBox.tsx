@@ -4,7 +4,6 @@ import {
   Box,
   Checkbox,
   Chip,
-  darken,
   FormControlLabel,
   FormGroup,
   IconButton,
@@ -35,7 +34,6 @@ import {
   getCategoryLabel,
 } from '../pages/Dashboard/Calendar/CalendarHelpers';
 import { getDateStr } from '../pages/Dashboard/Vacations/VacationsHelpers';
-import { ThemeContext } from '@emotion/react';
 
 const EVENTS_FILTER_STORAGE_KEY = 'eventsBox_filters';
 
