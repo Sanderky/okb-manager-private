@@ -10,6 +10,8 @@ import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import dayjs from 'dayjs';
 import { AuthProvider } from './context/AuthContext.tsx';
+import { ErrorBoundary } from 'react-error-boundary';
+import ErrorPage from './pages/Error/ErrorPage.tsx';
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
@@ -27,13 +29,15 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <StyledEngineProvider enableCssLayer>
       <GlobalStyles styles="@layer theme, base, mui, components, utilities;" />
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <EmployeeAlertProvider>
-            <App />
-          </EmployeeAlertProvider>
-        </AuthProvider>
-      </QueryClientProvider>
+      <ErrorBoundary FallbackComponent={ErrorPage}>
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            <EmployeeAlertProvider>
+              <App />
+            </EmployeeAlertProvider>
+          </AuthProvider>
+        </QueryClientProvider>
+      </ErrorBoundary>
     </StyledEngineProvider>
   </StrictMode>
 );
