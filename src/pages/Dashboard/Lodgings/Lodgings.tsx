@@ -541,6 +541,7 @@ const LodgingsManager = () => {
       renderBottomToolbar={
         <Box
           sx={(theme) => ({
+            height: '100%',
             flexShrink: 0,
             background: theme.palette.background.paper,
             borderTop: `1px solid ${theme.palette.divider}`,
@@ -553,6 +554,9 @@ const LodgingsManager = () => {
             columnGap={2}
             rowGap={0.5}
             py={1}
+            sx={{
+              height: '100%',
+            }}
           >
             <Stack
               direction={'row'}

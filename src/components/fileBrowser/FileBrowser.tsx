@@ -946,6 +946,8 @@ const FileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
               borderTop: `1px solid ${theme.palette.divider}`,
               background: theme.palette.background.paper,
               p: 1,
+              minHeight: '45px',
+              alignItems: 'center',
             })}
           >
             <Typography

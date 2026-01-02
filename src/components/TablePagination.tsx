@@ -10,6 +10,13 @@ import {
 import { KeyboardArrowLeft, KeyboardArrowRight } from '@mui/icons-material';
 import { type MRT_TableInstance } from 'material-react-table';
 
+const getResultsText = (count: number) => {
+  if (!count) return '';
+  if (count === 1) return 'wynik';
+  if (count === 2 || count === 4) return 'wyniki';
+  return 'wyników';
+};
+
 const PaginationInput = ({ table }: { table: MRT_TableInstance<any> }) => {
   const { pageIndex } = table.getState().pagination;
   const pageCount = table.getPageCount();
@@ -50,7 +57,7 @@ const PaginationInput = ({ table }: { table: MRT_TableInstance<any> }) => {
       sx={(theme) => ({
         width: '40px',
         padding: '4px',
-        height: '30px',
+        height: '25px',
         textAlign: 'center',
         fontSize: '13px',
         border: `1px solid ${theme.palette.divider}`,
@@ -135,7 +142,7 @@ export const TablePagination = ({ table }: TablePaginationProps) => {
         displayEmpty
         variant="outlined"
         sx={(theme) => ({
-          height: '30px',
+          height: '25px',
           fontSize: '13px',
           '.MuiOutlinedInput-notchedOutline': {
             borderColor: theme.palette.divider,
@@ -158,7 +165,7 @@ export const TablePagination = ({ table }: TablePaginationProps) => {
         sx={{ lineHeight: 1, textAlign: 'center' }}
         color="textSecondary"
       >
-        {totalRows} wyników
+        {`${totalRows} ${getResultsText(totalRows)}`}
       </Typography>
     </Box>
   );
