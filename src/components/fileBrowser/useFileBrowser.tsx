@@ -225,36 +225,61 @@ const useFileBrowser = (baseDirectory: string, onFetch: () => void) => {
 
       setIsUploadDialogOpen(true);
       setUploadProgress({});
-
-      const promises: Promise<void>[] = [];
-
       for (const file of files) {
         setUploadProgress((prev) => ({ ...prev, [file.name]: 0 }));
       }
 
-      for (const file of files) {
+      const uploadPromises = Array.from(files).map(async (file) => {
         const finalName = file.name;
         const proposedPath = currentPath
           ? `${currentPath}/${finalName}`
           : finalName;
 
-        const uniquePath = await StorageService.getUniqueDestPath(proposedPath);
+        try {
+          const uniquePath =
+            await StorageService.getUniqueDestPath(proposedPath);
 
-        promises.push(
-          StorageService.uploadFile(uniquePath, file, (prog) => {
+          await StorageService.uploadFile(uniquePath, file, (prog) => {
             setUploadProgress((prev) => ({ ...prev, [file.name]: prog }));
-          })
-        );
-      }
+          });
+
+          return file.name;
+        } catch (error) {
+          setUploadProgress((prev) => ({ ...prev, [file.name]: -1 }));
+          throw new Error(`Błąd pliku ${file.name}`);
+        }
+      });
 
       try {
-        await Promise.all(promises);
-        await fetchData(currentPath);
-        notifications.show(`Przesłano ${files.length} plików`, {
-          severity: 'success',
-        });
+        const results = await Promise.allSettled(uploadPromises);
+
+        const successful = results.filter((r) => r.status === 'fulfilled');
+        const failed = results.filter((r) => r.status === 'rejected');
+
+        if (successful.length > 0) {
+          await fetchData(currentPath);
+        }
+
+        if (failed.length === 0) {
+          notifications.show(`Przesłano pomyślnie ${files.length} plików`, {
+            severity: 'success',
+          });
+        } else if (successful.length === 0) {
+          notifications.show(
+            'Wszystkie pliki napotkały błąd podczas wysyłania.',
+            {
+              severity: 'error',
+            }
+          );
+        } else {
+          notifications.show(
+            `Przesłano ${successful.length} z ${files.length} plików. Błędy: ${failed.length}`,
+            { severity: 'warning', autoHideDuration: 6000 }
+          );
+        }
       } catch (error) {
-        notifications.show('Błąd podczas przesyłania plików.', {
+        console.error('Krytyczny błąd uploadu:', error);
+        notifications.show('Wystąpił nieoczekiwany błąd.', {
           severity: 'error',
         });
       } finally {
@@ -262,6 +287,8 @@ const useFileBrowser = (baseDirectory: string, onFetch: () => void) => {
           setIsUploadDialogOpen(false);
           setUploadProgress({});
         }, 500);
+
+        event.target.value = '';
       }
     },
     [currentPath, fetchData, notifications]

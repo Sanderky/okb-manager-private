@@ -324,7 +324,6 @@ const AttachmentBox = ({
   };
 
   const handleClickOnName = (fileToPreview: Attachment) => {
-    console.log('handleClickOnName', fileToPreview);
     if (!fileToPreview) return;
     if (StorageService.canOpenPreview(fileToPreview)) {
       onPreview(fileToPreview);

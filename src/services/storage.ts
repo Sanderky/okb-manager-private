@@ -1,5 +1,6 @@
 import { supabase } from '../supabase';
 import type { FileBrowserItem } from '../types';
+import { removePolishChars } from '../utils';
 
 export const BUCKET_NAME = 'files';
 
@@ -124,9 +125,20 @@ export const uploadFile = async (
 ): Promise<void> => {
   if (onProgress) onProgress(10);
 
+  const lastSlashIndex = path.lastIndexOf('/');
+  const folder = lastSlashIndex !== -1 ? path.substring(0, lastSlashIndex) : '';
+  const rawFileName =
+    lastSlashIndex !== -1 ? path.substring(lastSlashIndex + 1) : path;
+
+  const safeFileName = removePolishChars(rawFileName);
+
+  const fullPath = folder ? `${folder}/${safeFileName}` : safeFileName;
+
+  console.log(`Uploading sanitized: ${path} -> ${fullPath}`);
+
   const { error } = await supabase.storage
     .from(BUCKET_NAME)
-    .upload(path, file, { upsert: false });
+    .upload(fullPath, file, { upsert: false });
 
   if (onProgress) onProgress(100);
 

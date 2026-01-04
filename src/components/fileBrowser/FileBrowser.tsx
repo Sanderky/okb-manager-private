@@ -42,6 +42,7 @@ import {
   DescriptionOutlined,
   InfoOutline,
   Check,
+  ErrorOutline,
 } from '@mui/icons-material';
 import MoveItemsDialog from './MoveFilesDialog';
 import { PreviewDialog } from './FilePreviewDialog';
@@ -870,7 +871,9 @@ const FileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
               {Object.entries(uploadProgress).map(([fileName, progress]) => (
                 <Box key={fileName} sx={{ mb: 1 }}>
                   <Stack direction={'row'} alignItems={'center'} spacing={1}>
-                    {progress === 100 ? (
+                    {progress === -1 ? (
+                      <ErrorOutline color="error" sx={{ fontSize: '1rem' }} />
+                    ) : progress === 100 ? (
                       <Check sx={{ fontSize: '1rem' }} />
                     ) : (
                       <CircularProgress size={15} />

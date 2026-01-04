@@ -1,16 +1,8 @@
 import { supabase } from '../supabase';
 import type { Attachment, EmployeeAttachmentType } from '../types';
+import { sanitizeFileName } from '../utils';
 
 const STORAGE_BUCKET = 'files';
-
-const sanitizeFileName = (fileName: string): string => {
-  return fileName
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/\s+/g, '_')
-    .replace(/[^a-zA-Z0-9._-]/g, '')
-    .toLowerCase();
-};
 
 const mapToAttachment = (item: any): Attachment => ({
   id: item.id,
