@@ -941,6 +941,18 @@ const ScheduleComponent = () => {
                       onEmployeeClick={handleOnEmployeeClick}
                     />
                   ))}
+                  {filteredEmployees.length === 0 && !loading && (
+                    <TableRow>
+                      <TableCell
+                        colSpan={weeks.length + 1}
+                        sx={{ border: 'none' }}
+                      >
+                        <Typography color="textSecondary" align="center">
+                          Brak pracowników
+                        </Typography>
+                      </TableCell>
+                    </TableRow>
+                  )}
                 </TableBody>
               </Table>
             </TableContainer>
@@ -1017,6 +1029,15 @@ const ScheduleComponent = () => {
                       index={index}
                     />
                   ))}
+                  {filteredEmployees.length === 0 && !loading && (
+                    <TableRow>
+                      <TableCell colSpan={8} sx={{ border: 'none' }}>
+                        <Typography color="textSecondary" align="center">
+                          Brak pracowników
+                        </Typography>
+                      </TableCell>
+                    </TableRow>
+                  )}
                 </TableBody>
               </Table>
             </TableContainer>
