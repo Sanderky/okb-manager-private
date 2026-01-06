@@ -109,6 +109,7 @@ export default function ConstructionEdit() {
     mutationFn: () => removeConstruction(constructionId!),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['contractors'] });
+      queryClient.invalidateQueries({ queryKey: ['constructions'] });
     },
   });
 

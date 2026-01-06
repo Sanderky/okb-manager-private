@@ -180,6 +180,7 @@ export default function EmployeeEdit() {
     mutationFn: () => removeEmployee(employeeId!),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['alerts'] });
+      queryClient.invalidateQueries({ queryKey: ['employees'] });
     },
   });
   const handleDeleteClick = useCallback(() => {
