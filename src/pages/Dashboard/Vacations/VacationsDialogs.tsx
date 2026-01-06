@@ -252,11 +252,11 @@ const VacationForm: React.FC<VacationFormProps> = ({
               readOnly: true,
             },
           }}
-          sx={{
+          sx={(theme) => ({
             '& .MuiInputBase-root': {
-              backgroundColor: '#f5f5f5',
+              background: theme.palette.action.disabledBackground,
             },
-          }}
+          })}
         />
       )}
 
