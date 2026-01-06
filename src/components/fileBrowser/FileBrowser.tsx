@@ -22,7 +22,6 @@ import {
   Paper,
   Stack,
   Divider,
-  CircularProgress,
   alpha,
 } from '@mui/material';
 import {
@@ -42,7 +41,6 @@ import {
   DescriptionOutlined,
   InfoOutline,
   Check,
-  ErrorOutline,
 } from '@mui/icons-material';
 import MoveItemsDialog from './MoveFilesDialog';
 import { PreviewDialog } from './FilePreviewDialog';
@@ -60,6 +58,7 @@ import {
   getFileType,
   openFileInNewTab,
 } from '../../services/storage';
+import UploadFilesDialog from './UploadFilesDialog';
 
 // const BASE_DIRECTORY = 'files';
 
@@ -239,6 +238,8 @@ const FileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
     handleMove,
     destinationFolders,
     isUploadDialogOpen,
+    setIsUploadDialogOpen,
+    uploading,
   } = useFileBrowser(baseDirectory, onFetch);
 
   const handleOpenPreview = useCallback((file: FileItem) => {
@@ -465,10 +466,13 @@ const FileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
     return (
       <>
         <Button
+          key={'upload-desktop'}
           component="label"
           variant="contained"
           size="small"
           startIcon={<FileUpload />}
+          disabled={!uploading && loading}
+          loading={uploading}
           sx={{
             display: { xs: 'none', md: 'inline-flex' },
             height: 'min-content',
@@ -477,9 +481,10 @@ const FileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
           Prześlij pliki
           <input type="file" hidden multiple onChange={handleFileUpload} />
         </Button>
-        <Tooltip title="Prześlij pliki">
+        <Tooltip title="Prześlij pliki" key={'upload-phone'}>
           <span>
             <IconButton
+              disabled={loading}
               component="label"
               sx={{
                 display: { xs: 'inline-flex', md: 'none' },
@@ -491,36 +496,38 @@ const FileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
           </span>
         </Tooltip>
 
-        <Tooltip title="Utwórz folder">
-          <IconButton onClick={handleCreateFolder}>
-            <CreateNewFolder />
-          </IconButton>
+        <Tooltip title="Utwórz folder" key={'new-folder'}>
+          <span>
+            <IconButton disabled={loading} onClick={handleCreateFolder}>
+              <CreateNewFolder />
+            </IconButton>
+          </span>
         </Tooltip>
         {selectedRows.length > 0 && [
-          <Tooltip title={`Pobierz (${selectedRows.length})`}>
+          <Tooltip title={`Pobierz (${selectedRows.length})`} key={'download'}>
             <span>
               <IconButton
-                disabled={selectedRows.length === 0}
+                disabled={selectedRows.length === 0 || loading}
                 onClick={() => handleDownload(selectedRows)}
               >
                 <Download />
               </IconButton>
             </span>
           </Tooltip>,
-          <Tooltip title={`Przenieś (${selectedRows.length})`}>
+          <Tooltip title={`Przenieś (${selectedRows.length})`} key={'move'}>
             <span>
               <IconButton
-                disabled={selectedRows.length === 0}
+                disabled={selectedRows.length === 0 || loading}
                 onClick={() => openMoveDialog(selectedRows)}
               >
                 <DriveFileMove />
               </IconButton>
             </span>
           </Tooltip>,
-          <Tooltip title={`Usuń (${selectedRows.length})`}>
+          <Tooltip title={`Usuń (${selectedRows.length})`} key={'delete'}>
             <span>
               <IconButton
-                disabled={selectedRows.length === 0}
+                disabled={selectedRows.length === 0 || loading}
                 onClick={() => handleDelete(selectedRows)}
               >
                 <Delete />
@@ -859,33 +866,11 @@ const FileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
         overflow: 'hidden',
       }}
     >
-      <BaseDialog
-        open={isUploadDialogOpen}
-        onClose={() => {}}
-        title={'Przesyłanie plików'}
-        showCloseButton={false}
-      >
-        <>
-          {Object.keys(uploadProgress).length > 0 && (
-            <Box>
-              {Object.entries(uploadProgress).map(([fileName, progress]) => (
-                <Box key={fileName} sx={{ mb: 1 }}>
-                  <Stack direction={'row'} alignItems={'center'} spacing={1}>
-                    {progress === -1 ? (
-                      <ErrorOutline color="error" sx={{ fontSize: '1rem' }} />
-                    ) : progress === 100 ? (
-                      <Check sx={{ fontSize: '1rem' }} />
-                    ) : (
-                      <CircularProgress size={15} />
-                    )}
-                    <Typography variant="subtitle2">{fileName}</Typography>
-                  </Stack>
-                </Box>
-              ))}
-            </Box>
-          )}
-        </>
-      </BaseDialog>
+      <UploadFilesDialog
+        isUploadDialogOpen={isUploadDialogOpen}
+        onClose={() => setIsUploadDialogOpen(false)}
+        uploadProgress={uploadProgress}
+      />
 
       <Box
         ref={dropRef}

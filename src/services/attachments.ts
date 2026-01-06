@@ -1,6 +1,6 @@
 import { supabase } from '../supabase';
 import type { Attachment, EmployeeAttachmentType } from '../types';
-import { sanitizeFileName } from '../utils';
+import { removePolishChars, sanitizeFileName } from '../utils';
 
 const STORAGE_BUCKET = 'files';
 
@@ -35,8 +35,11 @@ export const getEmployeeAttachments = async (
 export const uploadAttachment = async (
   employeeId: string,
   file: File,
-  type: EmployeeAttachmentType
+  type: EmployeeAttachmentType,
+  onProgress?: (progress: number) => void
 ): Promise<Attachment> => {
+  if (onProgress) onProgress(10);
+
   const safeName = sanitizeFileName(file.name);
 
   const filePath = `employees/${employeeId}/${type}/${Date.now()}_${safeName}`;
@@ -55,7 +58,8 @@ export const uploadAttachment = async (
     .insert({
       employee_id: employeeId,
       file_path: filePath,
-      file_name: file.name,
+      // file_name: file.name,
+      file_name: removePolishChars(file.name),
       file_size: file.size,
       content_type: file.type,
       type: type,
@@ -68,7 +72,7 @@ export const uploadAttachment = async (
     await supabase.storage.from(STORAGE_BUCKET).remove([filePath]);
     throw dbError;
   }
-
+  if (onProgress) onProgress(100);
   return mapToAttachment(dbData);
 };
 

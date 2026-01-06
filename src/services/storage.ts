@@ -134,8 +134,6 @@ export const uploadFile = async (
 
   const fullPath = folder ? `${folder}/${safeFileName}` : safeFileName;
 
-  console.log(`Uploading sanitized: ${path} -> ${fullPath}`);
-
   const { error } = await supabase.storage
     .from(BUCKET_NAME)
     .upload(fullPath, file, { upsert: false });
@@ -287,24 +285,32 @@ export const listAllFoldersRecursive = async (
 export const getUniqueDestPath = async (
   proposedPath: string
 ): Promise<string> => {
-  let uniquePath = proposedPath;
-  let counter = 1;
-  const extension = getFileExtension(proposedPath);
-  const originalNameWithoutExtension =
-    getFileNameWithoutExtension(proposedPath);
-
+  // 1. Rozdziel ścieżkę na katalog i nazwę pliku
   const lastSlash = proposedPath.lastIndexOf('/');
   const pathDirectory =
     lastSlash !== -1 ? proposedPath.substring(0, lastSlash + 1) : '';
+  const rawFileName =
+    lastSlash !== -1 ? proposedPath.substring(lastSlash + 1) : proposedPath;
+
+  const safeFileName = removePolishChars(rawFileName);
+
+  let uniquePath = pathDirectory
+    ? `${pathDirectory}${safeFileName}`
+    : safeFileName;
+
+  let counter = 1;
+  const extension = getFileExtension(safeFileName);
+  const originalNameWithoutExtension =
+    getFileNameWithoutExtension(safeFileName);
 
   const itemsInDir = await listFiles(pathDirectory);
-
   const existingNames = new Set(itemsInDir.map((i) => i.name));
 
   while (existingNames.has(uniquePath.split('/').pop()!)) {
     uniquePath = `${pathDirectory}${originalNameWithoutExtension} (${counter})${extension ? '.' + extension : ''}`;
     counter++;
   }
+
   return uniquePath;
 };
 

@@ -6,12 +6,19 @@ import {
   deleteAttachment,
 } from '../../../services/attachments';
 import type { EmployeeAttachmentType, Attachment } from '../../../types';
+import useNotifications from '../../../hooks/useNotifications/useNotifications';
 
 export const useEmployeeAttachments = (employeeId: string | undefined) => {
   const queryClient = useQueryClient();
+  const notifications = useNotifications();
+
   const [loadingType, setLoadingType] = useState<EmployeeAttachmentType | null>(
     null
   );
+  const [uploadProgress, setUploadProgress] = useState<Record<string, number>>(
+    {}
+  );
+  const [isUploadDialogOpen, setIsUploadDialogOpen] = useState<boolean>(false);
 
   const { data: attachments = [], isLoading: isFetching } = useQuery({
     queryKey: ['attachments', employeeId],
@@ -30,25 +37,72 @@ export const useEmployeeAttachments = (employeeId: string | undefined) => {
     [attachments]
   );
 
-  const uploadMutation = useMutation({
-    mutationFn: ({
-      file,
-      type,
-    }: {
-      file: File;
-      type: EmployeeAttachmentType;
-    }) => uploadAttachment(employeeId!, file, type),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['attachments', employeeId] });
+  const handleUpload = useCallback(
+    async (filesInput: File[] | FileList, type: EmployeeAttachmentType) => {
+      const files = Array.from(filesInput);
+
+      if (files.length === 0) return;
+      setIsUploadDialogOpen(true);
+
+      setLoadingType(type);
+      setUploadProgress({});
+
+      for (const file of files) {
+        setUploadProgress((prev) => ({ ...prev, [file.name]: 0 }));
+      }
+
+      const uploadPromises = files.map(async (file) => {
+        try {
+          await uploadAttachment(employeeId!, file, type, (progress) => {
+            setUploadProgress((prev) => ({ ...prev, [file.name]: progress }));
+          });
+          return file.name;
+        } catch (error) {
+          setUploadProgress((prev) => ({ ...prev, [file.name]: -1 }));
+          console.error('Krytyczny błąd uploadu:', error);
+
+          throw new Error(`Błąd pliku ${file.name}`);
+        }
+      });
+
+      try {
+        const results = await Promise.allSettled(uploadPromises);
+        const successful = results.filter((r) => r.status === 'fulfilled');
+        const failed = results.filter((r) => r.status === 'rejected');
+
+        if (successful.length > 0) {
+          await queryClient.invalidateQueries({
+            queryKey: ['attachments', employeeId],
+          });
+        }
+
+        if (failed.length === 0) {
+          notifications.show(`Przesłano pomyślnie ${files.length} plików`, {
+            severity: 'success',
+          });
+        } else if (successful.length === 0) {
+          notifications.show(
+            'Wszystkie pliki napotkały błąd podczas wysyłania.',
+            {
+              severity: 'error',
+            }
+          );
+        } else {
+          notifications.show(
+            `Przesłano ${successful.length} z ${files.length} plików. Błędy: ${failed.length}`,
+            { severity: 'warning', autoHideDuration: 6000 }
+          );
+        }
+      } catch (error) {
+        console.error('Krytyczny błąd uploadu:', error);
+      } finally {
+        setTimeout(() => {
+          setLoadingType(null);
+        }, 500);
+      }
     },
-    onSettled: () => setLoadingType(null),
-  });
-
-  const handleUpload = async (file: File, type: EmployeeAttachmentType) => {
-    setLoadingType(type);
-
-    await uploadMutation.mutateAsync({ file, type });
-  };
+    [employeeId, queryClient, notifications]
+  );
 
   const deleteMutation = useMutation({
     mutationFn: ({ id, path }: { id: string; path: string }) =>
@@ -78,6 +132,9 @@ export const useEmployeeAttachments = (employeeId: string | undefined) => {
     handleDelete,
     loadingType,
     isFetching,
+    uploadProgress,
+    isUploadDialogOpen,
+    setIsUploadDialogOpen,
   };
 };
 

@@ -36,6 +36,7 @@ import { useEmployeeAlert } from '../../../context/EmployeeAlertContext';
 import { useState } from 'react';
 import type { FieldInfo } from './EmployeeShow';
 import { openFileInNewTab } from '../../../services/storage';
+import UploadFilesDialog from '../../../components/fileBrowser/UploadFilesDialog';
 
 const generateDateBox = (
   key: keyof Employee,
@@ -284,6 +285,7 @@ const AttachmentBox = ({
   dateFields,
 }: AttachmentBoxProps) => {
   const files = hook.getAttachmentsByType(type);
+  const uploadProgress = hook.uploadProgress;
   const isLoading = hook.loadingType === type;
   const { alerts } = useEmployeeAlert();
   const employeeAlerts = alerts.filter((a) => a.employeeId === employee?.id);
@@ -307,17 +309,13 @@ const AttachmentBox = ({
 
     const droppedFiles = e.dataTransfer.files;
     if (droppedFiles.length > 0) {
-      Array.from(droppedFiles).forEach((file) => {
-        hook.handleUpload(file, type);
-      });
+      hook.handleUpload(droppedFiles, type);
     }
   };
 
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      Array.from(e.target.files).forEach((file) => {
-        hook.handleUpload(file, type);
-      });
+      hook.handleUpload(e.target.files, type);
 
       e.target.value = '';
     }
@@ -386,6 +384,12 @@ const AttachmentBox = ({
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
     >
+      <UploadFilesDialog
+        isUploadDialogOpen={hook.isUploadDialogOpen}
+        onClose={() => hook.setIsUploadDialogOpen(false)}
+        uploadProgress={uploadProgress}
+      />
+
       <Stack
         direction="row"
         justifyContent="space-between"

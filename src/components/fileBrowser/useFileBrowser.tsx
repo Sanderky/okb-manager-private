@@ -10,6 +10,7 @@ const useFileBrowser = (baseDirectory: string, onFetch: () => void) => {
   const [data, setData] = useState<FileBrowserItem[]>([]);
   const [currentPath, setCurrentPath] = useState<string>(baseDirectory);
   const [loading, setLoading] = useState<boolean>(false);
+  const [uploading, setUploading] = useState<boolean>(false);
   const [uploadProgress, setUploadProgress] = useState<Record<string, number>>(
     {}
   );
@@ -225,6 +226,8 @@ const useFileBrowser = (baseDirectory: string, onFetch: () => void) => {
 
       setIsUploadDialogOpen(true);
       setUploadProgress({});
+      setLoading(true);
+      setUploading(true);
       for (const file of files) {
         setUploadProgress((prev) => ({ ...prev, [file.name]: 0 }));
       }
@@ -283,10 +286,12 @@ const useFileBrowser = (baseDirectory: string, onFetch: () => void) => {
           severity: 'error',
         });
       } finally {
-        setTimeout(() => {
-          setIsUploadDialogOpen(false);
-          setUploadProgress({});
-        }, 500);
+        // setTimeout(() => {
+        //   setIsUploadDialogOpen(false);
+        //   setUploadProgress({});
+        // }, 500);
+        setLoading(false);
+        setUploading(false);
 
         event.target.value = '';
       }
@@ -379,7 +384,9 @@ const useFileBrowser = (baseDirectory: string, onFetch: () => void) => {
     destinationFolders,
     handleMove,
     isUploadDialogOpen,
+    setIsUploadDialogOpen,
     uploadProgress,
+    uploading,
   };
 };
 
