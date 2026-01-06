@@ -1,35 +1,60 @@
 import { supabase } from '../supabase';
 import type { Attachment, EmployeeAttachmentType } from '../types';
-import { removePolishChars, sanitizeFileName } from '../utils';
+import {
+  listFiles,
+  getUniqueDestPath,
+  deleteFiles,
+  getSignedUrl,
+} from './storage';
 
 const STORAGE_BUCKET = 'files';
 
-const mapToAttachment = (item: any): Attachment => ({
-  id: item.id,
-  employeeId: item.employee_id,
-  name: item.file_name,
-  path: item.file_path,
-  size: item.file_size,
-  contentType: item.content_type,
+const mapStorageItemToAttachment = (
+  item: any,
+  type: EmployeeAttachmentType,
+  employeeId: string
+): Attachment => ({
+  id: item.id || item.path,
+  employeeId: employeeId,
+  name: item.name,
+  path: item.path,
+  size: item.size,
+  contentType: item.contentType,
   type: 'file',
-
-  createdAt: new Date(item.created_at),
-
-  attachmentType: item.type as EmployeeAttachmentType,
+  createdAt: item.createdAt,
+  attachmentType: type,
 });
 
 export const getEmployeeAttachments = async (
   employeeId: string
 ): Promise<Attachment[]> => {
-  const { data, error } = await supabase
-    .from('employee_attachments')
-    .select('*')
-    .eq('employee_id', employeeId)
-    .order('created_at', { ascending: false });
+  const rootPath = `employees/${employeeId}`;
 
-  if (error) throw error;
+  let typeFolders: any[] = [];
+  try {
+    typeFolders = await listFiles(rootPath);
+  } catch {
+    return [];
+  }
 
-  return data.map(mapToAttachment);
+  const allAttachments: Attachment[] = [];
+  for (const folder of typeFolders) {
+    if (folder.type !== 'folder') continue;
+
+    const type = folder.name as EmployeeAttachmentType;
+
+    const filesInType = await listFiles(folder.path);
+
+    const attachments = filesInType
+      .filter((f) => f.type === 'file')
+      .map((file) => mapStorageItemToAttachment(file, type, employeeId));
+
+    allAttachments.push(...attachments);
+  }
+
+  return allAttachments.sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
 };
 
 export const uploadAttachment = async (
@@ -38,83 +63,46 @@ export const uploadAttachment = async (
   type: EmployeeAttachmentType,
   onProgress?: (progress: number) => void
 ): Promise<Attachment> => {
+  const proposedPath = `employees/${employeeId}/${type}/${file.name}`;
+
+  const uniquePath = await getUniqueDestPath(proposedPath);
+
   if (onProgress) onProgress(10);
 
-  const safeName = sanitizeFileName(file.name);
-
-  const filePath = `employees/${employeeId}/${type}/${Date.now()}_${safeName}`;
-
-  const { error: storageError } = await supabase.storage
+  const { data, error } = await supabase.storage
     .from(STORAGE_BUCKET)
-    .upload(filePath, file, {
-      upsert: true,
+    .upload(uniquePath, file, {
+      upsert: false,
       cacheControl: '3600',
     });
 
-  if (storageError) throw storageError;
-
-  const { data: dbData, error: dbError } = await supabase
-    .from('employee_attachments')
-    .insert({
-      employee_id: employeeId,
-      file_path: filePath,
-      // file_name: file.name,
-      file_name: removePolishChars(file.name),
-      file_size: file.size,
-      content_type: file.type,
-      type: type,
-    })
-    .select()
-    .single();
-
-  if (dbError) {
-    console.error('Błąd zapisu w bazie, usuwam osierocony plik ze Storage...');
-    await supabase.storage.from(STORAGE_BUCKET).remove([filePath]);
-    throw dbError;
-  }
   if (onProgress) onProgress(100);
-  return mapToAttachment(dbData);
+  if (error) throw error;
+
+  return {
+    id: data?.id || uniquePath,
+    employeeId,
+    name: uniquePath.split('/').pop()!,
+    path: uniquePath,
+    size: file.size,
+    contentType: file.type,
+    type: 'file',
+    createdAt: new Date(),
+    attachmentType: type,
+  };
 };
 
-export const deleteAttachment = async (
-  attachmentId: string,
-  filePath: string
-): Promise<void> => {
-  const { error: dbError } = await supabase
-    .from('employee_attachments')
-    .delete()
-    .eq('id', attachmentId);
-
-  if (dbError) throw dbError;
-
-  const { error: storageError } = await supabase.storage
-    .from(STORAGE_BUCKET)
-    .remove([filePath]);
-
-  if (storageError) {
-    console.warn(
-      'Rekord usunięty, ale plik pozostał w Storage (orphan):',
-      storageError
-    );
-  }
+export const deleteAttachment = async (filePath: string): Promise<void> => {
+  await deleteFiles([filePath]);
 };
 
 export const getAttachmentUrl = (path: string): string => {
   const { data } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(path);
-
   return data.publicUrl;
 };
 
 export const getSignedAttachmentUrl = async (
   path: string
 ): Promise<string | null> => {
-  const { data, error } = await supabase.storage
-    .from(STORAGE_BUCKET)
-    .createSignedUrl(path, 3600); // Ważny 1h
-
-  if (error) {
-    console.error('Błąd generowania linku:', error);
-    return null;
-  }
-  return data.signedUrl;
+  return getSignedUrl(path);
 };

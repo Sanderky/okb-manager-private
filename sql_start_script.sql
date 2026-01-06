@@ -1,5 +1,4 @@
 -- 1. KONFIGURACJA I FUNKCJE
-create type attachment_type as enum ('contract', 'id_card', 'a1', 'medical', 'other');
 create or replace function public.handle_updated_at() returns trigger security definer
 set search_path = '' as $$ begin new.updated_at = now();
 return new;
@@ -79,18 +78,8 @@ create table constructions (
     created_at timestamptz default now()
 );
 create index constructions_contractor_id_idx on constructions(contractor_id);
--- 7. ZALACZNIKI
-create table employee_attachments (
-  id uuid default gen_random_uuid() primary key,
-  employee_id uuid references employees(id) on delete cascade not null,
-  file_path text not null,
-  file_name text not null,
-  file_size bigint,
-  content_type text,
-  type attachment_type not null default 'other',
-  created_at timestamptz default now()
-);
-create index employee_attachments_employee_id_idx on employee_attachments(employee_id);
+-- 7. ZALACZNIKI (USUNIĘTO TABELĘ SQL)
+-- Wszystkie pliki są teraz zarządzane wyłącznie przez Supabase Storage (bucket 'files').
 -- 8. URLOPY
 create table vacations (
   id uuid default gen_random_uuid() primary key,
@@ -238,11 +227,12 @@ set public = false;
 drop policy if exists "Public read" on storage.objects;
 drop policy if exists "Auth access" on storage.objects;
 drop policy if exists "Give me access" on storage.objects;
+-- Ważne: To teraz jedyna polityka kontrolująca dostęp do plików
 create policy "Auth access" on storage.objects for all to authenticated using (bucket_id = 'files') with check (bucket_id = 'files');
 alter table employees enable row level security;
 alter table contractors enable row level security;
 alter table constructions enable row level security;
-alter table employee_attachments enable row level security;
+-- Usunięto: alter table employee_attachments enable row level security;
 alter table vacations enable row level security;
 alter table daily_schedules enable row level security;
 alter table work_logs enable row level security;
@@ -268,11 +258,7 @@ create policy "Auth All" on constructions for all using (
     select auth.role()
   ) = 'authenticated'
 );
-create policy "Auth All" on employee_attachments for all using (
-  (
-    select auth.role()
-  ) = 'authenticated'
-);
+-- Usunięto politykę dla employee_attachments
 create policy "Auth All" on vacations for all using (
   (
     select auth.role()
@@ -323,7 +309,7 @@ create policy "Auth All" on lodging_employees for all using (
     select auth.role()
   ) = 'authenticated'
 );
--- 15. UPRAWNIENIA (Zapobiega błędom 403)
+-- 15. UPRAWNIENIA
 GRANT USAGE ON SCHEMA public TO postgres,
   anon,
   authenticated,

@@ -105,8 +105,7 @@ export const useEmployeeAttachments = (employeeId: string | undefined) => {
   );
 
   const deleteMutation = useMutation({
-    mutationFn: ({ id, path }: { id: string; path: string }) =>
-      deleteAttachment(id, path),
+    mutationFn: ({ path }: { path: string }) => deleteAttachment(path),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['attachments', employeeId] });
     },
@@ -120,7 +119,6 @@ export const useEmployeeAttachments = (employeeId: string | undefined) => {
     if (!attachment.id) return;
     setLoadingType(type);
     await deleteMutation.mutateAsync({
-      id: attachment.id,
       path: attachment.path,
     });
   };
