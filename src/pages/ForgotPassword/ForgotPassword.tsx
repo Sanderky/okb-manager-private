@@ -83,7 +83,7 @@ const UpdatePassword = () => {
   return (
     <Box
       component="section"
-      className="relative h-screen w-full overflow-hidden"
+      className="relative flex h-screen w-full flex-col overflow-hidden"
       sx={(theme) => ({
         background: theme.palette.background.gradient,
       })}
@@ -268,8 +268,9 @@ const UpdatePassword = () => {
             </form>
           </Box>
         </Box>
-        <AppFooter />
       </Box>
+
+      <AppFooter />
     </Box>
   );
 };
