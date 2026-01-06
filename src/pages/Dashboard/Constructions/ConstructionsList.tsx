@@ -852,6 +852,7 @@ export default function ConstructionsList() {
     muiTableContainerProps: {
       sx: {
         minHeight: 0,
+        backgroundColor: 'background.default',
         overflowY: 'auto',
         flex: '1 1 auto',
         '& *': {

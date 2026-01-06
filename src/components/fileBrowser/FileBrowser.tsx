@@ -595,6 +595,7 @@ const FileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
         height: '100%',
         maxHeight: '100%',
         width: '100%',
+        backgroundColor: 'background.default',
       },
     },
     muiTableBodyCellProps: {

@@ -11,7 +11,7 @@ import { KeyboardArrowLeft, KeyboardArrowRight } from '@mui/icons-material';
 import { type MRT_TableInstance } from 'material-react-table';
 
 const getResultsText = (count: number) => {
-  if (!count) return '';
+  if (!count && count !== 0) return '';
   if (count === 1) return 'wynik';
   if (count === 2 || count === 4) return 'wyniki';
   return 'wyników';
@@ -19,7 +19,7 @@ const getResultsText = (count: number) => {
 
 const PaginationInput = ({ table }: { table: MRT_TableInstance<any> }) => {
   const { pageIndex } = table.getState().pagination;
-  const pageCount = table.getPageCount();
+  const pageCount = table.getPageCount() === 0 ? 1 : table.getPageCount();
 
   const [value, setValue] = useState(String(pageIndex + 1));
 
@@ -82,7 +82,7 @@ interface TablePaginationProps {
 
 export const TablePagination = ({ table }: TablePaginationProps) => {
   const { pageSize } = table.getState().pagination;
-  const pageCount = table.getPageCount();
+  const pageCount = table.getPageCount() === 0 ? 1 : table.getPageCount();
   const totalRows = table.getPrePaginationRowModel().rows.length;
 
   return (
