@@ -364,7 +364,7 @@ const EmployeeAlerts = () => {
           </Typography>
           {hasMoreItems && (
             <Chip
-              label={`${alerts.length} ${alerts.length === 4 ? 'uwagi' : 'uwag'}`}
+              label={`${alerts.length} ${alerts.length === 4 || alerts.length === 3 ? 'uwagi' : 'uwag'}`}
               size="small"
               color="primary"
               variant="outlined"
