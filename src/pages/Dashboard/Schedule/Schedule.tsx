@@ -945,11 +945,26 @@ const ScheduleComponent = () => {
                     <TableRow>
                       <TableCell
                         colSpan={weeks.length + 1}
-                        sx={{ border: 'none' }}
+                        sx={{ border: 'none', p: 0 }}
                       >
-                        <Typography color="textSecondary" align="center">
-                          Brak pracowników
-                        </Typography>
+                        <Stack
+                          direction={'column'}
+                          justifyContent={'center'}
+                          alignItems={'center'}
+                          sx={{
+                            py: 5,
+                            borderBottom: `1px solid ${theme.palette.divider}`,
+                          }}
+                        >
+                          <Typography
+                            variant="body1"
+                            align="center"
+                            className="px-4 font-normal"
+                            color="textSecondary"
+                          >
+                            Nie znaleziono pracowników
+                          </Typography>
+                        </Stack>
                       </TableCell>
                     </TableRow>
                   )}
