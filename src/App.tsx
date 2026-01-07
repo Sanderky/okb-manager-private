@@ -43,59 +43,66 @@ import { ThemeContextProvider } from './context/ThemeContext';
 export default function App() {
   const { user, initialLoading: authLoading, error } = useAuth();
 
-  const { isLoading: employeesLoading } = useQuery({
+  const { isLoading: employeesLoading, error: employeesError } = useQuery({
     queryKey: ['employees'],
     queryFn: () => getEmployeeList(),
     enabled: !!user,
   });
 
-  const { isLoading: isContractorsLoading } = useQuery({
-    queryKey: ['contractors'],
-    queryFn: getContractors,
-    enabled: !!user,
-  });
+  const { isLoading: isContractorsLoading, error: contractorsError } = useQuery(
+    {
+      queryKey: ['contractors'],
+      queryFn: getContractors,
+      enabled: !!user,
+    }
+  );
 
-  const { isLoading: constructionsLoading } = useQuery({
-    queryKey: ['constructions'],
-    queryFn: () => getConstructionList(),
-    enabled: !!user,
-  });
+  const { isLoading: constructionsLoading, error: constructionsError } =
+    useQuery({
+      queryKey: ['constructions'],
+      queryFn: () => getConstructionList(),
+      enabled: !!user,
+    });
 
-  const { isLoading: upcomingVacationsLoading } = useQuery({
-    queryKey: ['vacations', 'upcoming-vacations'],
-    queryFn: () => getUpcomingVacations(),
-    enabled: !!user,
-  });
+  const { isLoading: upcomingVacationsLoading, error: upcomingVacationsError } =
+    useQuery({
+      queryKey: ['vacations', 'upcoming-vacations'],
+      queryFn: () => getUpcomingVacations(),
+      enabled: !!user,
+    });
 
-  const { isLoading: employeeStatsLoading } = useQuery({
-    queryKey: ['employees', 'stats'],
-    queryFn: getEmployeeStats,
-    enabled: !!user,
-  });
+  const { isLoading: employeeStatsLoading, error: employeeStatsError } =
+    useQuery({
+      queryKey: ['employees', 'stats'],
+      queryFn: getEmployeeStats,
+      enabled: !!user,
+    });
 
-  const { isLoading: constructionStatsLoading } = useQuery({
-    queryKey: ['constructions', 'stats'],
-    queryFn: getConstructionStats,
-    enabled: !!user,
-  });
+  const { isLoading: constructionStatsLoading, error: constructionStatsError } =
+    useQuery({
+      queryKey: ['constructions', 'stats'],
+      queryFn: getConstructionStats,
+      enabled: !!user,
+    });
 
-  const { isLoading: homeNoteLoading } = useQuery({
+  const { isLoading: homeNoteLoading, error: homeNoteError } = useQuery({
     queryKey: ['home', 'note'],
     queryFn: getHomeNote,
     enabled: !!user,
   });
 
-  const { isLoading: isAlertsLoading } = useQuery({
+  const { isLoading: isAlertsLoading, error: alertsError } = useQuery({
     queryKey: ['alerts'],
     queryFn: getEmployeeAlerts,
     enabled: !!user,
   });
 
-  const { isLoading: upcomingEventsLoading } = useQuery({
-    queryKey: ['calendarEvents', 'upcoming', 'all'],
-    queryFn: async () => getNearestUpcomingEvents(),
-    enabled: !!user,
-  });
+  const { isLoading: upcomingEventsLoading, error: upcomingEventsError } =
+    useQuery({
+      queryKey: ['calendarEvents', 'upcoming', 'all'],
+      queryFn: async () => getNearestUpcomingEvents(),
+      enabled: !!user,
+    });
 
   const isLoading = Boolean(
     authLoading ||
@@ -111,6 +118,19 @@ export default function App() {
           upcomingEventsLoading))
   );
 
+  const isError = Boolean(
+    error ||
+      employeesError ||
+      contractorsError ||
+      constructionsError ||
+      upcomingVacationsError ||
+      homeNoteError ||
+      employeeStatsError ||
+      constructionStatsError ||
+      alertsError ||
+      upcomingEventsError
+  );
+
   return (
     <ThemeContextProvider>
       <LayoutProvider>
@@ -122,7 +142,7 @@ export default function App() {
                 <Route
                   element={
                     <PrivateRoute
-                      isError={Boolean(error)}
+                      isError={isError}
                       isLoading={isLoading}
                       user={user}
                     />

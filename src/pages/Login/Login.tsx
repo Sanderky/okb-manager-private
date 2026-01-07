@@ -45,7 +45,7 @@ const Login = () => {
   const [errors, setErrors] = useState<
     Partial<Record<keyof FormValues, string>>
   >({});
-  const [credentialError, setCredentialError] = useState(false);
+  const [error, setError] = useState('');
   const [forgotOpen, setForgotOpen] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -59,7 +59,7 @@ const Login = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setValues({ ...values, [e.target.name]: e.target.value });
-    if (credentialError) setCredentialError(false);
+    if (error) setError('');
   };
 
   const validateInputs = () => {
@@ -70,7 +70,7 @@ const Login = () => {
       if (error) newErrors[field] = error;
     });
     setErrors(newErrors);
-    setCredentialError(false);
+    setError('');
     return Object.keys(newErrors).length === 0;
   };
 
@@ -84,17 +84,32 @@ const Login = () => {
 
       setValues({ email: '', password: '' });
       setErrors({});
-      setCredentialError(false);
+      setError('');
     } catch (error: any) {
       console.error('Login error:', error);
+      const msg = error.message || '';
+      const status = error.status;
 
-      if (
-        error.message === 'Invalid login credentials' ||
-        error.status === 400
+      if (msg === 'Invalid login credentials' || status === 400) {
+        setError('Niepoprawny email lub hasło.');
+      } else if (msg.includes('Email not confirmed')) {
+        setError(
+          'Twój adres email nie został jeszcze potwierdzony. Sprawdź skrzynkę odbiorczą.'
+        );
+      } else if (status === 429 || msg.includes('Too many requests')) {
+        setError(
+          'Zbyt wiele nieudanych prób logowania. Spróbuj ponownie za chwilę.'
+        );
+      } else if (
+        msg.includes('Network request failed') ||
+        msg.includes('fetch failed') ||
+        msg.includes('network')
       ) {
-        setCredentialError(true);
+        setError('Problem z połączeniem. Sprawdź swój internet.');
+      } else if (status >= 500) {
+        setError('Wystąpił błąd po stronie serwera. Spróbuj ponownie później.');
       } else {
-        setCredentialError(true);
+        setError('Wystąpił nieoczekiwany błąd podczas logowania.');
       }
     } finally {
       stopActionLoading();
@@ -253,11 +268,7 @@ const Login = () => {
                     }}
                   />
 
-                  {credentialError && (
-                    <Alert severity="error">
-                      Wprowadzono niepoprawny email lub hasło.
-                    </Alert>
-                  )}
+                  {error && <Alert severity="error">{error}</Alert>}
 
                   <div>
                     <Button

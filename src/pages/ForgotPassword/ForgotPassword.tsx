@@ -74,7 +74,31 @@ const UpdatePassword = () => {
     } catch (err: any) {
       console.error('Update password error:', err);
 
-      setGeneralError('Nie udało się zmienić hasła. Spróbuj ponownie.');
+      const msg = err.message || '';
+
+      if (msg.includes('Password should be at least')) {
+        setPasswordError('Hasło jest za krótkie (minimum 6 znaków).');
+      } else if (msg.includes('different from the old password')) {
+        setGeneralError('Nowe hasło musi różnić się od starego hasła.');
+      } else if (
+        msg.includes('Auth session missing') ||
+        msg.includes('User not authenticated') ||
+        err.status === 401 ||
+        err.status === 403
+      ) {
+        setGeneralError(
+          'Link resetujący wygasł lub jest nieprawidłowy. Poproś o zmianę hasła ponownie.'
+        );
+      } else if (err.status === 429) {
+        setGeneralError('Zbyt wiele prób. Odczekaj chwilę.');
+      } else if (
+        msg.includes('Network request failed') ||
+        msg.includes('fetch failed')
+      ) {
+        setGeneralError('Błąd połączenia. Sprawdź internet.');
+      } else {
+        setGeneralError('Wystąpił nieoczekiwany błąd. Spróbuj ponownie.');
+      }
     } finally {
       stopActionLoading();
     }
