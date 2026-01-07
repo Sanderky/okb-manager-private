@@ -237,7 +237,7 @@ export const EventsBox = ({
               left: 0,
               width: '100%',
               height: 'calc(100% - 34px)',
-              boxShadow: `inset 0px -25px 10px -15px ${alpha(theme.palette.background.paper, 1)}`,
+              boxShadow: hasMoreItems ? `inset 0px -25px 10px -15px ${alpha(theme.palette.background.paper, 1)}` : 'none',
             },
           })}
         >
