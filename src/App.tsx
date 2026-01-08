@@ -134,6 +134,7 @@ export default function App() {
     queryKey: ['disk-usage'],
     queryFn: getDiskUsage,
     staleTime: 60 * 1000 * 15,
+    enabled: !!user,
   });
 
   const {
@@ -143,6 +144,7 @@ export default function App() {
       queryKey: ['todos'],
       queryFn: getTodos,
       refetchInterval: 1000 * 10,
+      enabled: !!user,
     });
 
   const isLoading = Boolean(
