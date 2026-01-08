@@ -3,6 +3,7 @@ import {
   Box,
   Button,
   CircularProgress,
+  Divider,
   IconButton,
   List,
   ListItem,
@@ -31,7 +32,7 @@ import { useDialogs } from '../hooks/useDialogs/useDialogs';
 import type { Construction, Contractor } from '../types';
 import useNotifications from '../hooks/useNotifications/useNotifications';
 import { Note } from './Note';
-import { ArrowBack, EditDocument } from '@mui/icons-material';
+import { ArrowBack } from '@mui/icons-material';
 import { Link, useSearchParams } from 'react-router-dom';
 
 const useContractors = () => {
@@ -263,11 +264,8 @@ const ContractorsList = ({
           <TableHead>
             <TableRow>
               <TableCell width="5%">Lp.</TableCell>
-              <TableCell width="75%">Nazwa</TableCell>
+              <TableCell width="85%">Nazwa</TableCell>
               <TableCell width="10%">Budowy</TableCell>
-              <TableCell width="10%" className="border-b">
-                Akcje
-              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -285,7 +283,12 @@ const ContractorsList = ({
               </TableRow>
             ) : (
               contractors?.map((contractor, index) => (
-                <TableRow hover key={contractor.id}>
+                <TableRow
+                  hover
+                  key={contractor.id}
+                  sx={{ cursor: 'pointer' }}
+                  onClick={() => setOpenNote(contractor.id)}
+                >
                   <TableCell sx={{ textAlign: 'center' }}>
                     {index + 1}
                   </TableCell>
@@ -294,14 +297,6 @@ const ContractorsList = ({
                   </TableCell>
                   <TableCell align="center">
                     {contractor.constructionsCount ?? '-'}
-                  </TableCell>
-                  <TableCell className="border-b">
-                    <IconButton
-                      onClick={() => setOpenNote(contractor.id)}
-                      disabled={isLoading}
-                    >
-                      <EditDocument />
-                    </IconButton>
                   </TableCell>
                 </TableRow>
               ))
@@ -457,8 +452,8 @@ const ContractorDetails = ({
           Usuń wykonawcę
         </Button>
       </Stack>
-
-      <Box pt={2} pb={2}>
+      <Divider />
+      <Box>
         <Typography fontWeight={'600'}>Lista budów:</Typography>
         {!constructions || constructions?.length === 0 ? (
           <Typography variant="overline">Brak budów</Typography>
@@ -513,10 +508,12 @@ const ContractorDetails = ({
           </>
         )}
       </Box>
+      <Divider />
 
       <Note
         content={contractor.note ?? ''}
         onSave={(note) => onSaveNote(contractor.id, note)}
+        showFrame={false}
       />
     </Stack>
   );
@@ -612,6 +609,7 @@ export const ContractorsDialog = ({
               overflowY: 'auto',
               minHeight: 0,
               p: 2,
+              pt: 4,
             }}
           >
             <ContractorDetails
