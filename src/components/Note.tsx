@@ -316,6 +316,7 @@ interface NoteProps {
   onSave: (note: string) => void;
   loading?: boolean;
   showFrame?: boolean;
+  dashedBorder?: boolean
 }
 
 export const Note = ({
@@ -323,6 +324,7 @@ export const Note = ({
   onSave,
   loading = false,
   showFrame = true,
+  dashedBorder = true
 }: NoteProps) => {
   const [editNote, setEditNote] = useState(false);
   const [note, setNote] = useState(content ?? '');
@@ -347,7 +349,7 @@ export const Note = ({
 
   return (
     <Box
-      className={showFrame ? 'rounded-lg border border-dashed' : ''}
+      className={showFrame ? `rounded-lg border ${dashedBorder ? 'border-dashed' : ''}` : ''}
       sx={(theme) => ({
         background: theme.palette.background.paper,
         borderColor: theme.palette.divider,

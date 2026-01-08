@@ -638,6 +638,7 @@ const HomeNote = () => {
       content={home?.note ?? ''}
       onSave={(note) => updateNoteMutation.mutate(note)}
       loading={updateNoteMutation.isPending || noteLoading}
+      dashedBorder={false}
     />
   );
 };
