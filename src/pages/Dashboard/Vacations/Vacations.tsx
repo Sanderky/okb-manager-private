@@ -192,7 +192,7 @@ const Calendar: React.FC = () => {
       notifications.show('Urlop został pomyślnie utworzony.', {
         severity: 'success',
       });
-      setAddDialogOpen(false);
+      handleAddDialogClose();
     },
     onError: (err) => {
       console.error(err);
@@ -405,6 +405,7 @@ const Calendar: React.FC = () => {
   };
 
   const resetOnClose = useCallback(() => {
+    console.log('fire reset')
     setCurrentEvent({} as CalendarEvent);
     setSelectDay(null);
     setValidationError('');

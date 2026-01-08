@@ -181,7 +181,7 @@ const Calendar: React.FC = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['calendarEvents'] });
       notifications.show('Wydarzenie zaktualizowane.', { severity: 'success' });
-      handleEditDialogClose();
+      setEditDialogOpen(false);
     },
     onError: () => notifications.show('Błąd edycji.', { severity: 'error' }),
     onSettled: stopActionLoading,
@@ -378,6 +378,7 @@ const Calendar: React.FC = () => {
   };
 
   const resetOnClose = useCallback(() => {
+    console.log('fire reset')
     setCurrentEvent({});
     setSelectDay(null);
     setValidationError('');
