@@ -45,6 +45,7 @@ import { supabase } from './supabase';
 import PublicRoute from './routing/PublicRoute';
 import Loading from './components/Loading';
 import ErrorPage from './pages/Error/ErrorPage';
+import { getDiskUsage } from './services/metrics';
 
 const AuthListener = () => {
   const navigate = useNavigate();
@@ -128,6 +129,12 @@ export default function App() {
       enabled: !!user,
     });
 
+  const { isLoading: diskUsageLoading, isError: diskUsageError } = useQuery({
+    queryKey: ['disk-usage'],
+    queryFn: getDiskUsage,
+    staleTime: 60 * 1000 * 15,
+  });
+
   const isLoading = Boolean(
     authLoading ||
       (user &&
@@ -139,6 +146,7 @@ export default function App() {
           homeNoteLoading ||
           employeeStatsLoading ||
           constructionStatsLoading ||
+          diskUsageLoading ||
           upcomingEventsLoading))
   );
 
@@ -152,7 +160,8 @@ export default function App() {
       employeeStatsError ||
       constructionStatsError ||
       alertsError ||
-      upcomingEventsError
+      upcomingEventsError ||
+      diskUsageError
   );
 
   if (authLoading || isLoading) {

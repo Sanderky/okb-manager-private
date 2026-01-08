@@ -9,6 +9,12 @@ export interface Contractor {
   constructionsCount?: number;
 }
 
+export interface DiskUsage {
+  total: number;
+  free: number;
+  used: number;
+  percentage: number;
+}
 export interface TodoItem {
   id: number;
   title: string;
