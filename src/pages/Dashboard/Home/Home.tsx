@@ -128,15 +128,6 @@ const Home = () => {
               </Grid>
             </Grid>
 
-            <Grid container columns={12} size={12}>
-              <Grid size={{ xs: 12, lg: 6 }}>
-                <TodoList />
-              </Grid>
-              <Grid size={{ xs: 12, lg: 6 }}>
-                <HomeNote />
-              </Grid>
-            </Grid>
-
             <Grid
               container
               columns={12}
@@ -173,6 +164,15 @@ const Home = () => {
                     />
                   </CardContent>
                 </Card>
+              </Grid>
+            </Grid>
+
+            <Grid container columns={12} size={12}>
+              <Grid size={{ xs: 12, lg: 6 }}>
+                <TodoList />
+              </Grid>
+              <Grid size={{ xs: 12, lg: 6 }}>
+                <HomeNote />
               </Grid>
             </Grid>
           </Grid>
