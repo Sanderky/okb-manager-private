@@ -3,6 +3,7 @@ import {
   Route,
   Routes,
   Navigate,
+  useNavigate,
 } from 'react-router-dom';
 import DashboardLayout from './components/dashboard/DashboardLayout';
 import Login from './pages/Login/Login';
@@ -39,6 +40,29 @@ import Calendar from './pages/Dashboard/Calendar/Calendar';
 import { getNearestUpcomingEvents } from './services/calendar';
 import LodgingsManager from './pages/Dashboard/Lodgings/Lodgings';
 import { ThemeContextProvider } from './context/ThemeContext';
+import { useEffect } from 'react';
+import { supabase } from './supabase';
+import PublicRoute from './routing/PublicRoute';
+import Loading from './components/Loading';
+import ErrorPage from './pages/Error/ErrorPage';
+
+const AuthListener = () => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        navigate('/reset-password');
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
+
+  return null;
+};
 
 export default function App() {
   const { user, initialLoading: authLoading, error } = useAuth();
@@ -131,23 +155,37 @@ export default function App() {
       upcomingEventsError
   );
 
+  if (authLoading || isLoading) {
+    return (
+      <ThemeContextProvider>
+        <Loading
+          fullScreen
+          message={authLoading ? 'Autoryzacja...' : 'Ładowanie danych...'}
+        />
+      </ThemeContextProvider>
+    );
+  }
+
+  if (isError) {
+    return (
+      <ThemeContextProvider>
+        <ErrorPage />
+      </ThemeContextProvider>
+    );
+  }
+
   return (
     <ThemeContextProvider>
       <LayoutProvider>
         <NotificationsProvider>
           <DialogsProvider>
             <Router>
+              <AuthListener />
               <Routes>
-                <Route path="/login" element={<Login />} />
-                <Route
-                  element={
-                    <PrivateRoute
-                      isError={isError}
-                      isLoading={isLoading}
-                      user={user}
-                    />
-                  }
-                >
+                <Route element={<PublicRoute user={user} />}>
+                  <Route path="/login" element={<Login />} />
+                </Route>
+                <Route element={<PrivateRoute user={user} />}>
                   <Route path="/reset-password" element={<UpdatePassword />} />
                   <Route path="/" element={<DashboardLayout />}>
                     <Route index element={<Navigate replace to="/home" />} />
