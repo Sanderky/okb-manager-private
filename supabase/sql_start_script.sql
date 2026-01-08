@@ -192,7 +192,6 @@ create table todos (
   is_important boolean default false,
   created_at timestamptz default now()
 );
-create index todos_position_idx on todos(position);
 create index todos_important_idx on todos(is_important);
 -- 14. WIDOK ALERTS
 create or replace view view_employee_alerts with (security_invoker = true) as

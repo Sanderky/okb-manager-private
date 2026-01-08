@@ -16,6 +16,8 @@ import {
   Divider,
   Stack,
   Tooltip,
+  TextField,
+  InputAdornment,
 } from '@mui/material';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
@@ -47,7 +49,6 @@ const TodoList = () => {
   } = useQuery({
     queryKey: ['todos'],
     queryFn: getTodos,
-    refetchInterval: 5000,
   });
 
   const addMutation = useMutation({
@@ -171,37 +172,36 @@ const TodoList = () => {
 
       {tabValue === 0 && (
         <Box sx={{ p: 2, pb: 0 }}>
-          <Box
-            sx={(theme) => ({
-              display: 'flex',
-              alignItems: 'center',
-              p: '2px 4px',
-              borderRadius: 2,
-              border: `1px solid ${theme.palette.divider}`,
-            })}
-          >
-            <InputBase
-              sx={{ ml: 1, flex: 1, fontSize: '0.9rem' }}
-              placeholder="Dodaj nowe zadanie..."
-              value={newTodoText}
-              onChange={(e) => setNewTodoText(e.target.value)}
-              onKeyDown={handleKeyPress}
-              disabled={addMutation.isPending || isLoading || isError}
-            />
-            <IconButton
-              color="primary"
-              onClick={handleAddTodo}
-              disabled={
-                !newTodoText.trim() ||
-                addMutation.isPending ||
-                isError ||
-                isLoading
-              }
-              size="small"
-            >
-              <AddIcon />
-            </IconButton>
-          </Box>
+          <TextField
+            placeholder="Dodaj nowe zadanie..."
+            value={newTodoText}
+            onChange={(e) => setNewTodoText(e.target.value)}
+            onKeyDown={handleKeyPress}
+            disabled={addMutation.isPending || isLoading || isError}
+            size="small"
+            fullWidth
+            slotProps={{
+              input: {
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      color="primary"
+                      onClick={handleAddTodo}
+                      disabled={
+                        !newTodoText.trim() ||
+                        addMutation.isPending ||
+                        isError ||
+                        isLoading
+                      }
+                      size="small"
+                    >
+                      <AddIcon />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              },
+            }}
+          />
         </Box>
       )}
       <Box

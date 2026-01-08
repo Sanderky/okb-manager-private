@@ -46,6 +46,7 @@ import PublicRoute from './routing/PublicRoute';
 import Loading from './components/Loading';
 import ErrorPage from './pages/Error/ErrorPage';
 import { getDiskUsage } from './services/metrics';
+import { getTodos } from './services/todos';
 
 const AuthListener = () => {
   const navigate = useNavigate();
@@ -135,6 +136,15 @@ export default function App() {
     staleTime: 60 * 1000 * 15,
   });
 
+  const {
+      isLoading: todosLoading,
+      isError: todosError,
+    } = useQuery({
+      queryKey: ['todos'],
+      queryFn: getTodos,
+      refetchInterval: 1000 * 10,
+    });
+
   const isLoading = Boolean(
     authLoading ||
       (user &&
@@ -147,6 +157,7 @@ export default function App() {
           employeeStatsLoading ||
           constructionStatsLoading ||
           diskUsageLoading ||
+          todosLoading ||
           upcomingEventsLoading))
   );
 
@@ -161,7 +172,8 @@ export default function App() {
       constructionStatsError ||
       alertsError ||
       upcomingEventsError ||
-      diskUsageError
+      diskUsageError ||
+      todosError
   );
 
   if (authLoading || isLoading) {
