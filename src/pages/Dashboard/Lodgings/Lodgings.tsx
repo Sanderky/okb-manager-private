@@ -290,6 +290,10 @@ const LodgingCard: React.FC<LodgingCardProps> = ({
         '&:hover': {
           borderColor: 'primary.main',
         },
+        '&:hover .lodgings-edit': {
+          opacity: 1,
+          transform: 'translateY(0)',
+        },
       }}
     >
       <CardContent sx={{ flexGrow: 1, pb: 1 }}>
@@ -354,7 +358,22 @@ const LodgingCard: React.FC<LodgingCardProps> = ({
             </Stack>
           </Box>
           <Box>
-            <IconButton size="small" onClick={() => onEdit(lodging)}>
+            <IconButton
+              sx={{
+                transition: 'all 0.2s ease-in-out',
+
+                opacity: 1,
+                transform: 'translateY(0)',
+
+                '@media (hover: hover)': {
+                  opacity: 0,
+                  transform: 'translateY(5px)',
+                },
+              }}
+              className="lodgings-edit"
+              size="small"
+              onClick={() => onEdit(lodging)}
+            >
               <Edit fontSize="small" />
             </IconButton>
           </Box>
@@ -597,7 +616,7 @@ const LodgingsManager = () => {
         </Box>
       }
     >
-      <Box p={{ xs: 1, sm: 3 }} sx={{ height: '100%', overflowY: 'auto' }}>
+      <Box p={{ xs: 2, sm: 3 }} sx={{ height: '100%', overflowY: 'auto' }}>
         {lodgings.length === 0 ? (
           <Box textAlign="center" py={5}>
             <Hotel sx={{ fontSize: 60, color: 'text.disabled', mb: 2 }} />
