@@ -7,7 +7,7 @@ const Loading = ({
 }) => {
   const loadingContent = (
     <Box
-      sx={{
+      sx={(theme) => ({
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
@@ -19,10 +19,12 @@ const Loading = ({
           left: 0,
           right: 0,
           bottom: 0,
-          backgroundColor: 'background.paper',
+          background: theme.palette.background.default,
+          backgroundImage: theme.palette.background.grid,
+          backgroundSize: '6rem 4rem',
           zIndex: 9999,
         }),
-      }}
+      })}
     >
       <CircularProgress size={size} />
       {message && (
