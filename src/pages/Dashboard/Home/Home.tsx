@@ -47,6 +47,7 @@ import { getHomeNote, saveHomeNote } from '../../../services/home';
 import { EventsBox } from '../../../components/EventsBox';
 import { getNearestUpcomingEvents } from '../../../services/calendar';
 import { getDateStr } from '../Vacations/VacationsHelpers';
+import TodoList from '../../../components/TodoList';
 
 interface EmployeeAlertsSettingsProps {
   isOpen: boolean;
@@ -541,7 +542,9 @@ const UpcomingVacation = () => {
               left: 0,
               width: '100%',
               height: 'calc(100% - 34px)',
-              boxShadow: hasMoreItems ? `inset 0px -25px 10px -15px ${alpha(theme.palette.background.paper, 1)}` : 'none',
+              boxShadow: hasMoreItems
+                ? `inset 0px -25px 10px -15px ${alpha(theme.palette.background.paper, 1)}`
+                : 'none',
             },
           })}
         >
@@ -872,6 +875,15 @@ const Home = () => {
               </Grid>
             </Grid>
 
+            <Grid container columns={12} size={12}>
+              <Grid size={{ xs: 12, lg: 6 }}>
+                <TodoList />
+              </Grid>
+              <Grid size={{ xs: 12, lg: 6 }}>
+                <HomeNote />
+              </Grid>
+            </Grid>
+
             <Grid
               container
               columns={12}
@@ -909,9 +921,6 @@ const Home = () => {
                   </CardContent>
                 </Card>
               </Grid>
-            </Grid>
-            <Grid size={{ xs: 12 }}>
-              <HomeNote />
             </Grid>
           </Grid>
         </Box>

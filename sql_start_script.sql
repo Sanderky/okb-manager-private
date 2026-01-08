@@ -184,7 +184,17 @@ create table lodging_employees (
   primary key (lodging_id, employee_id)
 );
 create index idx_lodging_employees_employee on lodging_employees(employee_id);
--- 13. WIDOK ALERTS
+-- 13. LISTA ZADAŃ (TODO) - NOWA SEKCJA
+create table todos (
+  id uuid default gen_random_uuid() primary key,
+  title text not null,
+  is_completed boolean default false,
+  is_important boolean default false,
+  created_at timestamptz default now()
+);
+create index todos_position_idx on todos(position);
+create index todos_important_idx on todos(is_important);
+-- 14. WIDOK ALERTS
 create or replace view view_employee_alerts with (security_invoker = true) as
 select e.id || '_contract' as id,
   e.id as employee_id,
@@ -219,7 +229,7 @@ from employees e
 where e.status = true
   and e.a1_end_date is not null
   and (e.a1_end_date - current_date) <= s.a1_warning;
--- 14. POLITYKI BEZPIECZENSTWA (RLS)
+-- 15. POLITYKI BEZPIECZENSTWA (RLS)
 insert into storage.buckets (id, name, public)
 values ('files', 'files', false) on conflict (id) do
 update
@@ -227,12 +237,10 @@ set public = false;
 drop policy if exists "Public read" on storage.objects;
 drop policy if exists "Auth access" on storage.objects;
 drop policy if exists "Give me access" on storage.objects;
--- Ważne: To teraz jedyna polityka kontrolująca dostęp do plików
 create policy "Auth access" on storage.objects for all to authenticated using (bucket_id = 'files') with check (bucket_id = 'files');
 alter table employees enable row level security;
 alter table contractors enable row level security;
 alter table constructions enable row level security;
--- Usunięto: alter table employee_attachments enable row level security;
 alter table vacations enable row level security;
 alter table daily_schedules enable row level security;
 alter table work_logs enable row level security;
@@ -243,6 +251,7 @@ alter table calendar_event_employees enable row level security;
 alter table calendar_event_constructions enable row level security;
 alter table lodgings enable row level security;
 alter table lodging_employees enable row level security;
+alter table todos enable row level security;
 create policy "Auth All" on employees for all using (
   (
     select auth.role()
@@ -258,7 +267,6 @@ create policy "Auth All" on constructions for all using (
     select auth.role()
   ) = 'authenticated'
 );
--- Usunięto politykę dla employee_attachments
 create policy "Auth All" on vacations for all using (
   (
     select auth.role()
@@ -309,7 +317,12 @@ create policy "Auth All" on lodging_employees for all using (
     select auth.role()
   ) = 'authenticated'
 );
--- 15. UPRAWNIENIA
+create policy "Auth All" on todos for all using (
+  (
+    select auth.role()
+  ) = 'authenticated'
+);
+-- 16. UPRAWNIENIA
 GRANT USAGE ON SCHEMA public TO postgres,
   anon,
   authenticated,

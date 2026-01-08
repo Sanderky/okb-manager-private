@@ -9,6 +9,14 @@ export interface Contractor {
   constructionsCount?: number;
 }
 
+export interface TodoItem {
+  id: number;
+  title: string;
+  is_completed: boolean;
+  is_important: boolean
+  created_at: string;
+}
+
 export interface Lodging {
   id: string;
   name: string;
