@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { updatePassword } from '../../services/auth';
 import TextField from '@mui/material/TextField';
 import {
@@ -27,8 +27,9 @@ import { useColorMode } from '../../context/ThemeContext';
 
 const UpdatePassword = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { mode, toggleColorMode } = useColorMode();
-
+  const showBackButton = searchParams.get('ref') === 'settings';
   const {
     loading: actionLoading,
     startLoading: startActionLoading,
@@ -271,14 +272,16 @@ const UpdatePassword = () => {
               )}
 
               <Stack direction="row" justifyContent={'space-between'}>
-                <Button
-                  variant="text"
-                  onClick={() => navigate(-1)}
-                  color="inherit"
-                  startIcon={<ArrowBack />}
-                >
-                  Wróć
-                </Button>
+                {showBackButton && (
+                  <Button
+                    variant="text"
+                    onClick={() => navigate(-1)}
+                    color="inherit"
+                    startIcon={<ArrowBack />}
+                  >
+                    Wróć
+                  </Button>
+                )}
 
                 <Button
                   type="submit"

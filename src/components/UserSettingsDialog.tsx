@@ -5,14 +5,31 @@ import {
   Box,
   Typography,
   Divider,
-  useTheme
+  useTheme,
 } from '@mui/material';
 import { OutgoingMail } from '@mui/icons-material';
-import { updateDisplayName as updateNameService, updateEmail as updateEmailService } from '../../services/auth';
-import { useAuth } from '../../context/AuthContext';
-import BaseDialog from '../BaseDialog';
-import useNotifications from '../../hooks/useNotifications/useNotifications';
+import {
+  updateDisplayName as updateNameService,
+  updateEmail as updateEmailService,
+} from '../services/auth';
+import { useAuth } from '../context/AuthContext';
+import BaseDialog from './BaseDialog';
+import useNotifications from '../hooks/useNotifications/useNotifications';
 import { useNavigate } from 'react-router-dom';
+
+const getErrorMessage = (error: any): string => {
+  const msg = error?.message || error?.error_description || '';
+
+  if (msg.includes('rate limit'))
+    return 'Zbyt wiele prób. Spróbuj ponownie później.';
+  if (msg.includes('requires a valid email'))
+    return 'Podany adres email jest nieprawidłowy.';
+  if (msg.includes('already registered') || msg.includes('already in use'))
+    return 'Ten adres email jest już zajęty.';
+  if (msg.includes('Password')) return 'Hasło jest zbyt słabe.';
+
+  return 'Wystąpił nieoczekiwany błąd. Spróbuj ponownie.';
+};
 
 interface UserSettingsDialogProps {
   open: boolean;
@@ -34,7 +51,8 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
   const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
 
-  const [loading, setLoading] = useState(false);
+  const [mailLoading, setMailLoading] = useState(false);
+  const [usernameLoading, setUsernameLoading] = useState(false);
   const [fieldsErrors, setFieldsError] = useState<Record<string, string>>({});
 
   const navigate = useNavigate();
@@ -88,26 +106,46 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
   const updateDisplayName = async (): Promise<boolean> => {
     if (!user) return false;
 
-    const currentName = user.user_metadata?.display_name || '';
-    if (displayName !== currentName) {
-      try {
-        await updateNameService(displayName.trim());
-        return true;
-      } catch (error) {
-        console.error('Update name error:', error);
-        return false;
-      }
+    if (!displayName) {
+      setFieldsError((prev) => ({
+        ...prev,
+        name: 'Wprowadź nazwę użytkownika',
+      }));
+
+      return false;
     }
-    return false;
+
+    const currentName = user.user_metadata?.display_name || '';
+    if (displayName === currentName) {
+      setFieldsError((prev) => ({
+        ...prev,
+        name: 'Nowa nazwa jest taka sama jak stara',
+      }));
+      return false;
+    }
+    try {
+      await updateNameService(displayName.trim());
+      return true;
+    } catch (error) {
+      console.error('Update name error:', error);
+      setFieldsError((prev) => ({ ...prev, name: getErrorMessage(error) }));
+      return false;
+    }
   };
 
   const updateUserEmail = async (): Promise<boolean> => {
     if (!user) return false;
 
-    if (email === user.email) return false;
+    if (email === user.email) {
+      setFieldsError((prev) => ({
+        ...prev,
+        email: 'Nowy email jest taki sam jak stary',
+      }));
+      return false;
+    }
 
     if (!email) {
-      setFieldsError((prev) => ({ ...prev, email: 'Wprowadź adres email.' }));
+      setFieldsError((prev) => ({ ...prev, email: 'Wprowadź adres email' }));
       return false;
     }
 
@@ -123,7 +161,8 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
       await updateEmailService(email.trim());
       return true;
     } catch (error: any) {
-      notifications.show(error.message || 'Błąd zmiany emaila', { severity: 'error' });
+      console.error('Update email error:', error);
+      setFieldsError((prev) => ({ ...prev, email: getErrorMessage(error) }));
       return false;
     }
   };
@@ -137,8 +176,8 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
       return;
     }
 
-    setLoading(true);
-    setFieldsError({});
+    setMailLoading(true);
+    setFieldsError((prev) => ({ ...prev, email: '' }));
 
     try {
       if (await updateUserEmail()) {
@@ -152,7 +191,7 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
         autoHideDuration: 5000,
       });
     } finally {
-      setLoading(false);
+      setMailLoading(false);
     }
   };
 
@@ -165,23 +204,17 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
       return;
     }
 
-    setLoading(true);
-    setFieldsError({});
+    setUsernameLoading(true);
+    setFieldsError((prev) => ({ ...prev, name: '' }));
 
     try {
-      const currentName = user.user_metadata?.display_name || '';
-      const hasDisplayNameChanged = displayName !== currentName;
-
-      if (!hasDisplayNameChanged) {
-        return;
-      }
-
       if (await updateDisplayName()) {
         notifications.show('Pomyślnie zaktualizowano nazwę użytkownika', {
           severity: 'success',
           autoHideDuration: 5000,
         });
-        handleClose();
+        // handleClose();
+        setUsernameEditMode(false);
       }
     } catch (error) {
       console.error('Error updating user:', error);
@@ -190,8 +223,7 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
         autoHideDuration: 5000,
       });
     } finally {
-      setLoading(false);
-      setUsernameEditMode(false);
+      setUsernameLoading(false);
     }
   };
 
@@ -227,21 +259,23 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
             Weryfikacja adresu email
           </Typography>
           <Typography>
-            Na podany adres email został wysłany link aktywacyjny.
+            Na dwa adresy email (stary i nowy) został wysłany link aktywacyjny.
           </Typography>
           <Typography mt={4} mb={2}>
-            Potwierdź nowego maila, aby dokonać zmiany.
+            Potwierdź nowego maila na obydwóch adresach, aby dokonać zmiany.
           </Typography>
         </Box>
       ) : (
         <Box component="form" sx={{ mt: 1 }}>
-          <Typography sx={{ fontWeight: 500, fontSize: '1.1rem' }} variant="body1" gutterBottom>
+          <Typography
+            sx={{ fontWeight: 500, fontSize: '1.1rem' }}
+            variant="body1"
+            gutterBottom
+          >
             Informacje podstawowe
           </Typography>
 
-          <Typography>
-            Nazwa użytkownika:
-          </Typography>
+          <Typography>Nazwa użytkownika:</Typography>
           <TextField
             size="small"
             slotProps={{
@@ -249,11 +283,13 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
                 readOnly: !usernameEditMode,
               },
             }}
+            error={Boolean(fieldsErrors['name'])}
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
             fullWidth
-            disabled={loading || !usernameEditMode}
+            disabled={!usernameEditMode}
             sx={disabledInputStyles}
+            helperText={fieldsErrors['name']}
           />
 
           <Box
@@ -265,9 +301,8 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
             {!usernameEditMode && (
               <Button
                 variant="outlined"
-                size='small'
+                size="small"
                 onClick={() => setUsernameEditMode(true)}
-                loading={loading}
               >
                 Edytuj nazwę użytkownika
               </Button>
@@ -276,12 +311,12 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
               <>
                 <Button
                   variant="outlined"
-                  size='small'
+                  size="small"
                   color="inherit"
-                  loading={loading}
-
+                  disabled={usernameLoading}
                   sx={{ mr: 2 }}
                   onClick={() => {
+                    setFieldsError((prev) => ({ ...prev, name: '' }));
                     setDisplayName(user.user_metadata?.display_name || '');
                     setUsernameEditMode(false);
                   }}
@@ -291,9 +326,9 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
 
                 <Button
                   variant="contained"
-                  size='small'
+                  size="small"
                   onClick={handleSaveUsername}
-                  loading={loading}
+                  loading={usernameLoading}
                 >
                   Zapisz
                 </Button>
@@ -301,10 +336,7 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
             )}
           </Box>
 
-
-          <Typography>
-            Email:
-          </Typography>
+          <Typography>Email:</Typography>
           <TextField
             size="small"
             type="email"
@@ -318,16 +350,15 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
             onChange={(e) => setEmail(e.target.value)}
             fullWidth
             helperText={fieldsErrors['email']}
-            disabled={loading || !emailEditMode}
+            disabled={!emailEditMode}
             sx={disabledInputStyles}
           />
 
           <Box sx={{ mt: 2 }}>
             {!emailEditMode && (
               <Button
-                loading={loading}
                 variant="outlined"
-                size='small'
+                size="small"
                 onClick={() => setEmailEditMode(true)}
               >
                 Edytuj adres email
@@ -337,12 +368,13 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
               <>
                 <Button
                   variant="outlined"
-                  size='small'
+                  size="small"
                   color="inherit"
-                  loading={loading}
+                  disabled={mailLoading}
                   sx={{ mr: 2 }}
                   onClick={() => {
                     setEmail(user.email || '');
+                    setFieldsError((prev) => ({ ...prev, email: '' }));
                     setEmailEditMode(false);
                   }}
                 >
@@ -351,9 +383,9 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
 
                 <Button
                   variant="contained"
-                  size='small'
+                  size="small"
                   onClick={handleSaveEmail}
-                  loading={loading}
+                  loading={mailLoading}
                 >
                   Zapisz
                 </Button>
@@ -363,15 +395,18 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
 
           <Divider sx={{ my: 3 }} />
 
-          <Typography variant="body1" mb={2} sx={{ fontWeight: 500, fontSize: '1.1rem' }}>
+          <Typography
+            variant="body1"
+            mb={2}
+            sx={{ fontWeight: 500, fontSize: '1.1rem' }}
+          >
             Zmiana hasła
           </Typography>
 
           <Button
             variant="outlined"
-            size='small'
-            onClick={() => navigate('/reset-password')}
-            loading={loading}
+            size="small"
+            onClick={() => navigate('/reset-password?ref=settings')}
           >
             Resetuj hasło
           </Button>

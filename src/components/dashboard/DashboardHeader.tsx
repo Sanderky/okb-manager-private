@@ -24,7 +24,7 @@ import Logout from '@mui/icons-material/Logout';
 
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { Brightness4, Brightness7, Settings } from '@mui/icons-material';
-import UserSettingsDialog from './UserSettingsDialog';
+import UserSettingsDialog from '../UserSettingsDialog';
 import { useColorMode } from '../../context/ThemeContext';
 
 const AppBar = styled(MuiAppBar)(({ theme }) => ({
