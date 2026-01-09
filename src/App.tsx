@@ -130,22 +130,12 @@ export default function App() {
       enabled: !!user,
     });
 
-  const { isLoading: diskUsageLoading, isError: diskUsageError } = useQuery({
-    queryKey: ['disk-usage'],
-    queryFn: getDiskUsage,
-    staleTime: 60 * 1000 * 15,
+  const { isLoading: todosLoading, isError: todosError } = useQuery({
+    queryKey: ['todos'],
+    queryFn: getTodos,
+    refetchInterval: 1000 * 10,
     enabled: !!user,
   });
-
-  const {
-      isLoading: todosLoading,
-      isError: todosError,
-    } = useQuery({
-      queryKey: ['todos'],
-      queryFn: getTodos,
-      refetchInterval: 1000 * 10,
-      enabled: !!user,
-    });
 
   const isLoading = Boolean(
     authLoading ||
@@ -158,7 +148,6 @@ export default function App() {
           homeNoteLoading ||
           employeeStatsLoading ||
           constructionStatsLoading ||
-          diskUsageLoading ||
           todosLoading ||
           upcomingEventsLoading))
   );
@@ -174,7 +163,6 @@ export default function App() {
       constructionStatsError ||
       alertsError ||
       upcomingEventsError ||
-      diskUsageError ||
       todosError
   );
 

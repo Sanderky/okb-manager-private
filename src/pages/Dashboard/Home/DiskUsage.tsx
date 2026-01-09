@@ -59,6 +59,7 @@ const DiskUsage = () => {
   } = useQuery({
     queryKey: ['disk-usage'],
     queryFn: getDiskUsage,
+    staleTime: 60 * 1000 * 15
   });
 
   const rounded = Number(
@@ -87,8 +88,7 @@ const DiskUsage = () => {
             <Typography variant="body1" className="font-medium">
               Wykorzystanie dysku serwera
             </Typography>
-            {isError && <Typography color="error">Wystąpił błąd</Typography>}
-            {isLoading && <CircularProgress size={'1rem'} sx={{ mt: 1 }} />}
+            {isError && <Typography color="error" variant='caption'>Wystąpił błąd podczas pobierania danych</Typography>}
             {!isError && !isLoading && (
               <Typography color="textSecondary" fontSize={'1.5rem'}>
                 <Typography
@@ -108,6 +108,8 @@ const DiskUsage = () => {
           {!isError && !isLoading && (
             <CircularProgressWithLabel color={progressColor} value={rounded} />
           )}
+            {isLoading && <CircularProgress size={'2rem'}/>}
+
         </Stack>
       </CardContent>
     </Card>
