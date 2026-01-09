@@ -45,7 +45,6 @@ import { supabase } from './supabase';
 import PublicRoute from './routing/PublicRoute';
 import Loading from './components/Loading';
 import ErrorPage from './pages/Error/ErrorPage';
-import { getDiskUsage } from './services/metrics';
 import { getTodos } from './services/todos';
 
 const AuthListener = () => {
