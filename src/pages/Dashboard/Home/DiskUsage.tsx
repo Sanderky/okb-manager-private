@@ -55,18 +55,18 @@ const DiskUsage = () => {
   const {
     data: diskUsage,
     isLoading,
-    isError,
+    isError: error,
   } = useQuery({
     queryKey: ['disk-usage'],
     queryFn: getDiskUsage,
     staleTime: 60 * 1000 * 15
   });
 
-  const rounded = Number(
-    ((diskUsage?.used ?? 0) / Math.pow(1024, 3)).toFixed(0)
-  );
+  
+  const percentage = Math.floor(diskUsage?.percentage ?? 0)
+  const isError = error || (percentage > 100)
   const progressColor =
-    rounded >= 90 ? (rounded >= 95 ? 'error' : 'warning') : 'primary';
+    percentage >= 90 ? (percentage >= 95 ? 'error' : 'warning') : 'primary';
 
   return (
     <Card
@@ -88,7 +88,7 @@ const DiskUsage = () => {
             <Typography variant="body1" className="font-medium">
               Wykorzystanie dysku serwera
             </Typography>
-            {isError && <Typography color="error" variant='caption'>Wystąpił błąd podczas pobierania danych</Typography>}
+            {isError && <Typography color="error" variant='caption'>{(percentage > 100) ? 'Nieprawidłowy zakres. Zużycie jest większe niż limit' : 'Wystąpił błąd podczas pobierania danych'}</Typography>}
             {!isError && !isLoading && (
               <Typography color="textSecondary" fontSize={'1.5rem'}>
                 <Typography
@@ -106,7 +106,7 @@ const DiskUsage = () => {
             )}
           </Box>
           {!isError && !isLoading && (
-            <CircularProgressWithLabel color={progressColor} value={rounded} />
+            <CircularProgressWithLabel color={progressColor} value={percentage} />
           )}
             {isLoading && <CircularProgress size={'2rem'}/>}
 
