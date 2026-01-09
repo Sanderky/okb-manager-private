@@ -75,37 +75,37 @@ const Hours: React.FC = () => {
   return (
     <PageContainer
       breadcrumbs={[{ title: 'Ewidencja godzin pracy' }]}
-      actions={
-        [
-          <Button
-            variant="contained"
-            size="small"
-            startIcon={<Add />}
-            onClick={handleAddComparisonTable}
-          >
-            Dodaj tabelkę porównawczą
-          </Button>,
-          <Button
-            size="small"
-            onClick={() => reactToPrintFn()}
-            startIcon={<Print />}
-            variant="contained"
-
-            sx={{ flexGrow: 0 }}
-          >
-            Drukuj
-          </Button>,
-          <Button
-            size="small"
-            onClick={() => setPrintReportDialogOpen(true)}
-            startIcon={<Summarize />}
-            variant="contained"
-            sx={{ flexGrow: 0, whiteSpace: 'nowrap' }}
-          >
-            Generuj raport
-          </Button>
-        ]
-      }
+      actions={[
+        <Button
+          variant="contained"
+          key="add-comparision"
+          size="small"
+          startIcon={<Add />}
+          onClick={handleAddComparisonTable}
+        >
+          Dodaj tabelkę porównawczą
+        </Button>,
+        <Button
+          key="print"
+          size="small"
+          onClick={() => reactToPrintFn()}
+          startIcon={<Print />}
+          variant="contained"
+          sx={{ flexGrow: 0 }}
+        >
+          Drukuj
+        </Button>,
+        <Button
+          size="small"
+          key="report"
+          onClick={() => setPrintReportDialogOpen(true)}
+          startIcon={<Summarize />}
+          variant="contained"
+          sx={{ flexGrow: 0, whiteSpace: 'nowrap' }}
+        >
+          Generuj raport
+        </Button>,
+      ]}
     >
       <Box
         ref={containerRef}
@@ -114,8 +114,7 @@ const Hours: React.FC = () => {
           flex: 1,
         }}
       >
-        <Stack direction="column" 
-        >
+        <Stack direction="column">
           <HoursTable
             containerWidth={width}
             readOnly={false}
@@ -125,22 +124,20 @@ const Hours: React.FC = () => {
 
           {comparisionTables.map((key) => (
             <Box key={key}>
-              <Box 
-              sx={theme => ({
-                pt: 2,
-                px: 2,
-                  borderBottom: `1px solid ${theme.palette.divider}`
-
-                 })}
+              <Box
+                sx={(theme) => ({
+                  pt: 2,
+                  px: 2,
+                  borderBottom: `1px solid ${theme.palette.divider}`,
+                })}
               >
-
                 <Typography
                   variant="h5"
                   component={'div'}
                   mb={1}
-                  sx={{ 
+                  sx={{
                     fontSize: '1rem',
-      }}    
+                  }}
                 >
                   Tabela porównawcza {key}
                 </Typography>
