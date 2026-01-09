@@ -261,6 +261,7 @@ export const CalendarControls: React.FC<CalendarControlsProps> = ({
             color="primary"
             variant="dot"
             badgeContent={isFiltered ? 1 : 0}
+            sx={{width: '100%'}}
           >
             <Button
               startIcon={<FilterList />}

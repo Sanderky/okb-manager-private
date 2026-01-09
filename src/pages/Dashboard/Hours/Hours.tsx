@@ -76,7 +76,7 @@ const Hours: React.FC = () => {
     <PageContainer
       breadcrumbs={[{ title: 'Ewidencja godzin pracy' }]}
       actions={
-        <>
+        [
           <Button
             variant="contained"
             size="small"
@@ -84,16 +84,17 @@ const Hours: React.FC = () => {
             onClick={handleAddComparisonTable}
           >
             Dodaj tabelkę porównawczą
-          </Button>
+          </Button>,
           <Button
             size="small"
             onClick={() => reactToPrintFn()}
             startIcon={<Print />}
             variant="contained"
+
             sx={{ flexGrow: 0 }}
           >
             Drukuj
-          </Button>
+          </Button>,
           <Button
             size="small"
             onClick={() => setPrintReportDialogOpen(true)}
@@ -103,7 +104,7 @@ const Hours: React.FC = () => {
           >
             Generuj raport
           </Button>
-        </>
+        ]
       }
     >
       <Box
