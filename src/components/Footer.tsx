@@ -11,12 +11,10 @@ const AppFooter = () => {
           px: 1,
           columnGap: 1,
           rowGap: 1,
-          fontSize: { xs: '0.7rem', sm: '0.8rem' },
         }}
         flexWrap={'wrap'}
       >
         <Typography
-          variant="caption"
           sx={{
             fontSize: 'inherit',
           }}
@@ -24,7 +22,6 @@ const AppFooter = () => {
           Panel administracyjny - dostęp tylko dla autoryzowanego personelu.
         </Typography>
         <Typography
-          variant="caption"
           sx={{
             fontSize: 'inherit',
           }}
