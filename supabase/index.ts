@@ -1,12 +1,19 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers':
-    'authorization, x-client-info, apikey, content-type',
-};
-
 serve(async (req) => {
+  const allowedOriginsStr = Deno.env.get('ALLOWED_ORIGINS') ?? '';
+
+  const ALLOWED_ORIGINS = allowedOriginsStr.split(',').map((o) => o.trim());
+
+  const origin = req.headers.get('origin') ?? '';
+  const allowOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : 'null';
+
+  const corsHeaders = {
+    'Access-Control-Allow-Origin': allowOrigin,
+    'Access-Control-Allow-Headers':
+      'authorization, x-client-info, apikey, content-type',
+  };
+
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }
