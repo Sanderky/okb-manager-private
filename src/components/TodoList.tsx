@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Box,
@@ -123,8 +123,21 @@ const TodoList = () => {
     }
   };
 
-  const activeTodos = todos.filter((t) => !t.is_completed);
-  const completedTodos = todos.filter((t) => t.is_completed);
+  const activeTodos = useMemo(
+    () => todos.filter((t) => !t.is_completed),
+    [todos]
+  );
+
+  const completedTodos = useMemo(
+    () =>
+      todos
+        .filter((t) => t.is_completed)
+        .sort(
+          (a, b) =>
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        ),
+    [todos]
+  );
   const visibleTodos = tabValue === 0 ? activeTodos : completedTodos;
 
   return (
@@ -173,6 +186,7 @@ const TodoList = () => {
       {tabValue === 0 && (
         <Box sx={{ p: 2, pb: 0 }}>
           <TextField
+            multiline
             placeholder="Dodaj nowe zadanie..."
             value={newTodoText}
             onChange={(e) => setNewTodoText(e.target.value)}
@@ -182,6 +196,7 @@ const TodoList = () => {
             fullWidth
             slotProps={{
               input: {
+                size:'small',
                 endAdornment: (
                   <InputAdornment position="end">
                     <IconButton
@@ -232,63 +247,6 @@ const TodoList = () => {
               <ListItem
                 key={todo.id}
                 disablePadding
-                secondaryAction={
-                  <Stack
-                    direction={'row'}
-                    gap={1}
-                    className="lodgings-edit"
-                    sx={{
-                      transition: 'all 0.2s ease-in-out',
-                      opacity: 1,
-                      visibility: 'visible',
-                      transform: 'translateY(0)',
-
-                      '@media (hover: hover)': {
-                        opacity: 0,
-                        visibility: 'hidden',
-                        transform: 'translateY(5px)',
-                      },
-                    }}
-                  >
-                    {!todo.is_completed && (
-                      <Tooltip
-                        title={
-                          todo.is_important
-                            ? 'Oznacz jako nieważne'
-                            : 'Oznacz jako ważne'
-                        }
-                      >
-                        <IconButton
-                          edge="end"
-                          aria-label="delete"
-                          onClick={() =>
-                            toggleImportanceMutation.mutate({
-                              id: todo.id,
-                              isImportant: !todo.is_important,
-                            })
-                          }
-                          size="small"
-                        >
-                          {todo.is_important ? (
-                            <ReportOff fontSize="small" />
-                          ) : (
-                            <Report fontSize="small" />
-                          )}
-                        </IconButton>
-                      </Tooltip>
-                    )}
-                    <Tooltip title="Usuń zadanie">
-                      <IconButton
-                        edge="end"
-                        aria-label="delete"
-                        onClick={() => deleteMutation.mutate(todo.id)}
-                        size="small"
-                      >
-                        <DeleteOutlineIcon fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
-                  </Stack>
-                }
                 sx={(theme) => ({
                   borderBottom: `1px solid ${theme.palette.divider}`,
                   py: 0.5,
@@ -331,6 +289,7 @@ const TodoList = () => {
                 </Stack>
 
                 <InputBase
+                  multiline
                   defaultValue={todo.title}
                   fullWidth
                   onBlur={(e) =>
@@ -338,7 +297,6 @@ const TodoList = () => {
                   }
                   sx={{
                     fontSize: '0.9rem',
-                    textDecoration: todo.is_completed ? 'line-through' : 'none',
                     color: todo.is_completed
                       ? 'text.disabled'
                       : todo.is_important
@@ -347,6 +305,62 @@ const TodoList = () => {
                     transition: 'color 0.2s',
                   }}
                 />
+                <Stack
+                  direction={'row'}
+                  gap={1}
+                  className="lodgings-edit"
+                  sx={{
+                    ml: 1,
+                    transition: 'all 0.2s ease-in-out',
+                    opacity: 1,
+                    visibility: 'visible',
+                    transform: 'translateY(0)',
+
+                    '@media (hover: hover)': {
+                      opacity: 0,
+                      visibility: 'hidden',
+                      transform: 'translateY(5px)',
+                    },
+                  }}
+                >
+                  {!todo.is_completed && (
+                    <Tooltip
+                      title={
+                        todo.is_important
+                          ? 'Oznacz jako nieważne'
+                          : 'Oznacz jako ważne'
+                      }
+                    >
+                      <IconButton
+                        edge="end"
+                        aria-label="delete"
+                        onClick={() =>
+                          toggleImportanceMutation.mutate({
+                            id: todo.id,
+                            isImportant: !todo.is_important,
+                          })
+                        }
+                        size="small"
+                      >
+                        {todo.is_important ? (
+                          <ReportOff fontSize="small" />
+                        ) : (
+                          <Report fontSize="small" />
+                        )}
+                      </IconButton>
+                    </Tooltip>
+                  )}
+                  <Tooltip title="Usuń zadanie">
+                    <IconButton
+                      edge="end"
+                      aria-label="delete"
+                      onClick={() => deleteMutation.mutate(todo.id)}
+                      size="small"
+                    >
+                      <DeleteOutlineIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                </Stack>
               </ListItem>
             ))}
 
