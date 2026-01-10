@@ -10,12 +10,12 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { getDiskUsage } from '../../../services/metrics';
 
-const formatToGB = (bytes: number | undefined, showPostfix = true): string => {
-  if (!bytes || bytes === 0) return showPostfix ? '0 GB' : '0';
+const formatToGB = (bytes: number | undefined): number => {
+  if (!bytes || bytes === 0) return 0;
 
   const gb = bytes / Math.pow(1024, 3);
 
-  return `${gb.toFixed(0)}${showPostfix ? ' GB' : ''}`;
+  return Math.ceil(gb);
 };
 
 const CircularProgressWithLabel = (
@@ -59,12 +59,13 @@ const DiskUsage = () => {
   } = useQuery({
     queryKey: ['disk-usage'],
     queryFn: getDiskUsage,
-    staleTime: 60 * 1000 * 15
+    staleTime: 60 * 1000 * 15,
   });
 
-  
-  const percentage = Math.floor(diskUsage?.percentage ?? 0)
-  const isError = error || (percentage > 100)
+  const used = formatToGB(diskUsage?.used);
+  const total = formatToGB(diskUsage?.total);
+  const percentage = (used / total) * 100;
+  const isError = error || percentage > 100;
   const progressColor =
     percentage >= 90 ? (percentage >= 95 ? 'error' : 'warning') : 'primary';
 
@@ -88,7 +89,13 @@ const DiskUsage = () => {
             <Typography variant="body1" className="font-medium">
               Wykorzystanie dysku serwera
             </Typography>
-            {isError && <Typography color="error" variant='caption'>{(percentage > 100) ? 'Nieprawidłowy zakres. Zużycie jest większe niż limit' : 'Wystąpił błąd podczas pobierania danych'}</Typography>}
+            {isError && (
+              <Typography color="error" variant="caption">
+                {percentage > 100
+                  ? 'Nieprawidłowy zakres. Zużycie jest większe niż limit'
+                  : 'Wystąpił błąd podczas pobierania danych'}
+              </Typography>
+            )}
             {!isError && !isLoading && (
               <Typography color="textSecondary" fontSize={'1.5rem'}>
                 <Typography
@@ -99,17 +106,19 @@ const DiskUsage = () => {
                     fontWeight: 600,
                   }}
                 >
-                  {formatToGB(diskUsage?.used)}
+                  {used} GB
                 </Typography>{' '}
-                / {formatToGB(diskUsage?.total)}
+                / {total} GB
               </Typography>
             )}
           </Box>
           {!isError && !isLoading && (
-            <CircularProgressWithLabel color={progressColor} value={percentage} />
+            <CircularProgressWithLabel
+              color={progressColor}
+              value={percentage}
+            />
           )}
-            {isLoading && <CircularProgress size={'2rem'}/>}
-
+          {isLoading && <CircularProgress size={'2rem'} />}
         </Stack>
       </CardContent>
     </Card>
