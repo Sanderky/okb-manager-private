@@ -769,6 +769,7 @@ const FileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
               display: { xs: 'flex', sm: 'none' },
               gap: 2,
               flexWrap: 'wrap',
+              backgroundColor: 'background.paper'
             }}
           >
             {renderToolbarButtons(selectedRows)}
