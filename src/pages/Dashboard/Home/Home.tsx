@@ -84,11 +84,11 @@ const Home = () => {
       }
     >
       {tab === 0 ? (
-        <Box sx={{ px: { xs: 0.5, sm: 2 }, py: 2 }}>
+        <Box sx={{ px: { xs: 0.5, sm: 2 }, pt: 2, pb: 4 }}>
           <Grid
             container
             columns={12}
-            spacing={{ xs: 1.5, md: 2, lg: 3 }}
+            spacing={{ xs: 2, lg: 3 }}
             sx={{
               minHeight: 0,
             }}
