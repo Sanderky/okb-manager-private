@@ -226,7 +226,7 @@ const TodoList = () => {
           flexDirection: 'column',
           p: 2,
           overflowY: 'auto',
-          maxHeight: '400px',
+          maxHeight: '500px',
         }}
       >
         {isLoading && (
