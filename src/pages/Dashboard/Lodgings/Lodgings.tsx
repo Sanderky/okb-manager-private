@@ -308,7 +308,7 @@ const LodgingCard: React.FC<LodgingCardProps> = ({
                 variant="h6"
                 component="div"
                 gutterBottom
-                fontWeight={isActive ? 600 : 400}
+                fontWeight={400}
                 sx={{ lineHeight: 1.2 }}
               >
                 {lodging.name}
