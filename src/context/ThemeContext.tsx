@@ -138,10 +138,10 @@ const getDesignTokens = (mode: PaletteMode) => ({
             error: alpha('#d50000', 0.3),
             warning: alpha('#ef6c00', 0.3),
           },
-          tableHover: '#5fadff14',
+          tableHover: '#deeaf6',
           loadingOverlay: 'rgba(255, 255, 255, 0.5)',
           action: {
-            hover: '#5fadff14',
+            hover: '#deeaf6',
           },
 
           primary: {
@@ -177,11 +177,11 @@ const getDesignTokens = (mode: PaletteMode) => ({
             past: '#fecaca',
             current: '#bbf7d0',
             accent: '#bfdbfe',
-            hoverRow: '#5fadff14',
-            hoverCell: '#5fadff30',
+            hoverRow: '#deeaf6',
+            hoverCell: '#5c6dff8',
           },
           calendar: {
-            hoverDay: '#5fadff14',
+            hoverDay: '#deeaf6',
             selectedDay: '#dbeafe',
             hoverSelectedDay: '#87CEFA',
             dayOut: '#fafafa',
