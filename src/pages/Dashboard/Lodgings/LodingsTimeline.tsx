@@ -187,7 +187,7 @@ const LodgingTimeline: React.FC<LodgingTimelineProps> = ({
                 position: { xs: 'static', sm: 'sticky' },
                 left: 0,
                 zIndex: 40,
-                bgcolor: 'background.default',
+                bgcolor: 'schedule.accent',
                 borderRight: 1,
                 borderColor: 'divider',
                 display: 'flex',
@@ -260,7 +260,7 @@ const LodgingTimeline: React.FC<LodgingTimelineProps> = ({
                       alignItems: 'center',
                       justifyContent: 'center',
                       bgcolor: isToday
-                        ? theme.palette.schedule.accent
+                        ? theme.palette.schedule.current
                         : isWeekend
                           ? theme.palette.background.default
                           : theme.palette.background.paper,
@@ -270,7 +270,7 @@ const LodgingTimeline: React.FC<LodgingTimelineProps> = ({
                     <Typography
                       variant="caption"
                       fontWeight={isToday ? 'bold' : 'normal'}
-                      color={isToday ? 'primary' : 'textSecondary'}
+                      color={isToday ? 'textPrimary' : 'textSecondary'}
                     >
                       {day.format('DD')}
                     </Typography>
@@ -314,7 +314,7 @@ const LodgingTimeline: React.FC<LodgingTimelineProps> = ({
                         ? 'text.primary'
                         : 'divider',
                       bgcolor: isToday
-                        ? alpha(theme.palette.schedule.accent, 0.5)
+                        ? alpha(theme.palette.schedule.current, 0.5)
                         : isWeekend
                           ? theme.palette.background.default
                           : theme.palette.background.paper,
@@ -323,216 +323,235 @@ const LodgingTimeline: React.FC<LodgingTimelineProps> = ({
                 );
               })}
             </Box>
-
-            {rows.map((row) => (
-              <Box
-                key={row.site.id}
-                sx={(theme) => ({
-                  position: 'relative',
-                  zIndex: 10,
-                  display: 'flex',
-                  height: row.height,
-                  borderBottom: 1,
-                  borderColor: 'divider',
-                  '&:hover': { bgcolor: alpha(theme.palette.tableHover, 0.5) },
-                  '&:hover .lodgings-timeline-construction': {
-                    bgcolor: theme.palette.tableHover,
-                  },
-                })}
-              >
+            <Box
+              sx={{
+                backgroundColor: 'background.paper',
+              }}
+            >
+              {rows.map((row) => (
                 <Box
-                  className="lodgings-timeline-construction"
-                  sx={{
-                    width: SITE_COL_WIDTH,
-                    minWidth: SITE_COL_WIDTH,
-                    position: { xs: 'static', sm: 'sticky' },
-                    left: 0,
-                    zIndex: 20,
-                    bgcolor: 'background.paper',
-                    borderRight: 1,
-                    borderColor: 'divider',
+                  key={row.site.id}
+                  sx={(theme) => ({
+                    position: 'relative',
+                    zIndex: 10,
                     display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'center',
-                    px: 2,
-                  }}
+                    height: row.height,
+                    borderBottom: 1,
+                    borderColor: 'divider',
+                    '&:hover': {
+                      bgcolor: alpha(theme.palette.tableHover, 0.5),
+                    },
+                    '&:hover .lodgings-timeline-construction': {
+                      bgcolor: theme.palette.tableHover,
+                    },
+                  })}
                 >
-                  <Stack spacing={0}>
-                    <Typography
-                      variant="subtitle2"
-                      noWrap
-                      title={row.site.name}
-                      sx={{
-                        color:
-                          row.site.id === 'orphan'
-                            ? 'text.secondary'
-                            : row.site.status
-                              ? 'text.primary'
-                              : 'text.disabled',
-                        textDecoration: row.site.status
-                          ? 'none'
-                          : 'line-through',
-                        fontStyle:
-                          row.site.id === 'orphan' ? 'italic' : 'normal',
-                      }}
-                    >
-                      {row.site.name}
-                    </Typography>
-                    {row.site.location && (
+                  <Box
+                    className="lodgings-timeline-construction"
+                    sx={{
+                      width: SITE_COL_WIDTH,
+                      minWidth: SITE_COL_WIDTH,
+                      position: { xs: 'static', sm: 'sticky' },
+                      left: 0,
+                      zIndex: 20,
+                      bgcolor: 'background.paper',
+                      borderRight: 1,
+                      borderColor: 'divider',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'center',
+                      px: 2,
+                    }}
+                  >
+                    <Stack spacing={0}>
                       <Typography
-                        variant="caption"
-                        color="textSecondary"
+                        variant="subtitle2"
                         noWrap
+                        title={row.site.name}
+                        sx={{
+                          color:
+                            row.site.id === 'orphan'
+                              ? 'text.secondary'
+                              : row.site.status
+                                ? 'text.primary'
+                                : 'text.disabled',
+                          textDecoration: row.site.status
+                            ? 'none'
+                            : 'line-through',
+                          fontStyle:
+                            row.site.id === 'orphan' ? 'italic' : 'normal',
+                        }}
                       >
-                        {row.site.location}
+                        {row.site.name}
                       </Typography>
-                    )}
-                  </Stack>
-                </Box>
+                      {row.site.location && (
+                        <Typography
+                          variant="caption"
+                          color="textSecondary"
+                          noWrap
+                        >
+                          {row.site.location}
+                        </Typography>
+                      )}
+                    </Stack>
+                  </Box>
 
-                <Box sx={{ flex: 1, position: 'relative' }}>
-                  {row.lodgings.map((lodging) => {
-                    const startDiff = dayjs(lodging.startDate).diff(
-                      minDate,
-                      'day'
-                    );
-                    const duration =
-                      dayjs(lodging.endDate).diff(
-                        dayjs(lodging.startDate),
+                  <Box sx={{ flex: 1, position: 'relative' }}>
+                    {row.lodgings.map((lodging) => {
+                      const startDiff = dayjs(lodging.startDate).diff(
+                        minDate,
                         'day'
-                      ) + 1;
-                    const isActive = dayjs().isBetween(
-                      lodging.startDate,
-                      lodging.endDate,
-                      'day',
-                      '[]'
-                    );
+                      );
+                      const duration =
+                        dayjs(lodging.endDate).diff(
+                          dayjs(lodging.startDate),
+                          'day'
+                        ) + 1;
+                      const isActive = dayjs().isBetween(
+                        lodging.startDate,
+                        lodging.endDate,
+                        'day',
+                        '[]'
+                      );
 
-                    const topPosition =
-                      ROW_PADDING + lodging.lane * (BAR_HEIGHT + BAR_GAP);
+                      const topPosition =
+                        ROW_PADDING + lodging.lane * (BAR_HEIGHT + BAR_GAP);
 
-                    const assignedEmployees = employees.filter((e) =>
-                      lodging.employeeIds.includes(e.id)
-                    );
+                      const assignedEmployees = employees.filter((e) =>
+                        lodging.employeeIds.includes(e.id)
+                      );
 
-                    return (
-                      <Tooltip
-                        key={lodging.id}
-                        title={
-                          <Box sx={{ p: 0.5 }}>
-                            <Typography
-                              variant="caption"
-                              display="block"
-                              sx={{ mb: 1 }}
-                            >{`${dayjs(lodging.startDate).format('DD.MM')} - ${dayjs(lodging.endDate).format('DD.MM.YYYY')}`}</Typography>
-
-                            {lodging.description && (
+                      return (
+                        <Tooltip
+                          key={lodging.id}
+                          title={
+                            <Box sx={{ p: 0.5 }}>
                               <Typography
+                                variant="caption"
                                 display="block"
                                 sx={{ mb: 1 }}
+                              >{`${dayjs(lodging.startDate).format('DD.MM')} - ${dayjs(lodging.endDate).format('DD.MM.YYYY')}`}</Typography>
+
+                              {lodging.description && (
+                                <Typography
+                                  display="block"
+                                  sx={{ mb: 1 }}
+                                  variant="caption"
+                                  gutterBottom
+                                >
+                                  {lodging.description}
+                                </Typography>
+                              )}
+
+                              {lodging.address && (
+                                <Link
+                                  sx={{
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    textDecoration: 'none',
+                                    mb: 1,
+                                    alignItems: 'center',
+                                  }}
+                                  onClick={() =>
+                                    openGoogleMaps(lodging.address)
+                                  }
+                                >
+                                  <LocationOn
+                                    fontSize="small"
+                                    sx={{
+                                      color: 'location',
+                                      fontSize: '0.8rem',
+                                    }}
+                                  />
+                                  <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                    sx={{
+                                      color: 'location',
+                                      fontSize: '0.8rem',
+                                      ':hover': { textDecoration: 'underline' },
+                                    }}
+                                  >
+                                    {lodging.address}
+                                  </Typography>
+                                </Link>
+                              )}
+
+                              <Typography
                                 variant="caption"
+                                fontWeight="bold"
+                                display="block"
                                 gutterBottom
                               >
-                                {lodging.description}
+                                Zakwaterowani ({assignedEmployees.length}):
+                              </Typography>
+                              <Stack spacing={0.5}>
+                                {assignedEmployees.map((emp) => (
+                                  <Typography
+                                    key={emp.id}
+                                    variant="caption"
+                                    display="block"
+                                  >
+                                    •{' '}
+                                    {getEmployeeLabel(
+                                      emp.name,
+                                      lodging,
+                                      emp.id
+                                    )}
+                                  </Typography>
+                                ))}
+                              </Stack>
+                            </Box>
+                          }
+                        >
+                          <Box
+                            onClick={() => onEdit(lodging)}
+                            sx={{
+                              position: 'absolute',
+                              left: startDiff * CELL_WIDTH,
+                              width: Math.max(
+                                duration * CELL_WIDTH,
+                                CELL_WIDTH
+                              ),
+                              top: topPosition,
+                              height: BAR_HEIGHT,
+                              bgcolor: isActive ? 'primary.main' : 'grey.500',
+                              borderRadius: 1,
+                              cursor: 'pointer',
+                              px: 1,
+                              display: 'flex',
+                              alignItems: 'center',
+                              zIndex: 10,
+                              transition: '0.2s',
+                              '&:hover': {
+                                zIndex: 15,
+                                bgcolor: isActive ? 'primary.dark' : 'grey.700',
+                              },
+                            }}
+                          >
+                            {lodging.name && (
+                              <Typography
+                                variant="caption"
+                                sx={{
+                                  color: '#fff',
+                                  fontWeight: 500,
+                                  whiteSpace: 'nowrap',
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                }}
+                              >
+                                {lodging.name}
                               </Typography>
                             )}
-
-                            {lodging.address && (
-                              <Link
-                                sx={{
-                                  cursor: 'pointer',
-                                  display: 'flex',
-                                  flexDirection: 'row',
-                                  textDecoration: 'none',
-                                  mb: 1,
-                                  alignItems: 'center',
-                                }}
-                                onClick={() => openGoogleMaps(lodging.address)}
-                              >
-                                <LocationOn
-                                  fontSize="small"
-                                  sx={{ color: 'location', fontSize: '0.8rem' }}
-                                />
-                                <Typography
-                                  variant="body2"
-                                  color="text.secondary"
-                                  sx={{
-                                    color: 'location',
-                                    fontSize: '0.8rem',
-                                    ':hover': { textDecoration: 'underline' },
-                                  }}
-                                >
-                                  {lodging.address}
-                                </Typography>
-                              </Link>
-                            )}
-
-                            <Typography
-                              variant="caption"
-                              fontWeight="bold"
-                              display="block"
-                              gutterBottom
-                            >
-                              Zakwaterowani ({assignedEmployees.length}):
-                            </Typography>
-                            <Stack spacing={0.5}>
-                              {assignedEmployees.map((emp) => (
-                                <Typography
-                                  key={emp.id}
-                                  variant="caption"
-                                  display="block"
-                                >
-                                  •{' '}
-                                  {getEmployeeLabel(emp.name, lodging, emp.id)}
-                                </Typography>
-                              ))}
-                            </Stack>
                           </Box>
-                        }
-                      >
-                        <Box
-                          onClick={() => onEdit(lodging)}
-                          sx={{
-                            position: 'absolute',
-                            left: startDiff * CELL_WIDTH,
-                            width: Math.max(duration * CELL_WIDTH, CELL_WIDTH),
-                            top: topPosition,
-                            height: BAR_HEIGHT,
-                            bgcolor: isActive ? 'primary.main' : 'grey.500',
-                            borderRadius: 1,
-                            cursor: 'pointer',
-                            px: 1,
-                            display: 'flex',
-                            alignItems: 'center',
-                            zIndex: 10,
-                            transition: '0.2s',
-                            '&:hover': {
-                              zIndex: 15,
-                              bgcolor: isActive ? 'primary.dark' : 'grey.700',
-                            },
-                          }}
-                        >
-                          {lodging.name && (
-                            <Typography
-                              variant="caption"
-                              sx={{
-                                color: '#fff',
-                                fontWeight: 500,
-                                whiteSpace: 'nowrap',
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                              }}
-                            >
-                              {lodging.name}
-                            </Typography>
-                          )}
-                        </Box>
-                      </Tooltip>
-                    );
-                  })}
+                        </Tooltip>
+                      );
+                    })}
+                  </Box>
                 </Box>
-              </Box>
-            ))}
+              ))}
+            </Box>
           </Box>
         </Box>
       </Box>
