@@ -15,6 +15,7 @@ import {
   GridView,
   ViewTimeline,
   DeleteSweep,
+  BookmarkOutlined,
 } from '@mui/icons-material';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
@@ -48,7 +49,16 @@ dayjs.extend(isBetween);
 dayjs.locale('pl');
 
 const LodgingsManager = () => {
-  const [viewMode, setViewMode] = useState<'grid' | 'timeline'>('grid');
+  const [defaultViewMode, setDefaultViewMode] = useState<'grid' | 'timeline'>(
+    () => {
+      const saved = localStorage.getItem('lodgings_view_mode');
+      return saved === 'grid' || saved === 'timeline' ? saved : 'timeline';
+    }
+  );
+  const [viewMode, setViewMode] = useState<'grid' | 'timeline'>(() => {
+    const saved = localStorage.getItem('lodgings_view_mode');
+    return saved === 'grid' || saved === 'timeline' ? saved : 'timeline';
+  });
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingLodging, setEditingLodging] = useState<
     ExtendedLodging | undefined
@@ -171,6 +181,14 @@ const LodgingsManager = () => {
     } else {
       createMutation.mutate(data);
     }
+  };
+
+  const handleSetDefaultView = () => {
+    localStorage.setItem('lodgings_view_mode', viewMode);
+    setDefaultViewMode(viewMode);
+    notifications.show('Ustawiono bieżący widok jako domyślny', {
+      severity: 'success',
+    });
   };
 
   const handleEmployeeClick = (id: string) => {
@@ -296,19 +314,22 @@ const LodgingsManager = () => {
           })}
         >
           <Stack
-            direction={'row'}
+            direction={{ sx: 'column', sm: 'row' }}
             alignItems={'center'}
             className="px-3"
             columnGap={2}
             rowGap={0.5}
             py={1}
-            sx={{ height: '100%' }}
+            sx={{ height: '100%', color: 'text.secondary' }}
           >
             <Stack
-              direction={'row'}
+              direction={{ sx: 'column', sm: 'row' }}
               spacing={2}
               alignItems={'center'}
               flexWrap={'wrap'}
+              sx={{
+                mb: { xs: 1, sm: 0 },
+              }}
               divider={
                 <Box
                   sx={(theme) => ({
@@ -335,6 +356,19 @@ const LodgingsManager = () => {
                 {`Noclegi: ${stats.activeLodgingsCount}/${stats.totalLodgings}`}
               </Typography>
             </Stack>
+
+            {defaultViewMode !== viewMode && (
+              <Button
+                sx={{ ml: { sx: 0, sm: 'auto' }, p: 0.1, px: 0.5 }}
+                onClick={handleSetDefaultView}
+                variant="outlined"
+                size="small"
+                color="inherit"
+                startIcon={<BookmarkOutlined fontSize="small" />}
+              >
+                Ustaw jako domyślny
+              </Button>
+            )}
           </Stack>
         </Box>
       }
