@@ -51,7 +51,7 @@ export interface ConstructionsWithWorkHours {
     employeeId: string;
     employeeName: string;
     isActive: boolean;
-    hours: number[];
+    hours: (number | null)[];
     total: number;
     isOnVacation: boolean[];
   }[];
@@ -242,7 +242,7 @@ const useHoursTable = (startWeek?: Date) => {
           constructionId: log.constructionId,
           employeeId: log.employeeId,
           weekStart: currentWeek,
-          hours: [0, 0, 0, 0, 0, 0, 0],
+          hours: [null, null, null, null, null, null, null],
           employeeName: log.employeeName,
           employeeActive: log.employeeActive,
           constructionName: log.constructionName,
@@ -292,15 +292,17 @@ const useHoursTable = (startWeek?: Date) => {
     mutationFn: async (whs: WorkHours[]) => {
       const dates = getWeekDates(currentWeek);
       const logs: Omit<WorkLogEntry, 'id'>[] = [];
+
       whs.forEach((w) =>
         w.hours.forEach((h, i) => {
-          if (h >= 0)
+          if (h !== undefined) {
             logs.push({
               employeeId: w.employeeId,
               constructionId: w.constructionId,
               date: dayjs(dates[i]).format('YYYY-MM-DD'),
               hours: h,
             });
+          }
         })
       );
       await overrideWorkLogsForWeek(currentWeek, logs);
@@ -320,6 +322,9 @@ const useHoursTable = (startWeek?: Date) => {
       const logs = await fetchWorkLogsForCopy(sourceWeek);
       const grouped = new Map<string, WorkHours>();
       const sDates = getWeekDates(sourceWeek);
+
+      const targetDates = getWeekDates(currentWeek);
+
       logs.forEach((l) => {
         const k = `${l.constructionId}_${l.employeeId}`;
         if (!grouped.has(k))
@@ -328,17 +333,32 @@ const useHoursTable = (startWeek?: Date) => {
             constructionId: l.constructionId,
             employeeId: l.employeeId,
             weekStart: currentWeek,
-            hours: [0, 0, 0, 0, 0, 0, 0],
+            hours: [null, null, null, null, null, null, null],
             employeeName: l.employeeName,
             employeeActive: l.employeeActive,
             constructionName: l.constructionName,
             constructionActive: l.constructionActive,
           });
+
         const idx = sDates.findIndex(
           (d) =>
             dayjs(d).format('YYYY-MM-DD') === dayjs(l.date).format('YYYY-MM-DD')
         );
-        if (idx !== -1) grouped.get(k)!.hours[idx] = l.hours;
+
+        if (idx !== -1) {
+          const entry = grouped.get(k)!;
+
+          const isTargetWeekVacation = isEmployeeOnVacation(
+            l.employeeId,
+            targetDates[idx]
+          );
+
+          if (isTargetWeekVacation) {
+            entry.hours[idx] = 0;
+          } else {
+            entry.hours[idx] = l.hours;
+          }
+        }
       });
       return Array.from(grouped.values());
     },
@@ -355,6 +375,9 @@ const useHoursTable = (startWeek?: Date) => {
       const schedules = await getScheduleListForWeek(currentWeek);
       const newWh: WorkHours[] = [];
       const DEFAULT = 10;
+      const DEFAULT_SATURDAY = 5;
+
+      const dates = getWeekDates(currentWeek);
 
       schedules.forEach((grp) => {
         const cMap = new Map<string, number[]>();
@@ -369,8 +392,19 @@ const useHoursTable = (startWeek?: Date) => {
         });
 
         cMap.forEach((days, cId) => {
-          const h = Array(7).fill(0);
-          days.forEach((d) => (h[d] = DEFAULT));
+          const h = Array(7).fill(null);
+
+          days.forEach((d) => {
+            const dateStr = dayjs(dates[d]).format('YYYY-MM-DD');
+            const isVacation = vacationMap.get(grp.employeeId)?.has(dateStr);
+
+            if (isVacation) {
+              h[d] = 0;
+            } else {
+              h[d] = d === 5 ? DEFAULT_SATURDAY : DEFAULT;
+            }
+          });
+
           const cm = cNames.get(cId)!;
           newWh.push({
             id: `${cId}_${grp.employeeId}_${currentWeek.getTime()}`,
@@ -387,6 +421,7 @@ const useHoursTable = (startWeek?: Date) => {
       });
       return newWh;
     },
+
     onSuccess: (res) => {
       setLocalWorkHours(res);
       setHasUnsavedChanges(true);
@@ -456,8 +491,17 @@ const useHoursTable = (startWeek?: Date) => {
   const handleToggleExpand = () => setIsExpanded((p) => !p);
 
   const handleHoursChange = useCallback(
-    (id: string, idx: number, val: number | string) => {
-      const num = typeof val === 'string' ? parseFloat(val) || 0 : val;
+    (id: string, idx: number, val: number | string | null) => {
+      let num: number | null = null;
+
+      if (val === null || val === '') {
+        num = null;
+      } else if (typeof val === 'string') {
+        const parsed = parseFloat(val);
+        num = isNaN(parsed) ? null : parsed;
+      } else {
+        num = val;
+      }
 
       setLocalWorkHours((prevWorkHours) => {
         const index = prevWorkHours.findIndex((w) => w.id === id);
@@ -470,7 +514,10 @@ const useHoursTable = (startWeek?: Date) => {
         const newHours = [...item.hours];
         newHours[idx] = num;
 
-        const simpleTotal = newHours.reduce((acc, curr) => acc + curr, 0);
+        const simpleTotal = newHours.reduce<number>(
+          (acc, curr) => acc + (curr ?? 0),
+          0
+        );
 
         const newWorkHours = [...prevWorkHours];
         newWorkHours[index] = {
@@ -503,8 +550,11 @@ const useHoursTable = (startWeek?: Date) => {
         .then((ok) => ok && go());
     else go();
   };
-  const isEmployeeOnVacation = (id: string, d: Date) =>
-    vacationMap.get(id)?.has(dayjs(d).format('YYYY-MM-DD')) ?? false;
+  const isEmployeeOnVacation = useCallback(
+    (id: string, d: Date) =>
+      vacationMap.get(id)?.has(dayjs(d).format('YYYY-MM-DD')) ?? false,
+    [vacationMap]
+  );
 
   const handleDeleteEmployee = useCallback(
     async (id: string, en: string, cn: string) => {
@@ -543,31 +593,46 @@ const useHoursTable = (startWeek?: Date) => {
         setHasUnsavedChanges(true);
       }
     },
-    []
+    [dialogs]
   );
 
-  const handleEmployeesAdded = useCallback((arr: WorkHours[]) => {
-    setLocalWorkHours((p) => {
-      const s = new Set(p.map((x) => `${x.constructionId}_${x.employeeId}`));
-      const f = arr.filter(
-        (x) => !s.has(`${x.constructionId}_${x.employeeId}`)
-      );
+  const handleEmployeesAdded = useCallback(
+    (arr: WorkHours[]) => {
+      setLocalWorkHours((p) => {
+        const s = new Set(p.map((x) => `${x.constructionId}_${x.employeeId}`));
+        const f = arr.filter(
+          (x) => !s.has(`${x.constructionId}_${x.employeeId}`)
+        );
 
-      const enriched = f.map((wh) => {
-        const cDef = constructions?.find((c) => c.id === wh.constructionId);
-        const eDef = employees?.find((e) => e.id === wh.employeeId);
-        return {
-          ...wh,
-          employeeName: eDef?.name,
-          employeeActive: eDef?.status,
-          constructionName: cDef?.name,
-          constructionActive: cDef?.status,
-        };
+        const dates = getWeekDates(currentWeek);
+
+        const enriched = f.map((wh) => {
+          const cDef = constructions?.find((c) => c.id === wh.constructionId);
+          const eDef = employees?.find((e) => e.id === wh.employeeId);
+
+          const hoursWithVacations = wh.hours.map((h, i) => {
+            if (isEmployeeOnVacation(wh.employeeId, dates[i])) {
+              return 0;
+            }
+            return h;
+          });
+
+          return {
+            ...wh,
+            hours: hoursWithVacations,
+            employeeName: eDef?.name,
+            employeeActive: eDef?.status,
+            constructionName: cDef?.name,
+            constructionActive: cDef?.status,
+          };
+        });
+        return [...p, ...enriched];
       });
-      return [...p, ...enriched];
-    });
-    setHasUnsavedChanges(true);
-  }, []);
+      setHasUnsavedChanges(true);
+    },
+    [currentWeek, constructions, employees, isEmployeeOnVacation]
+  );
+
   const handleConstructionWithEmployeeAdded = handleEmployeesAdded;
   const handleCancelEdit = async () => {
     if (
@@ -598,8 +663,8 @@ const useHoursTable = (startWeek?: Date) => {
       if (sC.size && !sC.has(w.constructionId)) return;
       w.hours.forEach((h, i) => {
         if (!isEmployeeOnVacation(w.employeeId, dates[i])) {
-          dt[i] += h;
-          gt += h;
+          dt[i] += h ?? 0;
+          gt += h ?? 0;
         }
       });
     });
@@ -609,7 +674,7 @@ const useHoursTable = (startWeek?: Date) => {
     currentWeek,
     selectedEmployees,
     selectedConstructions,
-    vacationMap,
+    isEmployeeOnVacation,
   ]);
 
   const constructionsWithWorkHours = useMemo(() => {
@@ -638,7 +703,10 @@ const useHoursTable = (startWeek?: Date) => {
         });
       const g = map.get(wh.constructionId)!;
       const vac = dates.map((d) => isEmployeeOnVacation(wh.employeeId, d));
-      const tot = wh.hours.reduce((s, h, i) => (vac[i] ? s : s + h), 0);
+      const tot = wh.hours.reduce<number>(
+        (s, h, i) => (vac[i] ? s : s + (h ?? 0)),
+        0
+      );
       g.workHours.push({
         id: wh.id,
         employeeId: wh.employeeId,
@@ -663,7 +731,7 @@ const useHoursTable = (startWeek?: Date) => {
     currentWeek,
     selectedEmployees,
     selectedConstructions,
-    vacationMap,
+    isEmployeeOnVacation,
   ]);
 
   const availableConstructionsOptions = useMemo(() => {

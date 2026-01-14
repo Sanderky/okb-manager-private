@@ -84,6 +84,7 @@ const areConstructionsEqual = (
 
     for (let j = 0; j < 7; j++) {
       if (pWh.hours[j] !== nWh.hours[j]) return false;
+      if (pWh.isOnVacation[j] !== nWh.isOnVacation[j]) return false;
     }
   }
 
@@ -91,10 +92,10 @@ const areConstructionsEqual = (
 };
 
 interface EditableCellProps {
-  value: number;
+  value: number | null;
   id: string;
   dayIndex: number;
-  onCommit: (id: string, dayIndex: number, val: number) => void;
+  onCommit: (id: string, dayIndex: number, val: number | null) => void;
   max?: number;
   isHoliday?: boolean;
   isActive: boolean;
@@ -110,22 +111,31 @@ const EditableCell = React.memo(
     isHoliday,
     isActive,
   }: EditableCellProps) => {
-    const [localValue, setLocalValue] = useState<string>(
-      value > 0 ? value.toString() : ''
-    );
+    const formatValue = (val: number | null) => {
+      if (val === null) return '';
+      return val.toString();
+    };
+
+    const [localValue, setLocalValue] = useState<string>(formatValue(value));
 
     useEffect(() => {
-      setLocalValue(value > 0 ? value.toString() : '');
+      setLocalValue(formatValue(value));
     }, [value]);
 
     const handleBlur = () => {
-      let numVal = parseFloat(localValue.replace(',', '.'));
-      if (isNaN(numVal)) numVal = 0;
+      let valToSend: number | null = null;
 
-      if (numVal !== value) {
-        onCommit(id, dayIndex, numVal);
+      if (localValue.trim() === '') {
+        valToSend = null;
       } else {
-        setLocalValue(numVal > 0 ? numVal.toString() : '');
+        const parsed = parseFloat(localValue.replace(',', '.'));
+        valToSend = isNaN(parsed) ? null : parsed;
+      }
+
+      if (valToSend !== value) {
+        onCommit(id, dayIndex, valToSend);
+      } else {
+        setLocalValue(formatValue(valToSend));
       }
     };
 
@@ -200,7 +210,11 @@ interface ConstructionRowProps {
   activeEmployees: Employee[];
   handleDeleteConstruction: (id: string, name: string) => void;
   handleDeleteEmployee: (id: string, empName: string, consName: string) => void;
-  handleHoursChange: (id: string, dayIdx: number, val: number | string) => void;
+  handleHoursChange: (
+    id: string,
+    dayIdx: number,
+    val: number | string | null
+  ) => void;
   handleOpenAddEmployeeDialog: (id: string) => void;
 }
 
@@ -324,9 +338,9 @@ const ConstructionRow = React.memo(
                     borderRight: `1px solid ${theme.palette.divider}`,
                     height: '33px',
                     background:
-                      hour > 24
+                      (hour ?? 0) > 24
                         ? theme.palette.hours.error
-                        : hour > 10
+                        : (hour ?? 0) > 10
                           ? theme.palette.hours.warning
                           : '',
                   })}
@@ -429,7 +443,7 @@ interface TableRowsProps {
   handleHoursChange: (
     id: string,
     dayIndex: number,
-    value: string | number
+    value: string | number | null
   ) => void;
   handleOpenAddEmployeeDialog: (constructionId: string) => void;
 }

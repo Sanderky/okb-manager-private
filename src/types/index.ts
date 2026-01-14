@@ -97,7 +97,7 @@ export interface WorkHours {
   constructionId: string;
   employeeId: string;
   weekStart: Date;
-  hours: number[];
+  hours: (number | null)[];
   total?: number;
 
   employeeName?: string;
@@ -112,7 +112,7 @@ export interface WorkLogEntry {
   employeeId: string;
   constructionId: string;
   date: string;
-  hours: number;
+  hours: number | null;
 
   employeeName?: string;
   employeeActive?: boolean;

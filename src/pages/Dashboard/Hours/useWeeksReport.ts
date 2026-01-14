@@ -170,16 +170,17 @@ const useWeekReport = ({
             isEmployeeOnVacation(wh.employeeId, d)
           );
 
-          wh.total = wh.hours.reduce(
-            (sum, h, i) => (wh.isOnVacation[i] ? sum : sum + h),
+          wh.total = wh.hours.reduce<number>(
+            (sum, h, i) => (wh.isOnVacation[i] ? sum : sum + (h ?? 0)),
             0
           );
           group.totalHours += wh.total;
 
           wh.hours.forEach((h, i) => {
             if (!wh.isOnVacation[i]) {
-              dailyTotals[i] += h;
-              grandTotal += h;
+              const val = h ?? 0;
+              dailyTotals[i] += val;
+              grandTotal += val;
             }
           });
         });

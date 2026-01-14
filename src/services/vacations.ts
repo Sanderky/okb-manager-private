@@ -23,7 +23,6 @@ const mapVacationFromDB = (row: any): Vacation => ({
   employeeActive: row.employees?.status,
 });
 
-
 export const createVacation = async (
   data: Partial<Vacation>
 ): Promise<string> => {
@@ -50,22 +49,6 @@ export const createVacation = async (
 
   if (error) throw error;
 
-  await Promise.all([
-    supabase
-      .from('work_logs')
-      .delete()
-      .eq('employee_id', data.employeeId)
-      .gte('date', startDateStr)
-      .lte('date', endDateStr),
-
-    supabase
-      .from('daily_schedules')
-      .delete()
-      .eq('employee_id', data.employeeId)
-      .gte('date', startDateStr)
-      .lte('date', endDateStr),
-  ]);
-
   return createdRecord.id;
 };
 
@@ -78,35 +61,12 @@ export async function updateVacation(id: string, data: Partial<Vacation>) {
   if (data.description !== undefined)
     updatePayload.description = data.description;
 
-  const { data: updatedRecord, error } = await supabase
+  const { error } = await supabase
     .from('vacations')
     .update(updatePayload)
-    .eq('id', id)
-    .select('employee_id, start_date, end_date')
-    .single();
+    .eq('id', id);
 
   if (error) throw error;
-
-  if (data.startDate || data.endDate) {
-    const startDateStr = updatedRecord.start_date;
-    const endDateStr = updatedRecord.end_date;
-    const employeeId = updatedRecord.employee_id;
-
-    await Promise.all([
-      supabase
-        .from('work_logs')
-        .delete()
-        .eq('employee_id', employeeId)
-        .gte('date', startDateStr)
-        .lte('date', endDateStr),
-      supabase
-        .from('daily_schedules')
-        .delete()
-        .eq('employee_id', employeeId)
-        .gte('date', startDateStr)
-        .lte('date', endDateStr),
-    ]);
-  }
 }
 
 export async function removeVacation(id: string) {

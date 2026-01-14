@@ -96,26 +96,35 @@ const TableRows = ({
 
               {workHour.hours.map((hour, dayIndex) => {
                 const isVacation = workHour.isOnVacation[dayIndex];
+
+                let content;
+
+                if (isVacation && showVacation) {
+                  content = (
+                    <Typography variant="body2" color="textPrimary">
+                      {translations.vacation}
+                    </Typography>
+                  );
+                } else if (hour === null || hour === undefined) {
+                  content = null;
+                } else {
+                  content = (
+                    <Typography>{formatToPolishDecimal(hour)}</Typography>
+                  );
+                }
+
                 return (
                   <TableCell
                     key={dayIndex}
                     align="center"
                     sx={{
                       borderTop: tableBorder,
-
                       width: numberCellMaxWidth,
                       minWidth: '20px',
                       p: numberCellPadding,
-                      backgroundColor: isVacation ? vacationColor : 'none',
                     }}
                   >
-                    {isVacation && showVacation ? (
-                      <Typography variant="body2" color="textPrimary">
-                        {translations.vacation}
-                      </Typography>
-                    ) : (
-                      <Typography>{formatToPolishDecimal(hour)}</Typography>
-                    )}
+                    {content}
                   </TableCell>
                 );
               })}
@@ -147,7 +156,7 @@ const TableRows = ({
                 borderBottom: borderBold,
                 p: 0.5,
                 background: '#fff',
-                borderRight: 'none !important'
+                borderRight: 'none !important',
               }}
               colSpan={8}
             ></TableCell>
@@ -159,7 +168,7 @@ const TableRows = ({
                 p: 0.5,
                 fontWeight: 'bold',
                 padding: 0,
-                borderLeft: 'none !important'
+                borderLeft: 'none !important',
               }}
             >
               {formatToPolishDecimal(construction.totalHours)}
@@ -197,7 +206,7 @@ interface PrintableTableProps {
   weekDates: Date[];
   totalHoursData: { dailyTotals: number[]; grandTotal: number };
   showVacation: boolean;
-  customNoDataText?: string
+  customNoDataText?: string;
   customTitle?: string;
   printTitle?: boolean;
   lang?: LangCode;
@@ -228,11 +237,12 @@ export const PrintableTable = forwardRef<HTMLDivElement, PrintableTableProps>(
       }, 0);
     }, [constructionsWithWorkHours]);
 
-    const tableTitle = customTitle ?? `Tydzień ${getWeekNumber(weekDates[0])}: ${dayjs(weekDates[0]).format('DD.MM.YYYY')} - ${dayjs(weekDates[6]).format('DD.MM.YYYY')}`
+    const tableTitle =
+      customTitle ??
+      `Tydzień ${getWeekNumber(weekDates[0])}: ${dayjs(weekDates[0]).format('DD.MM.YYYY')} - ${dayjs(weekDates[6]).format('DD.MM.YYYY')}`;
 
     return (
       <Box ref={ref} sx={{ width: '100%' }}>
-
         {dataSorted.length === 0 ? (
           <Box
             sx={{
@@ -241,15 +251,20 @@ export const PrintableTable = forwardRef<HTMLDivElement, PrintableTableProps>(
               flexDirection: 'column',
             }}
           >
-            {printTitle &&
-              <Typography variant="caption" sx={{
-                textAlign: 'left !important',
-                mb: 1
-              }}>
+            {printTitle && (
+              <Typography
+                variant="caption"
+                sx={{
+                  textAlign: 'left !important',
+                  mb: 1,
+                }}
+              >
                 {tableTitle}
               </Typography>
-            }
-            <Typography sx={{ width: '100%' }}>{customNoDataText ?? 'Brak danych'}</Typography>
+            )}
+            <Typography sx={{ width: '100%' }}>
+              {customNoDataText ?? 'Brak danych'}
+            </Typography>
           </Box>
         ) : (
           <TableContainer className="bg-white">
@@ -271,35 +286,38 @@ export const PrintableTable = forwardRef<HTMLDivElement, PrintableTableProps>(
               }}
             >
               <TableHead sx={{ display: 'table-row-group' }}>
-                {printTitle &&
-
+                {printTitle && (
                   <TableRow>
-                    <TableCell colSpan={10}
-                      align='left'
+                    <TableCell
+                      colSpan={10}
+                      align="left"
                       sx={{
                         borderLeft: 'none !important',
                         borderRight: 'none !important',
                         borderTop: 'none !important',
                         textAlign: 'left !important',
 
-                        p: 0
+                        p: 0,
                       }}
                     >
-                      <Typography variant="caption" sx={{
-                        textAlign: 'left !important'
-                        //  mb: 2 
-                      }}>
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          textAlign: 'left !important',
+                          //  mb: 2
+                        }}
+                      >
                         {tableTitle}
                       </Typography>
                     </TableCell>
                   </TableRow>
-                }
+                )}
                 <TableRow>
                   <TableCell
                     sx={{
                       borderBottom: borderBold,
                       p: 0,
-                      px: 1
+                      px: 1,
                     }}
                   >
                     <Typography
@@ -313,9 +331,7 @@ export const PrintableTable = forwardRef<HTMLDivElement, PrintableTableProps>(
                     sx={{
                       borderBottom: borderBold,
                       p: 0,
-                      px: 1
-
-
+                      px: 1,
                     }}
                   >
                     <Typography
@@ -324,7 +340,6 @@ export const PrintableTable = forwardRef<HTMLDivElement, PrintableTableProps>(
                     >
                       {translations.employee}
                     </Typography>
-
                   </TableCell>
                   {weekDates.map((date, index) => (
                     <TableCell
@@ -333,16 +348,14 @@ export const PrintableTable = forwardRef<HTMLDivElement, PrintableTableProps>(
                       sx={{
                         borderBottom: borderBold,
                         p: 0,
-                        px: 2
-
-
+                        px: 2,
                       }}
                     >
                       <Typography
                         className="block text-center font-semibold"
                         variant="caption"
                         sx={{
-                          fontSize: '0.6rem'
+                          fontSize: '0.6rem',
                         }}
                       >
                         {date.toLocaleDateString(lang, { weekday: 'short' })}
@@ -362,7 +375,7 @@ export const PrintableTable = forwardRef<HTMLDivElement, PrintableTableProps>(
                       p: 0,
                       px: 1,
 
-                      borderBottom: borderBold
+                      borderBottom: borderBold,
                     }}
                   >
                     <Typography
@@ -374,8 +387,6 @@ export const PrintableTable = forwardRef<HTMLDivElement, PrintableTableProps>(
                   </TableCell>
                 </TableRow>
               </TableHead>
-
-
 
               <TableBody>
                 <TableRows
@@ -392,8 +403,8 @@ export const PrintableTable = forwardRef<HTMLDivElement, PrintableTableProps>(
                   }}
                 >
                   <TableCell
-                    align='center'
-                    valign='middle'
+                    align="center"
+                    valign="middle"
                     sx={{
                       textAlign: 'left !important',
 
@@ -404,33 +415,32 @@ export const PrintableTable = forwardRef<HTMLDivElement, PrintableTableProps>(
                       borderRight: 'none !important',
                     }}
                   >
-                    <Typography sx={{
-                      pl: 1
-                    }}>
-
+                    <Typography
+                      sx={{
+                        pl: 1,
+                      }}
+                    >
                       {`${translations.constructions}: ${constructionsWithWorkHours.length}`}
                     </Typography>
                   </TableCell>
                   <TableCell
-                    valign='middle'
-                    align='left'
+                    valign="middle"
+                    align="left"
                     sx={{
                       borderTop: 'none',
                       p: 0,
                       textAlign: 'left !important',
                       borderBottom: 'none',
                       borderRight: 'none !important',
-                      borderLeft: 'none !important'
+                      borderLeft: 'none !important',
                     }}
                   >
                     <Typography>
-
                       {`${translations.employees}: ${employeesCount}`}
                     </Typography>
                   </TableCell>
                   <TableCell
-                    valign='middle'
-
+                    valign="middle"
                     sx={{
                       borderTop: 'none',
                       p: 0,
@@ -442,18 +452,18 @@ export const PrintableTable = forwardRef<HTMLDivElement, PrintableTableProps>(
                     }}
                     colSpan={7}
                     align="right"
-
                   >
-                    <Typography align='right' sx={{
-                      textAlign: 'right !important',
-                    }}>
-
+                    <Typography
+                      align="right"
+                      sx={{
+                        textAlign: 'right !important',
+                      }}
+                    >
                       {`${translations.totalSum}:`}
                     </Typography>
                   </TableCell>
                   <TableCell
-                    valign='middle'
-
+                    valign="middle"
                     sx={{
                       borderTop: 'none',
                       p: 0,
@@ -463,7 +473,6 @@ export const PrintableTable = forwardRef<HTMLDivElement, PrintableTableProps>(
                     align="center"
                   >
                     <Typography>
-
                       {dataSorted.length > 0
                         ? formatToPolishDecimal(totalHoursData.grandTotal)
                         : '-'}
@@ -574,12 +583,11 @@ export const PrintReport = forwardRef<HTMLDivElement, PrintReportProps>(
           }}
         >
           {weeksData.map((weekData, index) => {
-            const title = `${index + 1}) ${translations.week} ${dayjs(weekData.weekStart).isoWeek()} (${dayjs(weekData.weekDates[0]).format('DD.MM.YYYY')} - ${dayjs(weekData.weekDates[6]).format('DD.MM.YYYY')})`
+            const title = `${index + 1}) ${translations.week} ${dayjs(weekData.weekStart).isoWeek()} (${dayjs(weekData.weekDates[0]).format('DD.MM.YYYY')} - ${dayjs(weekData.weekDates[6]).format('DD.MM.YYYY')})`;
             if (omitEmpty && weekData.constructionsWithWorkHours.length === 0)
               return null;
             return (
               <Box key={index} sx={{ mb: 4, width: '100%' }}>
-
                 {!weekData ? (
                   <Typography>{translations.noData}</Typography>
                 ) : (
@@ -618,9 +626,7 @@ export const MultiTablePrintReport = forwardRef<
 >(({ tablesData }, ref) => {
   return (
     <Box ref={ref} sx={{ backgroundColor: 'white' }}>
-      <Box
-        sx={{ display: 'flex', flexDirection: 'column' }}
-      >
+      <Box sx={{ display: 'flex', flexDirection: 'column' }}>
         {Object.entries(tablesData).map(([tableId, tableData]) => {
           if (!tableData) return null;
 

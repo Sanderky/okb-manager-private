@@ -8,7 +8,7 @@ const mapToWorkLog = (row: any): WorkLogEntry => ({
   employeeId: row.employee_id,
   constructionId: row.construction_id,
   date: row.date,
-  hours: Number(row.hours),
+  hours: row.hours === null ? null : Number(row.hours),
 
   employeeName: row.employees?.name,
   constructionName: row.constructions?.name,
@@ -108,27 +108,19 @@ export const saveWorkLogDay = async (
   employeeId: string,
   constructionId: string,
   date: Date,
-  hours: number
+  hours: number | null
 ): Promise<void> => {
   const dateStr = toSqlDate(date);
-  if (hours >= 0) {
-    const { error } = await supabase.from('work_logs').upsert(
-      {
-        employee_id: employeeId,
-        construction_id: constructionId,
-        date: dateStr,
-        hours,
-      },
-      { onConflict: 'employee_id, construction_id, date' }
-    );
-    if (error) throw error;
-  } else {
-    const { error } = await supabase
-      .from('work_logs')
-      .delete()
-      .eq('employee_id', employeeId)
-      .eq('construction_id', constructionId)
-      .eq('date', dateStr);
-    if (error) throw error;
-  }
+
+  const { error } = await supabase.from('work_logs').upsert(
+    {
+      employee_id: employeeId,
+      construction_id: constructionId,
+      date: dateStr,
+      hours: hours,
+    },
+    { onConflict: 'employee_id, construction_id, date' }
+  );
+
+  if (error) throw error;
 };
