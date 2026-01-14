@@ -45,7 +45,11 @@ import {
 import MoveItemsDialog from './MoveFilesDialog';
 import { PreviewDialog } from './FilePreviewDialog';
 import type { FileBrowserItem, FileItem } from '../../types';
-import useFileBrowser from './useFileBrowser';
+import useFileBrowser, {
+  EMPLOYEE_SUBFOLDERS,
+  EMPTY_MAP,
+  SYSTEM_ROOT_FOLDERS,
+} from './useFileBrowser';
 import 'dayjs/locale/pl';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -60,10 +64,8 @@ import {
 } from '../../services/storage';
 import UploadFilesDialog from './UploadFilesDialog';
 
-// const BASE_DIRECTORY = 'files';
-
 const RenderFileImage = ({ file }: { file: FileBrowserItem }) => {
-  if (file.type === 'folder') return <Folder />;
+  if (file.type === 'folder') return <Folder color={file.isSystem ? 'primary' : 'inherit'}/>;
   const fileType = getFileType(file.name);
   // if(fileType === 'pdf') return <PictureAsPdfOutlined/>
   // if (fileType === 'pdf') return <PdfIcon width={24} height={24} />;
@@ -143,71 +145,135 @@ const FileBreadcrumps = ({
   path,
   baseDirectory,
   onClick,
+  employeesMap = EMPTY_MAP,
+  constructionsMap = EMPTY_MAP,
 }: {
   path: string;
   baseDirectory: string;
   onClick: (path: string) => void;
+  employeesMap?: Record<string, string>;
+  constructionsMap?: Record<string, string>;
 }) => {
-  const pathParts = path.replace(baseDirectory, 'Katalog główny').split('/');
-  if (pathParts.length > 0) {
-    return (
-      <Box
-        sx={{
-          display: 'flex',
-          gap: 1,
-          overflowX: 'scroll',
-        }}
-      >
-        {pathParts.map((part, index) => {
-          const href = pathParts
-            .slice(0, index + 1)
-            .join('/')
-            .replace('Katalog główny', baseDirectory);
+  const fullPathSegments = path.split('/').filter(Boolean);
+  const baseSegments = baseDirectory.split('/').filter(Boolean);
 
-          return (
-            <React.Fragment key={index}>
-              {index < pathParts.length - 1 ? (
-                <Typography
-                  color="text.primary"
-                  variant="subtitle2"
-                  sx={{
-                    flexShrink: 0,
-                    cursor: 'pointer',
-                    '&:hover': { textDecoration: 'underline' },
-                  }}
-                  onClick={() => onClick(href)}
-                >
-                  {part}
-                </Typography>
-              ) : (
-                <Typography
-                  color="text.secondary"
-                  variant="body2"
-                  sx={{
-                    flexShrink: 0,
-                  }}
-                >
-                  {part}
-                </Typography>
-              )}
-              {index < pathParts.length - 1 && (
-                <Typography color="text.secondary" variant="body2">
-                  /
-                </Typography>
-              )}
-            </React.Fragment>
-          );
-        })}
-      </Box>
-    );
-  }
+  const startIndex = baseSegments.length;
+
+  const getDisplayName = (part: string, index: number) => {
+    if (SYSTEM_ROOT_FOLDERS[part]) return SYSTEM_ROOT_FOLDERS[part];
+
+    if (index > 0) {
+      const parentPart = fullPathSegments[index - 1];
+
+      if (parentPart === 'employees' && employeesMap[part]) {
+        return employeesMap[part];
+      }
+
+      if (parentPart === 'constructions' && constructionsMap[part]) {
+        return constructionsMap[part];
+      }
+
+      const grandParentPart = index > 1 ? fullPathSegments[index - 2] : null;
+
+      const isParentEmployee =
+        !!employeesMap[parentPart] || grandParentPart === 'employees';
+
+      if (isParentEmployee && EMPLOYEE_SUBFOLDERS[part]) {
+        return EMPLOYEE_SUBFOLDERS[part];
+      }
+    }
+
+    return part;
+  };
+
+  const visibleSegments = fullPathSegments.slice(startIndex);
+
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 1,
+        overflowX: 'auto',
+        whiteSpace: 'nowrap',
+      }}
+    >
+      <Typography
+        color={visibleSegments.length === 0 ? 'text.secondary' : 'text.primary'}
+        variant="subtitle2"
+        sx={{
+          cursor: visibleSegments.length === 0 ? 'default' : 'pointer',
+          '&:hover':
+            visibleSegments.length > 0 ? { textDecoration: 'underline' } : {},
+        }}
+        onClick={() => visibleSegments.length > 0 && onClick(baseDirectory)}
+      >
+        Katalog główny
+      </Typography>
+
+      {visibleSegments.length > 0 && (
+        <Typography color="text.secondary" variant="body2">
+          /
+        </Typography>
+      )}
+
+      {visibleSegments.map((part, i) => {
+        const realIndex = startIndex + i;
+
+        const href = fullPathSegments.slice(0, realIndex + 1).join('/');
+
+        const displayName = getDisplayName(part, realIndex);
+
+        const isLast = i === visibleSegments.length - 1;
+
+        return (
+          <React.Fragment key={realIndex}>
+            {isLast ? (
+              <Typography
+                color="text.secondary"
+                variant="body2"
+                sx={{ flexShrink: 0 }}
+              >
+                {displayName}
+              </Typography>
+            ) : (
+              <Typography
+                color="text.primary"
+                variant="subtitle2"
+                sx={{
+                  flexShrink: 0,
+                  cursor: 'pointer',
+                  '&:hover': { textDecoration: 'underline' },
+                }}
+                onClick={() => onClick(href)}
+              >
+                {displayName}
+              </Typography>
+            )}
+
+            {!isLast && (
+              <Typography color="text.secondary" variant="body2">
+                /
+              </Typography>
+            )}
+          </React.Fragment>
+        );
+      })}
+    </Box>
+  );
 };
 
-interface FirebaseFileBrowserProps {
+interface FileBrowserProps {
   baseDirectory: string;
+  employeesMap?: Record<string, string>;
+  constructionsMap?: Record<string, string>;
 }
 
-const FileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
+const FileBrowser = ({
+  baseDirectory,
+  employeesMap = {},
+  constructionsMap = {},
+}: FileBrowserProps) => {
   const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
   const [previewFile, setPreviewFile] = useState<FileItem | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState<boolean>(false);
@@ -240,7 +306,7 @@ const FileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
     isUploadDialogOpen,
     setIsUploadDialogOpen,
     uploading,
-  } = useFileBrowser(baseDirectory, onFetch);
+  } = useFileBrowser(baseDirectory, onFetch, employeesMap, constructionsMap);
 
   const handleOpenPreview = useCallback((file: FileItem) => {
     setPreviewFile(file);
@@ -378,6 +444,9 @@ const FileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
                 {renderedCellValue}
               </Typography>
             </Tooltip>
+            {/* {row.original.isSystem && (
+              <Chip label="Systemowy" size="small" variant="outlined" sx={{fontSize: '0.6rem'}} />
+            )} */}
           </Stack>
         ),
       },
@@ -463,6 +532,10 @@ const FileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
   );
 
   const renderToolbarButtons = (selectedRows: FileBrowserItem[]) => {
+    const nonSystemCount = selectedRows.filter((r) => !r.isSystem).length;
+    const hasAnySelection = selectedRows.length > 0;
+
+    const canModify = nonSystemCount > 0;
     return (
       <>
         <Button
@@ -503,11 +576,11 @@ const FileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
             </IconButton>
           </span>
         </Tooltip>
-        {selectedRows.length > 0 && [
+        {hasAnySelection && [
           <Tooltip title={`Pobierz (${selectedRows.length})`} key={'download'}>
             <span>
               <IconButton
-                disabled={selectedRows.length === 0 || loading}
+                disabled={!canModify || loading}
                 onClick={() => handleDownload(selectedRows)}
               >
                 <Download />
@@ -517,7 +590,7 @@ const FileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
           <Tooltip title={`Przenieś (${selectedRows.length})`} key={'move'}>
             <span>
               <IconButton
-                disabled={selectedRows.length === 0 || loading}
+                disabled={!canModify || loading}
                 onClick={() => openMoveDialog(selectedRows)}
               >
                 <DriveFileMove />
@@ -527,7 +600,7 @@ const FileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
           <Tooltip title={`Usuń (${selectedRows.length})`} key={'delete'}>
             <span>
               <IconButton
-                disabled={selectedRows.length === 0 || loading}
+                disabled={!canModify || loading}
                 onClick={() => handleDelete(selectedRows)}
               >
                 <Delete />
@@ -662,75 +735,82 @@ const FileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
         </Typography>
       </Box>
     ),
-    renderRowActionMenuItems: ({ row, closeMenu }) => [
-      row.original.type === 'file'
-        ? [
-            canOpenPreview(row.original) ? (
+    renderRowActionMenuItems: ({ row, closeMenu }) => {
+      const isSystemItem = row.original.isSystem;
+      return [
+        row.original.type === 'file'
+          ? [
+              canOpenPreview(row.original) ? (
+                <MRT_ActionMenuItem
+                  icon={<Visibility />}
+                  key="preview"
+                  label="Podgląd"
+                  onClick={() => {
+                    handleOpenPreview(row.original as FileItem);
+                    closeMenu();
+                  }}
+                  table={table}
+                />
+              ) : null,
               <MRT_ActionMenuItem
-                icon={<Visibility />}
-                key="preview"
-                label="Podgląd"
+                icon={<OpenInNew />}
+                key="newTab"
+                label="Otwórz w nowej karcie"
                 onClick={() => {
-                  handleOpenPreview(row.original as FileItem);
+                  openFileInNewTab((row.original as FileItem).path);
                   closeMenu();
                 }}
                 table={table}
-              />
-            ) : null,
-            <MRT_ActionMenuItem
-              icon={<OpenInNew />}
-              key="newTab"
-              label="Otwórz w nowej karcie"
-              onClick={() => {
-                openFileInNewTab((row.original as FileItem).path);
-                closeMenu();
-              }}
-              table={table}
-            />,
-            <MRT_ActionMenuItem
-              icon={<InfoOutline />}
-              key="details"
-              label="Szczegóły"
-              onClick={() => {
-                setSelectedFile(row.original as FileItem);
-                setIsDetailsDialogOpen(true);
-                closeMenu();
-              }}
-              table={table}
-            />,
-          ]
-        : null,
-      <MRT_ActionMenuItem
-        icon={<Download />}
-        key="download"
-        label="Pobierz"
-        onClick={() => {
-          handleDownload([row.original]);
-          closeMenu();
-        }}
-        table={table}
-      />,
-      <MRT_ActionMenuItem
-        icon={<Edit />}
-        key="edit"
-        label="Zmień nazwę"
-        onClick={() => {
-          handleRename(row.original);
-          closeMenu();
-        }}
-        table={table}
-      />,
-      <MRT_ActionMenuItem
-        icon={<Delete color="error" />}
-        key="delete"
-        label="Usuń"
-        onClick={() => {
-          handleDelete([row.original]);
-          closeMenu();
-        }}
-        table={table}
-      />,
-    ],
+              />,
+              <MRT_ActionMenuItem
+                icon={<InfoOutline />}
+                key="details"
+                label="Szczegóły"
+                onClick={() => {
+                  setSelectedFile(row.original as FileItem);
+                  setIsDetailsDialogOpen(true);
+                  closeMenu();
+                }}
+                table={table}
+              />,
+            ]
+          : null,
+        <MRT_ActionMenuItem
+          icon={<Download />}
+          key="download"
+          label="Pobierz"
+          onClick={() => {
+            handleDownload([row.original]);
+            closeMenu();
+          }}
+          table={table}
+        />,
+        !isSystemItem && (
+          <MRT_ActionMenuItem
+            icon={<Edit />}
+            key="edit"
+            label="Zmień nazwę"
+            onClick={() => {
+              handleRename(row.original);
+              closeMenu();
+            }}
+            table={table}
+          />
+        ),
+        !isSystemItem && (
+          <MRT_ActionMenuItem
+            icon={<Delete color="error" />}
+            key="delete"
+            label="Usuń"
+            onClick={() => {
+              handleDelete([row.original]);
+              closeMenu();
+            }}
+            table={table}
+          />
+        ),
+      ].filter(Boolean);
+    },
     renderTopToolbarCustomActions: ({ table }) => {
       const selectedRows = table
         .getSelectedRowModel()
@@ -769,7 +849,7 @@ const FileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
               display: { xs: 'flex', sm: 'none' },
               gap: 2,
               flexWrap: 'wrap',
-              backgroundColor: 'background.paper'
+              backgroundColor: 'background.paper',
             }}
           >
             {renderToolbarButtons(selectedRows)}
@@ -842,6 +922,8 @@ const FileBrowser = ({ baseDirectory }: FirebaseFileBrowserProps) => {
                   path={currentPath}
                   baseDirectory={baseDirectory}
                   onClick={(path) => changeCurrentPath(path)}
+                  employeesMap={employeesMap}
+                  constructionsMap={constructionsMap}
                 />
               </>
             )}

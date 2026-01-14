@@ -175,7 +175,11 @@ export default function EmployeeShow() {
     if (key === 'isContractor') return value ? 'Tak' : 'Nie';
     if (value === null || value === undefined || value === '')
       return (
-        <Typography component={'span'} color="textSecondary" fontWeight={'bold'}>
+        <Typography
+          component={'span'}
+          color="textSecondary"
+          fontWeight={'bold'}
+        >
           -
         </Typography>
       );
@@ -226,7 +230,7 @@ export default function EmployeeShow() {
             display: 'flex',
             flexDirection: 'column',
             background: theme.palette.background.paper,
-            border: `1px solid ${theme.palette.divider}`
+            border: `1px solid ${theme.palette.divider}`,
           })}
           className="rounded-lg p-2 md:p-4 lg:p-6"
         >
@@ -378,7 +382,11 @@ export default function EmployeeShow() {
                                   variant="body2"
                                   color="textSecondary"
                                 >
-                                  {getDateStr(empV.startDate, empV.endDate, true)}
+                                  {getDateStr(
+                                    empV.startDate,
+                                    empV.endDate,
+                                    true
+                                  )}
                                 </Typography>
                               </td>
                             </TableRow>
@@ -435,7 +443,7 @@ export default function EmployeeShow() {
             display: 'flex',
           }}
         >
-          <FileBrowser baseDirectory={`employees/${employee.id}/files`} />
+          <FileBrowser baseDirectory={`employees/${employee.id}`} />
         </Box>
       )
     ) : null;
@@ -453,7 +461,7 @@ export default function EmployeeShow() {
     handleOpenPreview,
     alertsSettings,
     attachmentsHook,
-    upcomingEvents
+    upcomingEvents,
   ]);
 
   const pageTitle = employee?.name || 'Szczegóły Pracownika';
@@ -514,7 +522,7 @@ export default function EmployeeShow() {
               }}
             />
             <Tab
-              label="Inne pliki"
+              label="Pliki"
               sx={{
                 fontSize: { xs: '0.8rem', sm: '.85rem' },
                 padding: 2,

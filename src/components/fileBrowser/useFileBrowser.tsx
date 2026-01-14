@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDialogs } from '../../hooks/useDialogs/useDialogs';
 import useNotifications from '../../hooks/useNotifications/useNotifications';
 import * as StorageService from '../../services/storage';
@@ -6,14 +6,79 @@ import type { FileBrowserItem } from '../../types';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
-const useFileBrowser = (baseDirectory: string, onFetch: () => void) => {
-  const [data, setData] = useState<FileBrowserItem[]>([]);
+export const SYSTEM_ROOT_FOLDERS: Record<string, string> = {
+  employees: 'Pracownicy',
+  constructions: 'Budowy',
+};
+
+export const EMPLOYEE_SUBFOLDERS: Record<string, string> = {
+  id_card: 'Dowód osobisty',
+  agreement: 'Umowa',
+  contract: 'Umowa',
+  a1: 'A1',
+};
+
+export const EMPTY_MAP = {};
+
+const normalizePath = (path: string) => path.replace(/\/+$/, '');
+
+const useFileBrowser = (
+  baseDirectory: string,
+  onFetch: () => void,
+  employeesMap: Record<string, string> = EMPTY_MAP,
+  constructionsMap: Record<string, string> = EMPTY_MAP
+) => {
+  const [rawItems, setRawItems] = useState<FileBrowserItem[]>([]);
   const [currentPath, setCurrentPath] = useState<string>(baseDirectory);
   const [loading, setLoading] = useState<boolean>(false);
   const [uploading, setUploading] = useState<boolean>(false);
   const [uploadProgress, setUploadProgress] = useState<Record<string, number>>(
     {}
   );
+
+  const data = useMemo(() => {
+    const normPath = normalizePath(currentPath);
+
+    const parts = normPath.split('/').filter(Boolean);
+
+    const currentFolderName = parts.length > 0 ? parts[parts.length - 1] : '';
+
+    const parentFolderName = parts.length > 1 ? parts[parts.length - 2] : '';
+
+    const isInsideEmployee = parentFolderName === 'employees';
+
+    const isEmployeeList = currentFolderName === 'employees';
+
+    const isConstructionList = currentFolderName === 'constructions';
+
+    return rawItems.map((item) => {
+      if (isInsideEmployee && EMPLOYEE_SUBFOLDERS[item.name]) {
+        return {
+          ...item,
+          name: EMPLOYEE_SUBFOLDERS[item.name],
+          isSystem: true,
+        };
+      }
+
+      if (isEmployeeList && employeesMap[item.name]) {
+        return { ...item, name: employeesMap[item.name], isSystem: true };
+      }
+
+      if (isConstructionList && constructionsMap[item.name]) {
+        return { ...item, name: constructionsMap[item.name], isSystem: true };
+      }
+
+      if (SYSTEM_ROOT_FOLDERS[item.name]) {
+        return {
+          ...item,
+          name: SYSTEM_ROOT_FOLDERS[item.name],
+          isSystem: true,
+        };
+      }
+
+      return item;
+    });
+  }, [rawItems, currentPath, employeesMap, constructionsMap]);
 
   const dialogs = useDialogs();
   const notifications = useNotifications();
@@ -31,7 +96,7 @@ const useFileBrowser = (baseDirectory: string, onFetch: () => void) => {
       onFetch();
       try {
         const items = await StorageService.listFiles(path);
-        setData(items);
+        setRawItems(items);
       } catch (error) {
         console.error('Fetch error:', error);
         notifications.show('Błąd podczas ładowania plików!', {
@@ -143,25 +208,38 @@ const useFileBrowser = (baseDirectory: string, onFetch: () => void) => {
 
   const handleDelete = useCallback(
     async (items: FileBrowserItem[]) => {
+      const itemsToDelete = items.filter((i) => !i.isSystem);
+      const systemFilesCount = items.length - itemsToDelete.length;
+
+      if (itemsToDelete.length === 0) {
+        notifications.show('Nie można usuwać plików systemowych.', {
+          severity: 'warning',
+        });
+        return;
+      }
+
+      let confirmMessage = `Czy na pewno usunąć ${itemsToDelete.length} element(ów)?`;
+      if (systemFilesCount > 0) {
+        confirmMessage += ` (Pominięto ${systemFilesCount} plików systemowych)`;
+      }
+
       if (
-        !(await dialogs.confirm(
-          `Czy na pewno usunąć ${items.length} element(ów)?`,
-          {
-            title: 'Usuwanie plików',
-            severity: 'error',
-            okText: 'Usuń',
-            cancelText: 'Anuluj',
-          }
-        ))
+        !(await dialogs.confirm(confirmMessage, {
+          title: 'Usuwanie plików',
+          severity: 'error',
+          okText: 'Usuń',
+          cancelText: 'Anuluj',
+        }))
       )
         return;
 
       try {
-        const files = items.filter((i) => i.type === 'file').map((i) => i.path);
+        const files = itemsToDelete
+          .filter((i) => i.type === 'file')
+          .map((i) => i.path);
         if (files.length > 0) await StorageService.deleteFiles(files);
 
-        const folders = items.filter((i) => i.type === 'folder');
-
+        const folders = itemsToDelete.filter((i) => i.type === 'folder');
         await Promise.all(
           folders.map((f) => StorageService.deleteFolderRecursive(f.path))
         );
@@ -177,6 +255,12 @@ const useFileBrowser = (baseDirectory: string, onFetch: () => void) => {
 
   const handleRename = useCallback(
     async (item: FileBrowserItem) => {
+      if (item.isSystem) {
+        notifications.show('Nie można zmieniać nazwy plików systemowych.', {
+          severity: 'warning',
+        });
+        return;
+      }
       const isFile = item.type === 'file';
       const defaultValue = isFile
         ? StorageService.getFileNameWithoutExtension(item.name)
@@ -301,7 +385,23 @@ const useFileBrowser = (baseDirectory: string, onFetch: () => void) => {
 
   const openMoveDialog = useCallback(
     (items: FileBrowserItem[]) => {
-      setItemsToMove(items);
+      const movableItems = items.filter((i) => !i.isSystem);
+
+      if (movableItems.length === 0) {
+        notifications.show('Nie można przenosić plików systemowych.', {
+          severity: 'warning',
+        });
+        return;
+      }
+
+      if (movableItems.length < items.length) {
+        notifications.show(
+          `Pominięto ${items.length - movableItems.length} plików systemowych.`,
+          { severity: 'info' }
+        );
+      }
+
+      setItemsToMove(movableItems);
 
       const options: Array<{ name: string; path: string }> = [];
 
@@ -333,7 +433,7 @@ const useFileBrowser = (baseDirectory: string, onFetch: () => void) => {
       setDestinationFolders(options);
       setMoveDialogOpen(true);
     },
-    [currentPath, baseDirectory, data]
+    [currentPath, baseDirectory, data, notifications]
   );
 
   const handleMove = useCallback(

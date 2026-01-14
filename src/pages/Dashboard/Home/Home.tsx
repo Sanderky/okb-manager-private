@@ -1,10 +1,13 @@
 import { Card, Box, Grid, CardContent, Tabs, Tab } from '@mui/material';
 import PageContainer from '../../../components/PageContainer';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { getEmployeeStats } from '../../../services/employees';
-import { getConstructionStats } from '../../../services/constructions';
+import { getEmployeeList, getEmployeeStats } from '../../../services/employees';
+import {
+  getConstructionList,
+  getConstructionStats,
+} from '../../../services/constructions';
 import FileBrowser from '../../../components/fileBrowser/FileBrowser';
 import { EventsBox } from '../../../components/EventsBox';
 import { getNearestUpcomingEvents } from '../../../services/calendar';
@@ -37,6 +40,36 @@ const Home = () => {
       queryFn: getConstructionStats,
     }
   );
+
+  const { data: employees = [] } = useQuery({
+    queryKey: ['employees'],
+    queryFn: () => getEmployeeList(),
+  });
+
+  const { data: constructions = [] } = useQuery({
+    queryKey: ['constructions'],
+    queryFn: () => getConstructionList(),
+  });
+
+  const employeesMap = useMemo(() => {
+    const map: Record<string, string> = {};
+
+    employees.forEach((employee) => {
+      map[employee.id] = employee.name;
+    });
+
+    return map;
+  }, [employees]);
+
+  const constructionsMap = useMemo(() => {
+    return constructions.reduce(
+      (acc, constr) => {
+        acc[constr.id] = constr.name;
+        return acc;
+      },
+      {} as Record<string, string>
+    );
+  }, [constructions]);
 
   const { data: upcomingEvents = [], isLoading: isUpcomingEventsLoading } =
     useQuery({
@@ -178,7 +211,11 @@ const Home = () => {
           </Grid>
         </Box>
       ) : (
-        <FileBrowser baseDirectory="general" />
+        <FileBrowser
+          baseDirectory=""
+          constructionsMap={constructionsMap}
+          employeesMap={employeesMap}
+        />
       )}
     </PageContainer>
   );

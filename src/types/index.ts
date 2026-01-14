@@ -143,12 +143,14 @@ export interface FileItem {
   createdAt: Date;
   type: 'file';
   contentType: string;
+  isSystem?: boolean;
 }
 
 export interface FolderItem {
   name: string;
   type: 'folder';
   path: string;
+  isSystem?: boolean;
 }
 
 export type FileBrowserItem = FileItem | FolderItem;

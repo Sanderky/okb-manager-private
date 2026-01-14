@@ -183,7 +183,7 @@ export default function ConstructionShow() {
 
   const handleNavigateToContractor = useCallback(
     (id: string) => {
-      if(!id) return;
+      if (!id) return;
       navigate(`/constructions?view=contractors&contractorId=${id}`);
     },
     [navigate]
@@ -507,7 +507,7 @@ export default function ConstructionShow() {
           </Grid>
         </Box>
       ) : (
-        <FileBrowser baseDirectory={`constructions/${construction.id}/files`} />
+        <FileBrowser baseDirectory={`constructions/${construction.id}`} />
       )
     ) : null;
   }, [
@@ -516,19 +516,13 @@ export default function ConstructionShow() {
     notFound,
     construction,
     tab,
-    handleConstructionEdit,
-    isInProgress,
-    openEndDialog,
     handleSaveNote,
     updateNoteMutation.isPending,
-    scheduleEmployees,
-    endDialogOpen,
-    closeEndDialog,
-    resumeDialogOpen,
     handleBack,
     navigate,
     upcomingEvents,
-    renderInfoCell
+    renderInfoCell,
+    activeScheduleEmployees,
   ]);
 
   const pageTitle = construction?.name || '...';

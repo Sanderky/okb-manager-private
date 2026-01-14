@@ -11,6 +11,8 @@ import {
 import BaseDialog from '../BaseDialog';
 import { Folder, Reply } from '@mui/icons-material';
 
+const NO_SELECTION_VALUE = '___NO_SELECTION___';
+
 interface MoveItemsDialogProps {
   open: boolean;
   folders: Array<{ name: string; path: string }>;
@@ -26,7 +28,7 @@ const MoveItemsDialog = ({
   onClose,
   onMove,
 }: MoveItemsDialogProps) => {
-  const [destination, setDestination] = useState<string>('');
+  const [destination, setDestination] = useState<string>(NO_SELECTION_VALUE);
 
   useEffect(() => {
     if (open) {
@@ -40,7 +42,7 @@ const MoveItemsDialog = ({
   };
 
   const handleMove = () => {
-    if (destination !== '') {
+    if (destination !== NO_SELECTION_VALUE) {
       onMove(destination);
       handleClose();
     }
@@ -62,7 +64,7 @@ const MoveItemsDialog = ({
           <Button
             variant="contained"
             onClick={handleMove}
-            disabled={destination === ''}
+            disabled={destination === NO_SELECTION_VALUE}
           >
             Przenieś
           </Button>
@@ -80,7 +82,19 @@ const MoveItemsDialog = ({
               labelId="move-dest-label"
               value={destination}
               size="small"
+              displayEmpty
               onChange={(e) => setDestination(e.target.value)}
+              renderValue={(selected) => {
+                if (selected === NO_SELECTION_VALUE) {
+                  return (
+                    <Typography color="text.secondary">
+                      Wybierz folder...
+                    </Typography>
+                  );
+                }
+                const selectedFolder = folders.find((f) => f.path === selected);
+                return selectedFolder ? selectedFolder.name : selected;
+              }}
             >
               {folders.map((folder) => {
                 const isBackOption = folder.name.includes('..');
