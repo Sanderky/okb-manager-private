@@ -856,7 +856,7 @@ const ScheduleComponent = () => {
                   <TableRow>
                     <TableCell
                       sx={(theme) => ({
-                        position: 'sticky',
+                        position: {xs: 'static', sm: 'sticky'},
                         left: 0,
                         zIndex: 4,
                         // width: { xs: '150px', sm: '200px' },

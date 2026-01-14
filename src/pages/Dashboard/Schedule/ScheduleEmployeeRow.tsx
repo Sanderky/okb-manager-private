@@ -102,7 +102,7 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = React.memo(
         >
           <TableCell
             sx={(theme) => ({
-              position: 'sticky',
+              position: {xs: 'static', sm: 'sticky'},
               left: 0,
               zIndex: 3,
               textAlign: 'center',
@@ -208,7 +208,7 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = React.memo(
       >
         <TableCell
           sx={(theme) => ({
-            position: 'sticky',
+            position: {xs: 'static', sm: 'sticky'},
             left: 0,
             zIndex: 3,
             textAlign: 'center',
