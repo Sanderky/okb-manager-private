@@ -117,15 +117,15 @@ export default function DashboardSidebarPageItem({
               },
             }
           : {})}
-        sx={theme => ({
+        sx={{
           display: 'block',
           overflowX: 'hidden',
           // mt: isSettings ? 4 : 0,
-          borderTop: isSettings ? `1px solid ${theme.palette.divider}` : 'none'
+          // borderTop: isSettings ? `1px solid ${theme.palette.divider}` : 'none'
           // borderRadius: 1,
           // py: 0,
           // mb: 1,
-        })}
+        }}
       >
         <ListItemButton
           selected={selected}

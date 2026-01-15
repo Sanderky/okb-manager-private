@@ -22,6 +22,7 @@ import {
   getDrawerWidthTransitionMixin,
 } from '../../mixins';
 import { Hotel, Schedule } from '@mui/icons-material';
+import DashboardSidebarDividerItem from './DashboardSidebarDividerItem';
 
 export interface DashboardSidebarProps {
   expanded?: boolean;
@@ -192,6 +193,7 @@ export default function DashboardSidebar({
               href="/hours"
               selected={!!matchPath('/hours/*', pathname)}
             />
+            <DashboardSidebarDividerItem/>
             <DashboardSidebarPageItem
               id="settings"
               title="Ustawienia"
