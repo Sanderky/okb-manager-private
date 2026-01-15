@@ -1,3 +1,4 @@
+import { sortByLastName } from '../pages/Dashboard/Employees/EmployeesHelpers';
 import { supabase } from '../supabase';
 import type { Employee } from '../types';
 import { toSqlDate } from '../utils';
@@ -133,7 +134,9 @@ export async function getEmployeeList(activeOnly = false): Promise<Employee[]> {
 
   if (error) throw error;
 
-  return data.map(mapToEmployee);
+  const mappedEmployees = data.map(mapToEmployee);
+
+  return mappedEmployees.sort((a, b) => sortByLastName(a.name, b.name));
 }
 
 export async function getEmployee(id: string): Promise<Employee | null> {
