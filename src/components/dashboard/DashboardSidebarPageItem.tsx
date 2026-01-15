@@ -42,7 +42,6 @@ export default function DashboardSidebarPageItem({
   selected = false,
   disabled = false,
   nestedNavigation,
-  isSettings = false,
   onClick
 }: DashboardSidebarPageItemProps) {
   const sidebarContext = React.useContext(DashboardSidebarContext);

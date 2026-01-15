@@ -197,11 +197,8 @@ export default function DashboardSidebar({
             <DashboardSidebarPageItem
               id="settings"
               title="Ustawienia"
-              isSettings
               onClick={onSettingsDialogOpen}
               icon={<Settings />}
-              // href="/hours"
-              // selected={!!matchPath('/hours/*', pathname)}
             />
           </List>
         </Box>

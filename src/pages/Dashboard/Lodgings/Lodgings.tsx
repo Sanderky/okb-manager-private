@@ -224,7 +224,7 @@ const LodgingsManager = () => {
           '[]'
         );
         if (lodgingActive) {
-          lodging.employeeIds.forEach((id) => accommodatedEmployeesSet.add(id));
+          lodging.employeeIds.forEach((id: string) => accommodatedEmployeesSet.add(id));
         }
       }
     });

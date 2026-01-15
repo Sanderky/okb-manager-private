@@ -37,7 +37,6 @@ const constructionCellWidth = 'auto';
 const employeeCellWidth = 'auto';
 const constructionCellMinWidth = '50px';
 const employeeCellMinWidth = '50px';
-const vacationColor = 'none';
 const tableBorder = '1px solid #000';
 
 const fontSize = '0.7rem';
