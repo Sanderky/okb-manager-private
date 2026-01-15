@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import {
   Box,
   Button,
@@ -183,6 +183,14 @@ const LodgingsManager = () => {
     }
   };
 
+  const handleClickOnConstruction = useCallback(
+    (id: string | undefined) => {
+      if (!id) return;
+      navigate(`/constructions/${id}`);
+    },
+    [navigate]
+  );
+
   const handleSetDefaultView = () => {
     localStorage.setItem('lodgings_view_mode', viewMode);
     setDefaultViewMode(viewMode);
@@ -202,10 +210,16 @@ const LodgingsManager = () => {
       today.isBetween(dayjs(l.startDate), dayjs(l.endDate), 'day', '[]')
     );
 
-    const accommodatedEmployeesSet = new Set<string>();
+    const accommodatedTodaySet = new Set<string>();
+
+    const accommodatedTotalSet = new Set<string>();
 
     lodgings.forEach((lodging) => {
       const extLodging = lodging as ExtendedLodging;
+
+      if (extLodging.employeeIds) {
+        extLodging.employeeIds.forEach((id) => accommodatedTotalSet.add(id));
+      }
 
       if (extLodging.assignments && extLodging.assignments.length > 0) {
         extLodging.assignments.forEach((assign) => {
@@ -213,7 +227,7 @@ const LodgingsManager = () => {
           const end = dayjs(assign.endDate);
 
           if (today.isBetween(start, end, 'day', '[]')) {
-            accommodatedEmployeesSet.add(assign.employeeId);
+            accommodatedTodaySet.add(assign.employeeId);
           }
         });
       } else {
@@ -224,14 +238,17 @@ const LodgingsManager = () => {
           '[]'
         );
         if (lodgingActive) {
-          lodging.employeeIds.forEach((id: string) => accommodatedEmployeesSet.add(id));
+          lodging.employeeIds.forEach((id: string) =>
+            accommodatedTodaySet.add(id)
+          );
         }
       }
     });
 
     return {
       activeLodgingsCount: activeLodgings.length,
-      accommodatedEmployees: accommodatedEmployeesSet.size,
+      accommodatedToday: accommodatedTodaySet.size,
+      accommodatedTotal: accommodatedTotalSet.size,
       totalEmployees: employees.filter((e) => e.status).length,
       totalLodgings: lodgings.length,
     };
@@ -345,7 +362,7 @@ const LodgingsManager = () => {
                 color="textSecondary"
                 sx={{ lineHeight: 1 }}
               >
-                {`Zakwaterowani dziś: ${stats.accommodatedEmployees}/${stats.totalEmployees}`}
+                {`Zakwaterowani dziś: ${stats.accommodatedToday}/${stats.accommodatedTotal} (${stats.totalEmployees})`}
               </Typography>
               <Typography
                 variant="overline"
@@ -393,6 +410,7 @@ const LodgingsManager = () => {
             </Box>
           ) : viewMode === 'timeline' ? (
             <LodgingTimeline
+              handleClickOnConstruction={handleClickOnConstruction}
               lodgings={lodgings}
               onEdit={handleOpenEdit}
               employees={employees}
@@ -412,7 +430,9 @@ const LodgingsManager = () => {
                       lodging={lodging}
                       employees={employees}
                       onEdit={handleOpenEdit}
+                      handleClickOnConstruction={handleClickOnConstruction}
                       siteName={site?.name}
+                      siteId={site?.id}
                     />
                   </Grid>
                 );

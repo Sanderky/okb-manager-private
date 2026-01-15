@@ -25,6 +25,8 @@ interface LodgingCardProps {
   onEdit: (l: ExtendedLodging) => void;
   onEmployeeClick: (id: string) => void;
   siteName?: string;
+  siteId?: string;
+  handleClickOnConstruction: (id: string | undefined) => void;
 }
 
 const LodgingCard: React.FC<LodgingCardProps> = ({
@@ -33,6 +35,8 @@ const LodgingCard: React.FC<LodgingCardProps> = ({
   onEdit,
   onEmployeeClick,
   siteName,
+  siteId,
+  handleClickOnConstruction,
 }) => {
   const assignedEmployees = useMemo(
     () => employees.filter((e) => lodging.employeeIds.includes(e.id)),
@@ -74,7 +78,18 @@ const LodgingCard: React.FC<LodgingCardProps> = ({
             <Stack direction="column" spacing={1}>
               <Box>
                 {siteName && (
-                  <Typography fontWeight="bold">{siteName}</Typography>
+                  <Typography
+                    fontWeight="bold"
+                    onClick={() => handleClickOnConstruction(siteId)}
+                    sx={{
+                      ':hover': {
+                        cursor: 'pointer',
+                        textDecoration: 'underline',
+                      },
+                    }}
+                  >
+                    {siteName}
+                  </Typography>
                 )}
                 {lodging.name && (
                   <Typography

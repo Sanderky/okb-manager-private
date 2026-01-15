@@ -13,6 +13,7 @@ interface LodgingTimelineProps {
   onEdit: (l: ExtendedLodging) => void;
   employees: Employee[];
   sites: Construction[];
+  handleClickOnConstruction: (id: string | undefined) => void;
 }
 
 const CELL_WIDTH = 40;
@@ -64,6 +65,7 @@ const LodgingTimeline: React.FC<LodgingTimelineProps> = ({
   onEdit,
   employees,
   sites,
+  handleClickOnConstruction,
 }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -80,7 +82,7 @@ const LodgingTimeline: React.FC<LodgingTimelineProps> = ({
     const sorted = [...lodgings].sort(
       (a, b) => dayjs(a.startDate).valueOf() - dayjs(b.startDate).valueOf()
     );
-    let min = dayjs(sorted[0].startDate).subtract(5, 'day');
+    const min = dayjs(sorted[0].startDate).subtract(5, 'day');
     let max = sorted.reduce(
       (acc, curr) =>
         dayjs(curr.endDate).isAfter(acc) ? dayjs(curr.endDate) : acc,
@@ -368,6 +370,7 @@ const LodgingTimeline: React.FC<LodgingTimelineProps> = ({
                         variant="subtitle2"
                         noWrap
                         title={row.site.name}
+                        onClick={() => handleClickOnConstruction(row.site.id)}
                         sx={{
                           color:
                             row.site.id === 'orphan'
@@ -380,6 +383,10 @@ const LodgingTimeline: React.FC<LodgingTimelineProps> = ({
                             : 'line-through',
                           fontStyle:
                             row.site.id === 'orphan' ? 'italic' : 'normal',
+                          ':hover': {
+                            textDecoration: 'underline',
+                            cursor: 'pointer',
+                          },
                         }}
                       >
                         {row.site.name}
@@ -424,6 +431,7 @@ const LodgingTimeline: React.FC<LodgingTimelineProps> = ({
                       return (
                         <Tooltip
                           key={lodging.id}
+                          placement="auto"
                           title={
                             <Box sx={{ p: 0.5 }}>
                               <Typography
