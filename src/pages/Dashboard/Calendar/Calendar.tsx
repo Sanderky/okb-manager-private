@@ -378,7 +378,6 @@ const Calendar: React.FC = () => {
   };
 
   const resetOnClose = useCallback(() => {
-    console.log('fire reset')
     setCurrentEvent({});
     setSelectDay(null);
     setValidationError('');
