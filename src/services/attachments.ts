@@ -1,5 +1,10 @@
 import { supabase } from '../supabase';
-import type { Attachment, EmployeeAttachmentType } from '../types';
+import {
+  FOLDER_NAMES,
+  SYSTEM_FOLDER_PREFIX,
+  type Attachment,
+  type EmployeeAttachmentType,
+} from '../types';
 import {
   listFiles,
   getUniqueDestPath,
@@ -7,7 +12,11 @@ import {
   getSignedUrl,
 } from './storage';
 
-const STORAGE_BUCKET = 'files';
+const STORAGE_BUCKET = import.meta.env.VITE_FILES_BUCKET_NAME ?? 'files';
+
+const getTypeFromFolder = (folderName: string) => {
+  return folderName.replace(SYSTEM_FOLDER_PREFIX, '');
+};
 
 const mapStorageItemToAttachment = (
   item: any,
@@ -28,7 +37,8 @@ const mapStorageItemToAttachment = (
 export const getEmployeeAttachments = async (
   employeeId: string
 ): Promise<Attachment[]> => {
-  const rootPath = `employees/${employeeId}`;
+  const employeesFolder = FOLDER_NAMES['employees'];
+  const rootPath = `${employeesFolder}/${employeeId}`;
 
   let typeFolders: any[] = [];
   try {
@@ -41,7 +51,7 @@ export const getEmployeeAttachments = async (
   for (const folder of typeFolders) {
     if (folder.type !== 'folder') continue;
 
-    const type = folder.name as EmployeeAttachmentType;
+    const type = getTypeFromFolder(folder.name) as EmployeeAttachmentType;
 
     const filesInType = await listFiles(folder.path);
 
@@ -63,7 +73,10 @@ export const uploadAttachment = async (
   type: EmployeeAttachmentType,
   onProgress?: (progress: number) => void
 ): Promise<Attachment> => {
-  const proposedPath = `employees/${employeeId}/${type}/${file.name}`;
+  const employeesFolder = FOLDER_NAMES['employees'];
+  const subFolder = FOLDER_NAMES[type as string] || type;
+
+  const proposedPath = `${employeesFolder}/${employeeId}/${subFolder}/${file.name}`;
 
   const uniquePath = await getUniqueDestPath(proposedPath);
 
@@ -88,7 +101,7 @@ export const uploadAttachment = async (
     contentType: file.type,
     type: 'file',
     createdAt: new Date(),
-    attachmentType: type,
+    attachmentType: getTypeFromFolder(subFolder) as EmployeeAttachmentType,
   };
 };
 

@@ -8,7 +8,7 @@ import Typography from '@mui/material/Typography';
 import { useNavigate, useParams } from 'react-router';
 import PageContainer from '../../../components/PageContainer';
 import Loading from '../../../components/Loading';
-import { type Employee, type FileItem } from '../../../types';
+import { FOLDER_NAMES, type Employee, type FileItem } from '../../../types';
 import { getEmployee, updateEmployee } from '../../../services/employees';
 import EditIcon from '@mui/icons-material/Edit';
 import {
@@ -443,7 +443,7 @@ export default function EmployeeShow() {
             display: 'flex',
           }}
         >
-          <FileBrowser baseDirectory={`employees/${employee.id}`} />
+          <FileBrowser baseDirectory={`${FOLDER_NAMES['employees']}/${employee.id}`} />
         </Box>
       )
     ) : null;

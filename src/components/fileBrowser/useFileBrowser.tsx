@@ -2,25 +2,11 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDialogs } from '../../hooks/useDialogs/useDialogs';
 import useNotifications from '../../hooks/useNotifications/useNotifications';
 import * as StorageService from '../../services/storage';
-import type { FileBrowserItem } from '../../types';
+import { FOLDER_TRANSLATIONS, SYSTEM_FOLDER_PREFIX, type FileBrowserItem } from '../../types';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
-export const SYSTEM_ROOT_FOLDERS: Record<string, string> = {
-  employees: 'Pracownicy',
-  constructions: 'Budowy',
-};
-
-export const EMPLOYEE_SUBFOLDERS: Record<string, string> = {
-  id_card: 'Dowód osobisty',
-  agreement: 'Umowa',
-  contract: 'Umowa',
-  a1: 'A1',
-};
-
 export const EMPTY_MAP = {};
-
-const normalizePath = (path: string) => path.replace(/\/+$/, '');
 
 const useFileBrowser = (
   baseDirectory: string,
@@ -37,48 +23,23 @@ const useFileBrowser = (
   );
 
   const data = useMemo(() => {
-    const normPath = normalizePath(currentPath);
-
-    const parts = normPath.split('/').filter(Boolean);
-
-    const currentFolderName = parts.length > 0 ? parts[parts.length - 1] : '';
-
-    const parentFolderName = parts.length > 1 ? parts[parts.length - 2] : '';
-
-    const isInsideEmployee = parentFolderName === 'employees';
-
-    const isEmployeeList = currentFolderName === 'employees';
-
-    const isConstructionList = currentFolderName === 'constructions';
-
     return rawItems.map((item) => {
-      if (isInsideEmployee && EMPLOYEE_SUBFOLDERS[item.name]) {
+      if (FOLDER_TRANSLATIONS[item.name]) {
         return {
           ...item,
-          name: EMPLOYEE_SUBFOLDERS[item.name],
+          name: FOLDER_TRANSLATIONS[item.name],
           isSystem: true,
         };
       }
 
-      if (isEmployeeList && employeesMap[item.name]) {
+      if (employeesMap[item.name])
         return { ...item, name: employeesMap[item.name], isSystem: true };
-      }
-
-      if (isConstructionList && constructionsMap[item.name]) {
+      if (constructionsMap[item.name])
         return { ...item, name: constructionsMap[item.name], isSystem: true };
-      }
-
-      if (SYSTEM_ROOT_FOLDERS[item.name]) {
-        return {
-          ...item,
-          name: SYSTEM_ROOT_FOLDERS[item.name],
-          isSystem: true,
-        };
-      }
 
       return item;
     });
-  }, [rawItems, currentPath, employeesMap, constructionsMap]);
+  }, [rawItems, employeesMap, constructionsMap]);
 
   const dialogs = useDialogs();
   const notifications = useNotifications();
@@ -188,6 +149,14 @@ const useFileBrowser = (
     });
 
     if (!folderName) return;
+
+    if (folderName.toLowerCase().startsWith(SYSTEM_FOLDER_PREFIX)) {
+      notifications.show(
+        'Nazwy rozpoczynające się od "system-" są zastrzeżone dla systemu',
+        { severity: 'warning' }
+      );
+      return;
+    }
 
     if (data.some((i) => i.name === folderName && i.type === 'folder')) {
       notifications.show('Taki folder już istnieje!', { severity: 'error' });

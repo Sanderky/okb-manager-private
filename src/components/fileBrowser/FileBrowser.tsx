@@ -44,12 +44,12 @@ import {
 } from '@mui/icons-material';
 import MoveItemsDialog from './MoveFilesDialog';
 import { PreviewDialog } from './FilePreviewDialog';
-import type { FileBrowserItem, FileItem } from '../../types';
-import useFileBrowser, {
-  EMPLOYEE_SUBFOLDERS,
-  EMPTY_MAP,
-  SYSTEM_ROOT_FOLDERS,
-} from './useFileBrowser';
+import {
+  FOLDER_TRANSLATIONS,
+  type FileBrowserItem,
+  type FileItem,
+} from '../../types';
+import useFileBrowser, { EMPTY_MAP } from './useFileBrowser';
 import 'dayjs/locale/pl';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -65,7 +65,8 @@ import {
 import UploadFilesDialog from './UploadFilesDialog';
 
 const RenderFileImage = ({ file }: { file: FileBrowserItem }) => {
-  if (file.type === 'folder') return <Folder color={file.isSystem ? 'primary' : 'inherit'}/>;
+  if (file.type === 'folder')
+    return <Folder color={file.isSystem ? 'primary' : 'inherit'} />;
   const fileType = getFileType(file.name);
   // if(fileType === 'pdf') return <PictureAsPdfOutlined/>
   // if (fileType === 'pdf') return <PdfIcon width={24} height={24} />;
@@ -157,35 +158,28 @@ const FileBreadcrumps = ({
   const fullPathSegments = path.split('/').filter(Boolean);
   const baseSegments = baseDirectory.split('/').filter(Boolean);
 
-  const startIndex = baseSegments.length;
+  const getDisplayName = (segment: string) => {
+    if (FOLDER_TRANSLATIONS[segment]) return FOLDER_TRANSLATIONS[segment];
 
-  const getDisplayName = (part: string, index: number) => {
-    if (SYSTEM_ROOT_FOLDERS[part]) return SYSTEM_ROOT_FOLDERS[part];
+    if (employeesMap[segment]) return employeesMap[segment];
 
-    if (index > 0) {
-      const parentPart = fullPathSegments[index - 1];
+    if (constructionsMap[segment]) return constructionsMap[segment];
 
-      if (parentPart === 'employees' && employeesMap[part]) {
-        return employeesMap[part];
-      }
-
-      if (parentPart === 'constructions' && constructionsMap[part]) {
-        return constructionsMap[part];
-      }
-
-      const grandParentPart = index > 1 ? fullPathSegments[index - 2] : null;
-
-      const isParentEmployee =
-        !!employeesMap[parentPart] || grandParentPart === 'employees';
-
-      if (isParentEmployee && EMPLOYEE_SUBFOLDERS[part]) {
-        return EMPLOYEE_SUBFOLDERS[part];
-      }
-    }
-
-    return part;
+    return segment;
   };
 
+  let rootDisplayName = 'Katalog główny';
+
+  if (baseSegments.length > 0) {
+    const lastBasePart = baseSegments[baseSegments.length - 1];
+    const translatedName = getDisplayName(lastBasePart);
+
+    if (translatedName !== lastBasePart) {
+      rootDisplayName = translatedName;
+    }
+  }
+
+  const startIndex = baseSegments.length;
   const visibleSegments = fullPathSegments.slice(startIndex);
 
   return (
@@ -208,7 +202,7 @@ const FileBreadcrumps = ({
         }}
         onClick={() => visibleSegments.length > 0 && onClick(baseDirectory)}
       >
-        Katalog główny
+        {rootDisplayName}
       </Typography>
 
       {visibleSegments.length > 0 && (
@@ -218,16 +212,15 @@ const FileBreadcrumps = ({
       )}
 
       {visibleSegments.map((part, i) => {
-        const realIndex = startIndex + i;
-
-        const href = fullPathSegments.slice(0, realIndex + 1).join('/');
-
-        const displayName = getDisplayName(part, realIndex);
-
         const isLast = i === visibleSegments.length - 1;
 
+        const href = [...baseSegments, ...visibleSegments.slice(0, i + 1)].join(
+          '/'
+        );
+
+        const displayName = getDisplayName(part);
         return (
-          <React.Fragment key={realIndex}>
+          <React.Fragment key={i}>
             {isLast ? (
               <Typography
                 color="text.secondary"

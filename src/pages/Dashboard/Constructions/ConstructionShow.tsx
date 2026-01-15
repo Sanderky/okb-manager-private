@@ -10,7 +10,7 @@ import { useNavigate } from 'react-router';
 import PageContainer from '../../../components/PageContainer';
 import Loading from '../../../components/Loading';
 
-import { type Construction } from '../../../types';
+import { FOLDER_NAMES, type Construction } from '../../../types';
 import {
   getConstruction,
   updateConstruction,
@@ -507,7 +507,7 @@ export default function ConstructionShow() {
           </Grid>
         </Box>
       ) : (
-        <FileBrowser baseDirectory={`constructions/${construction.id}`} />
+        <FileBrowser baseDirectory={`${FOLDER_NAMES['employees']}/${construction.id}`} />
       )
     ) : null;
   }, [
