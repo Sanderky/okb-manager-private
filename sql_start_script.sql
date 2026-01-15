@@ -441,3 +441,33 @@ GRANT ALL ON ALL ROUTINES IN SCHEMA public TO postgres,
   anon,
   authenticated,
   service_role;
+-- 18. KONFIGURACJA REALTIME (SUPABASE)
+-- Włączamy nasłuchiwanie tylko dla tabel obsługiwanych w frontendzie (useRealtime.ts)
+alter publication supabase_realtime
+add table todos;
+alter publication supabase_realtime
+add table home_notes;
+alter publication supabase_realtime
+add table employees;
+alter publication supabase_realtime
+add table constructions;
+alter publication supabase_realtime
+add table contractors;
+alter publication supabase_realtime
+add table daily_schedules;
+alter publication supabase_realtime
+add table vacations;
+alter publication supabase_realtime
+add table work_logs;
+alter publication supabase_realtime
+add table calendar_events;
+alter publication supabase_realtime
+add table lodgings;
+alter publication supabase_realtime
+add table alert_settings;
+alter publication supabase_realtime
+add table calendar_event_employees;
+alter publication supabase_realtime
+add table calendar_event_constructions;
+alter publication supabase_realtime
+add table lodging_employees;

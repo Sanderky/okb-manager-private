@@ -19,8 +19,10 @@ dayjs.extend(isSameOrBefore);
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 60 * 1000 * 1,
-      refetchOnWindowFocus: false,
+      // staleTime: 60 * 1000 * 1,
+      staleTime: 60 * 1000 * 10,
+      refetchOnWindowFocus: true,
+
     },
   },
 });

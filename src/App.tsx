@@ -46,6 +46,7 @@ import PublicRoute from './routing/PublicRoute';
 import Loading from './components/Loading';
 import ErrorPage from './pages/Error/ErrorPage';
 import { getTodos } from './services/todos';
+import { useRealtime } from './hooks/useRealtime';
 
 const AuthListener = () => {
   const navigate = useNavigate();
@@ -67,6 +68,8 @@ const AuthListener = () => {
 
 export default function App() {
   const { user, initialLoading: authLoading, error } = useAuth();
+
+  useRealtime();
 
   const { isLoading: employeesLoading, error: employeesError } = useQuery({
     queryKey: ['employees'],
@@ -132,7 +135,6 @@ export default function App() {
   const { isLoading: todosLoading, isError: todosError } = useQuery({
     queryKey: ['todos'],
     queryFn: getTodos,
-    refetchInterval: 1000 * 10,
     enabled: !!user,
   });
 
