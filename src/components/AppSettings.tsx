@@ -17,7 +17,7 @@ import { useEffect, useState } from 'react';
 import type { FileItem } from '../types';
 import * as StorageService from '../services/storage';
 
-const SYSTEM_BUCKET = import.meta.env.VITE_PUBLIC_BUCKET_NAME;
+const SYSTEM_BUCKET = import.meta.env.VITE_PUBLIC_BUCKET_NAME ?? 'system';
 const RODO_FILENAME = 'rodo.pdf';
 
 interface SettingsProps {

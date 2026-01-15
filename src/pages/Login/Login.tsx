@@ -24,7 +24,7 @@ import {
 import AppFooter from '../../components/Footer';
 import { useColorMode } from '../../context/ThemeContext';
 
-const RODO_URL = import.meta.env.VITE_RODO_URL;
+const RODO_URL = import.meta.env.VITE_RODO_URL ?? '';
 
 type FormValues = {
   email: string;
