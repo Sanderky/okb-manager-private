@@ -2,7 +2,7 @@ import { supabase } from '../supabase';
 import type { FileBrowserItem } from '../types';
 import { removePolishChars } from '../utils';
 
-export const BUCKET_NAME = 'files';
+export const BUCKET_NAME = import.meta.env.VITE_FILES_BUCKET_NAME;
 
 export const getFileExtension = (filename: string): string | null => {
   const lastDotIndex = filename.lastIndexOf('.');
@@ -47,8 +47,11 @@ export const formatBytes = (bytes: number, decimals = 2): string => {
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
 };
 
-export const listFiles = async (path: string): Promise<FileBrowserItem[]> => {
-  const { data, error } = await supabase.storage.from(BUCKET_NAME).list(path, {
+export const listFiles = async (
+  path: string,
+  bucketName: string = BUCKET_NAME
+): Promise<FileBrowserItem[]> => {
+  const { data, error } = await supabase.storage.from(bucketName).list(path, {
     limit: 100,
     offset: 0,
     sortBy: { column: 'name', order: 'asc' },
@@ -87,10 +90,11 @@ export const listFiles = async (path: string): Promise<FileBrowserItem[]> => {
 
 export const getSignedUrl = async (
   fullPath: string,
-  expiresIn = 60
+  expiresIn = 60,
+  bucketName: string = BUCKET_NAME
 ): Promise<string | null> => {
   const { data, error } = await supabase.storage
-    .from(BUCKET_NAME)
+    .from(bucketName)
     .createSignedUrl(fullPath, expiresIn);
 
   if (error) {
@@ -121,7 +125,9 @@ export const openFileInNewTab = async (
 export const uploadFile = async (
   path: string,
   file: File,
-  onProgress?: (progress: number) => void
+  onProgress?: (progress: number) => void,
+  bucketName: string = BUCKET_NAME,
+  upsert: boolean = false
 ): Promise<void> => {
   if (onProgress) onProgress(10);
 
@@ -135,17 +141,20 @@ export const uploadFile = async (
   const fullPath = folder ? `${folder}/${safeFileName}` : safeFileName;
 
   const { error } = await supabase.storage
-    .from(BUCKET_NAME)
-    .upload(fullPath, file, { upsert: false });
+    .from(bucketName)
+    .upload(fullPath, file, { upsert: upsert });
 
   if (onProgress) onProgress(100);
 
   if (error) throw error;
 };
 
-export const createFolder = async (path: string): Promise<void> => {
+export const createFolder = async (
+  path: string,
+  bucketName: string = BUCKET_NAME
+): Promise<void> => {
   const { error } = await supabase.storage
-    .from(BUCKET_NAME)
+    .from(bucketName)
     .upload(`${path}/.placeholder`, new Blob(['']), { upsert: false });
 
   if (error) throw error;
@@ -153,10 +162,11 @@ export const createFolder = async (path: string): Promise<void> => {
 
 export const downloadFile = async (
   fullPath: string,
-  fileName: string
+  fileName: string,
+  bucketName: string = BUCKET_NAME
 ): Promise<void> => {
   const { data, error } = await supabase.storage
-    .from(BUCKET_NAME)
+    .from(bucketName)
     .download(fullPath);
 
   if (error) throw error;
@@ -173,10 +183,11 @@ export const downloadFile = async (
 
 export const moveFile = async (
   sourcePath: string,
-  destPath: string
+  destPath: string,
+  bucketName: string = BUCKET_NAME
 ): Promise<void> => {
   const { error } = await supabase.storage
-    .from(BUCKET_NAME)
+    .from(bucketName)
     .move(sourcePath, destPath);
 
   if (error) throw error;
@@ -190,13 +201,16 @@ const chunkArray = <T>(array: T[], size: number): T[][] => {
   return chunks;
 };
 
-export const deleteFiles = async (paths: string[]): Promise<void> => {
+export const deleteFiles = async (
+  paths: string[],
+  bucketName: string = BUCKET_NAME
+): Promise<void> => {
   if (paths.length === 0) return;
 
   const batches = chunkArray(paths, 50);
 
   for (const batch of batches) {
-    const { error } = await supabase.storage.from(BUCKET_NAME).remove(batch);
+    const { error } = await supabase.storage.from(bucketName).remove(batch);
     if (error) {
       console.error('Error deleting batch:', error);
       throw error;
@@ -204,15 +218,16 @@ export const deleteFiles = async (paths: string[]): Promise<void> => {
   }
 };
 
-export const deleteFolderRecursive = async (path: string): Promise<void> => {
+export const deleteFolderRecursive = async (
+  path: string,
+  bucketName: string = BUCKET_NAME
+): Promise<void> => {
   let keepFetching = true;
 
   while (keepFetching) {
-    const { data, error } = await supabase.storage
-      .from(BUCKET_NAME)
-      .list(path, {
-        limit: 100,
-      });
+    const { data, error } = await supabase.storage.from(bucketName).list(path, {
+      limit: 100,
+    });
 
     if (error) throw error;
 
@@ -244,10 +259,11 @@ export const deleteFolderRecursive = async (path: string): Promise<void> => {
 
 export const moveFolderRecursive = async (
   sourcePath: string,
-  destPath: string
+  destPath: string,
+  bucketName: string = BUCKET_NAME
 ): Promise<void> => {
   const { data, error } = await supabase.storage
-    .from(BUCKET_NAME)
+    .from(bucketName)
     .list(sourcePath);
 
   if (error) throw error;
@@ -285,7 +301,6 @@ export const listAllFoldersRecursive = async (
 export const getUniqueDestPath = async (
   proposedPath: string
 ): Promise<string> => {
-  // 1. Rozdziel ścieżkę na katalog i nazwę pliku
   const lastSlash = proposedPath.lastIndexOf('/');
   const pathDirectory =
     lastSlash !== -1 ? proposedPath.substring(0, lastSlash + 1) : '';
@@ -315,10 +330,11 @@ export const getUniqueDestPath = async (
 };
 
 export const downloadFileAsBlob = async (
-  fullPath: string
+  fullPath: string,
+  bucketName: string = BUCKET_NAME
 ): Promise<Blob | null> => {
   const { data, error } = await supabase.storage
-    .from(BUCKET_NAME)
+    .from(bucketName)
     .download(fullPath);
 
   if (error) {

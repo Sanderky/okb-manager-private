@@ -20,13 +20,15 @@ export interface DashboardSidebarPageItemProps {
   id: string;
   title: string;
   icon?: React.ReactNode;
-  href: string;
+  href?: string;
   action?: React.ReactNode;
   defaultExpanded?: boolean;
   expanded?: boolean;
   selected?: boolean;
   disabled?: boolean;
   nestedNavigation?: React.ReactNode;
+  isSettings?: boolean
+  onClick?: ()=>void
 }
 
 export default function DashboardSidebarPageItem({
@@ -40,6 +42,8 @@ export default function DashboardSidebarPageItem({
   selected = false,
   disabled = false,
   nestedNavigation,
+  isSettings = false,
+  onClick
 }: DashboardSidebarPageItemProps) {
   const sidebarContext = React.useContext(DashboardSidebarContext);
   if (!sidebarContext) {
@@ -101,6 +105,7 @@ export default function DashboardSidebarPageItem({
   return (
     <React.Fragment>
       <ListItem
+        onClick={()=>{if(onClick) onClick()}}
         disablePadding
         {...(nestedNavigation && mini
           ? {
@@ -112,13 +117,15 @@ export default function DashboardSidebarPageItem({
               },
             }
           : {})}
-        sx={{
+        sx={theme => ({
           display: 'block',
           overflowX: 'hidden',
+          // mt: isSettings ? 4 : 0,
+          borderTop: isSettings ? `1px solid ${theme.palette.divider}` : 'none'
           // borderRadius: 1,
           // py: 0,
           // mb: 1,
-        }}
+        })}
       >
         <ListItemButton
           selected={selected}

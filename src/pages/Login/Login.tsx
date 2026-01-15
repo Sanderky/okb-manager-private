@@ -24,6 +24,8 @@ import {
 import AppFooter from '../../components/Footer';
 import { useColorMode } from '../../context/ThemeContext';
 
+const RODO_URL = import.meta.env.VITE_RODO_URL;
+
 type FormValues = {
   email: string;
   password: string;
@@ -261,17 +263,9 @@ const Login = () => {
                   </Button>
                 </div>
                 <Typography variant="caption">
-                  {`Logując się, akceptujesz `}
+                  {`Logując się, akceptujesz oraz potwierdzasz zapoznanie się z `}
                   <Link
-                    href="/regulamin.pdf"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Zasady użytkowania systemu
-                  </Link>
-                  {` oraz potwierdzasz zapoznanie się z `}
-                  <Link
-                    href="/rodo.pdf"
+                    href={RODO_URL}
                     target="_blank"
                     rel="noopener noreferrer"
                   >

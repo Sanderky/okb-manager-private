@@ -8,6 +8,7 @@ import DashboardHeader from './DashboardHeader';
 import DashboardSidebar from './DashboardSidebar';
 import Logo from './Logo';
 import { ScrollContext } from '../../context/ScrollContext';
+import Settings from '../AppSettings';
 
 export default function DashboardLayout() {
   const theme = useTheme();
@@ -16,6 +17,7 @@ export default function DashboardLayout() {
     React.useState(true);
   const [isMobileNavigationExpanded, setIsMobileNavigationExpanded] =
     React.useState(false);
+  const [isSettingsDialogOpen, setIsSettingsDialogOpen] = React.useState(false);
 
   const isOverMdViewport = useMediaQuery(theme.breakpoints.up('md'));
 
@@ -70,6 +72,15 @@ export default function DashboardLayout() {
     [scrollToTop]
   );
 
+  const handleOpenSettingsDialog = React.useCallback(
+    () => setIsSettingsDialogOpen(true),
+    []
+  );
+  const handleCloseSettingsDialog = React.useCallback(
+    () => setIsSettingsDialogOpen(false),
+    []
+  );
+
   return (
     <ScrollContext.Provider value={scrollContextValue}>
       <Box
@@ -99,6 +110,7 @@ export default function DashboardLayout() {
             expanded={isNavigationExpanded}
             setExpanded={setIsNavigationExpanded}
             container={layoutRef?.current ?? undefined}
+            onSettingsDialogOpen={handleOpenSettingsDialog}
           />
 
           <Box
@@ -119,13 +131,18 @@ export default function DashboardLayout() {
 
                 overflow: 'hidden',
                 display: 'flex',
-                flexDirection: 'column'
+                flexDirection: 'column',
               })}
             >
               <Outlet />
             </Box>
           </Box>
         </Box>
+
+        <Settings
+          isOpen={isSettingsDialogOpen}
+          onClose={handleCloseSettingsDialog}
+        />
       </Box>
     </ScrollContext.Provider>
   );

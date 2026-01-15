@@ -13,7 +13,7 @@ import { EventsBox } from '../../../components/EventsBox';
 import { getNearestUpcomingEvents } from '../../../services/calendar';
 import TodoList from '../../../components/TodoList';
 import DiskUsage from './DiskUsage';
-import EmployeeAlerts from './EmployeesAlerts';
+import {EmployeeAlerts} from './EmployeesAlerts';
 import UpcomingVacation from './UpcomingVacations';
 import { ConstructionsCard, EmployeesCard } from './InfoCards';
 import HomeNote from './HomeNote';

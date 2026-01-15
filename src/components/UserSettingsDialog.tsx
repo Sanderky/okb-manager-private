@@ -31,15 +31,14 @@ const getErrorMessage = (error: any): string => {
   return 'Wystąpił nieoczekiwany błąd. Spróbuj ponownie.';
 };
 
-interface UserSettingsDialogProps {
+interface UserSettingsBaseProps {
   open: boolean;
-  onClose: () => void;
+  showEmailConfirmationButton?: boolean;
 }
-
-const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
+export const UserSettingsBase = ({
   open,
-  onClose,
-}) => {
+  showEmailConfirmationButton = false,
+}: UserSettingsBaseProps) => {
   const { user } = useAuth();
   const notifications = useNotifications();
   const theme = useTheme();
@@ -79,7 +78,7 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
       setVerificationEmailInfo(false);
       setFieldsError({});
     }
-  }, [open]);
+  }, [open, user]);
 
   useEffect(() => {
     if (user) {
@@ -101,7 +100,7 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
         return prev;
       });
     }
-  }, [user]);
+  }, [user, emailEditMode, usernameEditMode]);
 
   const updateDisplayName = async (): Promise<boolean> => {
     if (!user) return false;
@@ -227,21 +226,12 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
     }
   };
 
-  const handleClose = (): void => {
-    onClose();
-  };
-
   if (!user) {
     return null;
   }
 
   return (
-    <BaseDialog
-      open={open}
-      onClose={handleClose}
-      title="Ustawienia konta"
-      showConfirm={false}
-    >
+    <Box>
       {verificationEmailInfo ? (
         <Box component="form" sx={{ mt: 1, textAlign: 'center' }}>
           <OutgoingMail
@@ -264,19 +254,24 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
           <Typography mt={4} mb={2}>
             Potwierdź nowego maila na obydwóch adresach, aby dokonać zmiany.
           </Typography>
+          {showEmailConfirmationButton && (
+            <Button
+              color="primary"
+              variant="contained"
+              onClick={() => setVerificationEmailInfo(false)}
+            >
+              Okej
+            </Button>
+          )}
         </Box>
       ) : (
         <Box component="form" sx={{ mt: 1 }}>
-          <Typography
-            sx={{ fontWeight: 500, fontSize: '1.1rem' }}
-            variant="body1"
-            gutterBottom
-          >
+          <Typography sx={{ mb: 2 }} variant="subtitle2" gutterBottom>
             Informacje podstawowe
           </Typography>
 
-          <Typography>Nazwa użytkownika:</Typography>
           <TextField
+            label="Nazwa użytkownika"
             size="small"
             slotProps={{
               input: {
@@ -336,9 +331,9 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
             )}
           </Box>
 
-          <Typography>Email:</Typography>
           <TextField
             size="small"
+            label="Email"
             type="email"
             slotProps={{
               input: {
@@ -393,13 +388,9 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
             )}
           </Box>
 
-          <Divider sx={{ my: 3 }} />
+          <Divider sx={{ my: 2 }} />
 
-          <Typography
-            variant="body1"
-            mb={2}
-            sx={{ fontWeight: 500, fontSize: '1.1rem' }}
-          >
+          <Typography variant="subtitle2" mb={2}>
             Zmiana hasła
           </Typography>
 
@@ -412,6 +403,31 @@ const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
           </Button>
         </Box>
       )}
+    </Box>
+  );
+};
+
+interface UserSettingsDialogProps {
+  open: boolean;
+  onClose: () => void;
+}
+
+const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
+  open,
+  onClose,
+}) => {
+  const handleClose = (): void => {
+    onClose();
+  };
+
+  return (
+    <BaseDialog
+      open={open}
+      onClose={handleClose}
+      title="Ustawienia konta"
+      showConfirm={false}
+    >
+      <UserSettingsBase open={open} />
     </BaseDialog>
   );
 };

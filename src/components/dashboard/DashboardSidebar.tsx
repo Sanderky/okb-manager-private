@@ -9,7 +9,7 @@ import type {} from '@mui/material/themeCssVarsAugmentation';
 // import PersonIcon from '@mui/icons-material/Person';
 import ConstructionIcon from '@mui/icons-material/Construction';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
-import { BeachAccess } from '@mui/icons-material';
+import { BeachAccess, Settings } from '@mui/icons-material';
 import HomeIcon from '@mui/icons-material/Home';
 import { matchPath, useLocation } from 'react-router';
 import DashboardSidebarContext from '../../context/DashboardSidebarContext';
@@ -26,6 +26,7 @@ import { Hotel, Schedule } from '@mui/icons-material';
 export interface DashboardSidebarProps {
   expanded?: boolean;
   setExpanded: (expanded: boolean) => void;
+  onSettingsDialogOpen: () => void;
   disableCollapsibleSidebar?: boolean;
   container?: Element;
 }
@@ -35,6 +36,7 @@ export default function DashboardSidebar({
   setExpanded,
   disableCollapsibleSidebar = false,
   container,
+  onSettingsDialogOpen,
 }: DashboardSidebarProps) {
   const theme = useTheme();
 
@@ -190,58 +192,15 @@ export default function DashboardSidebar({
               href="/hours"
               selected={!!matchPath('/hours/*', pathname)}
             />
-            {/* <DashboardSidebarHeaderItem>Main items</DashboardSidebarHeaderItem>
             <DashboardSidebarPageItem
-              id="employees"
-              title="Employees"
-              icon={<PersonIcon />}
-              href="/employees"
-              selected={!!matchPath('/employees/*', pathname) || pathname === '/'}
+              id="settings"
+              title="Ustawienia"
+              isSettings
+              onClick={onSettingsDialogOpen}
+              icon={<Settings />}
+              // href="/hours"
+              // selected={!!matchPath('/hours/*', pathname)}
             />
-            <DashboardSidebarDividerItem />
-            <DashboardSidebarHeaderItem>Example items</DashboardSidebarHeaderItem>
-            <DashboardSidebarPageItem
-              id="reports"
-              title="Reports"
-              icon={<BarChartIcon />}
-              href="/reports"
-              selected={!!matchPath('/reports', pathname)}
-              defaultExpanded={!!matchPath('/reports', pathname)}
-              expanded={expandedItemIds.includes('reports')}
-              nestedNavigation={
-                <List
-                  dense
-                  sx={{
-                    padding: 0,
-                    my: 1,
-                    pl: mini ? 0 : 1,
-                    minWidth: 240,
-                  }}
-                >
-                  <DashboardSidebarPageItem
-                    id="sales"
-                    title="Sales"
-                    icon={<DescriptionIcon />}
-                    href="/reports/sales"
-                    selected={!!matchPath('/reports/sales', pathname)}
-                  />
-                  <DashboardSidebarPageItem
-                    id="traffic"
-                    title="Traffic"
-                    icon={<DescriptionIcon />}
-                    href="/reports/traffic"
-                    selected={!!matchPath('/reports/traffic', pathname)}
-                  />
-                </List>
-              }
-            />
-            <DashboardSidebarPageItem
-              id="integrations"
-              title="Integrations"
-              icon={<LayersIcon />}
-              href="/integrations"
-              selected={!!matchPath('/integrations', pathname)}
-            /> */}
           </List>
         </Box>
       </React.Fragment>

@@ -41,7 +41,7 @@ interface AlertsSettingsErrors {
   contractCritical: string;
 }
 
-const EmployeeAlertsSettings = ({
+export const EmployeeAlertsSettingsBase = ({
   isOpen,
   onClose,
 }: EmployeeAlertsSettingsProps) => {
@@ -200,34 +200,7 @@ const EmployeeAlertsSettings = ({
   };
 
   return (
-    <BaseDialog
-      open={isOpen}
-      onClose={handleClose}
-      title="Ustawienia alertów"
-      showConfirm={false}
-      maxWidth="sm"
-      fullWidth
-      actions={
-        <Stack direction="row" spacing={1}>
-          <Button
-            onClick={handleClose}
-            variant="outlined"
-            loading={updateMutation.isPending}
-            color="inherit"
-          >
-            Anuluj
-          </Button>
-          <Button
-            onClick={handleSave}
-            variant="contained"
-            disabled={!hasChanges}
-            loading={updateMutation.isPending}
-          >
-            Zapisz
-          </Button>
-        </Stack>
-      }
-    >
+    <Box>
       {isLoading ? (
         <Box display="flex" justifyContent="center" alignItems="center" py={4}>
           <CircularProgress />
@@ -309,13 +282,60 @@ const EmployeeAlertsSettings = ({
               }}
             />
           </Stack>
+          <Stack direction="row" spacing={1} justifyContent={'flex-start'}>
+            <Button
+              onClick={handleClose}
+              variant="outlined"
+              size="small"
+              loading={updateMutation.isPending}
+              color="inherit"
+            >
+              Anuluj
+            </Button>
+            <Button
+              onClick={handleSave}
+              variant="contained"
+              disabled={!hasChanges}
+              size="small"
+              loading={updateMutation.isPending}
+            >
+              Zapisz
+            </Button>
+          </Stack>
         </>
       )}
+    </Box>
+  );
+};
+
+const EmployeeAlertsSettings = ({
+  isOpen,
+  onClose,
+}: EmployeeAlertsSettingsProps) => {
+  // const handleClose = () => {
+  //   if (alertsSettings) {
+  //     setFormData(alertsSettings);
+  //   }
+  //   setHasChanges(false);
+  //   resetErrors();
+  //   onClose();
+  // };
+
+  return (
+    <BaseDialog
+      open={isOpen}
+      onClose={onClose}
+      title="Ustawienia alertów"
+      showConfirm={false}
+      maxWidth="sm"
+      fullWidth
+    >
+      <EmployeeAlertsSettingsBase isOpen={isOpen} onClose={onClose} />
     </BaseDialog>
   );
 };
 
-const EmployeeAlerts = () => {
+export const EmployeeAlerts = () => {
   const { alerts, loading } = useEmployeeAlert();
 
   const navigate = useNavigate();
@@ -475,5 +495,3 @@ const EmployeeAlerts = () => {
     </Card>
   );
 };
-
-export default EmployeeAlerts;

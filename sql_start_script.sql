@@ -295,14 +295,50 @@ INSERT
   OR
 UPDATE ON daily_schedules FOR EACH ROW EXECUTE FUNCTION prevent_schedule_on_vacation();
 -- 16. POLITYKI BEZPIECZENSTWA (RLS)
+-- A. Konfiguracja Storage (Buckety)
+-- 1. Bucket 'files' (Prywatny - dla plików pracowników)
 insert into storage.buckets (id, name, public)
 values ('files', 'files', false) on conflict (id) do
 update
 set public = false;
+-- 2. Bucket 'system' (Publiczny - np. dla RODO)
+insert into storage.buckets (id, name, public)
+values ('system', 'system', true) on conflict (id) do
+update
+set public = true;
+-- B. Czyszczenie starych polityk storage
 drop policy if exists "Public read" on storage.objects;
 drop policy if exists "Auth access" on storage.objects;
 drop policy if exists "Give me access" on storage.objects;
-create policy "Auth access" on storage.objects for all to authenticated using (bucket_id = 'files') with check (bucket_id = 'files');
+-- Czyszczenie polityk dla bucketa system (jeśli istniały pod innymi nazwami)
+drop policy if exists "Public Access System" on storage.objects;
+drop policy if exists "Authenticated Insert System" on storage.objects;
+drop policy if exists "Authenticated Update System" on storage.objects;
+drop policy if exists "Authenticated Delete System" on storage.objects;
+-- C. Polityki dla bucketa 'files' (istniejące)
+create policy "Auth access files" on storage.objects for all to authenticated using (bucket_id = 'files') with check (bucket_id = 'files');
+-- D. Polityki dla bucketa 'system' (NOWE)
+-- D1. Zezwól każdemu na podgląd (SELECT) - bo bucket jest publiczny
+create policy "Public Access System" on storage.objects for
+select using (bucket_id = 'system');
+-- D2. Zezwól zalogowanym na wgrywanie (INSERT)
+create policy "Authenticated Insert System" on storage.objects for
+insert with check (
+    bucket_id = 'system'
+    and auth.role() = 'authenticated'
+  );
+-- D3. Zezwól zalogowanym na aktualizację (UPDATE) - wymagane dla upsert: true
+create policy "Authenticated Update System" on storage.objects for
+update using (
+    bucket_id = 'system'
+    and auth.role() = 'authenticated'
+  );
+-- D4. Zezwól zalogowanym na usuwanie (DELETE)
+create policy "Authenticated Delete System" on storage.objects for delete using (
+  bucket_id = 'system'
+  and auth.role() = 'authenticated'
+);
+-- E. Włączenie RLS dla tabel (reszta bez zmian)
 alter table employees enable row level security;
 alter table contractors enable row level security;
 alter table constructions enable row level security;
@@ -317,6 +353,7 @@ alter table calendar_event_constructions enable row level security;
 alter table lodgings enable row level security;
 alter table lodging_employees enable row level security;
 alter table todos enable row level security;
+-- F. Polityki "Auth All" dla tabel
 create policy "Auth All" on employees for all using (
   (
     select auth.role()

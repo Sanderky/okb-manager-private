@@ -7,6 +7,7 @@ import {
   type Employee,
   type EmployeeAlert,
   type EmployeeAttachmentType,
+  type FileItem,
 } from '../../../types';
 import {
   Alert,
@@ -143,7 +144,7 @@ const generateDateBox = (
 };
 
 interface AttachmentItemProps {
-  file: Attachment | undefined | null;
+  file: FileItem | undefined | null;
   onDelete?: () => void;
   onDownload?: () => void;
   onShow?: () => void;
@@ -151,7 +152,7 @@ interface AttachmentItemProps {
   onNewCard?: () => void;
 }
 
-const AttachmentItem = ({
+export const AttachmentItem = ({
   file,
   onDelete,
   onDownload,
