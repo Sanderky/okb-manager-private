@@ -2,9 +2,14 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDialogs } from '../../hooks/useDialogs/useDialogs';
 import useNotifications from '../../hooks/useNotifications/useNotifications';
 import * as StorageService from '../../services/storage';
-import { FOLDER_TRANSLATIONS, SYSTEM_FOLDER_PREFIX, type FileBrowserItem } from '../../types';
+import {
+  FOLDER_TRANSLATIONS,
+  SYSTEM_FOLDER_PREFIX,
+  type FileBrowserItem,
+} from '../../types';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
+import { removePolishChars } from '../../utils';
 
 export const EMPTY_MAP = {};
 
@@ -164,7 +169,10 @@ const useFileBrowser = (
     }
 
     try {
-      const path = currentPath ? `${currentPath}/${folderName}` : folderName;
+      const cleanFolderName = removePolishChars(folderName);
+      const path = currentPath
+        ? `${currentPath}/${cleanFolderName}`
+        : cleanFolderName;
       await StorageService.createFolder(path);
       await fetchData(currentPath);
       notifications.show('Folder został utworzony', { severity: 'success' });
