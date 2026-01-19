@@ -985,7 +985,7 @@ const HoursTable = ({
                         </Stack>
 
                         <Typography variant="overline" className="font-medium">
-                          Suma całkowita:
+                          Suma:
                         </Typography>
                       </Stack>
                     </TableCell>
