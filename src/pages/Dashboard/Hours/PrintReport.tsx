@@ -241,7 +241,7 @@ export const PrintableTable = forwardRef<HTMLDivElement, PrintableTableProps>(
       `Tydzień ${getWeekNumber(weekDates[0])}: ${dayjs(weekDates[0]).format('DD.MM.YYYY')} - ${dayjs(weekDates[6]).format('DD.MM.YYYY')}`;
 
     return (
-      <Box ref={ref} sx={{ width: '100%' }}>
+      <Box ref={ref} sx={{ width: '99.5%' }}>
         {dataSorted.length === 0 ? (
           <Box
             sx={{
