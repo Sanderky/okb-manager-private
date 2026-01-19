@@ -9,16 +9,26 @@ import {
   Stack,
   Divider,
   Tooltip,
+  useTheme,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { FileItem, FolderItem } from '../../types';
-import { Add, CropFree, Error, Remove, RotateLeft, RotateRight } from '@mui/icons-material';
+import {
+  Add,
+  CropFree,
+  Error,
+  OpenInNew,
+  Remove,
+  RotateLeft,
+  RotateRight,
+} from '@mui/icons-material';
 import * as StorageService from '../../services/storage';
-
-const ZoomStep = 0.2;
-const MaxZoom = 2.0;
-const MinZoom = 0.2;
+import {
+  TransformWrapper,
+  TransformComponent,
+  type ReactZoomPanPinchContentRef,
+} from 'react-zoom-pan-pinch';
 
 interface PreviewDialogProps {
   open: boolean;
@@ -27,17 +37,13 @@ interface PreviewDialogProps {
 }
 
 export const PreviewDialog = ({ open, onClose, file }: PreviewDialogProps) => {
+  const theme = useTheme();
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
-  const [scale, setScale] = useState(1);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
   const [rotation, setRotation] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
-  const dragStartRef = useRef({ x: 0, y: 0 });
-  const positionStartRef = useRef({ x: 0, y: 0 });
-  const imageRef = useRef<HTMLImageElement>(null);
+  const transformComponentRef = useRef<ReactZoomPanPinchContentRef>(null);
 
   useEffect(() => {
     if (open && file && file.type !== 'folder') {
@@ -45,6 +51,7 @@ export const PreviewDialog = ({ open, onClose, file }: PreviewDialogProps) => {
         try {
           setIsLoading(true);
           setIsError(false);
+          setRotation(0);
 
           let url: string | null = null;
 
@@ -83,30 +90,8 @@ export const PreviewDialog = ({ open, onClose, file }: PreviewDialogProps) => {
         setPreviewUrl(null);
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, file]);
-
-  useEffect(() => {
-    if (open && file) {
-      setScale(1);
-      setPosition({ x: 0, y: 0 });
-    }
-  }, [open, file]);
-
-  const handleScaleUp = () => {
-    setScale((prev) => {
-      const newScale = prev + ZoomStep;
-      if (newScale > MaxZoom) return MaxZoom;
-      return Math.round(newScale * 10) / 10;
-    });
-  };
-
-  const handleScaleDown = () => {
-    setScale((prev) => {
-      const newScale = prev - ZoomStep;
-      if (newScale < MinZoom) return MinZoom;
-      return Math.round(newScale * 10) / 10;
-    });
-  };
 
   const handleRotateLeft = () => {
     setRotation((prev) => prev - 90);
@@ -117,68 +102,16 @@ export const PreviewDialog = ({ open, onClose, file }: PreviewDialogProps) => {
   };
 
   const handleReset = () => {
-    setScale(1);
-    setPosition({ x: 0, y: 0 });
-    setRotation(0)
-  };
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (scale <= 1) return;
-
-    setIsDragging(true);
-    dragStartRef.current = { x: e.clientX, y: e.clientY };
-    positionStartRef.current = { ...position };
-
-    if (imageRef.current) {
-      imageRef.current.style.cursor = 'grabbing';
+    setRotation(0);
+    if (transformComponentRef.current) {
+      transformComponentRef.current.resetTransform();
     }
   };
-
-  const handleMouseMove = useCallback(
-    (e: MouseEvent) => {
-      if (!isDragging || scale <= 1) return;
-
-      const deltaX = e.clientX - dragStartRef.current.x;
-      const deltaY = e.clientY - dragStartRef.current.y;
-
-      const newX = positionStartRef.current.x + deltaX;
-      const newY = positionStartRef.current.y + deltaY;
-
-      setPosition({
-        x: newX,
-        y: newY,
-      });
-    },
-    [isDragging, scale]
-  );
-
-  const handleMouseUp = useCallback(() => {
-    if (!isDragging) return;
-
-    setIsDragging(false);
-
-    if (imageRef.current) {
-      imageRef.current.style.cursor = scale > 1 ? 'grab' : 'default';
-    }
-  }, [isDragging, scale]);
-
-  useEffect(() => {
-    if (isDragging) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
-
-      return () => {
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
-      };
-    }
-  }, [isDragging, handleMouseMove, handleMouseUp]);
 
   const handleClose = () => {
     setIsError(false);
     setIsLoading(true);
-    setScale(1);
-    setPosition({ x: 0, y: 0 });
+    setRotation(0);
     if (previewUrl) {
       if (isFileObject(file)) {
         URL.revokeObjectURL(previewUrl);
@@ -186,6 +119,12 @@ export const PreviewDialog = ({ open, onClose, file }: PreviewDialogProps) => {
       setPreviewUrl(null);
     }
     onClose();
+  };
+
+  const handleDownloadOrOpen = () => {
+    if (previewUrl) {
+      window.open(previewUrl, '_blank');
+    }
   };
 
   if (!file || file.type === 'folder') return null;
@@ -215,34 +154,53 @@ export const PreviewDialog = ({ open, onClose, file }: PreviewDialogProps) => {
                   justifyContent: 'center',
                   alignItems: 'center',
                   position: 'absolute',
+                  zIndex: 10,
                 }}
               >
                 <CircularProgress />
               </Box>
             )}
             {previewUrl && (
-              <img
-                crossOrigin="anonymous"
-                ref={imageRef}
-                src={previewUrl}
-                alt={file.name}
-                style={{
-                  scale: scale,
-                  transform: `translate(${position.x}px, ${position.y}px) rotate(${rotation}deg)`,
-                  transformOrigin: 'center center',
-                  maxHeight: '100%',
-                  maxWidth: '100%',
-                  display: isLoading ? 'none' : 'block',
-                  cursor:
-                    scale > 1 ? (isDragging ? 'grabbing' : 'grab') : 'default',
-                  transition: isDragging ? 'none' : 'transform 0.1s ease',
-                  userSelect: 'none',
-                }}
-                onLoad={() => setIsLoading(false)}
-                onMouseDown={handleMouseDown}
-                onDoubleClick={handleReset}
-                onError={() => setIsError(true)}
-              />
+              <TransformWrapper
+                ref={transformComponentRef}
+                initialScale={1}
+                minScale={0.5}
+                maxScale={4}
+                centerOnInit
+                wheel={{ step: 0.1 }}
+              >
+                <TransformComponent
+                  wrapperStyle={{
+                    width: '100%',
+                    height: '100%',
+                    display: isLoading ? 'none' : 'block',
+                  }}
+                  contentStyle={{
+                    width: '100%',
+                    height: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <img
+                    crossOrigin="anonymous"
+                    src={previewUrl}
+                    alt={file.name}
+                    style={{
+                      transform: `rotate(${rotation}deg)`,
+                      transition: 'transform 0.2s ease',
+                      maxWidth: '100%',
+                      maxHeight: '100%',
+                      objectFit: 'contain',
+                    }}
+                    onLoad={() => {
+                      setIsLoading(false);
+                    }}
+                    onError={() => setIsError(true)}
+                  />
+                </TransformComponent>
+              </TransformWrapper>
             )}
           </>
         );
@@ -264,6 +222,9 @@ export const PreviewDialog = ({ open, onClose, file }: PreviewDialogProps) => {
             <Typography color="error">
               Podgląd dla tego typu pliku nie jest obsługiwany.
             </Typography>
+            <Typography variant="caption">
+              Pobierz plik, aby go otworzyć.
+            </Typography>
           </Stack>
         );
     }
@@ -271,61 +232,73 @@ export const PreviewDialog = ({ open, onClose, file }: PreviewDialogProps) => {
 
   return (
     <Dialog open={open} onClose={handleClose} fullScreen>
-      <DialogTitle sx={{ p: 0 }}>
-        <Stack
-          direction={'row'}
+      <DialogTitle
+        sx={{
+          p: 0,
+          bgcolor: theme.palette.background.paper,
+          borderBottom: `1px solid ${theme.palette.divider}`,
+        }}
+      >
+        <Box
           sx={{
-            alignItems: 'center',
+            display: 'flex',
+            flexDirection: { xs: 'column', sm: 'row' },
+            alignItems: { xs: 'flex-start', sm: 'center' },
             justifyContent: 'space-between',
-            pl: { xs: 1, sm: 3 },
-            pr: { xs: 1, sm: 3 },
+            pl: { xs: 1, sm: 2 },
+            pr: { xs: 1, sm: 2 },
           }}
         >
           <Typography
-            sx={{ fontWeight: 500 }}
+            sx={{ fontWeight: 500, flex: 1 }}
             textOverflow="ellipsis"
             noWrap={true}
+            variant="subtitle1"
+            textAlign={'left'}
           >
             {file.name}
           </Typography>
 
-          {fileType === 'image' && (
-            <Stack
-              direction={'row'}
-              sx={{ alignItems: 'center', display: { xs: 'none', sm: 'flex' } }}
-            >
-              <Typography sx={{ minWidth: '60px', textAlign: 'center' }}>
-                {Math.round(scale * 100)}%
-              </Typography>
+          <Stack
+            direction={'row'}
+            sx={{
+              alignItems: 'center',
+              justifyContent: 'flex-end',
+              alignSelf: 'stretch',
+            }}
+          >
+            {fileType === 'image' && (
+              <Stack
+                direction={'row'}
+                alignItems="center"
+                spacing={0.5}
+                sx={{ mr: 1 }}
+              >
+                <Tooltip title="Przybliż">
+                  <IconButton
+                    onClick={() => transformComponentRef.current?.zoomIn()}
+                    size="small"
+                  >
+                    <Add />
+                  </IconButton>
+                </Tooltip>
 
-              <Stack direction={'row'}>
-                <IconButton
-                  onClick={handleScaleUp}
-                  disabled={scale >= MaxZoom}
-                  size="small"
-                >
-                  <Add />
-                </IconButton>
+                <Tooltip title="Oddal">
+                  <IconButton
+                    onClick={() => transformComponentRef.current?.zoomOut()}
+                    size="small"
+                  >
+                    <Remove />
+                  </IconButton>
+                </Tooltip>
 
-                {/* <Divider orientation="vertical" flexItem /> */}
-
-                <IconButton
-                  onClick={handleScaleDown}
-                  disabled={scale <= MinZoom}
-                  size="small"
-                >
-                  <Remove />
-                </IconButton>
-
-                <Divider orientation="vertical" flexItem />
-
-                <Tooltip title="Resetuj zoom i pozycję">
+                <Tooltip title="Resetuj widok">
                   <IconButton onClick={handleReset} size="small">
                     <CropFree />
                   </IconButton>
                 </Tooltip>
 
-                <Divider orientation="vertical" flexItem />
+                <Divider orientation="vertical" flexItem sx={{ mx: 0.5 }} />
 
                 <Tooltip title="Obróć w lewo">
                   <IconButton onClick={handleRotateLeft} size="small">
@@ -338,29 +311,39 @@ export const PreviewDialog = ({ open, onClose, file }: PreviewDialogProps) => {
                     <RotateRight />
                   </IconButton>
                 </Tooltip>
-              </Stack>
-            </Stack>
-          )}
 
-          <IconButton aria-label="close" onClick={handleClose}>
-            <CloseIcon />
-          </IconButton>
-        </Stack>
+                <Divider orientation="vertical" flexItem sx={{ mx: 0.5 }} />
+              </Stack>
+            )}
+
+            <Tooltip title={'Otwórz w nowej karcie'}>
+              <IconButton
+                onClick={handleDownloadOrOpen}
+                size="small"
+                sx={{ mr: 2 }}
+              >
+                <OpenInNew />
+              </IconButton>
+            </Tooltip>
+
+            <IconButton aria-label="close" onClick={handleClose} size="small">
+              <CloseIcon />
+            </IconButton>
+          </Stack>
+        </Box>
       </DialogTitle>
 
       <DialogContent
-        dividers
-        sx={theme => ({
+        sx={{
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
           padding: 0,
-          backgroundColor: theme.palette.background.default,
+          // backgroundColor: 'background.default',
+          backgroundColor: '#0d0d0d',
           overflow: 'hidden',
-          cursor: isDragging ? 'grabbing' : 'default',
           position: 'relative',
-        })}
-        onMouseDown={(e) => e.preventDefault()}
+        }}
       >
         {renderPreview()}
       </DialogContent>
