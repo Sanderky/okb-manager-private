@@ -101,7 +101,7 @@ create table work_logs (
   employee_id uuid references employees(id) on delete cascade not null,
   construction_id uuid references constructions(id) on delete cascade not null,
   date date not null,
-  hours numeric(4, 1),
+  hours numeric(4, 2),
   created_at timestamptz default now(),
   constraint work_logs_employee_id_construction_id_date_key unique (employee_id, construction_id, date)
 );
