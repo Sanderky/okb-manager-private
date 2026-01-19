@@ -91,10 +91,37 @@ const areConstructionsEqual = (
   return true;
 };
 
+const findAndFocus = (
+  r: number,
+  c: number,
+  dRow: number,
+  dCol: number,
+  depth: number = 0
+) => {
+  if (depth > 20) return;
+
+  const targetRow = r + dRow;
+  const targetCol = c + dCol;
+
+  if (targetCol < 0 || targetCol > 6) return;
+
+  const targetId = `cell-${targetRow}-${targetCol}`;
+  const element = document.getElementById(targetId) as HTMLInputElement;
+
+  if (element) {
+    element.focus();
+    setTimeout(() => element.select(), 0);
+  } else {
+    findAndFocus(targetRow, targetCol, dRow, dCol, depth + 1);
+  }
+};
+
 interface EditableCellProps {
   value: number | null;
   id: string;
   dayIndex: number;
+  rowIndex: number;
+  colIndex: number;
   onCommit: (id: string, dayIndex: number, val: number | null) => void;
   max?: number;
   isHoliday?: boolean;
@@ -108,6 +135,8 @@ const EditableCell = React.memo(
     dayIndex,
     onCommit,
     max = 24,
+    colIndex,
+    rowIndex,
     isHoliday,
     isActive,
   }: EditableCellProps) => {
@@ -139,11 +168,49 @@ const EditableCell = React.memo(
       }
     };
 
-    const handleKeyDown = (e: React.KeyboardEvent) => {
-      if (e.key === 'Enter') {
-        (e.target as HTMLElement).blur();
-      }
-    };
+    const handleKeyDown = useCallback(
+      (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+
+          if (colIndex === 6) {
+            findAndFocus(rowIndex, 0, 1, 0);
+          } else {
+            findAndFocus(rowIndex, colIndex, 0, 1);
+          }
+
+          (e.target as HTMLElement).blur();
+          return;
+        }
+
+        if (
+          ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)
+        ) {
+          e.preventDefault();
+
+          let dRow = 0;
+          let dCol = 0;
+
+          switch (e.key) {
+            case 'ArrowUp':
+              dRow = -1;
+              break;
+            case 'ArrowDown':
+              dRow = 1;
+              break;
+            case 'ArrowLeft':
+              dCol = -1;
+              break;
+            case 'ArrowRight':
+              dCol = 1;
+              break;
+          }
+
+          findAndFocus(rowIndex, colIndex, dRow, dCol);
+        }
+      },
+      [colIndex, rowIndex]
+    );
 
     if (isHoliday) {
       return (
@@ -155,6 +222,7 @@ const EditableCell = React.memo(
 
     return (
       <InputBase
+        id={`cell-${rowIndex}-${colIndex}`}
         value={localValue}
         readOnly={!isActive}
         onChange={(e) => setLocalValue(e.target.value)}
@@ -199,13 +267,16 @@ const EditableCell = React.memo(
       prev.isHoliday === next.isHoliday &&
       prev.isActive === next.isActive &&
       prev.id === next.id &&
-      prev.dayIndex === next.dayIndex
+      prev.dayIndex === next.dayIndex &&
+      prev.rowIndex === next.rowIndex && // <--- WAŻNE
+      prev.colIndex === next.colIndex
     );
   }
 );
 
 interface ConstructionRowProps {
   construction: ConstructionsWithWorkHours;
+  startRowIndex: number;
   editMode: boolean;
   activeEmployees: Employee[];
   handleDeleteConstruction: (id: string, name: string) => void;
@@ -224,6 +295,7 @@ const ConstructionRow = React.memo(
     editMode,
     activeEmployees,
     handleDeleteConstruction,
+    startRowIndex,
     handleDeleteEmployee,
     handleHoursChange,
     handleOpenAddEmployeeDialog,
@@ -328,6 +400,7 @@ const ConstructionRow = React.memo(
 
             {workHour.hours.map((hour, dayIndex) => {
               const isVacation = workHour.isOnVacation[dayIndex];
+              const currentRowIndex = startRowIndex + employeeIndex;
               return (
                 <TableCell
                   key={`${workHour.id}-${dayIndex}`}
@@ -349,6 +422,8 @@ const ConstructionRow = React.memo(
                     value={hour}
                     id={workHour.id}
                     dayIndex={dayIndex}
+                    rowIndex={currentRowIndex}
+                    colIndex={dayIndex}
                     isHoliday={isVacation}
                     isActive={editMode}
                     onCommit={handleHoursChange}
@@ -458,18 +533,25 @@ const TableRows = React.memo(
     handleHoursChange,
     handleOpenAddEmployeeDialog,
   }: TableRowsProps) => {
-    return constructionsWithWorkHours.map((construction) => (
-      <ConstructionRow
-        key={construction.id}
-        construction={construction}
-        editMode={editMode}
-        activeEmployees={activeEmployees}
-        handleDeleteConstruction={handleDeleteConstruction}
-        handleDeleteEmployee={handleDeleteEmployee}
-        handleHoursChange={handleHoursChange}
-        handleOpenAddEmployeeDialog={handleOpenAddEmployeeDialog}
-      />
-    ));
+    let globalRowIndex = 0;
+    return constructionsWithWorkHours.map((construction) => {
+      const startRowIndex = globalRowIndex;
+
+      globalRowIndex += construction.workHours.length;
+      return (
+        <ConstructionRow
+          key={construction.id}
+          construction={construction}
+          startRowIndex={startRowIndex}
+          editMode={editMode}
+          activeEmployees={activeEmployees}
+          handleDeleteConstruction={handleDeleteConstruction}
+          handleDeleteEmployee={handleDeleteEmployee}
+          handleHoursChange={handleHoursChange}
+          handleOpenAddEmployeeDialog={handleOpenAddEmployeeDialog}
+        />
+      );
+    });
   },
   (prev, next) => {
     return (
