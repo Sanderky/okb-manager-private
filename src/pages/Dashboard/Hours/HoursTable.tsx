@@ -989,6 +989,7 @@ const HoursTable = ({
                         alignItems="center"
                         justifyContent={'space-between'}
                         pl={1}
+                        py={1}
                       >
                         <Stack
                           direction="row"
