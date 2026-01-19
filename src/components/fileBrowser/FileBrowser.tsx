@@ -408,13 +408,7 @@ const FileBrowser = ({
           },
         },
         Cell: ({ renderedCellValue, cell, row }) => (
-          <Stack
-            direction={'row'}
-            alignItems={'center'}
-            spacing={1}
-            onClick={() => handleClikOnName(row.original)}
-            sx={{ cursor: 'pointer' }}
-          >
+          <Stack direction={'row'} alignItems={'center'} spacing={1}>
             <RenderFileImage file={row.original} />
             <Tooltip
               enterDelay={500}
@@ -521,7 +515,7 @@ const FileBrowser = ({
       //   },
       // },
     ],
-    [handleClikOnName]
+    []
   );
 
   const renderToolbarButtons = (selectedRows: FileBrowserItem[]) => {
@@ -685,11 +679,28 @@ const FileBrowser = ({
       },
     },
     positionToolbarAlertBanner: 'none',
-    muiTableBodyRowProps: {
+    muiTableBodyRowProps: ({ row }) => ({
+      onClick: (e) => {
+        const target = e.target as HTMLElement;
+
+        if (target.closest('button') || target.closest('input')) {
+          return;
+        }
+
+        if (window.getSelection()?.toString()) {
+          return;
+        }
+
+        handleClikOnName(row.original);
+      },
       sx: (theme) => ({
+        cursor: 'pointer',
         backgroundColor: theme.palette.background.paper,
+        '&:hover': {
+          backgroundColor: theme.palette.action.hover,
+        },
       }),
-    },
+    }),
     muiTopToolbarProps: {
       sx: (theme) => ({
         width: '100%',
