@@ -48,17 +48,17 @@ export const useRealtime = () => {
             case 'vacations':
               queryClient.invalidateQueries({ queryKey: ['vacations'] });
               queryClient.invalidateQueries({ queryKey: ['schedules'] });
-              queryClient.invalidateQueries({ queryKey: ['work_logs'] });
+              queryClient.invalidateQueries({ queryKey: ['workLogs'] });
               break;
 
             case 'work_logs':
-              queryClient.invalidateQueries({ queryKey: ['work_logs'] });
+              queryClient.invalidateQueries({ queryKey: ['workLogs'] });
               break;
 
             case 'calendar_events':
             case 'calendar_event_employees':
             case 'calendar_event_constructions':
-              queryClient.invalidateQueries({ queryKey: ['calendar_events'] });
+              queryClient.invalidateQueries({ queryKey: ['calendarEvents'] });
               break;
 
             case 'lodgings':
