@@ -431,7 +431,6 @@ const LodgingTimeline: React.FC<LodgingTimelineProps> = ({
                       return (
                         <Tooltip
                           key={lodging.id}
-                          placement="auto"
                           title={
                             <Box sx={{ p: 0.5 }}>
                               <Typography
