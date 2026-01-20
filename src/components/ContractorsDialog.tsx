@@ -454,7 +454,9 @@ const ContractorDetails = ({
       </Stack>
       <Divider />
       <Box>
-        <Typography fontWeight={'600'}>Lista budów:</Typography>
+        <Typography variant="body1" className="font-medium">
+          Lista budów:
+        </Typography>
         {!constructions || constructions?.length === 0 ? (
           <Typography variant="overline">Brak budów</Typography>
         ) : (
@@ -464,10 +466,7 @@ const ContractorDetails = ({
                 const realIndex = (page - 1) * ITEMS_PER_PAGE + index + 1;
 
                 return (
-                  <ListItem
-                    key={c.id}
-                    divider={index !== paginatedConstructions.length - 1}
-                  >
+                  <ListItem key={c.id}>
                     <Link
                       to={`/constructions/${c.id}`}
                       style={{
@@ -477,7 +476,6 @@ const ContractorDetails = ({
                       }}
                     >
                       <Typography
-                        variant="caption"
                         sx={{
                           textDecoration: c.status ? 'none' : 'line-through',
                           color: c.status ? 'text.primary' : 'text.disabled',
@@ -493,15 +491,13 @@ const ContractorDetails = ({
             </List>
 
             {count > 1 && (
-              <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'center', mt: 1 }}>
                 <Pagination
                   count={count}
                   page={page}
                   onChange={handlePageChange}
                   color="primary"
                   size="small"
-                  showFirstButton
-                  showLastButton
                 />
               </Box>
             )}
