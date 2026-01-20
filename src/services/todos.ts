@@ -27,10 +27,12 @@ export const updateTodoStatus = async (
   id: number,
   is_completed: boolean
 ): Promise<void> => {
-  const { error } = await supabase
-    .from('todos')
-    .update({ is_completed })
-    .eq('id', id);
+  const updates = {
+    is_completed,
+    completed_at: is_completed ? new Date().toISOString() : null,
+  };
+
+  const { error } = await supabase.from('todos').update(updates).eq('id', id);
 
   if (error) throw error;
 };

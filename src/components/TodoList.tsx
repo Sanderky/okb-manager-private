@@ -18,6 +18,7 @@ import {
   Tooltip,
   TextField,
   InputAdornment,
+  Pagination,
 } from '@mui/material';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
@@ -35,11 +36,70 @@ import {
 } from '../services/todos';
 import { useDialogs } from '../hooks/useDialogs/useDialogs';
 import { PriorityHigh, Report, ReportOff } from '@mui/icons-material';
+import dayjs from 'dayjs';
+
+const ITEMS_PER_PAGE = 20;
+
+const AddTodoInput = ({
+  onAdd,
+  disabled,
+}: {
+  onAdd: (text: string) => void;
+  disabled: boolean;
+}) => {
+  const [text, setText] = useState('');
+
+  const handleSubmit = () => {
+    if (text.trim()) {
+      onAdd(text);
+      setText('');
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleSubmit();
+    }
+  };
+
+  return (
+    <Box sx={{ p: 2, pb: 0 }}>
+      <TextField
+        multiline
+        placeholder="Dodaj nowe zadanie..."
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        onKeyDown={handleKeyPress}
+        disabled={disabled}
+        size="small"
+        fullWidth
+        slotProps={{
+          input: {
+            size: 'small',
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  color="primary"
+                  onClick={handleSubmit}
+                  disabled={!text.trim() || disabled}
+                  size="small"
+                >
+                  <AddIcon />
+                </IconButton>
+              </InputAdornment>
+            ),
+          },
+        }}
+      />
+    </Box>
+  );
+};
 
 const TodoList = () => {
   const queryClient = useQueryClient();
   const [tabValue, setTabValue] = useState(0);
-  const [newTodoText, setNewTodoText] = useState('');
+  const [page, setPage] = useState(1);
   const dialogs = useDialogs();
 
   const {
@@ -55,7 +115,6 @@ const TodoList = () => {
     mutationFn: addTodo,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['todos'] });
-      setNewTodoText('');
     },
   });
 
@@ -87,10 +146,8 @@ const TodoList = () => {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['todos'] }),
   });
 
-  const handleAddTodo = () => {
-    if (newTodoText.trim()) {
-      addMutation.mutate(newTodoText);
-    }
+  const handleAddTodo = (text: string) => {
+    addMutation.mutate(text);
   };
 
   const handleDeleteAllCompleted = async () => {
@@ -108,9 +165,18 @@ const TodoList = () => {
       clearCompletedMutation.mutate();
     }
   };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') handleAddTodo();
+  const handleDelete = async (id: number) => {
+    if (!id) return;
+    if (
+      await dialogs.confirm('Czy na pewno chcesz usunąć to zadanie?', {
+        title: 'Usuwanie zadania',
+        okText: 'Usuń',
+        severity: 'error',
+        cancelText: 'Anuluj',
+      })
+    ) {
+      deleteMutation.mutate(id);
+    }
   };
 
   const handleEditBlur = (
@@ -123,6 +189,11 @@ const TodoList = () => {
     }
   };
 
+  const handleTabChange = (_: React.SyntheticEvent, newVal: number) => {
+    setTabValue(newVal);
+    setPage(1);
+  };
+
   const activeTodos = useMemo(
     () => todos.filter((t) => !t.is_completed),
     [todos]
@@ -132,13 +203,32 @@ const TodoList = () => {
     () =>
       todos
         .filter((t) => t.is_completed)
-        .sort(
-          (a, b) =>
+        .sort((a, b) => {
+          const timeA = a.completed_at ? new Date(a.completed_at).getTime() : 0;
+          const timeB = b.completed_at ? new Date(b.completed_at).getTime() : 0;
+
+          if (timeB !== timeA) {
+            return timeB - timeA;
+          }
+
+          return (
             new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-        ),
+          );
+        }),
     [todos]
   );
+
   const visibleTodos = tabValue === 0 ? activeTodos : completedTodos;
+
+  const pageCount = Math.ceil(visibleTodos.length / ITEMS_PER_PAGE);
+  const paginatedTodos = useMemo(() => {
+    const startIndex = (page - 1) * ITEMS_PER_PAGE;
+    return visibleTodos.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [visibleTodos, page]);
+
+  const handlePageChange = (_: React.ChangeEvent<unknown>, value: number) => {
+    setPage(value);
+  };
 
   return (
     <Paper
@@ -162,7 +252,7 @@ const TodoList = () => {
         </Box>
         <Tabs
           value={tabValue}
-          onChange={(_, newVal) => setTabValue(newVal)}
+          onChange={handleTabChange}
           textColor="primary"
           indicatorColor="primary"
         >
@@ -184,47 +274,18 @@ const TodoList = () => {
       </Box>
 
       {tabValue === 0 && (
-        <Box sx={{ p: 2, pb: 0 }}>
-          <TextField
-            multiline
-            placeholder="Dodaj nowe zadanie..."
-            value={newTodoText}
-            onChange={(e) => setNewTodoText(e.target.value)}
-            onKeyDown={handleKeyPress}
-            disabled={addMutation.isPending || isLoading || isError}
-            size="small"
-            fullWidth
-            slotProps={{
-              input: {
-                size:'small',
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      color="primary"
-                      onClick={handleAddTodo}
-                      disabled={
-                        !newTodoText.trim() ||
-                        addMutation.isPending ||
-                        isError ||
-                        isLoading
-                      }
-                      size="small"
-                    >
-                      <AddIcon />
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              },
-            }}
-          />
-        </Box>
+        <AddTodoInput
+          onAdd={handleAddTodo}
+          disabled={addMutation.isPending || isLoading || isError}
+        />
       )}
       <Box
         sx={{
           flexGrow: 1,
           display: 'flex',
           flexDirection: 'column',
-          p: 2,
+          px: 2,
+          py: 0,
           overflowY: 'auto',
           maxHeight: '500px',
         }}
@@ -243,13 +304,13 @@ const TodoList = () => {
 
         {!isLoading && !isError && (
           <List sx={{ p: 0 }}>
-            {visibleTodos.map((todo) => (
+            {paginatedTodos.map((todo) => (
               <ListItem
                 key={todo.id}
                 disablePadding
                 sx={(theme) => ({
                   borderBottom: `1px solid ${theme.palette.divider}`,
-                  py: 0.5,
+                  py: 2,
                   '&:last-child': { borderBottom: 'none' },
                   '&:hover .lodgings-edit': {
                     opacity: 1,
@@ -258,108 +319,129 @@ const TodoList = () => {
                   },
                 })}
               >
-                <Stack
-                  direction={'row'}
-                  alignItems={'center'}
-                  sx={{ mr: todo.is_important && !todo.is_completed ? 0 : 1 }}
-                >
-                  <Checkbox
-                    icon={<RadioButtonUncheckedIcon fontSize="small" />}
-                    checkedIcon={<CheckCircleOutlineIcon fontSize="small" />}
-                    checked={todo.is_completed}
-                    onChange={() =>
-                      toggleStatusMutation.mutate({
-                        id: todo.id,
-                        status: !todo.is_completed,
-                      })
-                    }
+                <Stack direction={'column'} sx={{ flex: 1 }}>
+                  <Box
                     sx={{
-                      p: 0,
-                      color: 'text.disabled',
-                      '&.Mui-checked': { color: 'success.main' },
+                      display: 'flex',
+                      flexDirection: 'row',
+                      flex: 1,
                     }}
-                  />
-
-                  {todo.is_important && !todo.is_completed && (
-                    <PriorityHigh
-                      fontSize="small"
-                      sx={{ color: 'warning.main' }}
-                    />
-                  )}
-                </Stack>
-
-                <InputBase
-                  multiline
-                  defaultValue={todo.title}
-                  fullWidth
-                  onBlur={(e) =>
-                    handleEditBlur(todo.id, todo.title, e.target.value)
-                  }
-                  sx={{
-                    fontSize: '0.9rem',
-                    color: todo.is_completed
-                      ? 'text.disabled'
-                      : todo.is_important
-                        ? 'warning.main'
-                        : 'text.primary',
-                    transition: 'color 0.2s',
-                  }}
-                />
-                <Stack
-                  direction={'row'}
-                  gap={1}
-                  className="lodgings-edit"
-                  sx={{
-                    ml: 1,
-                    transition: 'all 0.2s ease-in-out',
-                    opacity: 1,
-                    visibility: 'visible',
-                    transform: 'translateY(0)',
-
-                    '@media (hover: hover)': {
-                      opacity: 0,
-                      visibility: 'hidden',
-                      transform: 'translateY(5px)',
-                    },
-                  }}
-                >
-                  {!todo.is_completed && (
-                    <Tooltip
-                      title={
-                        todo.is_important
-                          ? 'Oznacz jako nieważne'
-                          : 'Oznacz jako ważne'
-                      }
+                  >
+                    <Stack
+                      direction={'row'}
+                      alignItems={'center'}
+                      sx={{
+                        mr: todo.is_important && !todo.is_completed ? 0 : 1,
+                      }}
                     >
-                      <IconButton
-                        edge="end"
-                        aria-label="delete"
-                        onClick={() =>
-                          toggleImportanceMutation.mutate({
+                      <Checkbox
+                        icon={<RadioButtonUncheckedIcon fontSize="small" />}
+                        checkedIcon={
+                          <CheckCircleOutlineIcon fontSize="small" />
+                        }
+                        checked={todo.is_completed}
+                        onChange={() =>
+                          toggleStatusMutation.mutate({
                             id: todo.id,
-                            isImportant: !todo.is_important,
+                            status: !todo.is_completed,
                           })
                         }
-                        size="small"
-                      >
-                        {todo.is_important ? (
-                          <ReportOff fontSize="small" />
-                        ) : (
-                          <Report fontSize="small" />
-                        )}
-                      </IconButton>
-                    </Tooltip>
-                  )}
-                  <Tooltip title="Usuń zadanie">
-                    <IconButton
-                      edge="end"
-                      aria-label="delete"
-                      onClick={() => deleteMutation.mutate(todo.id)}
-                      size="small"
+                        sx={{
+                          p: 0,
+                          color: 'text.disabled',
+                          '&.Mui-checked': { color: 'success.main' },
+                        }}
+                      />
+
+                      {todo.is_important && !todo.is_completed && (
+                        <PriorityHigh
+                          fontSize="small"
+                          sx={{ color: 'warning.main' }}
+                        />
+                      )}
+                    </Stack>
+
+                    <InputBase
+                      multiline
+                      defaultValue={todo.title}
+                      fullWidth
+                      onBlur={(e) =>
+                        handleEditBlur(todo.id, todo.title, e.target.value)
+                      }
+                      sx={{
+                        fontSize: '0.9rem',
+                        color: todo.is_completed
+                          ? 'text.disabled'
+                          : todo.is_important
+                            ? 'warning.main'
+                            : 'text.primary',
+                        transition: 'color 0.2s',
+                      }}
+                    />
+                    <Stack
+                      direction={'row'}
+                      gap={1}
+                      className="lodgings-edit"
+                      sx={{
+                        ml: 1,
+                        transition: 'all 0.2s ease-in-out',
+                        opacity: 1,
+                        visibility: 'visible',
+                        transform: 'translateY(0)',
+
+                        '@media (hover: hover)': {
+                          opacity: 0,
+                          visibility: 'hidden',
+                          transform: 'translateY(5px)',
+                        },
+                      }}
                     >
-                      <DeleteOutlineIcon fontSize="small" />
-                    </IconButton>
-                  </Tooltip>
+                      {!todo.is_completed && (
+                        <Tooltip
+                          title={
+                            todo.is_important
+                              ? 'Oznacz jako nieważne'
+                              : 'Oznacz jako ważne'
+                          }
+                        >
+                          <IconButton
+                            edge="end"
+                            aria-label="delete"
+                            onClick={() =>
+                              toggleImportanceMutation.mutate({
+                                id: todo.id,
+                                isImportant: !todo.is_important,
+                              })
+                            }
+                            size="small"
+                          >
+                            {todo.is_important ? (
+                              <ReportOff fontSize="small" />
+                            ) : (
+                              <Report fontSize="small" />
+                            )}
+                          </IconButton>
+                        </Tooltip>
+                      )}
+                      <Tooltip title="Usuń zadanie">
+                        <IconButton
+                          edge="end"
+                          aria-label="delete"
+                          onClick={() => handleDelete(todo.id)}
+                          size="small"
+                        >
+                          <DeleteOutlineIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                    </Stack>
+                  </Box>
+                  {todo.is_completed && (
+                    <Typography
+                      ml={'28px'}
+                      variant="caption"
+                      color="textDisabled"
+                    >{`Wykonano: ${todo.completed_at ? dayjs(todo.completed_at).format('DD.MM.YYYY') : '-'}`}</Typography>
+                  )}
                 </Stack>
               </ListItem>
             ))}
@@ -382,22 +464,42 @@ const TodoList = () => {
         )}
       </Box>
 
+      {((tabValue === 1 && completedTodos.length > 0) ||
+        visibleTodos.length > ITEMS_PER_PAGE) && <Divider />}
+
+      {visibleTodos.length > ITEMS_PER_PAGE && (
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            px: 2,
+            pb: tabValue === 1 && completedTodos.length > 0 ? 0 : 2,
+            pt: 2,
+          }}
+        >
+          <Pagination
+            count={pageCount}
+            page={page}
+            onChange={handlePageChange}
+            color="primary"
+            size="small"
+          />
+        </Box>
+      )}
+
       {tabValue === 1 && completedTodos.length > 0 && (
-        <>
-          <Divider />
-          <Box sx={{ p: 1, display: 'flex', justifyContent: 'flex-end' }}>
-            <Button
-              size="small"
-              color="error"
-              variant="text"
-              disabled={isLoading || isError}
-              onClick={handleDeleteAllCompleted}
-              startIcon={<DeleteOutlineIcon fontSize="small" />}
-            >
-              Usuń wszystkie wykonane
-            </Button>
-          </Box>
-        </>
+        <Box sx={{ p: 1, display: 'flex', justifyContent: 'flex-end' }}>
+          <Button
+            size="small"
+            color="error"
+            variant="text"
+            disabled={isLoading || isError}
+            onClick={handleDeleteAllCompleted}
+            startIcon={<DeleteOutlineIcon fontSize="small" />}
+          >
+            Usuń wszystkie wykonane
+          </Button>
+        </Box>
       )}
     </Paper>
   );
