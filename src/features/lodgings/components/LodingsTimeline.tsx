@@ -6,7 +6,8 @@ import 'dayjs/locale/pl';
 
 import type { Employee, Construction } from '../../../types';
 import { openGoogleMaps } from '../../../utils';
-import { type ExtendedLodging, getEmployeeLabel } from './LodgingsHelpers';
+import { getEmployeeLabel } from '../utils';
+import type { ExtendedLodging } from '../types';
 
 interface LodgingTimelineProps {
   lodgings: ExtendedLodging[];

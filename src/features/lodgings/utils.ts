@@ -1,14 +1,5 @@
 import dayjs from 'dayjs';
-import type { Lodging } from '../../../types';
-
-export type ExtendedLodging = Lodging & {
-  constructionSiteId?: string | null;
-  assignments?: {
-    employeeId: string;
-    startDate: string | Date;
-    endDate: string | Date;
-  }[];
-};
+import type { ExtendedLodging } from './types';
 
 export const getEmployeeLabel = (
   employeeName: string,

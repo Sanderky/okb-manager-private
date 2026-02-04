@@ -17,7 +17,9 @@ import 'dayjs/locale/pl';
 
 import type { Employee } from '../../../types';
 import { openGoogleMaps } from '../../../utils';
-import { type ExtendedLodging, getEmployeeLabel } from './LodgingsHelpers';
+import type { ExtendedLodging } from '../types';
+import { getEmployeeLabel } from '../utils';
+
 
 interface LodgingCardProps {
   lodging: ExtendedLodging;

@@ -37,8 +37,6 @@ import { getEmployeeAlerts } from './services/alerts';
 import UpdatePassword from './pages/ForgotPassword/ForgotPassword';
 import { LayoutProvider } from './context/LayoutContext';
 import Calendar from './features/calendar/components/Calendar';
-import { getNearestUpcomingEvents } from './features/calendar/api';
-import LodgingsManager from './pages/Dashboard/Lodgings/Lodgings';
 import { ThemeContextProvider } from './context/ThemeContext';
 import { useEffect } from 'react';
 import { supabase } from './supabase';
@@ -47,6 +45,8 @@ import Loading from './components/Loading';
 import ErrorPage from './pages/Error/ErrorPage';
 import { getTodos } from './services/todos';
 import { useRealtime } from './hooks/useRealtime';
+import { getNearestUpcomingEvents } from './features/calendar/api';
+import LodgingsManager from './features/lodgings/components/Lodgings';
 
 const AuthListener = () => {
   const navigate = useNavigate();

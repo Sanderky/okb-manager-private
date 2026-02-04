@@ -24,23 +24,6 @@ export interface TodoItem {
   completed_at?: string | null;
 }
 
-export interface Lodging {
-  id: string;
-  name?: string;
-  address?: string;
-  startDate: Date;
-  endDate: Date;
-  employeeIds: string[];
-  description?: string;
-  constructionSiteId?: string | null;
-}
-
-export interface LodgingAssignment {
-  employeeId: string;
-  startDate: Date;
-  endDate: Date;
-}
-
 export interface Construction {
   id: string;
   name: string;
@@ -173,8 +156,6 @@ export interface Vacation {
   employeeName?: string;
   employeeActive?: boolean;
 }
-
-
 
 export interface EmployeeAlert {
   id: string;

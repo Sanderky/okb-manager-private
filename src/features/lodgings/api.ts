@@ -1,6 +1,6 @@
-import { supabase } from '../supabase';
-import type { Lodging, LodgingAssignment } from '../types';
-import { toSqlDate } from '../utils';
+import { supabase } from '../../supabase';
+import type { Lodging, LodgingAssignment } from './types';
+import { toSqlDate } from '../../utils';
 
 const TABLE_NAME = 'lodgings';
 const JOIN_TABLE = 'lodging_employees';
