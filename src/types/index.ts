@@ -15,14 +15,6 @@ export interface DiskUsage {
   used: number;
   percentage: number;
 }
-export interface TodoItem {
-  id: number;
-  title: string;
-  is_completed: boolean;
-  is_important: boolean;
-  created_at: string;
-  completed_at?: string | null;
-}
 
 export interface Construction {
   id: string;

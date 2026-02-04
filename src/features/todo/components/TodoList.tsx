@@ -33,8 +33,8 @@ import {
   updateTodoTitle,
   deleteCompletedTodos,
   updateTodoImportance,
-} from '../services/todos';
-import { useDialogs } from '../hooks/useDialogs/useDialogs';
+} from '../api';
+import { useDialogs } from '../../../hooks/useDialogs/useDialogs';
 import { PriorityHigh, Report, ReportOff } from '@mui/icons-material';
 import dayjs from 'dayjs';
 

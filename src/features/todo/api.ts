@@ -1,5 +1,5 @@
-import { supabase } from '../supabase';
-import type { TodoItem } from '../types';
+import { supabase } from '../../supabase';
+import type { TodoItem } from './types';
 
 export const getTodos = async (): Promise<TodoItem[]> => {
   const { data, error } = await supabase

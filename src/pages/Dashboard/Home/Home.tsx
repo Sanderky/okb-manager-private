@@ -11,7 +11,7 @@ import {
 import FileBrowser from '../../../components/fileBrowser/FileBrowser';
 import { EventsBox } from '../../../components/EventsBox';
 import { getNearestUpcomingEvents } from '../../../features/calendar/api';
-import TodoList from '../../../components/TodoList';
+import TodoList from '../../../features/todo/components/TodoList';
 import DiskUsage from './DiskUsage';
 import {EmployeeAlerts} from './EmployeesAlerts';
 import UpcomingVacation from './UpcomingVacations';
