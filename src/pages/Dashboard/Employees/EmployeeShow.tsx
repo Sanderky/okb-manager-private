@@ -9,7 +9,7 @@ import { useNavigate, useParams } from 'react-router';
 import PageContainer from '../../../components/PageContainer';
 import Loading from '../../../components/Loading';
 import { FOLDER_NAMES, type Employee, type FileItem } from '../../../types';
-import { getEmployee, updateEmployee } from '../../../services/employees';
+import { getEmployee, updateEmployee } from '../../../api/employees';
 import EditIcon from '@mui/icons-material/Edit';
 import {
   Chip,
@@ -29,12 +29,12 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import useNotifications from '../../../hooks/useNotifications/useNotifications';
 import { PreviewDialog } from '../../../components/fileBrowser/FilePreviewDialog';
 import FileBrowser from '../../../components/fileBrowser/FileBrowser';
-import { getUpcomingVacationsForEmployee } from '../../../services/vacations';
+import { getUpcomingVacationsForEmployee } from '../../../api/vacations';
 import useLoading from '../../../hooks/useLoading';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import { Note } from '../../../components/Note';
 import { useScroll } from '../../../context/ScrollContext';
-import { fetchAlertsSettings } from '../../../services/settings';
+import { fetchAlertsSettings } from '../../../api/settings';
 import useEmployeeAttachments from './useAttachment';
 import AttachmentBox from './AttachmentBox';
 import { EventsListTable } from '../../../components/EventsBox';

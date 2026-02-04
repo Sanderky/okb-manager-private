@@ -7,7 +7,7 @@ import {
   getConstruction,
   removeConstruction,
   updateConstruction,
-} from '../../../services/constructions';
+} from '../../../api/constructions';
 import type { Construction } from '../../../types';
 import ConstructionForm, {
   type FormFieldValue,
@@ -29,7 +29,7 @@ import ArchiveIcon from '@mui/icons-material/Archive';
 import UnarchiveIcon from '@mui/icons-material/Unarchive';
 import { shouldBeInactive, validate } from './ConstructionsHelpers';
 import { FinishConstruction, ResumeConstruction } from './ConstructionDialogs';
-import { deleteFolderRecursive } from '../../../services/storage';
+import { deleteFolderRecursive } from '../../../api/storage';
 
 export default function ConstructionEdit() {
   const { constructionId } = useParams<{ constructionId: string }>();

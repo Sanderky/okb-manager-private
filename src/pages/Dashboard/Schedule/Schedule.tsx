@@ -29,13 +29,13 @@ import isBetween from 'dayjs/plugin/isBetween';
 import 'dayjs/locale/pl';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { getEmployeeList } from '../../../services/employees';
-import { getConstructionList } from '../../../services/constructions';
-import { getVacationListForMonths } from '../../../services/vacations';
+import { getEmployeeList } from '../../../api/employees';
+import { getConstructionList } from '../../../api/constructions';
+import { getVacationListForMonths } from '../../../api/vacations';
 import {
   getScheduleListForDateRange,
   saveScheduleList,
-} from '../../../services/schedules';
+} from '../../../api/schedules';
 
 import type { Construction, Employee } from '../../../types';
 

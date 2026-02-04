@@ -9,8 +9,8 @@ import {
   Typography,
 } from '@mui/material';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getEmployeeList } from '../../../services/employees';
-import { getConstructionList } from '../../../services/constructions';
+import { getEmployeeList } from '../../../api/employees';
+import { getConstructionList } from '../../../api/constructions';
 
 
 import type { CalendarDay, CalendarEvent, EventCategory, InfoEvent } from '../types';

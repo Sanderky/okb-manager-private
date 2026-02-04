@@ -9,7 +9,7 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { useNavigate, useSearchParams } from 'react-router';
 import PageContainer from '../../../components/PageContainer';
-import { getConstructionList } from '../../../services/constructions';
+import { getConstructionList } from '../../../api/constructions';
 import { useQuery } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 import {
@@ -46,12 +46,12 @@ import {
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import CloseIcon from '@mui/icons-material/Close';
 import { plPL } from '@mui/x-date-pickers/locales';
-import { getEmployeesByScheduledConstruction } from '../../../services/schedules';
+import { getEmployeesByScheduledConstruction } from '../../../api/schedules';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
-import { ContractorsDialog } from '../../../components/ContractorsDialog';
+import { ContractorsDialog } from '../../../features/contractors/components/ContractorsDialog';
 import { Engineering } from '@mui/icons-material';
-import { getContractors } from '../../../services/contractors';
+import { getContractors } from '../../../api/contractors';
 import { TablePagination } from '../../../components/TablePagination';
 import Loading from '../../../components/Loading';
 

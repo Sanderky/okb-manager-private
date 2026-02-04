@@ -9,13 +9,13 @@ import {
   Typography,
 } from '@mui/material';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getEmployeeList } from '../../../services/employees';
+import { getEmployeeList } from '../../../api/employees';
 import {
   createVacation,
   getVacationListForMonths,
   removeVacation,
   updateVacation,
-} from '../../../services/vacations';
+} from '../../../api/vacations';
 import type { Employee, Vacation } from '../../../types';
 import { Add, Close as CloseIcon } from '@mui/icons-material';
 import type { Dayjs } from 'dayjs';

@@ -6,7 +6,7 @@ import React, {
   type ReactNode,
 } from 'react';
 import { supabase } from '../supabase';
-import { logout as authLogout } from '../services/auth';
+import { logout as authLogout } from '../api/auth';
 import type { User, Session, AuthError } from '@supabase/supabase-js';
 interface AuthContextType {
   user: User | null;

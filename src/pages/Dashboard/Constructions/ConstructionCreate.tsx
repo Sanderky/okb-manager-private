@@ -6,7 +6,7 @@ import ConstructionForm, {
 } from './ConstructionForm';
 import PageContainer from '../../../components/PageContainer';
 import type { Construction } from '../../../types';
-import { createConstruction } from '../../../services/constructions';
+import { createConstruction } from '../../../api/constructions';
 import useNotifications from '../../../hooks/useNotifications/useNotifications';
 import { Box } from '@mui/material';
 

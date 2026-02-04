@@ -14,7 +14,7 @@ import { FOLDER_NAMES, type Construction } from '../../../types';
 import {
   getConstruction,
   updateConstruction,
-} from '../../../services/constructions';
+} from '../../../api/constructions';
 
 import EditIcon from '@mui/icons-material/Edit';
 import EventAvailableIcon from '@mui/icons-material/EventAvailable';
@@ -40,7 +40,7 @@ import dayjs from 'dayjs';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import useNotifications from '../../../hooks/useNotifications/useNotifications';
-import { getEmployeesByScheduledConstruction } from '../../../services/schedules';
+import { getEmployeesByScheduledConstruction } from '../../../api/schedules';
 import FileBrowser from '../../../components/fileBrowser/FileBrowser';
 import useLoading from '../../../hooks/useLoading';
 import { Note } from '../../../components/Note';

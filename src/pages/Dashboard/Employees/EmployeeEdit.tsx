@@ -7,7 +7,7 @@ import {
   getEmployee,
   removeEmployee,
   updateEmployee,
-} from '../../../services/employees';
+} from '../../../api/employees';
 import type { Employee } from '../../../types';
 import EmployeeForm, {
   type FormFieldValue,
@@ -29,7 +29,7 @@ import UnarchiveIcon from '@mui/icons-material/Unarchive';
 import { useScroll } from '../../../context/ScrollContext';
 import { useDialogs } from '../../../hooks/useDialogs/useDialogs';
 import { toNumberOrNull, validate } from './EmployeesHelpers';
-import { deleteFolderRecursive } from '../../../services/storage';
+import { deleteFolderRecursive } from '../../../api/storage';
 
 export default function EmployeeEdit() {
   const { employeeId } = useParams<{ employeeId: string }>();

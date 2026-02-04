@@ -55,13 +55,13 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { MRT_Localization_PL } from 'material-react-table/locales/pl';
 import BaseDialog from '../BaseDialog';
-import * as StorageService from '../../services/storage';
+import * as StorageService from '../../api/storage';
 import {
   canOpenPreview,
   formatBytes,
   getFileType,
   openFileInNewTab,
-} from '../../services/storage';
+} from '../../api/storage';
 import UploadFilesDialog from './UploadFilesDialog';
 
 const RenderFileImage = ({ file }: { file: FileBrowserItem }) => {

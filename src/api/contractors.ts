@@ -1,5 +1,5 @@
 import { supabase } from '../supabase';
-import type { Contractor } from '../types';
+import type { Contractor } from '../features/contractors/types';
 
 const TABLE_NAME = 'contractors';
 

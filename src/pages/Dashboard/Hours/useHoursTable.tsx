@@ -6,15 +6,15 @@ import type {
   WorkLogEntry,
 } from '../../../types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getEmployeeList } from '../../../services/employees';
-import { getConstructionList } from '../../../services/constructions';
+import { getEmployeeList } from '../../../api/employees';
+import { getConstructionList } from '../../../api/constructions';
 import {
   getWorkLogs,
   overrideWorkLogsForWeek,
   fetchWorkLogsForCopy,
-} from '../../../services/workLogs';
-import { getVacationListForMonths } from '../../../services/vacations';
-import { getScheduleListForWeek } from '../../../services/schedules';
+} from '../../../api/workLogs';
+import { getVacationListForMonths } from '../../../api/vacations';
+import { getScheduleListForWeek } from '../../../api/schedules';
 
 import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';

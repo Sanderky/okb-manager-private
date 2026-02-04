@@ -20,9 +20,9 @@ import { NoteBase } from '../../../components/Note';
 import { plPL } from '@mui/x-date-pickers/locales';
 import { useQuery } from '@tanstack/react-query';
 import { shouldBeInactive } from './ConstructionsHelpers';
-import { getContractors } from '../../../services/contractors';
+import { getContractors } from '../../../api/contractors';
 import { Add } from '@mui/icons-material';
-import { AddContractorDialog } from '../../../components/ContractorsDialog';
+import { AddContractorDialog } from '../../../features/contractors/components/ContractorsDialog';
 
 export interface ConstructionFormState {
   values: Partial<Omit<Construction, 'id'>>;

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { resetPassword } from '../../services/auth';
+import { resetPassword } from '../../api/auth';
 import {
   Alert,
   Dialog,

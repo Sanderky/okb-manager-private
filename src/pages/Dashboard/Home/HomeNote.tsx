@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import useNotifications from '../../../hooks/useNotifications/useNotifications';
 import { Note } from '../../../components/Note';
-import { getHomeNote, saveHomeNote } from '../../../services/home';
+import { getHomeNote, saveHomeNote } from '../../../api/home';
 
 const HomeNote = () => {
   const notifications = useNotifications();

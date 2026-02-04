@@ -3,11 +3,11 @@ import PageContainer from '../../../components/PageContainer';
 import { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { getEmployeeList, getEmployeeStats } from '../../../services/employees';
+import { getEmployeeList, getEmployeeStats } from '../../../api/employees';
 import {
   getConstructionList,
   getConstructionStats,
-} from '../../../services/constructions';
+} from '../../../api/constructions';
 import FileBrowser from '../../../components/fileBrowser/FileBrowser';
 import { EventsBox } from '../../../components/EventsBox';
 import { getNearestUpcomingEvents } from '../../../features/calendar/api';

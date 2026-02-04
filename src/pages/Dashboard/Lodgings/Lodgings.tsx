@@ -37,11 +37,12 @@ import {
   deleteOutdatedLodgings,
 } from '../api';
 import { getConstructionList } from '../../../api/constructions';
-import type { ExtendedLodging, Lodging } from '../types';
+import type { Lodging } from '../../../types';
 import Loading from '../../../components/Loading';
 import { useNavigate } from 'react-router-dom';
+import type { ExtendedLodging } from './LodgingsHelpers';
 import LodgingTimeline from './LodingsTimeline';
-import LodgingCard from './LodgingCard';
+import LodgingCard from '../../../features/lodgings/components/LodgingCard';
 import LodgingFormDialog from './LodingsFormDialog';
 
 dayjs.extend(isBetween);

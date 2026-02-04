@@ -27,7 +27,7 @@ import BaseDialog from '../../../components/BaseDialog';
 import {
   fetchAlertsSettings,
   updateAlertsSettings,
-} from '../../../services/settings';
+} from '../../../api/settings';
 
 interface EmployeeAlertsSettingsProps {
   isOpen: boolean;

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDialogs } from '../../hooks/useDialogs/useDialogs';
 import useNotifications from '../../hooks/useNotifications/useNotifications';
-import * as StorageService from '../../services/storage';
+import * as StorageService from '../../api/storage';
 import {
   FOLDER_TRANSLATIONS,
   SYSTEM_FOLDER_PREFIX,

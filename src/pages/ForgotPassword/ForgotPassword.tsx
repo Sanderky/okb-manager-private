@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { updatePassword } from '../../services/auth';
+import { updatePassword } from '../../api/auth';
 import TextField from '@mui/material/TextField';
 import {
   Box,

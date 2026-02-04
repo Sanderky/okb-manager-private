@@ -23,7 +23,7 @@ import {
   RotateLeft,
   RotateRight,
 } from '@mui/icons-material';
-import * as StorageService from '../../services/storage';
+import * as StorageService from '../../api/storage';
 import {
   TransformWrapper,
   TransformComponent,

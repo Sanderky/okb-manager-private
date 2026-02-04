@@ -4,7 +4,7 @@ import {
   getEmployeeAttachments,
   uploadAttachment,
   deleteAttachment,
-} from '../../../services/attachments';
+} from '../../../api/attachments';
 import type { EmployeeAttachmentType, Attachment } from '../../../types';
 import useNotifications from '../../../hooks/useNotifications/useNotifications';
 

@@ -13,7 +13,7 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { BeachAccess, Done } from '@mui/icons-material';
 import dayjs from 'dayjs';
-import { getUpcomingVacations } from '../../../services/vacations';
+import { getUpcomingVacations } from '../../../api/vacations';
 import Loading from '../../../components/Loading';
 import { ExpandMore, ExpandLess } from '@mui/icons-material';
 import { useScroll } from '../../../context/ScrollContext';

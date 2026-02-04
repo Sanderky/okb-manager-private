@@ -19,7 +19,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import BaseDialog from './BaseDialog';
+import BaseDialog from '../../../components/BaseDialog';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useQueryClient, useMutation, useQuery } from '@tanstack/react-query';
 import {
@@ -27,13 +27,14 @@ import {
   deleteContractor,
   addContractor,
   getContractors,
-} from '../services/contractors';
-import { useDialogs } from '../hooks/useDialogs/useDialogs';
-import type { Construction, Contractor } from '../types';
-import useNotifications from '../hooks/useNotifications/useNotifications';
-import { Note } from './Note';
+} from '../../../api/contractors';
+import { useDialogs } from '../../../hooks/useDialogs/useDialogs';
+import type { Construction } from '../../../types';
+import useNotifications from '../../../hooks/useNotifications/useNotifications';
+import { Note } from '../../../components/Note';
 import { ArrowBack } from '@mui/icons-material';
 import { Link, useSearchParams } from 'react-router-dom';
+import type { Contractor } from '../types';
 
 const useContractors = () => {
   const queryClient = useQueryClient();

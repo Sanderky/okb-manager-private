@@ -11,7 +11,7 @@ import { OutgoingMail } from '@mui/icons-material';
 import {
   updateDisplayName as updateNameService,
   updateEmail as updateEmailService,
-} from '../services/auth';
+} from '../api/auth';
 import { useAuth } from '../context/AuthContext';
 import BaseDialog from './BaseDialog';
 import useNotifications from '../hooks/useNotifications/useNotifications';

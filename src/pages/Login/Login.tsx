@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { login } from '../../services/auth';
+import { login } from '../../api/auth';
 import TextField from '@mui/material/TextField';
 import {
   Alert,

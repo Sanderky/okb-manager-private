@@ -6,7 +6,7 @@ import EmployeeForm, {
 } from './EmployeeForm';
 import PageContainer from '../../../components/PageContainer';
 import type { Employee } from '../../../types';
-import { createEmployee } from '../../../services/employees';
+import { createEmployee } from '../../../api/employees';
 import useNotifications from '../../../hooks/useNotifications/useNotifications';
 import { Box } from '@mui/material';
 import { useMutation, useQueryClient } from '@tanstack/react-query';

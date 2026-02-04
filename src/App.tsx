@@ -27,13 +27,13 @@ import { useAuth } from './context/AuthContext';
 import {
   getConstructionList,
   getConstructionStats,
-} from './services/constructions';
+} from './api/constructions';
 import { useQuery } from '@tanstack/react-query';
-import { getEmployeeList, getEmployeeStats } from './services/employees';
-import { getUpcomingVacations } from './services/vacations';
-import { getHomeNote } from './services/home';
-import { getContractors } from './services/contractors';
-import { getEmployeeAlerts } from './services/alerts';
+import { getEmployeeList, getEmployeeStats } from './api/employees';
+import { getUpcomingVacations } from './api/vacations';
+import { getHomeNote } from './api/home';
+import { getContractors } from './api/contractors';
+import { getEmployeeAlerts } from './api/alerts';
 import UpdatePassword from './pages/ForgotPassword/ForgotPassword';
 import { LayoutProvider } from './context/LayoutContext';
 import Calendar from './features/calendar/components/Calendar';
@@ -43,10 +43,10 @@ import { supabase } from './supabase';
 import PublicRoute from './routing/PublicRoute';
 import Loading from './components/Loading';
 import ErrorPage from './pages/Error/ErrorPage';
-import { getTodos } from './services/todos';
 import { useRealtime } from './hooks/useRealtime';
 import { getNearestUpcomingEvents } from './features/calendar/api';
 import LodgingsManager from './features/lodgings/components/Lodgings';
+import { getTodos } from './features/todo/api';
 
 const AuthListener = () => {
   const navigate = useNavigate();

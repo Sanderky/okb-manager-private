@@ -1,6 +1,6 @@
 import React, { createContext, useContext, type ReactNode } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { getEmployeeAlerts } from '../services/alerts'; // Import serwisu
+import { getEmployeeAlerts } from '../api/alerts'; // Import serwisu
 import type { EmployeeAlert } from '../types';
 
 interface AlertContextType {

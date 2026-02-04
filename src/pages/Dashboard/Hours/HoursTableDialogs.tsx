@@ -38,8 +38,8 @@ import BaseDialog from '../../../components/BaseDialog';
 import { ExpandLess, ExpandMore, FilterList } from '@mui/icons-material';
 import EmployeesContructionsFilters from './EmployeesConstructionsFilters';
 import { useQuery } from '@tanstack/react-query';
-import { getConstructionList } from '../../../services/constructions';
-import { getEmployeeList } from '../../../services/employees';
+import { getConstructionList } from '../../../api/constructions';
+import { getEmployeeList } from '../../../api/employees';
 
 interface AddConstructionWithEmployeeDialogProps {
   open: boolean;
