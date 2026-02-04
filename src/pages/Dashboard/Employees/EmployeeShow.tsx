@@ -38,7 +38,7 @@ import { fetchAlertsSettings } from '../../../services/settings';
 import useEmployeeAttachments from './useAttachment';
 import AttachmentBox from './AttachmentBox';
 import { EventsListTable } from '../../../components/EventsBox';
-import { getUpcomingEventsForEmployee } from '../../../services/calendar';
+import { getUpcomingEventsForEmployee } from '../../../features/calendar/api';
 import { getDateStr } from '../Vacations/VacationsHelpers';
 
 export interface FieldInfo {

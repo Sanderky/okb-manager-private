@@ -26,25 +26,22 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import BaseDialog from '../../../components/BaseDialog';
 import {
   getCategoryLabel,
-  type CalendarEvent,
-  type CalendarDay,
   AVAILABLE_CATEGORIES,
-} from './CalendarHelpers';
+} from '../utils';
 import type {
   Construction,
   Employee,
-  EventCategory,
-  EventColor,
 } from '../../../types';
 import { plPL } from '@mui/x-date-pickers/locales';
-import { useEventColor } from './useEventColor';
+import { useEventColor } from '../hooks/useEventColor';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import PersonIcon from '@mui/icons-material/Person';
 import ConstructionIcon from '@mui/icons-material/Construction';
 import { useNavigate } from 'react-router-dom';
 import { Add } from '@mui/icons-material';
 import type { Dayjs } from 'dayjs';
-import { getDateStr } from '../Vacations/VacationsHelpers';
+import { getDateStr } from '../../../pages/Dashboard/Vacations/VacationsHelpers';
+import type { CalendarEvent, EventCategory, EventColor } from '../types';
 
 const COLORS_LIST: EventColor[] = [
   'red',

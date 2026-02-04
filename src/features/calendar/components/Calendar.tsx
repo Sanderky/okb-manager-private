@@ -11,14 +11,9 @@ import {
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getEmployeeList } from '../../../services/employees';
 import { getConstructionList } from '../../../services/constructions';
-import {
-  createCalendarEvent,
-  getCalendarEventsForMonths,
-  removeCalendarEvent,
-  updateCalendarEvent,
-} from '../../../services/calendar';
 
-import type { EventCategory, InfoEvent } from '../../../types';
+
+import type { CalendarDay, CalendarEvent, EventCategory, InfoEvent } from '../types';
 import { Add, Close } from '@mui/icons-material';
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
@@ -30,18 +25,14 @@ import {
   EditEventDialog,
   EventListDialog,
 } from './CalendarDialogs';
-import {
-  validateCalendarEvent,
-  type CalendarDay,
-  type CalendarEvent,
-  WEEK_DAYS,
-  AVAILABLE_CATEGORIES,
-} from './CalendarHelpers';
+
 import PageContainer from '../../../components/PageContainer';
 import useLoading from '../../../hooks/useLoading';
 import { useSearchParams } from 'react-router-dom';
 import useContainerBreakpoint from '../../../hooks/useContainerWidth';
 import { useDialogs } from '../../../hooks/useDialogs/useDialogs';
+import { AVAILABLE_CATEGORIES, validateCalendarEvent, WEEK_DAYS } from '../utils';
+import { createCalendarEvent, getCalendarEventsForMonths, removeCalendarEvent, updateCalendarEvent } from '../api';
 
 dayjs.locale('pl');
 

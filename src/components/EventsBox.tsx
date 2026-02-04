@@ -27,12 +27,12 @@ import {
 import { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Loading from './Loading';
-import { useEventColor } from '../pages/Dashboard/Calendar/useEventColor';
+import { useEventColor } from '../features/calendar/hooks/useEventColor';
 import type { EventCategory, InfoEvent } from '../types';
 import {
   AVAILABLE_CATEGORIES,
   getCategoryLabel,
-} from '../pages/Dashboard/Calendar/CalendarHelpers';
+} from '../features/calendar/utils';
 import { getDateStr } from '../pages/Dashboard/Vacations/VacationsHelpers';
 
 const EVENTS_FILTER_STORAGE_KEY = 'eventsBox_filters';

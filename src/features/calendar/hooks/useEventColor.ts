@@ -1,6 +1,6 @@
 import { useTheme } from '@mui/material';
 import { useCallback } from 'react';
-import type { EventColor } from '../../../types';
+import type { EventColor } from '../types';
 
 export const useEventColor = () => {
   const theme = useTheme();

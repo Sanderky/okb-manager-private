@@ -10,11 +10,11 @@ import {
   Divider,
 } from '@mui/material';
 import dayjs from 'dayjs';
-import { type CalendarGridProps } from './CalendarHelpers';
 
 import { ExpandLess, ExpandMore } from '@mui/icons-material';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
-import { useEventColor } from './useEventColor';
+import { useEventColor } from '../hooks/useEventColor';
+import type { CalendarGridProps } from '../types';
 
 const MAX_EVENTS_DESKTOP = 4;
 const MAX_EVENTS_PHONE = 2;

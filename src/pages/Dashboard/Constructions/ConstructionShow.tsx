@@ -48,7 +48,7 @@ import { Note } from '../../../components/Note';
 import PeopleIcon from '@mui/icons-material/People';
 import { FinishConstruction, ResumeConstruction } from './ConstructionDialogs';
 import { EventsListTable } from '../../../components/EventsBox';
-import { getUpcomingEventsForConstruction } from '../../../services/calendar';
+import { getUpcomingEventsForConstruction } from '../../../features/calendar/api';
 import { openGoogleMaps } from '../../../utils';
 
 const personalFields = [
