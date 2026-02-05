@@ -20,7 +20,7 @@ import {
   useMaterialReactTable,
   type MRT_ColumnDef,
 } from 'material-react-table';
-import type { Construction } from '../../../types';
+
 import 'dayjs/locale/pl';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -49,11 +49,12 @@ import { plPL } from '@mui/x-date-pickers/locales';
 import { getEmployeesByScheduledConstruction } from '../../../api/schedules';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
-import { ContractorsDialog } from '../../../features/contractors/components/ContractorsDialog';
+import { ContractorsDialog } from '../../contractors/components/ContractorsDialog';
 import { Engineering } from '@mui/icons-material';
 import { getContractors } from '../../../api/contractors';
 import { TablePagination } from '../../../shared/ui/TablePagination';
 import Loading from '../../../shared/ui/Loading';
+import type { Construction } from '../../../entities/constructions';
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);

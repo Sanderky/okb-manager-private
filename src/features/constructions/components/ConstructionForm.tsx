@@ -9,7 +9,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import dayjs, { type Dayjs } from 'dayjs';
-import type { Construction } from '../../../types';
+
 import Alert from '@mui/material/Alert';
 import { Autocomplete, Divider, Paper, Typography } from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
@@ -19,10 +19,11 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { NoteBase } from '../../../shared/ui/Note';
 import { plPL } from '@mui/x-date-pickers/locales';
 import { useQuery } from '@tanstack/react-query';
-import { shouldBeInactive } from './ConstructionsHelpers';
+
 import { getContractors } from '../../../api/contractors';
 import { Add } from '@mui/icons-material';
-import { AddContractorDialog } from '../../../features/contractors/components/ContractorsDialog';
+import { AddContractorDialog } from '../../contractors/components/ContractorsDialog';
+import { shouldBeInactive, type Construction } from '../../../entities/constructions';
 
 export interface ConstructionFormState {
   values: Partial<Omit<Construction, 'id'>>;

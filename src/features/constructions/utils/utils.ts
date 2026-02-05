@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
-import type { Construction } from '../../../types';
-import type { ConstructionFormState } from './ConstructionForm';
+import type { ConstructionFormState } from '../components/ConstructionForm';
+import type { Construction } from '../../../entities/constructions';
 
 export const sortConstructions = (
   constructions: Construction[]
@@ -13,17 +13,6 @@ export const sortConstructions = (
     if (nameA > nameB) return 1;
     return 0;
   });
-};
-
-export const shouldBeInactive = (endDate: Date | null | undefined) => {
-  if (!endDate) {
-    return false;
-  }
-
-  const today = new Date().toDateString();
-  const end = new Date(endDate).toDateString();
-
-  return new Date(end) <= new Date(today);
 };
 
 export const validate = (

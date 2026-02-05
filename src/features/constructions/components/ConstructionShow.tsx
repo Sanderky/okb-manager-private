@@ -10,7 +10,7 @@ import { useNavigate } from 'react-router';
 import PageContainer from '../../../components/PageContainer';
 import Loading from '../../../shared/ui/Loading';
 
-import { FOLDER_NAMES, type Construction } from '../../../types';
+
 import {
   getConstruction,
   updateConstruction,
@@ -41,15 +41,17 @@ import dayjs from 'dayjs';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import useNotifications from '../../../shared/ui/notifications/useNotifications';
 import { getEmployeesByScheduledConstruction } from '../../../api/schedules';
-import FileBrowser from '../../../features/file-browser/components/FileBrowser';
+import FileBrowser from '../../file-browser/components/FileBrowser';
 import useLoading from '../../../shared/hooks/useLoading';
 import { Note } from '../../../shared/ui/Note';
 
 import PeopleIcon from '@mui/icons-material/People';
 import { FinishConstruction, ResumeConstruction } from './ConstructionDialogs';
 import { EventsListTable } from '../../../components/EventsBox';
-import { getUpcomingEventsForConstruction } from '../../../features/calendar/api';
+import { getUpcomingEventsForConstruction } from '../../calendar/api';
 import { openGoogleMaps } from '../../../utils';
+import type { Construction } from '../../../entities/constructions';
+import { FOLDER_NAMES } from '../../../entities/files';
 
 const personalFields = [
   { key: 'name', label: 'Nazwa budowy' },

@@ -29,7 +29,6 @@ import {
   AVAILABLE_CATEGORIES,
 } from '../utils';
 import type {
-  Construction,
   Employee,
 } from '../../../types';
 import { plPL } from '@mui/x-date-pickers/locales';
@@ -41,7 +40,8 @@ import { useNavigate } from 'react-router-dom';
 import { Add } from '@mui/icons-material';
 import type { Dayjs } from 'dayjs';
 import { getDateStr } from '../../../pages/Dashboard/Vacations/VacationsHelpers';
-import type { CalendarEvent, EventCategory, EventColor } from '../types';
+import type { CalendarDay, CalendarEvent, EventCategory, EventColor } from '../types';
+import type { Construction } from '../../../entities/constructions';
 
 const COLORS_LIST: EventColor[] = [
   'red',

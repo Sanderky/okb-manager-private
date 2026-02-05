@@ -4,10 +4,11 @@ import { LocationOn } from '@mui/icons-material';
 import dayjs from 'dayjs';
 import 'dayjs/locale/pl';
 
-import type { Employee, Construction } from '../../../types';
+import type { Employee } from '../../../types';
 import { openGoogleMaps } from '../../../utils';
 import { getEmployeeLabel } from '../utils';
 import type { ExtendedLodging } from '../types';
+import type { Construction } from '../../../entities/constructions';
 
 interface LodgingTimelineProps {
   lodgings: ExtendedLodging[];

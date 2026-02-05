@@ -29,12 +29,12 @@ import {
   getContractors,
 } from '../../../api/contractors';
 import { useDialogs } from '../../../shared/ui/dialogs/useDialogs';
-import type { Construction } from '../../../types';
 import useNotifications from '../../../shared/ui/notifications/useNotifications';
 import { Note } from '../../../shared/ui/Note';
 import { ArrowBack } from '@mui/icons-material';
 import { Link, useSearchParams } from 'react-router-dom';
 import type { Contractor } from '../types';
+import type { Construction } from '../../../entities/constructions';
 
 const useContractors = () => {
   const queryClient = useQueryClient();

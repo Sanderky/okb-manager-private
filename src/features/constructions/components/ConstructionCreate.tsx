@@ -5,7 +5,6 @@ import ConstructionForm, {
   type FormFieldValue,
 } from './ConstructionForm';
 import PageContainer from '../../../components/PageContainer';
-import type { Construction } from '../../../types';
 import { createConstruction } from '../../../api/constructions';
 import useNotifications from '../../../shared/ui/notifications/useNotifications';
 import { Box } from '@mui/material';
@@ -13,7 +12,8 @@ import { Box } from '@mui/material';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import Loading from '../../../shared/ui/Loading';
 import useLoading from '../../../shared/hooks/useLoading';
-import { shouldBeInactive, validate } from './ConstructionsHelpers';
+import { validate } from '../utils/utils';
+import { shouldBeInactive, type Construction } from '../../../entities/constructions';
 
 export default function ConstructionCreate() {
   const navigate = useNavigate();

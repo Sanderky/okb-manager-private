@@ -8,7 +8,6 @@ import {
   removeConstruction,
   updateConstruction,
 } from '../../../api/constructions';
-import type { Construction } from '../../../types';
 import ConstructionForm, {
   type FormFieldValue,
   type ConstructionFormState,
@@ -27,9 +26,10 @@ import useLoading from '../../../shared/hooks/useLoading';
 import { useScroll } from '../../../context/ScrollContext';
 import ArchiveIcon from '@mui/icons-material/Archive';
 import UnarchiveIcon from '@mui/icons-material/Unarchive';
-import { shouldBeInactive, validate } from './ConstructionsHelpers';
+import { validate } from '../utils/utils';
 import { FinishConstruction, ResumeConstruction } from './ConstructionDialogs';
 import { deleteFolderRecursive } from '../../../entities/files/model/api';
+import { shouldBeInactive, type Construction } from '../../../entities/constructions';
 
 export default function ConstructionEdit() {
   const { constructionId } = useParams<{ constructionId: string }>();

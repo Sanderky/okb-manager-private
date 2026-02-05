@@ -6,11 +6,11 @@ import { plPL } from '@mui/x-date-pickers/locales';
 import dayjs from 'dayjs';
 import { useCallback, useEffect, useState } from 'react';
 import BaseDialog, { ConfirmationDialog } from '../../../shared/ui/BaseDialog';
-import type { Construction } from '../../../types';
 import useNotifications from '../../../shared/ui/notifications/useNotifications';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { updateConstruction } from '../../../api/constructions';
 import { useNavigate } from 'react-router-dom';
+import type { Construction } from '../../../entities/constructions';
 
 interface FinishConstructionProps {
   construction: Construction;
