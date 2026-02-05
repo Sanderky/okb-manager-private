@@ -13,7 +13,7 @@ import {
   alpha,
 } from '@mui/material';
 import { default as LogoIcon } from '@mui/icons-material/TokenOutlined';
-import useLoading from '../../hooks/useLoading';
+import useLoading from '../../shared/hooks/useLoading';
 import {
   ArrowBack,
   Brightness4,

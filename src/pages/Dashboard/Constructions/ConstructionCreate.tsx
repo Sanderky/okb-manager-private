@@ -7,12 +7,12 @@ import ConstructionForm, {
 import PageContainer from '../../../components/PageContainer';
 import type { Construction } from '../../../types';
 import { createConstruction } from '../../../api/constructions';
-import useNotifications from '../../../hooks/useNotifications/useNotifications';
+import useNotifications from '../../../shared/ui/notifications/useNotifications';
 import { Box } from '@mui/material';
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import Loading from '../../../components/Loading';
-import useLoading from '../../../hooks/useLoading';
+import Loading from '../../../shared/ui/Loading';
+import useLoading from '../../../shared/hooks/useLoading';
 import { shouldBeInactive, validate } from './ConstructionsHelpers';
 
 export default function ConstructionCreate() {

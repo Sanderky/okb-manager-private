@@ -29,7 +29,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs, { Dayjs } from 'dayjs';
 import { MRT_Localization_PL } from 'material-react-table/locales/pl';
 import { Badge, Typography } from '@mui/material';
-import { useFormFilters, useTableState } from '../../../hooks/useTableSettings';
+import { useFormFilters, useTableState } from '../../../shared/hooks/useTableSettings';
 import {
   Dialog,
   DialogTitle,
@@ -49,8 +49,8 @@ import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import { useEmployeeAlert } from '../../../context/EmployeeAlertContext';
 import { plPL } from '@mui/x-date-pickers/locales';
 import { sortByLastName } from './EmployeesHelpers';
-import { TablePagination } from '../../../components/TablePagination';
-import Loading from '../../../components/Loading';
+import { TablePagination } from '../../../shared/ui/TablePagination';
+import Loading from '../../../shared/ui/Loading';
 
 interface EmployeesFilters {
   name: string;

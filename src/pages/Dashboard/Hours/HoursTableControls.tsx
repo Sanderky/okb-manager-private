@@ -26,7 +26,7 @@ import {
 import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
 import 'dayjs/locale/pl';
-import WeekSelector from '../../../components/WeekSelector';
+import WeekSelector from '../../../shared/ui/WeekSelector';
 import isoWeek from 'dayjs/plugin/isoWeek';
 import { useReactToPrint } from 'react-to-print';
 import FilterListIcon from '@mui/icons-material/FilterList';

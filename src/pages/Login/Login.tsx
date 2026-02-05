@@ -14,7 +14,7 @@ import {
 import ForgotPassword from './ForgotPassword';
 import { getRules, validateField } from './validation';
 import { default as LogoIcon } from '@mui/icons-material/TokenOutlined';
-import useLoading from '../../hooks/useLoading';
+import useLoading from '../../shared/hooks/useLoading';
 import {
   Brightness4,
   Brightness7,

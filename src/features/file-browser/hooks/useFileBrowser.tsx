@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useDialogs } from '../../../hooks/useDialogs/useDialogs';
-import useNotifications from '../../../hooks/useNotifications/useNotifications';
+import { useDialogs } from '../../../shared/ui/dialogs/useDialogs';
+import useNotifications from '../../../shared/ui/notifications/useNotifications';
 import * as FilesApi from '../../../entities/files/model/api';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';

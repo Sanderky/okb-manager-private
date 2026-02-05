@@ -9,13 +9,14 @@ import {
   Typography,
 } from '@mui/material';
 import { EmployeeAlertsSettingsBase } from '../pages/Dashboard/Home/EmployeesAlerts';
-import BaseDialog from './BaseDialog';
+import BaseDialog from '../shared/ui/BaseDialog';
 import { CloudUpload, ExpandMore } from '@mui/icons-material';
 import { UserSettingsBase } from './UserSettingsDialog';
 import { AttachmentItem } from '../pages/Dashboard/Employees/AttachmentBox';
 import { useEffect, useState } from 'react';
-import type { FileItem } from '../types';
+
 import * as StorageService from '../entities/files/model/api';
+import type { FileItem } from '../entities/files';
 
 const SYSTEM_BUCKET = import.meta.env.VITE_PUBLIC_BUCKET_NAME ?? 'system';
 const RODO_FILENAME = 'rodo.pdf';

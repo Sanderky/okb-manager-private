@@ -16,7 +16,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { NoteBase } from '../../../components/Note';
+import { NoteBase } from '../../../shared/ui/Note';
 import { plPL } from '@mui/x-date-pickers/locales';
 import { useQuery } from '@tanstack/react-query';
 import { shouldBeInactive } from './ConstructionsHelpers';

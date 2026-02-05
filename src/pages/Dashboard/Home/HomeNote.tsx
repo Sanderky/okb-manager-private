@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import useNotifications from '../../../hooks/useNotifications/useNotifications';
-import { Note } from '../../../components/Note';
+import useNotifications from '../../../shared/ui/notifications/useNotifications';
+import { Note } from '../../../shared/ui/Note';
 import { getHomeNote, saveHomeNote } from '../../../api/home';
 
 const HomeNote = () => {

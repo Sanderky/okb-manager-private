@@ -6,7 +6,7 @@ import {
   deleteAttachment,
 } from '../../../api/attachments';
 import type { EmployeeAttachmentType, Attachment } from '../../../types';
-import useNotifications from '../../../hooks/useNotifications/useNotifications';
+import useNotifications from '../../../shared/ui/notifications/useNotifications';
 
 export const useEmployeeAttachments = (employeeId: string | undefined) => {
   const queryClient = useQueryClient();

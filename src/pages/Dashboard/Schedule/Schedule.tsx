@@ -39,7 +39,7 @@ import {
 
 import type { Construction, Employee } from '../../../types';
 
-import useNotifications from '../../../hooks/useNotifications/useNotifications';
+import useNotifications from '../../../shared/ui/notifications/useNotifications';
 import {
   createScheduleMap,
   daysToRanges,
@@ -51,12 +51,12 @@ import { EmployeeRow } from './ScheduleEmployeeRow';
 import { FilterDialog } from './ScheduleDialogs';
 import { useReactToPrint } from 'react-to-print';
 import { PrintableSchedule } from './SchedulePrint';
-import usePrintShortcut from '../../../hooks/usePrintShortcut';
+import usePrintShortcut from '../../../shared/hooks/usePrintShortcut';
 import { Print } from '@mui/icons-material';
 import PageContainer from '../../../components/PageContainer';
 import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
 import KeyboardReturnIcon from '@mui/icons-material/KeyboardReturn';
-import useContainerBreakpoint from '../../../hooks/useContainerWidth';
+import useContainerBreakpoint from '../../../shared/hooks/useContainerWidth';
 import { formatWeeksString } from '../Hours/HoursHelpers';
 import { useNavigate } from 'react-router-dom';
 

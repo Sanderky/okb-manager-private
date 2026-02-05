@@ -20,7 +20,7 @@ import type { Employee, Vacation } from '../../../types';
 import { Add, Close as CloseIcon } from '@mui/icons-material';
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
-import useNotifications from '../../../hooks/useNotifications/useNotifications';
+import useNotifications from '../../../shared/ui/notifications/useNotifications';
 import { CalendarGrid } from './VacationsGrid';
 import { CalendarControls } from './VacationsControls';
 import {
@@ -37,11 +37,11 @@ import {
   WEEK_DAYS,
 } from './VacationsHelpers';
 import PageContainer from '../../../components/PageContainer';
-import useLoading from '../../../hooks/useLoading';
+import useLoading from '../../../shared/hooks/useLoading';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import { useSearchParams } from 'react-router-dom';
-import useContainerBreakpoint from '../../../hooks/useContainerWidth';
-import { useDialogs } from '../../../hooks/useDialogs/useDialogs';
+import useContainerBreakpoint from '../../../shared/hooks/useContainerWidth';
+import { useDialogs } from '../../../shared/ui/dialogs/useDialogs';
 
 dayjs.locale('pl');
 

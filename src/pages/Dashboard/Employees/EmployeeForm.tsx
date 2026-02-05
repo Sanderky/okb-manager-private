@@ -23,7 +23,7 @@ import { useEffect, useState } from 'react';
 import { CheckCircleOutline } from '@mui/icons-material';
 import { useNavigate, useParams } from 'react-router';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { NoteBase } from '../../../components/Note';
+import { NoteBase } from '../../../shared/ui/Note';
 import { plPL } from '@mui/x-date-pickers/locales';
 
 export interface EmployeeFormState {

@@ -31,7 +31,7 @@ import {
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import BaseDialog from '../../../components/BaseDialog';
+import BaseDialog from '../../../shared/ui/BaseDialog';
 import {
   employeeColors,
   getDateStr,

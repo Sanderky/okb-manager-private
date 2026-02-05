@@ -22,7 +22,7 @@ import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
 import type { Employee, Construction } from '../../../types';
-import BaseDialog from '../../../components/BaseDialog';
+import BaseDialog from '../../../shared/ui/BaseDialog';
 
 interface LocalAssignment {
   employeeId: string;

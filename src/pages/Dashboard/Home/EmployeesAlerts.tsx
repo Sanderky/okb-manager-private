@@ -19,11 +19,11 @@ import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEmployeeAlert } from '../../../context/EmployeeAlertContext';
 import { Done, Settings } from '@mui/icons-material';
-import useNotifications from '../../../hooks/useNotifications/useNotifications';
+import useNotifications from '../../../shared/ui/notifications/useNotifications';
 import type { AlertsSettings } from '../../../types';
 import ReportProblemIcon from '@mui/icons-material/ReportProblem';
 import { ExpandMore, ExpandLess } from '@mui/icons-material';
-import BaseDialog from '../../../components/BaseDialog';
+import BaseDialog from '../../../shared/ui/BaseDialog';
 import {
   fetchAlertsSettings,
   updateAlertsSettings,

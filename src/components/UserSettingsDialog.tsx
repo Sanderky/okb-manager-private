@@ -13,8 +13,8 @@ import {
   updateEmail as updateEmailService,
 } from '../api/auth';
 import { useAuth } from '../context/AuthContext';
-import BaseDialog from './BaseDialog';
-import useNotifications from '../hooks/useNotifications/useNotifications';
+import BaseDialog from '../shared/ui/BaseDialog';
+import useNotifications from '../shared/ui/notifications/useNotifications';
 import { useNavigate } from 'react-router-dom';
 
 const getErrorMessage = (error: any): string => {

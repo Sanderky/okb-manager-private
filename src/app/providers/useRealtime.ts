@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { supabase } from '../supabase';
+import { supabase } from '../../supabase';
 
 export const useRealtime = () => {
   const queryClient = useQueryClient();

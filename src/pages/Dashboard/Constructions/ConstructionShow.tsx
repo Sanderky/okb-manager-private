@@ -8,7 +8,7 @@ import Typography from '@mui/material/Typography';
 import { useNavigate } from 'react-router';
 
 import PageContainer from '../../../components/PageContainer';
-import Loading from '../../../components/Loading';
+import Loading from '../../../shared/ui/Loading';
 
 import { FOLDER_NAMES, type Construction } from '../../../types';
 import {
@@ -39,11 +39,11 @@ import { useParams } from 'react-router';
 import dayjs from 'dayjs';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import useNotifications from '../../../hooks/useNotifications/useNotifications';
+import useNotifications from '../../../shared/ui/notifications/useNotifications';
 import { getEmployeesByScheduledConstruction } from '../../../api/schedules';
 import FileBrowser from '../../../features/file-browser/components/FileBrowser';
-import useLoading from '../../../hooks/useLoading';
-import { Note } from '../../../components/Note';
+import useLoading from '../../../shared/hooks/useLoading';
+import { Note } from '../../../shared/ui/Note';
 
 import PeopleIcon from '@mui/icons-material/People';
 import { FinishConstruction, ResumeConstruction } from './ConstructionDialogs';

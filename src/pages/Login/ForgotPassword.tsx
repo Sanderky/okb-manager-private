@@ -12,7 +12,7 @@ import {
   Button,
 } from '@mui/material';
 import { getRules, validateField } from './validation';
-import useLoading from '../../hooks/useLoading';
+import useLoading from '../../shared/hooks/useLoading';
 
 interface ForgotPasswordProps {
   open: boolean;

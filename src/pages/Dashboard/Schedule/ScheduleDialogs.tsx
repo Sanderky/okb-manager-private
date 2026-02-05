@@ -12,7 +12,7 @@ import {
   Divider,
   Box,
 } from '@mui/material';
-import BaseDialog from '../../../components/BaseDialog';
+import BaseDialog from '../../../shared/ui/BaseDialog';
 import type { Employee, Construction } from '../../../types';
 
 interface FilterDialogProps {

@@ -13,7 +13,7 @@ import {
 } from '@mui/material';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { ChevronLeft, ChevronRight, MoreHoriz } from '@mui/icons-material';
-import WeekSelector from '../../../components/WeekSelector';
+import WeekSelector from '../../../shared/ui/WeekSelector';
 import dayjs from 'dayjs';
 
 import InfoOutlineIcon from '@mui/icons-material/InfoOutline';

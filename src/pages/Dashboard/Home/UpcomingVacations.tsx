@@ -14,7 +14,7 @@ import { useQuery } from '@tanstack/react-query';
 import { BeachAccess, Done } from '@mui/icons-material';
 import dayjs from 'dayjs';
 import { getUpcomingVacations } from '../../../api/vacations';
-import Loading from '../../../components/Loading';
+import Loading from '../../../shared/ui/Loading';
 import { ExpandMore, ExpandLess } from '@mui/icons-material';
 import { useScroll } from '../../../context/ScrollContext';
 import { getDateStr } from '../Vacations/VacationsHelpers';

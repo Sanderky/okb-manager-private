@@ -26,7 +26,7 @@ import {
 } from '@mui/icons-material';
 import { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Loading from './Loading';
+import Loading from '../shared/ui/Loading';
 import { useEventColor } from '../features/calendar/hooks/useEventColor';
 import type { EventCategory, InfoEvent } from '../types';
 import {

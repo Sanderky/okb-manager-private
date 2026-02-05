@@ -50,7 +50,7 @@ import 'dayjs/locale/pl';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { MRT_Localization_PL } from 'material-react-table/locales/pl';
-import BaseDialog from '../../../components/BaseDialog';
+import BaseDialog from '../../../shared/ui/BaseDialog';
 import * as StorageService from '../../../entities/files/model/api';
 import {
   canOpenPreview,

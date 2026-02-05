@@ -17,7 +17,7 @@ import type { CalendarDay, CalendarEvent, EventCategory, InfoEvent } from '../ty
 import { Add, Close } from '@mui/icons-material';
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
-import useNotifications from '../../../hooks/useNotifications/useNotifications';
+import useNotifications from '../../../shared/ui/notifications/useNotifications';
 import { CalendarGrid } from './CalendarGrid';
 import { CalendarControls } from './CalendarControls';
 import {
@@ -27,10 +27,10 @@ import {
 } from './CalendarDialogs';
 
 import PageContainer from '../../../components/PageContainer';
-import useLoading from '../../../hooks/useLoading';
+import useLoading from '../../../shared/hooks/useLoading';
 import { useSearchParams } from 'react-router-dom';
-import useContainerBreakpoint from '../../../hooks/useContainerWidth';
-import { useDialogs } from '../../../hooks/useDialogs/useDialogs';
+import useContainerBreakpoint from '../../../shared/hooks/useContainerWidth';
+import { useDialogs } from '../../../shared/ui/dialogs/useDialogs';
 import { AVAILABLE_CATEGORIES, validateCalendarEvent, WEEK_DAYS } from '../utils';
 import { createCalendarEvent, getCalendarEventsForMonths, removeCalendarEvent, updateCalendarEvent } from '../api';
 

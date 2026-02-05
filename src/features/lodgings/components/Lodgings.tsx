@@ -26,8 +26,8 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { plPL } from '@mui/x-date-pickers/locales';
 
 import PageContainer from '../../../components/PageContainer';
-import useNotifications from '../../../hooks/useNotifications/useNotifications';
-import { useDialogs } from '../../../hooks/useDialogs/useDialogs';
+import useNotifications from '../../../shared/ui/notifications/useNotifications';
+import { useDialogs } from '../../../shared/ui/dialogs/useDialogs';
 import { getEmployeeList } from '../../../api/employees';
 import {
   getLodgings,
@@ -38,7 +38,7 @@ import {
 } from '../api';
 import { getConstructionList } from '../../../api/constructions';
 import type { ExtendedLodging, Lodging } from '../types';
-import Loading from '../../../components/Loading';
+import Loading from '../../../shared/ui/Loading';
 import { useNavigate } from 'react-router-dom';
 import LodgingTimeline from './LodingsTimeline';
 import LodgingCard from './LodgingCard';

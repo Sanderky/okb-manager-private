@@ -30,7 +30,7 @@ import {
   OpenInNew,
   Visibility,
 } from '@mui/icons-material';
-import { useDialogs } from '../../../hooks/useDialogs/useDialogs';
+import { useDialogs } from '../../../shared/ui/dialogs/useDialogs';
 import useEmployeeAttachments from './useAttachment';
 import dayjs from 'dayjs';
 import { useEmployeeAlert } from '../../../context/EmployeeAlertContext';

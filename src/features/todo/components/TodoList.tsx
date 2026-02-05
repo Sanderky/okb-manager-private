@@ -34,7 +34,7 @@ import {
   deleteCompletedTodos,
   updateTodoImportance,
 } from '../api';
-import { useDialogs } from '../../../hooks/useDialogs/useDialogs';
+import { useDialogs } from '../../../shared/ui/dialogs/useDialogs';
 import { PriorityHigh, Report, ReportOff } from '@mui/icons-material';
 import dayjs from 'dayjs';
 

@@ -6,9 +6,9 @@ import { PrintReportDialog } from './HoursTableDialogs';
 import type { ConstructionsWithWorkHours } from './useHoursTable';
 import { useReactToPrint } from 'react-to-print';
 import { MultiTablePrintReport } from './PrintReport';
-import usePrintShortcut from '../../../hooks/usePrintShortcut';
+import usePrintShortcut from '../../../shared/hooks/usePrintShortcut';
 import PageContainer from '../../../components/PageContainer';
-import useContainerBreakpoint from '../../../hooks/useContainerWidth';
+import useContainerBreakpoint from '../../../shared/hooks/useContainerWidth';
 
 export interface TableData {
   weekStart: Date;

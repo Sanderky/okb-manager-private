@@ -25,7 +25,7 @@ import {
   getWeekNumber,
   getWeeksInRange,
 } from './HoursHelpers';
-import WeekSelector from '../../../components/WeekSelector';
+import WeekSelector from '../../../shared/ui/WeekSelector';
 import { useReactToPrint } from 'react-to-print';
 import { PrintReport } from './PrintReport';
 import dayjs from 'dayjs';
@@ -34,7 +34,7 @@ import {
   Langs,
   type LangCode,
 } from './reportTranslations';
-import BaseDialog from '../../../components/BaseDialog';
+import BaseDialog from '../../../shared/ui/BaseDialog';
 import { ExpandLess, ExpandMore, FilterList } from '@mui/icons-material';
 import EmployeesContructionsFilters from './EmployeesConstructionsFilters';
 import { useQuery } from '@tanstack/react-query';

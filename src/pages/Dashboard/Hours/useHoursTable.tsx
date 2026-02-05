@@ -27,8 +27,8 @@ import {
   getWeekDates,
 } from './HoursHelpers';
 import isoWeek from 'dayjs/plugin/isoWeek';
-import { useDialogs } from '../../../hooks/useDialogs/useDialogs';
-import useNotifications from '../../../hooks/useNotifications/useNotifications';
+import { useDialogs } from '../../../shared/ui/dialogs/useDialogs';
+import useNotifications from '../../../shared/ui/notifications/useNotifications';
 
 dayjs.extend(isoWeek);
 dayjs.extend(isBetween);
