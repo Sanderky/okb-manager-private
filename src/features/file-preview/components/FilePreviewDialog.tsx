@@ -13,7 +13,6 @@ import {
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { useEffect, useRef, useState } from 'react';
-import type { FileItem, FolderItem } from '../../types';
 import {
   Add,
   CropFree,
@@ -23,12 +22,13 @@ import {
   RotateLeft,
   RotateRight,
 } from '@mui/icons-material';
-import * as StorageService from '../../api/storage';
+import * as StorageService from '../../../entities/files/model/api';
 import {
   TransformWrapper,
   TransformComponent,
   type ReactZoomPanPinchContentRef,
 } from 'react-zoom-pan-pinch';
+import type { FileItem, FolderItem } from '../../../entities/files';
 
 interface PreviewDialogProps {
   open: boolean;

@@ -8,7 +8,7 @@ import {
   Stack,
   Box,
 } from '@mui/material';
-import BaseDialog from '../BaseDialog';
+import BaseDialog from '../../../components/BaseDialog';
 import { Folder, Reply } from '@mui/icons-material';
 
 const NO_SELECTION_VALUE = '___NO_SELECTION___';

@@ -10,7 +10,7 @@ import {
   getUniqueDestPath,
   deleteFiles,
   getSignedUrl,
-} from './storage';
+} from '../entities/files/model/api';
 
 const STORAGE_BUCKET = import.meta.env.VITE_FILES_BUCKET_NAME ?? 'files';
 

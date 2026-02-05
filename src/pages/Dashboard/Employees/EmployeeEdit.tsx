@@ -29,7 +29,7 @@ import UnarchiveIcon from '@mui/icons-material/Unarchive';
 import { useScroll } from '../../../context/ScrollContext';
 import { useDialogs } from '../../../hooks/useDialogs/useDialogs';
 import { toNumberOrNull, validate } from './EmployeesHelpers';
-import { deleteFolderRecursive } from '../../../api/storage';
+import { deleteFolderRecursive } from '../../../entities/files/model/api';
 
 export default function EmployeeEdit() {
   const { employeeId } = useParams<{ employeeId: string }>();

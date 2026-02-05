@@ -19,7 +19,7 @@ import {
   useTheme,
   type Theme,
 } from '@mui/material';
-import * as StorageService from '../../../api/storage';
+import * as StorageService from '../../../entities/files/model/api';
 import {
   AttachFile,
   Delete,
@@ -36,8 +36,8 @@ import dayjs from 'dayjs';
 import { useEmployeeAlert } from '../../../context/EmployeeAlertContext';
 import { useState } from 'react';
 import type { FieldInfo } from './EmployeeShow';
-import { openFileInNewTab } from '../../../api/storage';
-import UploadFilesDialog from '../../../components/fileBrowser/UploadFilesDialog';
+import { openFileInNewTab } from '../../../entities/files/model/api';
+import UploadFilesDialog from '../../../features/file-browser/components/UploadFilesDialog';
 
 const generateDateBox = (
   key: keyof Employee,

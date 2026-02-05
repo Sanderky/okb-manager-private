@@ -43,26 +43,24 @@ import {
   Check,
 } from '@mui/icons-material';
 import MoveItemsDialog from './MoveFilesDialog';
-import { PreviewDialog } from './FilePreviewDialog';
-import {
-  FOLDER_TRANSLATIONS,
-  type FileBrowserItem,
-  type FileItem,
-} from '../../types';
-import useFileBrowser, { EMPTY_MAP } from './useFileBrowser';
+import { PreviewDialog } from '../../file-preview/components/FilePreviewDialog';
+
+import useFileBrowser, { EMPTY_MAP } from '../hooks/useFileBrowser';
 import 'dayjs/locale/pl';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { MRT_Localization_PL } from 'material-react-table/locales/pl';
-import BaseDialog from '../BaseDialog';
-import * as StorageService from '../../api/storage';
+import BaseDialog from '../../../components/BaseDialog';
+import * as StorageService from '../../../entities/files/model/api';
 import {
   canOpenPreview,
   formatBytes,
   getFileType,
   openFileInNewTab,
-} from '../../api/storage';
+} from '../../../entities/files/model/api';
+import { FOLDER_TRANSLATIONS, type FileBrowserItem, type FileItem } from '../../../entities/files';
 import UploadFilesDialog from './UploadFilesDialog';
+
 
 const RenderFileImage = ({ file }: { file: FileBrowserItem }) => {
   if (file.type === 'folder')

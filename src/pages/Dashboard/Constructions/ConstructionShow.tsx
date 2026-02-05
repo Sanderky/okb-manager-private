@@ -41,7 +41,7 @@ import dayjs from 'dayjs';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import useNotifications from '../../../hooks/useNotifications/useNotifications';
 import { getEmployeesByScheduledConstruction } from '../../../api/schedules';
-import FileBrowser from '../../../components/fileBrowser/FileBrowser';
+import FileBrowser from '../../../features/file-browser/components/FileBrowser';
 import useLoading from '../../../hooks/useLoading';
 import { Note } from '../../../components/Note';
 

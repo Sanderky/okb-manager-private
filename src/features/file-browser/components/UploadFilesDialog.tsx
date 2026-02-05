@@ -1,7 +1,7 @@
 import { Box, Typography, Stack, CircularProgress } from '@mui/material';
 import { Check, ErrorOutline } from '@mui/icons-material';
 import 'dayjs/locale/pl';
-import BaseDialog from '../BaseDialog';
+import BaseDialog from '../../../components/BaseDialog';
 
 interface UploadFilesDialogProps {
   isUploadDialogOpen: boolean;

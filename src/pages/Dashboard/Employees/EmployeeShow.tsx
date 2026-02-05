@@ -27,8 +27,8 @@ import {
 import dayjs from 'dayjs';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import useNotifications from '../../../hooks/useNotifications/useNotifications';
-import { PreviewDialog } from '../../../components/fileBrowser/FilePreviewDialog';
-import FileBrowser from '../../../components/fileBrowser/FileBrowser';
+import { PreviewDialog } from '../../../features/file-preview/components/FilePreviewDialog';
+import FileBrowser from '../../../features/file-browser/components/FileBrowser';
 import { getUpcomingVacationsForEmployee } from '../../../api/vacations';
 import useLoading from '../../../hooks/useLoading';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';

@@ -1,15 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useDialogs } from '../../hooks/useDialogs/useDialogs';
-import useNotifications from '../../hooks/useNotifications/useNotifications';
-import * as StorageService from '../../api/storage';
-import {
-  FOLDER_TRANSLATIONS,
-  SYSTEM_FOLDER_PREFIX,
-  type FileBrowserItem,
-} from '../../types';
+import { useDialogs } from '../../../hooks/useDialogs/useDialogs';
+import useNotifications from '../../../hooks/useNotifications/useNotifications';
+import * as FilesApi from '../../../entities/files/model/api';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
-import { removePolishChars } from '../../utils';
+import { removePolishChars } from '../../../utils';
+import { FOLDER_TRANSLATIONS, SYSTEM_FOLDER_PREFIX, type FileBrowserItem } from '../../../entities/files';
 
 export const EMPTY_MAP = {};
 
@@ -61,7 +57,7 @@ const useFileBrowser = (
       setLoading(true);
       onFetch();
       try {
-        const items = await StorageService.listFiles(path);
+        const items = await FilesApi.listFiles(path);
         setRawItems(items);
       } catch (error) {
         console.error('Fetch error:', error);
@@ -85,7 +81,7 @@ const useFileBrowser = (
 
       if (items.length === 1 && items[0].type === 'file') {
         try {
-          await StorageService.downloadFile(items[0].path, items[0].name);
+          await FilesApi.downloadFile(items[0].path, items[0].name);
         } catch (e) {
           notifications.show('Błąd pobierania pliku', { severity: 'error' });
         }
@@ -102,7 +98,7 @@ const useFileBrowser = (
           currentZipFolder: JSZip
         ) => {
           if (item.type === 'file') {
-            const blob = await StorageService.downloadFileAsBlob(item.path);
+            const blob = await FilesApi.downloadFileAsBlob(item.path);
             if (blob) {
               currentZipFolder.file(item.name, blob);
               count++;
@@ -110,7 +106,7 @@ const useFileBrowser = (
           } else {
             const newZipFolder = currentZipFolder.folder(item.name);
             if (newZipFolder) {
-              const subItems = await StorageService.listFiles(item.path);
+              const subItems = await FilesApi.listFiles(item.path);
               for (const subItem of subItems) {
                 await processItem(subItem, newZipFolder);
               }
@@ -173,7 +169,7 @@ const useFileBrowser = (
       const path = currentPath
         ? `${currentPath}/${cleanFolderName}`
         : cleanFolderName;
-      await StorageService.createFolder(path);
+      await FilesApi.createFolder(path);
       await fetchData(currentPath);
       notifications.show('Folder został utworzony', { severity: 'success' });
     } catch (error) {
@@ -214,11 +210,11 @@ const useFileBrowser = (
         const files = itemsToDelete
           .filter((i) => i.type === 'file')
           .map((i) => i.path);
-        if (files.length > 0) await StorageService.deleteFiles(files);
+        if (files.length > 0) await FilesApi.deleteFiles(files);
 
         const folders = itemsToDelete.filter((i) => i.type === 'folder');
         await Promise.all(
-          folders.map((f) => StorageService.deleteFolderRecursive(f.path))
+          folders.map((f) => FilesApi.deleteFolderRecursive(f.path))
         );
 
         await fetchData(currentPath);
@@ -240,7 +236,7 @@ const useFileBrowser = (
       }
       const isFile = item.type === 'file';
       const defaultValue = isFile
-        ? StorageService.getFileNameWithoutExtension(item.name)
+        ? FilesApi.getFileNameWithoutExtension(item.name)
         : item.name;
       const title = isFile ? 'Zmień nazwę pliku' : 'Zmień nazwę folderu';
 
@@ -252,7 +248,7 @@ const useFileBrowser = (
       if (!newName || newName === defaultValue) return;
 
       if (isFile) {
-        const ext = StorageService.getFileExtension(item.name);
+        const ext = FilesApi.getFileExtension(item.name);
         if (ext) newName += `.${ext}`;
       }
 
@@ -265,9 +261,9 @@ const useFileBrowser = (
       try {
         const newPath = currentPath ? `${currentPath}/${newName}` : newName;
         if (isFile) {
-          await StorageService.moveFile(item.path, newPath);
+          await FilesApi.moveFile(item.path, newPath);
         } else {
-          await StorageService.moveFolderRecursive(item.path, newPath);
+          await FilesApi.moveFolderRecursive(item.path, newPath);
         }
         await fetchData(currentPath);
         notifications.show('Nazwa została zmieniona.', { severity: 'success' });
@@ -301,9 +297,9 @@ const useFileBrowser = (
 
         try {
           const uniquePath =
-            await StorageService.getUniqueDestPath(proposedPath);
+            await FilesApi.getUniqueDestPath(proposedPath);
 
-          await StorageService.uploadFile(uniquePath, file, (prog) => {
+          await FilesApi.uploadFile(uniquePath, file, (prog) => {
             setUploadProgress((prev) => ({ ...prev, [file.name]: prog }));
           });
 
@@ -422,10 +418,10 @@ const useFileBrowser = (
 
           if (item.type === 'file') {
             const uniquePath =
-              await StorageService.getUniqueDestPath(targetPath);
-            await StorageService.moveFile(item.path, uniquePath);
+              await FilesApi.getUniqueDestPath(targetPath);
+            await FilesApi.moveFile(item.path, uniquePath);
           } else {
-            await StorageService.moveFolderRecursive(item.path, targetPath);
+            await FilesApi.moveFolderRecursive(item.path, targetPath);
           }
         }
 
