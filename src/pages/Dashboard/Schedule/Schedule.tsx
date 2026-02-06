@@ -29,7 +29,7 @@ import isBetween from 'dayjs/plugin/isBetween';
 import 'dayjs/locale/pl';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { getEmployeeList } from '../../../api/employees';
+import { getEmployeeList } from '../../../entities/eployees/api/employees';
 import { getConstructionList } from '../../../api/constructions';
 import { getVacationListForMonths } from '../../../api/vacations';
 import {
@@ -37,7 +37,7 @@ import {
   saveScheduleList,
 } from '../../../api/schedules';
 
-import type { Construction, Employee } from '../../../types';
+import type { Construction, Employee } from '../../../shared/model/types';
 
 import useNotifications from '../../../shared/ui/notifications/useNotifications';
 import {
@@ -51,12 +51,12 @@ import { EmployeeRow } from './ScheduleEmployeeRow';
 import { FilterDialog } from './ScheduleDialogs';
 import { useReactToPrint } from 'react-to-print';
 import { PrintableSchedule } from './SchedulePrint';
-import usePrintShortcut from '../../../shared/hooks/usePrintShortcut';
+import usePrintShortcut from '../../../shared/lib/usePrintShortcut';
 import { Print } from '@mui/icons-material';
-import PageContainer from '../../../components/PageContainer';
+import PageContainer from '../../../shared/ui/PageContainer';
 import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
 import KeyboardReturnIcon from '@mui/icons-material/KeyboardReturn';
-import useContainerBreakpoint from '../../../shared/hooks/useContainerWidth';
+import useContainerBreakpoint from '../../../shared/lib/useContainerWidth';
 import { formatWeeksString } from '../Hours/HoursHelpers';
 import { useNavigate } from 'react-router-dom';
 

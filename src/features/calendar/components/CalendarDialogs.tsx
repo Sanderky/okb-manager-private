@@ -30,7 +30,7 @@ import {
 } from '../utils';
 import type {
   Employee,
-} from '../../../types';
+} from '../../../shared/model/types';
 import { plPL } from '@mui/x-date-pickers/locales';
 import { useEventColor } from '../hooks/useEventColor';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';

@@ -13,7 +13,7 @@ import {
   Box,
 } from '@mui/material';
 import BaseDialog from '../../../shared/ui/BaseDialog';
-import type { Employee, Construction } from '../../../types';
+import type { Employee, Construction } from '../../../shared/model/types';
 
 interface FilterDialogProps {
   isFilterOpen: boolean;

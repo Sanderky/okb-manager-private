@@ -4,14 +4,14 @@ import EmployeeForm, {
   type EmployeeFormState,
   type FormFieldValue,
 } from './EmployeeForm';
-import PageContainer from '../../../components/PageContainer';
-import type { Employee } from '../../../types';
-import { createEmployee } from '../../../api/employees';
+import PageContainer from '../../../shared/ui/PageContainer';
+import type { Employee } from '../../../shared/model/types';
+import { createEmployee } from '../../../entities/eployees/api/employees';
 import useNotifications from '../../../shared/ui/notifications/useNotifications';
 import { Box } from '@mui/material';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import Loading from '../../../shared/ui/Loading';
-import useLoading from '../../../shared/hooks/useLoading';
+import useLoading from '../../../shared/lib/useLoading';
 import { toNumberOrNull, validate } from './EmployeesHelpers';
 
 export default function EmployeeCreate() {

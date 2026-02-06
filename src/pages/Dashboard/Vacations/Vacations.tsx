@@ -9,14 +9,14 @@ import {
   Typography,
 } from '@mui/material';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getEmployeeList } from '../../../api/employees';
+import { getEmployeeList } from '../../../entities/eployees/api/employees';
 import {
   createVacation,
   getVacationListForMonths,
   removeVacation,
   updateVacation,
 } from '../../../api/vacations';
-import type { Employee, Vacation } from '../../../types';
+import type { Employee, Vacation } from '../../../shared/model/types';
 import { Add, Close as CloseIcon } from '@mui/icons-material';
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
@@ -36,11 +36,11 @@ import {
   type CalendarEvent,
   WEEK_DAYS,
 } from './VacationsHelpers';
-import PageContainer from '../../../components/PageContainer';
-import useLoading from '../../../shared/hooks/useLoading';
+import PageContainer from '../../../shared/ui/PageContainer';
+import useLoading from '../../../shared/lib/useLoading';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import { useSearchParams } from 'react-router-dom';
-import useContainerBreakpoint from '../../../shared/hooks/useContainerWidth';
+import useContainerBreakpoint from '../../../shared/lib/useContainerWidth';
 import { useDialogs } from '../../../shared/ui/dialogs/useDialogs';
 
 dayjs.locale('pl');

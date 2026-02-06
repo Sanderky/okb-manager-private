@@ -1,13 +1,4 @@
-export interface FileItem {
-  id: string;
-  name: string;
-  path: string;
-  size: number;
-  createdAt: Date;
-  type: 'file';
-  contentType: string;
-  isSystem?: boolean;
-}
+import type { FileItem } from "@/shared/model/types";
 
 export interface FolderItem {
   name: string;

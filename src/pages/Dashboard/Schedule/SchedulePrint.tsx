@@ -12,7 +12,7 @@ import {
   Paper,
 } from '@mui/material';
 import dayjs from 'dayjs';
-import type { Employee } from '../../../types';
+import type { Employee } from '../../../shared/model/types';
 import { WEEK_DAYS, type ICell } from './ScheduleHelpers';
 
 interface PrintableScheduleProps {

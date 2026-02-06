@@ -4,8 +4,8 @@ import { LocationOn } from '@mui/icons-material';
 import dayjs from 'dayjs';
 import 'dayjs/locale/pl';
 
-import type { Employee } from '../../../types';
-import { openGoogleMaps } from '../../../utils';
+import type { Employee } from '../../../shared/model/types';
+import { openGoogleMaps } from '../../../shared/lib/date';
 import { getEmployeeLabel } from '../utils';
 import type { ExtendedLodging } from '../types';
 import type { Construction } from '../../../entities/constructions';

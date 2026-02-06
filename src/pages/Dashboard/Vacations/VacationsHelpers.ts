@@ -1,7 +1,7 @@
 import dayjs, { Dayjs } from 'dayjs';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
-import type { Vacation } from '../../../types';
+import type { Vacation } from '../../../shared/model/types';
 
 dayjs.extend(isSameOrBefore);
 dayjs.extend(isSameOrAfter);

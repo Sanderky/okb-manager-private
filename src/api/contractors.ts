@@ -1,4 +1,4 @@
-import { supabase } from '../supabase';
+import { supabase } from '../shared/api/supabase';
 import type { Contractor } from '../features/contractors/types';
 
 const TABLE_NAME = 'contractors';

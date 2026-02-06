@@ -4,7 +4,7 @@ import useNotifications from '../../../shared/ui/notifications/useNotifications'
 import * as FilesApi from '../../../entities/files/model/api';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
-import { removePolishChars } from '../../../utils';
+import { removePolishChars } from '../../../shared/lib/date';
 import { FOLDER_TRANSLATIONS, SYSTEM_FOLDER_PREFIX, type FileBrowserItem } from '../../../entities/files';
 
 export const EMPTY_MAP = {};

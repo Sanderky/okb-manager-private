@@ -12,7 +12,7 @@ import ConstructionForm, {
   type FormFieldValue,
   type ConstructionFormState,
 } from './ConstructionForm';
-import PageContainer from '../../../components/PageContainer';
+import PageContainer from '../../../shared/ui/PageContainer';
 import { AlertTitle, Chip, Stack, TextField, Typography } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
 import { alpha, Grid } from '@mui/system';
@@ -22,8 +22,8 @@ import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import useNotifications from '../../../shared/ui/notifications/useNotifications';
 import BaseDialog from '../../../shared/ui/BaseDialog';
 import Loading from '../../../shared/ui/Loading';
-import useLoading from '../../../shared/hooks/useLoading';
-import { useScroll } from '../../../context/ScrollContext';
+import useLoading from '../../../shared/lib/useLoading';
+import { useScroll } from '../../../app/layout/dashboard/ScrollContext';
 import ArchiveIcon from '@mui/icons-material/Archive';
 import UnarchiveIcon from '@mui/icons-material/Unarchive';
 import { validate } from '../utils/utils';

@@ -1,10 +1,10 @@
-import { supabase } from '../../supabase';
+import { supabase } from '../../shared/api/supabase';
 import type { InfoEvent, EventCategory, EventColor } from './types';
 import dayjs from 'dayjs';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import isBetween from 'dayjs/plugin/isBetween';
 import minMax from 'dayjs/plugin/minMax';
-import { toSqlDate } from '../../utils';
+import { toSqlDate } from '../../shared/lib/date';
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isBetween);

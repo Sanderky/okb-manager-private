@@ -6,10 +6,10 @@ import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { useNavigate, useParams } from 'react-router';
-import PageContainer from '../../../components/PageContainer';
+import PageContainer from '../../../shared/ui/PageContainer';
 import Loading from '../../../shared/ui/Loading';
-import { FOLDER_NAMES, type Employee, type FileItem } from '../../../types';
-import { getEmployee, updateEmployee } from '../../../api/employees';
+import { FOLDER_NAMES, type Employee, type FileItem } from '../../../shared/model/types';
+import { getEmployee, updateEmployee } from '../../../entities/eployees/api/employees';
 import EditIcon from '@mui/icons-material/Edit';
 import {
   Chip,
@@ -30,10 +30,10 @@ import useNotifications from '../../../shared/ui/notifications/useNotifications'
 import { PreviewDialog } from '../../../features/file-preview/components/FilePreviewDialog';
 import FileBrowser from '../../../features/file-browser/components/FileBrowser';
 import { getUpcomingVacationsForEmployee } from '../../../api/vacations';
-import useLoading from '../../../shared/hooks/useLoading';
+import useLoading from '../../../shared/lib/useLoading';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import { Note } from '../../../shared/ui/Note';
-import { useScroll } from '../../../context/ScrollContext';
+import { useScroll } from '../../../app/layout/dashboard/ScrollContext';
 import { fetchAlertsSettings } from '../../../api/settings';
 import useEmployeeAttachments from './useAttachment';
 import AttachmentBox from './AttachmentBox';

@@ -25,10 +25,10 @@ import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { plPL } from '@mui/x-date-pickers/locales';
 
-import PageContainer from '../../../components/PageContainer';
+import PageContainer from '../../../shared/ui/PageContainer';
 import useNotifications from '../../../shared/ui/notifications/useNotifications';
 import { useDialogs } from '../../../shared/ui/dialogs/useDialogs';
-import { getEmployeeList } from '../../../api/employees';
+import { getEmployeeList } from '../../../entities/eployees/api/employees';
 import {
   getLodgings,
   createLodging,

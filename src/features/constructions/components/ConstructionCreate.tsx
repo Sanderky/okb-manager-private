@@ -4,14 +4,14 @@ import ConstructionForm, {
   type ConstructionFormState,
   type FormFieldValue,
 } from './ConstructionForm';
-import PageContainer from '../../../components/PageContainer';
+import PageContainer from '../../../shared/ui/PageContainer';
 import { createConstruction } from '../../../api/constructions';
 import useNotifications from '../../../shared/ui/notifications/useNotifications';
 import { Box } from '@mui/material';
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import Loading from '../../../shared/ui/Loading';
-import useLoading from '../../../shared/hooks/useLoading';
+import useLoading from '../../../shared/lib/useLoading';
 import { validate } from '../utils/utils';
 import { shouldBeInactive, type Construction } from '../../../entities/constructions';
 

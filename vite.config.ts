@@ -3,8 +3,14 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import envCompatible from 'vite-plugin-env-compatible'
 import svgr from 'vite-plugin-svgr';
+import path from 'path';
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss(), envCompatible(), svgr()],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
 })

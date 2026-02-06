@@ -1,7 +1,7 @@
-import { supabase } from '../supabase';
-import type { ScheduleEntry, Employee } from '../types';
+import { supabase } from '../shared/api/supabase';
+import type { ScheduleEntry, Employee } from '../shared/model/types';
 import dayjs from 'dayjs';
-import { toSqlDate } from '../utils';
+import { toSqlDate } from '../shared/lib/date';
 
 
 const mapToScheduleEntry = (row: any): ScheduleEntry => ({

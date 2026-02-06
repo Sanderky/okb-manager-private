@@ -28,7 +28,7 @@ import {
   ContentCopy,
   ReportProblem,
 } from '@mui/icons-material';
-import type { Construction, Employee } from '../../../types';
+import type { Construction, Employee } from '../../../shared/model/types';
 import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
 import 'dayjs/locale/pl';

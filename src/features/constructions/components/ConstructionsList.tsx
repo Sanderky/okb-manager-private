@@ -8,7 +8,7 @@ import AddIcon from '@mui/icons-material/Add';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { useNavigate, useSearchParams } from 'react-router';
-import PageContainer from '../../../components/PageContainer';
+import PageContainer from '../../../shared/ui/PageContainer';
 import { getConstructionList } from '../../../api/constructions';
 import { useQuery } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
@@ -26,7 +26,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs, { Dayjs } from 'dayjs';
 import { MRT_Localization_PL } from 'material-react-table/locales/pl';
-import { useFormFilters, useTableState } from '../../../shared/hooks/useTableSettings';
+import { useFormFilters, useTableState } from '../../../shared/lib/useTableSettings';
 import {
   Dialog,
   DialogTitle,

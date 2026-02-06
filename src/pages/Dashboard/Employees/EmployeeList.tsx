@@ -9,8 +9,8 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import WarningIcon from '@mui/icons-material/Warning';
 import { useNavigate } from 'react-router';
-import PageContainer from '../../../components/PageContainer';
-import { getEmployeeList } from '../../../api/employees';
+import PageContainer from '../../../shared/ui/PageContainer';
+import { getEmployeeList } from '../../../entities/eployees/api/employees';
 import { useQuery } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 import Alert from '@mui/material/Alert';
@@ -22,14 +22,14 @@ import {
   useMaterialReactTable,
   type MRT_ColumnDef,
 } from 'material-react-table';
-import type { Employee } from '../../../types';
+import type { Employee } from '../../../shared/model/types';
 import 'dayjs/locale/pl';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs, { Dayjs } from 'dayjs';
 import { MRT_Localization_PL } from 'material-react-table/locales/pl';
 import { Badge, Typography } from '@mui/material';
-import { useFormFilters, useTableState } from '../../../shared/hooks/useTableSettings';
+import { useFormFilters, useTableState } from '../../../shared/lib/useTableSettings';
 import {
   Dialog,
   DialogTitle,
@@ -46,7 +46,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import CloseIcon from '@mui/icons-material/Close';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
-import { useEmployeeAlert } from '../../../context/EmployeeAlertContext';
+import { useEmployeeAlert } from '../../../entities/eployees/model/EmployeeAlertContext';
 import { plPL } from '@mui/x-date-pickers/locales';
 import { sortByLastName } from './EmployeesHelpers';
 import { TablePagination } from '../../../shared/ui/TablePagination';

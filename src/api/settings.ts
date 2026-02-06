@@ -1,5 +1,5 @@
-import { supabase } from '../supabase';
-import type { AlertsSettings } from '../types';
+import { supabase } from '../shared/api/supabase';
+import type { AlertsSettings } from '../shared/model/types';
 
 const SETTINGS_ID = 1;
 

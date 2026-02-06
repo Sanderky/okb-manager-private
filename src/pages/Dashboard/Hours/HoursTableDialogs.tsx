@@ -17,7 +17,7 @@ import {
   TextField,
   Chip,
 } from '@mui/material';
-import type { Construction, Employee, WorkHours } from '../../../types';
+import type { Construction, Employee, WorkHours } from '../../../shared/model/types';
 import 'dayjs/locale/pl';
 import {
   getPreviousWeek,
@@ -39,7 +39,7 @@ import { ExpandLess, ExpandMore, FilterList } from '@mui/icons-material';
 import EmployeesContructionsFilters from './EmployeesConstructionsFilters';
 import { useQuery } from '@tanstack/react-query';
 import { getConstructionList } from '../../../api/constructions';
-import { getEmployeeList } from '../../../api/employees';
+import { getEmployeeList } from '../../../entities/eployees/api/employees';
 
 interface AddConstructionWithEmployeeDialogProps {
   open: boolean;

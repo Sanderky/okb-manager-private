@@ -8,7 +8,7 @@ import {
   type EmployeeAlert,
   type EmployeeAttachmentType,
   type FileItem,
-} from '../../../types';
+} from '../../../shared/model/types';
 import {
   Alert,
   CircularProgress,
@@ -33,7 +33,7 @@ import {
 import { useDialogs } from '../../../shared/ui/dialogs/useDialogs';
 import useEmployeeAttachments from './useAttachment';
 import dayjs from 'dayjs';
-import { useEmployeeAlert } from '../../../context/EmployeeAlertContext';
+import { useEmployeeAlert } from '../../../entities/eployees/model/EmployeeAlertContext';
 import { useState } from 'react';
 import type { FieldInfo } from './EmployeeShow';
 import { openFileInNewTab } from '../../../entities/files/model/api';

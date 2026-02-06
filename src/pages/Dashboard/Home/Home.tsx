@@ -1,9 +1,9 @@
 import { Card, Box, Grid, CardContent, Tabs, Tab } from '@mui/material';
-import PageContainer from '../../../components/PageContainer';
+import PageContainer from '../../../shared/ui/PageContainer';
 import { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { getEmployeeList, getEmployeeStats } from '../../../api/employees';
+import { getEmployeeList, getEmployeeStats } from '../../../entities/eployees/api/employees';
 import {
   getConstructionList,
   getConstructionStats,

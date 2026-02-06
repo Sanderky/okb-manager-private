@@ -9,7 +9,7 @@ import {
   Chip,
 } from '@mui/material';
 import { Dayjs } from 'dayjs';
-import type { Employee } from '../../../types';
+import type { Employee } from '../../../shared/model/types';
 import type { ICell } from './ScheduleHelpers';
 
 interface EmployeeRowProps {

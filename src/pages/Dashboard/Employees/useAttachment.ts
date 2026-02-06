@@ -5,7 +5,7 @@ import {
   uploadAttachment,
   deleteAttachment,
 } from '../../../api/attachments';
-import type { EmployeeAttachmentType, Attachment } from '../../../types';
+import type { EmployeeAttachmentType, Attachment } from '../../../shared/model/types';
 import useNotifications from '../../../shared/ui/notifications/useNotifications';
 
 export const useEmployeeAttachments = (employeeId: string | undefined) => {

@@ -9,7 +9,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import dayjs from 'dayjs';
-import type { Employee } from '../../../types';
+import type { Employee } from '../../../shared/model/types';
 import Alert from '@mui/material/Alert';
 import {
   Checkbox,

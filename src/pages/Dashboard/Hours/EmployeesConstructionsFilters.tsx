@@ -12,7 +12,7 @@ import {
   Chip,
   Divider,
 } from '@mui/material';
-import type { Construction, Employee } from '../../../types';
+import type { Construction, Employee } from '../../../shared/model/types';
 import 'dayjs/locale/pl';
 
 interface EmployeesContructionsFiltersInterface {

@@ -1,7 +1,7 @@
-import { supabase } from '../supabase';
-import type { WorkLogEntry } from '../types';
+import { supabase } from '../shared/api/supabase';
+import type { WorkLogEntry } from '../shared/model/types';
 import dayjs from 'dayjs';
-import { toSqlDate } from '../utils';
+import { toSqlDate } from '../shared/lib/date';
 
 const mapToWorkLog = (row: any): WorkLogEntry => ({
   id: row.id,

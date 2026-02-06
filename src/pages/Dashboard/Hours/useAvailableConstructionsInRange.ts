@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import type { Construction } from '../../../types';
+import type { Construction } from '../../../shared/model/types';
 import useWeekReport from './useWeeksReport';
 
 const useAvailableConstructionsInRange = (weekStarts: Date[]) => {

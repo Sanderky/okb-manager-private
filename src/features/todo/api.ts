@@ -1,4 +1,4 @@
-import { supabase } from '../../supabase';
+import { supabase } from '../../shared/api/supabase';
 import type { TodoItem } from './types';
 
 export const getTodos = async (): Promise<TodoItem[]> => {

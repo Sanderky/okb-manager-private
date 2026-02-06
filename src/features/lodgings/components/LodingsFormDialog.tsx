@@ -21,7 +21,7 @@ import 'dayjs/locale/pl';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
-import type { Employee } from '../../../types';
+import type { Employee } from '../../../shared/model/types';
 import BaseDialog from '../../../shared/ui/BaseDialog';
 import type { Construction } from '../../../entities/constructions';
 

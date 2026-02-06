@@ -1,10 +1,10 @@
-import { supabase } from '../supabase';
+import { supabase } from '../shared/api/supabase';
 import {
   FOLDER_NAMES,
   SYSTEM_FOLDER_PREFIX,
   type Attachment,
   type EmployeeAttachmentType,
-} from '../types';
+} from '../shared/model/types';
 import {
   listFiles,
   getUniqueDestPath,

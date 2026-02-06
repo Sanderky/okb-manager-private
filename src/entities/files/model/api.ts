@@ -1,6 +1,6 @@
-import { supabase } from '../../../supabase';
+import { supabase } from '../../../shared/api/supabase';
 import type { FileBrowserItem } from './types';
-import { removePolishChars } from '../../../utils';
+import { removePolishChars } from '../../../shared/lib/date';
 
 export const BUCKET_NAME = import.meta.env.VITE_FILES_BUCKET_NAME ?? 'files';
 

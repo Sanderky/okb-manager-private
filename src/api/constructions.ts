@@ -1,6 +1,6 @@
-import { supabase } from '../supabase';
-import type { Construction } from '../types';
-import { toSqlDate } from '../utils';
+import { supabase } from '../shared/api/supabase';
+import type { Construction } from '../shared/model/types';
+import { toSqlDate } from '../shared/lib/date';
 
 const mapConstruction = (data: any): Construction => ({
   id: data.id,

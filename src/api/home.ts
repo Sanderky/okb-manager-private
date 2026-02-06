@@ -1,5 +1,5 @@
-import { supabase } from '../supabase';
-import type { HomeDocument } from '../types';
+import { supabase } from '../shared/api/supabase';
+import type { HomeDocument } from '../shared/model/types';
 
 const NOTE_ID = 'home';
 

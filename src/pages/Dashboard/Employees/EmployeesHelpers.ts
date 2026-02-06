@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import type { Employee } from '../../../types';
+import type { Employee } from '../../../shared/model/types';
 import type { EmployeeFormState } from './EmployeeForm';
 
 export const sortByLastName = (a: string, b: string): number => {

@@ -9,7 +9,7 @@ import {
   Typography,
 } from '@mui/material';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getEmployeeList } from '../../../api/employees';
+import { getEmployeeList } from '../../../entities/eployees/api/employees';
 import { getConstructionList } from '../../../api/constructions';
 
 
@@ -26,10 +26,10 @@ import {
   EventListDialog,
 } from './CalendarDialogs';
 
-import PageContainer from '../../../components/PageContainer';
-import useLoading from '../../../shared/hooks/useLoading';
+import PageContainer from '../../../shared/ui/PageContainer';
+import useLoading from '../../../shared/lib/useLoading';
 import { useSearchParams } from 'react-router-dom';
-import useContainerBreakpoint from '../../../shared/hooks/useContainerWidth';
+import useContainerBreakpoint from '../../../shared/lib/useContainerWidth';
 import { useDialogs } from '../../../shared/ui/dialogs/useDialogs';
 import { AVAILABLE_CATEGORIES, validateCalendarEvent, WEEK_DAYS } from '../utils';
 import { createCalendarEvent, getCalendarEventsForMonths, removeCalendarEvent, updateCalendarEvent } from '../api';

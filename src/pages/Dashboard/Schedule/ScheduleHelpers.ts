@@ -1,5 +1,5 @@
 import dayjs, { Dayjs } from 'dayjs';
-import type { ScheduleEntry } from '../../../types';
+import type { ScheduleEntry } from '../../../shared/model/types';
 
 export const WEEK_DAYS = [
   'Pon.',

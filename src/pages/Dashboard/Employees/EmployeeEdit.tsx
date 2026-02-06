@@ -7,13 +7,13 @@ import {
   getEmployee,
   removeEmployee,
   updateEmployee,
-} from '../../../api/employees';
-import type { Employee } from '../../../types';
+} from '../../../entities/eployees/api/employees';
+import type { Employee } from '../../../shared/model/types';
 import EmployeeForm, {
   type FormFieldValue,
   type EmployeeFormState,
 } from './EmployeeForm';
-import PageContainer from '../../../components/PageContainer';
+import PageContainer from '../../../shared/ui/PageContainer';
 import { AlertTitle, Chip, Stack, TextField, Typography } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
 import { alpha, Grid } from '@mui/system';
@@ -23,10 +23,10 @@ import useNotifications from '../../../shared/ui/notifications/useNotifications'
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import BaseDialog from '../../../shared/ui/BaseDialog';
 import Loading from '../../../shared/ui/Loading';
-import useLoading from '../../../shared/hooks/useLoading';
+import useLoading from '../../../shared/lib/useLoading';
 import ArchiveIcon from '@mui/icons-material/Archive';
 import UnarchiveIcon from '@mui/icons-material/Unarchive';
-import { useScroll } from '../../../context/ScrollContext';
+import { useScroll } from '../../../app/layout/dashboard/ScrollContext';
 import { useDialogs } from '../../../shared/ui/dialogs/useDialogs';
 import { toNumberOrNull, validate } from './EmployeesHelpers';
 import { deleteFolderRecursive } from '../../../entities/files/model/api';

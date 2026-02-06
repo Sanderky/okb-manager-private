@@ -1,5 +1,5 @@
-import { supabase } from "../../../supabase";
-import { toSqlDate } from "../../../utils";
+import { supabase } from "../../../shared/api/supabase";
+import { toSqlDate } from "../../../shared/lib/date";
 import type { Construction } from "../model/types";
 
 

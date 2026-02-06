@@ -3,11 +3,11 @@ import { getMonthKeysFromWeek, getWeekDates } from './HoursHelpers';
 import dayjs from 'dayjs';
 import { useMemo } from 'react';
 import { getConstructionList } from '../../../api/constructions';
-import { getEmployeeList } from '../../../api/employees';
+import { getEmployeeList } from '../../../entities/eployees/api/employees';
 import { getWorkLogs } from '../../../api/workLogs';
 import { getVacationListForMonths } from '../../../api/vacations';
 import type { ConstructionsWithWorkHours } from './useHoursTable';
-import type { Vacation, WorkLogEntry } from '../../../types';
+import type { Vacation, WorkLogEntry } from '../../../shared/model/types';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 
 dayjs.extend(isSameOrBefore);

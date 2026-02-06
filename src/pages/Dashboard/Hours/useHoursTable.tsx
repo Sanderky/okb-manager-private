@@ -4,9 +4,9 @@ import type {
   Employee,
   WorkHours,
   WorkLogEntry,
-} from '../../../types';
+} from '../../../shared/model/types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getEmployeeList } from '../../../api/employees';
+import { getEmployeeList } from '../../../entities/eployees/api/employees';
 import { getConstructionList } from '../../../api/constructions';
 import {
   getWorkLogs,

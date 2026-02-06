@@ -39,7 +39,7 @@ import {
   type CalendarDay,
   type CalendarEvent,
 } from './VacationsHelpers';
-import type { Employee, Vacation } from '../../../types';
+import type { Employee, Vacation } from '../../../shared/model/types';
 import {
   Add,
   CalendarMonth,

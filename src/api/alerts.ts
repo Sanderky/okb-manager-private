@@ -1,5 +1,5 @@
-import { supabase } from '../supabase';
-import type { EmployeeAlert } from '../types';
+import { supabase } from '../shared/api/supabase';
+import type { EmployeeAlert } from '../shared/model/types';
 import dayjs from 'dayjs';
 
 const generateAlertMessage = (
