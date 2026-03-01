@@ -10,7 +10,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import MenuOpenIcon from '@mui/icons-material/MenuOpen';
 import Stack from '@mui/material/Stack';
 import { Link, useNavigate } from 'react-router';
-import { useAuth } from '../../../entities/session/model/AuthContext';
+import { useAuth } from '@/entities/session';
 import {
   Avatar,
   Button,
@@ -19,13 +19,11 @@ import {
   Menu,
   MenuItem,
 } from '@mui/material';
-
 import Logout from '@mui/icons-material/Logout';
-
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { Brightness4, Brightness7, Settings } from '@mui/icons-material';
-import UserSettingsDialog from '../../../features/user-settings/UserSettingsDialog';
-import { useColorMode } from '../../../shared/lib/ThemeContext';
+import { useColorMode } from '@/shared/lib/ThemeContext';
+import { UserSettingsDialog } from '@/features/user-settings';
 
 const AppBar = styled(MuiAppBar)(({ theme }) => ({
   borderWidth: 0,

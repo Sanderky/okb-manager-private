@@ -14,7 +14,7 @@ import type {} from '@mui/material/themeCssVarsAugmentation';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { Link } from 'react-router';
 import DashboardSidebarContext from './DashboardSidebarContext';
-import { MINI_DRAWER_WIDTH } from '../../../shared/config/drawer';
+import { MINI_DRAWER_WIDTH } from '@/shared/config/drawer';
 
 export interface DashboardSidebarPageItemProps {
   id: string;

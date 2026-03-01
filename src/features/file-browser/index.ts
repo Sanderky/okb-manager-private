@@ -1,3 +1,3 @@
-import FileBrowser from './components/FileBrowser';
+import FileBrowser from './ui/FileBrowser';
 
 export { FileBrowser };

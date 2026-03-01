@@ -5,7 +5,7 @@ import React, {
   useState,
   type ReactNode,
 } from 'react';
-import { supabase } from '../../../shared/api/supabase';
+import { supabase } from '@/shared/api/supabase';
 import { logout as authLogout } from '../api/auth';
 import type { User, Session, AuthError } from '@supabase/supabase-js';
 interface AuthContextType {

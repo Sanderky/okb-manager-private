@@ -1,14 +1,109 @@
 import * as React from 'react';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import { Outlet } from 'react-router';
 import DashboardHeader from './DashboardHeader';
 import DashboardSidebar from './DashboardSidebar';
-import Logo from '../../../shared/ui/Logo';
-import { ScrollContext } from './ScrollContext';
-import Settings from '../../../components/AppSettings';
+import Logo from '@/shared/ui/Logo';
+import { ScrollContext } from '@/shared/lib/ScrollContext';
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Box,
+  Typography,
+} from '@mui/material';
+import BaseDialog from '@/shared/ui/BaseDialog';
+import { ExpandMore } from '@mui/icons-material';
+import { UserSettingsBase } from '@/features/user-settings';
+import { RodoSettings } from '@/features/app-settings';
+import { EmployeeAlertsSettingsBase } from '@/features/employees';
+
+interface SettingsProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+const Settings = ({ isOpen, onClose }: SettingsProps) => {
+  return (
+    <BaseDialog
+      open={isOpen}
+      onClose={onClose}
+      title="Ustawienia aplikacji"
+      showConfirm={false}
+      maxWidth="sm"
+      fullWidth
+      contentSx={{ p: 0 }}
+    >
+      <Accordion disableGutters>
+        <AccordionSummary
+          expandIcon={<ExpandMore />}
+          aria-controls="panel1-content"
+          id="panel1-header"
+          sx={{
+            backgroundColor: 'background.default',
+          }}
+        >
+          <Typography
+            component="span"
+            sx={{ fontWeight: 500, fontSize: '1.1rem' }}
+            variant="body1"
+          >
+            Alerty pracowników
+          </Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <EmployeeAlertsSettingsBase isOpen={isOpen} onClose={onClose} />
+        </AccordionDetails>
+      </Accordion>
+
+      <Accordion disableGutters>
+        <AccordionSummary
+          expandIcon={<ExpandMore />}
+          aria-controls="panel2-content"
+          id="panel2-header"
+          sx={{
+            backgroundColor: 'background.default',
+          }}
+        >
+          <Typography
+            component="span"
+            sx={{ fontWeight: 500, fontSize: '1.1rem' }}
+            variant="body1"
+          >
+            Ustawienia konta
+          </Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <UserSettingsBase open={isOpen} showEmailConfirmationButton />
+        </AccordionDetails>
+      </Accordion>
+
+      <Accordion disableGutters>
+        <AccordionSummary
+          expandIcon={<ExpandMore />}
+          aria-controls="panel3-content"
+          id="panel3-header"
+          sx={{
+            backgroundColor: 'background.default',
+          }}
+        >
+          <Typography
+            component="span"
+            sx={{ fontWeight: 500, fontSize: '1.1rem' }}
+            variant="body1"
+          >
+            RODO
+          </Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <RodoSettings isOpen={isOpen} onClose={onClose} />
+        </AccordionDetails>
+      </Accordion>
+    </BaseDialog>
+  );
+};
 
 export default function DashboardLayout() {
   const theme = useTheme();

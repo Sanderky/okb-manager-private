@@ -13,14 +13,14 @@ import { BeachAccess, Settings } from '@mui/icons-material';
 import HomeIcon from '@mui/icons-material/Home';
 import { matchPath, useLocation } from 'react-router';
 import DashboardSidebarContext from './DashboardSidebarContext';
-import { DRAWER_WIDTH, MINI_DRAWER_WIDTH } from '../../../shared/config/drawer';
+import { DRAWER_WIDTH, MINI_DRAWER_WIDTH } from '@/shared/config/drawer';
 import DashboardSidebarPageItem from './DashboardSidebarPageItem';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import PeopleIcon from '@mui/icons-material/People';
 import {
   getDrawerSxTransitionMixin,
   getDrawerWidthTransitionMixin,
-} from '../../../shared/lib/mixins';
+} from '@/shared/lib/mixins';
 import { Hotel, Schedule } from '@mui/icons-material';
 import DashboardSidebarDividerItem from './DashboardSidebarDividerItem';
 

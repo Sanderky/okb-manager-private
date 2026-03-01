@@ -2,8 +2,8 @@ import * as React from 'react';
 import ListSubheader from '@mui/material/ListSubheader';
 import type {} from '@mui/material/themeCssVarsAugmentation';
 import DashboardSidebarContext from './DashboardSidebarContext';
-import { DRAWER_WIDTH } from '../../../shared/config/drawer';
-import { getDrawerSxTransitionMixin } from '../../../shared/lib/mixins';
+import { DRAWER_WIDTH } from '@/shared/config/drawer';
+import { getDrawerSxTransitionMixin } from '@/shared/lib/mixins';
 
 export interface DashboardSidebarHeaderItemProps {
   children?: React.ReactNode;
