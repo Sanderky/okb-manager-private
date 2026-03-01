@@ -60,8 +60,7 @@ const useWeekReport = ({
           VacationApi.getVacationListForMonths(getMonthKeysFromWeek(weekStart)),
         ]);
         return { weekStart, workLogs, vacations } as WeekReportData;
-      },
-      staleTime: 1000 * 60 * 5,
+      }
     })),
   });
 

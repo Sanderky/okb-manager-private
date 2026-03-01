@@ -15,14 +15,16 @@ import isBetween from 'dayjs/plugin/isBetween';
 import 'dayjs/locale/pl';
 import isoWeek from 'dayjs/plugin/isoWeek';
 import { CancelPresentation } from '@mui/icons-material';
-import {
-  formatToPolishDecimal,
-} from '../model/format';
+import { formatToPolishDecimal } from '../model/format';
 import useWeekReport from '../model/useWeeksReport';
-import { getReporTranslations} from '../model/reportTranslations';
+import { getReporTranslations } from '../model/reportTranslations';
 import type { ConstructionsWithWorkHours, TableData } from '../model/types';
 import { sortConstructionsWithWorkHours } from '../model/sort';
-import { formatWeeksString, getWeekNumber, getWeeksInRange } from '@/shared/lib/date';
+import {
+  formatWeeksString,
+  getWeekNumber,
+  getWeeksInRange,
+} from '@/shared/lib/date';
 import type { LangCode } from '@/shared/model/types';
 
 dayjs.extend(isoWeek);
@@ -239,7 +241,7 @@ export const PrintableTable = forwardRef<HTMLDivElement, PrintableTableProps>(
       `Tydzień ${getWeekNumber(weekDates[0])}: ${dayjs(weekDates[0]).format('DD.MM.YYYY')} - ${dayjs(weekDates[6]).format('DD.MM.YYYY')}`;
 
     return (
-      <Box ref={ref} sx={{ width: '99.5%' }}>
+      <Box ref={ref} sx={{ width: '99%' }}>
         {dataSorted.length === 0 ? (
           <Box
             sx={{
@@ -584,7 +586,15 @@ export const PrintReport = forwardRef<HTMLDivElement, PrintReportProps>(
             if (omitEmpty && weekData.constructionsWithWorkHours.length === 0)
               return null;
             return (
-              <Box key={index} sx={{ mb: 4, width: '100%' }}>
+              <Box
+                key={index}
+                sx={{
+                  mb: 4,
+                  width: '100%',
+                  pageBreakBefore: index > 0 ? 'always' : 'auto',
+                  breakBefore: index > 0 ? 'page' : 'auto',
+                }}
+              >
                 {!weekData ? (
                   <Typography>{translations.noData}</Typography>
                 ) : (
@@ -624,11 +634,18 @@ export const MultiTablePrintReport = forwardRef<
   return (
     <Box ref={ref} sx={{ backgroundColor: 'white' }}>
       <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-        {Object.entries(tablesData).map(([tableId, tableData]) => {
+        {Object.entries(tablesData).map(([tableId, tableData], index) => {
           if (!tableData) return null;
 
           return (
-            <Box key={tableId} sx={{ mb: 4 }}>
+            <Box
+              key={tableId}
+              sx={{
+                mb: 4,
+                pageBreakBefore: index > 0 ? 'always' : 'auto',
+                breakBefore: index > 0 ? 'page' : 'auto',
+              }}
+            >
               <PrintableTable
                 constructionsWithWorkHours={
                   tableData.constructionsWithWorkHours
