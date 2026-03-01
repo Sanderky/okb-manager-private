@@ -46,7 +46,7 @@ import {
 import type { Employee } from '@/entities/employee';
 import type { Construction } from '@/entities/construction';
 import type { ConstructionsWithWorkHours, TableData } from '../model/types';
-import useHoursTable from './useHoursTable';
+import {useHoursTable} from '../model/useHoursTable';
 import { sortConstructionsWithWorkHours } from '../model/sort';
 
 dayjs.extend(isoWeek);
