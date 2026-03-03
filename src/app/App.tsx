@@ -37,7 +37,6 @@ import { ConstructionEditPage } from '@/pages/construction-edit';
 import { LodgingsPage } from '@/pages/lodgings';
 import { SchedulePage } from '@/pages/schedule';
 import { VacationsPage } from '@/pages/vacations';
-import { CalendarPage } from '@/pages/calendar/ui/CalendarPage';
 import { WorkLogsPage } from '@/pages/work-logs';
 import { PageNotFound } from '@/pages/page-not-found';
 import { ConstructionApi } from '@/entities/construction';
@@ -48,6 +47,7 @@ import { getTodos } from '@/features/todo-list';
 import { getEmployeeAlerts } from '@/entities/employee';
 import { useRealtime } from '@/features/real-time';
 import { getContractors } from '@/entities/contractor';
+import { CalendarPage } from '@/pages/calendar';
 
 const AuthListener = () => {
   const navigate = useNavigate();
