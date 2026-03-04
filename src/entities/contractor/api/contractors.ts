@@ -1,14 +1,8 @@
-import { supabase } from '../../../shared/api/supabase';
+import { supabase } from '@/shared/api/supabase';
 import type { Contractor } from '../model/types';
+import { mapToContractor } from './mappers';
 
 const TABLE_NAME = 'contractors';
-
-const mapToContractor = (data: any): Contractor => ({
-  id: data.id,
-  name: data.name,
-  note: data.note || null,
-  constructionsCount: data?.constructions[0]?.count
-});
 
 export const getContractors = async (): Promise<Contractor[]> => {
   const { data, error } = await supabase

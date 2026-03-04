@@ -26,6 +26,8 @@ import { AttachmentItem } from '@/shared/ui/AttachmentItem';
 import { UploadFilesDialog } from '@/shared/ui/UploadFilesDialog';
 import type { FieldInfo } from '../model/types';
 import { useQuery } from '@tanstack/react-query';
+import { openFileInNewTab } from '@/shared/lib/browser';
+import { canOpenPreview } from '@/shared/lib/fileUtils';
 
 const generateDateBox = (
   key: keyof Employee,
@@ -194,7 +196,7 @@ export const AttachmentBox = ({
 
   const handleClickOnName = (fileToPreview: Attachment) => {
     if (!fileToPreview) return;
-    if (FilesApi.canOpenPreview(fileToPreview)) {
+    if (canOpenPreview(fileToPreview)) {
       onPreview(fileToPreview);
     } else {
       handleNewTab(fileToPreview);
@@ -229,7 +231,7 @@ export const AttachmentBox = ({
 
   const handleNewTab = async (fileToOpen: Attachment) => {
     if (fileToOpen?.path) {
-      await FilesApi.openFileInNewTab(fileToOpen.path);
+      await openFileInNewTab(fileToOpen.path);
     }
   };
 

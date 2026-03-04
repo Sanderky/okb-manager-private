@@ -51,14 +51,15 @@ import BaseDialog from '@/shared/ui/BaseDialog';
 import type { FileBrowserItem, FileItem } from '@/shared/model/types';
 import { UploadFilesDialog } from '@/shared/ui/UploadFilesDialog';
 import { MoveItemsDialog } from './MoveFilesDialog';
-import * as FilesApi from '@/shared/api/storage';
 import { FOLDER_TRANSLATIONS } from '@/shared/config/storage';
 import { FilePreview } from '@/shared/ui/FilePreviewDialog';
+import { canOpenPreview, formatBytes, getFileType } from '@/shared/lib/fileUtils';
+import { openFileInNewTab } from '@/shared/lib/browser';
 
 const RenderFileImage = ({ file }: { file: FileBrowserItem }) => {
   if (file.type === 'folder')
     return <Folder color={file.isSystem ? 'primary' : 'inherit'} />;
-  const fileType = FilesApi.getFileType(file.name);
+  const fileType = getFileType(file.name);
   // if(fileType === 'pdf') return <PictureAsPdfOutlined/>
   // if (fileType === 'pdf') return <PdfIcon width={24} height={24} />;
   if (fileType === 'pdf') return <DescriptionOutlined />;
@@ -124,7 +125,7 @@ export const FileDetailsDialog: React.FC<FileDetailsDialogProps> = ({
           title="Rozmiar"
           value={
             file.size
-              ? FilesApi.formatBytes(file.size as number)
+              ? formatBytes(file.size as number)
               : 'brak danych'
           }
         />
@@ -378,10 +379,10 @@ const FileBrowser = ({
     async (item: FileBrowserItem) => {
       if (item.type === 'folder') {
         changeCurrentPath(item.path);
-      } else if (FilesApi.canOpenPreview(item)) {
+      } else if (canOpenPreview(item)) {
         handleOpenPreview(item as FileItem);
       } else {
-        await FilesApi.openFileInNewTab(item.path);
+        await openFileInNewTab(item.path);
       }
     },
     [changeCurrentPath, handleOpenPreview]
@@ -477,7 +478,7 @@ const FileBrowser = ({
           if (row.original.type === 'folder') return '';
           return (
             <Chip
-              label={FilesApi.formatBytes(cell.getValue() as number)}
+              label={formatBytes(cell.getValue() as number)}
               size="small"
               variant="outlined"
             />
@@ -739,7 +740,7 @@ const FileBrowser = ({
       return [
         row.original.type === 'file'
           ? [
-              FilesApi.canOpenPreview(row.original) ? (
+              canOpenPreview(row.original) ? (
                 <MRT_ActionMenuItem
                   icon={<Visibility />}
                   key="preview"
@@ -756,7 +757,7 @@ const FileBrowser = ({
                 key="newTab"
                 label="Otwórz w nowej karcie"
                 onClick={() => {
-                  FilesApi.openFileInNewTab((row.original as FileItem).path);
+                  openFileInNewTab((row.original as FileItem).path);
                   closeMenu();
                 }}
                 table={table}

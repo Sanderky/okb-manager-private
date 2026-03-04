@@ -1,125 +1,30 @@
+import { chunkArray, getFileExtension, getFileNameWithoutExtension } from '../lib/fileUtils';
 import { removePolishChars } from '../lib/string';
 import type { FileBrowserItem } from '../model/types';
+import { mapStorageItem } from './mappers';
 import { supabase } from './supabase';
 
 export const BUCKET_NAME = import.meta.env.VITE_FILES_BUCKET_NAME ?? 'files';
 
-export const getFileExtension = (filename: string): string | null => {
-  const lastDotIndex = filename.lastIndexOf('.');
-  if (lastDotIndex <= 0) return null;
-  return filename.substring(lastDotIndex + 1).toLowerCase();
-};
-
-export const getFileNameWithoutExtension = (filename: string): string => {
-  const lastSlashIndex = filename.lastIndexOf('/');
-  const baseFilename =
-    lastSlashIndex === -1 ? filename : filename.substring(lastSlashIndex + 1);
-  const lastDotIndex = baseFilename.lastIndexOf('.');
-  if (lastDotIndex <= 0) return baseFilename;
-  return baseFilename.substring(0, lastDotIndex);
-};
-
-export const getFileType = (fileName: string) => {
-  const extension = getFileExtension(fileName);
-  if (!extension) return 'unsupported';
-  if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(extension))
-    return 'image';
-  if (extension === 'pdf') return 'pdf';
-  if (['txt', 'md', 'js', 'css', 'html', 'json'].includes(extension))
-    return 'text';
-  if (['doc', 'docx'].includes(extension)) return 'word';
-  if (['xls', 'xlsx', 'csv'].includes(extension)) return 'excel';
-  return 'unsupported';
-};
-
-export const canOpenPreview = (item: { type: string; name: string }) => {
-  if (item.type === 'folder') return false;
-  const fileType = getFileType(item.name);
-  return fileType === 'image' || fileType === 'pdf';
-};
-
-export const formatBytes = (bytes: number, decimals = 2): string => {
-  if (!bytes) return '0 Bytes';
-  const k = 1024;
-  const dm = decimals < 0 ? 0 : decimals;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
-};
-
-export const listFiles = async (
-  path: string,
-  bucketName: string = BUCKET_NAME
-): Promise<FileBrowserItem[]> => {
-  const { data, error } = await supabase.storage.from(bucketName).list(path, {
-    limit: 100,
-    offset: 0,
-    sortBy: { column: 'name', order: 'asc' },
-  });
-
+export const listFiles = async (path: string, bucketName: string = BUCKET_NAME): Promise<FileBrowserItem[]> => {
+  const { data, error } = await supabase.storage.from(bucketName).list(path, { limit: 100 });
   if (error) throw error;
 
-  const items: FileBrowserItem[] = [];
-
-  data.forEach((item) => {
-    if (item.name === '.placeholder' || item.name === '.emptyFolderPlaceholder')
-      return;
-
-    const fullPath = path ? `${path}/${item.name}` : item.name;
-
-    if (!item.id) {
-      items.push({
-        name: item.name,
-        type: 'folder',
-        path: fullPath,
-      });
-    } else {
-      items.push({
-        id: item.id,
-        name: item.name,
-        type: 'file',
-        path: fullPath,
-        createdAt: item.created_at ? new Date(item.created_at) : new Date(),
-        size: item.metadata?.size || 0,
-        contentType: item.metadata?.mimetype || 'application/octet-stream',
-      });
-    }
-  });
-  return items;
+  return data
+    .filter((item) => item.name !== '.placeholder' && item.name !== '.emptyFolderPlaceholder')
+    .map((item) => mapStorageItem(item, path));
 };
 
-export const getSignedUrl = async (
-  fullPath: string,
-  expiresIn = 60,
-  bucketName: string = BUCKET_NAME
-): Promise<string | null> => {
-  const { data, error } = await supabase.storage
-    .from(bucketName)
-    .createSignedUrl(fullPath, expiresIn);
-
-  if (error) {
-    console.error('Error creating signed URL:', error);
-    return null;
-  }
+export const getSignedUrl = async (fullPath: string, expiresIn = 60, bucketName: string = BUCKET_NAME): Promise<string> => {
+  const { data, error } = await supabase.storage.from(bucketName).createSignedUrl(fullPath, expiresIn);
+  if (error) throw error; 
   return data.signedUrl;
 };
 
-export const openFileInNewTab = async (
-  path: string | undefined
-): Promise<void> => {
-  if (!path) {
-    console.warn('Cannot open file: path is missing');
-    return;
-  }
-
-  try {
-    const signedUrl = await getSignedUrl(path);
-    if (signedUrl) {
-      window.open(signedUrl, '_blank', 'noopener,noreferrer');
-    }
-  } catch (error) {
-    console.error('Error opening file in new tab:', error);
-  }
+export const downloadFileAsBlob = async (fullPath: string, bucketName: string = BUCKET_NAME): Promise<Blob> => {
+  const { data, error } = await supabase.storage.from(bucketName).download(fullPath);
+  if (error) throw error;
+  return data;
 };
 
 export const uploadFile = async (
@@ -191,14 +96,6 @@ export const moveFile = async (
     .move(sourcePath, destPath);
 
   if (error) throw error;
-};
-
-const chunkArray = <T>(array: T[], size: number): T[][] => {
-  const chunks: T[][] = [];
-  for (let i = 0; i < array.length; i += size) {
-    chunks.push(array.slice(i, i + size));
-  }
-  return chunks;
 };
 
 export const deleteFiles = async (
@@ -327,19 +224,4 @@ export const getUniqueDestPath = async (
   }
 
   return uniquePath;
-};
-
-export const downloadFileAsBlob = async (
-  fullPath: string,
-  bucketName: string = BUCKET_NAME
-): Promise<Blob | null> => {
-  const { data, error } = await supabase.storage
-    .from(bucketName)
-    .download(fullPath);
-
-  if (error) {
-    console.error(`Error downloading ${fullPath}:`, error);
-    return null;
-  }
-  return data;
 };

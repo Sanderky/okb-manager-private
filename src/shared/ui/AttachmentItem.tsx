@@ -21,6 +21,7 @@ import {
 } from '@mui/icons-material';
 import { useState } from 'react';
 import * as FilesApi from '../api/storage';
+import { canOpenPreview } from '../lib/fileUtils';
 
 interface AttachmentItemProps {
   file: FileItem | undefined | null;
@@ -63,7 +64,7 @@ export const AttachmentItem = ({
   }
 
   const dateCreated = file.createdAt ? new Date(file.createdAt) : null;
-  const canPreview = FilesApi.canOpenPreview({
+  const canPreview = canOpenPreview({
     name: file.name,
     type: 'file',
   });

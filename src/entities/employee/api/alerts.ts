@@ -1,27 +1,39 @@
 import { supabase } from '@/shared/api/supabase';
-import dayjs from 'dayjs';
 import type { EmployeeAlert } from '../model/types';
+import type { AlertsSettings } from '../model/types';
+import { DEFAULT_SETTINGS, SETTINGS_ID } from '../config/alert-settings';
+import {
+  mapSettingsDtoToDomain,
+  mapSettingsToPayload,
+  mapAlertRowToDomain,
+} from './mappers';
 
-const generateAlertMessage = (
-  type: 'contract' | 'a1',
-  days: number,
-  dateStr: string
-) => {
-  const date = dayjs(dateStr).format('DD.MM.YYYY');
-  const typeName = type === 'contract' ? 'Umowa' : 'A1';
-  const dayWord = Math.abs(days) === 1 ? 'dzień' : 'dni';
+export const fetchAlertsSettings = async (): Promise<AlertsSettings> => {
+  const { data, error } = await supabase
+    .from('alert_settings')
+    .select('*')
+    .eq('id', SETTINGS_ID)
+    .single();
 
-  if (days < 0) {
-    return `${typeName} wygasła ${Math.abs(days)} ${dayWord} temu (${date})`;
+  if (error) {
+    console.warn(
+      'Nie udało się pobrać ustawień alertów, używam domyślnych.',
+      error
+    );
+    return DEFAULT_SETTINGS;
   }
-  if (days === 0) {
-    return `${typeName} wygasa dzisiaj!`;
-  }
-  return `${typeName} wygasa ${date} (za ${days} ${dayWord})`;
+
+  return mapSettingsDtoToDomain(data);
 };
 
-const generateAlertTitle = (type: 'contract' | 'a1', name: string) => {
-  return `${type === 'contract' ? 'Kończy się umowa' : 'Kończy się A1'} - ${name}`;
+export const updateAlertsSettings = async (
+  settings: AlertsSettings
+): Promise<void> => {
+  const payload = mapSettingsToPayload(settings, SETTINGS_ID);
+
+  const { error } = await supabase.from('alert_settings').upsert(payload);
+
+  if (error) throw error;
 };
 
 export const getEmployeeAlerts = async (): Promise<EmployeeAlert[]> => {
@@ -31,18 +43,5 @@ export const getEmployeeAlerts = async (): Promise<EmployeeAlert[]> => {
 
   if (error) throw error;
 
-  return data.map((row: any) => ({
-    id: row.id,
-    employeeId: row.employee_id,
-    employeeName: row.employee_name,
-    severity: row.severity,
-    typePriority: row.type_priority,
-
-    title: generateAlertTitle(row.type, row.employee_name),
-    message: generateAlertMessage(
-      row.type,
-      row.days_remaining,
-      row.expiry_date
-    ),
-  }));
+  return data.map(mapAlertRowToDomain);
 };

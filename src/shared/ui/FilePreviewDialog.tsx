@@ -30,6 +30,7 @@ import {
 import type { FileItem } from '../model/types';
 import type { FolderItem } from '../model/types';
 import * as FilesApi from '../api/storage';
+import { getFileType } from '../lib/fileUtils';
 
 interface PreviewDialogProps {
   open: boolean;
@@ -72,8 +73,8 @@ export const FilePreview = ({ open, onClose, file }: PreviewDialogProps) => {
           setIsError(true);
         } finally {
           const fType = isFileObject(file)
-            ? FilesApi.getFileType(file.name)
-            : FilesApi.getFileType(file.name);
+            ? getFileType(file.name)
+            : getFileType(file.name);
           if (fType === 'pdf') {
             setIsLoading(false);
           }
@@ -130,7 +131,7 @@ export const FilePreview = ({ open, onClose, file }: PreviewDialogProps) => {
 
   if (!file || file.type === 'folder') return null;
 
-  const fileType = FilesApi.getFileType(file.name);
+  const fileType = getFileType(file.name);
 
   const renderPreview = () => {
     if (isError) {

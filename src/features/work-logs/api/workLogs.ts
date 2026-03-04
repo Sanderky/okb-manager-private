@@ -2,33 +2,24 @@ import { supabase } from '@/shared/api/supabase';
 import dayjs from 'dayjs';
 import { toSqlDate } from '@/shared/lib/date';
 import type { WorkLogEntry } from '../model/types';
+import { mapToWorkLog, mapToWorkLogPayload } from './mappers';
 
-const mapToWorkLog = (row: any): WorkLogEntry => ({
-  id: row.id,
-  employeeId: row.employee_id,
-  constructionId: row.construction_id,
-  date: row.date,
-  hours: row.hours === null ? null : Number(row.hours),
+const TABLE_NAME = 'work_logs';
 
-  employeeName: row.employees?.name,
-  constructionName: row.constructions?.name,
-  employeeActive: row.employees?.status,
-  constructionActive: row.constructions?.status,
-});
+const getWeekBoundaries = (weekStart: Date) => {
+  return {
+    startStr: toSqlDate(weekStart),
+    endStr: toSqlDate(dayjs(weekStart).add(6, 'day').toDate()),
+  };
+};
 
 export const getWorkLogs = async (
   startDate: Date,
   endDate: Date
 ): Promise<WorkLogEntry[]> => {
   const { data, error } = await supabase
-    .from('work_logs')
-    .select(
-      `
-      *,
-      employees ( name, status ),
-      constructions ( name, status )
-    `
-    )
+    .from(TABLE_NAME)
+    .select(`*, employees ( name, status ), constructions ( name, status )`)
     .gte('date', toSqlDate(startDate))
     .lte('date', toSqlDate(endDate));
 
@@ -39,18 +30,11 @@ export const getWorkLogs = async (
 export const fetchWorkLogsForCopy = async (
   sourceWeekStart: Date
 ): Promise<WorkLogEntry[]> => {
-  const startStr = toSqlDate(sourceWeekStart);
-  const endStr = toSqlDate(dayjs(sourceWeekStart).add(6, 'day'));
+  const { startStr, endStr } = getWeekBoundaries(sourceWeekStart);
 
   const { data, error } = await supabase
-    .from('work_logs')
-    .select(
-      `
-      *,
-      employees ( name, status ),
-      constructions ( name, status )
-    `
-    )
+    .from(TABLE_NAME)
+    .select(`*, employees ( name, status ), constructions ( name, status )`)
     .gte('date', startStr)
     .lte('date', endStr);
 
@@ -62,11 +46,10 @@ export const overrideWorkLogsForWeek = async (
   weekStart: Date,
   newLogs: Omit<WorkLogEntry, 'id'>[]
 ): Promise<void> => {
-  const startStr = toSqlDate(weekStart);
-  const endStr = toSqlDate(dayjs(weekStart).add(6, 'day'));
+  const { startStr, endStr } = getWeekBoundaries(weekStart);
 
   const { error: deleteError } = await supabase
-    .from('work_logs')
+    .from(TABLE_NAME)
     .delete()
     .gte('date', startStr)
     .lte('date', endStr);
@@ -74,15 +57,10 @@ export const overrideWorkLogsForWeek = async (
   if (deleteError) throw deleteError;
 
   if (newLogs.length > 0) {
-    const payload = newLogs.map((log) => ({
-      employee_id: log.employeeId,
-      construction_id: log.constructionId,
-      date: log.date,
-      hours: log.hours,
-    }));
+    const payload = newLogs.map(mapToWorkLogPayload);
 
     const { error: insertError } = await supabase
-      .from('work_logs')
+      .from(TABLE_NAME)
       .insert(payload);
 
     if (insertError) throw insertError;
@@ -92,11 +70,10 @@ export const overrideWorkLogsForWeek = async (
 export const deleteAllWorkHoursForWeek = async (
   weekStart: Date
 ): Promise<void> => {
-  const startStr = toSqlDate(weekStart);
-  const endStr = toSqlDate(dayjs(weekStart).add(6, 'day'));
+  const { startStr, endStr } = getWeekBoundaries(weekStart);
 
   const { error } = await supabase
-    .from('work_logs')
+    .from(TABLE_NAME)
     .delete()
     .gte('date', startStr)
     .lte('date', endStr);
@@ -112,7 +89,7 @@ export const saveWorkLogDay = async (
 ): Promise<void> => {
   const dateStr = toSqlDate(date);
 
-  const { error } = await supabase.from('work_logs').upsert(
+  const { error } = await supabase.from(TABLE_NAME).upsert(
     {
       employee_id: employeeId,
       construction_id: constructionId,

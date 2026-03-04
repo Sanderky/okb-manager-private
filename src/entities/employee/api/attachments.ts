@@ -1,7 +1,13 @@
 import { supabase } from '@/shared/api/supabase';
 import { FOLDER_NAMES, SYSTEM_FOLDER_PREFIX } from '@/shared/config/storage';
 import type { Attachment, EmployeeAttachmentType } from '../model/types';
-import { deleteFiles, getSignedUrl, getUniqueDestPath, listFiles } from '@/shared/api/storage';
+import {
+  deleteFiles,
+  getSignedUrl,
+  getUniqueDestPath,
+  listFiles,
+} from '@/shared/api/storage';
+import { mapStorageItemToAttachment } from './mappers';
 
 const STORAGE_BUCKET = import.meta.env.VITE_FILES_BUCKET_NAME ?? 'files';
 
@@ -9,21 +15,38 @@ const getTypeFromFolder = (folderName: string) => {
   return folderName.replace(SYSTEM_FOLDER_PREFIX, '');
 };
 
-const mapStorageItemToAttachment = (
-  item: any,
-  type: EmployeeAttachmentType,
-  employeeId: string
-): Attachment => ({
-  id: item.id || item.path,
-  employeeId: employeeId,
-  name: item.name,
-  path: item.path,
-  size: item.size,
-  contentType: item.contentType,
-  type: 'file',
-  createdAt: item.createdAt,
-  attachmentType: type,
-});
+// export const getEmployeeAttachments = async (
+//   employeeId: string
+// ): Promise<Attachment[]> => {
+//   const employeesFolder = FOLDER_NAMES['employees'];
+//   const rootPath = `${employeesFolder}/${employeeId}`;
+
+//   let typeFolders: any[] = [];
+//   try {
+//     typeFolders = await listFiles(rootPath);
+//   } catch {
+//     return [];
+//   }
+
+//   const allAttachments: Attachment[] = [];
+//   for (const folder of typeFolders) {
+//     if (folder.type !== 'folder') continue;
+
+//     const type = getTypeFromFolder(folder.name) as EmployeeAttachmentType;
+
+//     const filesInType = await listFiles(folder.path);
+
+//     const attachments = filesInType
+//       .filter((f) => f.type === 'file')
+//       .map((file) => mapStorageItemToAttachment(file, type, employeeId));
+
+//     allAttachments.push(...attachments);
+//   }
+
+//   return allAttachments.sort(
+//     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+//   );
+// };
 
 export const getEmployeeAttachments = async (
   employeeId: string
@@ -38,20 +61,20 @@ export const getEmployeeAttachments = async (
     return [];
   }
 
-  const allAttachments: Attachment[] = [];
-  for (const folder of typeFolders) {
-    if (folder.type !== 'folder') continue;
+  const validFolders = typeFolders.filter((folder) => folder.type === 'folder');
 
+  const fetchPromises = validFolders.map(async (folder) => {
     const type = getTypeFromFolder(folder.name) as EmployeeAttachmentType;
-
     const filesInType = await listFiles(folder.path);
 
-    const attachments = filesInType
+    return filesInType
       .filter((f) => f.type === 'file')
       .map((file) => mapStorageItemToAttachment(file, type, employeeId));
+  });
 
-    allAttachments.push(...attachments);
-  }
+  const results = await Promise.all(fetchPromises);
+
+  const allAttachments = results.flat();
 
   return allAttachments.sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
