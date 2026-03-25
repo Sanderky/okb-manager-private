@@ -1,10 +1,11 @@
-import dayjs from "dayjs";
+import dayjs from 'dayjs';
 
 export const generateAlertMessage = (
   type: 'contract' | 'a1',
   days: number,
   dateStr: string
 ) => {
+  if (!days || !dateStr) return '';
   const date = dayjs(dateStr).format('DD.MM.YYYY');
   const typeName = type === 'contract' ? 'Umowa' : 'A1';
   const dayWord = Math.abs(days) === 1 ? 'dzień' : 'dni';

@@ -1,3 +1,3 @@
 export * from './model/AuthContext';
-export * as AuthApi from './api/auth';
+export * as AuthApi from './api';
 export * from './model/validation';

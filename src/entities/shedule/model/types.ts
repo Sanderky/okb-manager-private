@@ -13,3 +13,15 @@ export interface ScheduleEntry {
 }
 
 export type ScheduleMap = Record<IsoDateString, ScheduleEntry>;
+
+export interface WeeklyEmployeeSchedule {
+  employeeId: string;
+  employeeName: string;
+  employeeActive: boolean;
+  constructions: Array<{
+    id: string;
+    name: string;
+    active: boolean;
+    dayIndex: number;
+  }>;
+}

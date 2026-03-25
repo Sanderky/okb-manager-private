@@ -1,7 +1,8 @@
 import type { HomeDocument } from '../model/types';
+import type { HomeNoteDTO } from './types';
 
 export const mapHomeNoteFromDB = (
-  data: any,
+  data: HomeNoteDTO | null,
   fallbackId: string
 ): HomeDocument => ({
   id: data?.id || fallbackId,

@@ -1,12 +1,12 @@
 import { supabase } from '@/shared/api/supabase';
-import type { EmployeeAlert } from '../model/types';
-import type { AlertsSettings } from '../model/types';
-import { DEFAULT_SETTINGS, SETTINGS_ID } from '../config/alert-settings';
+import type { EmployeeAlert } from '../../model/types';
+import type { AlertsSettings } from '../../model/types';
+import { DEFAULT_SETTINGS, SETTINGS_ID } from '../../config/alert-settings';
 import {
   mapSettingsDtoToDomain,
   mapSettingsToPayload,
   mapAlertRowToDomain,
-} from './mappers';
+} from '../mappers';
 
 export const fetchAlertsSettings = async (): Promise<AlertsSettings> => {
   const { data, error } = await supabase

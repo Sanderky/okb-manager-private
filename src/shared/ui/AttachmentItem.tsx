@@ -2,14 +2,8 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import {
-  type FileItem,
-} from '../model/types';
-import {
-  IconButton,
-  Menu,
-  MenuItem,
-} from '@mui/material';
+import { type FileItem } from '../model/types';
+import { IconButton, Menu, MenuItem } from '@mui/material';
 import {
   AttachFile,
   Delete,
@@ -20,7 +14,6 @@ import {
   Visibility,
 } from '@mui/icons-material';
 import { useState } from 'react';
-import * as FilesApi from '../api/storage';
 import { canOpenPreview } from '../lib/fileUtils';
 
 interface AttachmentItemProps {

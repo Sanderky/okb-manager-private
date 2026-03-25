@@ -8,7 +8,7 @@ import {
   type CircularProgressProps,
 } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
-import { getDiskUsage } from '../api/metrics';
+import { getDiskUsage } from '../api';
 
 const formatToGB = (bytes: number | undefined): number => {
   if (!bytes || bytes === 0) return 0;

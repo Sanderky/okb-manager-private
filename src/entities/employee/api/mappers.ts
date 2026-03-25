@@ -1,15 +1,27 @@
-import type { AlertsSettings, Attachment, Employee, EmployeeAlert, EmployeeAttachmentType } from '../model/types';
+import type {
+  AlertsSettings,
+  Attachment,
+  Employee,
+  EmployeeAlert,
+  EmployeeAttachmentType,
+} from '../model/types';
 import { generateAlertMessage, generateAlertTitle } from '../lib/alerts';
 import { toSqlDate } from '@/shared/lib/date';
+import type { AlertSettingsDTO, EmployeeAlertDTO, EmployeeDTO } from './types';
 
-export const mapSettingsDtoToDomain = (data: any): AlertsSettings => ({
+export const mapSettingsDtoToDomain = (
+  data: AlertSettingsDTO
+): AlertsSettings => ({
   a1Warning: data.a1_warning,
   a1Critical: data.a1_critical,
   contractWarning: data.contract_warning,
   contractCritical: data.contract_critical,
 });
 
-export const mapSettingsToPayload = (settings: AlertsSettings, id: number) => ({
+export const mapSettingsToPayload = (
+  settings: AlertsSettings,
+  id: number
+): AlertSettingsDTO => ({
   id,
   a1_warning: settings.a1Warning,
   a1_critical: settings.a1Critical,
@@ -18,17 +30,20 @@ export const mapSettingsToPayload = (settings: AlertsSettings, id: number) => ({
   updated_at: new Date().toISOString(),
 });
 
-export const mapAlertRowToDomain = (row: any): EmployeeAlert => ({
+export const mapAlertRowToDomain = (row: EmployeeAlertDTO): EmployeeAlert => ({
   id: row.id,
   employeeId: row.employee_id,
   employeeName: row.employee_name,
   severity: row.severity,
-  //   typePriority: row.type_priority,
   title: generateAlertTitle(row.type, row.employee_name),
-  message: generateAlertMessage(row.type, row.days_remaining, row.expiry_date),
+  message: generateAlertMessage(
+    row.type,
+    row.days_remaining ?? 0,
+    row.expiry_date ?? ''
+  ),
 });
 
-export const mapToEmployeeDtoToDomain = (data: any): Employee => ({
+export const mapToEmployeeDtoToDomain = (data: EmployeeDTO): Employee => ({
   id: data.id,
   name: data.name,
   status: data.status,

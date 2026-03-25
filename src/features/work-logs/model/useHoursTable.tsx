@@ -5,7 +5,7 @@ import {
   getWorkLogs,
   overrideWorkLogsForWeek,
   fetchWorkLogsForCopy,
-} from '../api/workLogs';
+} from '../api';
 import { VacationApi } from '@/entities/vacations'; 
 import { EmployeeApi, type Employee } from '@/entities/employee';
 import dayjs from 'dayjs';

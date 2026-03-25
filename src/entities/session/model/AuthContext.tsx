@@ -5,9 +5,9 @@ import React, {
   useState,
   type ReactNode,
 } from 'react';
-import { supabase } from '@/shared/api/supabase';
-import { logout as authLogout } from '../api/auth';
+import { logout as authLogout, getSession, onAuthStateChange } from '../api';
 import type { User, Session, AuthError } from '@supabase/supabase-js';
+
 interface AuthContextType {
   user: User | null;
   session: Session | null;
@@ -19,10 +19,6 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-interface AuthProviderProps {
-  children: ReactNode;
-}
-
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
@@ -31,7 +27,9 @@ export const useAuth = () => {
   return context;
 };
 
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({
+  children,
+}) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [initialLoading, setInitialLoading] = useState(true);
@@ -39,27 +37,27 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [error, setError] = useState<AuthError | Error | null>(null);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session }, error }) => {
-      if (error) {
-        console.error('Auth Session Error:', error);
-        setError(error);
-      } else {
-        setSession(session);
-        setUser(session?.user ?? null);
-      }
+    getSession()
+      .then((currentSession: any) => {
+        setSession(currentSession);
+        setUser(currentSession?.user ?? null);
+      })
+      .catch((err) => {
+        console.error('Auth Session Error:', err);
+        setError(err);
+      })
+      .finally(() => {
+        setInitialLoading(false);
+      });
+
+    const unsubscribe = onAuthStateChange((_event: string, newSession: any) => {
+      setSession(newSession);
+      setUser(newSession?.user ?? null);
       setInitialLoading(false);
+      if (newSession) setError(null);
     });
 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setInitialLoading(false);
-      if (session) setError(null);
-    });
-
-    return () => subscription.unsubscribe();
+    return () => unsubscribe();
   }, []);
 
   const logout = async () => {

@@ -1,2 +1,2 @@
-export * as ScheduleApi from './api/schedules';
+export * as ScheduleApi from './api';
 export * from './model/types';

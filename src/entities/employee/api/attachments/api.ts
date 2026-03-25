@@ -1,13 +1,13 @@
 import { supabase } from '@/shared/api/supabase';
 import { FOLDER_NAMES, SYSTEM_FOLDER_PREFIX } from '@/shared/config/storage';
-import type { Attachment, EmployeeAttachmentType } from '../model/types';
+import type { Attachment, EmployeeAttachmentType } from '../../model/types';
 import {
   deleteFiles,
   getSignedUrl,
   getUniqueDestPath,
   listFiles,
-} from '@/shared/api/storage';
-import { mapStorageItemToAttachment } from './mappers';
+} from '@/shared/api/storage/api';
+import { mapStorageItemToAttachment } from '../mappers';
 
 const STORAGE_BUCKET = import.meta.env.VITE_FILES_BUCKET_NAME ?? 'files';
 

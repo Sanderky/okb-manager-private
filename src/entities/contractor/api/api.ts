@@ -35,13 +35,10 @@ export const addContractor = async (name: string): Promise<string> => {
   return data.id;
 };
 
-
 export const updateContractor = async (
   id: string,
   data: Partial<Contractor>
 ): Promise<void> => {
-
-
   const payload: any = {};
   if (data.name !== undefined) payload.name = data.name;
   if (data.note !== undefined) payload.note = data.note;

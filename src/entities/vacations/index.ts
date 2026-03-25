@@ -1,2 +1,2 @@
-export * as VacationApi from './api/vacations';
+export * as VacationApi from './api';
 export * from './model/types';

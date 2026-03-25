@@ -1,2 +1,2 @@
 export * from './ui/TodoList';
-export { getTodos } from './api/api';
+export { getTodos } from './api';

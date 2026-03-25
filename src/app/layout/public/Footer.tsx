@@ -1,5 +1,7 @@
 import { Stack, Typography } from '@mui/material';
 
+const isMock = import.meta.env.VITE_USE_MOCK === 'true';
+
 const AppFooter = () => {
   return (
     <footer>
@@ -17,16 +19,17 @@ const AppFooter = () => {
         <Typography
           sx={{
             fontSize: 'inherit',
+            color: isMock ? 'red' : undefined
           }}
         >
-          Panel administracyjny - dostęp tylko dla autoryzowanego personelu.
+          {isMock ? "Wersja demonstracyjna - niektóre funkcje mogą działać niepoprawnie." : "Panel administracyjny - dostęp tylko dla autoryzowanego personelu."}
         </Typography>
         <Typography
           sx={{
             fontSize: 'inherit',
           }}
         >
-          &copy; {new Date().getFullYear()}, {import.meta.env.VITE_COMPANY_NAME}
+          &copy; {new Date().getFullYear()}, {isMock ? "Demo" : import.meta.env.VITE_COMPANY_NAME}
         </Typography>
       </Stack>
     </footer>

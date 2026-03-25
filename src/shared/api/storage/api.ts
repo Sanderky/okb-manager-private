@@ -1,28 +1,51 @@
-import { chunkArray, getFileExtension, getFileNameWithoutExtension } from '../lib/fileUtils';
-import { removePolishChars } from '../lib/string';
-import type { FileBrowserItem } from '../model/types';
+import {
+  chunkArray,
+  getFileExtension,
+  getFileNameWithoutExtension,
+} from '../../lib/fileUtils';
+import { removePolishChars } from '../../lib/string';
+import type { FileBrowserItem } from '../../model/types';
 import { mapStorageItem } from './mappers';
-import { supabase } from './supabase';
+import { supabase } from '../supabase';
 
 export const BUCKET_NAME = import.meta.env.VITE_FILES_BUCKET_NAME ?? 'files';
 
-export const listFiles = async (path: string, bucketName: string = BUCKET_NAME): Promise<FileBrowserItem[]> => {
-  const { data, error } = await supabase.storage.from(bucketName).list(path, { limit: 100 });
+export const listFiles = async (
+  path: string,
+  bucketName: string = BUCKET_NAME
+): Promise<FileBrowserItem[]> => {
+  const { data, error } = await supabase.storage
+    .from(bucketName)
+    .list(path, { limit: 100 });
   if (error) throw error;
 
   return data
-    .filter((item) => item.name !== '.placeholder' && item.name !== '.emptyFolderPlaceholder')
+    .filter(
+      (item) =>
+        item.name !== '.placeholder' && item.name !== '.emptyFolderPlaceholder'
+    )
     .map((item) => mapStorageItem(item, path));
 };
 
-export const getSignedUrl = async (fullPath: string, expiresIn = 60, bucketName: string = BUCKET_NAME): Promise<string> => {
-  const { data, error } = await supabase.storage.from(bucketName).createSignedUrl(fullPath, expiresIn);
-  if (error) throw error; 
+export const getSignedUrl = async (
+  fullPath: string,
+  expiresIn = 60,
+  bucketName: string = BUCKET_NAME
+): Promise<string> => {
+  const { data, error } = await supabase.storage
+    .from(bucketName)
+    .createSignedUrl(fullPath, expiresIn);
+  if (error) throw error;
   return data.signedUrl;
 };
 
-export const downloadFileAsBlob = async (fullPath: string, bucketName: string = BUCKET_NAME): Promise<Blob> => {
-  const { data, error } = await supabase.storage.from(bucketName).download(fullPath);
+export const downloadFileAsBlob = async (
+  fullPath: string,
+  bucketName: string = BUCKET_NAME
+): Promise<Blob> => {
+  const { data, error } = await supabase.storage
+    .from(bucketName)
+    .download(fullPath);
   if (error) throw error;
   return data;
 };

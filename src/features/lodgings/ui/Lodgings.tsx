@@ -35,7 +35,7 @@ import {
   updateLodging,
   deleteLodging,
   deleteOutdatedLodgings,
-} from '../api/api';
+} from '../api';
 import type { ExtendedLodging, Lodging } from '../model/types';
 import Loading from '@/shared/ui/Loading';
 import { useNavigate } from 'react-router-dom';

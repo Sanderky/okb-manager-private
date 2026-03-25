@@ -3,7 +3,7 @@ import dayjs from 'dayjs';
 import { useMemo } from 'react';
 import { ConstructionApi } from '@/entities/construction';
 import { EmployeeApi } from '@/entities/employee';
-import { getWorkLogs } from '../api/workLogs';
+import { getWorkLogs } from '../api';
 import { VacationApi, type Vacation } from '@/entities/vacations';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import type { ConstructionsWithWorkHours, WorkLogEntry } from './types';

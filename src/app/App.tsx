@@ -9,18 +9,14 @@ import DashboardLayout from './layout/dashboard/DashboardLayout';
 import PrivateRoute from '../app/router/PrivateRoute';
 import NotificationsProvider from '@/shared/ui/notifications/NotificationsProvider';
 import DialogsProvider from '@/shared/ui/dialogs/DialogsProvider';
-import Home from '@/pages/home/ui/Home';
-import { useAuth } from '../entities/session/model/AuthContext';
+import { Home } from '@/pages/home';
+import { useAuth } from '@/entities/session';
 import { useQuery } from '@tanstack/react-query';
-import {
-  getEmployeeList,
-  getEmployeeStats,
-} from '@/entities/employee/api/employees';
-import { getHomeNote } from '@/features/home-note/api/home';
+import { EmployeeApi } from '@/entities/employee';
+import { HomeNoteApi } from '@/features/home-note';
 import { LayoutProvider } from '@/shared/lib/LayoutContext';
 import { ThemeContextProvider } from '@/shared/lib/ThemeContext';
 import { useEffect } from 'react';
-import { supabase } from '@/shared/api/supabase';
 import PublicRoute from './router/PublicRoute';
 import Loading from '@/shared/ui/Loading';
 import PublicLayout from './layout/public/PublicLayout';
@@ -45,36 +41,17 @@ import { getNearestUpcomingEvents } from '@/features/calendar';
 import { ConstructionCreatePage } from '@/pages/construction-create';
 import { getTodos } from '@/features/todo-list';
 import { getEmployeeAlerts } from '@/entities/employee';
-import { useRealtime } from '@/features/real-time';
 import { getContractors } from '@/entities/contractor';
 import { CalendarPage } from '@/pages/calendar';
+import { AuthApi } from '@/entities/session';
+import { useRealtime } from './real-time/useRealtime';
 
-const AuthListener = () => {
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'PASSWORD_RECOVERY') {
-        navigate('/reset-password');
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [navigate]);
-
-  return null;
-};
-
-export default function App() {
+const useInitData = () => {
   const { user, initialLoading: authLoading, error } = useAuth();
-
-  useRealtime();
 
   const { isLoading: employeesLoading, error: employeesError } = useQuery({
     queryKey: ['employees'],
-    queryFn: () => getEmployeeList(),
+    queryFn: () => EmployeeApi.getEmployeeList(),
     enabled: !!user,
   });
 
@@ -103,7 +80,7 @@ export default function App() {
   const { isLoading: employeeStatsLoading, error: employeeStatsError } =
     useQuery({
       queryKey: ['employees', 'stats'],
-      queryFn: getEmployeeStats,
+      queryFn: EmployeeApi.getEmployeeStats,
       enabled: !!user,
     });
 
@@ -116,7 +93,7 @@ export default function App() {
 
   const { isLoading: homeNoteLoading, error: homeNoteError } = useQuery({
     queryKey: ['home', 'note'],
-    queryFn: getHomeNote,
+    queryFn: HomeNoteApi.getHomeNote,
     enabled: !!user,
   });
 
@@ -168,6 +145,34 @@ export default function App() {
     todosError
   );
 
+  return {
+    user,
+    authLoading,
+    isLoading,
+    isError,
+  };
+};
+
+export const PasswordRecoveryListener = () => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const unsubscribe = AuthApi.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        navigate('/reset-password');
+      }
+    });
+
+    return () => unsubscribe();
+  }, [navigate]);
+
+  return null;
+};
+
+export default function App() {
+  const { user, authLoading, isError, isLoading } = useInitData();
+  useRealtime();
+
   if (authLoading || isLoading) {
     return (
       <ThemeContextProvider>
@@ -193,7 +198,7 @@ export default function App() {
         <NotificationsProvider>
           <DialogsProvider>
             <Router>
-              <AuthListener />
+              <PasswordRecoveryListener />
               <Routes>
                 <Route element={<PublicRoute user={user} />}>
                   <Route element={<PublicLayout />}>

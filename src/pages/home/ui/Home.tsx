@@ -16,7 +16,7 @@ import { FileBrowser } from '@/features/file-browser';
 
 const SHOW_DISK_USAGE = import.meta.env.VITE_SHOW_DISK_USAGE;
 
-const Home = () => {
+export const Home = () => {
   const navigate = useNavigate();
 
   const [tab, setTab] = useState(0);
@@ -216,5 +216,3 @@ const Home = () => {
     </PageContainer>
   );
 };
-
-export default Home;

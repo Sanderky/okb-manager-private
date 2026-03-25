@@ -1,5 +1,16 @@
 import { supabase } from '@/shared/api/supabase';
 
+export const onAuthStateChange = (
+  callback: (event: string, session: any) => void
+) => {
+  const {
+    data: { subscription },
+  } = supabase.auth.onAuthStateChange((event, session) => {
+    callback(event, session);
+  });
+  return () => subscription.unsubscribe();
+};
+
 export const login = async (email: string, password: string) => {
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
@@ -31,7 +42,7 @@ export const getSession = async () => {
 
 export const updatePassword = async (password: string) => {
   const { data, error } = await supabase.auth.updateUser({
-    password: password
+    password: password,
   });
 
   if (error) throw error;
@@ -40,7 +51,7 @@ export const updatePassword = async (password: string) => {
 
 export const updateDisplayName = async (displayName: string) => {
   const { data, error } = await supabase.auth.updateUser({
-    data: { display_name: displayName }
+    data: { display_name: displayName },
   });
 
   if (error) throw error;
@@ -49,7 +60,7 @@ export const updateDisplayName = async (displayName: string) => {
 
 export const updateEmail = async (email: string) => {
   const { data, error } = await supabase.auth.updateUser({
-    email: email
+    email: email,
   });
 
   if (error) throw error;

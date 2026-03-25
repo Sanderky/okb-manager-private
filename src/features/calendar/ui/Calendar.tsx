@@ -38,8 +38,8 @@ import {
   createCalendarEvent,
   getCalendarEventsForMonths,
   removeCalendarEvent,
-  updateCalendarEvent,
-} from '../api/api';
+  updateCalendarEvent
+} from '../api';
 import { EVENT_CATEGORIES } from '../model/const';
 import { WEEK_DAYS } from '@/shared/config/days';
 

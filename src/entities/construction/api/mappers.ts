@@ -1,19 +1,30 @@
-import { toSqlDate } from "@/shared/lib/date";
-import type { Construction } from "../model/types";
+import { toSqlDate } from '@/shared/lib/date';
+import type { Construction } from '../model/types';
+import type { ConstructionDTO } from './types';
 
-export const mapConstruction = (data: any): Construction => ({
-  id: data.id,
-  name: data.name,
-  status: data.status,
-  location: data.location || null,
+export const mapConstruction = (data: ConstructionDTO): Construction => {
+  let extractedContractorName = null;
 
-  contractorId: data.contractor_id || null,
-  contractorName: data.contractors?.name || null,
+  if (Array.isArray(data.contractors)) {
+    extractedContractorName = data.contractors[0]?.name || null;
+  } else if (data.contractors) {
+    extractedContractorName = data.contractors.name || null;
+  }
 
-  startDate: new Date(data.start_date),
-  endDate: data.end_date ? new Date(data.end_date) : null,
-  note: data.note || null,
-});
+  return {
+    id: data.id,
+    name: data.name,
+    status: data.status,
+    location: data.location || null,
+
+    contractorId: data.contractor_id || null,
+    contractorName: extractedContractorName,
+
+    startDate: new Date(data.start_date),
+    endDate: data.end_date ? new Date(data.end_date) : null,
+    note: data.note || null,
+  };
+};
 
 export const mapToPayload = (data: Partial<Construction>) => {
   const payload: any = {};

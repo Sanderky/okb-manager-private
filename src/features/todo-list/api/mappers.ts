@@ -1,6 +1,7 @@
 import type { TodoItem } from '../model/types';
+import type { TodoDTO } from './types';
 
-export const mapTodoFromDB = (row: any): TodoItem => ({
+export const mapTodoFromDB = (row: TodoDTO): TodoItem => ({
   id: row.id,
   title: row.title,
   isCompleted: row.is_completed,

@@ -1,26 +1,43 @@
 import dayjs from 'dayjs';
-import type { ScheduleEntry } from '../model/types';
+import type { ScheduleEntry, WeeklyEmployeeSchedule } from '../model/types';
+import type { DailyScheduleDTO } from './types';
 
-export const mapToScheduleEntry = (row: any): ScheduleEntry => ({
-  id: row.id,
-  employeeId: row.employee_id,
-  constructionId: row.construction_id,
-  date: row.date,
-  constructionName: row.constructions?.name,
-  constructionActive: row.constructions?.status,
-  employeeName: row.employees?.name,
-  employeeActive: row.employees?.status,
-});
+const extractRelation = <T>(relation: T | T[] | null | undefined): T | null => {
+  if (Array.isArray(relation)) return relation[0] || null;
+  return relation || null;
+};
 
-export const mapWeeklySchedulesToDomain = (rows: any[], weekStart: Date) => {
-  const grouped = new Map<string, any>();
+export const mapToScheduleEntry = (row: DailyScheduleDTO): ScheduleEntry => {
+  const construction = extractRelation(row.constructions);
+  const employee = extractRelation(row.employees);
 
-  rows.forEach((row: any) => {
+  return {
+    id: row.id,
+    employeeId: row.employee_id,
+    constructionId: row.construction_id,
+    date: row.date,
+    constructionName: construction?.name,
+    constructionActive: construction?.status,
+    employeeName: employee?.name,
+    employeeActive: employee?.status,
+  };
+};
+
+export const mapWeeklySchedulesToDomain = (
+  rows: DailyScheduleDTO[],
+  weekStart: Date
+): WeeklyEmployeeSchedule[] => {
+  const grouped = new Map<string, WeeklyEmployeeSchedule>();
+
+  rows.forEach((row) => {
+    const employee = extractRelation(row.employees);
+    const construction = extractRelation(row.constructions);
+
     if (!grouped.has(row.employee_id)) {
       grouped.set(row.employee_id, {
         employeeId: row.employee_id,
-        employeeName: row.employees?.name || 'Nieznany',
-        employeeActive: row.employees?.status ?? false,
+        employeeName: employee?.name || 'Nieznany',
+        employeeActive: employee?.status ?? false,
         constructions: [],
       });
     }
@@ -31,8 +48,8 @@ export const mapWeeklySchedulesToDomain = (rows: any[], weekStart: Date) => {
     if (dayIndex >= 0 && dayIndex < 7) {
       group.constructions.push({
         id: row.construction_id,
-        name: row.constructions?.name || 'Nieznana',
-        active: row.constructions?.status ?? false,
+        name: construction?.name || 'Nieznana',
+        active: construction?.status ?? false,
         dayIndex,
       });
     }

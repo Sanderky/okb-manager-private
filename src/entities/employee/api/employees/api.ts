@@ -1,8 +1,8 @@
 import { supabase } from '@/shared/api/supabase';
 import { toSqlDate } from '@/shared/lib/date';
-import type { Employee } from '../model/types';
-import { sortByLastName } from '../model/sort';
-import { mapEmployeeToPayload, mapToEmployeeDtoToDomain } from './mappers';
+import type { Employee } from '../../model/types';
+import { sortByLastName } from '../../model/sort';
+import { mapEmployeeToPayload, mapToEmployeeDtoToDomain } from '../mappers';
 
 export async function createEmployee(
   data: Partial<Employee> & { name: string }

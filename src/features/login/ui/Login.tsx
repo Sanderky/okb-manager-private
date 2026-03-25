@@ -12,8 +12,10 @@ import {
 import { getRules, validateField } from '@/entities/session';
 import useLoading from '@/shared/lib/useLoading';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { DEMO_EMAIL, DEMO_PASSWORD } from '@/shared/api/mock/mockDb';
 
 const RODO_URL = import.meta.env.VITE_RODO_URL ?? '';
+const isMock = import.meta.env.VITE_USE_MOCK === 'true';
 
 type FormValues = {
   email: string;
@@ -31,7 +33,10 @@ export const Login = ({ onForgotPassword }: LoginProps) => {
     stopLoading: stopActionLoading,
   } = useLoading(false);
 
-  const [values, setValues] = useState<FormValues>({ email: '', password: '' });
+  const [values, setValues] = useState<FormValues>({
+    email: isMock ? DEMO_EMAIL : '',
+    password: isMock ? DEMO_PASSWORD : '',
+  });
   const [errors, setErrors] = useState<
     Partial<Record<keyof FormValues, string>>
   >({});

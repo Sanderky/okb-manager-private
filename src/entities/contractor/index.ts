@@ -1,3 +1,3 @@
-export * as ContractorsApi from './api/contractors';
+export * as ContractorsApi from './api';
 export * from './model/types';
-export { getContractors } from './api/contractors';
+export { getContractors } from './api';

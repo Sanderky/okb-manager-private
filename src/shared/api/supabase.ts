@@ -1,9 +1,14 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const isMock = import.meta.env.VITE_USE_MOCK === 'true';
 
-if (!supabaseUrl || !supabaseKey) {
+const supabaseUrl =
+  import.meta.env.VITE_SUPABASE_URL ||
+  (isMock ? 'https://mock.supabase.com' : '');
+const supabaseKey =
+  import.meta.env.VITE_SUPABASE_ANON_KEY || (isMock ? 'mock-key' : '');
+
+if (!isMock && (!supabaseUrl || !supabaseKey)) {
   throw new Error('Błąd inicjalizacji Supabase! Brak URL lub klucza.');
 }
 

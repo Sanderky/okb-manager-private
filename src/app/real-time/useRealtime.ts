@@ -1,11 +1,17 @@
 import { useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { supabase } from '../../shared/api/supabase';
+import { supabase } from '@/shared/api/supabase';
+
+const isMock = import.meta.env.VITE_USE_MOCK === 'true';
 
 export const useRealtime = () => {
   const queryClient = useQueryClient();
 
   useEffect(() => {
+    if (isMock) {
+      return;
+    }
+    
     const channel = supabase
       .channel('app-db-changes')
       .on(

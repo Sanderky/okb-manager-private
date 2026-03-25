@@ -7,6 +7,7 @@ import { removePolishChars } from '@/shared/lib/string';
 import type { FileBrowserItem } from '@/shared/model/types';
 import { FOLDER_TRANSLATIONS, SYSTEM_FOLDER_PREFIX } from '@/shared/config/storage';
 import * as FilesApi from '@/shared/api/storage';
+import { getFileExtension, getFileNameWithoutExtension } from '@/shared/lib/fileUtils';
 
 export const EMPTY_MAP = {};
 
@@ -237,7 +238,7 @@ const useFileBrowser = (
       }
       const isFile = item.type === 'file';
       const defaultValue = isFile
-        ? FilesApi.getFileNameWithoutExtension(item.name)
+        ? getFileNameWithoutExtension(item.name)
         : item.name;
       const title = isFile ? 'Zmień nazwę pliku' : 'Zmień nazwę folderu';
 
@@ -249,7 +250,7 @@ const useFileBrowser = (
       if (!newName || newName === defaultValue) return;
 
       if (isFile) {
-        const ext = FilesApi.getFileExtension(item.name);
+        const ext = getFileExtension(item.name);
         if (ext) newName += `.${ext}`;
       }
 

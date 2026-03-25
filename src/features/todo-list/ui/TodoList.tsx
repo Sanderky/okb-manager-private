@@ -33,7 +33,7 @@ import {
   updateTodoTitle,
   deleteCompletedTodos,
   updateTodoImportance,
-} from '../api/api';
+} from '../api';
 import { useDialogs } from '@/shared/ui/dialogs/useDialogs';
 import { PriorityHigh, Report, ReportOff } from '@mui/icons-material';
 import dayjs from 'dayjs';
@@ -195,25 +195,26 @@ export const TodoList = () => {
   };
 
   const activeTodos = useMemo(
-    () => todos.filter((t) => !t.is_completed),
+    () => todos.filter((t) => !t.isCompleted),
     [todos]
   );
 
   const completedTodos = useMemo(
     () =>
       todos
-        .filter((t) => t.is_completed)
+        .filter((t) => t.isCompleted)
         .sort((a, b) => {
-          const timeA = a.completed_at ? new Date(a.completed_at).getTime() : 0;
-          const timeB = b.completed_at ? new Date(b.completed_at).getTime() : 0;
+          const timeA = a.completedAt ? new Date(a.completedAt).getTime() : 0;
+          const timeB = b.completedAt ? new Date(b.completedAt).getTime() : 0;
 
           if (timeB !== timeA) {
             return timeB - timeA;
           }
 
-          return (
-            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-          );
+          const createdA = a.createdAt?.getTime() ?? 0;
+          const createdB = b.createdAt?.getTime() ?? 0;
+
+          return createdB - createdA;
         }),
     [todos]
   );
@@ -331,7 +332,7 @@ export const TodoList = () => {
                       direction={'row'}
                       alignItems={'center'}
                       sx={{
-                        mr: todo.is_important && !todo.is_completed ? 0 : 1,
+                        mr: todo.isImportant && !todo.isCompleted ? 0 : 1,
                       }}
                     >
                       <Checkbox
@@ -339,11 +340,11 @@ export const TodoList = () => {
                         checkedIcon={
                           <CheckCircleOutlineIcon fontSize="small" />
                         }
-                        checked={todo.is_completed}
+                        checked={todo.isCompleted}
                         onChange={() =>
                           toggleStatusMutation.mutate({
                             id: todo.id,
-                            status: !todo.is_completed,
+                            status: !todo.isCompleted,
                           })
                         }
                         sx={{
@@ -353,7 +354,7 @@ export const TodoList = () => {
                         }}
                       />
 
-                      {todo.is_important && !todo.is_completed && (
+                      {todo.isImportant && !todo.isCompleted && (
                         <PriorityHigh
                           fontSize="small"
                           sx={{ color: 'warning.main' }}
@@ -370,9 +371,9 @@ export const TodoList = () => {
                       }
                       sx={{
                         fontSize: '0.9rem',
-                        color: todo.is_completed
+                        color: todo.isCompleted
                           ? 'text.disabled'
-                          : todo.is_important
+                          : todo.isImportant
                             ? 'warning.main'
                             : 'text.primary',
                         transition: 'color 0.2s',
@@ -396,10 +397,10 @@ export const TodoList = () => {
                         },
                       }}
                     >
-                      {!todo.is_completed && (
+                      {!todo.isCompleted && (
                         <Tooltip
                           title={
-                            todo.is_important
+                            todo.isImportant
                               ? 'Oznacz jako nieważne'
                               : 'Oznacz jako ważne'
                           }
@@ -410,12 +411,12 @@ export const TodoList = () => {
                             onClick={() =>
                               toggleImportanceMutation.mutate({
                                 id: todo.id,
-                                isImportant: !todo.is_important,
+                                isImportant: !todo.isImportant,
                               })
                             }
                             size="small"
                           >
-                            {todo.is_important ? (
+                            {todo.isImportant ? (
                               <ReportOff fontSize="small" />
                             ) : (
                               <Report fontSize="small" />
@@ -435,12 +436,12 @@ export const TodoList = () => {
                       </Tooltip>
                     </Stack>
                   </Box>
-                  {todo.is_completed && (
+                  {todo.isCompleted && (
                     <Typography
                       ml={'28px'}
                       variant="caption"
                       color="textDisabled"
-                    >{`Wykonano: ${todo.completed_at ? dayjs(todo.completed_at).format('DD.MM.YYYY') : '-'}`}</Typography>
+                    >{`Wykonano: ${todo.completedAt ? dayjs(todo.completedAt).format('DD.MM.YYYY') : '-'}`}</Typography>
                   )}
                 </Stack>
               </ListItem>
