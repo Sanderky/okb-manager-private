@@ -487,7 +487,7 @@ const authDataMock = {
   ],
 };
 
-const daily_schedules = [] as const;
+const daily_schedules = [] as any[];
 
 const vacations = [
   {
@@ -501,7 +501,7 @@ const vacations = [
   },
 ];
 
-const calendar_events = [] as const;
+const calendar_events = [] as any[];
 
 const calendar_event_employees = [
   {
