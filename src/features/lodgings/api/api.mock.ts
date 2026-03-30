@@ -4,14 +4,12 @@ import { toSqlDate } from '@/shared/lib/date';
 import type { Lodging, LodgingAssignment } from '../model/types';
 import {
   mapLodgingFromDB,
-  mapToLodgingCreatePayload,
-  mapToLodgingUpdatePayload,
+  mapToDbPayload,
   mapAssignmentsToRelations,
-  type LodgingWithAssignments,
 } from './mappers';
 import { delay } from '@/shared/lib/delay';
 
-export const getLodgings = async (): Promise<LodgingWithAssignments[]> => {
+export const getLodgings = async (): Promise<Lodging[]> => {
   await delay();
 
   const sortedLodgings = [...mockDb.lodgings].sort((a, b) =>
@@ -37,7 +35,7 @@ export const createLodging = async (
 ): Promise<string> => {
   await delay();
 
-  const payload = mapToLodgingCreatePayload(data);
+  const payload = mapToDbPayload(data);
   const newId = crypto.randomUUID();
 
   const newLodging = { ...payload, id: newId } as any;
@@ -57,7 +55,7 @@ export const updateLodging = async (
 ): Promise<void> => {
   await delay();
 
-  const payload = mapToLodgingUpdatePayload(data);
+  const payload = mapToDbPayload(data);
 
   if (Object.keys(payload).length > 0) {
     const index = mockDb.lodgings.findIndex((l) => l.id === id);

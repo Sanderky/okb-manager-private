@@ -14,19 +14,18 @@ import {
 import { Edit, LocationOn, DateRange, People } from '@mui/icons-material';
 import dayjs from 'dayjs';
 import 'dayjs/locale/pl';
-import type { ExtendedLodging } from '../model/types';
 import { getEmployeeLabel } from '../model/label';
 import type { Employee } from '@/entities/employee';
 import { openGoogleMaps } from '@/shared/lib/browser';
-
+import type { Lodging } from '../model/types';
 
 interface LodgingCardProps {
-  lodging: ExtendedLodging;
+  lodging: Lodging;
   employees: Employee[];
-  onEdit: (l: ExtendedLodging) => void;
+  onEdit: (l: Lodging) => void;
   onEmployeeClick: (id: string) => void;
-  siteName?: string;
-  siteId?: string;
+  constructionName?: string;
+  constructionId?: string;
   handleClickOnConstruction: (id: string | undefined) => void;
 }
 
@@ -35,8 +34,8 @@ const LodgingCard: React.FC<LodgingCardProps> = ({
   employees,
   onEdit,
   onEmployeeClick,
-  siteName,
-  siteId,
+  constructionName,
+  constructionId,
   handleClickOnConstruction,
 }) => {
   const assignedEmployees = useMemo(
@@ -78,10 +77,10 @@ const LodgingCard: React.FC<LodgingCardProps> = ({
           <Box pr={2}>
             <Stack direction="column" spacing={1}>
               <Box>
-                {siteName && (
+                {constructionName && (
                   <Typography
                     fontWeight="bold"
-                    onClick={() => handleClickOnConstruction(siteId)}
+                    onClick={() => handleClickOnConstruction(constructionId)}
                     sx={{
                       ':hover': {
                         cursor: 'pointer',
@@ -89,7 +88,7 @@ const LodgingCard: React.FC<LodgingCardProps> = ({
                       },
                     }}
                   >
-                    {siteName}
+                    {constructionName}
                   </Typography>
                 )}
                 {lodging.name && (

@@ -1,9 +1,9 @@
 import dayjs from 'dayjs';
-import type { ExtendedLodging } from './types';
+import type { Lodging } from './types';
 
 export const getEmployeeLabel = (
   employeeName: string,
-  lodging: ExtendedLodging,
+  lodging: Lodging,
   employeeId: string
 ) => {
   const assignment = lodging.assignments?.find(
