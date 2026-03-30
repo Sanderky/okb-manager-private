@@ -13,7 +13,7 @@ import { Home } from '@/pages/home';
 import { useAuth } from '@/entities/session';
 import { useQuery } from '@tanstack/react-query';
 import { EmployeeApi } from '@/entities/employee';
-import { HomeNoteApi } from '@/features/home-note';
+import { useHomeNote } from '@/features/home-note';
 import { LayoutProvider } from '@/shared/lib/LayoutContext';
 import { ThemeContextProvider } from '@/shared/lib/ThemeContext';
 import { useEffect } from 'react';
@@ -91,11 +91,7 @@ const useInitData = () => {
       enabled: !!user,
     });
 
-  const { isLoading: homeNoteLoading, error: homeNoteError } = useQuery({
-    queryKey: ['home', 'note'],
-    queryFn: HomeNoteApi.getHomeNote,
-    enabled: !!user,
-  });
+  const { isLoading: homeNoteLoading, isError: homeNoteError } = useHomeNote(!!user);
 
   const { isLoading: isAlertsLoading, error: alertsError } = useQuery({
     queryKey: ['alerts'],
