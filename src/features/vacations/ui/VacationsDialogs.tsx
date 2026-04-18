@@ -50,9 +50,8 @@ import { useReactToPrint } from 'react-to-print';
 import { plPL } from '@mui/x-date-pickers/locales';
 import type { Employee } from '@/entities/employee';
 import { getDateStr } from '@/shared/lib/string';
-import type { Vacation } from '@/entities/vacations';
+import { employeeColors, type Vacation } from '@/entities/vacations';
 import { stringToColor } from '@/shared/lib/stringToColor';
-import { employeeColors } from '../model/colors';
 
 interface FilterDialogProps {
   isFilterOpen: boolean;

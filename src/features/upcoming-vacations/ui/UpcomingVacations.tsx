@@ -10,34 +10,30 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
 import { BeachAccess, Done } from '@mui/icons-material';
 import dayjs from 'dayjs';
 import Loading from '@/shared/ui/Loading';
 import { ExpandMore, ExpandLess } from '@mui/icons-material';
 import { useScroll } from '@/shared/lib/ScrollContext';
-import { VacationApi } from '@/entities/vacations';
 import { getDateStr } from '@/shared/lib/string';
+import { useUpcomingVacations } from '../model/useUpcomingVacations';
+import type { Vacation } from '@/entities/vacations';
+
+const MAX_VISIBLE_ITEMS = 2;
 
 export const UpcomingVacation = () => {
   const navigate = useNavigate();
   const [isExpanded, setIsExpanded] = useState(false);
+  const { scrollToTop } = useScroll();
+  const { data: upcomingVacations, isLoading } = useUpcomingVacations();
 
-  const { data: upcomingVacations = [], isLoading } = useQuery({
-    queryKey: ['vacations', 'upcoming-vacations'],
-    queryFn: () => VacationApi.getUpcomingVacations(),
-  });
-
-  const MAX_VISIBLE_ITEMS = 2;
   const hasMoreItems = upcomingVacations.length > MAX_VISIBLE_ITEMS;
 
   const toggleExpanded = () => {
     setIsExpanded(!isExpanded);
   };
 
-  const { scrollToTop } = useScroll();
-
-  const handleVacationClick = (vacation: any) => {
+  const handleVacationClick = (vacation: Vacation) => {
     const startMonth = dayjs(vacation.startDate).format('YYYY-MM');
     navigate(`/vacations?month=${startMonth}&vacationId=${vacation.id}`);
     scrollToTop();

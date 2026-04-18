@@ -30,7 +30,7 @@ import { useDialogs } from '@/shared/ui/dialogs/useDialogs';
 import type { CalendarDay, CalendarEvent } from '../model/types';
 import { EmployeeApi, type Employee } from '@/entities/employee';
 import { VacationApi, type Vacation } from '@/entities/vacations';
-import { validateVacation } from '../model/validation';
+import { validateVacation } from '../lib/validation';
 import { WEEK_DAYS } from '@/shared/config/days';
 import { CalendarGrid } from './VacationsGrid';
 

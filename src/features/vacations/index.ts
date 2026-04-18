@@ -1,4 +1,3 @@
 import { VacationsCalendar } from './ui/Vacations';
-
-export * from './ui/UpcomingVacations';
+export * from '../upcoming-vacations/ui/UpcomingVacations';
 export {VacationsCalendar}
