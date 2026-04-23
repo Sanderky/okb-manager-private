@@ -1,5 +1,4 @@
 import React, { useMemo, useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Box,
   Typography,
@@ -16,135 +15,41 @@ import {
   Divider,
   Stack,
   Tooltip,
-  TextField,
-  InputAdornment,
   Pagination,
 } from '@mui/material';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-import AddIcon from '@mui/icons-material/Add';
 
-import {
-  getTodos,
-  addTodo,
-  updateTodoStatus,
-  deleteTodo,
-  updateTodoTitle,
-  deleteCompletedTodos,
-  updateTodoImportance,
-} from '../api';
 import { useDialogs } from '@/shared/ui/dialogs/useDialogs';
 import { PriorityHigh, Report, ReportOff } from '@mui/icons-material';
 import dayjs from 'dayjs';
+import { useTodo } from '../model/useTodo';
+import {
+  useAddTodo,
+  useClearCompletedTodos,
+  useDeleteTodo,
+  useEditTodo,
+  useToggleTodoImportance,
+  useToggleTodoStatus,
+} from '../model/useTodoMutations';
+import { filterAndSortCompletedTodos } from '../lib/todoUtils';
+import { AddTodoInput } from './TodoInput';
 
 const ITEMS_PER_PAGE = 20;
 
-const AddTodoInput = ({
-  onAdd,
-  disabled,
-}: {
-  onAdd: (text: string) => void;
-  disabled: boolean;
-}) => {
-  const [text, setText] = useState('');
-
-  const handleSubmit = () => {
-    if (text.trim()) {
-      onAdd(text);
-      setText('');
-    }
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      handleSubmit();
-    }
-  };
-
-  return (
-    <Box sx={{ p: 2, pb: 0 }}>
-      <TextField
-        multiline
-        placeholder="Dodaj nowe zadanie..."
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        onKeyDown={handleKeyPress}
-        disabled={disabled}
-        size="small"
-        fullWidth
-        slotProps={{
-          input: {
-            size: 'small',
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton
-                  color="primary"
-                  onClick={handleSubmit}
-                  disabled={!text.trim() || disabled}
-                  size="small"
-                >
-                  <AddIcon />
-                </IconButton>
-              </InputAdornment>
-            ),
-          },
-        }}
-      />
-    </Box>
-  );
-};
-
 export const TodoList = () => {
-  const queryClient = useQueryClient();
   const [tabValue, setTabValue] = useState(0);
   const [page, setPage] = useState(1);
   const dialogs = useDialogs();
 
-  const {
-    data: todos = [],
-    isLoading,
-    isError,
-  } = useQuery({
-    queryKey: ['todos'],
-    queryFn: getTodos,
-  });
-
-  const addMutation = useMutation({
-    mutationFn: addTodo,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['todos'] });
-    },
-  });
-
-  const toggleStatusMutation = useMutation({
-    mutationFn: ({ id, status }: { id: number; status: boolean }) =>
-      updateTodoStatus(id, status),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['todos'] }),
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: deleteTodo,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['todos'] }),
-  });
-
-  const editMutation = useMutation({
-    mutationFn: ({ id, title }: { id: number; title: string }) =>
-      updateTodoTitle(id, title),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['todos'] }),
-  });
-
-  const toggleImportanceMutation = useMutation({
-    mutationFn: ({ id, isImportant }: { id: number; isImportant: boolean }) =>
-      updateTodoImportance(id, isImportant),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['todos'] }),
-  });
-
-  const clearCompletedMutation = useMutation({
-    mutationFn: deleteCompletedTodos,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['todos'] }),
-  });
+  const { data: todos, isLoading, isError } = useTodo();
+  const addMutation = useAddTodo();
+  const toggleStatusMutation = useToggleTodoStatus();
+  const deleteMutation = useDeleteTodo();
+  const editMutation = useEditTodo();
+  const toggleImportanceMutation = useToggleTodoImportance();
+  const clearCompletedMutation = useClearCompletedTodos();
 
   const handleAddTodo = (text: string) => {
     addMutation.mutate(text);
@@ -165,6 +70,7 @@ export const TodoList = () => {
       clearCompletedMutation.mutate();
     }
   };
+
   const handleDelete = async (id: number) => {
     if (!id) return;
     if (
@@ -200,22 +106,7 @@ export const TodoList = () => {
   );
 
   const completedTodos = useMemo(
-    () =>
-      todos
-        .filter((t) => t.isCompleted)
-        .sort((a, b) => {
-          const timeA = a.completedAt ? new Date(a.completedAt).getTime() : 0;
-          const timeB = b.completedAt ? new Date(b.completedAt).getTime() : 0;
-
-          if (timeB !== timeA) {
-            return timeB - timeA;
-          }
-
-          const createdA = a.createdAt?.getTime() ?? 0;
-          const createdB = b.createdAt?.getTime() ?? 0;
-
-          return createdB - createdA;
-        }),
+    () => filterAndSortCompletedTodos(todos),
     [todos]
   );
 
