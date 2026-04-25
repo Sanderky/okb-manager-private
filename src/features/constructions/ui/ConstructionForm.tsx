@@ -17,11 +17,10 @@ import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { NoteBase } from '@/shared/ui/Note';
 import { plPL } from '@mui/x-date-pickers/locales';
-import { useQuery } from '@tanstack/react-query';
 import { Add } from '@mui/icons-material';
 import { shouldBeInactive, type Construction } from '@/entities/construction';
-import { ContractorsApi } from '@/entities/contractor';
-import { AddContractorDialog } from '../../contractors/ui/ContractorsDialog';
+import { useContractors } from '@/entities/contractor';
+import { AddContractorDialog } from '@/features/contractors';
 
 export interface ConstructionFormState {
   values: Partial<Omit<Construction, 'id'>>;
@@ -68,10 +67,7 @@ export function ConstructionForm(props: ConstructionFormProps) {
 
   const [contractorsModalOpen, setContractorsModalOpen] = useState(false);
 
-  const { data: contractors, isLoading: contractorsIsLoading } = useQuery({
-    queryKey: ['contractors'],
-    queryFn: ContractorsApi.getContractors,
-  });
+  const { data: contractors, isLoading: contractorsIsLoading } = useContractors();
 
   const contractorsOptions = useMemo(() => {
     if (!contractors) return [];

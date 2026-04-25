@@ -27,13 +27,13 @@ import { plPL } from '@mui/x-date-pickers/locales';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import type { Construction } from '@/entities/construction';
-import { ContractorsApi } from '@/entities/contractor';
 import { EmployeeApi } from '@/entities/employee';
 import {
   FiltersDialog,
   type ConstructionsFilters,
 } from './ConstructionsListFilters';
 import { TablePagination } from '@/shared/ui/TablePagination';
+import { useContractors } from '@/entities/contractor';
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
@@ -99,10 +99,7 @@ export function ConstructionsList({
     );
   }, [columnFilters]);
 
-  const { data: contractors } = useQuery({
-    queryKey: ['contractors'],
-    queryFn: ContractorsApi.getContractors,
-  });
+  const { data: contractors } = useContractors();
 
   const contractorOptions = useMemo(() => {
     if (!contractors || contractors.length === 0) return [];

@@ -41,10 +41,10 @@ import { getNearestUpcomingEvents } from '@/features/calendar';
 import { ConstructionCreatePage } from '@/pages/construction-create';
 import { getTodos } from '@/features/todo-list';
 import { getEmployeeAlerts } from '@/entities/employee';
-import { getContractors } from '@/entities/contractor';
 import { CalendarPage } from '@/pages/calendar';
 import { AuthApi } from '@/entities/session';
 import { useRealtime } from './real-time/useRealtime';
+import { useContractors } from '@/entities/contractor';
 
 const useInitData = () => {
   const { user, initialLoading: authLoading, error } = useAuth();
@@ -55,13 +55,7 @@ const useInitData = () => {
     enabled: !!user,
   });
 
-  const { isLoading: isContractorsLoading, error: contractorsError } = useQuery(
-    {
-      queryKey: ['contractors'],
-      queryFn: getContractors,
-      enabled: !!user,
-    }
-  );
+  const { isLoading: isContractorsLoading, isError: contractorsError } = useContractors(!!user);
 
   const { isLoading: constructionsLoading, error: constructionsError } =
     useQuery({
