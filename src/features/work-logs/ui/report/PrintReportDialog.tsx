@@ -21,11 +21,11 @@ import { getWeekNumber } from '@/shared/lib/date';
 import WeekSelector from '@/shared/ui/WeekSelector';
 import BaseDialog from '@/shared/ui/BaseDialog';
 import { ExpandLess, ExpandMore, FilterList } from '@mui/icons-material';
-import EmployeesContructionsFilters from './EmployeesConstructionsFilters';
-import { PrintReport } from './report/PrintReport';
+import EmployeesContructionsFilters from '../EmployeesConstructionsFilters';
+import { PrintReport } from './PrintReport';
 import type { LangCode } from '@/shared/model/types';
 import { Langs } from '@/shared/config/langCodes';
-import { usePrintReportDialog } from '../model/usePrintReport';
+import { usePrintReportDialog } from '../../model/usePrintReport';
 
 interface PrintReportDialogProps {
   open: boolean;

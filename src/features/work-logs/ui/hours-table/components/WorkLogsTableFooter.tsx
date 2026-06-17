@@ -11,7 +11,7 @@ import {
 import { Add } from '@mui/icons-material';
 import 'dayjs/locale/pl';
 import type { Construction } from '@/entities/construction';
-import type { ConstructionsWithWorkHours } from '../../model/types';
+import type { ConstructionsWithWorkHours } from '../../../model/types';
 import { formatToPolishDecimal } from '@/shared/lib/format';
 
 interface Props {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Typography, InputBase } from '@mui/material';
 import 'dayjs/locale/pl';
-import { findAndFocus } from '../../lib/findAndFocus';
+import { findAndFocus } from '../../../lib/findAndFocus';
 
 const inputStyles = {
   textAlign: 'center',

@@ -9,9 +9,9 @@ import {
 import { Add } from '@mui/icons-material';
 import 'dayjs/locale/pl';
 import type { Employee } from '@/entities/employee';
-import type { ConstructionsWithWorkHours } from '../../model/types';
+import type { ConstructionsWithWorkHours } from '../../../model/types';
 import { EditableCell } from './EditableCell';
-import { areConstructionsEqual } from '../helpers/areConstructionsEqual';
+import { areConstructionsEqual } from '../../helpers/areConstructionsEqual';
 import { formatToPolishDecimal } from '@/shared/lib/format';
 
 const numberCellMaxWidth = '20px';
