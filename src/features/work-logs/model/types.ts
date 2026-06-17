@@ -1,11 +1,14 @@
 import type { IsoDateString } from '@/shared/model/types';
 
+export type WeeklyTuple<T> = [T, T, T, T, T, T, T];
+
 export interface WorkHours {
   id: string;
   constructionId: string;
   employeeId: string;
   weekStart: Date;
-  hours: (number | null)[];
+
+  hours: WeeklyTuple<number | null>;
   total?: number;
 
   employeeName?: string;
@@ -19,7 +22,8 @@ export interface WorkLogEntry {
   id: string;
   employeeId: string;
   constructionId: string;
-  date: string;
+
+  date: IsoDateString;
   hours: number | null;
 
   employeeName?: string;
@@ -41,19 +45,21 @@ export interface HoursRow {
 
 export type WorkLogMap = Record<IsoDateString, WorkLogEntry>;
 
+export interface EmployeeWeeklyHours {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  isActive: boolean;
+  hours: WeeklyTuple<number | null>;
+  total: number;
+  isOnVacation: WeeklyTuple<boolean>;
+}
+
 export interface ConstructionsWithWorkHours {
   id: string;
   name: string;
   isActive: boolean;
-  workHours: {
-    id: string;
-    employeeId: string;
-    employeeName: string;
-    isActive: boolean;
-    hours: (number | null)[];
-    total: number;
-    isOnVacation: boolean[];
-  }[];
+  workHours: EmployeeWeeklyHours[];
   totalHours: number;
 }
 
@@ -61,5 +67,8 @@ export interface TableData {
   weekStart: Date;
   constructionsWithWorkHours: ConstructionsWithWorkHours[];
   weekDates: Date[];
-  totalHoursData: { dailyTotals: number[]; grandTotal: number };
+  totalHoursData: {
+    dailyTotals: WeeklyTuple<number>;
+    grandTotal: number;
+  };
 }

@@ -29,8 +29,8 @@ import { useReactToPrint } from 'react-to-print';
 import { PrintReport } from './PrintReport';
 import dayjs from 'dayjs';
 import {
-  getReporTranslations,
-} from '../model/reportTranslations';
+  getReportTranslations,
+} from '../lib/reportTranslations';
 import BaseDialog from '@/shared/ui/BaseDialog';
 import { ExpandLess, ExpandMore, FilterList } from '@mui/icons-material';
 import EmployeesContructionsFilters from './EmployeesConstructionsFilters';
@@ -535,7 +535,7 @@ export const PrintReportDialog: React.FC<PrintReportDialogProps> = ({
     onClose();
   };
 
-  const reportTranslations = getReporTranslations(lang);
+  const reportTranslations = getReportTranslations(lang);
 
   const reactToPrintFn = useReactToPrint({
     contentRef: printContentRef,

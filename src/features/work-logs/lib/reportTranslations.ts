@@ -1,6 +1,6 @@
-import type { LangCode } from "@/shared/model/types";
+import type { LangCode } from '@/shared/model/types';
 
-interface ReportTranslations {
+export interface ReportTranslations {
   title: string;
   subtitle: string;
   week: string;
@@ -11,8 +11,8 @@ interface ReportTranslations {
   vacation: string;
   noData: string;
   fileNamePrefix: string;
-  constructions: string,
-  employees: string
+  constructions: string;
+  employees: string;
 }
 
 const PL: ReportTranslations = {
@@ -27,7 +27,7 @@ const PL: ReportTranslations = {
   noData: 'Brak danych',
   fileNamePrefix: 'Raport_godzin_',
   constructions: 'Budowy',
-  employees: 'Pracownicy'
+  employees: 'Pracownicy',
 };
 
 const DE: ReportTranslations = {
@@ -42,12 +42,14 @@ const DE: ReportTranslations = {
   noData: 'Keine Daten',
   fileNamePrefix: 'Arbeitszeitbericht_',
   constructions: 'Baustellen',
-  employees: 'Mitarbeiter'
+  employees: 'Mitarbeiter',
 };
 
-const Transations: Record<LangCode, ReportTranslations> = {
+const Translations: Record<LangCode, ReportTranslations> = {
   'pl-PL': PL,
   'de-DE': DE,
 };
 
-export const getReporTranslations = (lang: LangCode) => Transations[lang];
+export const getReportTranslations = (lang: LangCode): ReportTranslations => {
+  return Translations[lang] || Translations['pl-PL'];
+};

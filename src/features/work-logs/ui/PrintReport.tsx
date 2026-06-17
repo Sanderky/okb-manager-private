@@ -15,17 +15,17 @@ import isBetween from 'dayjs/plugin/isBetween';
 import 'dayjs/locale/pl';
 import isoWeek from 'dayjs/plugin/isoWeek';
 import { CancelPresentation } from '@mui/icons-material';
-import { formatToPolishDecimal } from '../model/format';
-import useWeekReport from '../model/useWeeksReport';
-import { getReporTranslations } from '../model/reportTranslations';
+import useWeekReport from '../model/useWeekReport';
+import { getReportTranslations } from '../lib/reportTranslations';
 import type { ConstructionsWithWorkHours, TableData } from '../model/types';
-import { sortConstructionsWithWorkHours } from '../model/sort';
 import {
   formatWeeksString,
   getWeekNumber,
   getWeeksInRange,
 } from '@/shared/lib/date';
 import type { LangCode } from '@/shared/model/types';
+import { sortConstructionsWithWorkHours } from '../model/hoursTableUtils';
+import { formatToPolishDecimal } from '@/shared/lib/format';
 
 dayjs.extend(isoWeek);
 dayjs.extend(isBetween);
@@ -52,7 +52,7 @@ const TableRows = ({
   showVacation,
   lang,
 }: TableRowsProps) => {
-  const translations = getReporTranslations(lang);
+  const translations = getReportTranslations(lang);
   if (constructionsWithWorkHours.length > 0) {
     return constructionsWithWorkHours.map((construction) => {
       return (
@@ -225,7 +225,7 @@ export const PrintableTable = forwardRef<HTMLDivElement, PrintableTableProps>(
     },
     ref
   ) => {
-    const translations = getReporTranslations(lang);
+    const translations = getReportTranslations(lang);
     const dataSorted = useMemo(() => {
       return sortConstructionsWithWorkHours(constructionsWithWorkHours);
     }, [constructionsWithWorkHours]);
@@ -526,7 +526,7 @@ export const PrintReport = forwardRef<HTMLDivElement, PrintReportProps>(
       selectedEmployeeIds: selectedEmployees,
     });
 
-    const translations = getReporTranslations(lang);
+    const translations = getReportTranslations(lang);
 
     useEffect(() => {
       onLoading(isLoading);
