@@ -10,6 +10,13 @@ import type {
   WeeklyTuple,
 } from './types';
 
+import {
+  formatWorkLogsForTable,
+  buildGroupedConstructionView,
+  calculateTotalHours,
+  sortConstructionsWithWorkHours,
+} from './hoursTableUtils';
+
 dayjs.extend(isSameOrBefore);
 
 interface WeekReportData {
@@ -61,98 +68,52 @@ export const processSingleWeekData = (
   const isEmployeeOnVacation = (empId: string, date: Date) =>
     vacationMap.get(empId)?.has(dayjs(date).format('YYYY-MM-DD')) ?? false;
 
-  const selEmpIds = new Set(selectedEmployeeIds);
-  const selConIds = new Set(selectedConstructionIds);
-  const constructionMap = new Map<string, ConstructionsWithWorkHours>();
+  const selectedEmployees = allEmployees.filter((e) =>
+    selectedEmployeeIds.includes(e.id)
+  );
+  const selectedConstructions = allConstructions.filter((c) =>
+    selectedConstructionIds.includes(c.id)
+  );
 
-  workLogs.forEach((log) => {
-    if (selEmpIds.size > 0 && !selEmpIds.has(log.employeeId)) return;
-    if (selConIds.size > 0 && !selConIds.has(log.constructionId)) return;
-
+  const enrichedWorkLogs = workLogs.map((log) => {
     const cDef = allConstructions.find((c) => c.id === log.constructionId);
     const eDef = allEmployees.find((e) => e.id === log.employeeId);
-
-    if (!constructionMap.has(log.constructionId)) {
-      constructionMap.set(log.constructionId, {
-        id: log.constructionId,
-        name: log.constructionName || cDef?.name || 'Nieznana budowa',
-        isActive: log.constructionActive ?? cDef?.status ?? true,
-        workHours: [],
-        totalHours: 0,
-      });
-    }
-
-    const group = constructionMap.get(log.constructionId)!;
-    let workHourEntry = group.workHours.find(
-      (wh) => wh.employeeId === log.employeeId
-    );
-
-    if (!workHourEntry) {
-      workHourEntry = {
-        id: `${log.constructionId}_${log.employeeId}_${currentWeekStart.getTime()}`,
-        employeeId: log.employeeId,
-        employeeName: log.employeeName || eDef?.name || 'Nieznany pracownik',
-        isActive: log.employeeActive ?? eDef?.status ?? true,
-        hours: [0, 0, 0, 0, 0, 0, 0] as WeeklyTuple<number | null>,
-        total: 0,
-        isOnVacation: [
-          false,
-          false,
-          false,
-          false,
-          false,
-          false,
-          false,
-        ] as WeeklyTuple<boolean>,
-      };
-      group.workHours.push(workHourEntry);
-    }
-
-    const dayIndex = weekDates.findIndex(
-      (d) =>
-        dayjs(d).format('YYYY-MM-DD') === dayjs(log.date).format('YYYY-MM-DD')
-    );
-
-    if (dayIndex !== -1) {
-      workHourEntry.hours[dayIndex] = log.hours;
-    }
+    return {
+      ...log,
+      constructionName: log.constructionName || cDef?.name,
+      constructionActive: log.constructionActive ?? cDef?.status ?? true,
+      employeeName: log.employeeName || eDef?.name,
+      employeeActive: log.employeeActive ?? eDef?.status ?? true,
+    };
   });
 
-  const dailyTotals: WeeklyTuple<number> = [0, 0, 0, 0, 0, 0, 0];
-  let grandTotal = 0;
-
-  constructionMap.forEach((group) => {
-    group.workHours.forEach((wh) => {
-      wh.isOnVacation = weekDates.map((d) =>
-        isEmployeeOnVacation(wh.employeeId, d)
-      ) as WeeklyTuple<boolean>;
-      wh.total = wh.hours.reduce<number>(
-        (sum, h, i) => (wh.isOnVacation[i] ? sum : sum + (h ?? 0)),
-        0
-      );
-      group.totalHours += wh.total;
-
-      wh.hours.forEach((h, i) => {
-        if (!wh.isOnVacation[i]) {
-          const val = h ?? 0;
-          dailyTotals[i] += val;
-          grandTotal += val;
-        }
-      });
-    });
-    group.workHours.sort((a, b) =>
-      a.employeeName.localeCompare(b.employeeName)
-    );
-  });
-
-  const res = Array.from(constructionMap.values()).sort((a, b) =>
-    a.name.localeCompare(b.name)
+  const formattedWorkHours = formatWorkLogsForTable(
+    enrichedWorkLogs,
+    currentWeekStart
   );
+
+  const groupedConstructions = buildGroupedConstructionView(
+    formattedWorkHours,
+    currentWeekStart,
+    selectedEmployees,
+    selectedConstructions,
+    isEmployeeOnVacation
+  );
+
+  const totalHoursData = calculateTotalHours(
+    formattedWorkHours,
+    currentWeekStart,
+    selectedEmployees,
+    selectedConstructions,
+    isEmployeeOnVacation
+  );
+
+  const finalSortedData = sortConstructionsWithWorkHours(groupedConstructions);
 
   return {
     weekStart: currentWeekStart,
-    constructionsWithWorkHours: res,
+    constructionsWithWorkHours: finalSortedData,
     weekDates,
-    totalHoursData: { dailyTotals, grandTotal },
+    totalHoursData,
   };
 };

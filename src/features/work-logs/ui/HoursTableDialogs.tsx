@@ -26,7 +26,7 @@ import {
 } from '@/shared/lib/date';
 import WeekSelector from '@/shared/ui/WeekSelector';
 import { useReactToPrint } from 'react-to-print';
-import { PrintReport } from './PrintReport';
+import { PrintReport } from './report/PrintReport';
 import dayjs from 'dayjs';
 import {
   getReportTranslations,

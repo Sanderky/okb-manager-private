@@ -17,7 +17,6 @@ import {
   FiltersDialog,
 } from './HoursTableDialogs';
 import HoursTableControls from './hours-table-components/HoursTableControls';
-import { PrintableTable } from './PrintReport';
 import type { TableData } from '../model/types';
 import { useHoursTable } from '../model/useHoursTable';
 import { NoTable } from './hours-table-components/NoTable';
@@ -25,6 +24,7 @@ import { WorkLogsTableContent } from './hours-table-components/WorkLogsTableCont
 import { WorkLogsTableFooter } from './hours-table-components/WorkLogsTableFooter';
 import { WorkLogsTableHeader } from './hours-table-components/WorkLogsTableHeader';
 import { sortConstructionsWithWorkHours } from '../model/hoursTableUtils';
+import { PrintableTable } from './report/components/PrintableTable';
 
 dayjs.extend(isoWeek);
 dayjs.extend(isBetween);
