@@ -10,12 +10,6 @@ import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
 import 'dayjs/locale/pl';
 import isoWeek from 'dayjs/plugin/isoWeek';
-import {
-  AddConstructionWithEmployeeDialog,
-  AddEmployeeDialog,
-  CopyTableDialog,
-  FiltersDialog,
-} from './HoursTableDialogs';
 import HoursTableControls from './hours-table-components/HoursTableControls';
 import type { TableData } from '../model/types';
 import { useHoursTable } from '../model/useHoursTable';
@@ -25,6 +19,10 @@ import { WorkLogsTableFooter } from './hours-table-components/WorkLogsTableFoote
 import { WorkLogsTableHeader } from './hours-table-components/WorkLogsTableHeader';
 import { sortConstructionsWithWorkHours } from '../model/hoursTableUtils';
 import { PrintableTable } from './report/components/PrintableTable';
+import { AddConstructionWithEmployeeDialog } from './hours-table-components/dialogs/AddConstructionWithEmployee';
+import { CopyTableDialog } from './hours-table-components/dialogs/CopyTableDialog';
+import { AddEmployeeDialog } from './hours-table-components/dialogs/AddEmployeeDialog';
+import { FiltersDialog } from './hours-table-components/dialogs/FiltersDialogProps';
 
 dayjs.extend(isoWeek);
 dayjs.extend(isBetween);

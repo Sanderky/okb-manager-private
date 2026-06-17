@@ -1,4 +1,5 @@
-import { PrintReportDialog } from './ui/HoursTableDialogs';
+
+import { PrintReportDialog } from './ui/PrintReportDialog';
 import { MultiTablePrintReport } from './ui/report/MultiTablePrintReport';
 
 export * from './ui/HoursTable';

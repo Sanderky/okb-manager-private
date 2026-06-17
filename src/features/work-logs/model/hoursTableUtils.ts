@@ -270,3 +270,17 @@ export const sortConstructionsWithWorkHours = (
     }))
     .sort((a, b) => a.name.localeCompare(b.name));
 };
+
+export const createEmptyWorkHours = (
+  constructionId: string,
+  employees: Employee[],
+  currentWeek: Date
+): WorkHours[] => {
+  return employees.map((employee) => ({
+    id: `${constructionId}_${employee.id}_${currentWeek.getTime()}`,
+    constructionId,
+    employeeId: employee.id,
+    weekStart: currentWeek,
+    hours: [null, null, null, null, null, null, null],
+  }));
+};
