@@ -86,6 +86,7 @@ export const useHoursTableActions = ({
     },
     () => notifications.show('Błąd zapisu', { severity: 'error' })
   );
+
   const handleCancelEdit = useCallback(async () => {
     if (hasUnsavedChanges) {
       const isConfirmed = await dialogs.confirm(
@@ -136,7 +137,7 @@ export const useHoursTableActions = ({
       saveMutation,
       setEditMode,
     ]
-  ); // Pamiętaj o dodaniu currentWeek do zależności!
+  );
 
   const handleCopyFromSourceWeek = useCallback(
     async (sourceDate: Date) => {

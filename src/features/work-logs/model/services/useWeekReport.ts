@@ -3,7 +3,7 @@ import { useConstructions } from '@/entities/construction';
 import { useEmployees } from '@/entities/employee';
 import { processSingleWeekData } from '../utils/weeksReportUtils';
 import type { ConstructionsWithWorkHours } from '../types';
-import { useReportData } from './useReportData';
+import { useReportData } from '../api/useReportData';
 
 interface UseWeekReportResult {
   weeksData: Array<{

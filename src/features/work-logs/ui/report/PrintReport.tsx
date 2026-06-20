@@ -6,7 +6,7 @@ import { getReportTranslations } from '../../lib/reportTranslations';
 import { formatWeeksString, getWeeksInRange } from '@/shared/lib/date';
 import type { LangCode } from '@/shared/model/types';
 import { PrintableTable } from './components/PrintableTable';
-import useWeekReport from '../../model/api/useWeekReport';
+import useWeekReport from '../../model/services/useWeekReport';
 
 interface PrintReportProps {
   startWeek: Date;

@@ -21,9 +21,13 @@ export const useSaveWorkLogs = (
       await overrideWorkLogsForWeek(currentWeek, logs);
       return currentWeek;
     },
-    onSuccess: (savedWeek) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ['workLogs', savedWeek.toISOString()],
+        queryKey: ['workLogs'],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ['weekReportData'],
       });
       onSuccessCallback?.();
     },
