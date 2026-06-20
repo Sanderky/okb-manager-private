@@ -38,8 +38,6 @@ export const TableControls: React.FC<TableControlsProps> = ({
   setFromWeek,
   setToWeek,
   setIsFilterOpen,
-  // showVacations,
-  // setShowVacations,
   showDates,
   setShowDates,
   activeTable,
@@ -64,15 +62,15 @@ export const TableControls: React.FC<TableControlsProps> = ({
       sx={(theme) => ({
         p: 1,
         background: theme.palette.background.paper,
-        borderBottom: `1px solid ${theme.palette.divider}`
+        borderBottom: `1px solid ${theme.palette.divider}`,
       })}
     >
       <Stack direction={'row'} alignItems={'center'} gap={1}>
         <Typography
-          className="rounded-full border 0 px-3 py-1 font-semibold"
+          className="0 rounded-full border px-3 py-1 font-semibold"
           sx={{
             fontSize: '0.8rem',
-            borderColor: 'text.primary'
+            borderColor: 'text.primary',
           }}
         >
           {dayjs(fromWeek).format('DD.MM.YY')} -{' '}
@@ -275,7 +273,7 @@ export const TableControls: React.FC<TableControlsProps> = ({
       sx={(theme) => ({
         p: 1,
         background: theme.palette.background.paper,
-        borderBottom: `1px solid ${theme.palette.divider}`
+        borderBottom: `1px solid ${theme.palette.divider}`,
       })}
     >
       <Stack alignItems={'center'} direction={'row'} flexWrap={'wrap'} gap={2}>
@@ -377,7 +375,7 @@ export const TableControls: React.FC<TableControlsProps> = ({
               xs: 'none',
               sm: 'block',
             },
-            borderColor: 'text.primary'
+            borderColor: 'text.primary',
           }}
         >
           {dayjs(fromWeek).format('DD.MM.YYYY')} -{' '}

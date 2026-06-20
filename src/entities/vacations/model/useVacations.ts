@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import type { Vacation } from './types';
 import * as VacationApi from '../api';
 
-export const useVacations = (monthKeys: string[]) => {
+export const useVacations = (monthKeys: string[], enabled = true) => {
   const {
     data = [],
     isLoading,
@@ -10,6 +10,7 @@ export const useVacations = (monthKeys: string[]) => {
   } = useQuery<Vacation[], Error>({
     queryKey: ['vacations', monthKeys],
     queryFn: () => VacationApi.getVacationListForMonths(monthKeys),
+    enabled,
   });
 
   return { data, isLoading, isError };

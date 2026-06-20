@@ -9,14 +9,15 @@ import {
   Chip,
 } from '@mui/material';
 import { Dayjs } from 'dayjs';
-import type { ICell } from '../model/types';
+import type { CellDisplayItem, ICell } from '../../model/types';
 import type { Employee } from '@/entities/employee';
+import { ScheduleCellContent } from './ScheduleCellContent';
 
 interface EmployeeRowProps {
   employee: Employee;
   weeks: Dayjs[];
   onCellClick: (e: React.MouseEvent<HTMLElement>, cell: ICell) => void;
-  cellText: (cell: ICell) => React.ReactNode;
+  getCellContentItems: (cell: ICell) => CellDisplayItem[];
   activeTable: { type: number; week: Dayjs };
   loadingCells: Set<string>;
   getCellKey: (cell: ICell) => string;
@@ -27,14 +28,21 @@ interface EmployeeRowProps {
 interface ScheduleCellProps {
   cell: ICell;
   onClick: (e: React.MouseEvent<HTMLElement>, cell: ICell) => void;
-  cellText: (cell: ICell) => React.ReactNode;
+  getCellContentItems: (cell: ICell) => CellDisplayItem[];
   loadingCells: Set<string>;
   getCellKey: (cell: ICell) => string;
   employee: Employee;
 }
 
 const ScheduleCell: React.FC<ScheduleCellProps> = React.memo(
-  ({ cell, onClick, cellText, loadingCells, getCellKey, employee }) => {
+  ({
+    cell,
+    onClick,
+    getCellContentItems,
+    loadingCells,
+    getCellKey,
+    employee,
+  }) => {
     const cellKey = getCellKey(cell);
     const isLoading = loadingCells.has(cellKey);
 
@@ -62,7 +70,14 @@ const ScheduleCell: React.FC<ScheduleCellProps> = React.memo(
           onClick(e, cell);
         }}
       >
-        {isLoading ? <CircularProgress size={16} /> : cellText(cell)}
+        {isLoading ? (
+          <CircularProgress size={16} />
+        ) : (
+          <ScheduleCellContent
+            items={getCellContentItems(cell)}
+            isWeek={cell.isWeek}
+          />
+        )}
       </TableCell>
     );
   }
@@ -73,16 +88,13 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = React.memo(
     employee,
     weeks,
     onCellClick,
-    cellText,
+    getCellContentItems,
     activeTable,
     loadingCells,
     getCellKey,
     index,
     onEmployeeClick,
   }) => {
-    // const theme = useTheme();
-    // const isXs = useMediaQuery(theme.breakpoints.only('xs'));
-
     if (activeTable.type === 1) {
       return (
         <TableRow
@@ -102,7 +114,7 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = React.memo(
         >
           <TableCell
             sx={(theme) => ({
-              position: {xs: 'static', sm: 'sticky'},
+              position: { xs: 'static', sm: 'sticky' },
               left: 0,
               zIndex: 3,
               textAlign: 'center',
@@ -117,17 +129,7 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = React.memo(
                 size="small"
                 sx={{ mr: 1 }}
               />
-              {/* <Typography
-                sx={{
-                  fontSize: {
-                    xs: '0.75rem',
-                    md: '0.85rem',
-                  },
-                }}
-                className={`${!employee.status && 'text-red-400'}`}
-              >
-                {index + 1}.
-              </Typography> */}
+
               <Tooltip
                 arrow
                 placement="top"
@@ -179,7 +181,7 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = React.memo(
                 key={i}
                 cell={cell}
                 onClick={onCellClick}
-                cellText={cellText}
+                getCellContentItems={getCellContentItems}
                 loadingCells={loadingCells}
                 getCellKey={getCellKey}
                 employee={employee}
@@ -208,7 +210,7 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = React.memo(
       >
         <TableCell
           sx={(theme) => ({
-            position: {xs: 'static', sm: 'sticky'},
+            position: { xs: 'static', sm: 'sticky' },
             left: 0,
             zIndex: 3,
             textAlign: 'center',
@@ -268,16 +270,12 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = React.memo(
             isWeek: true,
           };
 
-          // if (isXs && i > 0) {
-          //   return null;
-          // }
-
           return (
             <ScheduleCell
               key={week.format('YYYY-MM-DD')}
               cell={cell}
               onClick={onCellClick}
-              cellText={cellText}
+              getCellContentItems={getCellContentItems}
               loadingCells={loadingCells}
               getCellKey={getCellKey}
               employee={employee}

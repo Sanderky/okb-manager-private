@@ -1,4 +1,3 @@
-import { type JSX } from 'react';
 import {
   TableContainer,
   Table,
@@ -13,8 +12,9 @@ import {
 } from '@mui/material';
 import dayjs from 'dayjs';
 import type { Employee } from '@/entities/employee';
-import type { ICell } from '../model/types';
+import type { CellDisplayItem, ICell } from '../../model/types';
 import { WEEK_DAYS } from '@/shared/config/days';
+import { ScheduleCellContent } from './ScheduleCellContent';
 
 interface PrintableScheduleProps {
   activeTable: {
@@ -23,14 +23,14 @@ interface PrintableScheduleProps {
   };
   weeks: dayjs.Dayjs[];
   filteredEmployees: Employee[];
-  cellText: (cell: ICell, renderEmptyCellIndicator?: boolean) => JSX.Element;
+  getCellContentItems: (cell: ICell) => CellDisplayItem[];
 }
 
 export const PrintableSchedule = ({
   activeTable,
   weeks,
   filteredEmployees,
-  cellText,
+  getCellContentItems,
 }: PrintableScheduleProps) => {
   return (
     <Box sx={{ p: 1 }}>
@@ -138,7 +138,10 @@ export const PrintableSchedule = ({
                             justifyContent: 'center',
                           }}
                         >
-                          {cellText(cellData, false)}
+                          <ScheduleCellContent
+                            items={getCellContentItems(cellData)}
+                            isWeek={true}
+                          />
                         </Box>
                       </TableCell>
                     );
@@ -252,7 +255,12 @@ export const PrintableSchedule = ({
                             justifyContent: 'center',
                           }}
                         >
-                          {day ? cellText(cellData, false) : ''}
+                          {day ? (
+                            <ScheduleCellContent
+                              items={getCellContentItems(cellData)}
+                              isWeek={false}
+                            />
+                          ) : null}
                         </Box>
                       </TableCell>
                     );
