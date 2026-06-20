@@ -14,7 +14,7 @@ import 'dayjs/locale/pl';
 import type { ConstructionsWithWorkHours } from '../../../model/types';
 import { getWeekNumber } from '@/shared/lib/date';
 import type { LangCode } from '@/shared/model/types';
-import { sortConstructionsWithWorkHours } from '../../../model/hoursTableUtils';
+import { sortConstructionsWithWorkHours } from '../../../model/utils/hoursTableUtils';
 import { formatToPolishDecimal } from '@/shared/lib/format';
 import { getReportTranslations } from '../../../lib/reportTranslations';
 import { printStyles } from './printStyles';

@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
-import { getWorkLogs } from '../api';
+import { getWorkLogs } from '../../api';
 
 export const useWorkLogs = (currentWeek: Date) => {
   const {

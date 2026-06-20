@@ -10,7 +10,7 @@ import {
 } from '@mui/material';
 import 'dayjs/locale/pl';
 import BaseDialog from '@/shared/ui/BaseDialog';
-import { createEmptyWorkHours } from '../../../model/hoursTableUtils';
+import { createEmptyWorkHours } from '../../../model/utils/hoursTableUtils';
 import type { Construction } from '@/entities/construction';
 import type { Employee } from '@/entities/employee';
 import type { WorkHours } from '../../../model/types';

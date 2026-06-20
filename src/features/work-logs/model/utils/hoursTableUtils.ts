@@ -5,7 +5,7 @@ import type {
   ConstructionsWithWorkHours,
   WeeklyTuple,
   WorkLogEntry,
-} from './types';
+} from '../types';
 import { sortByLastName, type Employee } from '@/entities/employee';
 import type { Construction } from '@/entities/construction';
 import type { IsoDateString } from '@/shared/model/types';

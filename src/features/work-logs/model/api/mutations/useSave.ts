@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { overrideWorkLogsForWeek } from '../../api';
-import { flattenWorkHoursToLogs } from '../hoursTableUtils';
-import type { WorkHours } from '../types';
+import { overrideWorkLogsForWeek } from '../../../api';
+import { flattenWorkHoursToLogs } from '../../utils/hoursTableUtils';
+import type { WorkHours } from '../../types';
 
 export const useSaveWorkLogs = (
   onSuccessCallback?: () => void,

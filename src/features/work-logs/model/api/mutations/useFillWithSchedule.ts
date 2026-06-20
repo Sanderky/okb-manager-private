@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { ScheduleApi } from '@/entities/shedule';
 import { getWeekDates } from '@/shared/lib/date';
-import type { WorkHours, WeeklyTuple } from '../types';
+import type { WorkHours, WeeklyTuple } from '../../types';
 
 const fillWithSchedule = async (
   currentWeek: Date,

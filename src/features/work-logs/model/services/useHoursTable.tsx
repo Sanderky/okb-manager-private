@@ -5,17 +5,17 @@ import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
 import 'dayjs/locale/pl';
 import isoWeek from 'dayjs/plugin/isoWeek';
-import type { WorkHours } from './types';
+import type { WorkHours } from '../types';
 import { getStartOfWeek, getWeekDates } from '@/shared/lib/date';
 import {
   buildGroupedConstructionView,
   calculateTotalHours,
   formatWorkLogsForTable,
-} from './hoursTableUtils';
+} from '../utils/hoursTableUtils';
 import { useHoursTableActions } from './useHoursTableActions';
 import { useUnsavedChangesWarning } from '@/shared/lib/useUnsavedChangesWarning';
 import { useSavedFilters } from './useSavedFilters';
-import { useWorkLogs } from './useWorkLogs';
+import { useWorkLogs } from '../api/useWorkLogs';
 import { useEmployeeVacations } from '@/entities/vacations';
 
 dayjs.extend(isoWeek);

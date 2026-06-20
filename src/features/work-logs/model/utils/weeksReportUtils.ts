@@ -8,7 +8,7 @@ import type {
   ConstructionsWithWorkHours,
   WorkLogEntry,
   WeeklyTuple,
-} from './types';
+} from '../types';
 
 import {
   formatWorkLogsForTable,

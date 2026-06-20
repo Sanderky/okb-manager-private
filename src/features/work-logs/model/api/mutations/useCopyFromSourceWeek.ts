@@ -1,8 +1,8 @@
 import { useMutation } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { getWeekDates } from '@/shared/lib/date';
-import type { WorkHours } from '../types';
-import { fetchWorkLogsForCopy } from '../../api';
+import type { WorkHours } from '../../types';
+import { fetchWorkLogsForCopy } from '../../../api';
 
 const copyFromSourceWeek = async (
   currentWeek: Date,

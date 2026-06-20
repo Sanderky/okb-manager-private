@@ -25,7 +25,7 @@ import EmployeesContructionsFilters from '../EmployeesConstructionsFilters';
 import { PrintReport } from './PrintReport';
 import type { LangCode } from '@/shared/model/types';
 import { Langs } from '@/shared/config/langCodes';
-import { usePrintReportDialog } from '../../model/usePrintReport';
+import { usePrintReportDialog } from '../../model/services/usePrintReport';
 
 interface PrintReportDialogProps {
   open: boolean;

@@ -1,17 +1,15 @@
 import { useCallback } from 'react';
-// Jeśli będziesz miał tu mutacje, odkomentuj:
-// import { useMutation, useQueryClient } from '@tanstack/react-query';
-import type { WorkHours } from './types';
+import type { WorkHours } from '../types';
 import {
   enrichAndFilterNewWorkHours,
   parseHoursInput,
   updateSingleWorkHour,
-} from './hoursTableUtils';
+} from '../utils/hoursTableUtils';
 import useNotifications from '@/shared/ui/notifications/useNotifications';
 import { useDialogs } from '@/shared/ui/dialogs/useDialogs';
-import { useCopyFromSourceWeek } from './mutations/useCopyFromSourceWeek';
-import { useFillWithSchedule } from './mutations/useFillWithSchedule';
-import { useSaveWorkLogs } from './mutations/useSave';
+import { useCopyFromSourceWeek } from '../api/mutations/useCopyFromSourceWeek';
+import { useFillWithSchedule } from '../api/mutations/useFillWithSchedule';
+import { useSaveWorkLogs } from '../api/mutations/useSave';
 import {
   getNextWeek,
   getPreviousWeek,

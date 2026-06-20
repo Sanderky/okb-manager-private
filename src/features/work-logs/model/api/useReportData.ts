@@ -1,6 +1,6 @@
 import { useQueries } from '@tanstack/react-query';
 import dayjs from 'dayjs';
-import { getWorkLogs } from '../api';
+import { getWorkLogs } from '../../api';
 import { VacationApi } from '@/entities/vacations';
 import { getMonthKeysFromWeek } from '@/shared/lib/date';
 

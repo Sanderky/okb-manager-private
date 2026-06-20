@@ -9,7 +9,7 @@ import {
 import { useConstructions, type Construction } from '@/entities/construction';
 import { useEmployees, type Employee } from '@/entities/employee';
 import type { LangCode } from '@/shared/model/types';
-import { getReportTranslations } from '../lib/reportTranslations';
+import { getReportTranslations } from '../../lib/reportTranslations';
 
 export const usePrintReportDialog = (
   defaultStartWeek?: Date,

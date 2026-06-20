@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 import { useConstructions } from '@/entities/construction';
 import { useEmployees } from '@/entities/employee';
-import { processSingleWeekData } from './weeksReportUtils';
-import type { ConstructionsWithWorkHours } from './types';
+import { processSingleWeekData } from '../utils/weeksReportUtils';
+import type { ConstructionsWithWorkHours } from '../types';
 import { useReportData } from './useReportData';
 
 interface UseWeekReportResult {
