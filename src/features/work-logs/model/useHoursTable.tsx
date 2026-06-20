@@ -22,10 +22,8 @@ dayjs.extend(isoWeek);
 dayjs.extend(isBetween);
 
 export const useHoursTable = (startWeek?: Date) => {
-  // 1. Mikro-stan filtrów z localStorage (kod na dole pliku)
   const { filters, updateFilter } = useSavedFilters();
 
-  // 2. Podstawowe stany UI
   const [isExpanded, setIsExpanded] = useState(true);
   const [editMode, setEditMode] = useState(false);
   const [currentWeek, setCurrentWeek] = useState<Date>(
