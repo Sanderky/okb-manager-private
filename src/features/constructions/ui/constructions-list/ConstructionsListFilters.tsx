@@ -18,20 +18,7 @@ import {
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import CloseIcon from '@mui/icons-material/Close';
-import type { Dayjs } from 'dayjs';
-
-export interface ConstructionsFilters {
-  name: string;
-  contractor: string;
-  location: string;
-  startDateFrom: Dayjs | null;
-  startDateTo: Dayjs | null;
-  endDateFrom: Dayjs | null;
-  endDateTo: Dayjs | null;
-  status: string;
-  employeeCountMin: string;
-  employeeCountMax: string;
-}
+import type { ConstructionsFilters } from '../../model/types';
 
 interface FiltersDialogProps {
   filtersModalOpen: boolean;

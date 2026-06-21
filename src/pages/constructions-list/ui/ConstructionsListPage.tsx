@@ -2,16 +2,18 @@ import * as React from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import AddIcon from '@mui/icons-material/Add';
-import { useNavigate, useSearchParams } from 'react-router';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import PageContainer from '@/shared/ui/PageContainer';
-import { useQuery } from '@tanstack/react-query';
 import 'dayjs/locale/pl';
 import { Alert } from '@mui/material';
 import { Engineering } from '@mui/icons-material';
 import Loading from '@/shared/ui/Loading';
 import { ContractorsDialog } from '@/features/contractors';
-import { ConstructionApi } from '@/entities/construction';
-import { ConstructionsList } from '@/features/constructions';
+import { useConstructions } from '@/entities/construction';
+import {
+  ConstructionsList,
+  ConstructionsListProvider,
+} from '@/features/constructions';
 
 export function ConstructionsListPage() {
   const navigate = useNavigate();
@@ -36,21 +38,14 @@ export function ConstructionsListPage() {
     });
   };
 
-  const {
-    data: constructions = [],
-    isLoading,
-    error,
-    refetch,
-  } = useQuery({
-    queryKey: ['constructions'],
-    queryFn: () => ConstructionApi.getConstructionList(),
-  });
+  const { constructions, isLoading, isError, refetch } = useConstructions();
 
-  const handleCreateClick = React.useCallback(() => {
-    navigate('/constructions/create');
-  }, [navigate]);
+  const handleCreateClick = React.useCallback(
+    () => navigate('/constructions/create'),
+    [navigate]
+  );
 
-  if (error) {
+  if (isError) {
     return (
       <PageContainer
         breadcrumbs={[{ title: 'Lista budów' }]}
@@ -92,7 +87,6 @@ export function ConstructionsListPage() {
 
   return (
     <PageContainer
-      // renderBottomToolbar={<TablePagination table={table} />}
       fixedHeight={true}
       breadcrumbs={[{ title: 'Lista budów' }]}
       actions={[
@@ -127,14 +121,16 @@ export function ConstructionsListPage() {
         }}
       >
         <ContractorsDialog
-          constructions={constructions}
           open={contractorsModalOpen}
           onClose={handleCloseContractors}
         />
-        <ConstructionsList
-          isLoading={isLoading}
+
+        <ConstructionsListProvider
           constructions={constructions}
-        />
+          isLoading={isLoading}
+        >
+          <ConstructionsList />
+        </ConstructionsListProvider>
       </Box>
     </PageContainer>
   );

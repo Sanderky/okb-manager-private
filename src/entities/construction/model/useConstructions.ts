@@ -6,6 +6,7 @@ export const useConstructions = () => {
     data = [],
     isLoading,
     isError,
+    refetch,
   } = useQuery({
     queryKey: ['constructions'],
     queryFn: () => getConstructionList(),
@@ -15,5 +16,6 @@ export const useConstructions = () => {
     constructions: data,
     isLoading,
     isError,
+    refetch,
   };
 };
