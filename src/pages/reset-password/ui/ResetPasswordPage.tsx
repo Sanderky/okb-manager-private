@@ -1,7 +1,3 @@
-import React, { useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { AuthApi, getRules, validateField } from '@/entities/session';
-import TextField from '@mui/material/TextField';
 import {
   Box,
   Button,
@@ -11,89 +7,30 @@ import {
   Alert,
   Stack,
   alpha,
+  TextField,
 } from '@mui/material';
 import { default as LogoIcon } from '@mui/icons-material/TokenOutlined';
-import useLoading from '@/shared/lib/useLoading';
 import { ArrowBack, Visibility, VisibilityOff } from '@mui/icons-material';
+import { useResetPasswordService } from '@/features/reset-password';
 
 export const ResetPasswordPage = () => {
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const showBackButton = searchParams.get('ref') === 'settings';
   const {
-    loading: actionLoading,
-    startLoading: startActionLoading,
-    stopLoading: stopActionLoading,
-  } = useLoading(false);
-
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
-  const [passwordError, setPasswordError] = useState('');
-  const [confirmPasswordError, setConfirmPasswordError] = useState('');
-  const [generalError, setGeneralError] = useState('');
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    setPasswordError('');
-    setConfirmPasswordError('');
-    setGeneralError('');
-
-    let hasError = false;
-
-    const validationError = validateField(password, getRules('password'));
-    if (validationError) {
-      setPasswordError(validationError);
-      hasError = true;
-    }
-
-    if (password !== confirmPassword) {
-      setConfirmPasswordError('Hasła nie są identyczne.');
-      hasError = true;
-    }
-
-    if (hasError) return;
-
-    startActionLoading();
-    try {
-      await AuthApi.updatePassword(password);
-      navigate('/home');
-    } catch (err: any) {
-      console.error('Update password error:', err);
-
-      const msg = err.message || '';
-
-      if (msg.includes('Password should be at least')) {
-        setPasswordError('Hasło jest za krótkie (minimum 6 znaków).');
-      } else if (msg.includes('different from the old password')) {
-        setGeneralError('Nowe hasło musi różnić się od starego hasła.');
-      } else if (
-        msg.includes('Auth session missing') ||
-        msg.includes('User not authenticated') ||
-        err.status === 401 ||
-        err.status === 403
-      ) {
-        setGeneralError(
-          'Link resetujący wygasł lub jest nieprawidłowy. Poproś o zmianę hasła ponownie.'
-        );
-      } else if (err.status === 429) {
-        setGeneralError('Zbyt wiele prób. Odczekaj chwilę.');
-      } else if (
-        msg.includes('Network request failed') ||
-        msg.includes('fetch failed')
-      ) {
-        setGeneralError('Błąd połączenia. Sprawdź internet.');
-      } else {
-        setGeneralError('Wystąpił nieoczekiwany błąd. Spróbuj ponownie.');
-      }
-    } finally {
-      stopActionLoading();
-    }
-  };
+    password,
+    setPassword,
+    confirmPassword,
+    setConfirmPassword,
+    showPassword,
+    setShowPassword,
+    showConfirmPassword,
+    setShowConfirmPassword,
+    passwordError,
+    confirmPasswordError,
+    generalError,
+    showBackButton,
+    handleBack,
+    handleSubmit,
+    isLoading,
+  } = useResetPasswordService();
 
   return (
     <Box
@@ -102,10 +39,7 @@ export const ResetPasswordPage = () => {
     >
       <Box
         className="flex flex-col items-center justify-center py-8"
-        sx={{
-          px: { xs: 2, sm: 4 },
-          flexGrow: 1,
-        }}
+        sx={{ px: { xs: 2, sm: 4 }, flexGrow: 1 }}
       >
         <Box
           className="relative w-full rounded-lg shadow"
@@ -128,9 +62,7 @@ export const ResetPasswordPage = () => {
             <Typography
               component={'span'}
               className="text-4xl font-medium text-shadow-sm/20"
-              sx={(theme) => ({
-                color: theme.palette.secondary.main,
-              })}
+              sx={(theme) => ({ color: theme.palette.secondary.main })}
             >
               OKB
             </Typography>
@@ -160,7 +92,7 @@ export const ResetPasswordPage = () => {
               helperText={passwordError}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              disabled={actionLoading}
+              disabled={isLoading}
               slotProps={{
                 input: {
                   className: 'rounded-lg',
@@ -190,7 +122,7 @@ export const ResetPasswordPage = () => {
               helperText={confirmPasswordError}
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              disabled={actionLoading}
+              disabled={isLoading}
               slotProps={{
                 input: {
                   className: 'rounded-lg',
@@ -222,7 +154,7 @@ export const ResetPasswordPage = () => {
               {showBackButton && (
                 <Button
                   variant="text"
-                  onClick={() => navigate(-1)}
+                  onClick={handleBack}
                   color="inherit"
                   startIcon={<ArrowBack />}
                 >
@@ -232,7 +164,7 @@ export const ResetPasswordPage = () => {
 
               <Button
                 type="submit"
-                loading={actionLoading}
+                loading={isLoading}
                 variant="contained"
                 color="primary"
               >

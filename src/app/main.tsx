@@ -10,7 +10,7 @@ import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import dayjs from 'dayjs';
 import { ErrorBoundary } from 'react-error-boundary';
 import { ErrorPage } from '@/pages/error';
-import { AuthProvider } from '@/entities/session';
+import { AuthProvider } from '@/entities/auth';
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);

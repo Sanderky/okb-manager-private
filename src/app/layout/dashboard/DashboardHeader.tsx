@@ -10,7 +10,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import MenuOpenIcon from '@mui/icons-material/MenuOpen';
 import Stack from '@mui/material/Stack';
 import { Link, useNavigate } from 'react-router';
-import { useAuth } from '@/entities/session';
+import { useAuth } from '@/entities/auth';
 import {
   Avatar,
   Button,

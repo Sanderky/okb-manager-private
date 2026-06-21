@@ -8,7 +8,7 @@ import {
   useTheme,
 } from '@mui/material';
 import { OutgoingMail } from '@mui/icons-material';
-import { useAuth, AuthApi } from '@/entities/session';
+import { useAuth, AuthApi } from '@/entities/auth';
 import BaseDialog from '@/shared/ui/BaseDialog';
 import useNotifications from '@/shared/ui/notifications/useNotifications';
 import { useNavigate } from 'react-router-dom';
@@ -427,4 +427,3 @@ export const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
     </BaseDialog>
   );
 };
-
