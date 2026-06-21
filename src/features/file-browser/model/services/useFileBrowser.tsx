@@ -5,9 +5,15 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { removePolishChars } from '@/shared/lib/string';
 import type { FileBrowserItem } from '@/shared/model/types';
-import { FOLDER_TRANSLATIONS, SYSTEM_FOLDER_PREFIX } from '@/shared/config/storage';
+import {
+  FOLDER_TRANSLATIONS,
+  SYSTEM_FOLDER_PREFIX,
+} from '@/shared/config/storage';
 import * as FilesApi from '@/shared/api/storage';
-import { getFileExtension, getFileNameWithoutExtension } from '@/shared/lib/fileUtils';
+import {
+  getFileExtension,
+  getFileNameWithoutExtension,
+} from '@/shared/lib/fileUtils';
 
 export const EMPTY_MAP = {};
 
