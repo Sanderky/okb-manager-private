@@ -4,3 +4,6 @@ export * from './model/utils';
 export * from './model/useConstructions';
 export * from './model/services/useConstruction';
 export * from './model/services/mutations/useUpdateConstructionNote';
+export * from './model/services/mutations/useAddConstruction';
+export * from './model/services/mutations/useUpdateConstruction';
+export * from './model/services/mutations/useChangeConstructionStatus';

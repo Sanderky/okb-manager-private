@@ -7,9 +7,9 @@ import dayjs from 'dayjs';
 import { useCallback, useEffect, useState } from 'react';
 import BaseDialog, { ConfirmationDialog } from '@/shared/ui/BaseDialog';
 import useNotifications from '@/shared/ui/notifications/useNotifications';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { ConstructionApi, type Construction } from '@/entities/construction';
+import { type Construction } from '@/entities/construction';
+import { useChangeConstructionStatus } from '../model/services/useChangeConstructionStatus';
 
 interface FinishConstructionProps {
   construction: Construction;
@@ -22,7 +22,6 @@ export const FinishConstruction = ({
   onClose,
   open,
 }: FinishConstructionProps) => {
-  const queryClient = useQueryClient();
   const navigate = useNavigate();
 
   const [endDateValue, setEndDateValue] = useState(dayjs());
@@ -30,23 +29,7 @@ export const FinishConstruction = ({
 
   const notifications = useNotifications();
 
-  const updateStatusMutation = useMutation({
-    mutationFn: (payload: { status: boolean; endDate?: Date | null }) =>
-      ConstructionApi.updateConstruction(construction.id!, payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['construction', construction.id],
-      });
-      queryClient.invalidateQueries({ queryKey: ['constructions'] });
-    },
-    onError: (error: Error) => {
-      console.error('Update construction status error:', error);
-      notifications.show('Wystąpił błąd podczas zmiany stanu budowy.', {
-        severity: 'error',
-        autoHideDuration: 5000,
-      });
-    },
-  });
+  const { changeConstructionStatus, isPending } = useChangeConstructionStatus();
 
   useEffect(() => {
     if (open) {
@@ -65,7 +48,7 @@ export const FinishConstruction = ({
 
   const cannotBeFinished = Boolean(
     !construction.startDate ||
-      dayjs(construction.startDate).isAfter(dayjs().startOf('day'))
+    dayjs(construction.startDate).isAfter(dayjs().startOf('day'))
   );
 
   const handleFinish = useCallback(() => {
@@ -87,28 +70,31 @@ export const FinishConstruction = ({
     }
 
     onClose();
-    updateStatusMutation.mutate(
-      {
-        status: false,
-        endDate: chosen ? chosen.toDate() : new Date(),
+    changeConstructionStatus(
+      construction.id,
+      false,
+      chosen ? chosen.toDate() : new Date(),
+      () => {
+        navigate(`/constructions/${construction.id}`);
+        notifications.show('Budowa została oznaczona jako zakończona.', {
+          severity: 'success',
+          autoHideDuration: 5000,
+        });
       },
-      {
-        onSuccess: () => {
-          navigate(`/constructions/${construction.id}`);
-          notifications.show('Budowa została oznaczona jako zakończona.', {
-            severity: 'success',
-            autoHideDuration: 5000,
-          });
-        },
+      () => {
+        notifications.show('Wystąpił błąd podczas zmiany stanu budowy.', {
+          severity: 'error',
+          autoHideDuration: 5000,
+        });
       }
     );
   }, [
     construction,
     endDateValue,
-    updateStatusMutation,
     notifications,
     onClose,
     navigate,
+    changeConstructionStatus,
   ]);
 
   return (
@@ -120,7 +106,7 @@ export const FinishConstruction = ({
       confirmText="Zakończ budowę"
       confirmColor="warning"
       showCancel={false}
-      loading={updateStatusMutation.isPending}
+      loading={isPending}
       disabled={cannotBeFinished}
     >
       <Stack spacing={2}>
@@ -188,47 +174,38 @@ export const ResumeConstruction = ({
   onClose,
   construction,
 }: ResumeConstructionProps) => {
-  const queryClient = useQueryClient();
   const navigate = useNavigate();
 
   const notifications = useNotifications();
-
-  const updateStatusMutation = useMutation({
-    mutationFn: (payload: { status: boolean; endDate?: Date | null }) =>
-      ConstructionApi.updateConstruction(construction.id!, payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['construction', construction.id],
-      });
-      queryClient.invalidateQueries({ queryKey: ['constructions'] });
-    },
-    onError: (error: Error) => {
-      console.error('Update construction status error:', error);
-      notifications.show('Wystąpił błąd podczas zmiany stanu budowy.', {
-        severity: 'error',
-        autoHideDuration: 5000,
-      });
-    },
-  });
+  const { changeConstructionStatus, isPending } = useChangeConstructionStatus();
 
   const handleResume = useCallback(() => {
     onClose();
-    updateStatusMutation.mutate(
-      {
-        status: true,
-        endDate: null,
+    changeConstructionStatus(
+      construction.id,
+      true,
+      undefined,
+      () => {
+        navigate(`/constructions/${construction.id}`);
+        notifications.show('Budowa została wznowiona.', {
+          severity: 'success',
+          autoHideDuration: 5000,
+        });
       },
-      {
-        onSuccess: () => {
-          navigate(`/constructions/${construction.id}`);
-          notifications.show('Budowa została wznowiona.', {
-            severity: 'success',
-            autoHideDuration: 5000,
-          });
-        },
+      () => {
+        notifications.show('Wystąpił błąd podczas zmiany stanu budowy.', {
+          severity: 'error',
+          autoHideDuration: 5000,
+        });
       }
     );
-  }, [updateStatusMutation, notifications, onClose, construction, navigate]);
+  }, [
+    changeConstructionStatus,
+    notifications,
+    onClose,
+    construction,
+    navigate,
+  ]);
 
   return (
     <ConfirmationDialog
@@ -246,7 +223,7 @@ export const ResumeConstruction = ({
       cancelText="Anuluj"
       confirmColor="success"
       showCancel={false}
-      loading={updateStatusMutation.isPending}
+      loading={isPending}
     />
   );
 };

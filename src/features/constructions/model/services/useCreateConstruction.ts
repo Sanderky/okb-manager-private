@@ -1,12 +1,11 @@
 import * as React from 'react';
 import useLoading from '@/shared/lib/useLoading';
-import { shouldBeInactive, type Construction } from '@/entities/construction';
+import { shouldBeInactive, useAddConstructionMutation, type Construction } from '@/entities/construction';
 import {
   validate,
   type ConstructionFormState,
   type FormFieldValue,
 } from '@/features/constructions';
-import { useAddConstructionMutation } from '../api/mutations/useAddConstruction';
 import useNotifications from '@/shared/ui/notifications/useNotifications';
 import { useNavigate } from 'react-router-dom';
 

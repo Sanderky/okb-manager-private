@@ -2,7 +2,7 @@ import {
   AddConstructionProvider,
   useAddConstructionContext,
 } from './model/providers/AddConstructionContext';
-import { AddConstruction } from './ui/AddConstruction';
+import { AddConstruction } from './ui/add-construction/AddConstruction';
 
 export * from './model/validation';
 export * from './ui/ConstructionForm';
