@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import type { Lodging } from './types';
+import type { Lodging } from '../types';
 
 export const useManageLodging = () => {
   const [isOpen, setIsOpen] = useState(false);

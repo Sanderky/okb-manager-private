@@ -1,26 +1,19 @@
 import { Grid } from '@mui/material';
 import 'dayjs/locale/pl';
-import { type Employee } from '@/entities/employee';
 import LodgingCard from './LodgingCard';
-import { type Construction } from '@/entities/construction';
 import type { Lodging } from '../model/types';
+import { useLodgingsContext } from '../model/providers/LodgingsContext';
 
-interface Props {
-  lodgings: Lodging[];
-  constructions: Construction[];
-  employees: Employee[];
-  handleEmployeeClick: (id: string) => void;
-  onEdit: (lodging: Lodging) => void;
-  handleClickOnConstruction: (id: string | undefined) => void;
-}
-export const LodgingsCards = ({
-  lodgings,
-  constructions,
-  employees,
-  handleEmployeeClick,
-  onEdit,
-  handleClickOnConstruction,
-}: Props) => {
+export const LodgingsCards = () => {
+  const {
+    handleClickOnConstruction,
+    lodgings,
+    openEdit,
+    employees,
+    constructions,
+    handleEmployeeClick,
+  } = useLodgingsContext();
+
   return (
     <Grid p={{ xs: 2, sm: 3 }} container spacing={3}>
       {lodgings.map((lodging) => {
@@ -33,7 +26,7 @@ export const LodgingsCards = ({
               onEmployeeClick={handleEmployeeClick}
               lodging={lodging}
               employees={employees}
-              onEdit={onEdit}
+              onEdit={openEdit}
               handleClickOnConstruction={handleClickOnConstruction}
               constructionName={construction?.name}
               constructionId={construction?.id}

@@ -8,25 +8,16 @@ import { Add, GridView, ViewTimeline, DeleteSweep } from '@mui/icons-material';
 import 'dayjs/locale/pl';
 import useNotifications from '@/shared/ui/notifications/useNotifications';
 import { useDialogs } from '@/shared/ui/dialogs/useDialogs';
-import type { Lodging, ViewMode } from '../model/types';
+import type { ViewMode } from '../model/types';
 import {
   getOutdatedCount,
   useCleanOutdatedLodgings,
-} from '../model/useCleanOutdatedLodgings';
+} from '../model/services/useCleanOutdatedLodgings';
+import { useLodgingsContext } from '../model/providers/LodgingsContext';
 
-interface Props {
-  viewMode: ViewMode;
-  lodgings: Lodging[];
-  onOpenAdd: () => void;
-  onSetViewMode: (mode: ViewMode) => void;
-}
+export const LodgingsActions = () => {
+  const { lodgings, openAdd, setViewMode, viewMode } = useLodgingsContext();
 
-export const LodgingsActions = ({
-  viewMode,
-  lodgings,
-  onOpenAdd,
-  onSetViewMode,
-}: Props) => {
   const notifications = useNotifications();
   const dialogs = useDialogs();
   const cleanOutdatedMutation = useCleanOutdatedLodgings();
@@ -62,7 +53,7 @@ export const LodgingsActions = ({
     _: React.MouseEvent<HTMLElement>,
     newMode: ViewMode
   ) => {
-    if (newMode) onSetViewMode(newMode);
+    if (newMode) setViewMode(newMode);
   };
 
   return [
@@ -94,7 +85,7 @@ export const LodgingsActions = ({
     <Button
       variant="contained"
       startIcon={<Add />}
-      onClick={onOpenAdd}
+      onClick={openAdd}
       size="small"
       key="new"
     >

@@ -1,7 +1,7 @@
 import useNotifications from '@/shared/ui/notifications/useNotifications';
 import { Note } from '@/shared/ui/Note';
-import { useUpdateHomeNote } from '../model/useUpdateHomeNote';
-import { useHomeNote } from '../model/useHomeNote';
+import { useUpdateHomeNote } from '../model/services/useUpdateHomeNote';
+import { useHomeNote } from '../model/services/useHomeNote';
 
 export const HomeNote = () => {
   const notifications = useNotifications();

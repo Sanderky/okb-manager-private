@@ -7,7 +7,7 @@ import type { Employee } from '@/entities/employee';
 import { CELL_WIDTH, BAR_HEIGHT } from './LodgingsTimeline';
 import { openGoogleMaps } from '@/shared/lib/browser';
 import { LocationOn } from '@mui/icons-material';
-import { getEmployeeLabel } from '../model/label';
+import { getEmployeeLabel } from '../model/utils/label';
 
 interface TimelineBarProps {
   lodging: Lodging;

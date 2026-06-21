@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { getHomeNote } from '../api';
+import { getHomeNote } from '../../api';
 
 export const useHomeNote = (enabled = true) => {
   const { data, isLoading, isError } = useQuery({

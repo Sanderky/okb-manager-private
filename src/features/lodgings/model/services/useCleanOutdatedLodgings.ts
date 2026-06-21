@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
-import type { Lodging } from './types';
+import type { Lodging } from '../types';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { deleteOutdatedLodgings } from '../api';
+import { deleteOutdatedLodgings } from '../../api';
 
 export const useCleanOutdatedLodgings = () => {
   const queryClient = useQueryClient();

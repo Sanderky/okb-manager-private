@@ -1,13 +1,11 @@
-import React, { useRef, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 import { Box } from '@mui/material';
 import dayjs from 'dayjs';
-import type { Lodging } from '../model/types';
-import type { Construction } from '@/entities/construction';
-import type { Employee } from '@/entities/employee';
-import { useTimelineData } from '../model/useTimeline';
+import { useTimelineData } from '../model/services/useTimeline';
 import { TimelineHeader } from './TimelineHeader';
 import { TimelineGrid } from './TimelineGrid';
 import { TimelineRow } from './TimelineRow';
+import { useLodgingsContext } from '../model/providers/LodgingsContext';
 
 export const CELL_WIDTH = 40;
 export const HEADER_HEIGHT = 60;
@@ -16,21 +14,15 @@ export const BAR_HEIGHT = 36;
 export const BAR_GAP = 6;
 export const ROW_PADDING = 12;
 
-interface LodgingTimelineProps {
-  lodgings: Lodging[];
-  onEdit: (l: Lodging) => void;
-  employees: Employee[];
-  constructions: Construction[];
-  handleClickOnConstruction: (id: string | undefined) => void;
-}
+export const LodgingsTimeline = () => {
+  const {
+    handleClickOnConstruction,
+    lodgings,
+    openEdit,
+    employees,
+    constructions,
+  } = useLodgingsContext();
 
-export const LodgingsTimeline: React.FC<LodgingTimelineProps> = ({
-  lodgings,
-  onEdit,
-  employees,
-  constructions,
-  handleClickOnConstruction,
-}) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const { minDate, daysArray, rows } = useTimelineData(lodgings, constructions);
@@ -71,7 +63,7 @@ export const LodgingsTimeline: React.FC<LodgingTimelineProps> = ({
                   row={row}
                   minDate={minDate}
                   employees={employees}
-                  onEdit={onEdit}
+                  onEdit={openEdit}
                   handleClickOnConstruction={handleClickOnConstruction}
                 />
               ))}

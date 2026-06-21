@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { ViewMode } from './types';
+import type { ViewMode } from '../types';
 
 export const useViewMode = () => {
   const [defaultViewMode, setDefaultViewMode] = useState<ViewMode>(() => {

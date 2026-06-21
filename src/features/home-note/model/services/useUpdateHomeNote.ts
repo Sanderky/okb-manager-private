@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { saveHomeNote } from '../api';
+import { saveHomeNote } from '../../api';
 
 export const useUpdateHomeNote = () => {
   const queryClient = useQueryClient();

@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import type { Lodging } from './types';
+import type { Lodging } from '../types';
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useLodgings } from './useLodgings';

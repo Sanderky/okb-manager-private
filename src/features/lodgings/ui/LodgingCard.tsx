@@ -14,7 +14,7 @@ import {
 import { Edit, LocationOn, DateRange, People } from '@mui/icons-material';
 import dayjs from 'dayjs';
 import 'dayjs/locale/pl';
-import { getEmployeeLabel } from '../model/label';
+import { getEmployeeLabel } from '../model/utils/label';
 import type { Employee } from '@/entities/employee';
 import { openGoogleMaps } from '@/shared/lib/browser';
 import type { Lodging } from '../model/types';

@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 import dayjs from 'dayjs';
-import type { Lodging, TimelineData, TimelineRow } from './types';
+import type { Lodging, TimelineData, TimelineRow } from '../types';
 import type { Construction } from '@/entities/construction';
-import { calculateLanes } from './TimelineHelpers';
+import { calculateLanes } from '../utils/TimelineHelpers';
 
 const MIN_ROW_HEIGHT = 60;
 const BAR_HEIGHT = 36;

@@ -21,7 +21,7 @@ import BaseDialog from '@/shared/ui/BaseDialog';
 import type { Construction } from '@/entities/construction';
 import type { Employee } from '@/entities/employee';
 import type { LocalAssignment, Lodging } from '../model/types';
-import { useManageForm } from '../model/useManageForm';
+import { useManageForm } from '../model/services/useManageForm';
 
 interface AssignedEmployeesListProps {
   assignments: LocalAssignment[];

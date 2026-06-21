@@ -3,7 +3,7 @@ import dayjs, { Dayjs } from 'dayjs';
 import 'dayjs/locale/pl';
 import type { Construction } from '@/entities/construction';
 import type { Employee } from '@/entities/employee';
-import type { LocalAssignment, Lodging, LodgingAssignment } from './types';
+import type { LocalAssignment, Lodging, LodgingAssignment } from '../types';
 
 export const useManageForm = (
   initialData: Lodging | undefined,

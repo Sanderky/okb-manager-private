@@ -1,20 +1,13 @@
 import { Box, Button, Typography, Stack } from '@mui/material';
 import { BookmarkOutlined } from '@mui/icons-material';
 import 'dayjs/locale/pl';
-import { useLodgingsStats } from '../model/useLodgingsStats';
+import { useLodgingsStats } from '../model/services/useLodgingsStats';
 import useNotifications from '@/shared/ui/notifications/useNotifications';
+import { useLodgingsContext } from '../model/providers/LodgingsContext';
 
-interface Props {
-  onSetDefaultView: () => void;
-  defaultViewMode: 'grid' | 'timeline';
-  viewMode: 'grid' | 'timeline';
-}
+export const LodgingsBottomToolbar = () => {
+  const { onSetDefaultView, viewMode, defaultViewMode } = useLodgingsContext();
 
-export const LodgingsBottomToolbar = ({
-  onSetDefaultView,
-  defaultViewMode,
-  viewMode,
-}: Props) => {
   const stats = useLodgingsStats();
   const notifications = useNotifications();
 

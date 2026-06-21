@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import type { Lodging } from './types';
+import type { Lodging } from '../types';
 
 export const calculateLanes = (lodgings: Lodging[]) => {
   if (!lodgings.length) return { items: [], maxLanes: 0 };

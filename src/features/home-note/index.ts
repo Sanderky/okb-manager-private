@@ -1,2 +1,2 @@
 export * from './ui/HomeNote';
-export * from './model/useHomeNote';
+export * from './model/services/useHomeNote';

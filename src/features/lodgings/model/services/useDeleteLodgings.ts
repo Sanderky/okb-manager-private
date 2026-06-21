@@ -1,13 +1,10 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { updateLodging } from '../api';
-import type { Lodging } from './types';
+import { deleteLodging } from '../../api';
 
-export const useUpdateLodging = () => {
+export const useDeleteLodging = () => {
   const queryClient = useQueryClient();
-
   return useMutation({
-    mutationFn: (vars: { id: string; data: Partial<Lodging> }) =>
-      updateLodging(vars.id, vars.data),
+    mutationFn: deleteLodging,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['lodgings'] });
     },

@@ -1,61 +1,33 @@
-import { useCallback } from 'react';
 import { Box, Button, Typography } from '@mui/material';
 import { Hotel } from '@mui/icons-material';
-import { useQuery } from '@tanstack/react-query';
 import 'dayjs/locale/pl';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { plPL } from '@mui/x-date-pickers/locales';
 import PageContainer from '@/shared/ui/PageContainer';
-import { EmployeeApi } from '@/entities/employee';
 import Loading from '@/shared/ui/Loading';
-import { useNavigate } from 'react-router-dom';
-import { ConstructionApi } from '@/entities/construction';
 import {
   LodgingsActions,
   LodgingsBottomToolbar,
-  useLodgings,
-  useManageLodging,
-  useViewMode,
   LodgingsTimeline,
   ManageLodgingDialog,
   LodgingsCards,
+  LodgingsProvider,
+  useLodgingsContext,
 } from '@/features/lodgings';
 
 export const LodgingsPage = () => {
-  const navigate = useNavigate();
-
-  const { onSetDefaultView, setViewMode, viewMode, defaultViewMode } =
-    useViewMode();
-  const { isOpen, editingLodging, openAdd, openEdit, close } =
-    useManageLodging();
-  const { lodgings, isLoading: loadingLodgings } = useLodgings();
-
-  const { data: employees = [], isLoading: loadingEmployees } = useQuery({
-    queryKey: ['employees'],
-    queryFn: () => EmployeeApi.getEmployeeList(),
-  });
-
-  const { data: constructions = [], isLoading: loadingSites } = useQuery({
-    queryKey: ['constructions'],
-    queryFn: () => ConstructionApi.getConstructionList(false),
-  });
-
-  const handleClickOnConstruction = useCallback(
-    (id: string | undefined) => {
-      if (!id || id === 'orphan') return;
-      navigate(`/constructions/${id}`);
-    },
-    [navigate]
+  return (
+    <LodgingsProvider>
+      <LodgingsView />
+    </LodgingsProvider>
   );
+};
 
-  const handleEmployeeClick = (id: string) => {
-    navigate(`/employees/${id}`);
-  };
+const LodgingsView = () => {
+  const { isLoading, lodgings, viewMode, openAdd } = useLodgingsContext();
 
-  const isLoading = loadingLodgings || loadingEmployees || loadingSites;
-
-  if (isLoading)
+  if (isLoading) {
     return (
       <PageContainer fixedHeight breadcrumbs={[{ title: 'Noclegi' }]}>
         <Box sx={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
@@ -63,26 +35,14 @@ export const LodgingsPage = () => {
         </Box>
       </PageContainer>
     );
+  }
 
   return (
     <PageContainer
       fixedHeight
       breadcrumbs={[{ title: 'Noclegi' }]}
-      actions={
-        <LodgingsActions
-          lodgings={lodgings}
-          onOpenAdd={openAdd}
-          onSetViewMode={setViewMode}
-          viewMode={viewMode}
-        />
-      }
-      renderBottomToolbar={
-        <LodgingsBottomToolbar
-          onSetDefaultView={onSetDefaultView}
-          defaultViewMode={defaultViewMode}
-          viewMode={viewMode}
-        />
-      }
+      actions={<LodgingsActions />}
+      renderBottomToolbar={<LodgingsBottomToolbar />}
     >
       <LocalizationProvider
         localeText={
@@ -103,31 +63,12 @@ export const LodgingsPage = () => {
               </Button>
             </Box>
           ) : viewMode === 'timeline' ? (
-            <LodgingsTimeline
-              handleClickOnConstruction={handleClickOnConstruction}
-              lodgings={lodgings}
-              onEdit={openEdit}
-              employees={employees}
-              constructions={constructions}
-            />
+            <LodgingsTimeline />
           ) : (
-            <LodgingsCards
-              handleClickOnConstruction={handleClickOnConstruction}
-              handleEmployeeClick={handleEmployeeClick}
-              lodgings={lodgings}
-              onEdit={openEdit}
-              employees={employees}
-              constructions={constructions}
-            />
+            <LodgingsCards />
           )}
 
-          <ManageLodgingDialog
-            open={isOpen}
-            onClose={close}
-            initialData={editingLodging}
-            employees={employees}
-            constructions={constructions}
-          />
+          <ManageLodgingDialog />
         </Box>
       </LocalizationProvider>
     </PageContainer>
