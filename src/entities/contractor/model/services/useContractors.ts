@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { getContractors } from '../api';
+import { getContractors } from '../../api';
 
 export const useContractors = (enabled = true) => {
   const {

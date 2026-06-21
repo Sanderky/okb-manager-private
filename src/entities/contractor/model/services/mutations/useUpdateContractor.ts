@@ -1,6 +1,6 @@
 import { type Contractor } from '@/entities/contractor';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { updateContractor } from '../api';
+import { updateContractor } from '../../../api';
 
 export const useUpdateContractor = () => {
   const queryClient = useQueryClient();
