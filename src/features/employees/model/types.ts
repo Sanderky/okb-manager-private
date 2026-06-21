@@ -45,3 +45,10 @@ export type FormFieldValue =
   | null
   | DateWithPermanent
   | number;
+
+export interface AlertsSettingsErrors {
+  a1Warning: string;
+  a1Critical: string;
+  contractWarning: string;
+  contractCritical: string;
+}

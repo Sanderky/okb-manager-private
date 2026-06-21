@@ -15,12 +15,10 @@ import dayjs from 'dayjs';
 import { Note } from '@/shared/ui/Note';
 import { EventsListTable } from '@/features/calendar';
 import { getDateStr } from '@/shared/lib/string';
-import {
-  AttachmentBox,
-  useEmployeeAttachments,
-  type FieldInfo,
-} from '@/features/employees';
 import { useEmployeeShowContext } from '../../model/providers/useEmployeeShowContext';
+import type { FieldInfo } from '../../model/types';
+import useEmployeeAttachments from '../../model/useAttachment';
+import { AttachmentBox } from '../AttachmentBox';
 
 const personalFields: FieldInfo[] = [
   { key: 'name', label: 'Imię i nazwisko' },
