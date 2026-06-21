@@ -1,5 +1,4 @@
 import { supabase } from '@/shared/api/supabase';
-import type { InfoEvent } from '../model/types';
 import dayjs from 'dayjs';
 import { toSqlDate } from '@/shared/lib/date';
 import {
@@ -7,6 +6,7 @@ import {
   mapToEventCreatePayload,
   mapToEventUpdatePayload,
 } from './mappers';
+import type { InfoEvent } from '../model/types';
 
 const TABLE_NAME = 'calendar_events';
 const JOIN_EMPLOYEES_TABLE = 'calendar_event_employees';

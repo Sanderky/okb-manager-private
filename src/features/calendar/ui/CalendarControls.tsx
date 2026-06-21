@@ -23,9 +23,8 @@ import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import type { Dayjs } from 'dayjs';
 import { plPL } from '@mui/x-date-pickers/locales';
-import type { EventCategory } from '../model/types';
-import { EVENT_CATEGORIES } from '../model/const';
 import { getCategoryLabel } from '../lib/label';
+import { EVENT_CATEGORIES, type EventCategory } from '@/entities/events';
 
 interface CalendarControlsProps {
   currentMonth: Dayjs;

@@ -2,12 +2,12 @@ import { mockDb } from '@/shared/api/mock/mockDb';
 import { delay } from '@/shared/lib/delay';
 import dayjs from 'dayjs';
 import { toSqlDate } from '@/shared/lib/date';
-import type { InfoEvent } from '../model/types';
 import {
   mapEventFromDB,
   mapToEventCreatePayload,
   mapToEventUpdatePayload,
 } from './mappers';
+import type { InfoEvent } from '../model/types';
 
 const attachRelations = (event: any) => {
   const employees = mockDb.calendar_event_employees.filter(

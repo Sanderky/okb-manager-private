@@ -37,7 +37,6 @@ import { WorkLogsPage } from '@/pages/work-logs';
 import { PageNotFound } from '@/pages/page-not-found';
 import { ConstructionApi } from '@/entities/construction';
 import { VacationApi } from '@/entities/vacations';
-import { getNearestUpcomingEvents } from '@/features/calendar';
 import { ConstructionCreatePage } from '@/pages/construction-create';
 import { getTodos } from '@/features/todo-list';
 import { getEmployeeAlerts } from '@/entities/employee';
@@ -45,6 +44,7 @@ import { CalendarPage } from '@/pages/calendar';
 import { AuthApi } from '@/entities/session';
 import { useRealtime } from './real-time/useRealtime';
 import { useContractors } from '@/entities/contractor';
+import { getNearestUpcomingEvents } from '@/entities/events';
 
 const useInitData = () => {
   const { user, initialLoading: authLoading, error } = useAuth();

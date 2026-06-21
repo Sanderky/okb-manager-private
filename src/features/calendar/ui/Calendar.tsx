@@ -13,9 +13,7 @@ import { EmployeeApi } from '@/entities/employee';
 import { ConstructionApi } from '@/entities/construction';
 import type {
   CalendarDay,
-  CalendarEvent,
-  EventCategory,
-  InfoEvent,
+  CalendarEvent
 } from '../model/types';
 import { Add, Close } from '@mui/icons-material';
 import type { Dayjs } from 'dayjs';
@@ -34,14 +32,8 @@ import { useSearchParams } from 'react-router-dom';
 import useContainerBreakpoint from '@/shared/lib/useContainerWidth';
 import { useDialogs } from '@/shared/ui/dialogs/useDialogs';
 import { validateCalendarEvent } from '../model/validation';
-import {
-  createCalendarEvent,
-  getCalendarEventsForMonths,
-  removeCalendarEvent,
-  updateCalendarEvent
-} from '../api';
-import { EVENT_CATEGORIES } from '../model/const';
 import { WEEK_DAYS } from '@/shared/config/days';
+import { createCalendarEvent, EVENT_CATEGORIES, getCalendarEventsForMonths, removeCalendarEvent, updateCalendarEvent, type EventCategory, type InfoEvent } from '@/entities/events';
 
 dayjs.locale('pl');
 

@@ -6,3 +6,4 @@ export { sortByLastName };
 export * from './api/alerts';
 export * from './api/attachments';
 export { useEmployees };
+export * from './model/services/useEmployeesByScheduledConstruction';

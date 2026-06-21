@@ -1,6 +1,7 @@
+import type { EventColor } from '@/entities/events';
 import { useTheme } from '@mui/material';
 import { useCallback, useMemo } from 'react';
-import type { EventColor } from './types';
+
 
 export const useEventColor = () => {
   const theme = useTheme();

@@ -32,12 +32,12 @@ import ConstructionIcon from '@mui/icons-material/Construction';
 import { useNavigate } from 'react-router-dom';
 import { Add } from '@mui/icons-material';
 import type { Dayjs } from 'dayjs';
-import type { CalendarDay, CalendarEvent, EventCategory } from '../model/types';
+import type { CalendarDay, CalendarEvent } from '../model/types';
 import type { Construction } from '@/entities/construction';
 import type { Employee } from '@/entities/employee';
-import { EVENT_CATEGORIES, EVENT_COLORS } from '../model/const';
 import { getCategoryLabel } from '../lib/label';
 import { getDateStr } from '@/shared/lib/string';
+import { EVENT_CATEGORIES, EVENT_COLORS, type EventCategory } from '@/entities/events';
 
 interface EventDetailsProps {
   event: Partial<CalendarEvent>;

@@ -1,6 +1,6 @@
 import { toSqlDate } from '@/shared/lib/date';
-import type { InfoEvent, EventCategory, EventColor } from '../model/types';
-import type { CalendarEventDTO } from './types'; // Importujemy poprawiony DTO
+import type { CalendarEventDTO } from './types';
+import type { EventCategory, EventColor, InfoEvent } from '../model/types';
 
 export const mapEventFromDB = (row: CalendarEventDTO): InfoEvent => ({
   id: row.id,

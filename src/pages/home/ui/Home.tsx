@@ -6,13 +6,14 @@ import { useQuery } from '@tanstack/react-query';
 import { ConstructionsCard, EmployeesCard } from './InfoCards';
 import { EmployeeApi } from '@/entities/employee';
 import { ConstructionApi } from '@/entities/construction';
-import { EventsBox, getNearestUpcomingEvents } from '@/features/calendar';
+import { EventsBox } from '@/features/calendar';
 import { EmployeeAlerts } from '@/features/employees';
 import { DiskUsage } from '@/features/disk-usage';
 import { UpcomingVacation } from '@/features/vacations';
 import { TodoList } from '@/features/todo-list';
 import { HomeNote } from '@/features/home-note';
 import { FileBrowser } from '@/features/file-browser';
+import { getNearestUpcomingEvents } from '@/entities/events';
 
 const SHOW_DISK_USAGE = import.meta.env.VITE_SHOW_DISK_USAGE;
 

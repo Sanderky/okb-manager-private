@@ -25,13 +25,12 @@ import {
 } from '@mui/icons-material';
 import { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { EventCategory, InfoEvent } from '../model/types';
-import { EVENT_CATEGORIES } from '../model/const';
 import { useEventColor } from '../model/useEventColor';
 import Loading from '@/shared/ui/Loading';
 import { useScroll } from '@/shared/lib/ScrollContext';
 import { getDateStr } from '@/shared/lib/string';
 import { getCategoryLabel } from '../lib/label';
+import { EVENT_CATEGORIES, type EventCategory, type InfoEvent } from '@/entities/events';
 
 const EVENTS_FILTER_STORAGE_KEY = 'eventsBox_filters';
 

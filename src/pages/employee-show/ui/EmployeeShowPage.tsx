@@ -34,10 +34,11 @@ import type { FileItem } from '@/shared/model/types';
 import { VacationApi } from '@/entities/vacations';
 import { FileBrowser } from '@/features/file-browser';
 import { FOLDER_NAMES } from '@/shared/config/storage';
-import { EventsListTable, getUpcomingEventsForEmployee } from '@/features/calendar';
+import { EventsListTable } from '@/features/calendar';
 import { getDateStr } from '@/shared/lib/string';
 import { FilePreview } from '@/shared/ui/FilePreviewDialog';
 import { AttachmentBox, useEmployeeAttachments, type FieldInfo} from '@/features/employees';
+import { getUpcomingEventsForEmployee } from '@/entities/events';
 
 const personalFields: FieldInfo[] = [
   { key: 'name', label: 'Imię i nazwisko' },
