@@ -1,11 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
-import { getEmployeeList } from '../api/employees/api';
+import { getEmployeeList } from '../../api/employees/api';
 
 export const useEmployees = () => {
   const {
     data = [],
     isLoading,
     isError,
+    refetch
   } = useQuery({
     queryKey: ['employees'],
     queryFn: () => getEmployeeList(),
@@ -15,5 +16,6 @@ export const useEmployees = () => {
     employees: data,
     isLoading,
     isError,
+    refetch
   };
 };

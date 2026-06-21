@@ -4,4 +4,5 @@ export * from './model/validation';
 export * from './ui/AttachmentBox';
 export * from './model/useAttachment';
 export * from './model/types';
-export * from './ui/EmployeesList';
+export * from './ui/employees-list/EmployeesList';
+export * from './model/providers/useEmployeesListContext';

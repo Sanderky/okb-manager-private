@@ -1,5 +1,5 @@
 import { sortByLastName } from './model/sort';
-import { useEmployees } from './model/useEmployees';
+import { useEmployees } from './model/services/useEmployees';
 export * from './model/types';
 export * as EmployeeApi from './api/employees';
 export { sortByLastName };
@@ -8,3 +8,4 @@ export * from './api/attachments';
 export { useEmployees };
 export * from './model/services/useEmployeesByScheduledConstruction';
 export * from './model/services/useActiveEmployeesCount';
+export * from './model/services/useEmployeeAlerts';

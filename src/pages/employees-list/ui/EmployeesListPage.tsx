@@ -4,30 +4,21 @@ import Button from '@mui/material/Button';
 import AddIcon from '@mui/icons-material/Add';
 import { useNavigate } from 'react-router';
 import PageContainer from '@/shared/ui/PageContainer';
-import { EmployeeApi } from '@/entities/employee';
-import { useQuery } from '@tanstack/react-query';
+import { useEmployees } from '@/entities/employee';
 import Alert from '@mui/material/Alert';
 import 'dayjs/locale/pl';
 import Loading from '@/shared/ui/Loading';
-import { EmployeeList } from '@/features/employees';
+import { EmployeeList, EmployeeListProvider } from '@/features/employees';
 
 export function EmployeesListPage() {
   const navigate = useNavigate();
-  const {
-    data: employees = [],
-    isLoading,
-    error,
-    refetch,
-  } = useQuery({
-    queryKey: ['employees'],
-    queryFn: () => EmployeeApi.getEmployeeList(),
-  });
+  const { employees, isLoading, isError, refetch } = useEmployees();
 
   const handleCreateClick = React.useCallback(() => {
     navigate('/employees/create');
   }, [navigate]);
 
-  if (error) {
+  if (isError) {
     return (
       <PageContainer
         breadcrumbs={[{ title: 'Lista pracowników' }]}
@@ -69,7 +60,6 @@ export function EmployeesListPage() {
 
   return (
     <PageContainer
-      // renderBottomToolbar={<TablePagination table={table} />}
       fixedHeight={true}
       breadcrumbs={[{ title: 'Lista pracowników' }]}
       actions={
@@ -93,7 +83,9 @@ export function EmployeesListPage() {
           overflow: 'hidden',
         }}
       >
-        <EmployeeList employees={employees} isLoading={isLoading} />
+        <EmployeeListProvider employees={employees} isLoading={isLoading}>
+          <EmployeeList />
+        </EmployeeListProvider>
       </Box>
     </PageContainer>
   );

@@ -26,7 +26,7 @@ import { useFormFilters, useTableState } from '@/shared/lib/useTableSettings';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import { plPL } from '@mui/x-date-pickers/locales';
-import { FiltersDialog, type EmployeesFilters } from './EmployeesListFilters';
+import { FiltersDialog } from './employees-list/EmployeesListFilters';
 import {
   getEmployeeAlerts,
   sortByLastName,
@@ -34,6 +34,7 @@ import {
 } from '@/entities/employee';
 import { useQuery } from '@tanstack/react-query';
 import { TablePagination } from '@/shared/ui/TablePagination';
+import type { EmployeesFilters } from '../model/types';
 
 const ColumnOrderDefault = [
   'mrt-row-numbers',

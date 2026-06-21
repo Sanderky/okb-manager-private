@@ -18,29 +18,7 @@ import {
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import CloseIcon from '@mui/icons-material/Close';
-
-export interface EmployeesFilters {
-  name: string;
-  email: string;
-  phone: string;
-  address: string;
-  pesel: string;
-  birthPlace: string;
-  hourRateFrom: string;
-  hourRateTo: string;
-  birthDateFrom: Dayjs | null;
-  birthDateTo: Dayjs | null;
-  isContractor: string;
-  contractStartDateFrom: Dayjs | null;
-  contractStartDateTo: Dayjs | null;
-  contractEndDateFrom: Dayjs | null;
-  contractEndDateTo: Dayjs | null;
-  a1StartDateFrom: Dayjs | null;
-  a1StartDateTo: Dayjs | null;
-  a1EndDateFrom: Dayjs | null;
-  a1EndDateTo: Dayjs | null;
-  status: string;
-}
+import type { EmployeesFilters } from '../../model/types';
 
 interface FiltersDialogProps {
   filtersModalOpen: boolean;
