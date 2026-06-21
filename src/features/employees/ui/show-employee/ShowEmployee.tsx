@@ -18,7 +18,7 @@ import { getDateStr } from '@/shared/lib/string';
 import { useEmployeeShowContext } from '../../model/providers/useEmployeeShowContext';
 import type { FieldInfo } from '../../model/types';
 import useEmployeeAttachments from '../../model/useAttachment';
-import { AttachmentBox } from '../AttachmentBox';
+import { AttachmentBox } from './AttachmentBox';
 
 const personalFields: FieldInfo[] = [
   { key: 'name', label: 'Imię i nazwisko' },
