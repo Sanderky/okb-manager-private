@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import { getMonthKeysFromWeek } from '@/shared/lib/date';
-import { getVacationListForMonths } from '../api';
+import { getVacationListForMonths } from '../../api';
 
 dayjs.extend(isSameOrBefore);
 

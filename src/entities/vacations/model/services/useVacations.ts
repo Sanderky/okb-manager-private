@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import type { Vacation } from './types';
-import * as VacationApi from '../api';
+import type { Vacation } from '../types';
+import * as VacationApi from '../../api';
 
 export const useVacations = (monthKeys: string[], enabled = true) => {
   const {

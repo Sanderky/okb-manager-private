@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { getScheduleListForDateRange } from '../api';
+import { getScheduleListForDateRange } from '../../api';
 
 export const useSchedule = (start: Date, end: Date) => {
   const {
