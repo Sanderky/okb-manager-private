@@ -9,3 +9,4 @@ export { useEmployees };
 export * from './model/services/useEmployeesByScheduledConstruction';
 export * from './model/services/useActiveEmployeesCount';
 export * from './model/services/useEmployeeAlerts';
+export * from './model/services/mutations/useCreateEmployee';

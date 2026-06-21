@@ -1,11 +1,11 @@
-import type { Employee } from "@/entities/employee";
-import type { EmployeeFormState } from "../ui/EmployeeForm";
-import dayjs from "dayjs";
+import type { Employee } from '@/entities/employee';
+import dayjs from 'dayjs';
+import type { EmployeeValidationErrors } from './types';
 
 export const validate = (
   values: Partial<Omit<Employee, 'id'>>
-): Partial<Record<keyof EmployeeFormState['values'], string>> => {
-  const errors: Partial<Record<keyof EmployeeFormState['values'], string>> = {};
+): EmployeeValidationErrors => {
+  const errors: EmployeeValidationErrors = {};
 
   if (!values.name) {
     errors.name = 'Imię jest wymagane.';

@@ -28,3 +28,20 @@ export interface EmployeesFilters {
   a1EndDateTo: Dayjs | null;
   status: string;
 }
+
+export type EmployeeValidationErrors = Partial<
+  Record<keyof EmployeeFormState['values'], string>
+>;
+export interface EmployeeFormState {
+  values: Partial<Omit<Employee, 'id'>>;
+  errors: EmployeeValidationErrors;
+}
+export type DateWithPermanent = { date: string | null; permanent: boolean };
+
+export type FormFieldValue =
+  | string
+  | Date
+  | boolean
+  | null
+  | DateWithPermanent
+  | number;

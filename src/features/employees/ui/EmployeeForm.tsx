@@ -24,22 +24,7 @@ import { useNavigate, useParams } from 'react-router';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { NoteBase } from '@/shared/ui/Note';
 import { plPL } from '@mui/x-date-pickers/locales';
-import type { Employee } from '@/entities/employee';
-
-export interface EmployeeFormState {
-  values: Partial<Omit<Employee, 'id'>>;
-  errors: Partial<Record<keyof EmployeeFormState['values'], string>>;
-}
-
-export type DateWithPermanent = { date: string | null; permanent: boolean };
-
-export type FormFieldValue =
-  | string
-  | Date
-  | boolean
-  | null
-  | DateWithPermanent
-  | number;
+import type { EmployeeFormState, FormFieldValue } from '../model/types';
 
 export interface EmployeeFormProps {
   formId?: string;
@@ -340,7 +325,6 @@ export function EmployeeForm(props: EmployeeFormProps) {
           spacing={2.5}
           sx={{ position: 'relative', maxWidth: '100%' }}
         >
-
           <Grid width={'100%'}>
             <Alert severity="info" className="mb-3 px-3 py-0 font-medium">
               Pola oznaczone * są obowiązkowe.
