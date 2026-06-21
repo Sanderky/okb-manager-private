@@ -24,7 +24,7 @@ import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { useDialogs } from '@/shared/ui/dialogs/useDialogs';
 import { PriorityHigh, Report, ReportOff } from '@mui/icons-material';
 import dayjs from 'dayjs';
-import { useTodo } from '../model/useTodo';
+import { useTodo } from '../model/services/useTodo';
 import {
   useAddTodo,
   useClearCompletedTodos,
@@ -32,7 +32,7 @@ import {
   useEditTodo,
   useToggleTodoImportance,
   useToggleTodoStatus,
-} from '../model/useTodoMutations';
+} from '../model/services/useTodoMutations';
 import { filterAndSortCompletedTodos } from '../lib/todoUtils';
 import { AddTodoInput } from './TodoInput';
 

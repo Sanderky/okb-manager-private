@@ -16,8 +16,7 @@ import Loading from '@/shared/ui/Loading';
 import { ExpandMore, ExpandLess } from '@mui/icons-material';
 import { useScroll } from '@/shared/lib/ScrollContext';
 import { getDateStr } from '@/shared/lib/string';
-import { useUpcomingVacations } from '../model/useUpcomingVacations';
-import type { Vacation } from '@/entities/vacations';
+import { useUpcomingVacations, type Vacation } from '@/entities/vacations';
 
 const MAX_VISIBLE_ITEMS = 2;
 
