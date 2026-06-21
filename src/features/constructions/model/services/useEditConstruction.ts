@@ -130,6 +130,10 @@ export const useEditConstruction = (constructionId: string) => {
     [deleteMutation, navigate, notifications, construction]
   );
 
+  const handleCancel = useCallback(() => {
+    navigate(`/constructions/${constructionId}`);
+  }, [navigate]);
+
   const isFormLoading = actionLoading || isDeleting;
 
   return {
@@ -137,6 +141,7 @@ export const useEditConstruction = (constructionId: string) => {
     handleDeleteConstruction,
     handleFieldChange,
     handleSubmit,
+    handleCancel,
     actionLoading,
     formState,
     construction,

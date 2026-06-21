@@ -28,6 +28,7 @@ export const ConstructionEdit = () => {
     handleSubmit: onSubmit,
     handleDeleteConstruction: onDelete,
     handleFieldChange,
+    handleCancel,
     isFormLoading,
     actionLoading,
     formState,
@@ -91,6 +92,7 @@ export const ConstructionEdit = () => {
               className="rounded-lg p-3 md:p-4"
             >
               <ConstructionForm
+                onCancel={handleCancel}
                 formState={formState}
                 onFieldChange={handleFieldChange}
                 onSubmit={handleSubmit}

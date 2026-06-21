@@ -6,6 +6,7 @@ export function AddConstruction() {
     formState,
     handleFieldChange,
     handleSubmit,
+    handleCancel,
     actionLoading,
     isError,
     registerFieldRef,
@@ -20,6 +21,7 @@ export function AddConstruction() {
       submitError={isError ? 'Wystąpił błąd podczas tworzenia budowy.' : null}
       isEditForm={false}
       registerFieldRef={registerFieldRef}
+      onCancel={handleCancel}
     />
   );
 }

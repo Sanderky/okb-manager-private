@@ -1,13 +1,16 @@
 import * as React from 'react';
 import useLoading from '@/shared/lib/useLoading';
-import { shouldBeInactive, useAddConstructionMutation, type Construction } from '@/entities/construction';
+import {
+  shouldBeInactive,
+  useAddConstructionMutation,
+  type Construction,
+} from '@/entities/construction';
 import {
   validate,
-  type ConstructionFormState,
-  type FormFieldValue,
 } from '@/features/constructions';
 import useNotifications from '@/shared/ui/notifications/useNotifications';
 import { useNavigate } from 'react-router-dom';
+import type { ConstructionFormState, FormFieldValue } from '../types';
 
 export const useConstructionCreateService = () => {
   const navigate = useNavigate();
@@ -99,10 +102,15 @@ export const useConstructionCreateService = () => {
     ]
   );
 
+  const handleCancel = React.useCallback(() => {
+    navigate('/constructions');
+  }, [navigate]);
+
   return {
     formState,
     handleFieldChange,
     handleSubmit,
+    handleCancel,
     actionLoading,
     registerFieldRef,
     isError: createMutation.isError,

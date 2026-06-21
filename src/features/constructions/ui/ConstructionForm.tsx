@@ -12,7 +12,6 @@ import dayjs, { type Dayjs } from 'dayjs';
 import Alert from '@mui/material/Alert';
 import { Autocomplete, Divider, Paper, Typography } from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate, useParams } from 'react-router';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { NoteBase } from '@/shared/ui/Note';
@@ -23,21 +22,6 @@ import { useContractors } from '@/entities/contractor';
 import { AddContractorDialog } from '@/features/contractors';
 import type { ConstructionFormState, FormFieldValue } from '../model/types';
 
-export interface ConstructionFormProps {
-  formId?: string;
-  formState: ConstructionFormState;
-  onFieldChange: (
-    name: keyof ConstructionFormState['values'],
-    value: FormFieldValue
-  ) => void;
-  onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
-  onReset?: () => void;
-  isSubmitting?: boolean;
-  submitError?: string | null;
-  isEditForm?: boolean;
-  registerFieldRef?: (name: string, el: HTMLInputElement | null) => void;
-}
-
 type FieldType = 'text' | 'email' | 'date' | 'boolean';
 
 interface ConstructionField {
@@ -47,21 +31,55 @@ interface ConstructionField {
   required: boolean;
 }
 
+const CONSTRUCTION_FIELDS: ConstructionField[] = [
+  { key: 'name', label: 'Nazwa budowy', type: 'text', required: true },
+  { key: 'location', label: 'Lokalizacja', type: 'text', required: false },
+  { key: 'contractorId', label: 'Wykonawca', type: 'text', required: false },
+];
+
+const DATE_FIELDS: ConstructionField[] = [
+  { key: 'startDate', label: 'Data rozpoczęcia', type: 'date', required: true },
+  { key: 'endDate', label: 'Data zakończenia', type: 'date', required: false },
+];
+
+export interface ConstructionFormProps {
+  formId?: string;
+  formState: ConstructionFormState;
+  onFieldChange: (
+    name: keyof ConstructionFormState['values'],
+    value: FormFieldValue
+  ) => void;
+  onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
+  onCancel: () => void;
+  onReset?: () => void;
+  isSubmitting?: boolean;
+  submitError?: string | null;
+  isEditForm?: boolean;
+  registerFieldRef?: (name: string, el: HTMLInputElement | null) => void;
+}
+
 export function ConstructionForm(props: ConstructionFormProps) {
   const {
     formId,
     formState,
     onFieldChange,
     onSubmit,
+    onCancel,
     onReset,
     isSubmitting,
     submitError,
     isEditForm,
+    registerFieldRef,
   } = props;
 
   const [contractorsModalOpen, setContractorsModalOpen] = useState(false);
+  const [cleared, setCleared] = useState<boolean>(false);
 
-  const { data: contractors, isLoading: contractorsIsLoading } = useContractors();
+  const { data: contractors, isLoading: contractorsIsLoading } =
+    useContractors();
+
+  const formValues = formState.values;
+  const formErrors = formState.errors;
 
   const contractorsOptions = useMemo(() => {
     if (!contractors) return [];
@@ -71,89 +89,38 @@ export function ConstructionForm(props: ConstructionFormProps) {
     }));
   }, [contractors]);
 
-  const formValues = formState.values;
-  const formErrors = formState.errors;
-
-  const navigate = useNavigate();
-  const { constructionId } = useParams<{ constructionId: string }>();
-
-  const handleFieldChange = React.useCallback(
+  const handleCustomFieldChange = React.useCallback(
     (
       name: keyof ConstructionFormState['values'],
       value: string | boolean | Dayjs | null
     ) => {
-      if (dayjs.isDayjs(value)) {
+      if (dayjs.isDayjs(value))
         onFieldChange(name, value.isValid() ? value.toDate() : null);
-      } else {
-        onFieldChange(name, value);
-      }
+      else onFieldChange(name, value);
     },
     [onFieldChange]
   );
 
-  const constructionFields: ConstructionField[] = [
-    { key: 'name', label: 'Nazwa budowy', type: 'text', required: true },
-    { key: 'location', label: 'Lokalizacja', type: 'text', required: false },
-    { key: 'contractorId', label: 'Wykonawca', type: 'text', required: false },
-  ];
-
-  const DateFields: ConstructionField[] = [
-    {
-      key: 'startDate',
-      label: 'Data rozpoczęcia',
-      type: 'date',
-      required: true,
-    },
-    {
-      key: 'endDate',
-      label: 'Data zakończenia',
-      type: 'date',
-      required: false,
-    },
-  ];
-
-  const [cleared, setCleared] = useState<boolean>(false);
-
   useEffect(() => {
     if (cleared) {
-      const timeout = setTimeout(() => {
-        setCleared(false);
-      }, 1500);
-
+      const timeout = setTimeout(() => setCleared(false), 1500);
       return () => clearTimeout(timeout);
     }
-    return () => {};
   }, [cleared]);
-
-  const handleBack = React.useCallback(() => {
-    if (constructionId) {
-      navigate(`/constructions/${constructionId}`);
-    } else {
-      navigate('/constructions');
-    }
-  }, [navigate, constructionId]);
 
   const getDateValue = (value: any): Dayjs | null => {
     if (!value) return null;
-
-    if (value instanceof Date) {
-      return dayjs(value);
-    }
-
-    if (dayjs.isDayjs(value)) {
-      return value;
-    }
-
+    if (value instanceof Date) return dayjs(value);
+    if (dayjs.isDayjs(value)) return value;
     if (typeof value === 'string' || typeof value === 'number') {
       const parsed = dayjs(value);
       return parsed.isValid() ? parsed : null;
     }
-
     return null;
   };
 
   const handleContractorAdded = (newId: string) => {
-    handleFieldChange('contractorId', newId);
+    handleCustomFieldChange('contractorId', newId);
     setContractorsModalOpen(false);
   };
 
@@ -179,6 +146,7 @@ export function ConstructionForm(props: ConstructionFormProps) {
           {submitError}
         </Alert>
       )}
+
       <FormGroup>
         <Grid
           container
@@ -186,12 +154,12 @@ export function ConstructionForm(props: ConstructionFormProps) {
           spacing={2.5}
           sx={{ position: 'relative', maxWidth: '100%' }}
         >
-          <Grid width={'100%'}>
+          <Grid size={12}>
             <Typography variant="subtitle1" className="mb-3 font-medium">
               Dane budowy
             </Typography>
-            <Grid container columns={12} spacing={{ xs: 2 }}>
-              {constructionFields.map(({ key, label, type, required }) => (
+            <Grid container columns={12} spacing={2}>
+              {CONSTRUCTION_FIELDS.map(({ key, label, type, required }) => (
                 <Grid size={{ xs: 12, md: 6 }} key={key}>
                   {key === 'contractorId' ? (
                     <Autocomplete
@@ -206,36 +174,33 @@ export function ConstructionForm(props: ConstructionFormProps) {
                           (c) => c.id === formValues[key]
                         ) || null
                       }
-                      onChange={(_, newValue) => {
-                        handleFieldChange(
+                      onChange={(_, newValue) =>
+                        handleCustomFieldChange(
                           key,
                           newValue ? (newValue.id as any) : null
-                        );
-                      }}
+                        )
+                      }
                       slots={{
-                        paper: (props) => {
-                          const { children, ...other } = props;
-                          return (
-                            <Paper {...other}>
-                              {children}
-                              <Divider />
-                              <Box
-                                onMouseDown={(e) => e.preventDefault()}
-                                sx={{ p: 1 }}
+                        paper: ({ children, ...other }) => (
+                          <Paper {...other}>
+                            {children}
+                            <Divider />
+                            <Box
+                              onMouseDown={(e) => e.preventDefault()}
+                              sx={{ p: 1 }}
+                            >
+                              <Button
+                                fullWidth
+                                variant="text"
+                                size="small"
+                                startIcon={<Add />}
+                                onClick={() => setContractorsModalOpen(true)}
                               >
-                                <Button
-                                  fullWidth
-                                  variant="text"
-                                  size="small"
-                                  startIcon={<Add />}
-                                  onClick={() => setContractorsModalOpen(true)}
-                                >
-                                  Dodaj wykonawcę
-                                </Button>
-                              </Box>
-                            </Paper>
-                          );
-                        },
+                                Dodaj wykonawcę
+                              </Button>
+                            </Box>
+                          </Paper>
+                        ),
                       }}
                       renderInput={(params) => (
                         <TextField
@@ -243,7 +208,7 @@ export function ConstructionForm(props: ConstructionFormProps) {
                           size="small"
                           fullWidth
                           label={label}
-                          name={key}
+                          name={key as string}
                           error={Boolean(formErrors[key])}
                           helperText={formErrors[key]}
                         />
@@ -257,27 +222,28 @@ export function ConstructionForm(props: ConstructionFormProps) {
                       label={label}
                       type={type}
                       value={formValues[key] ?? ''}
-                      onChange={(e) => handleFieldChange(key, e.target.value)}
-                      name={key}
+                      name={key as string}
                       error={Boolean(formErrors[key])}
                       helperText={formErrors[key]}
-                      inputRef={(el) => {
-                        if (props.registerFieldRef)
-                          props.registerFieldRef(key as string, el);
-                      }}
+                      inputRef={(el) => registerFieldRef?.(key as string, el)}
+                      onChange={(e) =>
+                        handleCustomFieldChange(key, e.target.value)
+                      }
                     />
                   )}
                 </Grid>
               ))}
             </Grid>
           </Grid>
+
           <Divider sx={{ width: '100%' }} />
-          <Grid width={'100%'}>
+
+          <Grid size={12}>
             <Typography variant="subtitle1" className="mb-3 font-medium">
               Terminy
             </Typography>
-            <Grid container columns={12} spacing={{ xs: 2 }}>
-              {DateFields.map(({ key, label, required }) => (
+            <Grid container columns={12} spacing={2}>
+              {DATE_FIELDS.map(({ key, label, required }) => (
                 <Grid size={{ xs: 12, md: 6 }} key={key}>
                   <LocalizationProvider
                     localeText={
@@ -293,22 +259,25 @@ export function ConstructionForm(props: ConstructionFormProps) {
                       label={label}
                       disabled={Boolean(
                         key === 'endDate' &&
-                          (!formValues['startDate'] ||
-                            dayjs(formValues['startDate']).isAfter(dayjs()))
+                        (!formValues['startDate'] ||
+                          dayjs(formValues['startDate']).isAfter(dayjs()))
                       )}
                       value={getDateValue(formValues[key])}
-                      onChange={(newValue) => handleFieldChange(key, newValue)}
+                      onChange={(newValue) =>
+                        handleCustomFieldChange(key, newValue)
+                      }
                       minDate={
                         key === 'endDate'
-                          ? dayjs(formValues['startDate'])
+                          ? dayjs(formValues['startDate'] as Date)
                           : undefined
                       }
                       maxDate={key === 'endDate' ? dayjs() : undefined}
+                      inputRef={(el) => registerFieldRef?.(key as string, el)}
                       slotProps={{
                         textField: {
                           size: 'small',
                           fullWidth: true,
-                          name: key,
+                          name: key as string,
                           required,
                           error: Boolean(formErrors[key]),
                           helperText: formErrors[key],
@@ -317,10 +286,6 @@ export function ConstructionForm(props: ConstructionFormProps) {
                           clearable: true,
                           onClear: () => setCleared(true),
                         },
-                      }}
-                      inputRef={(el) => {
-                        if (props.registerFieldRef)
-                          props.registerFieldRef(key as string, el);
                       }}
                     />
                   </LocalizationProvider>
@@ -344,7 +309,7 @@ export function ConstructionForm(props: ConstructionFormProps) {
                 <Box sx={{ px: 0.2 }}>
                   <NoteBase
                     content={(formValues.note as string) ?? ''}
-                    onChange={(note) => handleFieldChange('note', note)}
+                    onChange={(note) => handleCustomFieldChange('note', note)}
                     editable={true}
                   />
                 </Box>
@@ -353,6 +318,7 @@ export function ConstructionForm(props: ConstructionFormProps) {
           )}
           <Divider sx={{ width: '100%' }} />
         </Grid>
+
         <Stack
           direction="row"
           alignItems="center"
@@ -370,9 +336,9 @@ export function ConstructionForm(props: ConstructionFormProps) {
           </Button>
           <Button
             variant="outlined"
-            onClick={handleBack}
+            onClick={onCancel}
             startIcon={<ArrowBackIcon />}
-            type="reset"
+            type="button"
             color="inherit"
             disabled={isSubmitting}
           >
