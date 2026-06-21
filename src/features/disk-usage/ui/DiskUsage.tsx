@@ -6,7 +6,7 @@ import {
   Stack,
   Typography,
 } from '@mui/material';
-import { useDiskUsage } from '../model/useDiskUsage';
+import { useDiskUsage } from '../model/services/useDiskUsage';
 import { CircularProgressWithLabel } from './CircualProgressWithLabel';
 
 export const DiskUsage = () => {

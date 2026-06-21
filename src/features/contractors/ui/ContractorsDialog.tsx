@@ -11,7 +11,7 @@ import { useSearchParams } from 'react-router-dom';
 import { type Contractor } from '@/entities/contractor';
 import { ContractorDetails } from './ContractorDetails';
 import { ContractorsList } from './ContractorsList';
-import { useContractorsController } from '../model/useContractorsController';
+import { useContractorsService } from '../model/services/useContractorsService';
 interface ContractorsDialogProps {
   open: boolean;
   onClose: () => void;
@@ -34,7 +34,7 @@ export const ContractorsDialog = ({
     });
   };
 
-  const contractorsController = useContractorsController();
+  const contractorsController = useContractorsService();
   const activeContractor = useMemo(() => {
     return contractorsController.contractors?.find((c) => c.id === activeNoteContractor);
   }, [activeNoteContractor, contractorsController.contractors]);

@@ -14,5 +14,7 @@ export * from './model/services/useEmployee';
 export * from './model/services/mutations/useUpdateEmployeeNote';
 export * from './model/services/mutations/useDeleteEmployee';
 export * from './model/services/mutations/useUpdateEmployee';
-export * from './model/services/useAlertsSettings'
-export * from './model/services/mutations/useUpdateAlertsSettings'
+export * from './model/services/useAlertsSettings';
+export * from './model/services/mutations/useUpdateAlertsSettings';
+export * from './model/services/mutations/useDeleteAttachment';
+export * from './model/services/useEmployeeAttachments';

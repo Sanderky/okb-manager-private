@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { getDiskUsage } from '../api';
-import { formatToGB } from './formatToGb';
+import { getDiskUsage } from '../../api';
+import { formatToGB } from '../format';
 
 export const useDiskUsage = () => {
   const { data, isLoading, isError } = useQuery({

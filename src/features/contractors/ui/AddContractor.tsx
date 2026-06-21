@@ -1,7 +1,7 @@
 import { Button, TextField } from '@mui/material';
 import BaseDialog from '@/shared/ui/BaseDialog';
 import { useState } from 'react';
-import { useContractorsController } from '../model/useContractorsController';
+import { useContractorsService } from '../model/services/useContractorsService';
 
 export interface AddContractorDialogProps {
   open: boolean;
@@ -14,7 +14,7 @@ export const AddContractorDialog = ({
   onAddSuccess,
 }: AddContractorDialogProps) => {
   const [newName, setNewName] = useState('');
-  const { handleAdd, isLoading } = useContractorsController();
+  const { handleAdd, isLoading } = useContractorsService();
 
   const onAdd = () => {
     handleAdd(newName, (newId) => {

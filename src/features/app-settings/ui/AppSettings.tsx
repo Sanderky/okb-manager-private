@@ -7,7 +7,7 @@ import {
 } from '@mui/material';
 import { CloudUpload } from '@mui/icons-material';
 import { AttachmentItem } from '@/shared/ui/AttachmentItem';
-import { useRodoFile } from '../model/useRodoFile';
+import { useRodoFile } from '../model/services/useRodoFile';
 
 interface SettingsProps {
   isOpen: boolean;

@@ -17,7 +17,7 @@ import { UploadFilesDialog } from '@/shared/ui/UploadFilesDialog';
 import { openFileInNewTab } from '@/shared/lib/browser';
 import { canOpenPreview } from '@/shared/lib/fileUtils';
 import type { FieldInfo } from '../../model/types';
-import type useEmployeeAttachments from '../../model/useAttachment';
+import type useEmployeeAttachments from '../../model/services/useAttachment';
 import { AttachmentDateBox } from './AttachmentDateBox';
 
 interface AttachmentBoxProps {

@@ -1,13 +1,13 @@
 import { useState, useCallback } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import useNotifications from '@/shared/ui/notifications/useNotifications';
 import {
-  deleteAttachment,
-  getEmployeeAttachments,
   uploadAttachment,
   type Attachment,
   type EmployeeAttachmentType,
+  useEmployeeAttachments as useEmployeeAttachmentsService,
+  useDeleteEmployeeAttachment,
 } from '@/entities/employee';
+import { useQueryClient } from '@tanstack/react-query';
 
 export const useEmployeeAttachments = (employeeId: string | undefined) => {
   const queryClient = useQueryClient();
@@ -21,11 +21,8 @@ export const useEmployeeAttachments = (employeeId: string | undefined) => {
   );
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState<boolean>(false);
 
-  const { data: attachments = [], isLoading: isFetching } = useQuery({
-    queryKey: ['attachments', employeeId],
-    queryFn: () => getEmployeeAttachments(employeeId!),
-    enabled: !!employeeId,
-  });
+  const { attachments, isLoading: isFetching } =
+    useEmployeeAttachmentsService(employeeId);
 
   const getAttachmentsByType = useCallback(
     (type: EmployeeAttachmentType): Attachment[] => {
@@ -102,16 +99,10 @@ export const useEmployeeAttachments = (employeeId: string | undefined) => {
         }, 500);
       }
     },
-    [employeeId, queryClient, notifications]
+    [employeeId, notifications, useQueryClient]
   );
 
-  const deleteMutation = useMutation({
-    mutationFn: ({ path }: { path: string }) => deleteAttachment(path),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['attachments', employeeId] });
-    },
-    onSettled: () => setLoadingType(null),
-  });
+  const deleteMutation = useDeleteEmployeeAttachment();
 
   const handleDelete = async (
     attachment: Attachment,
@@ -119,9 +110,15 @@ export const useEmployeeAttachments = (employeeId: string | undefined) => {
   ) => {
     if (!attachment.id) return;
     setLoadingType(type);
-    await deleteMutation.mutateAsync({
-      path: attachment.path,
-    });
+
+    try {
+      await deleteMutation.mutateAsync({
+        employeeId,
+        path: attachment.path,
+      });
+    } finally {
+      setLoadingType(null);
+    }
   };
 
   return {

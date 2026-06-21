@@ -17,7 +17,7 @@ import { EventsListTable } from '@/features/calendar';
 import { getDateStr } from '@/shared/lib/string';
 import { useEmployeeShowContext } from '../../model/providers/useEmployeeShowContext';
 import type { FieldInfo } from '../../model/types';
-import useEmployeeAttachments from '../../model/useAttachment';
+import useEmployeeAttachments from '../../model/services/useAttachment';
 import { AttachmentBox } from './AttachmentBox';
 
 const personalFields: FieldInfo[] = [

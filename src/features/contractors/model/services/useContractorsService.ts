@@ -10,7 +10,7 @@ import {
 } from '@/entities/contractor';
 import { useConstructions } from '@/entities/construction';
 
-export const useContractorsController = () => {
+export const useContractorsService = () => {
   const dialogs = useDialogs();
   const notifications = useNotifications();
 
