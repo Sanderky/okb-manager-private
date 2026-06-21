@@ -18,16 +18,10 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { NoteBase } from '@/shared/ui/Note';
 import { plPL } from '@mui/x-date-pickers/locales';
 import { Add } from '@mui/icons-material';
-import { shouldBeInactive, type Construction } from '@/entities/construction';
+import { shouldBeInactive } from '@/entities/construction';
 import { useContractors } from '@/entities/contractor';
 import { AddContractorDialog } from '@/features/contractors';
-
-export interface ConstructionFormState {
-  values: Partial<Omit<Construction, 'id'>>;
-  errors: Partial<Record<keyof ConstructionFormState['values'], string>>;
-}
-
-export type FormFieldValue = string | Date | number | boolean | null;
+import type { ConstructionFormState, FormFieldValue } from '../model/types';
 
 export interface ConstructionFormProps {
   formId?: string;
