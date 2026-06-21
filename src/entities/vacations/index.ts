@@ -4,3 +4,4 @@ export * as VacationApi from './api';
 export * from './model/types';
 export { employeeColors } from './lib/colors';
 export { useEmployeeVacations };
+export * from './model/services/useEmployeeUpcomingVacations';

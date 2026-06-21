@@ -6,6 +6,9 @@ export * from './model/useAttachment';
 export * from './model/types';
 export * from './ui/employees-list/EmployeesList';
 export * from './ui/create-employee/CreateEmployee';
+export * from './ui/show-employee/ShowEmployee';
 export * from './model/providers/useEmployeesListContext';
 export * from './model/providers/useEmployeeCreateContext';
+export * from './model/providers/useEmployeeShowContext';
+export * from './ui/show-employee/ShowEmployeeTopToolbar';
 
