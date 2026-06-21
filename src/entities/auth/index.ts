@@ -4,3 +4,4 @@ export * from './model/validation';
 export * from './model/services/useUpdatePassword';
 export * from './model/services/useResetPassword';
 export * from './model/services/useLogin';
+export * from './model/services/useUpdateProfile';
