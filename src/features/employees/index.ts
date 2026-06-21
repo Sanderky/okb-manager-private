@@ -11,4 +11,5 @@ export * from './model/providers/useEmployeesListContext';
 export * from './model/providers/useEmployeeCreateContext';
 export * from './model/providers/useEmployeeShowContext';
 export * from './ui/show-employee/ShowEmployeeTopToolbar';
-
+export * from './ui/edit-employee/EmployeeEdit';
+export * from './model/providers/useEmployeeEditContext';
