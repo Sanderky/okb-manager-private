@@ -1,4 +1,4 @@
-import type { AlertsSettings } from "../model/types";
+import type { AlertsSettings } from "./types";
 
 export const SETTINGS_ID = 1;
 

@@ -5,7 +5,7 @@ import React, {
   useState,
   type ReactNode,
 } from 'react';
-import { logout as authLogout, getSession, onAuthStateChange } from '../api';
+import { logout as authLogout, getSession, onAuthStateChange } from '../../api';
 import type { User, Session, AuthError } from '@supabase/supabase-js';
 
 interface AuthContextType {
