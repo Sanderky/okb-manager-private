@@ -8,6 +8,7 @@ export function AddEmployee() {
     handleSubmit,
     actionLoading,
     registerFieldRef,
+    handleCancel
   } = useAddEmployeeContext();
 
   return (
@@ -18,6 +19,7 @@ export function AddEmployee() {
       isSubmitting={actionLoading}
       isEditForm={false}
       registerFieldRef={registerFieldRef}
+      onCancel={handleCancel}
     />
   );
 }

@@ -32,6 +32,7 @@ export const EmployeeEdit = () => {
     isFormLoading,
     actionLoading,
     isDeleting,
+    handleCancel,
   } = useEmployeeEditContext();
 
   const registerFieldRef = (name: string, el: HTMLInputElement | null) => {
@@ -88,6 +89,7 @@ export const EmployeeEdit = () => {
               isSubmitting={actionLoading}
               isEditForm={true}
               registerFieldRef={registerFieldRef}
+              onCancel={handleCancel}
             />
           </Box>
         </Grid>

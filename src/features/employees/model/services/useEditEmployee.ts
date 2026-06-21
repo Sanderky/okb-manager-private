@@ -194,6 +194,10 @@ export const useEditEmployee = (employeeId: string) => {
     [employee, employeeId, navigate, scrollToTop, updateMutation, dialogs]
   );
 
+  const handleCancel = useCallback(() => {
+    navigate(`/employees/${employeeId}`);
+  }, [navigate]);
+
   const isFormLoading = actionLoading || isDeleting || isUpdatingEmployeeStatus;
 
   return {
@@ -209,5 +213,6 @@ export const useEditEmployee = (employeeId: string) => {
     handleSubmit,
     handleDeleteEmployee,
     handleEmployeeStatus,
+    handleCancel,
   };
 };

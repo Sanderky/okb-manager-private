@@ -116,12 +116,17 @@ export const useCreateEmployee = () => {
     ]
   );
 
+  const handleCancel = React.useCallback(() => {
+    navigate('/employees');
+  }, [navigate]);
+
   return {
     formState,
     handleFieldChange,
     handleSubmit,
     actionLoading,
     registerFieldRef,
+    handleCancel,
     isError: createMutation.isError,
   };
 };
