@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { getConstructionList } from '../../api';
 
-export const useConstructions = () => {
+export const useConstructions = (enabled = true) => {
   const {
     data = [],
     isLoading,
@@ -10,6 +10,7 @@ export const useConstructions = () => {
   } = useQuery({
     queryKey: ['constructions'],
     queryFn: () => getConstructionList(),
+    enabled,
   });
 
   return {

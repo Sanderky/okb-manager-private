@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { getTodos } from '../../api';
 
-export const useTodo = () => {
+export const useTodo = (enabled = true) => {
   const {
     data = [],
     isLoading,
@@ -9,6 +9,7 @@ export const useTodo = () => {
   } = useQuery({
     queryKey: ['todos'],
     queryFn: getTodos,
+    enabled,
   });
 
   return { data, isLoading, isError };

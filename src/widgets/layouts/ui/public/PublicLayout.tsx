@@ -10,7 +10,7 @@ import { Outlet } from 'react-router-dom';
 import AppFooter from './Footer';
 import { useColorMode } from '@/shared/lib/ThemeContext';
 
-const PublicLayout = () => {
+export const PublicLayout = () => {
   const { mode, toggleColorMode } = useColorMode();
 
   return (
@@ -63,5 +63,3 @@ const PublicLayout = () => {
     </Box>
   );
 };
-
-export default PublicLayout;

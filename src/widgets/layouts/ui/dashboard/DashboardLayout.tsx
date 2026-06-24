@@ -3,8 +3,8 @@ import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import Toolbar from '@mui/material/Toolbar';
 import { Outlet } from 'react-router';
-import DashboardHeader from './DashboardHeader';
-import DashboardSidebar from './DashboardSidebar';
+import DashboardHeader from './components/DashboardHeader';
+import DashboardSidebar from './components/sidebar/DashboardSidebar';
 import Logo from '@/shared/ui/Logo';
 import { ScrollContext } from '@/shared/lib/ScrollContext';
 import {
@@ -105,7 +105,7 @@ const Settings = ({ isOpen, onClose }: SettingsProps) => {
   );
 };
 
-export default function DashboardLayout() {
+export function DashboardLayout() {
   const theme = useTheme();
 
   const [isDesktopNavigationExpanded, setIsDesktopNavigationExpanded] =

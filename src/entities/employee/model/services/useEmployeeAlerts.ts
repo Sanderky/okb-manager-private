@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { getEmployeeAlerts } from '../../api/alerts';
 
-export const useEmployeeAlerts = () => {
+export const useEmployeeAlerts = (enabled = true) => {
   const {
     data = [],
     isLoading,
@@ -9,6 +9,7 @@ export const useEmployeeAlerts = () => {
   } = useQuery({
     queryKey: ['alerts'],
     queryFn: getEmployeeAlerts,
+    enabled,
   });
   return {
     alerts: data,

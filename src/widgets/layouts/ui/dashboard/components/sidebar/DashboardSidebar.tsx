@@ -14,7 +14,6 @@ import HomeIcon from '@mui/icons-material/Home';
 import { matchPath, useLocation } from 'react-router';
 import DashboardSidebarContext from './DashboardSidebarContext';
 import { DRAWER_WIDTH, MINI_DRAWER_WIDTH } from '@/shared/config/drawer';
-import DashboardSidebarPageItem from './DashboardSidebarPageItem';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import PeopleIcon from '@mui/icons-material/People';
 import {
@@ -22,6 +21,7 @@ import {
   getDrawerWidthTransitionMixin,
 } from '@/shared/lib/mixins';
 import { Hotel, Schedule } from '@mui/icons-material';
+import DashboardSidebarPageItem from './DashboardSidebarPageItem';
 import DashboardSidebarDividerItem from './DashboardSidebarDividerItem';
 
 export interface DashboardSidebarProps {
