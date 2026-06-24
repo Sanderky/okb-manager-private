@@ -9,3 +9,4 @@ export * from './model/services/useEvents';
 export * from './model/services/mutations/useAddEvent';
 export * from './model/services/mutations/useDeleteEvent';
 export * from './model/services/mutations/useUpdateEvent';
+export * from './model/services/useUpcomingEvents';

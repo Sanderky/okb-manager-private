@@ -8,3 +8,4 @@ export * from './model/services/mutations/useAddConstruction';
 export * from './model/services/mutations/useUpdateConstruction';
 export * from './model/services/mutations/useChangeConstructionStatus';
 export * from './model/services/mutations/useDeleteMutation';
+export * from './model/services/useConstructionStats';

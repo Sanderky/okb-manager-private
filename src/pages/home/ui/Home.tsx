@@ -2,16 +2,18 @@ import { Card, Box, Grid, CardContent, Tabs, Tab } from '@mui/material';
 import PageContainer from '@/shared/ui/PageContainer';
 import { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
 import { ConstructionsCard, EmployeesCard } from './InfoCards';
-import { EmployeeApi } from '@/entities/employee';
-import { ConstructionApi } from '@/entities/construction';
+import { useEmployees, useEmployeeStats } from '@/entities/employee';
+import {
+  useConstructions,
+  useConstructionStats,
+} from '@/entities/construction';
 import { EmployeeAlerts } from '@/features/employees';
 import { DiskUsage } from '@/features/disk-usage';
 import { TodoList } from '@/features/todo-list';
 import { HomeNote } from '@/features/home-note';
 import { FileBrowser } from '@/features/file-browser';
-import { getNearestUpcomingEvents } from '@/entities/events';
+import { useUpcomingEvents } from '@/entities/events';
 import { EventsBox } from '@/features/upcoming-events';
 import { UpcomingVacation } from '@/features/upcoming-vacations/ui/UpcomingVacations';
 
@@ -26,27 +28,14 @@ export const Home = () => {
     setTab(newValue);
   };
 
-  const { data: employeeStats, isLoading: employeesLoading } = useQuery({
-    queryKey: ['employees', 'stats'],
-    queryFn: EmployeeApi.getEmployeeStats,
-  });
-
-  const { data: constructionStats, isLoading: constructionsLoading } = useQuery(
-    {
-      queryKey: ['constructions', 'stats'],
-      queryFn: ConstructionApi.getConstructionStats,
-    }
-  );
-
-  const { data: employees = [] } = useQuery({
-    queryKey: ['employees'],
-    queryFn: () => EmployeeApi.getEmployeeList(),
-  });
-
-  const { data: constructions = [] } = useQuery({
-    queryKey: ['constructions'],
-    queryFn: () => ConstructionApi.getConstructionList(),
-  });
+  const { data: employeeStats, isLoading: employeesLoading } =
+    useEmployeeStats();
+  const { data: constructionStats, isLoading: constructionsLoading } =
+    useConstructionStats();
+  const { employees } = useEmployees();
+  const { constructions } = useConstructions();
+  const { data: upcomingEvents = [], isLoading: isUpcomingEventsLoading } =
+    useUpcomingEvents();
 
   const employeesMap = useMemo(() => {
     const map: Record<string, string> = {};
@@ -67,12 +56,6 @@ export const Home = () => {
       {} as Record<string, string>
     );
   }, [constructions]);
-
-  const { data: upcomingEvents = [], isLoading: isUpcomingEventsLoading } =
-    useQuery({
-      queryKey: ['calendarEvents', 'upcoming', 'all'],
-      queryFn: () => getNearestUpcomingEvents(),
-    });
 
   const handleEmployeesClick = useCallback(() => {
     navigate('/employees');

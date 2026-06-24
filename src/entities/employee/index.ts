@@ -18,3 +18,4 @@ export * from './model/services/useAlertsSettings';
 export * from './model/services/mutations/useUpdateAlertsSettings';
 export * from './model/services/mutations/useDeleteAttachment';
 export * from './model/services/useEmployeeAttachments';
+export * from './model/services/useEmployeeStats';
