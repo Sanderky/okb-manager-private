@@ -32,7 +32,6 @@ import { ConstructionShowPage } from '@/pages/construction-show';
 import { ConstructionEditPage } from '@/pages/construction-edit';
 import { LodgingsPage } from '@/pages/lodgings';
 import { SchedulePage } from '@/pages/schedule';
-import { VacationsPage } from '@/pages/vacations';
 import { WorkLogsPage } from '@/pages/work-logs';
 import { PageNotFound } from '@/pages/page-not-found';
 import { ConstructionApi } from '@/entities/construction';
@@ -45,6 +44,7 @@ import { AuthApi } from '@/entities/auth';
 import { useRealtime } from './real-time/useRealtime';
 import { useContractors } from '@/entities/contractor';
 import { getNearestUpcomingEvents } from '@/entities/events';
+import { VacationsPage } from '@/pages/vacations';
 
 const useInitData = () => {
   const { user, initialLoading: authLoading, error } = useAuth();

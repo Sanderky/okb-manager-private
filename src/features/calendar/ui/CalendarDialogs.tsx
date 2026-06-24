@@ -25,7 +25,6 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import BaseDialog from '@/shared/ui/BaseDialog';
 import { plPL } from '@mui/x-date-pickers/locales';
-import { useEventColor } from '../model/useEventColor';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import PersonIcon from '@mui/icons-material/Person';
 import ConstructionIcon from '@mui/icons-material/Construction';
@@ -35,9 +34,8 @@ import type { Dayjs } from 'dayjs';
 import type { CalendarDay, CalendarEvent } from '../model/types';
 import type { Construction } from '@/entities/construction';
 import type { Employee } from '@/entities/employee';
-import { getCategoryLabel } from '../lib/label';
 import { getDateStr } from '@/shared/lib/string';
-import { EVENT_CATEGORIES, EVENT_COLORS, type EventCategory } from '@/entities/events';
+import { EVENT_CATEGORIES, EVENT_COLORS, getCategoryLabel, useEventColor, type EventCategory } from '@/entities/events';
 
 interface EventDetailsProps {
   event: Partial<CalendarEvent>;

@@ -13,12 +13,12 @@ import {
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import dayjs from 'dayjs';
 import { Note } from '@/shared/ui/Note';
-import { EventsListTable } from '@/features/calendar';
 import { getDateStr } from '@/shared/lib/string';
 import { useEmployeeShowContext } from '../../model/providers/useEmployeeShowContext';
 import type { FieldInfo } from '../../model/types';
 import useEmployeeAttachments from '../../model/services/useAttachment';
 import { AttachmentBox } from './AttachmentBox';
+import { EventsListTable } from '@/features/upcoming-events';
 
 const personalFields: FieldInfo[] = [
   { key: 'name', label: 'Imię i nazwisko' },

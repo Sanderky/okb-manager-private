@@ -17,10 +17,10 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import PeopleIcon from '@mui/icons-material/People';
 import dayjs from 'dayjs';
 import { Note } from '@/shared/ui/Note';
-import { EventsListTable } from '@/features/calendar';
 import { openGoogleMaps } from '@/shared/lib/browser';
 import type { Construction } from '@/entities/construction';
 import { useConstructionShowContext } from '../../model/providers/ShowConstructionContext';
+import { EventsListTable } from '@/features/upcoming-events';
 
 const personalFields = [
   { key: 'name', label: 'Nazwa budowy' },

@@ -12,8 +12,8 @@ import {
 import dayjs from 'dayjs';
 import { ExpandLess, ExpandMore } from '@mui/icons-material';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
-import { useEventColor } from '../model/useEventColor';
 import type { CalendarGridProps } from '../model/types';
+import { useEventColor } from '@/entities/events';
 
 const MAX_EVENTS_DESKTOP = 4;
 const MAX_EVENTS_PHONE = 2;

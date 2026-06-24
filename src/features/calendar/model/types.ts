@@ -15,7 +15,6 @@ export interface CalendarEvent {
   employeeIds: string[];
   constructionIds: string[];
 }
-
 export interface CalendarGridProps {
   onMoreClick: (data: CalendarDay) => void;
   monthGrid: CalendarDay[][];
