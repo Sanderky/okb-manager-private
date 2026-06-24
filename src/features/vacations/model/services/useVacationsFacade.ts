@@ -227,6 +227,7 @@ export const useVacationsFacade = () => {
     }
 
     try {
+      startLoading();
       await updateMutation.mutateAsync({
         id: eventData.id,
         data: {
@@ -260,6 +261,7 @@ export const useVacationsFacade = () => {
       })
     ) {
       try {
+        startLoading();
         await deleteMutation.mutateAsync(currentEvent.id);
         notifications.show('Urlop usunięty.', { severity: 'info' });
         setEditDialogOpen(false);

@@ -1,2 +1,2 @@
-import { Calendar } from './ui/Calendar';
-export { Calendar };
+export * from './model/providers/CalendarContext';
+export * from './ui/EventsCalendar';

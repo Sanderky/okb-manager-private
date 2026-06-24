@@ -5,3 +5,7 @@ export * from './model/services/useUpcomingEventsForConstruction';
 export * from './model/services/useUpcomingEventsForEmployee';
 export * from './lib/label';
 export * from './model/services/useEventColor';
+export * from './model/services/useEvents';
+export * from './model/services/mutations/useAddEvent';
+export * from './model/services/mutations/useDeleteEvent';
+export * from './model/services/mutations/useUpdateEvent';
