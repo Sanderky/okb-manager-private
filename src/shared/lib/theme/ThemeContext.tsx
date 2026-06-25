@@ -5,7 +5,7 @@ import {
   type PaletteMode,
 } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import { getDesignTokens } from '../config/theme';
+import { getDesignTokens } from '../../config/theme';
 
 interface ThemeContextType {
   toggleColorMode: () => void;

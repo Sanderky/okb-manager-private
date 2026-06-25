@@ -4,7 +4,7 @@ import { queryClient } from '../lib/queryClient';
 import { ErrorBoundary } from 'react-error-boundary';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from '@/entities/auth';
-import { ThemeContextProvider } from '@/shared/lib/ThemeContext';
+import { ThemeContextProvider } from '@/shared/lib/theme';
 import { LayoutProvider } from '@/shared/lib/LayoutContext';
 import NotificationsProvider from '@/shared/ui/notifications/NotificationsProvider';
 import DialogsProvider from '@/shared/ui/dialogs/DialogsProvider';

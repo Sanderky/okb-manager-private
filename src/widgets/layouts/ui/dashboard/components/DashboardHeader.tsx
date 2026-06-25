@@ -22,7 +22,7 @@ import {
 import Logout from '@mui/icons-material/Logout';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { Brightness4, Brightness7, Settings } from '@mui/icons-material';
-import { useColorMode } from '@/shared/lib/ThemeContext';
+import { useColorMode } from '@/shared/lib/theme';
 import { UserSettingsDialog } from '@/features/user-settings';
 
 const AppBar = styled(MuiAppBar)(({ theme }) => ({
