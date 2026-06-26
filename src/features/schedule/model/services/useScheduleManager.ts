@@ -1,5 +1,6 @@
 import { useMemo, useState, useCallback, useRef } from 'react';
 import dayjs, { Dayjs } from 'dayjs';
+import { useTranslation } from 'react-i18next';
 import { useEmployees } from '@/entities/employee';
 import { useConstructions, type Construction } from '@/entities/construction';
 import { useSchedule } from '@/entities/shedule';
@@ -19,6 +20,7 @@ import { useReactToPrint } from 'react-to-print';
 import { useUpdateScheduleMutation } from '../api/mutations/updateScheduleMutation';
 
 export const useScheduleManager = () => {
+  const { t } = useTranslation(['schedule', 'common']);
   const notifications = useNotifications();
 
   const filters = useScheduleFilters();
@@ -95,7 +97,7 @@ export const useScheduleManager = () => {
 
   const handlePrint = useReactToPrint({
     contentRef: printRef,
-    documentTitle: 'Harmonogram',
+    documentTitle: t('schedule:printTitle'),
   });
 
   const handleCellChange = useCallback(
@@ -119,7 +121,9 @@ export const useScheduleManager = () => {
 
       if (notSavedDays.length > 0) {
         notifications.show(
-          `Nie zapisano ${notSavedDays.length} ${notSavedDays.length === 1 ? 'dnia' : 'dni'} (urlop)`,
+          t('schedule:notifications.vacationSkip', {
+            count: notSavedDays.length,
+          }),
           {
             severity: 'info',
             autoHideDuration: 5000,
@@ -139,7 +143,7 @@ export const useScheduleManager = () => {
       try {
         await updateScheduleMutation.mutateAsync(entriesToSave);
       } catch {
-        notifications.show('Błąd zapisu', { severity: 'error' });
+        notifications.show(t('common:errors.save'), { severity: 'error' });
       } finally {
         setLoadingCells((prev) => {
           const newSet = new Set(prev);
@@ -148,7 +152,7 @@ export const useScheduleManager = () => {
         });
       }
     },
-    [isEmployeeOnVacation, updateScheduleMutation, notifications]
+    [isEmployeeOnVacation, updateScheduleMutation, notifications, t]
   );
 
   const getCellContentItems = useCallback(

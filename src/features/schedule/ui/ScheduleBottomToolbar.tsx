@@ -1,9 +1,10 @@
 import { Box, Stack, Typography } from '@mui/material';
 import dayjs from 'dayjs';
+import { useTranslation } from 'react-i18next';
 import { useScheduleContext } from '../model/providers/useScheduleContext';
-import { formatWeeksString } from '@/shared/lib/date';
 
 export const ScheduleBottomToolbar = () => {
+  const { t } = useTranslation(['schedule']);
   const {
     activeTable,
     selectedEmployees,
@@ -59,7 +60,7 @@ export const ScheduleBottomToolbar = () => {
                   lineHeight: 1,
                 }}
               >
-                Pracownicy:{' '}
+                {t('schedule:bottomToolbar.employees')}{' '}
                 {selectedEmployees.length > 0
                   ? `${selectedEmployees.length} / ${employeesCount}`
                   : filteredEmployees.length}
@@ -72,7 +73,7 @@ export const ScheduleBottomToolbar = () => {
                   lineHeight: 1,
                 }}
               >
-                {weeks.length} {formatWeeksString(weeks.length, 'pl-PL')}
+                {t('schedule:bottomToolbar.weeks', { count: weeks.length })}
               </Typography>
             </Stack>
             <Typography
@@ -90,7 +91,7 @@ export const ScheduleBottomToolbar = () => {
                   lineHeight: 1,
                 }}
               >
-                Zakres:{' '}
+                {t('schedule:bottomToolbar.range')}{' '}
               </Typography>
               {dayjs(fromWeek).format('DD.MM.YYYY')} -{' '}
               {dayjs(toWeek).add(6, 'day').format('DD.MM.YYYY')}
@@ -120,7 +121,7 @@ export const ScheduleBottomToolbar = () => {
                   lineHeight: 1,
                 }}
               >
-                Pracownicy:{' '}
+                {t('schedule:bottomToolbar.employees')}{' '}
                 {selectedEmployees.length > 0
                   ? `${selectedEmployees.length} / ${employeesCount}`
                   : filteredEmployees.length}
@@ -133,7 +134,7 @@ export const ScheduleBottomToolbar = () => {
                   lineHeight: 1,
                 }}
               >
-                {activeTable.week.week()} Tydzień
+                {t('schedule:bottomToolbar.weeks', { count: 1 })}
               </Typography>
             </Stack>
             <Typography

@@ -17,6 +17,7 @@ import employeesPl from './locales/pl/employees.json';
 import vacationsPl from './locales/pl/vacations.json';
 import calendarPl from './locales/pl/calendar.json';
 import todoPl from './locales/pl/todo.json';
+import schedulePl from './locales/pl/schedule.json'
 
 const resources = {
   'pl-PL': {
@@ -30,6 +31,7 @@ const resources = {
     vacations: vacationsPl,
     calendar: calendarPl,
     todo: todoPl,
+    schedule: schedulePl
   },
 };
 

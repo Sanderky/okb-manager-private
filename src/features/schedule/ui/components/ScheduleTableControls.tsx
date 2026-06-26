@@ -16,6 +16,7 @@ import { ChevronLeft, ChevronRight, MoreHoriz } from '@mui/icons-material';
 import WeekSelector from '@/shared/ui/WeekSelector';
 import dayjs from 'dayjs';
 import InfoOutlineIcon from '@mui/icons-material/InfoOutline';
+import { useTranslation } from 'react-i18next';
 
 interface TableControlsProps {
   fromWeek: Date;
@@ -44,6 +45,7 @@ export const TableControls: React.FC<TableControlsProps> = ({
   containerWidth,
   showFilterBadge,
 }) => {
+  const { t } = useTranslation(['schedule', 'common']);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const openMobileMenu = Boolean(anchorEl);
   const handleClickMobileMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -120,14 +122,13 @@ export const TableControls: React.FC<TableControlsProps> = ({
                 }
               }}
             >
-              Dziś
+              {t('common:buttons.today')}
             </Button>
             <IconButton
               color="primary"
               size="small"
               className="rounded-l-none rounded-r-lg border"
               sx={(theme) => ({
-                // borderLeft: 'none !important',
                 borderColor: theme.palette.primary.light,
                 '&:hover': {
                   borderColor: theme.palette.primary.main,
@@ -162,24 +163,20 @@ export const TableControls: React.FC<TableControlsProps> = ({
             'aria-labelledby': 'long-button',
           },
           paper: {
-            sx: {
-              minWidth: '200px',
-            },
+            sx: { minWidth: '200px' },
           },
         }}
       >
         <MenuItem disableRipple key={'weekFrom'}>
           <Stack>
-            <Typography sx={{ mr: 1 }}>Od: </Typography>
+            <Typography sx={{ mr: 1 }}>
+              {t('schedule:controls.from')}{' '}
+            </Typography>
             <WeekSelector
               value={fromWeek}
               onChange={(val) => {
                 if (!val) return;
-
-                if (toWeek && dayjs(val).isAfter(toWeek, 'week')) {
-                  return;
-                }
-
+                if (toWeek && dayjs(val).isAfter(toWeek, 'week')) return;
                 setFromWeek(val);
               }}
               comparisonDate={toWeek}
@@ -188,16 +185,12 @@ export const TableControls: React.FC<TableControlsProps> = ({
         </MenuItem>
         <MenuItem disableRipple key={'weekTo'}>
           <Stack>
-            <Typography sx={{ mr: 1 }}>Do: </Typography>
+            <Typography sx={{ mr: 1 }}>{t('schedule:controls.to')} </Typography>
             <WeekSelector
               value={toWeek}
               onChange={(val) => {
                 if (!val) return;
-
-                if (fromWeek && dayjs(val).isBefore(fromWeek, 'week')) {
-                  return;
-                }
-
+                if (fromWeek && dayjs(val).isBefore(fromWeek, 'week')) return;
                 setToWeek(val);
               }}
               comparisonDate={fromWeek}
@@ -205,23 +198,12 @@ export const TableControls: React.FC<TableControlsProps> = ({
           </Stack>
         </MenuItem>
         <Divider />
-        {/* <MenuItem disableRipple key={'vacations'}>
-            <Stack direction="row" alignItems="center" justifyContent="center">
-              <Typography sx={{ textAlign: 'center' }}>Urlopy</Typography>
-              <Tooltip title="Ukrywanie informacji o urlopach">
-                <Switch
-                  size="small"
-                  checked={showVacations}
-                  onChange={(e) => setShowVacations(e.target.checked)}
-                  color="primary"
-                />
-              </Tooltip>
-            </Stack>
-          </MenuItem> */}
         <MenuItem disableRipple key={'dates'}>
           <Stack direction="row" alignItems="center" justifyContent="center">
-            <Typography sx={{ textAlign: 'center' }}>Daty</Typography>
-            <Tooltip title="Ukrywanie szczegółowych dat">
+            <Typography sx={{ textAlign: 'center' }}>
+              {t('schedule:controls.dates')}
+            </Typography>
+            <Tooltip title={t('schedule:controls.hideDatesTooltip')}>
               <Switch
                 size="small"
                 checked={showDates}
@@ -244,9 +226,7 @@ export const TableControls: React.FC<TableControlsProps> = ({
               fullWidth
               color="primary"
               className="rounded-lg border"
-              onClick={() => {
-                setIsFilterOpen(true);
-              }}
+              onClick={() => setIsFilterOpen(true)}
               sx={(theme) => ({
                 borderColor: theme.palette.primary.light,
                 '&:hover': {
@@ -254,7 +234,7 @@ export const TableControls: React.FC<TableControlsProps> = ({
                 },
               })}
             >
-              Filtry
+              {t('schedule:controls.filters')}
             </Button>
           </Badge>
         </MenuItem>
@@ -281,11 +261,7 @@ export const TableControls: React.FC<TableControlsProps> = ({
           value={fromWeek}
           onChange={(val) => {
             if (!val) return;
-
-            if (toWeek && dayjs(val).isAfter(toWeek, 'week')) {
-              return;
-            }
-
+            if (toWeek && dayjs(val).isAfter(toWeek, 'week')) return;
             setFromWeek(val);
           }}
           comparisonDate={toWeek}
@@ -295,17 +271,13 @@ export const TableControls: React.FC<TableControlsProps> = ({
           value={toWeek}
           onChange={(val) => {
             if (!val) return;
-
-            if (fromWeek && dayjs(val).isBefore(fromWeek, 'week')) {
-              return;
-            }
-
+            if (fromWeek && dayjs(val).isBefore(fromWeek, 'week')) return;
             setToWeek(val);
           }}
           comparisonDate={fromWeek}
         />
       </Stack>
-      <Tooltip title="Filtry">
+      <Tooltip title={t('schedule:controls.filters')}>
         <Badge
           badgeContent={showFilterBadge ? 1 : 0}
           color="primary"
@@ -328,19 +300,6 @@ export const TableControls: React.FC<TableControlsProps> = ({
         </Badge>
       </Tooltip>
       <Stack direction={'row'} spacing={1}>
-        {/* <Stack direction="column" alignItems="center" justifyContent="center">
-          <Tooltip title="Ukrywanie informacji o urlopach">
-            <Switch
-              size="small"
-              checked={showVacations}
-              onChange={(e) => setShowVacations(e.target.checked)}
-              color="primary"
-            />
-          </Tooltip>
-          <Typography variant="caption" sx={{ textAlign: 'center' }}>
-            Urlopy
-          </Typography>
-        </Stack> */}
         <Stack
           direction="row"
           gap={0.5}
@@ -348,9 +307,9 @@ export const TableControls: React.FC<TableControlsProps> = ({
           justifyContent="center"
         >
           <Typography variant="caption" sx={{ textAlign: 'center' }}>
-            Daty
+            {t('schedule:controls.dates')}
           </Typography>
-          <Tooltip title="Ukrywanie szczegółowych dat">
+          <Tooltip title={t('schedule:controls.hideDatesTooltip')}>
             <Switch
               size="small"
               checked={showDates}
@@ -371,10 +330,7 @@ export const TableControls: React.FC<TableControlsProps> = ({
         <Typography
           className="rounded-full border px-3 py-1 font-semibold"
           sx={{
-            display: {
-              xs: 'none',
-              sm: 'block',
-            },
+            display: { xs: 'none', sm: 'block' },
             borderColor: 'text.primary',
           }}
         >
@@ -382,21 +338,12 @@ export const TableControls: React.FC<TableControlsProps> = ({
           {dayjs(toWeek).add(6, 'day').format('DD.MM.YYYY')}
         </Typography>
         <Tooltip
-          title="Kliknij w datę tygodnia w nagłówku tabeli, aby wyświetlić szczegółowy widok tego tygodnia."
+          title={t('schedule:controls.weekClickTooltip')}
           placement="top"
           slotProps={{
             popper: {
-              sx: {
-                cursor: 'pointer',
-              },
-              modifiers: [
-                {
-                  name: 'offset',
-                  options: {
-                    offset: [0, -14],
-                  },
-                },
-              ],
+              sx: { cursor: 'pointer' },
+              modifiers: [{ name: 'offset', options: { offset: [0, -14] } }],
             },
           }}
         >

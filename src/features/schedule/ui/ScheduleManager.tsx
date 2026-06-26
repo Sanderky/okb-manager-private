@@ -8,14 +8,13 @@ import {
   TextField,
   useTheme,
 } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import { FilterDialog } from './components/ScheduleDialogs';
 import { PrintableSchedule } from './components/SchedulePrint';
 import { TableControls } from './components/ScheduleTableControls';
 import type { ICell } from '../model/types';
 import { useScheduleManager } from '../model/services/useScheduleManager';
-
 import dayjs from 'dayjs';
-import 'dayjs/locale/pl';
 import { type Construction } from '@/entities/construction';
 import { useNavigate } from 'react-router-dom';
 import useContainerBreakpoint from '@/shared/lib/useContainerWidth';
@@ -28,6 +27,7 @@ dayjs.extend(weekOfYear);
 dayjs.extend(isBetween);
 
 export const ScheduleManager = () => {
+  const { t } = useTranslation(['schedule']);
   const theme = useTheme();
   const [containerRef, width] = useContainerBreakpoint();
 
@@ -112,7 +112,8 @@ export const ScheduleManager = () => {
     [navigate]
   );
 
-  if (isError) return <Alert severity="error">Błąd danych.</Alert>;
+  if (isError)
+    return <Alert severity="error">{t('schedule:manager.errorData')}</Alert>;
 
   return (
     <Box
@@ -223,7 +224,7 @@ export const ScheduleManager = () => {
           <Autocomplete
             size="small"
             options={[
-              { id: null, name: '— Brak —' },
+              { id: null, name: t('schedule:manager.none') },
               ...constructions.filter((c) => c.status),
             ]}
             getOptionLabel={(opt) => opt?.name || ''}
@@ -238,7 +239,7 @@ export const ScheduleManager = () => {
               return (
                 constructions.find((c) => c.id === entry?.constructionId) ?? {
                   id: null,
-                  name: '— Brak —',
+                  name: t('schedule:manager.none'),
                 }
               );
             })()}
@@ -261,7 +262,7 @@ export const ScheduleManager = () => {
             renderInput={(params) => (
               <TextField
                 {...params}
-                label="Budowa"
+                label={t('schedule:manager.constructionLabel')}
                 slotProps={{
                   input: {
                     ...params.InputProps,

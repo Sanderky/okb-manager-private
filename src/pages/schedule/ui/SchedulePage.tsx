@@ -6,13 +6,16 @@ import {
   ScheduleBottomToolbar,
   ScheduleManager,
 } from '@/features/schedule';
+import { useTranslation } from 'react-i18next';
 
 export const SchedulePage = () => {
+  const { t } = useTranslation('schedule');
+
   return (
     <ScheduleProvider>
       <PageContainer
         fixedHeight={true}
-        breadcrumbs={[{ title: 'Harmonogram' }]}
+        breadcrumbs={[{ title: t('pageTitle') }]}
         actions={<ScheduleActions />}
         renderBottomToolbar={<ScheduleBottomToolbar />}
       >

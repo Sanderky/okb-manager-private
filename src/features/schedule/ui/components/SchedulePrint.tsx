@@ -11,6 +11,7 @@ import {
   Paper,
 } from '@mui/material';
 import dayjs from 'dayjs';
+import { useTranslation } from 'react-i18next';
 import type { Employee } from '@/entities/employee';
 import type { CellDisplayItem, ICell } from '../../model/types';
 import { WEEK_DAYS } from '@/shared/config/days';
@@ -32,22 +33,28 @@ export const PrintableSchedule = ({
   filteredEmployees,
   getCellContentItems,
 }: PrintableScheduleProps) => {
+  const { t } = useTranslation(['schedule']);
+
   return (
     <Box sx={{ p: 1 }}>
       <Typography variant="h6" gutterBottom align="center">
-        Harmonogram budów
+        {t('schedule:print.title')}
       </Typography>
 
       <Stack direction="row" justifyContent="space-between" sx={{ mb: 2 }}>
         <Typography variant="body2">
-          <strong>Widok:</strong>{' '}
-          {activeTable.type === 0 ? 'Miesięczny' : 'Tygodniowy'}
+          <strong>{t('schedule:print.view')}</strong>{' '}
+          {activeTable.type === 0
+            ? t('schedule:print.viewMonthly')
+            : t('schedule:print.viewWeekly')}
         </Typography>
         <Typography variant="body2">
-          <strong>Liczba pracowników:</strong> {filteredEmployees.length}
+          <strong>{t('schedule:print.employeeCount')}</strong>{' '}
+          {filteredEmployees.length}
         </Typography>
         <Typography variant="body2">
-          <strong>Wygenerowano:</strong> {dayjs().format('DD.MM.YYYY HH:mm')}
+          <strong>{t('schedule:print.generatedAt')}</strong>{' '}
+          {dayjs().format('DD.MM.YYYY HH:mm')}
         </Typography>
       </Stack>
 
@@ -72,12 +79,7 @@ export const PrintableSchedule = ({
             },
           }}
         >
-          <Table
-            size="small"
-            sx={{
-              tableLayout: 'fixed',
-            }}
-          >
+          <Table size="small" sx={{ tableLayout: 'fixed' }}>
             <TableHead>
               <TableRow>
                 <TableCell sx={{ width: '150px' }}>
@@ -86,7 +88,7 @@ export const PrintableSchedule = ({
                     display="block"
                     sx={{ fontWeight: 'bold' }}
                   >
-                    Pracownik
+                    {t('schedule:print.employee')}
                   </Typography>
                 </TableCell>
                 {weeks.map((week, index) => (
@@ -116,7 +118,7 @@ export const PrintableSchedule = ({
                           className="ml-1"
                           color="error"
                         >
-                          (Nieaktywny)
+                          {t('schedule:print.inactive')}
                         </Typography>
                       )}
                     </Typography>
@@ -181,7 +183,7 @@ export const PrintableSchedule = ({
                     display="block"
                     sx={{ fontWeight: 'bold' }}
                   >
-                    Pracownik
+                    {t('schedule:print.employee')}
                   </Typography>
                 </TableCell>
                 {Array.from({ length: 7 }).map((_, dayIndex) => {
@@ -226,7 +228,7 @@ export const PrintableSchedule = ({
                           className="ml-1"
                           color="error"
                         >
-                          (Nieaktywny)
+                          {t('schedule:print.inactive')}
                         </Typography>
                       )}
                     </Typography>

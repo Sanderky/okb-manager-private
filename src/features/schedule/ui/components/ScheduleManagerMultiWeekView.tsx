@@ -12,10 +12,10 @@ import {
 } from '@mui/material';
 import { EmployeeRow } from './ScheduleEmployeeRow';
 import dayjs, { Dayjs } from 'dayjs';
-import 'dayjs/locale/pl';
 import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
 import type { Employee } from '@/entities/employee';
 import type { CellDisplayItem, ICell } from '../../model/types';
+import { useTranslation } from 'react-i18next';
 
 export interface ScheduleManagerMultiWeekViewProps {
   weeks: Dayjs[];
@@ -50,6 +50,7 @@ export const ScheduleManagerMultiWeekView: React.FC<
   handleOnEmployeeClick,
 }) => {
   const theme = useTheme();
+  const { t } = useTranslation(['schedule']);
 
   return (
     <TableContainer
@@ -183,7 +184,7 @@ export const ScheduleManagerMultiWeekView: React.FC<
                     className="px-4 font-normal"
                     color="textSecondary"
                   >
-                    Nie znaleziono pracowników
+                    {t('schedule:table.noEmployees')}
                   </Typography>
                 </Stack>
               </TableCell>

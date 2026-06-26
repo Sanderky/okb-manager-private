@@ -10,11 +10,11 @@ import {
 } from '@mui/material';
 import { EmployeeRow } from './ScheduleEmployeeRow';
 import dayjs, { Dayjs } from 'dayjs';
-import 'dayjs/locale/pl';
 import type { CellDisplayItem, ICell } from '../../model/types';
 import type { Employee } from '@/entities/employee';
 import KeyboardReturnIcon from '@mui/icons-material/KeyboardReturn';
 import { WEEK_DAYS } from '@/shared/config/days';
+import { useTranslation } from 'react-i18next';
 
 export interface ScheduleManagerWeekViewProps {
   weeks: Dayjs[];
@@ -48,6 +48,8 @@ export const ScheduleManagerWeekView: React.FC<
   getCellKey,
   handleOnEmployeeClick,
 }) => {
+  const { t } = useTranslation(['schedule']);
+
   return (
     <TableContainer
       component={Box}
@@ -125,7 +127,7 @@ export const ScheduleManagerWeekView: React.FC<
             <TableRow>
               <TableCell colSpan={8} sx={{ border: 'none' }}>
                 <Typography color="textSecondary" align="center">
-                  Brak pracowników
+                  {t('schedule:table.noEmployees')}
                 </Typography>
               </TableCell>
             </TableRow>

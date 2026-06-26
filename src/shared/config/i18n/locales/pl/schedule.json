@@ -1,0 +1,58 @@
+{
+  "pageTitle": "Harmonogram",
+  "printTitle": "Harmonogram",
+  "notifications": {
+    "vacationSkip_one": "Nie zapisano {{count}} dnia (urlop)",
+    "vacationSkip_few": "Nie zapisano {{count}} dni (urlop)",
+    "vacationSkip_many": "Nie zapisano {{count}} dni (urlop)"
+  },
+  "actions": {
+    "print": "Drukuj"
+  },
+  "bottomToolbar": {
+    "employees": "Pracownicy:",
+    "weeks_one": "{{count}} Tydzień",
+    "weeks_few": "{{count}} Tygodnie",
+    "weeks_many": "{{count}} Tygodni",
+    "range": "Zakres:"
+  },
+  "manager": {
+    "errorData": "Błąd danych.",
+    "none": "— Brak —",
+    "constructionLabel": "Budowa"
+  },
+  "table": {
+    "noEmployees": "Brak pracowników"
+  },
+  "print": {
+    "title": "Harmonogram budów",
+    "view": "Widok:",
+    "viewMonthly": "Miesięczny",
+    "viewWeekly": "Tygodniowy",
+    "employeeCount": "Liczba pracowników:",
+    "generatedAt": "Wygenerowano:",
+    "employee": "Pracownik",
+    "inactive": "(Nieaktywny)"
+  },
+  "controls": {
+    "from": "Od:",
+    "to": "Do:",
+    "dates": "Daty",
+    "hideDatesTooltip": "Ukrywanie szczegółowych dat",
+    "filters": "Filtry",
+    "weekClickTooltip": "Kliknij w datę tygodnia w nagłówku tabeli, aby wyświetlić szczegółowy widok tego tygodnia."
+  },
+  "filters": {
+    "title": "Filtrowanie",
+    "constructionsFilter": "Filtr budów",
+    "selectedCount": "Wybrano: {{selected}} z {{total}}",
+    "allConstructions": "Wszystkie budowy",
+    "completed": "Zakończona",
+    "selectConstructions": "Wybierz budowy...",
+    "includeCompletedConstructions": "Uwzględnij zakończone budowy w filtrze",
+    "employeesFilter": "Filtr pracowników",
+    "allEmployees": "Wszyscy pracownicy",
+    "selectEmployees": "Wybierz pracowników...",
+    "includeInactiveEmployees": "Uwzględnij nieaktywnych pracowników w filtrze"
+  }
+}

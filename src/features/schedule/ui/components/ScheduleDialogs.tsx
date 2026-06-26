@@ -13,6 +13,7 @@ import {
   Box,
 } from '@mui/material';
 import BaseDialog from '@/shared/ui/BaseDialog';
+import { useTranslation } from 'react-i18next';
 import type { Employee } from '@/entities/employee';
 import type { Construction } from '@/entities/construction';
 
@@ -47,6 +48,8 @@ export const FilterDialog: React.FC<FilterDialogProps> = ({
   showInactiveConstructions,
   setShowInactiveConstructions,
 }) => {
+  const { t } = useTranslation(['schedule', 'common']);
+
   const filteredEmployees = useMemo(() => {
     if (showInactive) return employees;
     return employees.filter((emp) => emp.status);
@@ -97,17 +100,20 @@ export const FilterDialog: React.FC<FilterDialogProps> = ({
     <BaseDialog
       open={isFilterOpen}
       onClose={() => setIsFilterOpen(false)}
-      title="Filtrowanie"
+      title={t('schedule:filters.title')}
       showConfirm={false}
     >
       <Box sx={{ mb: 3 }}>
         <Typography variant="subtitle2" sx={{ mb: 1 }}>
-          Filtr budów
+          {t('schedule:filters.constructionsFilter')}
         </Typography>
         <Typography variant="overline" sx={{ mb: 1, display: 'block' }}>
           {selectedConstructions.length > 0
-            ? `Wybrano: ${selectedConstructions.length} z ${filteredConstructions.length}`
-            : 'Wszystkie budowy'}
+            ? t('schedule:filters.selectedCount', {
+                selected: selectedConstructions.length,
+                total: filteredConstructions.length,
+              })
+            : t('schedule:filters.allConstructions')}
         </Typography>
 
         <FormControl sx={{ width: '100%', maxWidth: '100%' }}>
@@ -131,7 +137,7 @@ export const FilterDialog: React.FC<FilterDialogProps> = ({
                   {option.name}
                   {!option.status && (
                     <Chip
-                      label="Zakończona"
+                      label={t('schedule:filters.completed')}
                       size="small"
                       color="default"
                       variant="outlined"
@@ -142,7 +148,10 @@ export const FilterDialog: React.FC<FilterDialogProps> = ({
               );
             }}
             renderInput={(params) => (
-              <TextField {...params} label="Wybierz budowy..." />
+              <TextField
+                {...params}
+                label={t('schedule:filters.selectConstructions')}
+              />
             )}
           />
         </FormControl>
@@ -156,16 +165,22 @@ export const FilterDialog: React.FC<FilterDialogProps> = ({
               size="small"
             />
           }
-          label={<Typography variant="caption">Uwzględnij zakończone budowy w filtrze</Typography>}
+          label={
+            <Typography variant="caption">
+              {t('schedule:filters.includeCompletedConstructions')}
+            </Typography>
+          }
         />
         <Stack direction="row" spacing={1} justifyContent={'flex-end'}>
           <Button
             onClick={handleSelectAllConstructions}
             disabled={isAllConstructionsSelected}
           >
-            Wszystko
+            {t('common:buttons.all')}
           </Button>
-          <Button onClick={handleClearConstructions}>Wyczyść</Button>
+          <Button onClick={handleClearConstructions}>
+            {t('common:buttons.clear')}
+          </Button>
         </Stack>
       </Box>
 
@@ -173,12 +188,15 @@ export const FilterDialog: React.FC<FilterDialogProps> = ({
 
       <Box>
         <Typography variant="subtitle2" sx={{ mb: 1 }}>
-          Filtr pracowników
+          {t('schedule:filters.employeesFilter')}
         </Typography>
         <Typography variant="overline" sx={{ mb: 1, display: 'block' }}>
           {selectedEmployees.length > 0
-            ? `Wybrano: ${selectedEmployees.length} z ${filteredEmployees.length}`
-            : 'Wszyscy pracownicy'}
+            ? t('schedule:filters.selectedCount', {
+                selected: selectedEmployees.length,
+                total: filteredEmployees.length,
+              })
+            : t('schedule:filters.allEmployees')}
         </Typography>
         <FormControl sx={{ width: '100%', maxWidth: '100%' }}>
           <Autocomplete
@@ -201,7 +219,7 @@ export const FilterDialog: React.FC<FilterDialogProps> = ({
                   {option.name}
                   {!option.status && (
                     <Chip
-                      label="Nieaktywny"
+                      label={t('common:status.inactive')}
                       size="small"
                       color="default"
                       variant="outlined"
@@ -212,7 +230,10 @@ export const FilterDialog: React.FC<FilterDialogProps> = ({
               );
             }}
             renderInput={(params) => (
-              <TextField {...params} label="Wybierz pracowników..." />
+              <TextField
+                {...params}
+                label={t('schedule:filters.selectEmployees')}
+              />
             )}
           />
         </FormControl>
@@ -226,7 +247,11 @@ export const FilterDialog: React.FC<FilterDialogProps> = ({
               size="small"
             />
           }
-          label={<Typography variant="caption">Uwzględnij nieaktywnych pracowników w filtrze</Typography>}
+          label={
+            <Typography variant="caption">
+              {t('schedule:filters.includeInactiveEmployees')}
+            </Typography>
+          }
         />
 
         <Stack direction="row" justifyContent={'flex-end'} spacing={1}>
@@ -234,9 +259,11 @@ export const FilterDialog: React.FC<FilterDialogProps> = ({
             onClick={handleSelectAllEmployees}
             disabled={isAllEmployeesSelected}
           >
-            Wszystko
+            {t('common:buttons.all')}
           </Button>
-          <Button onClick={handleClearEmployees}>Wyczyść</Button>
+          <Button onClick={handleClearEmployees}>
+            {t('common:buttons.clear')}
+          </Button>
         </Stack>
       </Box>
     </BaseDialog>
