@@ -3,6 +3,7 @@ import BaseDialog from '@/shared/ui/BaseDialog';
 import type { Employee } from '@/entities/employee';
 import type { CalendarEvent } from '../../model/types';
 import { VacationForm } from './components/VacationForm';
+import { useTranslation } from 'react-i18next';
 
 interface AddVacationDialogProps {
   open: boolean;
@@ -36,13 +37,15 @@ export const AddVacationDialog: React.FC<AddVacationDialogProps> = ({
 
   const isFormValid = internalEvent.employeeId && internalEvent.color;
 
+  const {t} = useTranslation("vacations")
+
   return (
     <BaseDialog
       open={open}
       onClose={handleModalClose}
       onConfirm={() => handleAddEvent(internalEvent)}
-      title="Dodaj urlop"
-      confirmText="Zapisz urlop"
+      title={t('dialogs.addVacation.title')}
+      confirmText={t('dialogs.addVacation.confirmText')}
       loading={loading}
       disabled={!isFormValid}
       showCancel={false}

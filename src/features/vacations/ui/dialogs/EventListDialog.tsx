@@ -12,6 +12,7 @@ import {
   TableRow,
   Paper,
 } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import BaseDialog from '@/shared/ui/BaseDialog';
 import { type CalendarDay, type CalendarEvent } from '../../model/types';
 import { Add } from '@mui/icons-material';
@@ -36,6 +37,7 @@ export const EventListDialog: React.FC<EventListDialogProps> = ({
   onAddButtonClick,
   loading,
 }) => {
+  const { t } = useTranslation('vacations');
   const sortedEvents = useMemo(() => {
     if (!selectedDayData) return [];
 
@@ -67,7 +69,7 @@ export const EventListDialog: React.FC<EventListDialogProps> = ({
       title={
         <Stack direction={'row'} alignItems={'center'} spacing={1}>
           <Typography variant="h6">
-            Urlopy ({selectedDayData?.events.length})
+            {t('dialogs.eventList.title', { count: selectedDayData?.events.length ?? 0 })}
           </Typography>
           <span>-</span>
           <Chip
@@ -84,11 +86,11 @@ export const EventListDialog: React.FC<EventListDialogProps> = ({
           disabled={loading}
           onClick={() => onAddButtonClick(selectedDayData?.date)}
         >
-          Dodaj
+          {t('dialogs.eventList.add')}
         </Button>
       }
       showConfirm={false}
-      cancelText="Zamknij"
+      cancelText={t('dialogs.eventList.close')}
       maxWidth="md"
       contentSx={{
         p: 0,
@@ -103,10 +105,10 @@ export const EventListDialog: React.FC<EventListDialogProps> = ({
           <Table stickyHeader size="small">
             <TableHead>
               <TableRow>
-                <TableCell>Pracownik</TableCell>
-                <TableCell>Okres urlopu</TableCell>
-                <TableCell>Długość</TableCell>
-                <TableCell>Kolor</TableCell>
+                <TableCell>{t('dialogs.eventList.columns.employee')}</TableCell>
+                <TableCell>{t('dialogs.eventList.columns.period')}</TableCell>
+                <TableCell>{t('dialogs.eventList.columns.duration')}</TableCell>
+                <TableCell>{t('dialogs.eventList.columns.color')}</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -170,7 +172,7 @@ export const EventListDialog: React.FC<EventListDialogProps> = ({
                       </TableCell>
                       <TableCell>
                         <Typography variant="body2">
-                          {duration} {duration < 2 ? 'dzień' : 'dni'}
+                          {t('dialogs.eventList.duration', { count: duration })}
                         </Typography>
                       </TableCell>
                       <TableCell>
@@ -190,7 +192,7 @@ export const EventListDialog: React.FC<EventListDialogProps> = ({
                 <TableRow>
                   <TableCell className="!py-3" colSpan={4}>
                     <Typography variant="body2" fontWeight="500" align="center">
-                      Brak wpisów...
+                      {t('dialogs.eventList.emptyState')}
                     </Typography>
                   </TableCell>
                 </TableRow>

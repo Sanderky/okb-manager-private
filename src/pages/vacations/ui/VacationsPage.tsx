@@ -1,6 +1,7 @@
 import { Button, Alert } from '@mui/material';
 import { Add, ListAlt as ListAltIcon } from '@mui/icons-material';
 import PageContainer from '@/shared/ui/PageContainer';
+import { useTranslation } from 'react-i18next';
 import {
   useVacationsContext,
   VacationsCalendar,
@@ -9,14 +10,15 @@ import {
 
 const VacationsPageContent = () => {
   const { state, actions } = useVacationsContext();
+  const { t } = useTranslation(['vacations', 'common']);
 
   if (state.status.error) {
     return (
       <PageContainer
-        breadcrumbs={[{ title: 'Kalendarz urlopów' }]}
+        breadcrumbs={[{ title: t('vacations:pageTitle') }]}
         fixedHeight={true}
       >
-        <Alert severity="error">Wystąpił błąd podczas ładowania danych.</Alert>
+        <Alert severity="error">{t('common:errors.load')}</Alert>
       </PageContainer>
     );
   }
@@ -24,7 +26,7 @@ const VacationsPageContent = () => {
   return (
     <PageContainer
       fixedHeight={true}
-      breadcrumbs={[{ title: 'Kalendarz urlopów' }]}
+      breadcrumbs={[{ title: t('vacations:pageTitle') }]}
       actions={[
         <Button
           key="add"
@@ -34,7 +36,7 @@ const VacationsPageContent = () => {
           disabled={state.status.loading || state.employees.length === 0}
           onClick={actions.handleOnAddEventButtonClick}
         >
-          Dodaj urlop
+          {t('vacations:actions.addVacation')}
         </Button>,
         <Button
           key="report"
@@ -44,7 +46,7 @@ const VacationsPageContent = () => {
           disabled={state.status.loading || state.employees.length === 0}
           onClick={() => actions.setters.setIsVacationReportOpen(true)}
         >
-          Wykaz urlopów
+          {t('vacations:actions.vacationReport')}
         </Button>,
       ]}
     >

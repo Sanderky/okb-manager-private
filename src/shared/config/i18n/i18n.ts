@@ -14,6 +14,8 @@ import workLogsPl from './locales/pl/workLogs.json';
 import filtersPl from './locales/pl/filters.json';
 import constructionsPl from './locales/pl/constructions.json';
 import employeesPl from './locales/pl/employees.json';
+import vacationsPl from './locales/pl/vacations.json';
+import calendarPl from './locales/pl/calendar.json';
 
 const resources = {
   'pl-PL': {
@@ -24,6 +26,8 @@ const resources = {
     filters: filtersPl,
     constructions: constructionsPl,
     employees: employeesPl,
+    vacations: vacationsPl,
+    calendar: calendarPl
   },
 };
 

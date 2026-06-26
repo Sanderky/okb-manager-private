@@ -14,10 +14,13 @@ import {
 } from '@/entities/vacations';
 import type { CalendarEvent } from '../types';
 import { validateVacation } from '../../lib/validation';
+import { useTranslation } from 'react-i18next';
 
 const STORAGE_KEY = 'calendar_filters';
 
 export const useVacationsFacade = () => {
+  const { t } = useTranslation(['vacations', 'common']);
+
   const [searchParams, setSearchParams] = useSearchParams();
   const notifications = useNotifications();
   const dialogs = useDialogs();
@@ -97,7 +100,6 @@ export const useVacationsFacade = () => {
     isLoading: isLoadingEmployees,
     isError: isErrorEmployees,
   } = useEmployees();
-
   const {
     data: vacations,
     isLoading: isLoadingVacations,
@@ -123,6 +125,7 @@ export const useVacationsFacade = () => {
     setAddDialogOpen(false);
     resetOnClose();
   }, [resetOnClose]);
+
   const handleEditDialogClose = useCallback(() => {
     setEditDialogOpen(false);
     resetOnClose();
@@ -179,11 +182,14 @@ export const useVacationsFacade = () => {
       startDate,
       endDate,
       vacations,
-      color
+      color,
+      t
     );
 
     if (!validation.isValid) {
-      setValidationError(validation.error || 'Błąd walidacji');
+      setValidationError(
+        validation.error || t('vacations:validation.defaultError')
+      );
       return;
     }
 
@@ -196,12 +202,12 @@ export const useVacationsFacade = () => {
         description,
         color,
       });
-      notifications.show('Urlop został utworzony.', { severity: 'success' });
+      notifications.show(t('vacations:notifications.vacationAdded'), {
+        severity: 'success',
+      });
       handleAddDialogClose();
     } catch {
-      notifications.show('Błąd podczas tworzenia urlopu.', {
-        severity: 'error',
-      });
+      notifications.show(t('common:errors.save'), { severity: 'error' });
     } finally {
       stopLoading();
     }
@@ -218,11 +224,14 @@ export const useVacationsFacade = () => {
       startDate,
       endDate,
       otherVacations,
-      color
+      color,
+      t
     );
 
     if (!validation.isValid) {
-      setValidationError(validation.error || 'Błąd walidacji');
+      setValidationError(
+        validation.error || t('vacations:validation.defaultError')
+      );
       return;
     }
 
@@ -238,13 +247,13 @@ export const useVacationsFacade = () => {
           color,
         },
       });
-      notifications.show('Urlop został zaktualizowany.', {
+      notifications.show(t('vacations:notifications.vacationUpdated'), {
         severity: 'success',
       });
       setEditDialogOpen(false);
       resetOnClose();
     } catch {
-      notifications.show('Błąd aktualizacji.', { severity: 'error' });
+      notifications.show(t('common:errors.edit'), { severity: 'error' });
     } finally {
       stopLoading();
     }
@@ -253,21 +262,23 @@ export const useVacationsFacade = () => {
   const handleDeleteEvent = async () => {
     if (!currentEvent.id) return;
     if (
-      await dialogs.confirm('Czy na pewno chcesz usunąć ten urlop?', {
+      await dialogs.confirm(t('vacations:dialogs.deleteVacation.description'), {
         severity: 'error',
-        okText: 'Usuń',
-        cancelText: 'Anuluj',
-        title: 'Usuwanie urlopu',
+        okText: t('common:buttons.delete'),
+        cancelText: t('common:buttons.cancel'),
+        title: t('vacations:dialogs.deleteVacation.title'),
       })
     ) {
       try {
         startLoading();
         await deleteMutation.mutateAsync(currentEvent.id);
-        notifications.show('Urlop usunięty.', { severity: 'info' });
+        notifications.show(t('vacations:notifications.vacationDeleted'), {
+          severity: 'info',
+        });
         setEditDialogOpen(false);
         resetOnClose();
       } catch {
-        notifications.show('Błąd usuwania.', { severity: 'error' });
+        notifications.show(t('common:errors.delete'), { severity: 'error' });
       } finally {
         stopLoading();
       }
@@ -280,7 +291,7 @@ export const useVacationsFacade = () => {
       id: ev.id!,
       startDate: dayjs(ev.startDate),
       endDate: dayjs(ev.endDate),
-      employeeName: ev.employeeName ?? 'Nieznany pracownik',
+      employeeName: ev.employeeName ?? t('vacations:unknownEmployee'),
       employeeActive: ev.employeeActive ?? false,
     }));
     if (selectedEmployeeIds.length > 0) {
@@ -289,7 +300,7 @@ export const useVacationsFacade = () => {
       );
     }
     return filtered;
-  }, [vacations, selectedEmployeeIds]);
+  }, [vacations, selectedEmployeeIds, t]);
 
   const monthGrid = useCalendarGrid(currentMonth, visibleVacations);
 
@@ -344,15 +355,8 @@ export const useVacationsFacade = () => {
         setActiveDayDate,
         setValidationError,
       },
-      mutations: {
-        handleAddEvent,
-        handleEditEvent,
-        handleDeleteEvent,
-      },
-      closeDialogs: {
-        add: handleAddDialogClose,
-        edit: handleEditDialogClose,
-      },
+      mutations: { handleAddEvent, handleEditEvent, handleDeleteEvent },
+      closeDialogs: { add: handleAddDialogClose, edit: handleEditDialogClose },
     },
   };
 };

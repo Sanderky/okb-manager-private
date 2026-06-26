@@ -12,12 +12,15 @@ import type { Employee } from '@/entities/employee';
 import type { UiCalendarEvent } from '../../model/types';
 import { EventForm } from './components/EventForm';
 import dayjs from 'dayjs';
+import { useTranslation } from 'react-i18next';
 
 const EventDetails: React.FC<{
   event: Partial<UiCalendarEvent>;
   employees: Employee[];
   constructions: Construction[];
 }> = ({ event, employees, constructions }) => {
+  const { t } = useTranslation(['calendar', 'common']);
+
   const navigate = useNavigate();
   const handleEmployeeClick = (id: string) => navigate(`/employees/${id}`);
   const handleConstructionClick = (id: string) =>
@@ -64,7 +67,7 @@ const EventDetails: React.FC<{
         <Divider />
         <Box>
           <Typography variant="subtitle1" fontWeight={500} gutterBottom>
-            {event.title || 'Bez tytułu'}
+            {event.title || t('calendar:dialogs.editEvent.noTitle')}
           </Typography>
           {event.description ? (
             <Typography
@@ -79,7 +82,7 @@ const EventDetails: React.FC<{
               color="text.disabled"
               fontStyle="italic"
             >
-              Brak dodatkowego opisu
+              {t('calendar:dialogs.editEvent.noDescription')}
             </Typography>
           )}
         </Box>
@@ -90,7 +93,7 @@ const EventDetails: React.FC<{
           <Stack direction="row" alignItems="center" spacing={1} mb={1}>
             <PersonIcon color="action" fontSize="small" />
             <Typography variant="subtitle2" color="text.secondary">
-              Powiązani pracownicy:
+              {t('calendar:dialogs.editEvent.assignedEmployees')}
             </Typography>
           </Stack>
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
@@ -117,7 +120,7 @@ const EventDetails: React.FC<{
           <Stack direction="row" alignItems="center" spacing={1} mb={1}>
             <ConstructionIcon color="action" fontSize="small" />
             <Typography variant="subtitle2" color="text.secondary">
-              Powiązane budowy:
+              {t('calendar:dialogs.editEvent.assignedConstructions')}
             </Typography>
           </Stack>
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
@@ -170,6 +173,8 @@ export const EditEventDialog: React.FC<EditEventDialogProps> = ({
   handleEditEvent,
   loading,
 }) => {
+  const { t } = useTranslation(['calendar', 'common']);
+
   const [isEditing, setIsEditing] = useState(false);
   const [internalEvent, setInternalEvent] =
     useState<Partial<UiCalendarEvent>>(currentEvent);
@@ -210,7 +215,9 @@ export const EditEventDialog: React.FC<EditEventDialogProps> = ({
             variant="h6"
             sx={{ color: getEventTextColor(internalEvent.color ?? 'blue') }}
           >
-            {isEditing ? 'Edycja wydarzenia' : 'Szczegóły wydarzenia'}
+            {isEditing
+              ? t('calendar:dialogs.editEvent.titleEditing')
+              : t('calendar:dialogs.editEvent.titleViewing')}
           </Typography>
         </Stack>
       }
@@ -225,14 +232,14 @@ export const EditEventDialog: React.FC<EditEventDialogProps> = ({
               variant="outlined"
               sx={{ mr: 'auto' }}
             >
-              Anuluj
+              {t('common:buttons.cancel')}
             </Button>
             <Button
               variant="contained"
               onClick={() => handleEditEvent(internalEvent)}
               disabled={loading}
             >
-              Zapisz
+              {t('common:buttons.save')}
             </Button>
           </>
         ) : (
@@ -244,10 +251,10 @@ export const EditEventDialog: React.FC<EditEventDialogProps> = ({
               variant="outlined"
               sx={{ mr: 'auto' }}
             >
-              Usuń
+              {t('common:buttons.delete')}
             </Button>
             <Button variant="outlined" onClick={handleStartEditing}>
-              Edytuj
+              {t('common:buttons.edit')}
             </Button>
           </>
         )

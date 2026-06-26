@@ -18,7 +18,7 @@ import {
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import type { Dayjs } from 'dayjs';
-import { plPL } from '@mui/x-date-pickers/locales';
+import { useTranslation } from 'react-i18next';
 
 interface BaseCalendarControlsProps {
   currentMonth: Dayjs;
@@ -41,6 +41,9 @@ export const BaseCalendarControls: React.FC<BaseCalendarControlsProps> = ({
   popoverId,
   onOpenFilters,
 }) => {
+  const { t, i18n } = useTranslation(['calendar', 'common']);
+  const currentLang = i18n.language.substring(0, 2).toLowerCase();
+
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const openMobileMenu = Boolean(anchorEl);
 
@@ -78,7 +81,7 @@ export const BaseCalendarControls: React.FC<BaseCalendarControlsProps> = ({
         </Typography>
 
         <Stack direction="row">
-          <Tooltip title="Poprzedni miesiąc">
+          <Tooltip title={t('calendar:controls.prevMonth')}>
             <IconButton
               size="small"
               className="rounded-l-lg rounded-r-none border"
@@ -92,7 +95,7 @@ export const BaseCalendarControls: React.FC<BaseCalendarControlsProps> = ({
               <ChevronLeft fontSize="small" />
             </IconButton>
           </Tooltip>
-          <Tooltip title="Obecny miesiąc">
+          <Tooltip title={t('calendar:controls.currentMonth')}>
             <Button
               variant="outlined"
               className="rounded-none border-x-0"
@@ -105,10 +108,10 @@ export const BaseCalendarControls: React.FC<BaseCalendarControlsProps> = ({
                 '&:hover': { borderColor: theme.palette.primary.main },
               })}
             >
-              Dziś
+              {t('common:buttons.today')}
             </Button>
           </Tooltip>
-          <Tooltip title="Następny miesiąc">
+          <Tooltip title={t('calendar:controls.nextMonth')}>
             <IconButton
               size="small"
               color="primary"
@@ -138,11 +141,8 @@ export const BaseCalendarControls: React.FC<BaseCalendarControlsProps> = ({
       >
         <MenuItem disableRipple key="datePicker">
           <LocalizationProvider
-            localeText={
-              plPL.components.MuiLocalizationProvider.defaultProps.localeText
-            }
             dateAdapter={AdapterDayjs}
-            adapterLocale="pl"
+            adapterLocale={currentLang}
           >
             <DatePicker
               openTo="month"
@@ -188,7 +188,7 @@ export const BaseCalendarControls: React.FC<BaseCalendarControlsProps> = ({
               aria-describedby={popoverId}
               onClick={onOpenFilters}
             >
-              Filtry
+              {t('calendar:controls.filters')}
             </Button>
           </Badge>
         </MenuItem>
@@ -212,7 +212,7 @@ export const BaseCalendarControls: React.FC<BaseCalendarControlsProps> = ({
       })}
     >
       <Stack direction="row">
-        <Tooltip title="Poprzedni miesiąc">
+        <Tooltip title={t('calendar:controls.prevMonth')}>
           <IconButton
             size="small"
             className="rounded-l-lg rounded-r-none border"
@@ -226,7 +226,7 @@ export const BaseCalendarControls: React.FC<BaseCalendarControlsProps> = ({
             <ChevronLeft fontSize="small" />
           </IconButton>
         </Tooltip>
-        <Tooltip title="Obecny miesiąc">
+        <Tooltip title={t('calendar:controls.currentMonth')}>
           <Button
             variant="outlined"
             size="small"
@@ -238,10 +238,10 @@ export const BaseCalendarControls: React.FC<BaseCalendarControlsProps> = ({
               '&:hover': { borderColor: theme.palette.primary.main },
             })}
           >
-            Dziś
+            {t('common:buttons.today')}
           </Button>
         </Tooltip>
-        <Tooltip title="Następny miesiąc">
+        <Tooltip title={t('calendar:controls.nextMonth')}>
           <IconButton
             size="small"
             color="primary"
@@ -258,11 +258,8 @@ export const BaseCalendarControls: React.FC<BaseCalendarControlsProps> = ({
       </Stack>
 
       <LocalizationProvider
-        localeText={
-          plPL.components.MuiLocalizationProvider.defaultProps.localeText
-        }
         dateAdapter={AdapterDayjs}
-        adapterLocale="pl"
+        adapterLocale={currentLang}
       >
         <DatePicker
           openTo="month"
@@ -289,7 +286,7 @@ export const BaseCalendarControls: React.FC<BaseCalendarControlsProps> = ({
         />
       </LocalizationProvider>
 
-      <Tooltip title="Filtry">
+      <Tooltip title={t('calendar:controls.filters')}>
         <Badge badgeContent={isFiltered ? 1 : 0} variant="dot" color="primary">
           <IconButton
             size="small"

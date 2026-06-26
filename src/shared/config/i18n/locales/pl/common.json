@@ -1,16 +1,31 @@
 {
   "buttons": {
+    "add": "Dodaj",
     "save": "Zapisz",
+    "saveChanges": "Zapisz zmiany",
     "cancel": "Anuluj",
     "delete": "Usuń",
     "edit": "Edytuj",
-    "add": "Dodaj",
-    "back": "Wróć",
+    "clear": "Wyczyść",
     "print": "Drukuj",
     "all": "Wszystko",
-    "clear": "Wyczyść"
+    "allPeople": "Wszyscy",
+    "today": "Dziś",
+    "close": "Zamknij",
+    "back": "Wróć"
+  },
+  "status": {
+    "inactive": "Nieaktywny",
+    "inactiveBracket": "(Nieaktywny)",
+    "completed": "Zakończona",
+    "noTitle": "(Brak tytułu)"
   },
   "errors": {
+    "save": "Błąd zapisu.",
+    "edit": "Błąd edycji.",
+    "delete": "Błąd usuwania.",
+    "load": "Wystąpił błąd podczas ładowania danych.",
+    "general": "Wystąpił błąd.",
     "fetchError": "Wystąpił błąd podczas ładowania danych."
   },
   "weekSelector": {

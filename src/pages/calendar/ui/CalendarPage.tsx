@@ -1,6 +1,7 @@
 import { Button, Alert } from '@mui/material';
 import { Add } from '@mui/icons-material';
 import PageContainer from '@/shared/ui/PageContainer';
+import { useTranslation } from 'react-i18next';
 import {
   CalendarProvider,
   useCalendarContext,
@@ -9,11 +10,15 @@ import {
 
 const CalendarPageContent = () => {
   const { state, actions } = useCalendarContext();
+  const { t } = useTranslation(['calendar', 'common']);
 
   if (state.status.error) {
     return (
-      <PageContainer breadcrumbs={[{ title: 'Kalendarz' }]} fixedHeight={true}>
-        <Alert severity="error">Wystąpił błąd podczas ładowania danych.</Alert>
+      <PageContainer
+        breadcrumbs={[{ title: t('calendar:pageTitle') }]}
+        fixedHeight={true}
+      >
+        <Alert severity="error">{t('common:errors.load')}</Alert>
       </PageContainer>
     );
   }
@@ -21,7 +26,7 @@ const CalendarPageContent = () => {
   return (
     <PageContainer
       fixedHeight={true}
-      breadcrumbs={[{ title: 'Kalendarz' }]}
+      breadcrumbs={[{ title: t('calendar:pageTitle') }]}
       actions={[
         <Button
           key="add"
@@ -31,7 +36,7 @@ const CalendarPageContent = () => {
           size="small"
           onClick={() => actions.handleOnAddEventButtonClick()}
         >
-          Dodaj wydarzenie
+          {t('calendar:actions.addEvent')}
         </Button>,
       ]}
     >

@@ -28,9 +28,9 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { Close as CloseIcon, Print as PrintIcon } from '@mui/icons-material';
+import { useTranslation } from 'react-i18next';
 import dayjs, { Dayjs } from 'dayjs';
-import { useReactToPrint } from 'react-to-print';
-import { plPL } from '@mui/x-date-pickers/locales';
+import { useReactToPrint } from 'react-to-print';;
 import type { Employee } from '@/entities/employee';
 import { type Vacation } from '@/entities/vacations';
 
@@ -52,6 +52,8 @@ const PrintableVacationReport: React.FC<{
   report: VacationReportItem[];
   dateRange: { start: Dayjs | null; end: Dayjs | null };
 }> = ({ report, dateRange }) => {
+  const { t } = useTranslation(['vacations', 'common','employees']);
+
   const effectiveDateRange = useMemo(() => {
     const start =
       dateRange.start || dayjs().subtract(1, 'month').startOf('day');
@@ -67,20 +69,22 @@ const PrintableVacationReport: React.FC<{
   return (
     <Box sx={{ p: 2 }}>
       <Typography variant="h6" gutterBottom align="center">
-        Wykaz urlopów
+        {t('dialogs.report.printable.title')}
       </Typography>
 
       <Stack direction="row" justifyContent="space-between" sx={{ mb: 2 }}>
         <Typography variant="body2">
-          <strong>Zakres dat:</strong>{' '}
+          <strong>{t('dialogs.report.printable.rangeLabel')}</strong>{' '}
           {effectiveDateRange.start.format('DD.MM.YYYY')} -{' '}
           {effectiveDateRange.end.format('DD.MM.YYYY')}
         </Typography>
         <Typography variant="body2">
-          <strong>Liczba pracowników:</strong> {uniqueEmployeesCount}
+          <strong>{t('dialogs.report.printable.employeesCountLabel')}</strong>{' '}
+          {uniqueEmployeesCount}
         </Typography>
         <Typography variant="body2">
-          <strong>Wygenerowano:</strong> {dayjs().format('DD.MM.YYYY HH:mm')}
+          <strong>{t('dialogs.report.printable.generatedAtLabel')}</strong>{' '}
+          {dayjs().format('DD.MM.YYYY HH:mm')}
         </Typography>
       </Stack>
 
@@ -88,16 +92,16 @@ const PrintableVacationReport: React.FC<{
         <TableHead>
           <TableRow>
             <TableCell>
-              <strong>Pracownik</strong>
+              <strong>{t('dialogs.report.printable.columns.employee')}</strong>
             </TableCell>
             <TableCell>
-              <strong>Data rozpoczęcia</strong>
+              <strong>{t('dialogs.report.printable.columns.startDate')}</strong>
             </TableCell>
             <TableCell>
-              <strong>Data zakończenia</strong>
+              <strong>{t('dialogs.report.printable.columns.endDate')}</strong>
             </TableCell>
             <TableCell align="center">
-              <strong>Liczba dni</strong>
+              <strong>{t('dialogs.report.printable.columns.daysCount')}</strong>
             </TableCell>
           </TableRow>
         </TableHead>
@@ -113,7 +117,7 @@ const PrintableVacationReport: React.FC<{
                     className="ml-1"
                     color="error"
                   >
-                    (Nieaktywny)
+                    {` (${t('employees:inactive')})`}
                   </Typography>
                 )}
               </TableCell>
@@ -135,7 +139,7 @@ const PrintableVacationReport: React.FC<{
       </Table>
 
       <Typography variant="body2" sx={{ mt: 2, textAlign: 'right' }}>
-        Łączna liczba urlopów: {report.length}
+        {t('dialogs.report.printable.totalVacations', { count: report.length })}
       </Typography>
     </Box>
   );
@@ -149,7 +153,11 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
   showInactive,
   setShowInactive,
 }) => {
+  const { t, i18n } = useTranslation(['vacations', 'filters', 'common', 'employees']);
   const navigate = useNavigate();
+  
+  const currentLang = i18n.language.substring(0, 2).toLowerCase();
+
   const [selectedEmployees, setSelectedEmployees] = useState<Employee[]>([]);
   const [dateRange, setDateRange] = useState<{
     start: Dayjs | null;
@@ -163,7 +171,7 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
 
   const handlePrint = useReactToPrint({
     contentRef: printRef,
-    documentTitle: `wykaz_urlopow_${dayjs().format('YYYY-MM-DD')}`,
+    documentTitle: `${t('dialogs.report.fileNamePrefix')}_${dayjs().format('YYYY-MM-DD')}`,
     pageStyle: `
       @page {
         margin: 10mm;
@@ -188,20 +196,15 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
   }, [dateRange.start, dateRange.end]);
 
   const generatedReport = useMemo((): VacationReportItem[] => {
-    if (selectedEmployees.length === 0) {
-      return [];
-    }
+    if (selectedEmployees.length === 0) return [];
 
     const { start: effectiveStart, end: effectiveEnd } = effectiveDateRange;
-
     const reportItems: VacationReportItem[] = [];
 
     selectedEmployees.forEach((employee) => {
       const employeeVacations = vacations.filter((vacation) => {
         if (vacation.employeeId !== employee.id) return false;
-
         const vacationStart = dayjs(vacation.startDate).startOf('day');
-
         return vacationStart.isBetween(
           effectiveStart,
           effectiveEnd,
@@ -228,8 +231,6 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
         dayjs(b.vacation.startDate).valueOf()
     );
   }, [selectedEmployees, effectiveDateRange, vacations]);
-
-  // const [showInactive, setShowInactive] = useState<boolean>(false);
 
   const filteredEmployees = useMemo(() => {
     if (showInactive) {
@@ -289,7 +290,7 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
           alignItems="center"
           justifyContent="space-between"
         >
-          <Typography variant="h6">Generuj wykaz urlopów</Typography>
+          <Typography variant="h6">{t('dialogs.report.title')}</Typography>
           <IconButton onClick={onClose}>
             <CloseIcon />
           </IconButton>
@@ -298,21 +299,21 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
 
       <DialogContent dividers className="px-3 sm:px-5">
         <LocalizationProvider
-          localeText={
-            plPL.components.MuiLocalizationProvider.defaultProps.localeText
-          }
           dateAdapter={AdapterDayjs}
-          adapterLocale="pl"
+          adapterLocale={currentLang}
         >
           <Stack spacing={3}>
             <Box>
               <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                Pracownicy
+                {t('dialogs.report.filters.employeesTitle')}
               </Typography>
               <Typography variant="overline" sx={{ mb: 1.5, display: 'block' }}>
                 {selectedEmployees.length < filteredEmployees.length
-                  ? `Wybrano: ${selectedEmployees.length} z ${filteredEmployees.length}`
-                  : 'Wszyscy pracownicy'}
+                  ? t('filters:selectedCount', {
+                      selected: selectedEmployees.length,
+                      total: filteredEmployees.length,
+                    })
+                  : t('filters:allEmployees')} 
               </Typography>
               <Autocomplete
                 multiple
@@ -327,7 +328,7 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
                     {option.name}
                     {!option.status && (
                       <Chip
-                        label="Nieaktywny"
+                        label={t('employees:inactive')}
                         size="small"
                         color="default"
                         variant="outlined"
@@ -339,7 +340,7 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    placeholder="Wybierz pracowników..."
+                    placeholder={t('dialogs.report.filters.selectEmployeesPlaceholder')}
                     size="small"
                   />
                 )}
@@ -369,16 +370,16 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
                 }
                 label={
                   <Typography variant="caption">
-                    Uwzględnij nieaktywnych
+                    {t('dialogs.report.filters.includeInactive')}
                   </Typography>
                 }
               />
               <Stack direction="row" spacing={1} justifyContent={'flex-end'}>
                 <Button onClick={handleSelectAll} disabled={isAllSelected}>
-                  Wszyscy
+                  {t('filters:selectAll')}
                 </Button>
 
-                <Button onClick={handleClear}>Wyczyść</Button>
+                <Button onClick={handleClear}>{t('filters:clear')}</Button>
               </Stack>
             </Box>
 
@@ -389,13 +390,17 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
                 justifyContent="space-between"
                 sx={{ mb: 1 }}
               >
-                <Typography variant="subtitle2">Zakres dat</Typography>
+                <Typography variant="subtitle2">
+                  {t('dialogs.report.dateRange.title')}
+                </Typography>
 
-                <Button onClick={handleClearAllDates}>Wyczyść daty</Button>
+                <Button onClick={handleClearAllDates}>
+                  {t('dialogs.report.dateRange.clearAll')}
+                </Button>
               </Stack>
               <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
                 <DatePicker
-                  label="Data od (opcjonalnie)"
+                  label={t('dialogs.report.dateRange.fromLabel')}
                   value={dateRange.start || null}
                   openTo="month"
                   views={['year', 'month', 'day']}
@@ -416,7 +421,7 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
                   maxDate={dateRange.end || undefined}
                 />
                 <DatePicker
-                  label="Data do (opcjonalnie)"
+                  label={t('dialogs.report.dateRange.toLabel')}
                   openTo="month"
                   views={['year', 'month', 'day']}
                   value={dateRange.end || null}
@@ -438,14 +443,11 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
                 />
               </Stack>
               <Typography variant="caption" className="text-gray-500">
-                {'Efektywny zakres dat: '}
-                {effectiveDateRange.start.format('DD.MM.YYYY')}
-                {' - '}
-                {effectiveDateRange.end.format('DD.MM.YYYY')}
+                {`${t('dialogs.report.dateRange.effectiveRange')}: ${effectiveDateRange.start.format('DD.MM.YYYY')} - ${effectiveDateRange.end.format('DD.MM.YYYY')}`}
               </Typography>
               {hasDateError && (
                 <Typography variant="body2" color="error" sx={{ mt: 1 }}>
-                  Data początkowa nie może być późniejsza niż data końcowa
+                  {t('dialogs.report.dateRange.error')}
                 </Typography>
               )}
             </Box>
@@ -459,8 +461,9 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
                   sx={{ mb: 2 }}
                 >
                   <Typography variant="h6">
-                    Wygenerowany wykaz urlopów ({generatedReport.length}{' '}
-                    pozycji)
+                    {t('dialogs.report.generatedTitle', {
+                      count: generatedReport.length,
+                    })}
                   </Typography>
                 </Stack>
 
@@ -468,10 +471,18 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
                   <Table size="small">
                     <TableHead>
                       <TableRow>
-                        <TableCell>Pracownik</TableCell>
-                        <TableCell>Data rozpoczęcia</TableCell>
-                        <TableCell>Data zakończenia</TableCell>
-                        <TableCell align="center">Liczba dni</TableCell>
+                        <TableCell>
+                          {t('dialogs.report.columns.employee')}
+                        </TableCell>
+                        <TableCell>
+                          {t('dialogs.report.columns.startDate')}
+                        </TableCell>
+                        <TableCell>
+                          {t('dialogs.report.columns.endDate')}
+                        </TableCell>
+                        <TableCell align="center">
+                          {t('dialogs.report.columns.daysCount')}
+                        </TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -492,7 +503,7 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
                                 className="ml-1"
                                 color="error"
                               >
-                                (Nieaktywny)
+                                {` (${t('employees:inactive')})`}
                               </Typography>
                             )}
                           </TableCell>
@@ -518,7 +529,7 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
 
             {selectedEmployees.length > 0 && generatedReport.length === 0 && (
               <Alert severity="info">
-                Brak urlopów w wybranym zakresie dla wybranych pracowników
+                {t('dialogs.report.emptyState')}
               </Alert>
             )}
           </Stack>
@@ -532,7 +543,7 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
             onClick={handlePrint}
             startIcon={<PrintIcon />}
           >
-            Drukuj
+            {t('dialogs.report.print')}
           </Button>
         )}
       </DialogActions>

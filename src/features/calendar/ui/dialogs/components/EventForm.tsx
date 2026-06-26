@@ -14,7 +14,7 @@ import {
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { plPL } from '@mui/x-date-pickers/locales';
+import { useTranslation } from 'react-i18next';
 import type { Construction } from '@/entities/construction';
 import type { Employee } from '@/entities/employee';
 import {
@@ -44,6 +44,9 @@ export const EventForm: React.FC<EventFormProps> = ({
   validationError,
   loading,
 }) => {
+  const { t, i18n } = useTranslation(['calendar', 'common']);
+  const currentLang = i18n.language.substring(0, 2).toLowerCase();
+
   const selectedEmployeeIds = currentEvent.employeeIds || [];
   const selectedConstructionIds = currentEvent.constructionIds || [];
   const { getEventColor } = useEventColor();
@@ -60,7 +63,7 @@ export const EventForm: React.FC<EventFormProps> = ({
     <Stack rowGap={2} sx={{ mt: 1 }}>
       <TextField
         select
-        label="Kategoria *"
+        label={t('calendar:form.category')}
         size="small"
         value={currentEvent.category || 'other'}
         onChange={(e) =>
@@ -78,7 +81,7 @@ export const EventForm: React.FC<EventFormProps> = ({
 
       <Box>
         <Typography variant="caption" color="textSecondary" p={0} m={0}>
-          Wybierz kolor *
+          {t('calendar:form.color')}
         </Typography>
 
         <Stack direction="row" gap={1} flexWrap="wrap" mt={1}>
@@ -103,7 +106,7 @@ export const EventForm: React.FC<EventFormProps> = ({
       </Box>
 
       <TextField
-        label="Tytuł wydarzenia *"
+        label={t('calendar:form.title')}
         size="small"
         value={currentEvent.title || ''}
         onChange={(e) => setEvent({ title: e.target.value })}
@@ -113,7 +116,7 @@ export const EventForm: React.FC<EventFormProps> = ({
       />
 
       <TextField
-        label="Opis"
+        label={t('calendar:form.description')}
         multiline
         size="small"
         minRows={4}
@@ -124,15 +127,12 @@ export const EventForm: React.FC<EventFormProps> = ({
       />
 
       <LocalizationProvider
-        localeText={
-          plPL.components.MuiLocalizationProvider.defaultProps.localeText
-        }
         dateAdapter={AdapterDayjs}
-        adapterLocale="pl"
+        adapterLocale={currentLang}
       >
         <Stack direction="row" spacing={2}>
           <DatePicker
-            label="Od *"
+            label={t('calendar:form.dateFrom')}
             value={
               currentEvent.startDate ? dayjs(currentEvent.startDate) : null
             }
@@ -141,7 +141,7 @@ export const EventForm: React.FC<EventFormProps> = ({
             disabled={loading}
           />
           <DatePicker
-            label="Do *"
+            label={t('calendar:form.dateTo')}
             value={currentEvent.endDate ? dayjs(currentEvent.endDate) : null}
             onChange={(date) => date && setEvent({ endDate: date })}
             slotProps={{ textField: { size: 'small', fullWidth: true } }}
@@ -174,7 +174,7 @@ export const EventForm: React.FC<EventFormProps> = ({
                 {option.name}
                 {!option.status && (
                   <Chip
-                    label="Nieaktywny"
+                    label={t('common:status.inactive')}
                     size="small"
                     color="default"
                     variant="outlined"
@@ -185,7 +185,11 @@ export const EventForm: React.FC<EventFormProps> = ({
             );
           }}
           renderInput={(params) => (
-            <TextField {...params} label="Powiązani pracownicy" size="small" />
+            <TextField
+              {...params}
+              label={t('calendar:form.employees')}
+              size="small"
+            />
           )}
         />
       </FormControl>
@@ -213,7 +217,7 @@ export const EventForm: React.FC<EventFormProps> = ({
                 {option.name}
                 {!option.status && (
                   <Chip
-                    label="Zakończona"
+                    label={t('common:status.completed')}
                     size="small"
                     color="default"
                     variant="outlined"
@@ -224,7 +228,11 @@ export const EventForm: React.FC<EventFormProps> = ({
             );
           }}
           renderInput={(params) => (
-            <TextField {...params} label="Powiązane budowy" size="small" />
+            <TextField
+              {...params}
+              label={t('calendar:form.constructions')}
+              size="small"
+            />
           )}
         />
       </FormControl>

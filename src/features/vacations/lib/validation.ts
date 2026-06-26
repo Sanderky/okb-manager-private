@@ -1,29 +1,37 @@
-import type { Vacation } from "@/entities/vacations";
-import dayjs, { Dayjs } from "dayjs";
+import type { Vacation } from '@/entities/vacations';
+import dayjs, { Dayjs } from 'dayjs';
+import type { TFunction } from 'i18next';
 
 export const validateVacation = (
   employeeId: string,
   startDate: Dayjs,
   endDate: Dayjs,
   vacations: Vacation[],
-  color: string
+  color: string,
+  t: TFunction
 ): { isValid: boolean; error?: string } => {
   if (!employeeId) {
-    return { isValid: false, error: 'Wybierz pracownika' };
+    return {
+      isValid: false,
+      error: t('vacations:validation.employeeRequired'),
+    };
   }
 
   if (!startDate || !endDate) {
-    return { isValid: false, error: 'Wybierz zakres dat' };
+    return {
+      isValid: false,
+      error: t('vacations:validation.dateRangeRequired'),
+    };
   }
 
   if (!color) {
-    return { isValid: false, error: 'Wybierz kolor urlopu' };
+    return { isValid: false, error: t('vacations:validation.colorRequired') };
   }
 
   if (endDate.isBefore(startDate, 'day')) {
     return {
       isValid: false,
-      error: 'Data zakończenia nie może być wcześniejsza niż data rozpoczęcia',
+      error: t('vacations:validation.endDateBeforeStartDate'),
     };
   }
 
@@ -53,7 +61,9 @@ export const validateVacation = (
   if (conflictingDates.length > 0) {
     return {
       isValid: false,
-      error: `Pracownik ma już urlop w dniach: ${conflictingDates.join(', ')}`,
+      error: t('vacations:validation.overlapError', {
+        dates: conflictingDates.join(', '),
+      }),
     };
   }
 

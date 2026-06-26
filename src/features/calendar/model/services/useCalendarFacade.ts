@@ -17,10 +17,12 @@ import {
 } from '@/entities/events';
 import type { UiCalendarEvent } from '../types';
 import { validateCalendarEvent } from '../validation';
+import { useTranslation } from 'react-i18next';
 
 const CALENDAR_FILTERS_STORAGE_KEY = 'calendar_view_filters';
 
 export const useCalendarFacade = () => {
+  const { t } = useTranslation(['calendar', 'common']);
   const [searchParams, setSearchParams] = useSearchParams();
   const notifications = useNotifications();
   const dialogs = useDialogs();
@@ -54,7 +56,7 @@ export const useCalendarFacade = () => {
         const saved = localStorage.getItem(CALENDAR_FILTERS_STORAGE_KEY);
         if (saved) return JSON.parse(saved);
       } catch (error) {
-        console.error('Błąd odczytu filtrów', error);
+        console.error('Read filters error', error);
       }
       return EVENT_CATEGORIES;
     }
@@ -175,7 +177,6 @@ export const useCalendarFacade = () => {
 
   const handleAddEvent = async (eventData: Partial<UiCalendarEvent>) => {
     const { startDate, endDate, category, title } = eventData;
-
     const start = dayjs(startDate);
     const end = dayjs(endDate);
 
@@ -183,10 +184,14 @@ export const useCalendarFacade = () => {
       title!,
       start,
       end,
-      category || ''
+      category || '',
+      t
     );
+
     if (!validation.isValid)
-      return setValidationError(validation.error || 'Błąd');
+      return setValidationError(
+        validation.error || t('validation.defaultError')
+      );
 
     try {
       startLoading();
@@ -202,15 +207,16 @@ export const useCalendarFacade = () => {
         constructionIds: eventData.constructionIds,
         groupId: eventData.groupId,
       });
-      notifications.show('Wydarzenie dodane.', { severity: 'success' });
+      notifications.show(t('calendar:notifications.eventAdded'), {
+        severity: 'success',
+      });
       handleAddDialogClose();
     } catch {
-      notifications.show('Błąd zapisu.', { severity: 'error' });
+      notifications.show(t('common:errors.save'), { severity: 'error' });
     } finally {
       stopLoading();
     }
   };
-
   const handleEditEvent = async (eventData: Partial<UiCalendarEvent>) => {
     if (!eventData.id) return;
     const {
@@ -224,7 +230,6 @@ export const useCalendarFacade = () => {
       employeeIds,
       constructionIds,
     } = eventData;
-
     const start = dayjs(startDate);
     const end = dayjs(endDate);
 
@@ -232,10 +237,14 @@ export const useCalendarFacade = () => {
       title!,
       start,
       end,
-      category || ''
+      category || '',
+      t
     );
+
     if (!validation.isValid)
-      return setValidationError(validation.error || 'Błąd');
+      return setValidationError(
+        validation.error || t('validation.defaultError')
+      );
 
     try {
       startLoading();
@@ -253,11 +262,13 @@ export const useCalendarFacade = () => {
           constructionIds,
         },
       });
-      notifications.show('Wydarzenie zaktualizowane.', { severity: 'success' });
+      notifications.show(t('calendar:notifications.eventUpdated'), {
+        severity: 'success',
+      });
       setEditDialogOpen(false);
       resetOnClose();
     } catch {
-      notifications.show('Błąd edycji.', { severity: 'error' });
+      notifications.show(t('common:errors.edit'), { severity: 'error' });
     } finally {
       stopLoading();
     }
@@ -265,22 +276,28 @@ export const useCalendarFacade = () => {
 
   const handleDeleteEvent = async () => {
     if (!currentEvent.id) return;
-    if (
-      await dialogs.confirm('Czy na pewno chcesz usunąć to wydarzenie?', {
+
+    const isConfirmed = await dialogs.confirm(
+      t('calendar:dialogs.deleteEvent.description'),
+      {
         severity: 'error',
-        okText: 'Usuń',
-        cancelText: 'Anuluj',
-        title: 'Usuwanie wydarzenia',
-      })
-    ) {
+        okText: t('common:buttons.delete'),
+        cancelText: t('common:buttons.cancel'),
+        title: t('calendar:dialogs.deleteEvent.title'),
+      }
+    );
+
+    if (isConfirmed) {
       try {
         startLoading();
         await deleteMutation.mutateAsync(currentEvent.id);
-        notifications.show('Wydarzenie usunięte.', { severity: 'info' });
+        notifications.show(t('calendar:notifications.eventDeleted'), {
+          severity: 'info',
+        });
         setEditDialogOpen(false);
         resetOnClose();
       } catch {
-        notifications.show('Błąd usuwania.', { severity: 'error' });
+        notifications.show(t('common:errors.delete'), { severity: 'error' });
       } finally {
         stopLoading();
       }

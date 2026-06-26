@@ -26,8 +26,10 @@ import { WEEK_DAYS } from '@/shared/config/days';
 import { AddEventDialog } from './dialogs/AddEventDialog';
 import { EditEventDialog } from './dialogs/EditEventDialog';
 import { EventListDialog } from './dialogs/EventListDialog';
+import { useTranslation } from 'react-i18next';
 
 export const EventsCalendar: React.FC = () => {
+  const { t } = useTranslation(['calendar', 'common']);
   const [containerRef, width] = useContainerBreakpoint();
   const { state, actions } = useCalendarContext();
   const { getEventColor, getEventTextColor } = useEventColor();
@@ -125,7 +127,7 @@ export const EventsCalendar: React.FC = () => {
                 color="textSecondary"
                 sx={{ mb: 1, display: 'block' }}
               >
-                Pokaż typy wydarzeń:
+                {t('calendar:controls.showTypes')}
               </Typography>
               {EVENT_CATEGORIES.map((sev) => (
                 <FormControlLabel
@@ -217,7 +219,7 @@ export const EventsCalendar: React.FC = () => {
                     display: { xs: 'none', sm: showName ? 'block' : 'none' },
                   }}
                 >
-                  {ev.title || ev.description || '(Brak tytułu)'}
+                  {ev.title || ev.description || t('common:status.noTitle')}
                 </Typography>
                 {isWeekStart && !isStart && (
                   <Box

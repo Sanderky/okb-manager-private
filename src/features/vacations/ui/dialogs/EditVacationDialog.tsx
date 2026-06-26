@@ -13,6 +13,7 @@ import {
   CalendarMonth,
   Person,
 } from '@mui/icons-material';
+import { useTranslation } from 'react-i18next';
 import BaseDialog from '@/shared/ui/BaseDialog';
 import { getDateStr } from '@/shared/lib/string';
 import type { Employee } from '@/entities/employee';
@@ -22,53 +23,60 @@ import { VacationForm } from './components/VacationForm';
 const VacationDetails: React.FC<{
   event: CalendarEvent;
   onNavigateToEmployee: () => void;
-}> = ({ event, onNavigateToEmployee }) => (
-  <Stack spacing={2}>
-    <Stack direction="row" alignItems="center" gap={1} mb={1}>
-      <Tooltip title="Przejdź do pracownika">
-        <IconButton onClick={onNavigateToEmployee} sx={{ p: 0 }}>
-          <Person color="action" fontSize="small" />
-        </IconButton>
-      </Tooltip>
-      <Typography variant="subtitle2" color="text.secondary">
-        {event.employeeName ?? ''} {event.employeeActive ? '' : '(nieaktywny)'}
-      </Typography>
-    </Stack>
-    <Stack
-      direction="row"
-      alignItems="center"
-      spacing={1}
-      color="text.secondary"
-    >
-      <CalendarMonth fontSize="small" />
-      <Typography variant="body2" fontWeight={500}>
-        {getDateStr(event.startDate, event.endDate, true)}
-      </Typography>
-    </Stack>
-    {event.description && (
+}> = ({ event, onNavigateToEmployee }) => {
+  const { t } = useTranslation('vacations');
+
+  return (
+    <Stack spacing={2}>
+      <Stack direction="row" alignItems="center" gap={1} mb={1}>
+        <Tooltip title={t('dialogs.editVacation.details.navigateToEmployee')}>
+          <IconButton onClick={onNavigateToEmployee} sx={{ p: 0 }}>
+            <Person color="action" fontSize="small" />
+          </IconButton>
+        </Tooltip>
+        <Typography variant="subtitle2" color="text.secondary">
+          {event.employeeName ?? ''}{' '}
+          {!event.employeeActive && `(${t('dialogs.editVacation.details.inactive')})`}
+        </Typography>
+      </Stack>
+      <Stack
+        direction="row"
+        alignItems="center"
+        spacing={1}
+        color="text.secondary"
+      >
+        <CalendarMonth fontSize="small" />
+        <Typography variant="body2" fontWeight={500}>
+          {getDateStr(event.startDate, event.endDate, true)}
+        </Typography>
+      </Stack>
+      {event.description && (
+        <Box>
+          <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+            {t('dialogs.editVacation.details.description')}
+          </Typography>
+          <Typography>
+            {event.description || t('dialogs.editVacation.details.noDescription')}
+          </Typography>
+        </Box>
+      )}
       <Box>
         <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-          Opis
+          {t('dialogs.editVacation.details.colorLabel')}
         </Typography>
-        <Typography>{event.description || 'Brak opisu'}</Typography>
+        <Box
+          sx={{
+            width: 50,
+            height: 25,
+            bgcolor: event.color || '#ccc',
+            borderRadius: 1,
+            border: '1px solid rgba(0,0,0,0.1)',
+          }}
+        />
       </Box>
-    )}
-    <Box>
-      <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-        Kolor oznaczenia
-      </Typography>
-      <Box
-        sx={{
-          width: 50,
-          height: 25,
-          bgcolor: event.color || '#ccc',
-          borderRadius: 1,
-          border: '1px solid rgba(0,0,0,0.1)',
-        }}
-      />
-    </Box>
-  </Stack>
-);
+    </Stack>
+  );
+};
 
 interface EditVacationDialogProps {
   open: boolean;
@@ -97,6 +105,7 @@ export const EditVacationDialog: React.FC<EditVacationDialogProps> = ({
   canGoBack = false,
   handleResetError,
 }) => {
+  const { t } = useTranslation('vacations');
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [internalEvent, setInternalEvent] =
@@ -135,7 +144,9 @@ export const EditVacationDialog: React.FC<EditVacationDialogProps> = ({
             </IconButton>
           )}
           <Typography variant="h6">
-            {isEditing ? 'Edytuj urlop' : 'Szczegóły urlopu'}
+            {isEditing
+              ? t('dialogs.editVacation.titleEdit')
+              : t('dialogs.editVacation.titleDetails')}
           </Typography>
         </Stack>
       }
@@ -153,14 +164,14 @@ export const EditVacationDialog: React.FC<EditVacationDialogProps> = ({
               disabled={loading}
               sx={{ mr: 'auto' }}
             >
-              Anuluj
+              {t('dialogs.editVacation.cancel')}
             </Button>
             <Button
               variant="contained"
               onClick={() => handleEditEvent(internalEvent)}
               disabled={loading}
             >
-              Zapisz zmiany
+              {t('dialogs.editVacation.saveChanges')}
             </Button>
           </>
         ) : (
@@ -172,14 +183,14 @@ export const EditVacationDialog: React.FC<EditVacationDialogProps> = ({
               disabled={loading}
               sx={{ mr: 'auto' }}
             >
-              Usuń
+              {t('dialogs.editVacation.delete')}
             </Button>
             <Button
               variant="outlined"
               onClick={handleStartEditing}
               disabled={loading}
             >
-              Edytuj
+              {t('dialogs.editVacation.edit')}
             </Button>
           </>
         )

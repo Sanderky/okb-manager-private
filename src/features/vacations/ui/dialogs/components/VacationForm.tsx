@@ -11,7 +11,7 @@ import {
 } from '@mui/material';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { plPL } from '@mui/x-date-pickers/locales';
+import { useTranslation } from 'react-i18next';
 import type { Employee } from '@/entities/employee';
 import { employeeColors } from '@/entities/vacations';
 import { stringToColor } from '@/shared/lib/stringToColor';
@@ -34,7 +34,10 @@ export const VacationForm: React.FC<VacationFormProps> = ({
   loading,
   isNew,
 }) => {
+  const { t, i18n } = useTranslation('vacations');
   const theme = useTheme();
+
+  const currentLang = i18n.language.substring(0, 2).toLowerCase();
 
   const generatedColor = currentEvent.employeeId
     ? stringToColor(currentEvent.employeeId)
@@ -72,7 +75,7 @@ export const VacationForm: React.FC<VacationFormProps> = ({
           renderInput={(params) => (
             <TextField
               {...params}
-              label="Pracownik *"
+              label={t('dialogs.vacationForm.employeeRequired')}
               error={!!validationError && !currentEvent.employeeId}
               helperText={
                 validationError && !currentEvent.employeeId
@@ -87,7 +90,7 @@ export const VacationForm: React.FC<VacationFormProps> = ({
       ) : (
         <TextField
           size="small"
-          label="Pracownik"
+          label={t('dialogs.vacationForm.employee')}
           value={currentEvent.employeeName ?? ''}
           fullWidth
           slotProps={{ input: { readOnly: true } }}
@@ -100,7 +103,7 @@ export const VacationForm: React.FC<VacationFormProps> = ({
       )}
 
       <TextField
-        label="Opis"
+        label={t('dialogs.vacationForm.description')}
         multiline
         minRows={4}
         slotProps={{ input: { spellCheck: false } }}
@@ -110,15 +113,12 @@ export const VacationForm: React.FC<VacationFormProps> = ({
       />
 
       <LocalizationProvider
-        localeText={
-          plPL.components.MuiLocalizationProvider.defaultProps.localeText
-        }
         dateAdapter={AdapterDayjs}
-        adapterLocale="pl"
+        adapterLocale={currentLang}
       >
         <Stack direction="row" spacing={{ xs: 1, sm: 2 }}>
           <DatePicker
-            label="Data rozpoczęcia *"
+            label={t('dialogs.vacationForm.startDate')}
             openTo="month"
             views={['year', 'month', 'day']}
             value={currentEvent.startDate || null}
@@ -127,7 +127,7 @@ export const VacationForm: React.FC<VacationFormProps> = ({
             disabled={loading}
           />
           <DatePicker
-            label="Data zakończenia *"
+            label={t('dialogs.vacationForm.endDate')}
             openTo="month"
             views={['year', 'month', 'day']}
             value={currentEvent.endDate || null}
@@ -140,7 +140,7 @@ export const VacationForm: React.FC<VacationFormProps> = ({
       </LocalizationProvider>
 
       <Box>
-        <FormLabel>Wybierz kolor *</FormLabel>
+        <FormLabel>{t('dialogs.vacationForm.selectColor')}</FormLabel>
         {!currentEvent.color && validationError && (
           <Typography
             variant="caption"
@@ -187,7 +187,7 @@ export const VacationForm: React.FC<VacationFormProps> = ({
         </Stack>
       </Box>
 
-      {validationError && validationError.includes('urlop w dniach') && (
+      {validationError && currentEvent.employeeId && currentEvent.color && (
         <Alert severity="error">{validationError}</Alert>
       )}
     </Stack>

@@ -10,6 +10,7 @@ import {
   Button,
   FormControlLabel,
 } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import BaseDialog from '@/shared/ui/BaseDialog';
 import type { Employee } from '@/entities/employee';
 
@@ -32,6 +33,7 @@ export const FilterDialog: React.FC<FilterDialogProps> = ({
   showInactive,
   setShowInactive,
 }) => {
+  const { t } = useTranslation('filters');
   const filteredEmployees = useMemo(() => {
     if (showInactive) {
       return employees;
@@ -59,13 +61,16 @@ export const FilterDialog: React.FC<FilterDialogProps> = ({
     <BaseDialog
       open={isFilterOpen}
       onClose={() => setIsFilterOpen(false)}
-      title="Filtr pracowników"
+      title={t('employeesTitle')}
       showConfirm={false}
     >
       <Typography variant="overline" sx={{ mb: 1, display: 'block' }}>
         {selectedEmployees.length > 0
-          ? `Wybrano: ${selectedEmployees.length} z ${filteredEmployees.length}`
-          : 'Wszyscy pracownicy'}
+          ? t('selectedCount', {
+              selected: selectedEmployees.length,
+              total: filteredEmployees.length,
+            })
+          : t('allEmployees')}
       </Typography>
       <FormControl sx={{ width: '100%', maxWidth: '100%' }}>
         <Autocomplete
@@ -87,7 +92,7 @@ export const FilterDialog: React.FC<FilterDialogProps> = ({
                 {option.name}
                 {!option.status && (
                   <Chip
-                    label="Nieaktywny"
+                    label={t('inactiveEmployee')}
                     size="small"
                     color="default"
                     variant="outlined"
@@ -97,7 +102,9 @@ export const FilterDialog: React.FC<FilterDialogProps> = ({
               </li>
             );
           }}
-          renderInput={(params) => <TextField {...params} label="Pracownicy" />}
+          renderInput={(params) => (
+            <TextField {...params} label={t('employeesLabel')} />
+          )}
         />
       </FormControl>
       <FormControlLabel
@@ -110,16 +117,16 @@ export const FilterDialog: React.FC<FilterDialogProps> = ({
         }
         label={
           <Typography variant="caption">
-            Uwzględnij nieaktywnych pracowników w filtrze
+            {t('includeInactiveEmployees')}
           </Typography>
         }
         sx={{ mt: 1 }}
       />
       <Stack direction="row" spacing={1} justifyContent={'flex-end'}>
         <Button onClick={handleSelectAll} disabled={isAllSelected}>
-          Wszyscy
+          {t('selectAll')}
         </Button>
-        <Button onClick={handleClear}>Wyczyść</Button>
+        <Button onClick={handleClear}>{t('clear')}</Button>
       </Stack>
     </BaseDialog>
   );

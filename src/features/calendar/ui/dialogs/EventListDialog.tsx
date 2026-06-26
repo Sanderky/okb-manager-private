@@ -19,6 +19,7 @@ import { getCategoryLabel, useEventColor } from '@/entities/events';
 import type { UiCalendarEvent } from '../../model/types';
 import type { CalendarDay } from '@/shared/model/types';
 import dayjs from 'dayjs';
+import { useTranslation } from 'react-i18next';
 
 interface EventListDialogProps {
   open: boolean;
@@ -37,6 +38,7 @@ export const EventListDialog: React.FC<EventListDialogProps> = ({
   onAddButtonClick,
   loading,
 }) => {
+  const { t } = useTranslation(['calendar', 'common']);
   const events = selectedDayData?.events ?? [];
   const { getEventColor, getEventTextColor } = useEventColor();
 
@@ -56,7 +58,9 @@ export const EventListDialog: React.FC<EventListDialogProps> = ({
       onClose={onClose}
       title={
         <Stack direction="row" alignItems="center" spacing={1}>
-          <Typography variant="h6">Wydarzenia ({events.length})</Typography>
+          <Typography variant="h6">
+            {t('calendar:dialogs.eventList.title', { count: events.length })}
+          </Typography>
           <span>-</span>
           <Chip
             color="primary"
@@ -65,7 +69,7 @@ export const EventListDialog: React.FC<EventListDialogProps> = ({
         </Stack>
       }
       showConfirm={false}
-      cancelText="Zamknij"
+      cancelText={t('common:buttons.close')}
       maxWidth="md"
       contentSx={{ p: 0 }}
       actions={
@@ -76,7 +80,7 @@ export const EventListDialog: React.FC<EventListDialogProps> = ({
           disabled={loading}
           onClick={() => onAddButtonClick(selectedDayData?.date)}
         >
-          Dodaj
+          {t('common:buttons.add')}
         </Button>
       }
     >
@@ -88,9 +92,15 @@ export const EventListDialog: React.FC<EventListDialogProps> = ({
         <Table size="small" stickyHeader sx={{ minWidth: 'max-content' }}>
           <TableHead>
             <TableRow>
-              <TableCell>Tytuł / Opis</TableCell>
-              <TableCell align="center">Typ</TableCell>
-              <TableCell align="center">Data</TableCell>
+              <TableCell>
+                {t('calendar:dialogs.eventList.table.titleDesc')}
+              </TableCell>
+              <TableCell align="center">
+                {t('calendar:dialogs.eventList.table.type')}
+              </TableCell>
+              <TableCell align="center">
+                {t('calendar:dialogs.eventList.table.date')}
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -110,9 +120,11 @@ export const EventListDialog: React.FC<EventListDialogProps> = ({
                     event.constructionIds.length > 0) && (
                     <Typography variant="caption" color="text.secondary">
                       {event.employeeIds.length > 0 &&
-                        `Osoby: ${event.employeeIds.length} `}
+                        `${t('calendar:dialogs.eventList.peopleCount', { count: event.employeeIds.length })} `}
                       {event.constructionIds.length > 0 &&
-                        `Budowy: ${event.constructionIds.length}`}
+                        t('calendar:dialogs.eventList.constructionsCount', {
+                          count: event.constructionIds.length,
+                        })}
                     </Typography>
                   )}
                 </TableCell>
@@ -137,7 +149,7 @@ export const EventListDialog: React.FC<EventListDialogProps> = ({
             {events.length === 0 && (
               <TableRow>
                 <TableCell colSpan={3} align="center">
-                  Brak wydarzeń
+                  {t('calendar:dialogs.eventList.noEvents')}
                 </TableCell>
               </TableRow>
             )}

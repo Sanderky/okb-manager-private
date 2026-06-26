@@ -6,6 +6,7 @@ import type { Construction } from '@/entities/construction';
 import type { Employee } from '@/entities/employee';
 import type { UiCalendarEvent } from '../../model/types';
 import { EventForm } from './components/EventForm';
+import { useTranslation } from 'react-i18next';
 
 interface AddEventDialogProps {
   open: boolean;
@@ -28,6 +29,8 @@ export const AddEventDialog: React.FC<AddEventDialogProps> = ({
   handleAddEvent,
   loading,
 }) => {
+  const { t } = useTranslation(['calendar', 'common']);
+
   const [internalEvent, setInternalEvent] =
     useState<Partial<UiCalendarEvent>>(currentEvent);
   const { getEventColor, getEventTextColor } = useEventColor();
@@ -45,7 +48,7 @@ export const AddEventDialog: React.FC<AddEventDialogProps> = ({
       open={open}
       onClose={handleModalClose}
       onConfirm={() => handleAddEvent(internalEvent)}
-      confirmText="Dodaj"
+      confirmText={t('common:buttons.add')}
       titleSx={{
         background: getEventColor(internalEvent.color ?? 'blue'),
         '& .MuiButtonBase-root': {
@@ -58,7 +61,7 @@ export const AddEventDialog: React.FC<AddEventDialogProps> = ({
             variant="h6"
             sx={{ color: getEventTextColor(internalEvent.color ?? 'blue') }}
           >
-            Nowe wydarzenie
+            {t('calendar:dialogs.addEvent.title')}
           </Typography>
         </Stack>
       }

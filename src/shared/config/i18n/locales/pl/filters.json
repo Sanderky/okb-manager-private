@@ -8,6 +8,7 @@
   "employeesLabel": "Pracownicy",
   "includeCompletedConstructions": "Uwzględnij zakończone budowy w filtrze",
   "includeInactiveEmployees": "Uwzględnij nieaktywnych pracowników w filtrze",
+  "inactiveEmployee": "Nieaktywny",
   "selectAll": "Wszystko",
   "clear": "Wyczyść"
 }
