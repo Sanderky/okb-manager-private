@@ -3,7 +3,7 @@ import dayjs, { Dayjs } from 'dayjs';
 import { useTranslation } from 'react-i18next';
 import { useEmployees } from '@/entities/employee';
 import { useConstructions, type Construction } from '@/entities/construction';
-import { useSchedule } from '@/entities/shedule';
+import { useSchedule, useUpdateScheduleMutation } from '@/entities/shedule';
 import useNotifications from '@/shared/ui/notifications/useNotifications';
 import { useScheduleFilters } from './useScheduleFilters';
 import {
@@ -17,7 +17,6 @@ import {
 import { useEmployeeVacations } from '@/entities/vacations';
 import type { ICell } from '../types';
 import { useReactToPrint } from 'react-to-print';
-import { useUpdateScheduleMutation } from '../api/mutations/updateScheduleMutation';
 
 export const useScheduleManager = () => {
   const { t } = useTranslation(['schedule', 'common']);
