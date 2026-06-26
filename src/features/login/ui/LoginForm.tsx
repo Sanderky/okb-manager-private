@@ -8,6 +8,7 @@ import {
   Typography,
 } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { useTranslation } from 'react-i18next';
 import { useLoginFacade } from '../model/service/useLoginFacade';
 
 const RODO_URL = import.meta.env.VITE_RODO_URL ?? '';
@@ -17,6 +18,7 @@ interface LoginProps {
 }
 
 export const LoginForm = ({ onForgotPassword }: LoginProps) => {
+  const { t } = useTranslation(['auth']);
   const {
     values,
     errors,
@@ -36,7 +38,7 @@ export const LoginForm = ({ onForgotPassword }: LoginProps) => {
         required
         fullWidth
         id="email"
-        label="Email"
+        label={t('auth:login.emailLabel')}
         name="email"
         autoFocus
         helperText={errors.email}
@@ -53,7 +55,7 @@ export const LoginForm = ({ onForgotPassword }: LoginProps) => {
         required
         fullWidth
         name="password"
-        label="Hasło"
+        label={t('auth:login.passwordLabel')}
         type={showPassword ? 'text' : 'password'}
         id="password"
         helperText={errors.password}
@@ -92,14 +94,14 @@ export const LoginForm = ({ onForgotPassword }: LoginProps) => {
             },
           })}
         >
-          Nie pamiętasz hasła?
+          {t('auth:login.forgotPassword')}
         </Button>
       </div>
 
       <Typography variant="caption">
-        {`Logując się, akceptujesz oraz potwierdzasz zapoznanie się z `}
+        {t('auth:login.rodoPre')}
         <Link href={RODO_URL} target="_blank" rel="noopener noreferrer">
-          Informacją o przetwarzaniu danych (RODO)
+          {t('auth:login.rodoLink')}
         </Link>
         .
       </Typography>
@@ -123,7 +125,7 @@ export const LoginForm = ({ onForgotPassword }: LoginProps) => {
           },
         })}
       >
-        Zaloguj się
+        {t('auth:login.loginButton')}
       </Button>
     </form>
   );

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { getRules, validateField, useLogin } from '@/entities/auth';
 import { DEMO_EMAIL, DEMO_PASSWORD } from '@/shared/api/mock/mockDb';
 
@@ -10,6 +11,7 @@ type FormValues = {
 };
 
 export const useLoginFacade = () => {
+  const { t } = useTranslation(['auth']);
   const [values, setValues] = useState<FormValues>({
     email: isMock ? DEMO_EMAIL : '',
     password: isMock ? DEMO_PASSWORD : '',
@@ -32,7 +34,7 @@ export const useLoginFacade = () => {
     const newErrors: Partial<Record<keyof FormValues, string>> = {};
     Object.keys(values).forEach((key) => {
       const field = key as keyof FormValues;
-      const validationError = validateField(values[field], getRules(field));
+      const validationError = validateField(values[field], getRules(field, t));
       if (validationError) newErrors[field] = validationError;
     });
     setErrors(newErrors);
@@ -55,25 +57,21 @@ export const useLoginFacade = () => {
       const status = err.status;
 
       if (msg === 'Invalid login credentials' || status === 400) {
-        setError('Niepoprawny email lub hasło.');
+        setError(t('auth:errors.invalidCredentials'));
       } else if (msg.includes('Email not confirmed')) {
-        setError(
-          'Twój adres email nie został jeszcze potwierdzony. Sprawdź skrzynkę odbiorczą.'
-        );
+        setError(t('auth:errors.emailNotConfirmed'));
       } else if (status === 429 || msg.includes('Too many requests')) {
-        setError(
-          'Zbyt wiele nieudanych prób logowania. Spróbuj ponownie za chwilę.'
-        );
+        setError(t('auth:errors.tooManyLoginAttempts'));
       } else if (
         msg.includes('Network request failed') ||
         msg.includes('fetch failed') ||
         msg.includes('network')
       ) {
-        setError('Problem z połączeniem. Sprawdź swój internet.');
+        setError(t('auth:errors.networkError'));
       } else if (status >= 500) {
-        setError('Wystąpił błąd po stronie serwera. Spróbuj ponownie później.');
+        setError(t('auth:errors.serverError'));
       } else {
-        setError('Wystąpił nieoczekiwany błąd podczas logowania.');
+        setError(t('auth:errors.unexpectedLoginError'));
       }
     }
   };
