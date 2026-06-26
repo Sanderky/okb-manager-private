@@ -12,7 +12,13 @@ import {
   Typography,
 } from '@mui/material';
 import { FilterList, Notifications } from '@mui/icons-material';
-import { EVENT_CATEGORIES, getCategoryLabel, useEventColor, type InfoEvent } from '@/entities/events';
+import { useTranslation } from 'react-i18next';
+import {
+  EVENT_CATEGORIES,
+  getCategoryLabel,
+  useEventColor,
+  type InfoEvent,
+} from '@/entities/events';
 import { getDateStr } from '@/shared/lib/string';
 import { useUpcomingEventsFacade } from '../model/services/useUpcomingEventsFacade';
 
@@ -21,7 +27,11 @@ interface EventsListTableProps {
   type?: 'all' | 'employee' | 'construction';
 }
 
-export const EventsListTable = ({ type = 'all', events }: EventsListTableProps) => {
+export const EventsListTable = ({
+  type = 'all',
+  events,
+}: EventsListTableProps) => {
+  const { t } = useTranslation(['calendar']);
   const {
     filteredEvents,
     getTitle,
@@ -43,7 +53,12 @@ export const EventsListTable = ({ type = 'all', events }: EventsListTableProps) 
       <thead>
         <TableRow sx={(theme) => ({ background: theme.palette.accent.main })}>
           <th className="px-4 py-3 text-left">
-            <Stack direction="row" alignItems="center" spacing={1} justifyContent="space-between">
+            <Stack
+              direction="row"
+              alignItems="center"
+              spacing={1}
+              justifyContent="space-between"
+            >
               <Stack direction="row" alignItems="center" spacing={1}>
                 <Notifications sx={{ color: 'accent.superDark' }} />
                 <Typography variant="subtitle2" fontWeight="600">
@@ -51,8 +66,16 @@ export const EventsListTable = ({ type = 'all', events }: EventsListTableProps) 
                 </Typography>
               </Stack>
 
-              <Badge color="primary" variant="dot" badgeContent={filtersActive ? 1 : 0}>
-                <IconButton aria-describedby={popoverId} onClick={handleOpenPopover} sx={{ p: 0.5 }}>
+              <Badge
+                color="primary"
+                variant="dot"
+                badgeContent={filtersActive ? 1 : 0}
+              >
+                <IconButton
+                  aria-describedby={popoverId}
+                  onClick={handleOpenPopover}
+                  sx={{ p: 0.5 }}
+                >
                   <FilterList fontSize="small" />
                 </IconButton>
               </Badge>
@@ -75,7 +98,11 @@ export const EventsListTable = ({ type = 'all', events }: EventsListTableProps) 
                           size="small"
                         />
                       }
-                      label={<Typography variant="body2">{getCategoryLabel(cat)}</Typography>}
+                      label={
+                        <Typography variant="body2">
+                          {getCategoryLabel(cat, t)}
+                        </Typography>
+                      }
                     />
                   ))}
                 </FormGroup>
@@ -107,12 +134,21 @@ export const EventsListTable = ({ type = 'all', events }: EventsListTableProps) 
             >
               <td className="px-4 py-3">
                 <Stack direction="column">
-                  <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={1}>
-                    <Typography variant="body2" className="font-medium" color="textSecondary">
+                  <Stack
+                    direction="row"
+                    alignItems="center"
+                    justifyContent="space-between"
+                    spacing={1}
+                  >
+                    <Typography
+                      variant="body2"
+                      className="font-medium"
+                      color="textSecondary"
+                    >
                       {event.title}
                     </Typography>
                     <Chip
-                      label={getCategoryLabel(event.category)}
+                      label={getCategoryLabel(event.category, t)}
                       sx={{
                         color: getEventTextColor(event.color),
                         background: getEventColor(event.color),
@@ -132,7 +168,7 @@ export const EventsListTable = ({ type = 'all', events }: EventsListTableProps) 
           <tr>
             <td className="px-4 py-3">
               <Typography variant="body2" color="textSecondary">
-                Brak nadchodzących wydarzeń
+                {t('calendar:upcoming.emptyState')}
               </Typography>
             </td>
           </tr>

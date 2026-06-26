@@ -1,8 +1,13 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
+import { useTranslation } from 'react-i18next';
 import { useScroll } from '@/shared/lib/ScrollContext';
-import { EVENT_CATEGORIES, type EventCategory, type InfoEvent } from '@/entities/events';
+import {
+  EVENT_CATEGORIES,
+  type EventCategory,
+  type InfoEvent,
+} from '@/entities/events';
 
 const EVENTS_FILTER_STORAGE_KEY = 'eventsBox_filters';
 
@@ -11,38 +16,52 @@ interface UseUpcomingEventsProps {
   type: 'all' | 'employee' | 'construction';
 }
 
-export const useUpcomingEventsFacade = ({ type, events: upcomingEvents }: UseUpcomingEventsProps) => {
+export const useUpcomingEventsFacade = ({
+  type,
+  events: upcomingEvents,
+}: UseUpcomingEventsProps) => {
+  const { t } = useTranslation(['calendar']);
   const navigate = useNavigate();
   const { scrollToTop: scrollToTopFn } = useScroll();
 
-  const [selectedCategories, setSelectedCategories] = useState<EventCategory[]>(() => {
-    try {
-      const saved = localStorage.getItem(EVENTS_FILTER_STORAGE_KEY);
-      if (saved) return JSON.parse(saved);
-    } catch (error) {
-      console.error('Błąd odczytu filtrów z localStorage', error);
+  const [selectedCategories, setSelectedCategories] = useState<EventCategory[]>(
+    () => {
+      try {
+        const saved = localStorage.getItem(EVENTS_FILTER_STORAGE_KEY);
+        if (saved) return JSON.parse(saved);
+      } catch (error) {
+        console.error(t('calendar:errors.localStorageFilter'), error);
+      }
+      return EVENT_CATEGORIES;
     }
-    return EVENT_CATEGORIES;
-  });
+  );
 
   useEffect(() => {
-    localStorage.setItem(EVENTS_FILTER_STORAGE_KEY, JSON.stringify(selectedCategories));
+    localStorage.setItem(
+      EVENTS_FILTER_STORAGE_KEY,
+      JSON.stringify(selectedCategories)
+    );
   }, [selectedCategories]);
 
   const handleFilterChange = (category: EventCategory) => {
     setSelectedCategories((prev) =>
-      prev.includes(category) ? prev.filter((c) => c !== category) : [...prev, category]
+      prev.includes(category)
+        ? prev.filter((c) => c !== category)
+        : [...prev, category]
     );
   };
 
   const filteredEvents = useMemo(() => {
-    return upcomingEvents.filter((event) => selectedCategories.includes(event.category));
+    return upcomingEvents.filter((event) =>
+      selectedCategories.includes(event.category)
+    );
   }, [upcomingEvents, selectedCategories]);
 
   const getTitle = () => {
-    if (type === 'construction') return 'Wydarzenia na budowie';
-    if (type === 'employee') return 'Wydarzenia pracownika';
-    return 'Nadchodzące wydarzenia';
+    if (type === 'construction')
+      return t('calendar:upcoming.titleConstruction');
+    if (type === 'employee') return t('calendar:upcoming.titleEmployee');
+    return t('calendar:upcoming.title');
   };
 
   const filtersActive = selectedCategories.length !== EVENT_CATEGORIES.length;

@@ -1,5 +1,25 @@
 {
   "pageTitle": "Kalendarz",
+  "categories": {
+    "info": "Info",
+    "lodging": "Hotel",
+    "payroll": "Płace",
+    "accounting": "Księgowość",
+    "other": "Inne",
+    "none": "Brak kategorii"
+  },
+  "upcoming": {
+    "title": "Nadchodzące wydarzenia",
+    "titleConstruction": "Wydarzenia na budowie",
+    "titleEmployee": "Wydarzenia pracownika",
+    "emptyState": "Brak nadchodzących wydarzeń",
+    "chipLabel_one": "{{count}} wydarzenie",
+    "chipLabel_few": "{{count}} wydarzenia",
+    "chipLabel_many": "{{count}} wydarzeń"
+  },
+  "errors": {
+    "localStorageFilter": "Błąd odczytu filtrów z localStorage"
+  },
   "actions": {
     "addEvent": "Dodaj wydarzenie"
   },

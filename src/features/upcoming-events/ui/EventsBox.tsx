@@ -21,6 +21,7 @@ import {
   FilterList,
   Notifications,
 } from '@mui/icons-material';
+import { useTranslation } from 'react-i18next';
 import {
   EVENT_CATEGORIES,
   getCategoryLabel,
@@ -44,6 +45,7 @@ export const EventsBox = ({
   isLoading,
   type = 'all',
 }: EventsBoxProps) => {
+  const { t } = useTranslation(['calendar']);
   const {
     filteredEvents,
     getTitle,
@@ -80,7 +82,9 @@ export const EventsBox = ({
           </Typography>
           {hasMoreItems && (
             <Chip
-              label={`${filteredEvents.length} ${filteredEvents.length > 4 ? 'wydarzeń' : 'wydarzenia'}`}
+              label={t('calendar:upcoming.chipLabel', {
+                count: filteredEvents.length,
+              })}
               size="small"
               color="primary"
               variant="outlined"
@@ -123,7 +127,7 @@ export const EventsBox = ({
                 }
                 label={
                   <Typography variant="body2">
-                    {getCategoryLabel(cat)}
+                    {getCategoryLabel(cat, t)}
                   </Typography>
                 }
               />
@@ -167,7 +171,7 @@ export const EventsBox = ({
                 <Stack direction="row" spacing={1}>
                   <Done />
                   <Typography color="textSecondary">
-                    Brak nadchodzących wydarzeń
+                    {t('calendar:upcoming.emptyState')}
                   </Typography>
                 </Stack>
               ) : (
@@ -195,7 +199,7 @@ export const EventsBox = ({
                     >
                       <Typography variant="subtitle2">{event.title}</Typography>
                       <Chip
-                        label={getCategoryLabel(event.category)}
+                        label={getCategoryLabel(event.category, t)}
                         variant="filled"
                         sx={{
                           color: getEventTextColor(event.color),
