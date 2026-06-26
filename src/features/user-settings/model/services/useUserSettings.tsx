@@ -3,20 +3,22 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/entities/auth';
 import { useUpdateDisplayName, useUpdateEmail } from '@/entities/auth';
 import useNotifications from '@/shared/ui/notifications/useNotifications';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 
-const getErrorMessage = (error: any): string => {
+const getErrorMessage = (error: any, t: TFunction): string => {
   const msg = error?.message || error?.error_description || '';
-  if (msg.includes('rate limit'))
-    return 'Zbyt wiele prób. Spróbuj ponownie później.';
+  if (msg.includes('rate limit')) return t('auth:errors.rateLimit');
   if (msg.includes('requires a valid email'))
-    return 'Podany adres email jest nieprawidłowy.';
+    return t('auth:errors.invalidEmail');
   if (msg.includes('already registered') || msg.includes('already in use'))
-    return 'Ten adres email jest już zajęty.';
-  if (msg.includes('Password')) return 'Hasło jest zbyt słabe.';
-  return 'Wystąpił nieoczekiwany błąd. Spróbuj ponownie.';
+    return t('auth:errors.emailTaken');
+  if (msg.includes('Password')) return t('auth:errors.weakPassword');
+  return t('auth:errors.unexpected');
 };
 
 export const useUserSettings = (isOpen: boolean) => {
+  const { t } = useTranslation(['auth', 'common']);
   const { user } = useAuth();
   const navigate = useNavigate();
   const notifications = useNotifications();
@@ -66,7 +68,7 @@ export const useUserSettings = (isOpen: boolean) => {
     if (!displayName) {
       setFieldsErrors((prev) => ({
         ...prev,
-        name: 'Wprowadź nazwę użytkownika',
+        name: t('auth:errors.emptyUsername'),
       }));
       return;
     }
@@ -76,22 +78,20 @@ export const useUserSettings = (isOpen: boolean) => {
     if (displayName === currentName) {
       setFieldsErrors((prev) => ({
         ...prev,
-        name: 'Nowa nazwa jest taka sama jak stara',
+        name: t('auth:errors.sameUsername'),
       }));
       return;
     }
 
     try {
       await updateNameMutation.mutateAsync(displayName.trim());
-      notifications.show('Pomyślnie zaktualizowano nazwę użytkownika', {
+      notifications.show(t('auth:success.usernameUpdated'), {
         severity: 'success',
       });
       setUsernameEditMode(false);
     } catch (error) {
-      setFieldsErrors((prev) => ({ ...prev, name: getErrorMessage(error) }));
-      notifications.show('Wystąpił błąd podczas aktualizacji danych', {
-        severity: 'error',
-      });
+      setFieldsErrors((prev) => ({ ...prev, name: getErrorMessage(error, t) }));
+      notifications.show(t('auth:errors.updateFailed'), { severity: 'error' });
     }
   };
 
@@ -102,18 +102,21 @@ export const useUserSettings = (isOpen: boolean) => {
     if (email === user.email) {
       setFieldsErrors((prev) => ({
         ...prev,
-        email: 'Nowy email jest taki sam jak stary',
+        email: t('auth:errors.sameEmail'),
       }));
       return;
     }
     if (!email) {
-      setFieldsErrors((prev) => ({ ...prev, email: 'Wprowadź adres email' }));
+      setFieldsErrors((prev) => ({
+        ...prev,
+        email: t('auth:errors.emptyEmail'),
+      }));
       return;
     }
     if (!/\S+@\S+\.\S+/.test(email)) {
       setFieldsErrors((prev) => ({
         ...prev,
-        email: 'Nieprawidłowy format email.',
+        email: t('auth:errors.emailFormat'),
       }));
       return;
     }
@@ -123,8 +126,11 @@ export const useUserSettings = (isOpen: boolean) => {
       setVerificationEmailInfo(true);
       setEmailEditMode(false);
     } catch (error) {
-      setFieldsErrors((prev) => ({ ...prev, email: getErrorMessage(error) }));
-      notifications.show('Wystąpił błąd podczas zmiany emaila', {
+      setFieldsErrors((prev) => ({
+        ...prev,
+        email: getErrorMessage(error, t),
+      }));
+      notifications.show(t('auth:errors.emailUpdateFailed'), {
         severity: 'error',
       });
     }

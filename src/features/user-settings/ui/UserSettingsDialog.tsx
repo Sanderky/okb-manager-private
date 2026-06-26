@@ -8,6 +8,7 @@ import {
   useTheme,
 } from '@mui/material';
 import { OutgoingMail } from '@mui/icons-material';
+import { useTranslation } from 'react-i18next';
 import BaseDialog from '@/shared/ui/BaseDialog';
 import { useUserSettings } from '../model/services/useUserSettings';
 
@@ -21,6 +22,8 @@ export const UserSettingsBase = ({
   showEmailConfirmationButton = false,
 }: UserSettingsBaseProps) => {
   const theme = useTheme();
+  const { t } = useTranslation(['auth', 'common']);
+
   const {
     user,
     displayName,
@@ -59,13 +62,11 @@ export const UserSettingsBase = ({
       <Box component="form" sx={{ mt: 1, textAlign: 'center' }}>
         <OutgoingMail color="primary" sx={{ fontSize: '8rem' }} />
         <Typography sx={{ fontWeight: 500, fontSize: '1.5rem' }}>
-          Weryfikacja adresu email
+          {t('auth:settings.verification.title')}
         </Typography>
-        <Typography>
-          Na dwa adresy email (stary i nowy) został wysłany link aktywacyjny.
-        </Typography>
+        <Typography>{t('auth:settings.verification.sent')}</Typography>
         <Typography mt={4} mb={2}>
-          Potwierdź nowego maila na obydwóch adresach, aby dokonać zmiany.
+          {t('auth:settings.verification.confirm')}
         </Typography>
         {showEmailConfirmationButton && (
           <Button
@@ -73,7 +74,7 @@ export const UserSettingsBase = ({
             variant="contained"
             onClick={() => setVerificationEmailInfo(false)}
           >
-            Okej
+            {t('auth:settings.verification.ok')}
           </Button>
         )}
       </Box>
@@ -83,11 +84,11 @@ export const UserSettingsBase = ({
   return (
     <Box component="form" sx={{ mt: 1 }}>
       <Typography sx={{ mb: 2 }} variant="subtitle2" gutterBottom>
-        Informacje podstawowe
+        {t('auth:settings.basicInfo')}
       </Typography>
 
       <TextField
-        label="Nazwa użytkownika"
+        label={t('auth:settings.username')}
         size="small"
         fullWidth
         value={displayName}
@@ -105,7 +106,7 @@ export const UserSettingsBase = ({
             size="small"
             onClick={() => setUsernameEditMode(true)}
           >
-            Edytuj nazwę użytkownika
+            {t('auth:settings.editUsername')}
           </Button>
         ) : (
           <>
@@ -117,7 +118,7 @@ export const UserSettingsBase = ({
               sx={{ mr: 2 }}
               onClick={handleCancelUsername}
             >
-              Anuluj
+              {t('common:buttons.cancel')}
             </Button>
             <Button
               variant="contained"
@@ -125,14 +126,14 @@ export const UserSettingsBase = ({
               onClick={handleSaveUsername}
               loading={isUsernameLoading}
             >
-              Zapisz
+              {t('common:buttons.save')}
             </Button>
           </>
         )}
       </Box>
 
       <TextField
-        label="Email"
+        label={t('auth:settings.email')}
         type="email"
         size="small"
         fullWidth
@@ -151,7 +152,7 @@ export const UserSettingsBase = ({
             size="small"
             onClick={() => setEmailEditMode(true)}
           >
-            Edytuj adres email
+            {t('auth:settings.editEmail')}
           </Button>
         ) : (
           <>
@@ -163,7 +164,7 @@ export const UserSettingsBase = ({
               sx={{ mr: 2 }}
               onClick={handleCancelEmail}
             >
-              Anuluj
+              {t('common:buttons.cancel')}
             </Button>
             <Button
               variant="contained"
@@ -171,7 +172,7 @@ export const UserSettingsBase = ({
               onClick={handleSaveEmail}
               loading={isEmailLoading}
             >
-              Zapisz
+              {t('common:buttons.save')}
             </Button>
           </>
         )}
@@ -179,10 +180,10 @@ export const UserSettingsBase = ({
 
       <Divider sx={{ my: 2 }} />
       <Typography variant="subtitle2" mb={2}>
-        Zmiana hasła
+        {t('auth:settings.passwordChange')}
       </Typography>
       <Button variant="outlined" size="small" onClick={handleResetPassword}>
-        Resetuj hasło
+        {t('auth:settings.resetPassword')}
       </Button>
     </Box>
   );
@@ -197,11 +198,13 @@ export const UserSettingsDialog: React.FC<UserSettingsDialogProps> = ({
   open,
   onClose,
 }) => {
+  const { t } = useTranslation(['auth']);
+
   return (
     <BaseDialog
       open={open}
       onClose={onClose}
-      title="Ustawienia konta"
+      title={t('auth:settings.title')}
       showConfirm={false}
     >
       <UserSettingsBase open={open} />
