@@ -1,12 +1,15 @@
 import { TableCell, TableHead, TableRow, Typography } from '@mui/material';
-import 'dayjs/locale/pl';
+import { useTranslation } from 'react-i18next';
 import { useMemo } from 'react';
+import dayjs from 'dayjs';
 
 interface Props {
   weekDates: Date[];
 }
 
 export const WorkLogsTableHeader = ({ weekDates }: Props) => {
+  const { t } = useTranslation('workLogs');
+
   const tableHeaders = useMemo(
     () =>
       weekDates.map((date, index) => (
@@ -23,11 +26,10 @@ export const WorkLogsTableHeader = ({ weekDates }: Props) => {
             className="block text-center font-semibold"
             variant="caption"
           >
-            {date.toLocaleDateString('pl-PL', { weekday: 'short' })}
+            {dayjs(date).format('ddd')}
           </Typography>
           <Typography className="text-center font-semibold" variant="body2">
-            {date.getDate().toString().padStart(2, '0')}.
-            {(date.getMonth() + 1).toString().padStart(2, '0')}
+            {dayjs(date).format('DD.MM')}
           </Typography>
         </TableCell>
       )),
@@ -46,7 +48,7 @@ export const WorkLogsTableHeader = ({ weekDates }: Props) => {
           align="center"
         >
           <Typography className="text-center font-semibold" variant="body2">
-            Budowa
+            {t('table.headers.construction')}
           </Typography>
         </TableCell>
         <TableCell
@@ -58,7 +60,7 @@ export const WorkLogsTableHeader = ({ weekDates }: Props) => {
           align="center"
         >
           <Typography className="text-center font-semibold" variant="body2">
-            Pracownik
+            {t('table.headers.employee')}
           </Typography>
         </TableCell>
         {tableHeaders}
@@ -70,7 +72,7 @@ export const WorkLogsTableHeader = ({ weekDates }: Props) => {
           })}
         >
           <Typography className="text-center font-semibold" variant="body2">
-            Suma
+            {t('table.headers.sum')}
           </Typography>
         </TableCell>
       </TableRow>

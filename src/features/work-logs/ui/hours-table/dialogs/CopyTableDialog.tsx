@@ -4,6 +4,7 @@ import 'dayjs/locale/pl';
 import { getPreviousWeek } from '@/shared/lib/date';
 import WeekSelector from '@/shared/ui/WeekSelector';
 import BaseDialog from '@/shared/ui/BaseDialog';
+import { useTranslation } from 'react-i18next';
 
 interface CopyTableDialogProps {
   open: boolean;
@@ -31,15 +32,17 @@ export const CopyTableDialog: React.FC<CopyTableDialogProps> = ({
     onClose();
   };
 
+  const { t } = useTranslation('workLogs');
+
   return (
     <BaseDialog
       open={open}
       onClose={onClose}
-      title="Kopiowanie danych"
+      title={t('dialogs.copyData.title')}
       showConfirm={false}
       actions={
         <Button onClick={handleSave} variant="contained">
-          Kopiuj
+          {t('dialogs.copyData.copy')}
         </Button>
       }
     >
@@ -48,11 +51,13 @@ export const CopyTableDialog: React.FC<CopyTableDialogProps> = ({
         alignItems={{ xs: 'flex-start', sm: 'center' }}
         spacing={{ xs: 2, sm: 1 }}
       >
-        <Typography>Kopiuj dane z wybranego tygodnia:</Typography>
+        <Typography>
+          {t('dialogs.copyData.copyDataFromSelectedWeek')}
+        </Typography>
         <WeekSelector value={weekToCopy} onChange={setWeekToCopy} />
       </Stack>
       <Alert severity="info" sx={{ mt: 2 }}>
-        Kopiowianie nadpisuje wszystkie dane w obecnym tygodniu
+        {t('dialogs.copyData.warning')}
       </Alert>
     </BaseDialog>
   );

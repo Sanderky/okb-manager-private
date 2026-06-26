@@ -16,7 +16,6 @@ import {
   Autocomplete,
   TextField,
 } from '@mui/material';
-import 'dayjs/locale/pl';
 import { getWeekNumber } from '@/shared/lib/date';
 import WeekSelector from '@/shared/ui/WeekSelector';
 import BaseDialog from '@/shared/ui/BaseDialog';
@@ -26,6 +25,7 @@ import { PrintReport } from './PrintReport';
 import type { LangCode } from '@/shared/model/types';
 import { Langs } from '@/shared/config/langCodes';
 import { usePrintReportDialog } from '../../model/services/usePrintReport';
+import { useTranslation } from 'react-i18next';
 
 interface PrintReportDialogProps {
   open: boolean;
@@ -39,12 +39,18 @@ export const PrintReportDialog: React.FC<PrintReportDialogProps> = ({
   defaultStartWeek,
 }) => {
   const state = usePrintReportDialog(defaultStartWeek, onClose);
+  const { t } = useTranslation([
+    'workLogs',
+    'constructions',
+    'employees',
+    'common',
+  ]);
 
   return (
     <BaseDialog
       open={open}
       onClose={state.handleClose}
-      title="Drukowanie raportu"
+      title={t('dialogs.printReport.title')}
       showConfirm={false}
       actions={
         <Button
@@ -53,7 +59,7 @@ export const PrintReportDialog: React.FC<PrintReportDialogProps> = ({
           loading={state.reportLoading}
           disabled={state.isError}
         >
-          Drukuj
+          {t('common:buttons.print')}
         </Button>
       }
     >
@@ -76,11 +82,13 @@ export const PrintReportDialog: React.FC<PrintReportDialogProps> = ({
       <Stack direction="column" alignItems="flex-start">
         {state.isError && (
           <Alert sx={{ width: '100%', mb: 2 }} severity="error">
-            Tydzień początkowy nie może być później niż końcowy
+            {t('dialogs.printReport.startWeekAfterEndWeek')}
           </Alert>
         )}
 
-        <Typography sx={{ mb: 0.5 }}>Tydzień początkowy:</Typography>
+        <Typography sx={{ mb: 0.5 }}>
+          {t('dialogs.printReport.startWeek')}
+        </Typography>
         <WeekSelector
           value={state.startWeek}
           onChange={state.setStartWeek}
@@ -89,9 +97,11 @@ export const PrintReportDialog: React.FC<PrintReportDialogProps> = ({
         <Typography
           variant="caption"
           mt={0.5}
-        >{`Tydzień ${getWeekNumber(state.startWeek)}`}</Typography>
+        >{`${t('dialogs.printReport.week')} ${getWeekNumber(state.startWeek)}`}</Typography>
 
-        <Typography sx={{ mt: 2, mb: 0.5 }}>Tydzień końcowy:</Typography>
+        <Typography sx={{ mt: 2, mb: 0.5 }}>
+          {t('dialogs.printReport.endWeek')}
+        </Typography>
         <WeekSelector
           value={state.endWeek}
           onChange={state.setEndWeek}
@@ -100,17 +110,19 @@ export const PrintReportDialog: React.FC<PrintReportDialogProps> = ({
         <Typography
           variant="caption"
           mt={0.5}
-        >{`Tydzień ${getWeekNumber(state.endWeek)}`}</Typography>
+        >{`${t('dialogs.printReport.week')} ${getWeekNumber(state.endWeek)}`}</Typography>
 
         <Typography sx={{ mt: 2 }}>
-          Wybrane tygodnie: {state.weeks.length}
+          {t('dialogs.printReport.selectedWeeks', {
+            weekCount: state.weeks.length,
+          })}
         </Typography>
         <Divider sx={{ mt: 2 }} flexItem />
 
         <Typography sx={{ mt: 1, mb: 2 }}>
-          Filtruj budowy i pracowników
+          {t('dialogs.printReport.filterEmployeesAndConstructions')}
         </Typography>
-        <Tooltip title="Filtry">
+        <Tooltip title={t('dialogs.printReport.filters')}>
           <Badge
             color="primary"
             variant="dot"
@@ -128,7 +140,8 @@ export const PrintReportDialog: React.FC<PrintReportDialogProps> = ({
               onClick={() => state.setIsFilterExpanded(!state.isFilterExpanded)}
               sx={{ ml: 1 }}
             >
-              Filtry {state.isFilterExpanded ? <ExpandLess /> : <ExpandMore />}
+              {t('dialogs.printReport.filters')}{' '}
+              {state.isFilterExpanded ? <ExpandLess /> : <ExpandMore />}
             </Button>
           </Badge>
         </Tooltip>
@@ -172,7 +185,7 @@ export const PrintReportDialog: React.FC<PrintReportDialogProps> = ({
                 onChange={(e) => state.setPrintTile(e.target.checked)}
               />
             }
-            label="Drukuj tytuł raportu"
+            label={t('dialogs.printReport.printReportTitle')}
           />
           <FormControlLabel
             control={
@@ -181,7 +194,7 @@ export const PrintReportDialog: React.FC<PrintReportDialogProps> = ({
                 onChange={(e) => state.setPrintTablesTitle(e.target.checked)}
               />
             }
-            label="Drukuj tytuły tabelek"
+            label={t('dialogs.printReport.printTableTitles')}
           />
           <FormControlLabel
             control={
@@ -190,7 +203,7 @@ export const PrintReportDialog: React.FC<PrintReportDialogProps> = ({
                 onChange={(e) => state.setShowVacation(e.target.checked)}
               />
             }
-            label="Pokaż informacje o urlopach"
+            label={t('dialogs.printReport.showVacationInfo')}
           />
           <FormControlLabel
             control={
@@ -199,7 +212,7 @@ export const PrintReportDialog: React.FC<PrintReportDialogProps> = ({
                 onChange={(e) => state.setOmitEmpty(e.target.checked)}
               />
             }
-            label="Omijaj puste tygodnie"
+            label={t('dialogs.printReport.avoidEmptyWeeks')}
           />
 
           <FormControl sx={{ mt: 2 }}>
@@ -222,7 +235,10 @@ export const PrintReportDialog: React.FC<PrintReportDialogProps> = ({
                 state.setLang((newValue?.code as LangCode) || 'pl-PL')
               }
               renderInput={(params) => (
-                <TextField {...params} label="Język docelowy" />
+                <TextField
+                  {...params}
+                  label={t('dialogs.printReport.sourceLanguage')}
+                />
               )}
             />
           </FormControl>

@@ -1,8 +1,8 @@
-import 'dayjs/locale/pl';
 import BaseDialog from '@/shared/ui/BaseDialog';
 import type { Construction } from '@/entities/construction';
 import type { Employee } from '@/entities/employee';
 import EmployeesContructionsFilters from '../../EmployeesConstructionsFilters';
+import { useTranslation } from 'react-i18next';
 
 interface FiltersDialogProps {
   selectedConstructions: Construction[];
@@ -23,13 +23,17 @@ export const FiltersDialog = ({
   isOpen,
   onClose,
   ...filterProps
-}: FiltersDialogProps) => (
-  <BaseDialog
-    open={isOpen}
-    onClose={onClose}
-    title="Filtry"
-    showConfirm={false}
-  >
-    <EmployeesContructionsFilters {...filterProps} />
-  </BaseDialog>
-);
+}: FiltersDialogProps) => {
+  const { t } = useTranslation('workLogs');
+
+  return (
+    <BaseDialog
+      open={isOpen}
+      onClose={onClose}
+      title={t('controls.filters')}
+      showConfirm={false}
+    >
+      <EmployeesContructionsFilters {...filterProps} />
+    </BaseDialog>
+  );
+};

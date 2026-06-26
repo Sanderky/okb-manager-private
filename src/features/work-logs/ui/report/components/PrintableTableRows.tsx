@@ -1,14 +1,13 @@
 import React from 'react';
 import { TableCell, TableRow, Box, Typography } from '@mui/material';
-import 'dayjs/locale/pl';
 import { CancelPresentation } from '@mui/icons-material';
 import type { ConstructionsWithWorkHours } from '../../../model/types';
 import type { LangCode } from '@/shared/model/types';
-import { formatToPolishDecimal } from '@/shared/lib/format';
-import { getReportTranslations } from '../../../lib/reportTranslations';
+import { formatDecimal } from '@/shared/lib/format';
 import { printStyles } from './printStyles';
+import { useTranslation } from 'react-i18next';
 
-interface PrintableTableRows {
+interface PrintableTableRowsProps {
   constructionsWithWorkHours: ConstructionsWithWorkHours[];
   showVacation: boolean;
   lang: LangCode;
@@ -18,8 +17,9 @@ export const PrintableTableRows = ({
   constructionsWithWorkHours,
   showVacation,
   lang,
-}: PrintableTableRows) => {
-  const translations = getReportTranslations(lang);
+}: PrintableTableRowsProps) => {
+  const { t } = useTranslation('workLogs');
+
   if (constructionsWithWorkHours.length > 0) {
     return constructionsWithWorkHours.map((construction) => {
       return (
@@ -28,7 +28,6 @@ export const PrintableTableRows = ({
             <TableRow key={workHour.id}>
               <TableCell
                 sx={{
-                  // p: numberCellPadding,
                   px: 1,
                   py: 0,
                   fontWeight: 600,
@@ -37,7 +36,6 @@ export const PrintableTableRows = ({
                   borderTop: 'none !important',
                   width: printStyles.constructionCellWidth,
                   minWidth: printStyles.constructionCellMinWidth,
-                  // wordBreak: 'break-all',
                 }}
               >
                 {employeeIndex === 0 ? construction.name : ''}
@@ -45,16 +43,12 @@ export const PrintableTableRows = ({
 
               <TableCell
                 sx={{
-                  // p: numberCellPadding,
                   px: 1,
                   py: 0,
-                  // pl: 2,
                   width: printStyles.employeeCellWidth,
-                  // fontWeight: 'bold',
                   fontWeight: 600,
                   minWidth: printStyles.employeeCellMinWidth,
                   borderTop: printStyles.tableBorder,
-                  // wordBreak: 'break-all',
                 }}
               >
                 {workHour.employeeName}
@@ -62,20 +56,19 @@ export const PrintableTableRows = ({
 
               {workHour.hours.map((hour, dayIndex) => {
                 const isVacation = workHour.isOnVacation[dayIndex];
-
                 let content;
 
                 if (isVacation && showVacation) {
                   content = (
                     <Typography variant="body2" color="textPrimary">
-                      {translations.vacation}
+                      {t('print.report.vacation', { lng: lang })}
                     </Typography>
                   );
                 } else if (hour === null || hour === undefined) {
                   content = null;
                 } else {
                   content = (
-                    <Typography>{formatToPolishDecimal(hour)}</Typography>
+                    <Typography>{formatDecimal(hour, lang)}</Typography>
                   );
                 }
 
@@ -104,7 +97,7 @@ export const PrintableTableRows = ({
                   p: printStyles.numberCellPadding,
                 }}
               >
-                {formatToPolishDecimal(workHour.total)}
+                {formatDecimal(workHour.total, lang)}
               </TableCell>
             </TableRow>
           ))}
@@ -137,13 +130,13 @@ export const PrintableTableRows = ({
                 borderLeft: 'none !important',
               }}
             >
-              {formatToPolishDecimal(construction.totalHours)}
+              {formatDecimal(construction.totalHours, lang)}
             </TableCell>
           </TableRow>
         </React.Fragment>
       );
     });
-  } else
+  } else {
     return (
       <TableRow>
         <TableCell colSpan={10} sx={{ height: '300px' }}>
@@ -159,10 +152,11 @@ export const PrintableTableRows = ({
               sx={{ color: 'text.secondary', fontSize: 40 }}
             />
             <Typography color="textSecondary" variant="body2">
-              Brak danych dla danego tygodnia
+              {t('print.report.noData', { lng: lang })}
             </Typography>
           </Box>
         </TableCell>
       </TableRow>
     );
+  }
 };

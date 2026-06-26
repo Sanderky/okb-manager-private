@@ -22,6 +22,7 @@ import dayjs from 'dayjs';
 import isoWeek from 'dayjs/plugin/isoWeek';
 import WeekSelector from '@/shared/ui/WeekSelector';
 import type { HoursTableControlsViewProps } from '../HoursTableControls';
+import { useTranslation } from 'react-i18next';
 
 dayjs.extend(isoWeek);
 
@@ -45,6 +46,8 @@ const HoursTableControlsDesktop = ({
   onPrint,
   isEmpty,
 }: HoursTableControlsViewProps) => {
+  const { t } = useTranslation(['workLogs', 'common']);
+
   return (
     <Box
       sx={(theme) => ({
@@ -59,7 +62,7 @@ const HoursTableControlsDesktop = ({
       })}
     >
       <Stack direction={'row'}>
-        <Tooltip title={'Poprzedni tydzień'}>
+        <Tooltip title={t('controls.previousWeek')}>
           <IconButton
             size="small"
             className="rounded-l-lg rounded-r-none border"
@@ -73,7 +76,7 @@ const HoursTableControlsDesktop = ({
             <ChevronLeft fontSize="small" />
           </IconButton>
         </Tooltip>
-        <Tooltip title={'Obecny tydzień'}>
+        <Tooltip title={t('controls.currentWeek')}>
           <Button
             size="small"
             variant="outlined"
@@ -85,10 +88,10 @@ const HoursTableControlsDesktop = ({
               '&:hover': { borderColor: theme.palette.primary.main },
             })}
           >
-            Dziś
+            {t('controls.today')}
           </Button>
         </Tooltip>
-        <Tooltip title={'Następny tydzień'}>
+        <Tooltip title={t('controls.nextWeek')}>
           <IconButton
             size="small"
             className="rounded-l-none rounded-r-lg border"
@@ -110,7 +113,7 @@ const HoursTableControlsDesktop = ({
         onChange={handleWeekChange}
       />
 
-      <Tooltip title="Filtry">
+      <Tooltip title={t('controls.filters')}>
         <Badge
           color="primary"
           variant="dot"
@@ -144,7 +147,7 @@ const HoursTableControlsDesktop = ({
                 handleToggleEditMode();
               }}
             >
-              Zapisz
+              {t('common:buttons.save')}
             </Button>
             <Button
               disabled={isLoading}
@@ -154,7 +157,7 @@ const HoursTableControlsDesktop = ({
               onClick={() => handleCancelEdit()}
               sx={{ color: 'inherit' }}
             >
-              Anuluj
+              {t('common:buttons.cancel')}
             </Button>
           </>
         ) : (
@@ -168,14 +171,14 @@ const HoursTableControlsDesktop = ({
               handleToggleEditMode();
             }}
           >
-            Edytuj
+            {t('common:buttons.edit')}
           </Button>
         ))}
 
       <Stack direction={'row'} gap={2} sx={{ ml: 'auto' }}>
         {!readOnly &&
           editMode && [
-            <Tooltip key="copy" title="Kopiuj z innego tygodnia">
+            <Tooltip key="copy" title={t('actions.copyFromOtherWeek')}>
               <span>
                 <IconButton
                   disabled={isLoading || !editMode}
@@ -187,7 +190,7 @@ const HoursTableControlsDesktop = ({
                 </IconButton>
               </span>
             </Tooltip>,
-            <Tooltip key="fill" title="Uzupełnij proponowane">
+            <Tooltip key="fill" title={t('actions.fillProposed')}>
               <span>
                 <IconButton
                   disabled={isLoading || !editMode}
@@ -201,7 +204,7 @@ const HoursTableControlsDesktop = ({
             </Tooltip>,
           ]}
 
-        <Tooltip title="Drukuj tabelkę">
+        <Tooltip title={t('controls.printTable')}>
           <span>
             <IconButton
               disabled={isLoading}
@@ -214,14 +217,18 @@ const HoursTableControlsDesktop = ({
           </span>
         </Tooltip>
 
-        <Tooltip title={isExpanded ? 'Zwiń' : 'Rozwiń'}>
+        <Tooltip
+          title={
+            isExpanded ? t('controls.collapseTable') : t('controls.expandTable')
+          }
+        >
           <IconButton onClick={handleToggleExpand} sx={{ p: 0 }}>
             {isExpanded ? <ExpandLess /> : <ExpandMore />}
           </IconButton>
         </Tooltip>
 
         {readOnly && onTableDelete && (
-          <Tooltip title="Usuń tabelę porównawczą">
+          <Tooltip title={t('controls.deleteComparisonTable')}>
             <span>
               <IconButton
                 disabled={isLoading}
@@ -240,7 +247,7 @@ const HoursTableControlsDesktop = ({
         className="rounded-full border px-3 py-1 font-semibold"
         sx={{ borderColor: 'text.primary' }}
       >
-        Tydzień {dayjs(currentWeek).isoWeek()}
+        {t('controls.weekNumber', { week: dayjs(currentWeek).isoWeek() })}
       </Typography>
     </Box>
   );

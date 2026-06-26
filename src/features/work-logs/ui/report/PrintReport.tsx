@@ -1,12 +1,11 @@
 import { forwardRef, useEffect, useMemo } from 'react';
 import { Box, Typography, Alert } from '@mui/material';
 import dayjs from 'dayjs';
-import 'dayjs/locale/pl';
-import { getReportTranslations } from '../../lib/reportTranslations';
-import { formatWeeksString, getWeeksInRange } from '@/shared/lib/date';
+import { getWeeksInRange } from '@/shared/lib/date';
 import type { LangCode } from '@/shared/model/types';
 import { PrintableTable } from './components/PrintableTable';
 import useWeekReport from '../../model/services/useWeekReport';
+import { useTranslation } from 'react-i18next';
 
 interface PrintReportProps {
   startWeek: Date;
@@ -37,6 +36,8 @@ export const PrintReport = forwardRef<HTMLDivElement, PrintReportProps>(
     },
     ref
   ) => {
+    const { t } = useTranslation('workLogs');
+
     const weeks = useMemo(() => {
       return getWeeksInRange(startWeek, endWeek);
     }, [startWeek, endWeek]);
@@ -46,8 +47,6 @@ export const PrintReport = forwardRef<HTMLDivElement, PrintReportProps>(
       selectedConstructionIds: selectedConstructions,
       selectedEmployeeIds: selectedEmployees,
     });
-
-    const translations = getReportTranslations(lang);
 
     useEffect(() => {
       onLoading(isLoading);
@@ -65,7 +64,7 @@ export const PrintReport = forwardRef<HTMLDivElement, PrintReportProps>(
             height: 200,
           }}
         >
-          <Typography>Ładowanie raportu...</Typography>
+          <Typography>{t('print.report.loading', { lng: lang })}</Typography>
         </Box>
       );
     }
@@ -73,7 +72,9 @@ export const PrintReport = forwardRef<HTMLDivElement, PrintReportProps>(
     if (error) {
       return (
         <Box ref={ref} sx={{ p: 4 }}>
-          <Alert severity="error">Błąd: {error.message}</Alert>
+          <Alert severity="error">
+            {t('print.report.error', { lng: lang })} {error.message}
+          </Alert>
         </Box>
       );
     }
@@ -83,7 +84,7 @@ export const PrintReport = forwardRef<HTMLDivElement, PrintReportProps>(
         {printTitle && (
           <>
             <Typography variant="h6" gutterBottom align="center">
-              {translations.title}
+              {t('print.report.title', { lng: lang })}
             </Typography>
             <Typography
               variant="body2"
@@ -91,7 +92,7 @@ export const PrintReport = forwardRef<HTMLDivElement, PrintReportProps>(
               align="center"
               sx={{ mb: 3 }}
             >
-              {`${translations.subtitle}: ${dayjs(startWeek).format('DD.MM.YYYY')} - ${dayjs(endWeek).add(6, 'days').format('DD.MM.YYYY')} (${weeks.length} ${formatWeeksString(weeks.length, lang)})`}
+              {`${t('print.report.subtitle', { lng: lang })}: ${dayjs(startWeek).format('DD.MM.YYYY')} - ${dayjs(endWeek).add(6, 'days').format('DD.MM.YYYY')} (${t('print.report.weeksCount', { count: weeks.length, lng: lang })})`}
             </Typography>
           </>
         )}
@@ -103,7 +104,7 @@ export const PrintReport = forwardRef<HTMLDivElement, PrintReportProps>(
           }}
         >
           {weeksData.map((weekData, index) => {
-            const title = `${index + 1}) ${translations.week} ${dayjs(weekData.weekStart).isoWeek()} (${dayjs(weekData.weekDates[0]).format('DD.MM.YYYY')} - ${dayjs(weekData.weekDates[6]).format('DD.MM.YYYY')})`;
+            const title = `${index + 1}) ${t('print.report.week', { lng: lang })} ${dayjs(weekData.weekStart).isoWeek()} (${dayjs(weekData.weekDates[0]).format('DD.MM.YYYY')} - ${dayjs(weekData.weekDates[6]).format('DD.MM.YYYY')})`;
             if (omitEmpty && weekData.constructionsWithWorkHours.length === 0)
               return null;
             return (
@@ -117,14 +118,11 @@ export const PrintReport = forwardRef<HTMLDivElement, PrintReportProps>(
                 }}
               >
                 {!weekData ? (
-                  <Typography>{translations.noData}</Typography>
+                  <Typography>
+                    {t('print.report.noData', { lng: lang })}
+                  </Typography>
                 ) : (
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                    }}
-                  >
+                  <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                     <PrintableTable
                       constructionsWithWorkHours={
                         weekData.constructionsWithWorkHours
@@ -133,7 +131,7 @@ export const PrintReport = forwardRef<HTMLDivElement, PrintReportProps>(
                       printTitle={printTablesTitle}
                       totalHoursData={weekData.totalHoursData}
                       showVacation={showVacation ?? true}
-                      customNoDataText={translations.noData}
+                      customNoDataText={t('print.report.noData', { lng: lang })}
                       customTitle={title}
                       lang={lang}
                     />

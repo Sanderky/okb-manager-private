@@ -4,6 +4,7 @@ import dayjs from 'dayjs';
 import { useReactToPrint } from 'react-to-print';
 import HoursTableControlsMobile from './table-controls/TableControlsMobile';
 import HoursTableControlsDesktop from './table-controls/TableControlsDesktop';
+import { useTranslation } from 'react-i18next';
 
 export interface HoursTableControlsViewProps {
   isLoading: boolean;
@@ -35,9 +36,11 @@ export interface HoursTableControlsProps extends Omit<
 }
 
 const HoursTableControls = (props: HoursTableControlsProps) => {
+  const { t } = useTranslation('workLogs');
+
   const reactToPrintFn = useReactToPrint({
     contentRef: props.contentRef,
-    documentTitle: `Tabelka_godzin_${dayjs(props.currentWeek).format('DD.MM.YYYY')}_${dayjs(props.currentWeek).add(6, 'days').format('DD.MM.YYYY')}`,
+    documentTitle: `${t('print.documentTitlePrefix')}_${dayjs(props.currentWeek).format('DD.MM.YYYY')}_${dayjs(props.currentWeek).add(6, 'days').format('DD.MM.YYYY')}`,
     pageStyle: `@page { margin: 10mm; }`,
   });
 

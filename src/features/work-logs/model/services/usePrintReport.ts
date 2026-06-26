@@ -9,12 +9,14 @@ import {
 import { useConstructions, type Construction } from '@/entities/construction';
 import { useEmployees, type Employee } from '@/entities/employee';
 import type { LangCode } from '@/shared/model/types';
-import { getReportTranslations } from '../../lib/reportTranslations';
+import { useTranslation } from 'react-i18next';
 
 export const usePrintReportDialog = (
   defaultStartWeek?: Date,
   onClose?: () => void
 ) => {
+  const { t } = useTranslation('workLogs');
+
   const printContentRef = useRef<HTMLDivElement>(null);
 
   const [startWeek, setStartWeek] = useState<Date>(
@@ -90,11 +92,9 @@ export const usePrintReportDialog = (
     onClose?.();
   }, [reset, onClose]);
 
-  const reportTranslations = getReportTranslations(lang);
-
   const reactToPrintFn = useReactToPrint({
     contentRef: printContentRef,
-    documentTitle: `${reportTranslations.fileNamePrefix}${dayjs(startWeek).format('DD.MM.YYYY')}_${dayjs(endWeek).add(6, 'days').format('DD.MM.YYYY')}`,
+    documentTitle: `${t('print.report.fileNamePrefix', { lng: lang })}${dayjs(startWeek).format('DD.MM.YYYY')}_${dayjs(endWeek).add(6, 'days').format('DD.MM.YYYY')}`,
     pageStyle: `@page { margin: 10mm; }`,
   });
 

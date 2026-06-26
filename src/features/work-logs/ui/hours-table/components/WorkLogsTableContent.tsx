@@ -1,4 +1,3 @@
-import 'dayjs/locale/pl';
 import type { Employee } from '@/entities/employee';
 import type { ConstructionsWithWorkHours } from '../../../model/types';
 import { WorkLogsTableRow } from './WorkLogsTableRow';

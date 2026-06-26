@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Typography, InputBase } from '@mui/material';
-import 'dayjs/locale/pl';
 import { findAndFocus } from '../../../lib/findAndFocus';
+import { useTranslation } from 'react-i18next';
 
 const inputStyles = {
   textAlign: 'center',
@@ -41,6 +41,8 @@ export const EditableCell = React.memo(
     };
 
     const [localValue, setLocalValue] = useState<string>(formatValue(value));
+
+    const { t } = useTranslation('workLogs');
 
     useEffect(() => {
       setLocalValue(formatValue(value));
@@ -110,7 +112,7 @@ export const EditableCell = React.memo(
     if (isHoliday) {
       return (
         <Typography color="vacation" variant="body2" className="font-medium">
-          Urlop
+          {t('table.vacationCell')}
         </Typography>
       );
     }

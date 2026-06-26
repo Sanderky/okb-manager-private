@@ -9,10 +9,10 @@ import {
   TableFooter,
 } from '@mui/material';
 import { Add } from '@mui/icons-material';
-import 'dayjs/locale/pl';
 import type { Construction } from '@/entities/construction';
 import type { ConstructionsWithWorkHours } from '../../../model/types';
-import { formatToPolishDecimal } from '@/shared/lib/format';
+import { formatDecimal } from '@/shared/lib/format';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   availableConstructions: Construction[];
@@ -36,6 +36,7 @@ export const WorkLogsTableFooter = ({
   constructionsWithWorkHours,
   totalHoursData,
 }: Props) => {
+  const { t } = useTranslation('workLogs');
   return (
     <TableFooter>
       <TableRow>
@@ -64,7 +65,7 @@ export const WorkLogsTableFooter = ({
               <Tooltip
                 title={
                   availableConstructions.length === 0 && editMode
-                    ? 'Wszystkie budowy zostały już dodane'
+                    ? t('table.tooltips.noAvailableConstructions')
                     : ''
                 }
               >
@@ -85,7 +86,7 @@ export const WorkLogsTableFooter = ({
                     color="primary"
                     disabled={availableConstructions.length === 0}
                   >
-                    Dodaj budowę
+                    {t('actions.addConstruction')}
                   </Button>
                 </Box>
               </Tooltip>
@@ -97,7 +98,7 @@ export const WorkLogsTableFooter = ({
                   color="primary"
                   order={2}
                 >
-                  Masz niezapisane zmiany*
+                  {t('table.unsavedChangesMark')}
                 </Typography>
               )}
 
@@ -120,20 +121,24 @@ export const WorkLogsTableFooter = ({
                   color="textSecondary"
                   className="font-medium"
                 >
-                  Budowy: {constructionsWithWorkHours.length}
+                  {t('table.constructionsCount', {
+                    count: constructionsWithWorkHours.length,
+                  })}
                 </Typography>
                 <Typography
                   variant="overline"
                   color="textSecondary"
                   className="font-medium"
                 >
-                  Pracownicy: {employeesCount}
+                  {t('table.employeesCount', {
+                    count: employeesCount,
+                  })}
                 </Typography>
               </Stack>
             </Stack>
 
             <Typography variant="overline" className="font-medium">
-              Suma:
+              {t('table.sum')}
             </Typography>
           </Stack>
         </TableCell>
@@ -152,7 +157,7 @@ export const WorkLogsTableFooter = ({
         >
           <Typography variant="overline" className="font-medium">
             {constructionsWithWorkHours.length > 0
-              ? formatToPolishDecimal(totalHoursData.grandTotal)
+              ? formatDecimal(totalHoursData.grandTotal)
               : '-'}
           </Typography>
         </TableCell>

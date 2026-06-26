@@ -1,16 +1,18 @@
 import dayjs from 'dayjs';
 import 'dayjs/locale/pl';
 import isoWeek from 'dayjs/plugin/isoWeek';
+import i18n from '../config/i18n/i18n';
 
 dayjs.extend(isoWeek);
-dayjs.locale('pl');
 
-export const formatToPolishDecimal = (value: number) => {
+export const formatDecimal = (value: number, targetLang?: string) => {
   if (typeof value !== 'number' || isNaN(value)) {
     return value;
   }
 
-  return new Intl.NumberFormat('pl-PL', {
+  const langToUse = targetLang || i18n.language || 'pl-PL';
+
+  return new Intl.NumberFormat(langToUse, {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   }).format(value);

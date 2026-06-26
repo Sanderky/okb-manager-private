@@ -8,12 +8,12 @@ import {
   TextField,
   Chip,
 } from '@mui/material';
-import 'dayjs/locale/pl';
 import BaseDialog from '@/shared/ui/BaseDialog';
 import { createEmptyWorkHours } from '../../../model/utils/hoursTableUtils';
 import type { Construction } from '@/entities/construction';
 import type { Employee } from '@/entities/employee';
 import type { WorkHours } from '../../../model/types';
+import { useTranslation } from 'react-i18next';
 
 interface AddConstructionWithEmployeeDialogProps {
   open: boolean;
@@ -34,6 +34,12 @@ export const AddConstructionWithEmployeeDialog: React.FC<
   availableConstructions,
   activeEmployees: employees,
 }) => {
+  const { t } = useTranslation([
+    'workLogs',
+    'constructions',
+    'employees',
+    'common',
+  ]);
   const [selectedConstruction, setSelectedConstruction] = useState<string>('');
   const [selectedEmployees, setSelectedEmployees] = useState<Employee[]>([]);
 
@@ -53,7 +59,7 @@ export const AddConstructionWithEmployeeDialog: React.FC<
     <BaseDialog
       open={open}
       onClose={onClose}
-      title="Dodaj nową budowę z pracownikami"
+      title={t('dialogs.addConstructionWithEmployee.title')}
       showConfirm={false}
       actions={
         <Stack direction="row" spacing={1}>
@@ -66,7 +72,7 @@ export const AddConstructionWithEmployeeDialog: React.FC<
               availableConstructions.length === 0
             }
           >
-            Dodaj ({selectedEmployees.length})
+            {t('common:buttons.add')} ({selectedEmployees.length})
           </Button>
         </Stack>
       }
@@ -84,12 +90,21 @@ export const AddConstructionWithEmployeeDialog: React.FC<
           options={availableConstructions}
           getOptionLabel={(option) => option.name}
           renderInput={(params) => (
-            <TextField {...params} label="Wybierz budowę" />
+            <TextField
+              {...params}
+              label={t(
+                'workLogs:dialogs.addConstructionWithEmployee.selectConstruction'
+              )}
+            />
           )}
           noOptionsText={
             availableConstructions.length === 0
-              ? 'Wszystkie budowy są już dodane do tabeli'
-              : 'Brak dostępnych opcji'
+              ? t(
+                  'workLogs:dialogs.addConstructionWithEmployee.noConstructionsAvailable'
+                )
+              : t(
+                  'workLogs:dialogs.addConstructionWithEmployee.noOptionsAvailable'
+                )
           }
         />
       </FormControl>
@@ -112,7 +127,7 @@ export const AddConstructionWithEmployeeDialog: React.FC<
                 {option.name}
                 {!option.status && (
                   <Chip
-                    label="Nieaktywny"
+                    label={t('employees:inactive')}
                     size="small"
                     variant="outlined"
                     sx={{ ml: 1, height: 20 }}
@@ -124,13 +139,14 @@ export const AddConstructionWithEmployeeDialog: React.FC<
           renderInput={(params) => (
             <TextField
               {...params}
-              label="Wybierz pracowników"
-              placeholder={
-                selectedEmployees.length === 0 ? 'Wybierz pracowników...' : ''
-              }
+              label={t(
+                'workLogs:dialogs.addConstructionWithEmployee.selectEmployees'
+              )}
             />
           )}
-          noOptionsText="Brak dostępnych pracowników"
+          noOptionsText={t(
+            'workLogs:dialogs.addConstructionWithEmployee.noEmployeesAvailable'
+          )}
         />
       </FormControl>
       <Stack direction="row" mt={1} spacing={1} justifyContent={'flex-end'}>
@@ -138,9 +154,11 @@ export const AddConstructionWithEmployeeDialog: React.FC<
           onClick={() => setSelectedEmployees(employees || [])}
           disabled={isAllSelected}
         >
-          Wszystko
+          {t('common:buttons.all')}
         </Button>
-        <Button onClick={() => setSelectedEmployees([])}>Wyczyść</Button>
+        <Button onClick={() => setSelectedEmployees([])}>
+          {t('common:buttons.clear')}
+        </Button>
       </Stack>
     </BaseDialog>
   );

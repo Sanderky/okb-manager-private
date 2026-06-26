@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { WorkHours } from '../types';
 import {
   enrichAndFilterNewWorkHours,
@@ -27,7 +28,6 @@ export interface UseHoursTableActionsProps {
   currentWeek: Date;
   localWorkHours: WorkHours[];
   isEmployeeOnVacation: (employeeId: string, date: Date) => boolean;
-
   editMode: boolean;
   hasUnsavedChanges: boolean;
   constructions: Construction[];
@@ -50,6 +50,8 @@ export const useHoursTableActions = ({
 }: UseHoursTableActionsProps) => {
   const dialogs = useDialogs();
   const notifications = useNotifications();
+  const { t } = useTranslation('workLogs');
+  const { t: tCommon } = useTranslation('common');
 
   const fillScheduleMutation = useFillWithSchedule(
     currentWeek,
@@ -57,12 +59,17 @@ export const useHoursTableActions = ({
     (res) => {
       setLocalWorkHours(res);
       setHasUnsavedChanges(true);
-      notifications.show(`Załadowano ${res.length} wpisów z harmonogramu`, {
-        severity: 'success',
-      });
+      notifications.show(
+        t('notifications.scheduleLoaded', { count: res.length }),
+        {
+          severity: 'success',
+        }
+      );
     },
     () => {
-      notifications.show('Błąd pobierania harmonogramu', { severity: 'error' });
+      notifications.show(t('notifications.scheduleError'), {
+        severity: 'error',
+      });
     }
   );
 
@@ -72,28 +79,33 @@ export const useHoursTableActions = ({
     (res) => {
       setLocalWorkHours(res);
       setHasUnsavedChanges(true);
-      notifications.show('Skopiowano dane', { severity: 'success' });
+      notifications.show(t('notifications.dataCopied'), {
+        severity: 'success',
+      });
     },
     () => {
-      notifications.show('Błąd kopiowania', { severity: 'error' });
+      notifications.show(t('notifications.copyError'), { severity: 'error' });
     }
   );
 
   const saveMutation = useSaveWorkLogs(
     () => {
       setHasUnsavedChanges(false);
-      notifications.show('Zapisano godziny pracy', { severity: 'success' });
+      notifications.show(t('notifications.hoursSaved'), {
+        severity: 'success',
+      });
     },
-    () => notifications.show('Błąd zapisu', { severity: 'error' })
+    () =>
+      notifications.show(t('notifications.saveError'), { severity: 'error' })
   );
 
   const handleCancelEdit = useCallback(async () => {
     if (hasUnsavedChanges) {
       const isConfirmed = await dialogs.confirm(
-        'Masz niezapisane zmiany. Anulować edycję?',
+        t('dialogs.cancelEdit.description'),
         {
-          cancelText: 'Wróć',
-          title: 'Anulowanie edycji',
+          cancelText: t('dialogs.cancelEdit.cancelBtn'),
+          title: t('dialogs.cancelEdit.title'),
         }
       );
       if (!isConfirmed) return;
@@ -109,6 +121,7 @@ export const useHoursTableActions = ({
     workHoursFromDB,
     setHasUnsavedChanges,
     setEditMode,
+    t,
   ]);
 
   const handleToggleEditMode = useCallback(
@@ -122,11 +135,10 @@ export const useHoursTableActions = ({
             workHours: localWorkHours,
             currentWeek,
           });
-        } catch (error) {
+        } catch {
           return;
         }
       }
-
       setEditMode(targetMode);
     },
     [
@@ -143,35 +155,34 @@ export const useHoursTableActions = ({
     async (sourceDate: Date) => {
       if (localWorkHours.length > 0) {
         const isConfirmed = await dialogs.confirm(
-          'Kopiowanie nadpisze obecnie wprowadzone dane',
+          t('dialogs.copyData.description'),
           {
-            cancelText: 'Anuluj',
-            title: 'Kopiowanie danych',
+            cancelText: tCommon('buttons.cancel'),
+            title: t('dialogs.copyData.title'),
           }
         );
-
         if (!isConfirmed) return;
       }
-
       copyMutation.mutate(sourceDate);
       setEditMode(true);
     },
-    [copyMutation, localWorkHours, dialogs, setEditMode]
+    [copyMutation, localWorkHours, dialogs, setEditMode, t, tCommon]
   );
 
   const handleFillWithSchedule = useCallback(async () => {
     if (localWorkHours.length > 0) {
       const isConfirmed = await dialogs.confirm(
-        'Uzupełnienie z harmonogramu nadpisze obecnie wprowadzone dane',
-        { cancelText: 'Anuluj', title: 'Proponowane dane' }
+        t('dialogs.fillSchedule.description'),
+        {
+          cancelText: tCommon('buttons.cancel'),
+          title: t('dialogs.fillSchedule.title'),
+        }
       );
-
       if (!isConfirmed) return;
     }
-
     fillScheduleMutation.mutate();
     setEditMode(true);
-  }, [fillScheduleMutation, localWorkHours, dialogs, setEditMode]);
+  }, [fillScheduleMutation, localWorkHours, dialogs, setEditMode, t, tCommon]);
 
   const handleWeekChange = useCallback(
     async (target: 'prev' | 'current' | 'next' | Date) => {
@@ -183,34 +194,34 @@ export const useHoursTableActions = ({
 
       if (hasUnsavedChanges) {
         const isConfirmed = await dialogs.confirm(
-          'Utracisz niezapisane zmiany',
+          t('dialogs.changeWeek.description'),
           {
-            cancelText: 'Anuluj',
-            title: 'Zmiana tygodnia',
+            cancelText: tCommon('buttons.cancel'),
+            title: t('dialogs.changeWeek.title'),
           }
         );
-
         if (!isConfirmed) return;
       }
-
       setCurrentWeek(newDate);
-
       setEditMode(false);
     },
-    [currentWeek, hasUnsavedChanges, dialogs, setCurrentWeek, setEditMode]
+    [
+      currentWeek,
+      hasUnsavedChanges,
+      dialogs,
+      setCurrentWeek,
+      setEditMode,
+      t,
+      tCommon,
+    ]
   );
 
   const handleHoursChange = useCallback(
     (id: string, idx: number, val: number | string | null) => {
       const parsedValue = parseHoursInput(val);
-
       setLocalWorkHours((prev) => {
         const nextState = updateSingleWorkHour(prev, id, idx, parsedValue);
-
-        if (nextState !== prev) {
-          setHasUnsavedChanges(true);
-        }
-
+        if (nextState !== prev) setHasUnsavedChanges(true);
         return nextState;
       });
     },
@@ -228,12 +239,10 @@ export const useHoursTableActions = ({
           employees,
           isEmployeeOnVacation
         );
-
         if (nextState !== prev) {
           setHasUnsavedChanges(true);
           setEditMode(true);
         }
-
         return nextState;
       });
     },
@@ -252,53 +261,50 @@ export const useHoursTableActions = ({
   const handleDeleteEmployee = useCallback(
     async (id: string, employeeName: string, constructionName: string) => {
       const confirmed = await dialogs.confirm(
-        `Usunąć pracownika ${employeeName} z budowy ${constructionName}?`,
+        t('dialogs.deleteEmployee.description', {
+          employeeName,
+          constructionName,
+        }),
         {
           severity: 'error',
-          okText: 'Usuń',
-          cancelText: 'Anuluj',
-          title: 'Usuwanie pracownika',
+          okText: tCommon('buttons.delete'),
+          cancelText: tCommon('buttons.cancel'),
+          title: t('dialogs.deleteEmployee.title'),
         }
       );
-
       if (confirmed) {
         setLocalWorkHours((prev) => {
           const nextState = prev.filter((x) => x.id !== id);
-          if (nextState.length !== prev.length) {
-            setHasUnsavedChanges(true);
-          }
+          if (nextState.length !== prev.length) setHasUnsavedChanges(true);
           return nextState;
         });
       }
     },
-    [dialogs, setLocalWorkHours, setHasUnsavedChanges]
+    [dialogs, setLocalWorkHours, setHasUnsavedChanges, t, tCommon]
   );
 
   const handleDeleteConstruction = useCallback(
     async (constructionId: string, constructionName: string) => {
       const confirmed = await dialogs.confirm(
-        `Usunąć budowę ${constructionName} łącznie ze wszystkimi pracownikami?`,
+        t('dialogs.deleteConstruction.description', { constructionName }),
         {
           severity: 'error',
-          okText: 'Usuń',
-          cancelText: 'Anuluj',
-          title: 'Usuwanie budowy',
+          okText: tCommon('buttons.delete'),
+          cancelText: tCommon('buttons.cancel'),
+          title: t('dialogs.deleteConstruction.title'),
         }
       );
-
       if (confirmed) {
         setLocalWorkHours((prev) => {
           const nextState = prev.filter(
             (x) => x.constructionId !== constructionId
           );
-          if (nextState.length !== prev.length) {
-            setHasUnsavedChanges(true);
-          }
+          if (nextState.length !== prev.length) setHasUnsavedChanges(true);
           return nextState;
         });
       }
     },
-    [dialogs, setLocalWorkHours, setHasUnsavedChanges]
+    [dialogs, setLocalWorkHours, setHasUnsavedChanges, t, tCommon]
   );
 
   return {

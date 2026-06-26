@@ -3,7 +3,6 @@ import { useConstructions, type Construction } from '@/entities/construction';
 import { useEmployees, type Employee } from '@/entities/employee';
 import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
-import 'dayjs/locale/pl';
 import isoWeek from 'dayjs/plugin/isoWeek';
 import type { WorkHours } from '../types';
 import { getStartOfWeek, getWeekDates } from '@/shared/lib/date';

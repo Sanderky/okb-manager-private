@@ -10,15 +10,14 @@ import {
   Typography,
 } from '@mui/material';
 import dayjs from 'dayjs';
-import 'dayjs/locale/pl';
 import type { ConstructionsWithWorkHours } from '../../../model/types';
 import { getWeekNumber } from '@/shared/lib/date';
 import type { LangCode } from '@/shared/model/types';
 import { sortConstructionsWithWorkHours } from '../../../model/utils/hoursTableUtils';
-import { formatToPolishDecimal } from '@/shared/lib/format';
-import { getReportTranslations } from '../../../lib/reportTranslations';
 import { printStyles } from './printStyles';
 import { PrintableTableRows } from './PrintableTableRows';
+import { useTranslation } from 'react-i18next';
+import { formatDecimal } from '@/shared/lib/format';
 
 interface PrintableTableProps {
   constructionsWithWorkHours: ConstructionsWithWorkHours[];
@@ -45,44 +44,39 @@ export const PrintableTable = forwardRef<HTMLDivElement, PrintableTableProps>(
     },
     ref
   ) => {
-    const translations = getReportTranslations(lang);
-    const dataSorted = useMemo(() => {
-      return sortConstructionsWithWorkHours(constructionsWithWorkHours);
-    }, [constructionsWithWorkHours]);
+    const { t } = useTranslation('workLogs');
+    const shortLang = lang.substring(0, 2).toLowerCase();
+
+    const dataSorted = useMemo(
+      () => sortConstructionsWithWorkHours(constructionsWithWorkHours),
+      [constructionsWithWorkHours]
+    );
 
     const employeesCount = useMemo(() => {
-      return constructionsWithWorkHours.reduce((acc, construction) => {
-        return acc + construction.workHours.length;
-      }, 0);
+      return constructionsWithWorkHours.reduce(
+        (acc, construction) => acc + construction.workHours.length,
+        0
+      );
     }, [constructionsWithWorkHours]);
 
     const tableTitle =
       customTitle ??
-      `Tydzień ${getWeekNumber(weekDates[0])}: ${dayjs(weekDates[0]).format('DD.MM.YYYY')} - ${dayjs(weekDates[6]).format('DD.MM.YYYY')}`;
+      `${t('print.report.week', { lng: lang })} ${getWeekNumber(weekDates[0])}: ${dayjs(weekDates[0]).format('DD.MM.YYYY')} - ${dayjs(weekDates[6]).format('DD.MM.YYYY')}`;
 
     return (
       <Box ref={ref} sx={{ width: '99%' }}>
         {dataSorted.length === 0 ? (
-          <Box
-            sx={{
-              display: 'flex',
-              width: '100%',
-              flexDirection: 'column',
-            }}
-          >
+          <Box sx={{ display: 'flex', width: '100%', flexDirection: 'column' }}>
             {printTitle && (
               <Typography
                 variant="caption"
-                sx={{
-                  textAlign: 'left !important',
-                  mb: 1,
-                }}
+                sx={{ textAlign: 'left !important', mb: 1 }}
               >
                 {tableTitle}
               </Typography>
             )}
             <Typography sx={{ width: '100%' }}>
-              {customNoDataText ?? 'Brak danych'}
+              {customNoDataText ?? t('print.report.noData', { lng: lang })}
             </Typography>
           </Box>
         ) : (
@@ -90,9 +84,7 @@ export const PrintableTable = forwardRef<HTMLDivElement, PrintableTableProps>(
             <Table
               size="small"
               sx={{
-                '& td, & th, & p': {
-                  fontSize: printStyles.fontSize,
-                },
+                '& td, & th, & p': { fontSize: printStyles.fontSize },
                 '& td, & th': {
                   border: printStyles.tableBorder,
                   textAlign: 'center',
@@ -115,16 +107,12 @@ export const PrintableTable = forwardRef<HTMLDivElement, PrintableTableProps>(
                         borderRight: 'none !important',
                         borderTop: 'none !important',
                         textAlign: 'left !important',
-
                         p: 0,
                       }}
                     >
                       <Typography
                         variant="caption"
-                        sx={{
-                          textAlign: 'left !important',
-                          //  mb: 2
-                        }}
+                        sx={{ textAlign: 'left !important' }}
                       >
                         {tableTitle}
                       </Typography>
@@ -133,75 +121,57 @@ export const PrintableTable = forwardRef<HTMLDivElement, PrintableTableProps>(
                 )}
                 <TableRow>
                   <TableCell
-                    sx={{
-                      borderBottom: printStyles.borderBold,
-                      p: 0,
-                      px: 1,
-                    }}
+                    sx={{ borderBottom: printStyles.borderBold, p: 0, px: 1 }}
                   >
                     <Typography
                       className="text-center font-semibold"
                       variant="body2"
                     >
-                      {translations.construction}
+                      {t('print.report.construction', { lng: lang })}
                     </Typography>
                   </TableCell>
                   <TableCell
-                    sx={{
-                      borderBottom: printStyles.borderBold,
-                      p: 0,
-                      px: 1,
-                    }}
+                    sx={{ borderBottom: printStyles.borderBold, p: 0, px: 1 }}
                   >
                     <Typography
                       className="text-center font-semibold"
                       variant="body2"
                     >
-                      {translations.employee}
+                      {t('print.report.employee', { lng: lang })}
                     </Typography>
                   </TableCell>
+
                   {weekDates.map((date, index) => (
                     <TableCell
                       key={index}
                       align="center"
-                      sx={{
-                        borderBottom: printStyles.borderBold,
-                        p: 0,
-                        px: 2,
-                      }}
+                      sx={{ borderBottom: printStyles.borderBold, p: 0, px: 2 }}
                     >
                       <Typography
                         className="block text-center font-semibold"
                         variant="caption"
-                        sx={{
-                          fontSize: '0.6rem',
-                        }}
+                        sx={{ fontSize: '0.6rem' }}
                       >
-                        {date.toLocaleDateString(lang, { weekday: 'short' })}
+                        {dayjs(date).locale(shortLang).format('ddd')}
                       </Typography>
                       <Typography
                         className="text-center font-semibold"
                         variant="body2"
                       >
-                        {date.getDate().toString().padStart(2, '0')}.
-                        {(date.getMonth() + 1).toString().padStart(2, '0')}
+                        {dayjs(date).format('DD.MM')}
                       </Typography>
                     </TableCell>
                   ))}
+
                   <TableCell
                     align="center"
-                    sx={{
-                      p: 0,
-                      px: 1,
-
-                      borderBottom: printStyles.borderBold,
-                    }}
+                    sx={{ p: 0, px: 1, borderBottom: printStyles.borderBold }}
                   >
                     <Typography
                       className="text-center font-semibold"
                       variant="body2"
                     >
-                      {translations.sum}
+                      {t('print.report.sum', { lng: lang })}
                     </Typography>
                   </TableCell>
                 </TableRow>
@@ -226,7 +196,6 @@ export const PrintableTable = forwardRef<HTMLDivElement, PrintableTableProps>(
                     valign="middle"
                     sx={{
                       textAlign: 'left !important',
-
                       borderTop: 'none',
                       p: 0,
                       py: 0.5,
@@ -234,12 +203,11 @@ export const PrintableTable = forwardRef<HTMLDivElement, PrintableTableProps>(
                       borderRight: 'none !important',
                     }}
                   >
-                    <Typography
-                      sx={{
-                        pl: 1,
-                      }}
-                    >
-                      {`${translations.constructions}: ${constructionsWithWorkHours.length}`}
+                    <Typography sx={{ pl: 1 }}>
+                      {t('print.report.constructionsCount', {
+                        count: constructionsWithWorkHours.length,
+                        lng: lang,
+                      })}
                     </Typography>
                   </TableCell>
                   <TableCell
@@ -255,7 +223,10 @@ export const PrintableTable = forwardRef<HTMLDivElement, PrintableTableProps>(
                     }}
                   >
                     <Typography>
-                      {`${translations.employees}: ${employeesCount}`}
+                      {t('print.report.employeesCount', {
+                        count: employeesCount,
+                        lng: lang,
+                      })}
                     </Typography>
                   </TableCell>
                   <TableCell
@@ -274,12 +245,8 @@ export const PrintableTable = forwardRef<HTMLDivElement, PrintableTableProps>(
                   >
                     <Typography
                       align="right"
-                      sx={{
-                        textAlign: 'right !important',
-                      }}
-                    >
-                      {`${translations.totalSum}:`}
-                    </Typography>
+                      sx={{ textAlign: 'right !important' }}
+                    >{`${t('print.report.totalSum', { lng: lang })}:`}</Typography>
                   </TableCell>
                   <TableCell
                     valign="middle"
@@ -293,7 +260,7 @@ export const PrintableTable = forwardRef<HTMLDivElement, PrintableTableProps>(
                   >
                     <Typography>
                       {dataSorted.length > 0
-                        ? formatToPolishDecimal(totalHoursData.grandTotal)
+                        ? formatDecimal(totalHoursData.grandTotal, lang)
                         : '-'}
                     </Typography>
                   </TableCell>

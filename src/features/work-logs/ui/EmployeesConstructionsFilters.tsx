@@ -12,9 +12,9 @@ import {
   Chip,
   Divider,
 } from '@mui/material';
-import 'dayjs/locale/pl';
 import type { Construction } from '@/entities/construction';
 import type { Employee } from '@/entities/employee';
+import { useTranslation } from 'react-i18next';
 
 interface EmployeesContructionsFiltersInterface {
   selectedConstructions: Construction[];
@@ -78,6 +78,8 @@ const EmployeesContructionsFilters = ({
     onSelectedEmployeesChange([]);
   };
 
+  const { t } = useTranslation(['filters', 'constructions', 'employees']);
+
   const isAllEmployeesSelected =
     selectedEmployees.length === filteredEmployees.length &&
     filteredEmployees.length > 0;
@@ -92,12 +94,15 @@ const EmployeesContructionsFilters = ({
       }}
     >
       <Typography sx={{ mb: 1 }} component={'div'} variant="subtitle2">
-        Filtr budów
+        {t('constructionsTitle')}
       </Typography>
       <Typography sx={{ mb: 1 }} component={'div'} variant="overline">
         {selectedConstructions.length > 0
-          ? `Wybrano: ${selectedConstructions.length} z ${filteredConstructions.length}`
-          : 'Wszystkie budowy'}
+          ? t('selectedCount', {
+              selected: selectedConstructions.length,
+              total: filteredConstructions.length,
+            })
+          : t('allConstructions')}
       </Typography>
 
       <FormControl sx={{ width: '100%', maxWidth: '100%' }}>
@@ -118,7 +123,7 @@ const EmployeesContructionsFilters = ({
                 {option.name}
                 {!option.status && (
                   <Chip
-                    label="Zakończona"
+                    label={t('constructions:inactive')}
                     size="small"
                     color="default"
                     variant="outlined"
@@ -128,7 +133,9 @@ const EmployeesContructionsFilters = ({
               </li>
             );
           }}
-          renderInput={(params) => <TextField {...params} label="Budowy" />}
+          renderInput={(params) => (
+            <TextField {...params} label={t('constructionsLabel')} />
+          )}
         />
       </FormControl>
       <FormControlLabel
@@ -144,7 +151,7 @@ const EmployeesContructionsFilters = ({
         }
         label={
           <Typography variant="caption">
-            Uwzględnij zakończone budowy w filtrze
+            {t('includeCompletedConstructions')}
           </Typography>
         }
       />
@@ -153,20 +160,23 @@ const EmployeesContructionsFilters = ({
           onClick={handleSelectAllConstructions}
           disabled={isAllConstructionsSelected}
         >
-          Wszystko
+          {t('selectAll')}
         </Button>
-        <Button onClick={handleDeselectAllConstructions}>Wyczyść</Button>
+        <Button onClick={handleDeselectAllConstructions}>{t('clear')}</Button>
       </Stack>
 
       <Divider sx={{ mb: 2, mt: 2 }} />
 
       <Typography sx={{ mb: 1 }} component={'div'} variant="subtitle2">
-        Filtr pracowników
+        {t('employeesTitle')}
       </Typography>
       <Typography sx={{ mb: 1 }} component={'div'} variant="overline">
         {selectedEmployees.length > 0
-          ? `Wybrano: ${selectedEmployees.length} z ${filteredEmployees.length}`
-          : 'Wszyscy pracownicy'}
+          ? t('selectedCount', {
+              selected: selectedEmployees.length,
+              total: filteredEmployees.length,
+            })
+          : t('allEmployees')}
       </Typography>
       <FormControl sx={{ width: '100%', maxWidth: '100%' }}>
         <Autocomplete
@@ -186,7 +196,7 @@ const EmployeesContructionsFilters = ({
                 {option.name}
                 {!option.status && (
                   <Chip
-                    label="Nieaktywny"
+                    label={t('employees:inactive')}
                     size="small"
                     color="default"
                     variant="outlined"
@@ -196,7 +206,9 @@ const EmployeesContructionsFilters = ({
               </li>
             );
           }}
-          renderInput={(params) => <TextField {...params} label="Pracownicy" />}
+          renderInput={(params) => (
+            <TextField {...params} label={t('employeesLabel')} />
+          )}
         />
       </FormControl>
       <FormControlLabel
@@ -212,7 +224,7 @@ const EmployeesContructionsFilters = ({
         }
         label={
           <Typography variant="caption">
-            Uwzględnij nieaktywnych pracowników w filtrze
+            {t('includeInactiveEmployees')}
           </Typography>
         }
       />
@@ -221,9 +233,9 @@ const EmployeesContructionsFilters = ({
           onClick={handleSelectAllEmployees}
           disabled={isAllEmployeesSelected}
         >
-          Wszystko
+          {t('selectAll')}
         </Button>
-        <Button onClick={handleDeselectAllEmployees}>Wyczyść</Button>
+        <Button onClick={handleDeselectAllEmployees}>{t('clear')}</Button>
       </Stack>
     </Box>
   );

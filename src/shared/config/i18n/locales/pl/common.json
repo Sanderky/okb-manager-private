@@ -1,0 +1,20 @@
+{
+  "buttons": {
+    "save": "Zapisz",
+    "cancel": "Anuluj",
+    "delete": "Usuń",
+    "edit": "Edytuj",
+    "add": "Dodaj",
+    "back": "Wróć",
+    "print": "Drukuj",
+    "all": "Wszystko",
+    "clear": "Wyczyść"
+  },
+  "errors": {
+    "fetchError": "Wystąpił błąd podczas ładowania danych."
+  },
+  "weekSelector": {
+    "selectWeek": "Wybierz tydzień",
+    "currentWeek": "Bieżący tydzień"
+  }
+}

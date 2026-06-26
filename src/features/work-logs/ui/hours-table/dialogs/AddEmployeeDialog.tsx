@@ -8,12 +8,12 @@ import {
   TextField,
   Chip,
 } from '@mui/material';
-import 'dayjs/locale/pl';
 import BaseDialog from '@/shared/ui/BaseDialog';
 import { createEmptyWorkHours } from '../../../model/utils/hoursTableUtils';
 import type { Construction } from '@/entities/construction';
 import type { Employee } from '@/entities/employee';
 import type { WorkHours } from '../../../model/types';
+import { useTranslation } from 'react-i18next';
 
 interface AddEmployeeDialogProps {
   open: boolean;
@@ -32,6 +32,12 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
   onEmployeeAdded,
   availableEmployees,
 }) => {
+  const { t } = useTranslation([
+    'workLogs',
+    'constructions',
+    'employees',
+    'common',
+  ]);
   const [selectedEmployees, setSelectedEmployees] = useState<Employee[]>([]);
 
   const handleAdd = () => {
@@ -53,7 +59,9 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
     <BaseDialog
       open={open}
       onClose={onClose}
-      title={`Dodaj pracowników do budowy: ${selectedConstruction?.name}`}
+      title={t('workLogs:dialogs.addEmployee.title', {
+        constructionName: selectedConstruction?.name,
+      })}
       showConfirm={false}
       actions={
         <Stack direction="row" spacing={1}>
@@ -62,7 +70,7 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
             variant="contained"
             disabled={selectedEmployees.length === 0}
           >
-            Dodaj ({selectedEmployees.length})
+            {t('common:buttons.add')} ({selectedEmployees.length})
           </Button>
         </Stack>
       }
@@ -85,7 +93,7 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
                 {option.name}
                 {!option.status && (
                   <Chip
-                    label="Nieaktywny"
+                    label={t('employees:inactive')}
                     size="small"
                     variant="outlined"
                     sx={{ ml: 1, height: 20 }}
@@ -97,16 +105,13 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
           renderInput={(params) => (
             <TextField
               {...params}
-              label="Wybierz pracowników"
-              placeholder={
-                selectedEmployees.length === 0 ? 'Wybierz pracowników...' : ''
-              }
+              label={t('workLogs:dialogs.addEmployee.selectEmployees')}
             />
           )}
           noOptionsText={
             availableEmployees.length === 0
-              ? 'Wszyscy pracownicy są już dodani do tej budowy'
-              : 'Brak dostępnych opcji'
+              ? t('workLogs:dialogs.addEmployee.noEmployeesAvailable')
+              : t('workLogs:dialogs.addEmployee.noOptionsAvailable')
           }
         />
       </FormControl>
@@ -115,9 +120,11 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
           onClick={() => setSelectedEmployees(availableEmployees)}
           disabled={isAllSelected}
         >
-          Wszystko
+          {t('common:buttons.all')}
         </Button>
-        <Button onClick={() => setSelectedEmployees([])}>Wyczyść</Button>
+        <Button onClick={() => setSelectedEmployees([])}>
+          {t('common:buttons.clear')}
+        </Button>
       </Stack>
     </BaseDialog>
   );

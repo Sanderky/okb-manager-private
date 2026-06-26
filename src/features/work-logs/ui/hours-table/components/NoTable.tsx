@@ -12,8 +12,8 @@ import {
   ContentCopy,
   ReportProblem,
 } from '@mui/icons-material';
-import 'dayjs/locale/pl';
 import type { Construction } from '@/entities/construction';
+import { useTranslation } from 'react-i18next';
 
 interface NoTableProps {
   isLoading: boolean;
@@ -35,6 +35,7 @@ export const NoTable = ({
   handleFillWithSchedule,
   handleAddConstruction,
 }: NoTableProps) => {
+  const { t } = useTranslation('workLogs');
   const content = useMemo(() => {
     if (error) {
       return (
@@ -48,7 +49,7 @@ export const NoTable = ({
         >
           <ReportProblem sx={{ color: 'red', fontSize: 40 }} />
           <Typography color="error" variant="body1" sx={{ fontWeight: '400' }}>
-            Błąd podczas ładowania danych.
+            {t('table.errorLoadingData')}
           </Typography>
         </Box>
       );
@@ -70,7 +71,7 @@ export const NoTable = ({
           variant="body1"
           sx={{ fontWeight: '400' }}
         >
-          Brak danych dla tego tygodnia
+          {t('table.noData')}
         </Typography>
         {!isReadOnly && (
           <>
@@ -81,7 +82,7 @@ export const NoTable = ({
               startIcon={<AutoFixHigh />}
               sx={{ mt: 2 }}
             >
-              Uzupełnij proponowane
+              {t('actions.fillProposed')}
             </Button>
             <Button
               onClick={handleCopyDataDialogOpen}
@@ -90,12 +91,12 @@ export const NoTable = ({
               startIcon={<ContentCopy />}
               sx={{ mt: 2 }}
             >
-              Kopiuj dane z innego tygodnia
+              {t('actions.copyFromOtherWeek')}
             </Button>
             <Tooltip
               title={
                 availableConstructions.length === 0
-                  ? 'Wszystkie budowy zostały już dodane'
+                  ? t('tooltips.allConstructionsAdded')
                   : ''
               }
             >
@@ -108,7 +109,7 @@ export const NoTable = ({
                   color="primary"
                   disabled={availableConstructions.length === 0}
                 >
-                  Dodaj pierwszą budowę
+                  {t('actions.addFirstConstruction')}
                 </Button>
               </span>
             </Tooltip>
@@ -123,6 +124,8 @@ export const NoTable = ({
     handleFillWithSchedule,
     handleAddConstruction,
     availableConstructions,
+    isReadOnly,
+    t,
   ]);
 
   return (

@@ -1,9 +1,11 @@
 import { useNavigate } from 'react-router-dom';
-import PageContainer from '../../../shared/ui/PageContainer';
+import PageContainer from '@/shared/ui/PageContainer';
 import { Button, Stack, Typography } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 
 export const PageNotFound = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation('app');
 
   return (
     <PageContainer>
@@ -12,7 +14,11 @@ export const PageNotFound = () => {
           textAlign={'center'}
           variant="h5"
           component={'div'}
-          sx={(theme) => ({ fontSize: '8rem', fontWeight: 'bold', color: theme.palette.secondary.main })}
+          sx={(theme) => ({
+            fontSize: '8rem',
+            fontWeight: 'bold',
+            color: theme.palette.secondary.main,
+          })}
         >
           404
         </Typography>
@@ -21,7 +27,7 @@ export const PageNotFound = () => {
           variant="body1"
           sx={{ fontSize: '1rem', fontWeight: 'bold' }}
         >
-          Ups! Strona nie istnieje!
+          {t('pageNotFound.notExist')}
         </Typography>
         <Typography
           textAlign={'center'}
@@ -29,8 +35,7 @@ export const PageNotFound = () => {
           color="textSecondary"
           sx={{ fontSize: '1rem' }}
         >
-          Wygląda na to że strona której szukasz nie istnieje lub została
-          usunięta.
+          {t('pageNotFound.pageDeletedInfo')}
         </Typography>
         <Stack
           direction={'row'}
@@ -40,11 +45,19 @@ export const PageNotFound = () => {
             mt: 3,
           }}
         >
-          <Button variant="outlined" onClick={() => navigate(-1)} color="inherit">
-            Wróć
+          <Button
+            variant="outlined"
+            onClick={() => navigate(-1)}
+            color="inherit"
+          >
+            {t('pageNotFound.goBack')}
           </Button>
-          <Button variant="contained" onClick={() => navigate('/home')} color="secondary">
-            Strona główna
+          <Button
+            variant="contained"
+            onClick={() => navigate('/home')}
+            color="secondary"
+          >
+            {t('pageNotFound.mainPage')}
           </Button>
         </Stack>
       </Stack>

@@ -3,9 +3,11 @@ import { Box, alpha, Typography } from '@mui/material';
 import { default as LogoIcon } from '@mui/icons-material/TokenOutlined';
 import { ForgotPassword } from '@/features/forgot-password';
 import { LoginForm } from '@/features/login';
+import { useTranslation } from 'react-i18next';
 
 export const LoginPage = () => {
   const [forgotOpen, setForgotOpen] = useState(false);
+  const { t } = useTranslation('auth');
 
   return (
     <Box
@@ -51,7 +53,7 @@ export const LoginPage = () => {
           </Typography>
         </Typography>
         <Typography variant="h2" className="mt-6 mb-8 text-xl">
-          Zaloguj się do swojego konta
+          {t('login.login')}
         </Typography>
         <LoginForm onForgotPassword={() => setForgotOpen(true)} />
         <ForgotPassword

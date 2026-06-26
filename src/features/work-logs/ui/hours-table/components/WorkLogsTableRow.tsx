@@ -7,12 +7,12 @@ import {
   Tooltip,
 } from '@mui/material';
 import { Add } from '@mui/icons-material';
-import 'dayjs/locale/pl';
 import type { Employee } from '@/entities/employee';
 import type { ConstructionsWithWorkHours } from '../../../model/types';
 import { EditableCell } from './EditableCell';
 import { areConstructionsEqual } from '../../helpers/areConstructionsEqual';
-import { formatToPolishDecimal } from '@/shared/lib/format';
+import { formatDecimal } from '@/shared/lib/format';
+import { useTranslation } from 'react-i18next';
 
 const numberCellMaxWidth = '20px';
 const numberCellPadding = 0.5;
@@ -49,6 +49,8 @@ export const WorkLogsTableRow = React.memo(
       );
       return activeEmployees.filter((e) => !assignedIds.has(e.id));
     }, [activeEmployees, construction.workHours]);
+
+    const { t } = useTranslation('workLogs');
 
     return (
       <React.Fragment>
@@ -185,7 +187,7 @@ export const WorkLogsTableRow = React.memo(
               })}
             >
               <Typography className="text-center font-semibold" variant="body2">
-                {formatToPolishDecimal(workHour.total)}
+                {formatDecimal(workHour.total)}
               </Typography>
             </TableCell>
           </TableRow>
@@ -204,7 +206,7 @@ export const WorkLogsTableRow = React.memo(
             <Tooltip
               title={
                 availableEmployeesForThisRow.length === 0
-                  ? 'Wszyscy pracownicy zostali już dodani'
+                  ? t('table.tooltips.noAvailableEmployees')
                   : ''
               }
             >
@@ -218,7 +220,7 @@ export const WorkLogsTableRow = React.memo(
                     visibility: editMode ? 'visible' : 'hidden',
                   }}
                 >
-                  Dodaj pracowników
+                  {t('actions.addEmployees')}
                 </Button>
               </span>
             </Tooltip>
@@ -232,7 +234,7 @@ export const WorkLogsTableRow = React.memo(
             })}
           >
             <Typography className="text-center font-semibold" variant="body2">
-              {formatToPolishDecimal(construction.totalHours)}
+              {formatDecimal(construction.totalHours)}
             </Typography>
           </TableCell>
         </TableRow>

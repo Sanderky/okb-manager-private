@@ -26,6 +26,7 @@ import dayjs from 'dayjs';
 import isoWeek from 'dayjs/plugin/isoWeek';
 import WeekSelector from '@/shared/ui/WeekSelector';
 import type { HoursTableControlsViewProps } from '../HoursTableControls';
+import { useTranslation } from 'react-i18next';
 
 dayjs.extend(isoWeek);
 
@@ -55,6 +56,8 @@ const HoursTableControlsMobile = ({
     setAnchorEl(event.currentTarget);
   const handleCloseMobileMenu = () => setAnchorEl(null);
 
+  const { t } = useTranslation(['workLogs', 'common']);
+
   return (
     <Stack
       gap={1}
@@ -75,7 +78,7 @@ const HoursTableControlsMobile = ({
         />
 
         <Stack direction={'row'}>
-          <Tooltip title={'Poprzedni tydzień'}>
+          <Tooltip title={t('controls.previousWeek')}>
             <IconButton
               className="rounded-l-lg rounded-r-none border"
               color="primary"
@@ -89,7 +92,7 @@ const HoursTableControlsMobile = ({
               <ChevronLeft fontSize="small" />
             </IconButton>
           </Tooltip>
-          <Tooltip title={'Obecny tydzień'}>
+          <Tooltip title={t('controls.currentWeek')}>
             <Button
               variant="outlined"
               color="primary"
@@ -102,10 +105,10 @@ const HoursTableControlsMobile = ({
                 '&:hover': { borderColor: theme.palette.primary.main },
               })}
             >
-              Dziś
+              {t('controls.today')}
             </Button>
           </Tooltip>
-          <Tooltip title={'Następny tydzień'}>
+          <Tooltip title={t('controls.nextWeek')}>
             <IconButton
               size="small"
               className="rounded-l-none rounded-r-lg border"
@@ -135,7 +138,7 @@ const HoursTableControlsMobile = ({
       >
         <MenuItem disableRipple sx={{ cursor: 'default' }} key={'weekNumber'}>
           <Typography className="w-full px-3 py-1 font-semibold">
-            Tydzień {dayjs(currentWeek).isoWeek()}
+            {t('controls.weekNumber', { week: dayjs(currentWeek).isoWeek() })}
           </Typography>
         </MenuItem>
         <Divider />
@@ -155,7 +158,7 @@ const HoursTableControlsMobile = ({
                     handleToggleEditMode();
                   }}
                 >
-                  Zapisz
+                  {t('common:buttons.save')}
                 </Button>
               </MenuItem>,
               <MenuItem key={'cancel'} disableRipple>
@@ -170,7 +173,7 @@ const HoursTableControlsMobile = ({
                     handleCancelEdit();
                   }}
                 >
-                  Anuluj
+                  {t('common:buttons.cancel')}
                 </Button>
               </MenuItem>,
             ]
@@ -189,7 +192,7 @@ const HoursTableControlsMobile = ({
                     handleToggleEditMode();
                   }}
                 >
-                  Edytuj
+                  {t('common:buttons.edit')}
                 </Button>
               </MenuItem>
             )}
@@ -209,7 +212,7 @@ const HoursTableControlsMobile = ({
                 handleCopyDataDialogOpen();
               }}
             >
-              Kopiuj z innego tygodnia
+              {t('actions.copyFromOtherWeek')}
             </Button>
           </MenuItem>
         )}
@@ -228,7 +231,7 @@ const HoursTableControlsMobile = ({
                 handleFillWithSchedule();
               }}
             >
-              Uzupełnij proponowane
+              {t('actions.fillProposed')}
             </Button>
           </MenuItem>
         )}
@@ -252,7 +255,7 @@ const HoursTableControlsMobile = ({
                 handleCloseMobileMenu();
               }}
             >
-              Filtry
+              {t('controls.filters')}
             </Button>
           </Badge>
         </MenuItem>
@@ -269,7 +272,7 @@ const HoursTableControlsMobile = ({
               handleCloseMobileMenu();
             }}
           >
-            Drukuj
+            {t('common:buttons.print')}
           </Button>
         </MenuItem>
         <MenuItem key={'expand'} disableRipple>
@@ -284,7 +287,9 @@ const HoursTableControlsMobile = ({
               handleToggleExpand();
             }}
           >
-            {isExpanded ? 'Zwiń tabelę' : 'Rozwiń tabelę'}
+            {isExpanded
+              ? t('controls.collapseTable')
+              : t('controls.expandTable')}
           </Button>
         </MenuItem>
         {readOnly && onTableDelete && (
@@ -304,7 +309,7 @@ const HoursTableControlsMobile = ({
                 '&:hover': { borderColor: theme.palette.primary.main },
               })}
             >
-              Zamknij tabelkę
+              {t('controls.closeTable')}
             </Button>
           </MenuItem>
         )}

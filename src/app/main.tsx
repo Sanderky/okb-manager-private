@@ -7,6 +7,7 @@ import dayjs from 'dayjs';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import App from './App';
+import '@/shared/config/i18n';
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);

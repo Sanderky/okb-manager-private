@@ -1,6 +1,5 @@
 import { forwardRef } from 'react';
 import { Box } from '@mui/material';
-import 'dayjs/locale/pl';
 import type { TableData } from '../../model/types';
 import { PrintableTable } from './components/PrintableTable';
 

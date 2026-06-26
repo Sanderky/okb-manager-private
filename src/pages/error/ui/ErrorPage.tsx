@@ -1,7 +1,10 @@
 import { ErrorOutline } from '@mui/icons-material';
 import { Box, Typography } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 
 export const ErrorPage = () => {
+  const { t } = useTranslation('app');
+
   return (
     <Box
       sx={(theme) => ({
@@ -32,11 +35,9 @@ export const ErrorPage = () => {
         </Box>
         <Box>
           <Typography fontSize={'1.5rem'} gutterBottom>
-            Wystąpił niespodziewany błąd.
+            {t('errorPage.unexpectedError')}
           </Typography>
-          <Typography variant="body1">
-            Prosimy spróbować ponownie później.
-          </Typography>
+          <Typography variant="body1">{t('errorPage.tryAgain')}</Typography>
         </Box>
       </Box>
     </Box>

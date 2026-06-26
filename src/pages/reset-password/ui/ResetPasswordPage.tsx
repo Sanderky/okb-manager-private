@@ -12,6 +12,7 @@ import {
 import { default as LogoIcon } from '@mui/icons-material/TokenOutlined';
 import { ArrowBack, Visibility, VisibilityOff } from '@mui/icons-material';
 import { useResetPasswordService } from '@/features/reset-password';
+import { useTranslation } from 'react-i18next';
 
 export const ResetPasswordPage = () => {
   const {
@@ -31,6 +32,8 @@ export const ResetPasswordPage = () => {
     handleSubmit,
     isLoading,
   } = useResetPasswordService();
+
+  const { t } = useTranslation(['auth', 'common']);
 
   return (
     <Box
@@ -76,7 +79,7 @@ export const ResetPasswordPage = () => {
           </Typography>
 
           <Typography variant="h2" className="mt-6 mb-8 text-xl">
-            Reset hasła
+            {t('password.reset')}
           </Typography>
 
           <form className="space-y-6" noValidate onSubmit={handleSubmit}>
@@ -158,7 +161,7 @@ export const ResetPasswordPage = () => {
                   color="inherit"
                   startIcon={<ArrowBack />}
                 >
-                  Wróć
+                  {t('common:buttons.back')}
                 </Button>
               )}
 
@@ -168,7 +171,7 @@ export const ResetPasswordPage = () => {
                 variant="contained"
                 color="primary"
               >
-                Zmień hasło
+                {t('password.changePassword')}
               </Button>
             </Stack>
           </form>

@@ -22,7 +22,7 @@ export const useSavedFilters = () => {
           showInactiveConstructions: parsed.showInactiveConstructions ?? false,
         };
       } catch {
-        console.log('Błąd ładowania filtrów z localStorage');
+        console.log('Error while getting filters from localStorage');
       }
     }
     return {
