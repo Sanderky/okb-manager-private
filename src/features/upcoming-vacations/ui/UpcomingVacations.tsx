@@ -17,10 +17,12 @@ import { ExpandMore, ExpandLess } from '@mui/icons-material';
 import { useScroll } from '@/shared/lib/ScrollContext';
 import { getDateStr } from '@/shared/lib/string';
 import { useUpcomingVacations, type Vacation } from '@/entities/vacations';
+import { useTranslation } from 'react-i18next';
 
 const MAX_VISIBLE_ITEMS = 2;
 
 export const UpcomingVacation = () => {
+  const { t } = useTranslation(['vacations']);
   const navigate = useNavigate();
   const [isExpanded, setIsExpanded] = useState(false);
   const { scrollToTop } = useScroll();
@@ -54,11 +56,13 @@ export const UpcomingVacation = () => {
           }}
         />
         <Typography variant="body1" className="font-medium">
-          Nadchodzące urlopy
+          {t('vacations:upcoming.title')}
         </Typography>
         {hasMoreItems && (
           <Chip
-            label={`${upcomingVacations.length} ${upcomingVacations.length > 4 ? 'urlopów' : 'urlopy'}`}
+            label={t('vacations:upcoming.chipLabel', {
+              count: upcomingVacations.length,
+            })}
             size="small"
             color="primary"
             variant="outlined"
@@ -101,7 +105,7 @@ export const UpcomingVacation = () => {
                 <Stack direction={'row'} spacing={1}>
                   <Done />
                   <Typography color={'textSecondary'}>
-                    Brak nadchodzących urlopów
+                    {t('vacations:upcoming.emptyState')}
                   </Typography>
                 </Stack>
               ) : (

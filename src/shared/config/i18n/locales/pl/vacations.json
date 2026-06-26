@@ -1,6 +1,13 @@
 {
   "pageTitle": "Kalendarz urlopów",
   "unknownEmployee": "Nieznany pracownik",
+  "upcoming": {
+    "title": "Nadchodzące urlopy",
+    "emptyState": "Brak nadchodzących urlopów",
+    "chipLabel_one": "{{count}} urlop",
+    "chipLabel_few": "{{count}} urlopy",
+    "chipLabel_many": "{{count}} urlopów"
+  },
   "notifications": {
     "vacationAdded": "Urlop został utworzony.",
     "vacationUpdated": "Urlop został zaktualizowany.",
