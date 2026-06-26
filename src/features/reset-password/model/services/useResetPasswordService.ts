@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { getRules, validateField, useUpdatePassword } from '@/entities/auth';
 
 export const useResetPasswordService = () => {
+  const { t } = useTranslation(['auth']);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const showBackButton = searchParams.get('ref') === 'settings';
@@ -29,14 +31,14 @@ export const useResetPasswordService = () => {
 
     let hasError = false;
 
-    const validationError = validateField(password, getRules('password'));
+    const validationError = validateField(password, getRules('password', t));
     if (validationError) {
       setPasswordError(validationError);
       hasError = true;
     }
 
     if (password !== confirmPassword) {
-      setConfirmPasswordError('Hasła nie są identyczne.');
+      setConfirmPasswordError(t('auth:errors.passwordsMismatch'));
       hasError = true;
     }
 
@@ -51,27 +53,25 @@ export const useResetPasswordService = () => {
       const msg = err.message || '';
 
       if (msg.includes('Password should be at least')) {
-        setPasswordError('Hasło jest za krótkie (minimum 6 znaków).');
+        setPasswordError(t('auth:errors.passwordTooShort'));
       } else if (msg.includes('different from the old password')) {
-        setGeneralError('Nowe hasło musi różnić się od starego hasła.');
+        setGeneralError(t('auth:errors.passwordSameAsOld'));
       } else if (
         msg.includes('Auth session missing') ||
         msg.includes('User not authenticated') ||
         err.status === 401 ||
         err.status === 403
       ) {
-        setGeneralError(
-          'Link resetujący wygasł lub jest nieprawidłowy. Poproś o zmianę hasła ponownie.'
-        );
+        setGeneralError(t('auth:errors.resetLinkExpired'));
       } else if (err.status === 429) {
-        setGeneralError('Zbyt wiele prób. Odczekaj chwilę.');
+        setGeneralError(t('auth:errors.rateLimitWait'));
       } else if (
         msg.includes('Network request failed') ||
         msg.includes('fetch failed')
       ) {
-        setGeneralError('Błąd połączenia. Sprawdź internet.');
+        setGeneralError(t('auth:errors.networkError'));
       } else {
-        setGeneralError('Wystąpił nieoczekiwany błąd. Spróbuj ponownie.');
+        setGeneralError(t('auth:errors.unexpected'));
       }
     }
   };

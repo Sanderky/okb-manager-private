@@ -1,3 +1,5 @@
+import type { TFunction } from 'i18next';
+
 export interface ValidationRule {
   required?: boolean;
   maxLength?: number;
@@ -8,17 +10,20 @@ export interface ValidationRule {
 
 export type ValidationFields = 'email' | 'password';
 
-export const getRules = (field: ValidationFields): ValidationRule[] => {
+export const getRules = (
+  field: ValidationFields,
+  t: TFunction
+): ValidationRule[] => {
   if (field === 'email') {
     return [
-      { required: true, errorMessage: 'Email jest wymagany' },
+      { required: true, errorMessage: t('auth:validation.emailRequired') },
       {
         regex: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-        errorMessage: 'Niepoprawny format adresu email',
+        errorMessage: t('auth:validation.emailFormat'),
       },
       {
         maxLength: 254,
-        errorMessage: 'Maksymalna długość adresu email to 254 znaki',
+        errorMessage: t('auth:validation.emailMaxLength'),
       },
     ];
   }
@@ -27,9 +32,9 @@ export const getRules = (field: ValidationFields): ValidationRule[] => {
     return [
       {
         required: true,
-        errorMessage: 'Hasło jest wymagane',
+        errorMessage: t('auth:validation.passwordRequired'),
       },
-      { minLength: 6, errorMessage: 'Minimalna długość hasła to 6 znaków' },
+      { minLength: 6, errorMessage: t('auth:validation.passwordMinLength') },
     ];
   }
 
