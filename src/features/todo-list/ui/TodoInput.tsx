@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Box, IconButton, TextField, InputAdornment } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import { useTranslation } from 'react-i18next';
 
 export const AddTodoInput = ({
   onAdd,
@@ -9,6 +10,7 @@ export const AddTodoInput = ({
   onAdd: (text: string) => void;
   disabled: boolean;
 }) => {
+  const { t } = useTranslation(['todo']);
   const [text, setText] = useState('');
 
   const handleSubmit = () => {
@@ -29,7 +31,7 @@ export const AddTodoInput = ({
     <Box sx={{ p: 2, pb: 0 }}>
       <TextField
         multiline
-        placeholder="Dodaj nowe zadanie..."
+        placeholder={t('todo:input.placeholder')}
         value={text}
         onChange={(e) => setText(e.target.value)}
         onKeyDown={handleKeyPress}
