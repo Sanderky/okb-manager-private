@@ -8,6 +8,7 @@ import {
   TextField,
   Button,
 } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import { useForgotPassword } from '../model/services/useForgotPassword';
 
 interface ForgotPasswordProps {
@@ -16,6 +17,8 @@ interface ForgotPasswordProps {
 }
 
 const ForgotPassword = ({ open, handleClose }: ForgotPasswordProps) => {
+  const { t } = useTranslation(['auth', 'common']);
+
   const {
     email,
     setEmail,
@@ -47,11 +50,10 @@ const ForgotPassword = ({ open, handleClose }: ForgotPasswordProps) => {
       }}
     >
       <form noValidate onSubmit={handleSubmit}>
-        <DialogTitle>Zresetuj hasło</DialogTitle>
+        <DialogTitle>{t('forgotPassword.title')}</DialogTitle>
         <DialogContent>
           <DialogContentText className="mb-6">
-            Wprowadź swój adres e-mail poniżej, a my wyślemy Ci link do
-            zresetowania hasła.
+            {t('forgotPassword.description')}
           </DialogContentText>
           <TextField
             size="small"
@@ -59,7 +61,7 @@ const ForgotPassword = ({ open, handleClose }: ForgotPasswordProps) => {
             required
             id="email"
             name="email"
-            label="Adres e-mail"
+            label={t('forgotPassword.emailLabel')}
             type="email"
             fullWidth
             value={email}
@@ -72,11 +74,11 @@ const ForgotPassword = ({ open, handleClose }: ForgotPasswordProps) => {
         <DialogActions className="mr-4 mb-4 font-semibold">
           {!isLoading && (
             <Button onClick={handleClose} color="inherit">
-              Anuluj
+              {t('common:buttons.cancel')}
             </Button>
           )}
           <Button type="submit" loading={isLoading} variant="contained">
-            Kontynuuj
+            {t('forgotPassword.continue')}
           </Button>
         </DialogActions>
       </form>

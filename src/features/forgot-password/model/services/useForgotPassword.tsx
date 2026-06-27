@@ -1,8 +1,10 @@
 import { useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { getRules, validateField, useResetPassword } from '@/entities/auth';
 import useNotifications from '@/shared/ui/notifications/useNotifications';
 
 export const useForgotPassword = (onSuccessCallback: () => void) => {
+  const { t } = useTranslation('auth');
   const notifications = useNotifications();
 
   const [email, setEmail] = useState('');
@@ -18,7 +20,7 @@ export const useForgotPassword = (onSuccessCallback: () => void) => {
   }, []);
 
   const validateEmail = () => {
-    const error = validateField(email, getRules('email'));
+    const error = validateField(email, getRules('email', t));
     if (error) {
       setEmailError(true);
       setEmailErrorMessage(error);
@@ -37,7 +39,7 @@ export const useForgotPassword = (onSuccessCallback: () => void) => {
       await resetMutation.mutateAsync(email);
 
       notifications.show(
-        'Link do resetowania hasła został wysłany na Twój adres e-mail.',
+        t('forgotPassword.successMessage'),
         {
           severity: 'success',
           autoHideDuration: 6000,
@@ -48,12 +50,12 @@ export const useForgotPassword = (onSuccessCallback: () => void) => {
       onSuccessCallback();
     } catch (error: any) {
       console.error('Reset password error:', error);
-      let msg = 'Wystąpił błąd podczas próby zresetowania hasła.';
+      let msg = t('errors.resetPasswordError');
 
       if (error.status === 429) {
-        msg = 'Zbyt wiele prób. Spróbuj ponownie za chwilę.';
+        msg = t('errors.rateLimitWait');
       } else if (error.message) {
-        msg = error.message;
+        msg = error.message; 
       }
 
       notifications.show(msg, {
@@ -70,6 +72,6 @@ export const useForgotPassword = (onSuccessCallback: () => void) => {
     emailErrorMessage,
     handleSubmit,
     resetForm,
-    isLoading: resetMutation.isPending, // flaga ładowania przekazywana do UI
+    isLoading: resetMutation.isPending,
   };
 };
