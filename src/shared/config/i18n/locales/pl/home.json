@@ -1,0 +1,25 @@
+{
+  "notifications": {
+    "success": "Notatka została zaktualizowana.",
+    "error": "Wystąpił błąd podczas zapisywania notatki."
+  },
+  "breadcrumbs": {
+    "home": "Strona główna"
+  },
+  "tabs": {
+    "info": "Informacje",
+    "files": "Pliki"
+  },
+  "cards": {
+    "employees": {
+      "title": "Pracownicy",
+      "archived": "Zarchiwizowani:",
+      "all": "Wszyscy:"
+    },
+    "constructions": {
+      "title": "Aktywne budowy",
+      "completed": "Zakończone:",
+      "all": "Wszystkie:"
+    }
+  }
+}

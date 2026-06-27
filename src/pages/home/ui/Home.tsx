@@ -2,6 +2,7 @@ import { Card, Box, Grid, CardContent, Tabs, Tab } from '@mui/material';
 import PageContainer from '@/shared/ui/PageContainer';
 import { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { ConstructionsCard, EmployeesCard } from './InfoCards';
 import { useEmployees, useEmployeeStats } from '@/entities/employee';
 import {
@@ -20,6 +21,7 @@ import { UpcomingVacation } from '@/features/upcoming-vacations/ui/UpcomingVacat
 const SHOW_DISK_USAGE = import.meta.env.VITE_SHOW_DISK_USAGE;
 
 export const Home = () => {
+  const { t } = useTranslation('home');
   const navigate = useNavigate();
 
   const [tab, setTab] = useState(0);
@@ -67,7 +69,7 @@ export const Home = () => {
 
   return (
     <PageContainer
-      breadcrumbs={[{ title: 'Strona główna' }]}
+      breadcrumbs={[{ title: t('breadcrumbs.home') }]}
       fixedHeight={tab === 1}
       renderTopToolbar={
         <Box
@@ -79,14 +81,14 @@ export const Home = () => {
         >
           <Tabs value={tab} onChange={handleTabChange}>
             <Tab
-              label="Informacje"
+              label={t('tabs.info')}
               sx={{
                 fontSize: { xs: '0.8rem', sm: '.85rem' },
                 minWidth: 0,
               }}
             />
             <Tab
-              label="Pliki"
+              label={t('tabs.files')}
               sx={{
                 fontSize: { xs: '0.8rem', sm: '.85rem' },
                 minWidth: { xs: 0, sm: 100 },

@@ -10,6 +10,7 @@ import {
 } from '@mui/material';
 import { Construction } from '@mui/icons-material';
 import PeopleIcon from '@mui/icons-material/People';
+import { useTranslation } from 'react-i18next';
 
 interface EmployeesCardProps {
   handleEmployeesClick: () => void;
@@ -27,6 +28,8 @@ export const EmployeesCard = ({
   isLoading,
   employeeStats,
 }: EmployeesCardProps) => {
+  const { t } = useTranslation('home');
+
   return (
     <Card
       onClick={handleEmployeesClick}
@@ -59,7 +62,7 @@ export const EmployeesCard = ({
             >
               <Box>
                 <Typography variant="body1" color="textSecondary">
-                  Pracownicy
+                  {t('cards.employees.title')}
                 </Typography>
                 <Typography variant="h4">
                   {employeeStats?.active || 0}
@@ -74,14 +77,14 @@ export const EmployeesCard = ({
           <Box className="px-4 py-2">
             <Stack direction={'column'}>
               <Typography variant="overline" color="textSecondary">
-                Zarchiwizowani:{' '}
+                {t('cards.employees.archived')}{' '}
                 <Typography component={'span'} color="textPrimary">
                   {Number(employeeStats?.total) -
                     Number(employeeStats?.active) || 0}
                 </Typography>
               </Typography>
               <Typography variant="overline" color="textSecondary">
-                Wszyscy:{' '}
+                {t('cards.employees.all')}{' '}
                 <Typography component={'span'} color="textPrimary">
                   {Number(employeeStats?.total) || 0}
                 </Typography>
@@ -110,6 +113,8 @@ export const ConstructionsCard = ({
   isLoading,
   constructionStats,
 }: ConstructionsCardProps) => {
+  const { t } = useTranslation('home');
+
   return (
     <Card
       onClick={handleConstructionsClick}
@@ -142,7 +147,7 @@ export const ConstructionsCard = ({
             >
               <Box>
                 <Typography variant="body1" color="textSecondary">
-                  Aktywne budowy
+                  {t('cards.constructions.title')}
                 </Typography>
                 <Typography variant="h4">
                   {constructionStats?.active || 0}
@@ -157,14 +162,14 @@ export const ConstructionsCard = ({
           <Box className="px-4 py-2">
             <Stack direction={'column'}>
               <Typography variant="overline" color="textSecondary">
-                Zakończone:{' '}
+                {t('cards.constructions.completed')}{' '}
                 <Typography component={'span'} color="textPrimary">
                   {Number(constructionStats?.total) -
                     Number(constructionStats?.active) || 0}
                 </Typography>
               </Typography>
               <Typography variant="overline" color="textSecondary">
-                Wszystkie:{' '}
+                {t('cards.constructions.all')}{' '}
                 <Typography component={'span'} color="textPrimary">
                   {Number(constructionStats?.total) || 0}
                 </Typography>

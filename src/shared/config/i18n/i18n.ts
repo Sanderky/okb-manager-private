@@ -1,9 +1,9 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
+import { DEFAULT_LANG, getShortLang } from '../languages';
 
 import dayjs from 'dayjs';
-
 import 'dayjs/locale/pl';
 import 'dayjs/locale/de';
 
@@ -19,7 +19,7 @@ import calendarPl from './locales/pl/calendar.json';
 import todoPl from './locales/pl/todo.json';
 import schedulePl from './locales/pl/schedule.json';
 import lodgingsPl from './locales/pl/lodgings.json';
-import { DEFAULT_LANG, getShortLang } from '../languages';
+import homePl from './locales/pl/home.json';
 
 const resources = {
   'pl-PL': {
@@ -35,6 +35,7 @@ const resources = {
     todo: todoPl,
     schedule: schedulePl,
     lodgings: lodgingsPl,
+    home: homePl
   },
 };
 
