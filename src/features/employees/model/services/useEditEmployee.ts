@@ -15,8 +15,10 @@ import { toNumberOrNull } from '@/shared/lib/toNumberOrNull';
 import { deleteFolderRecursive } from '@/shared/api/storage';
 import type { EmployeeFormState, FormFieldValue } from '../types';
 import { validate } from '../validation';
+import { useTranslation } from 'react-i18next';
 
 export const useEditEmployee = (employeeId: string) => {
+  const { t } = useTranslation(['employees', 'common']);
   const navigate = useNavigate();
   const notifications = useNotifications();
   const dialogs = useDialogs();
@@ -77,7 +79,7 @@ export const useEditEmployee = (employeeId: string) => {
       const validationErrors = validate(formState.values);
       if (Object.keys(validationErrors).length > 0) {
         setFormState((prev) => ({ ...prev, errors: validationErrors }));
-        notifications.show('Proszę poprawić błędy w formularzu.', {
+        notifications.show(t('employees:validation.fixErrors'), {
           severity: 'error',
           autoHideDuration: 5000,
         });
@@ -108,7 +110,7 @@ export const useEditEmployee = (employeeId: string) => {
           employeeId,
           payload: updateData,
         });
-        notifications.show('Dane pracownika zostały zaktualizowane.', {
+        notifications.show(t('employees:notifications.updated'), {
           severity: 'success',
           autoHideDuration: 5000,
         });
@@ -117,10 +119,10 @@ export const useEditEmployee = (employeeId: string) => {
         onSuccess?.();
       } catch (error) {
         console.error('Submit error:', error);
-        notifications.show(
-          'Wystąpił błąd podczas aktualizacji danych pracownika.',
-          { severity: 'error', autoHideDuration: 5000 }
-        );
+        notifications.show(t('employees:notifications.updateError'), {
+          severity: 'error',
+          autoHideDuration: 5000,
+        });
       } finally {
         stopActionLoading();
       }
@@ -134,6 +136,7 @@ export const useEditEmployee = (employeeId: string) => {
       navigate,
       employeeId,
       scrollToTop,
+      t,
     ]
   );
 
@@ -144,12 +147,14 @@ export const useEditEmployee = (employeeId: string) => {
       try {
         await deleteMutation.mutateAsync(employeeId);
         await deleteFolderRecursive(`employees/${employee.id}`);
-        notifications.show('Pracownik został usunięty.', { severity: 'info' });
+        notifications.show(t('employees:notifications.deleted'), {
+          severity: 'info',
+        });
         navigate('/employees');
         onSuccess?.();
       } catch (error) {
         console.error('Delete employee error:', error);
-        notifications.show('Wystąpił błąd podczas usuwania pracownika.', {
+        notifications.show(t('employees:notifications.deleteError'), {
           severity: 'error',
           autoHideDuration: 5000,
         });
@@ -158,7 +163,7 @@ export const useEditEmployee = (employeeId: string) => {
         setIsDeleting(false);
       }
     },
-    [employee, deleteMutation, navigate, notifications]
+    [employee, deleteMutation, navigate, notifications, t]
   );
 
   const handleEmployeeStatus = useCallback(
@@ -166,13 +171,15 @@ export const useEditEmployee = (employeeId: string) => {
       if (!employee) return;
       const confirmation = await dialogs.confirm(
         status
-          ? `Czy na pewno chcesz aktywować pracownika?`
-          : `Czy na pewno chcesz archiwizować pracownika?`,
+          ? t('employees:dialogs.activateConfirm')
+          : t('employees:dialogs.archiveConfirm'),
         {
-          title: status ? `Aktywowanie pracownika` : `Archiwizacja pracownika`,
+          title: status
+            ? t('employees:dialogs.activateTitle')
+            : t('employees:dialogs.archiveTitle'),
           severity: status ? 'success' : 'warning',
-          okText: 'Tak',
-          cancelText: 'Anuluj',
+          okText: t('employees:dialogs.yes'),
+          cancelText: t('common:buttons.cancel'),
         }
       );
       if (confirmation) {
@@ -191,7 +198,7 @@ export const useEditEmployee = (employeeId: string) => {
         }
       }
     },
-    [employee, employeeId, navigate, scrollToTop, updateMutation, dialogs]
+    [employee, employeeId, navigate, scrollToTop, updateMutation, dialogs, t]
   );
 
   const handleCancel = useCallback(() => {

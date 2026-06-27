@@ -1,23 +1,24 @@
-// features/employees/ui/AttachmentDateBox.tsx
 import React from 'react';
 import { Grid, Stack, Typography, Alert, useTheme } from '@mui/material';
 import dayjs from 'dayjs';
+import { useTranslation } from 'react-i18next';
 import type { Employee, EmployeeAlert } from '@/entities/employee';
 
 interface AttachmentDateBoxProps {
   dateKey: keyof Employee;
-  label: string;
+  labelKey?: string;
   employeeData: Employee | null;
   alerts: EmployeeAlert[];
 }
 
 export const AttachmentDateBox = ({
   dateKey,
-  label,
+  labelKey,
   employeeData,
   alerts,
 }: AttachmentDateBoxProps) => {
   const theme = useTheme();
+  const { t } = useTranslation('employees');
 
   if (!employeeData) return null;
 
@@ -39,7 +40,7 @@ export const AttachmentDateBox = ({
   let bgColor = '';
 
   if (isContractEndDate && isPermanent) {
-    displayValue = 'Umowa na czas nieokreślony';
+    displayValue = t('attachments.contractPermanent');
   } else if (dateValue instanceof Date) {
     displayValue = dayjs(dateValue).format('DD.MM.YYYY');
 
@@ -57,19 +58,17 @@ export const AttachmentDateBox = ({
   } else {
     textColor = theme.palette.text.disabled;
     borderColor = theme.palette.text.disabled;
-    displayValue = <em>Brak</em>;
+    displayValue = <em>{t('attachments.none')}</em>;
   }
 
   if (activeAlert) {
     if (activeAlert.severity === 'error') {
       textColor = theme.palette.error.main;
       borderColor = theme.palette.error.main;
-      // bgColor = alpha(theme.palette.error.main, 0.1);
       bgColor = '';
     } else if (activeAlert.severity === 'warning') {
       textColor = theme.palette.warning.main;
       borderColor = theme.palette.warning.main;
-      // bgColor = alpha(theme.palette.warning.main, 0.1);
       bgColor = '';
     }
   } else if (isPermanent) {
@@ -87,7 +86,7 @@ export const AttachmentDateBox = ({
         sx={{ width: '100%' }}
       >
         <Typography variant="body2" className="font-medium">
-          {label}:
+          {labelKey ? t(labelKey) : dateKey}:
         </Typography>
         <Typography
           variant="body2"
@@ -112,7 +111,14 @@ export const AttachmentDateBox = ({
             borderWidth: '1px',
           }}
         >
-          <Typography variant="body2">{activeAlert.message}</Typography>
+          <Typography variant="body2">
+            {t(activeAlert.messageData.key, {
+              ...activeAlert.messageData.params,
+              type: activeAlert.messageData.params?.typeKey
+                ? t(activeAlert.messageData.params.typeKey as string)
+                : '',
+            })}
+          </Typography>
         </Alert>
       )}
     </Grid>

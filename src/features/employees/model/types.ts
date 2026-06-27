@@ -3,7 +3,8 @@ import type { Dayjs } from 'dayjs';
 
 export interface FieldInfo {
   key: keyof Employee;
-  label: string;
+  // label: string;
+  labelKey?: string;
 }
 
 export interface EmployeesFilters {

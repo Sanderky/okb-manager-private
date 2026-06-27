@@ -5,6 +5,7 @@ import PageContainer from '@/shared/ui/PageContainer';
 import { Chip, Stack } from '@mui/material';
 import { Grid } from '@mui/system';
 import Loading from '@/shared/ui/Loading';
+import { useTranslation } from 'react-i18next';
 import {
   EmployeeEdit,
   EmployeeEditProvider,
@@ -24,6 +25,8 @@ export const EmployeeEditPage = () => {
 };
 
 const EmployeeEditPageContent = () => {
+  const { t } = useTranslation('employees');
+
   const {
     employee,
     employeeId,
@@ -35,16 +38,14 @@ const EmployeeEditPageContent = () => {
 
   const renderContent = () => {
     if (isLoading || actionLoading) {
-      return <Loading message="Ładowanie danych pracownika..." />;
+      return <Loading message={t('pages.edit.loading')} />;
     }
 
     if (isError) {
       return (
         <Grid container columns={12} alignItems="flex-start" className="w-full">
           <Grid size={{ xs: 12 }} className="w-full">
-            <Alert severity="error">
-              Wystąpił błąd podczas ładowania danych pracownika.
-            </Alert>
+            <Alert severity="error">{t('pages.edit.loadError')}</Alert>
           </Grid>
         </Grid>
       );
@@ -54,7 +55,7 @@ const EmployeeEditPageContent = () => {
       return (
         <Grid container columns={12} alignItems="flex-start" className="w-full">
           <Grid size={{ xs: 12 }} className="w-full">
-            <Alert severity="warning">Nie znaleziono danych pracownika.</Alert>
+            <Alert severity="warning">{t('pages.edit.notFound')}</Alert>
           </Grid>
         </Grid>
       );
@@ -63,15 +64,15 @@ const EmployeeEditPageContent = () => {
     return <EmployeeEdit />;
   };
 
-  const pageTitle = employee?.name || 'pracownika';
+  const pageTitle = employee?.name || t('pages.edit.fallbackName');
 
   return (
     <PageContainer
-      title={`Edycja ${pageTitle}`}
+      title={t('pages.edit.title', { name: pageTitle })}
       breadcrumbs={[
-        { title: 'Pracownicy', path: '/employees' },
+        { title: t('pages.breadcrumbs.employees'), path: '/employees' },
         { title: employee?.name || '...', path: `/employees/${employeeId}` },
-        { title: 'Edytuj' },
+        { title: t('pages.breadcrumbs.edit') },
       ]}
       actions={
         <Stack direction="row" alignItems="center">
@@ -81,9 +82,9 @@ const EmployeeEditPageContent = () => {
                 isLoading || isFormLoading ? (
                   <Loading size={20} message="" />
                 ) : employee?.status ? (
-                  'Aktywny'
+                  t('list.status.active')
                 ) : (
-                  'Nieaktywny'
+                  t('list.status.inactive')
                 )
               }
               className={

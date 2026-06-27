@@ -37,3 +37,8 @@ export interface CalendarDay<T extends BaseCalendarEvent> {
   events: GridEvent<T>[];
   slots: Record<string, number>;
 }
+
+export interface TranslationData {
+  key: string;
+  params?: Record<string, string | number>;
+}

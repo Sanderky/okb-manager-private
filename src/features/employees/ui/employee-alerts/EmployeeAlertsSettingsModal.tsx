@@ -1,4 +1,5 @@
 import BaseDialog from '@/shared/ui/BaseDialog';
+import { useTranslation } from 'react-i18next';
 import { EmployeeAlertsSettingsBase } from './EmployeeAlertsSettings';
 
 interface EmployeeAlertsSettingsModalProps {
@@ -10,11 +11,13 @@ export const EmployeeAlertsSettingsModal = ({
   isOpen,
   onClose,
 }: EmployeeAlertsSettingsModalProps) => {
+  const { t } = useTranslation('employees');
+
   return (
     <BaseDialog
       open={isOpen}
       onClose={onClose}
-      title="Ustawienia alertów"
+      title={t('alerts.settingsTitle')}
       showConfirm={false}
       maxWidth="sm"
       fullWidth

@@ -14,10 +14,12 @@ import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import ArchiveIcon from '@mui/icons-material/Archive';
 import UnarchiveIcon from '@mui/icons-material/Unarchive';
 import BaseDialog from '@/shared/ui/BaseDialog';
+import { useTranslation } from 'react-i18next';
 import { useEmployeeEditContext } from '../../model/providers/useEmployeeEditContext';
 import { EmployeeForm } from '../EmployeeForm';
 
 export const EmployeeEdit = () => {
+  const { t } = useTranslation(['employees', 'common']);
   const [deleteConfirmation, setDeleteConfirmation] = useState('');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const formRefs = useRef<Record<string, HTMLInputElement | null>>({});
@@ -110,10 +112,10 @@ export const EmployeeEdit = () => {
             >
               <div>
                 <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                  Archiwizuj pracownika
+                  {t('edit.archive.title')}
                 </Typography>
                 <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                  Status pracownika zmienia się na "Nieaktywny".
+                  {t('edit.archive.description')}
                 </Typography>
               </div>
               <Button
@@ -124,7 +126,7 @@ export const EmployeeEdit = () => {
                 loading={isFormLoading}
                 startIcon={<ArchiveIcon />}
               >
-                Archiwizuj
+                {t('edit.archive.button')}
               </Button>
             </Stack>
           ) : (
@@ -142,10 +144,10 @@ export const EmployeeEdit = () => {
             >
               <div>
                 <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                  Aktywuj pracownika
+                  {t('edit.activate.title')}
                 </Typography>
                 <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                  Status pracownika zmienia się na "Aktywny".
+                  {t('edit.activate.description')}
                 </Typography>
               </div>
               <Button
@@ -156,7 +158,7 @@ export const EmployeeEdit = () => {
                 loading={isFormLoading}
                 startIcon={<UnarchiveIcon />}
               >
-                Aktywuj
+                {t('edit.activate.button')}
               </Button>
             </Stack>
           )}
@@ -175,11 +177,10 @@ export const EmployeeEdit = () => {
           >
             <div>
               <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                Usuń pracownika
+                {t('edit.delete.title')}
               </Typography>
               <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                Trwale usuwa pracownika z bazy danych. Tej operacji nie można
-                cofnąć.
+                {t('edit.delete.description')}
               </Typography>
             </div>
             <Button
@@ -190,7 +191,7 @@ export const EmployeeEdit = () => {
               loading={isFormLoading || isDeleting}
               startIcon={<HighlightOffIcon />}
             >
-              Usuń
+              {t('edit.delete.button')}
             </Button>
           </Stack>
         </Grid>
@@ -202,7 +203,7 @@ export const EmployeeEdit = () => {
         title={
           <Stack direction="row" spacing={1} alignItems="center">
             <WarningAmberIcon className="text-red-600" />
-            <span>Usuwanie pracownika</span>
+            <span>{t('edit.dialog.title')}</span>
           </Stack>
         }
         actions={
@@ -213,7 +214,7 @@ export const EmployeeEdit = () => {
               loading={isDeleting}
               color="inherit"
             >
-              Anuluj
+              {t('common:buttons.cancel')}
             </Button>
             <Button
               onClick={handleDeleteEmployee}
@@ -225,7 +226,7 @@ export const EmployeeEdit = () => {
                 employee.name.trim().toLocaleLowerCase()
               }
             >
-              Usuń
+              {t('common:buttons.delete')}
             </Button>
           </Stack>
         }
@@ -233,19 +234,18 @@ export const EmployeeEdit = () => {
       >
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           <Typography variant="body1" className="text-gray-600">
-            Czy na pewno chcesz usunąć <strong>{employee.name}</strong>?
+            {t('edit.dialog.confirm')} <strong>{employee.name}</strong>?
           </Typography>
           <Typography variant="body1" className="text-gray-600">
-            Pracownik zostanie usunięty z bazy danych łącznie ze wszytkimi jego
-            plikami oraz powiązanymi informacjami.
+            {t('edit.dialog.info')}
           </Typography>
           <Alert severity="error">
-            <AlertTitle>Uwaga!</AlertTitle>Tej operacji nie można cofnąć.
-            Zamiast tego, proszę rozważyć archiwizację pracownika.
+            <AlertTitle>{t('edit.dialog.warningTitle')}</AlertTitle>
+            {t('edit.dialog.warningText')}
           </Alert>
           <Stack sx={{ mt: 2 }} direction="column" spacing={0.5}>
             <Typography variant="subtitle2">
-              Aby usunąć pracownika, wprowadź poniżej jego pełną nazwę:
+              {t('edit.dialog.prompt')}
             </Typography>
             <TextField
               value={deleteConfirmation}

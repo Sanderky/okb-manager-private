@@ -6,11 +6,12 @@ import { useNavigate } from 'react-router';
 import PageContainer from '@/shared/ui/PageContainer';
 import { useEmployees } from '@/entities/employee';
 import Alert from '@mui/material/Alert';
-import 'dayjs/locale/pl';
 import Loading from '@/shared/ui/Loading';
+import { useTranslation } from 'react-i18next';
 import { EmployeeList, EmployeeListProvider } from '@/features/employees';
 
 export function EmployeesListPage() {
+  const { t } = useTranslation('employees');
   const navigate = useNavigate();
   const { employees, isLoading, isError, refetch } = useEmployees();
 
@@ -21,18 +22,18 @@ export function EmployeesListPage() {
   if (isError) {
     return (
       <PageContainer
-        breadcrumbs={[{ title: 'Lista pracowników' }]}
+        breadcrumbs={[{ title: t('pages.list.title') }]}
         fixedHeight={true}
       >
         <Alert
           severity="error"
           action={
             <Button color="inherit" size="small" onClick={() => refetch()}>
-              Ponów próbę
+              {t('pages.list.retry')}
             </Button>
           }
         >
-          Nie udało się załadować listy pracowników.
+          {t('pages.list.loadError')}
         </Alert>
       </PageContainer>
     );
@@ -42,7 +43,7 @@ export function EmployeesListPage() {
     return (
       <PageContainer
         fixedHeight={true}
-        breadcrumbs={[{ title: 'Lista pracowników' }]}
+        breadcrumbs={[{ title: t('pages.list.title') }]}
       >
         <Box
           sx={{
@@ -61,7 +62,7 @@ export function EmployeesListPage() {
   return (
     <PageContainer
       fixedHeight={true}
-      breadcrumbs={[{ title: 'Lista pracowników' }]}
+      breadcrumbs={[{ title: t('pages.list.title') }]}
       actions={
         <Button
           variant="contained"
@@ -69,7 +70,7 @@ export function EmployeesListPage() {
           startIcon={<AddIcon />}
           size="small"
         >
-          Nowy
+          {t('pages.list.new')}
         </Button>
       }
     >

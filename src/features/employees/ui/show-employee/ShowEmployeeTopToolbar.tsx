@@ -1,6 +1,7 @@
 import React from 'react';
 import { Stack, Tabs, Tab, Tooltip, IconButton } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
+import { useTranslation } from 'react-i18next';
 
 export interface EmployeeShowTopToolbarProps {
   tab: number;
@@ -13,6 +14,8 @@ export const EmployeeShowTopToolbar = ({
   handleTabChange,
   handleEmployeeEdit,
 }: EmployeeShowTopToolbarProps) => {
+  const { t } = useTranslation('employees');
+
   return (
     <Stack
       direction="row"
@@ -26,7 +29,7 @@ export const EmployeeShowTopToolbar = ({
     >
       <Tabs value={tab} onChange={handleTabChange}>
         <Tab
-          label="Informacje"
+          label={t('tabs.info')}
           sx={{
             fontSize: { xs: '0.8rem', sm: '.85rem' },
             padding: 2,
@@ -34,7 +37,7 @@ export const EmployeeShowTopToolbar = ({
           }}
         />
         <Tab
-          label="Pliki"
+          label={t('tabs.files')}
           sx={{
             fontSize: { xs: '0.8rem', sm: '.85rem' },
             padding: 2,
@@ -49,7 +52,7 @@ export const EmployeeShowTopToolbar = ({
         spacing={{ xs: 1.5, sm: 3 }}
         sx={{ pl: 1 }}
       >
-        <Tooltip title="Edytuj pracownika">
+        <Tooltip title={t('tabs.editTooltip')}>
           <IconButton
             onClick={handleEmployeeEdit}
             color="primary"

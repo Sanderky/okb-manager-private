@@ -1,4 +1,4 @@
-import type { FileItem } from '@/shared/model/types';
+import type { FileItem, TranslationData } from '@/shared/model/types';
 
 export type EmployeeAttachmentType = 'id_card' | 'contract' | 'a1' | 'other';
 
@@ -38,9 +38,9 @@ export interface EmployeeAlert {
   employeeId: string;
   employeeName: string;
   severity: 'error' | 'warning';
-  title: string;
-  message: string;
   daysLeft?: number;
+  titleKey: string; 
+  messageData: TranslationData;
 }
 
 export interface AlertsSettings {

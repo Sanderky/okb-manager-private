@@ -5,6 +5,7 @@ import { CircularProgress, Grid, IconButton } from '@mui/material';
 import { FileUpload, HighlightOff } from '@mui/icons-material';
 import { useDialogs } from '@/shared/ui/dialogs/useDialogs';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   useEmployeeAlerts,
   type Attachment,
@@ -37,6 +38,7 @@ export const AttachmentBox = ({
   employee,
   dateFields,
 }: AttachmentBoxProps) => {
+  const { t } = useTranslation(['employees', 'common']);
   const { alerts, isLoading: alertsLoading } = useEmployeeAlerts();
   const [isDragging, setIsDragging] = useState(false);
   const employeeAlerts = alerts.filter((a) => a.employeeId === employee?.id);
@@ -85,16 +87,14 @@ export const AttachmentBox = ({
   const handleDelete = async (fileToDelete: Attachment) => {
     const confirm = await dialogs.confirm(
       <Box>
-        <Typography mb={2}>
-          Czy na pewno chcesz usunąć ten załącznik?
-        </Typography>
+        <Typography mb={2}>{t('attachments.deleteConfirmText')}</Typography>
         <Typography variant="caption">{fileToDelete.name}</Typography>
       </Box>,
       {
         severity: 'error',
-        title: 'Usuwanie pliku',
-        okText: 'Usuń',
-        cancelText: 'Anuluj',
+        title: t('attachments.deleteTitle'),
+        okText: t('common:buttons.delete'),
+        cancelText: t('common:buttons.cancel'),
       }
     );
     if (confirm) {
@@ -149,15 +149,8 @@ export const AttachmentBox = ({
         {isLoading ? (
           <CircularProgress size={20} sx={{ m: 0.5 }} />
         ) : (
-          <IconButton
-            size="small"
-            component="label"
-            sx={{
-              p: 0,
-            }}
-          >
+          <IconButton size="small" component="label" sx={{ p: 0 }}>
             <FileUpload color="primary" />
-
             <input type="file" multiple hidden onChange={handleUpload} />
           </IconButton>
         )}
@@ -188,7 +181,7 @@ export const AttachmentBox = ({
         <Box marginBottom={2}>
           <Stack direction={'row'} alignItems={'center'} gap={1}>
             <HighlightOff sx={{ color: 'text.secondary' }} />
-            <Typography variant="body2">Brak załączników</Typography>
+            <Typography variant="body2">{t('attachments.empty')}</Typography>
           </Stack>
         </Box>
       )}
@@ -203,11 +196,11 @@ export const AttachmentBox = ({
             borderTop: `1px solid ${theme.palette.accent.dark}`,
           })}
         >
-          {dateFields.map(({ key, label }) => (
+          {dateFields.map(({ key, labelKey }) => (
             <AttachmentDateBox
               key={key}
               dateKey={key}
-              label={label}
+              labelKey={labelKey}
               employeeData={employee}
               alerts={employeeAlerts}
             />

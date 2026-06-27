@@ -6,8 +6,10 @@ import {
   type AlertsSettings,
 } from '@/entities/employee';
 import type { AlertsSettingsErrors } from '../types';
+import { useTranslation } from 'react-i18next';
 
 export const useAlertsSettings = (isOpen: boolean, onClose: () => void) => {
+  const { t } = useTranslation('employees');
   const notifications = useNotifications();
 
   const [formData, setFormData] = useState<AlertsSettings>({
@@ -52,22 +54,22 @@ export const useAlertsSettings = (isOpen: boolean, onClose: () => void) => {
     };
 
     if (isNaN(formData.a1Warning) || formData.a1Warning < 0) {
-      newErrors.a1Warning = 'Wartość musi być liczbą nieujemną';
+      newErrors.a1Warning = t('alertsSettings.validation.negativeValue');
       isValid = false;
     }
 
     if (isNaN(formData.a1Critical) || formData.a1Critical < 0) {
-      newErrors.a1Critical = 'Wartość musi być liczbą nieujemną';
+      newErrors.a1Critical = t('alertsSettings.validation.negativeValue');
       isValid = false;
     }
 
     if (isNaN(formData.contractWarning) || formData.contractWarning < 0) {
-      newErrors.contractWarning = 'Wartość musi być liczbą nieujemną';
+      newErrors.contractWarning = t('alertsSettings.validation.negativeValue');
       isValid = false;
     }
 
     if (isNaN(formData.contractCritical) || formData.contractCritical < 0) {
-      newErrors.contractCritical = 'Wartość musi być liczbą nieujemną';
+      newErrors.contractCritical = t('alertsSettings.validation.negativeValue');
       isValid = false;
     }
 
@@ -78,8 +80,9 @@ export const useAlertsSettings = (isOpen: boolean, onClose: () => void) => {
       formData.a1Critical !== 0
     ) {
       if (formData.a1Critical >= formData.a1Warning) {
-        newErrors.a1Critical =
-          'Wartość krytyczna musi być mniejsza niż ostrzeżenie';
+        newErrors.a1Critical = t(
+          'alertsSettings.validation.criticalLowerThanWarning'
+        );
         isValid = false;
       }
     }
@@ -91,8 +94,9 @@ export const useAlertsSettings = (isOpen: boolean, onClose: () => void) => {
       formData.contractCritical !== 0
     ) {
       if (formData.contractCritical >= formData.contractWarning) {
-        newErrors.contractCritical =
-          'Wartość krytyczna musi być mniejsza niż ostrzeżenie';
+        newErrors.contractCritical = t(
+          'alertsSettings.validation.criticalLowerThanWarning'
+        );
         isValid = false;
       }
     }
@@ -105,14 +109,12 @@ export const useAlertsSettings = (isOpen: boolean, onClose: () => void) => {
     if (hasChanges && validate()) {
       try {
         await updateMutation.mutateAsync(formData);
-        notifications.show('Ustawienia alertów zostały zmienione.', {
+        notifications.show(t('alertsSettings.success'), {
           severity: 'success',
         });
         onClose();
       } catch {
-        notifications.show('Ustawienia nie zostały zmienione.', {
-          severity: 'error',
-        });
+        notifications.show(t('alertsSettings.error'), { severity: 'error' });
       }
     }
   };

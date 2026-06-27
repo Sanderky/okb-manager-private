@@ -12,6 +12,7 @@ import {
 } from '@mui/material';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import dayjs from 'dayjs';
+import { useTranslation } from 'react-i18next';
 import { Note } from '@/shared/ui/Note';
 import { getDateStr } from '@/shared/lib/string';
 import { useEmployeeShowContext } from '../../model/providers/useEmployeeShowContext';
@@ -21,27 +22,29 @@ import { AttachmentBox } from './AttachmentBox';
 import { EventsListTable } from '@/features/upcoming-events';
 
 const personalFields: FieldInfo[] = [
-  { key: 'name', label: 'Imię i nazwisko' },
-  { key: 'pesel', label: 'PESEL' },
-  { key: 'address', label: 'Adres' },
-  { key: 'email', label: 'E-mail' },
-  { key: 'phone', label: 'Telefon' },
-  { key: 'birthDate', label: 'Data urodzenia' },
-  { key: 'birthPlace', label: 'Miejsce urodzenia' },
-  { key: 'hourRate', label: 'Stawka' },
-  { key: 'accountNumber', label: 'Numer konta' },
-  { key: 'isContractor', label: 'Kontraktor' },
+  { key: 'name', labelKey: 'form.fields.name' },
+  { key: 'pesel', labelKey: 'form.fields.pesel' },
+  { key: 'address', labelKey: 'form.fields.address' },
+  { key: 'email', labelKey: 'form.fields.email' },
+  { key: 'phone', labelKey: 'form.fields.phone' },
+  { key: 'birthDate', labelKey: 'form.fields.birthDate' },
+  { key: 'birthPlace', labelKey: 'form.fields.birthPlace' },
+  { key: 'hourRate', labelKey: 'form.fields.hourRate' },
+  { key: 'accountNumber', labelKey: 'form.fields.accountNumber' },
+  { key: 'isContractor', labelKey: 'form.sections.contractor' },
 ];
 const contractFields: FieldInfo[] = [
-  { key: 'contractStartDate', label: 'Data rozpoczęcia umowy' },
-  { key: 'contractEndDate', label: 'Data wygaśnięcia umowy' },
+  { key: 'contractStartDate', labelKey: 'form.fields.contractStartDate' },
+  { key: 'contractEndDate', labelKey: 'form.fields.contractEndDate' },
 ];
 const a1Fields: FieldInfo[] = [
-  { key: 'a1StartDate', label: 'Data rozpoczęcia A1' },
-  { key: 'a1EndDate', label: 'Data wygaśnięcia A1' },
+  { key: 'a1StartDate', labelKey: 'form.fields.a1StartDate' },
+  { key: 'a1EndDate', labelKey: 'form.fields.a1EndDate' },
 ];
 
 export const EmployeeShow = () => {
+  const { t } = useTranslation('employees');
+
   const {
     employee,
     employeeId,
@@ -56,7 +59,7 @@ export const EmployeeShow = () => {
   const attachmentsHook = useEmployeeAttachments(employeeId);
 
   const formatFieldValue = (key: string, value: any) => {
-    if (key === 'isContractor') return value ? 'Tak' : 'Nie';
+    if (key === 'isContractor') return value ? t('show.yes') : t('show.no');
     if (value === null || value === undefined || value === '')
       return (
         <Typography component="span" color="textSecondary" fontWeight="bold">
@@ -95,7 +98,7 @@ export const EmployeeShow = () => {
             >
               <Table>
                 <TableBody>
-                  {personalFields.map(({ key, label }) => (
+                  {personalFields.map(({ key, labelKey }) => (
                     <TableRow
                       key={key}
                       sx={(theme) => ({
@@ -119,7 +122,7 @@ export const EmployeeShow = () => {
                           className="text-sm font-medium"
                           color="textSecondary"
                         >
-                          {label}:
+                          {labelKey ? t(labelKey) : key}:
                         </Typography>
                       </TableCell>
                       <TableCell
@@ -191,10 +194,11 @@ export const EmployeeShow = () => {
                           <CalendarMonthIcon
                             sx={{ color: 'accent.superDark' }}
                           />
-                          <Typography
-                            variant="subtitle2"
-                            fontWeight="600"
-                          >{`Nadchodzące urlopy pracownika (${employeeVacation.length}):`}</Typography>
+                          <Typography variant="subtitle2" fontWeight="600">
+                            {t('show.upcomingVacations', {
+                              count: employeeVacation.length,
+                            })}
+                          </Typography>
                         </Stack>
                       </th>
                     </TableRow>
@@ -202,7 +206,9 @@ export const EmployeeShow = () => {
                   <TableBody
                     sx={(theme) => ({
                       '& > tr:not(:last-child) > td, & > tr:not(:last-child) > th':
-                        { borderBottom: `1px solid ${theme.palette.divider}` },
+                        {
+                          borderBottom: `1px solid ${theme.palette.divider}`,
+                        },
                       '& > tr:last-child > td, & > tr:last-child > th': {
                         borderBottom: 'none',
                       },
@@ -234,7 +240,7 @@ export const EmployeeShow = () => {
                       <tr>
                         <td className="px-4 py-3">
                           <Typography variant="body2" color="textSecondary">
-                            Brak urlopów
+                            {t('show.noVacations')}
                           </Typography>
                         </td>
                       </tr>
@@ -248,14 +254,14 @@ export const EmployeeShow = () => {
           <Grid size={12}>
             <Stack direction="column" spacing={{ xs: 2, lg: 3 }}>
               <AttachmentBox
-                label="Dowód osobisty"
+                label={t('attachments.idCard')}
                 type="id_card"
                 hook={attachmentsHook}
                 employee={employee}
                 onPreview={handleOpenPreview}
               />
               <AttachmentBox
-                label="Umowa zatrudnienia"
+                label={t('attachments.contract')}
                 type="contract"
                 hook={attachmentsHook}
                 employee={employee}
@@ -263,7 +269,7 @@ export const EmployeeShow = () => {
                 dateFields={contractFields}
               />
               <AttachmentBox
-                label="A1"
+                label={t('attachments.a1')}
                 type="a1"
                 hook={attachmentsHook}
                 employee={employee}

@@ -9,8 +9,10 @@ import {
 import { toNumberOrNull } from '@/shared/lib/toNumberOrNull';
 import { validate } from '../validation';
 import type { EmployeeFormState, FormFieldValue } from '../types';
+import { useTranslation } from 'react-i18next';
 
 export const useCreateEmployee = () => {
+  const { t } = useTranslation('employees');
   const navigate = useNavigate();
   const notifications = useNotifications();
 
@@ -54,7 +56,7 @@ export const useCreateEmployee = () => {
       const validationErrors = validate(formState.values);
       if (Object.keys(validationErrors).length > 0) {
         setFormState((prev) => ({ ...prev, errors: validationErrors }));
-        notifications.show('Proszę poprawić błędy w formularzu.', {
+        notifications.show(t('validation.fixErrors'), {
           severity: 'error',
           autoHideDuration: 5000,
         });
@@ -93,13 +95,13 @@ export const useCreateEmployee = () => {
       startActionLoading();
       try {
         const newEmployeeId = await createMutation.mutateAsync(payload);
-        notifications.show('Pracownik został utworzony.', {
+        notifications.show(t('notifications.created'), {
           severity: 'success',
           autoHideDuration: 5000,
         });
         navigate(`/employees/${newEmployeeId}`);
       } catch {
-        notifications.show('Wystąpił błąd podczas tworzenia pracownika.', {
+        notifications.show(t('notifications.createError'), {
           severity: 'error',
           autoHideDuration: 5000,
         });
@@ -113,6 +115,8 @@ export const useCreateEmployee = () => {
       notifications,
       startActionLoading,
       stopActionLoading,
+      navigate,
+      t,
     ]
   );
 

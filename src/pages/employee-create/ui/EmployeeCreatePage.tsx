@@ -1,6 +1,7 @@
 import PageContainer from '@/shared/ui/PageContainer';
 import { Box } from '@mui/material';
 import Loading from '@/shared/ui/Loading';
+import { useTranslation } from 'react-i18next';
 import {
   AddEmployee,
   AddEmployeeProvider,
@@ -16,18 +17,19 @@ export function EmployeeCreatePage() {
 }
 
 const PageContent = () => {
+  const { t } = useTranslation('employees');
   const { actionLoading } = useAddEmployeeContext();
 
   if (actionLoading) {
-    return <Loading message="Trwa tworzenie nowego pracownika..." />;
+    return <Loading message={t('pages.create.loading')} />;
   }
 
   return (
     <PageContainer
-      title="Dodaj nowego pracownika"
+      title={t('pages.create.title')}
       breadcrumbs={[
-        { title: 'Pracownicy', path: '/employees' },
-        { title: 'Nowy' },
+        { title: t('pages.breadcrumbs.employees'), path: '/employees' },
+        { title: t('pages.breadcrumbs.new') },
       ]}
     >
       <Box sx={{ px: { xs: 0.5, sm: 2 }, py: 2 }}>

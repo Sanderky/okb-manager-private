@@ -1,8 +1,6 @@
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
-import 'dayjs/locale/pl';
-import { Dayjs } from 'dayjs';
 import { Typography } from '@mui/material';
 import {
   Dialog,
@@ -18,6 +16,7 @@ import {
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import CloseIcon from '@mui/icons-material/Close';
+import { useTranslation } from 'react-i18next';
 import type { EmployeesFilters } from '../../model/types';
 
 interface FiltersDialogProps {
@@ -37,6 +36,7 @@ export const FiltersDialog = ({
   handleApplyFilters,
   handleCloseAndReset,
 }: FiltersDialogProps) => {
+  const { t } = useTranslation('employees');
   return (
     <Dialog
       open={filtersModalOpen}
@@ -59,7 +59,7 @@ export const FiltersDialog = ({
           alignItems={'center'}
           justifyContent={'space-between'}
         >
-          <Typography variant="h6">Filtry pracowników</Typography>
+          <Typography variant="h6">{t('list.filters.title')}</Typography>
           <IconButton onClick={handleCloseFilters}>
             <CloseIcon fontSize="inherit" />
           </IconButton>
@@ -68,7 +68,9 @@ export const FiltersDialog = ({
       <DialogContent dividers className="p-3 sm:p-5">
         <Grid container spacing={2}>
           <Grid size={{ xs: 12, sm: 6 }}>
-            <FormLabel className="mb-2 block">Imię i nazwisko</FormLabel>
+            <FormLabel className="mb-2 block">
+              {t('form.fields.name')}
+            </FormLabel>
             <TextField
               size="small"
               fullWidth
@@ -77,7 +79,9 @@ export const FiltersDialog = ({
             />
           </Grid>
           <Grid size={{ xs: 12, sm: 6 }}>
-            <FormLabel className="mb-2 block">E-mail</FormLabel>
+            <FormLabel className="mb-2 block">
+              {t('form.fields.email')}
+            </FormLabel>
             <TextField
               size="small"
               fullWidth
@@ -88,7 +92,9 @@ export const FiltersDialog = ({
             />
           </Grid>
           <Grid size={{ xs: 12, sm: 6 }}>
-            <FormLabel className="mb-2 block">Telefon</FormLabel>
+            <FormLabel className="mb-2 block">
+              {t('form.fields.phone')}
+            </FormLabel>
             <TextField
               size="small"
               fullWidth
@@ -99,7 +105,9 @@ export const FiltersDialog = ({
             />
           </Grid>
           <Grid size={{ xs: 12, sm: 6 }}>
-            <FormLabel className="mb-2 block">Pesel</FormLabel>
+            <FormLabel className="mb-2 block">
+              {t('form.fields.pesel')}
+            </FormLabel>
             <TextField
               size="small"
               fullWidth
@@ -110,7 +118,9 @@ export const FiltersDialog = ({
             />
           </Grid>
           <Grid size={{ xs: 12, md: 6 }}>
-            <FormLabel className="mb-2 block">Adres</FormLabel>
+            <FormLabel className="mb-2 block">
+              {t('form.fields.address')}
+            </FormLabel>
             <TextField
               size="small"
               fullWidth
@@ -122,7 +132,9 @@ export const FiltersDialog = ({
           </Grid>
           <Grid size={{ xs: 12, sm: 6 }}>
             <FormControl fullWidth>
-              <FormLabel className="mb-2 block">Status</FormLabel>
+              <FormLabel className="mb-2 block">
+                {t('list.filters.status')}
+              </FormLabel>
               <Select
                 size="small"
                 value={filters.status ?? ''}
@@ -131,15 +143,21 @@ export const FiltersDialog = ({
                   setFilters({ ...filters, status: e.target.value })
                 }
               >
-                <MenuItem value="">Wszyscy</MenuItem>
-                <MenuItem value="true">Aktywni</MenuItem>
-                <MenuItem value="false">Nieaktywni</MenuItem>
+                <MenuItem value="">{t('list.filters.options.all')}</MenuItem>
+                <MenuItem value="true">
+                  {t('list.filters.options.active')}
+                </MenuItem>
+                <MenuItem value="false">
+                  {t('list.filters.options.inactive')}
+                </MenuItem>
               </Select>
             </FormControl>
           </Grid>
           <Grid size={{ xs: 12, sm: 6 }}>
             <FormControl fullWidth>
-              <FormLabel className="mb-2 block">Kontraktor</FormLabel>
+              <FormLabel className="mb-2 block">
+                {t('form.sections.contractor')}
+              </FormLabel>
               <Select
                 size="small"
                 value={filters.isContractor ?? ''}
@@ -148,20 +166,23 @@ export const FiltersDialog = ({
                   setFilters({ ...filters, isContractor: e.target.value })
                 }
               >
-                <MenuItem value="">Wszyscy</MenuItem>
-                <MenuItem value="true">Tak</MenuItem>
-                <MenuItem value="false">Nie</MenuItem>
+                <MenuItem value="">{t('list.filters.options.all')}</MenuItem>
+                <MenuItem value="true">
+                  {t('list.filters.options.yes')}
+                </MenuItem>
+                <MenuItem value="false">
+                  {t('list.filters.options.no')}
+                </MenuItem>
               </Select>
             </FormControl>
           </Grid>
 
           <Grid size={{ xs: 12, md: 6 }}>
-            <FormLabel className="mb-2 block">Stawka</FormLabel>
+            <FormLabel className="mb-2 block">
+              {t('list.filters.hourRate')}
+            </FormLabel>
             <Stack
-              direction={{
-                xs: 'column',
-                sm: 'row',
-              }}
+              direction={{ xs: 'column', sm: 'row' }}
               alignItems={'center'}
               spacing={1}
             >
@@ -170,41 +191,30 @@ export const FiltersDialog = ({
                 type="number"
                 fullWidth
                 value={filters.hourRateFrom ?? ''}
-                label="Od"
+                label={t('list.filters.from')}
                 onChange={(e) => {
-                  setFilters({
-                    ...filters,
-                    hourRateFrom: e.target.value,
-                  });
+                  setFilters({ ...filters, hourRateFrom: e.target.value });
                 }}
               />
-              <Typography
-                sx={{
-                  display: {
-                    xs: 'none',
-                    sm: 'block',
-                  },
-                }}
-              >
+              <Typography sx={{ display: { xs: 'none', sm: 'block' } }}>
                 -
               </Typography>
               <TextField
                 type="number"
                 fullWidth
                 value={filters.hourRateTo ?? ''}
-                label="Do"
+                label={t('list.filters.to')}
                 size="small"
                 onChange={(e) =>
-                  setFilters({
-                    ...filters,
-                    hourRateTo: e.target.value,
-                  })
+                  setFilters({ ...filters, hourRateTo: e.target.value })
                 }
               />
             </Stack>
           </Grid>
           <Grid size={{ xs: 12, md: 6 }}>
-            <FormLabel className="mb-2 block">Miejsce urodzenia</FormLabel>
+            <FormLabel className="mb-2 block">
+              {t('form.fields.birthPlace')}
+            </FormLabel>
             <TextField
               size="small"
               fullWidth
@@ -215,17 +225,16 @@ export const FiltersDialog = ({
             />
           </Grid>
           <Grid size={{ xs: 12, md: 6 }}>
-            <FormLabel className="mb-2 block">Data urodzenia</FormLabel>
+            <FormLabel className="mb-2 block">
+              {t('form.fields.birthDate')}
+            </FormLabel>
             <Stack
-              direction={{
-                xs: 'column',
-                sm: 'row',
-              }}
+              direction={{ xs: 'column', sm: 'row' }}
               alignItems={'center'}
               spacing={1}
             >
               <DatePicker
-                label="Od"
+                label={t('list.filters.from')}
                 openTo="month"
                 views={['year', 'month', 'day']}
                 value={filters.birthDateFrom ?? null}
@@ -236,31 +245,18 @@ export const FiltersDialog = ({
                   field: {
                     clearable: true,
                     onClear: () =>
-                      setFilters({
-                        ...filters,
-                        birthDateFrom: null,
-                      }),
+                      setFilters({ ...filters, birthDateFrom: null }),
                   },
-                  textField: {
-                    fullWidth: true,
-                    size: 'small',
-                  },
+                  textField: { fullWidth: true, size: 'small' },
                 }}
               />
-              <Typography
-                sx={{
-                  display: {
-                    xs: 'none',
-                    sm: 'block',
-                  },
-                }}
-              >
+              <Typography sx={{ display: { xs: 'none', sm: 'block' } }}>
                 -
               </Typography>
               <DatePicker
                 openTo="month"
                 views={['year', 'month', 'day']}
-                label="Do"
+                label={t('list.filters.to')}
                 value={filters.birthDateTo ?? null}
                 onChange={(newValue) =>
                   setFilters({ ...filters, birthDateTo: newValue })
@@ -269,15 +265,9 @@ export const FiltersDialog = ({
                   field: {
                     clearable: true,
                     onClear: () =>
-                      setFilters({
-                        ...filters,
-                        birthDateTo: null,
-                      }),
+                      setFilters({ ...filters, birthDateTo: null }),
                   },
-                  textField: {
-                    fullWidth: true,
-                    size: 'small',
-                  },
+                  textField: { fullWidth: true, size: 'small' },
                 }}
                 minDate={filters.birthDateFrom || undefined}
               />
@@ -285,150 +275,99 @@ export const FiltersDialog = ({
           </Grid>
 
           <Grid size={{ xs: 12, md: 6 }}>
-            <FormLabel className="mb-2 block">Data rozpoczęcia umowy</FormLabel>
+            <FormLabel className="mb-2 block">
+              {t('form.fields.contractStartDate')}
+            </FormLabel>
             <Stack
-              direction={{
-                xs: 'column',
-                sm: 'row',
-              }}
+              direction={{ xs: 'column', sm: 'row' }}
               alignItems={'center'}
               spacing={1}
             >
               <DatePicker
-                label="Od"
+                label={t('list.filters.from')}
                 openTo="month"
                 views={['year', 'month', 'day']}
                 value={filters.contractStartDateFrom ?? null}
                 onChange={(newValue) =>
-                  setFilters({
-                    ...filters,
-                    contractStartDateFrom: newValue,
-                  })
+                  setFilters({ ...filters, contractStartDateFrom: newValue })
                 }
                 slotProps={{
                   field: {
                     clearable: true,
                     onClear: () =>
-                      setFilters({
-                        ...filters,
-                        contractStartDateFrom: null,
-                      }),
+                      setFilters({ ...filters, contractStartDateFrom: null }),
                   },
-                  textField: {
-                    fullWidth: true,
-                    size: 'small',
-                  },
+                  textField: { fullWidth: true, size: 'small' },
                 }}
               />
-              <Typography
-                sx={{
-                  display: {
-                    xs: 'none',
-                    sm: 'block',
-                  },
-                }}
-              >
+              <Typography sx={{ display: { xs: 'none', sm: 'block' } }}>
                 -
               </Typography>
               <DatePicker
-                label="Do"
+                label={t('list.filters.to')}
                 openTo="month"
                 views={['year', 'month', 'day']}
                 value={filters.contractStartDateTo ?? null}
                 onChange={(newValue) =>
-                  setFilters({
-                    ...filters,
-                    contractStartDateTo: newValue,
-                  })
+                  setFilters({ ...filters, contractStartDateTo: newValue })
                 }
                 slotProps={{
                   field: {
                     clearable: true,
                     onClear: () =>
-                      setFilters({
-                        ...filters,
-                        contractStartDateTo: null,
-                      }),
+                      setFilters({ ...filters, contractStartDateTo: null }),
                   },
-                  textField: {
-                    fullWidth: true,
-                    size: 'small',
-                  },
+                  textField: { fullWidth: true, size: 'small' },
                 }}
                 minDate={filters.contractStartDateFrom || undefined}
               />
             </Stack>
           </Grid>
+
           <Grid size={{ xs: 12, md: 6 }}>
-            <FormLabel className="mb-2 block">Data zakończenia umowy</FormLabel>
+            <FormLabel className="mb-2 block">
+              {t('form.fields.contractEndDate')}
+            </FormLabel>
             <Stack
-              direction={{
-                xs: 'column',
-                sm: 'row',
-              }}
+              direction={{ xs: 'column', sm: 'row' }}
               alignItems={'center'}
               spacing={1}
             >
               <DatePicker
-                label="Od"
+                label={t('list.filters.from')}
                 openTo="month"
                 views={['year', 'month', 'day']}
                 value={filters.contractEndDateFrom ?? null}
                 onChange={(newValue) =>
-                  setFilters({
-                    ...filters,
-                    contractEndDateFrom: newValue,
-                  })
+                  setFilters({ ...filters, contractEndDateFrom: newValue })
                 }
                 slotProps={{
                   field: {
                     clearable: true,
                     onClear: () =>
-                      setFilters({
-                        ...filters,
-                        contractEndDateFrom: null,
-                      }),
+                      setFilters({ ...filters, contractEndDateFrom: null }),
                   },
-                  textField: {
-                    fullWidth: true,
-                    size: 'small',
-                  },
+                  textField: { fullWidth: true, size: 'small' },
                 }}
               />
-              <Typography
-                sx={{
-                  display: {
-                    xs: 'none',
-                    sm: 'block',
-                  },
-                }}
-              >
+              <Typography sx={{ display: { xs: 'none', sm: 'block' } }}>
                 -
               </Typography>
               <DatePicker
-                label="Do"
+                label={t('list.filters.to')}
                 openTo="month"
                 views={['year', 'month', 'day']}
                 value={filters.contractEndDateTo ?? null}
                 onChange={(newValue) =>
-                  setFilters({
-                    ...filters,
-                    contractEndDateTo: newValue,
-                  })
+                  setFilters({ ...filters, contractEndDateTo: newValue })
                 }
                 slotProps={{
                   field: {
                     clearable: true,
                     onClear: () =>
-                      setFilters({
-                        ...filters,
-                        contractEndDateTo: null,
-                      }),
+                      setFilters({ ...filters, contractEndDateTo: null }),
                   },
-                  textField: {
-                    fullWidth: true,
-                    size: 'small',
-                  },
+                  textField: { fullWidth: true, size: 'small' },
                 }}
                 minDate={filters.contractEndDateFrom || undefined}
               />
@@ -436,17 +375,16 @@ export const FiltersDialog = ({
           </Grid>
 
           <Grid size={{ xs: 12, md: 6 }}>
-            <FormLabel className="mb-2 block">Data rozpoczęcia A1</FormLabel>
+            <FormLabel className="mb-2 block">
+              {t('form.fields.a1StartDate')}
+            </FormLabel>
             <Stack
-              direction={{
-                xs: 'column',
-                sm: 'row',
-              }}
+              direction={{ xs: 'column', sm: 'row' }}
               alignItems={'center'}
               spacing={1}
             >
               <DatePicker
-                label="Od"
+                label={t('list.filters.from')}
                 openTo="month"
                 views={['year', 'month', 'day']}
                 value={filters.a1StartDateFrom ?? null}
@@ -457,29 +395,16 @@ export const FiltersDialog = ({
                   field: {
                     clearable: true,
                     onClear: () =>
-                      setFilters({
-                        ...filters,
-                        a1StartDateFrom: null,
-                      }),
+                      setFilters({ ...filters, a1StartDateFrom: null }),
                   },
-                  textField: {
-                    fullWidth: true,
-                    size: 'small',
-                  },
+                  textField: { fullWidth: true, size: 'small' },
                 }}
               />
-              <Typography
-                sx={{
-                  display: {
-                    xs: 'none',
-                    sm: 'block',
-                  },
-                }}
-              >
+              <Typography sx={{ display: { xs: 'none', sm: 'block' } }}>
                 -
               </Typography>
               <DatePicker
-                label="Do"
+                label={t('list.filters.to')}
                 openTo="month"
                 views={['year', 'month', 'day']}
                 value={filters.a1StartDateTo ?? null}
@@ -490,32 +415,26 @@ export const FiltersDialog = ({
                   field: {
                     clearable: true,
                     onClear: () =>
-                      setFilters({
-                        ...filters,
-                        a1StartDateTo: null,
-                      }),
+                      setFilters({ ...filters, a1StartDateTo: null }),
                   },
-                  textField: {
-                    fullWidth: true,
-                    size: 'small',
-                  },
+                  textField: { fullWidth: true, size: 'small' },
                 }}
                 minDate={filters.a1StartDateFrom || undefined}
               />
             </Stack>
           </Grid>
+
           <Grid size={{ xs: 12, md: 6 }}>
-            <FormLabel className="mb-2 block">Data zakończenia A1</FormLabel>
+            <FormLabel className="mb-2 block">
+              {t('form.fields.a1EndDate')}
+            </FormLabel>
             <Stack
-              direction={{
-                xs: 'column',
-                sm: 'row',
-              }}
+              direction={{ xs: 'column', sm: 'row' }}
               alignItems={'center'}
               spacing={1}
             >
               <DatePicker
-                label="Od"
+                label={t('list.filters.from')}
                 openTo="month"
                 views={['year', 'month', 'day']}
                 value={filters.a1EndDateFrom ?? null}
@@ -526,29 +445,16 @@ export const FiltersDialog = ({
                   field: {
                     clearable: true,
                     onClear: () =>
-                      setFilters({
-                        ...filters,
-                        a1EndDateFrom: null,
-                      }),
+                      setFilters({ ...filters, a1EndDateFrom: null }),
                   },
-                  textField: {
-                    fullWidth: true,
-                    size: 'small',
-                  },
+                  textField: { fullWidth: true, size: 'small' },
                 }}
               />
-              <Typography
-                sx={{
-                  display: {
-                    xs: 'none',
-                    sm: 'block',
-                  },
-                }}
-              >
+              <Typography sx={{ display: { xs: 'none', sm: 'block' } }}>
                 -
               </Typography>
               <DatePicker
-                label="Do"
+                label={t('list.filters.to')}
                 openTo="month"
                 views={['year', 'month', 'day']}
                 value={filters.a1EndDateTo ?? null}
@@ -559,15 +465,9 @@ export const FiltersDialog = ({
                   field: {
                     clearable: true,
                     onClear: () =>
-                      setFilters({
-                        ...filters,
-                        a1EndDateTo: null,
-                      }),
+                      setFilters({ ...filters, a1EndDateTo: null }),
                   },
-                  textField: {
-                    fullWidth: true,
-                    size: 'small',
-                  },
+                  textField: { fullWidth: true, size: 'small' },
                 }}
                 minDate={filters.a1EndDateFrom || undefined}
               />
@@ -577,29 +477,21 @@ export const FiltersDialog = ({
       </DialogContent>
       <DialogActions className="p-3 sm:p-5">
         <Stack
-          direction={{
-            xs: 'column',
-            sm: 'row',
-          }}
-          alignItems={{
-            xs: 'stretch',
-            sm: 'center',
-          }}
+          direction={{ xs: 'column', sm: 'row' }}
+          alignItems={{ xs: 'stretch', sm: 'center' }}
           justifyContent={'flex-end'}
           spacing={1}
-          sx={{
-            width: '100%',
-          }}
+          sx={{ width: '100%' }}
         >
           <Button
             onClick={handleCloseAndReset}
             variant="outlined"
             color="primary"
           >
-            Wyczyść filtry
+            {t('list.filters.clear')}
           </Button>
           <Button onClick={handleApplyFilters} variant="contained">
-            Zastosuj filtry
+            {t('list.filters.apply')}
           </Button>
         </Stack>
       </DialogActions>

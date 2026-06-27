@@ -1,4 +1,204 @@
 {
-    "inactive": "Nieaktywny"
-
+  "inactive": "Nieaktywny",
+  "form": {
+    "fields": {
+      "name": "Imię i nazwisko",
+      "pesel": "Pesel",
+      "address": "Adres",
+      "email": "E-mail",
+      "phone": "Telefon",
+      "birthDate": "Data urodzenia",
+      "birthPlace": "Miejsce urodzenia",
+      "hourRate": "Stawka godzinowa",
+      "accountNumber": "Numer konta",
+      "contractStartDate": "Data rozpoczęcia umowy",
+      "contractEndDate": "Data wygaśnięcia umowy",
+      "a1StartDate": "Data rozpoczęcia A1",
+      "a1EndDate": "Data wygaśnięcia A1"
+    },
+    "sections": {
+      "requiredInfo": "Pola oznaczone * są obowiązkowe.",
+      "employeeData": "Dane pracownika",
+      "contractor": "Kontraktor",
+      "contract": "Umowa zatrudnienia",
+      "permanent": "Na czas nieokreślony",
+      "a1": "A1",
+      "note": "Notatka",
+      "saving": "Zapisywanie danych..."
+    }
+  },
+  "validation": {
+    "nameRequired": "Imię jest wymagane.",
+    "nameTooLong": "Imię nie może być dłuższe niż 100 znaków.",
+    "invalidEmail": "Nieprawidłowy format adresu e-mail.",
+    "contractStartDateRequired": "Data rozpoczęcia jest wymagana, jeśli podano datę zakończenia.",
+    "contractEndDateBeforeStart": "Data zakończenia nie może być wcześniejsza niż data rozpoczęcia.",
+    "a1StartDateRequired": "Data rozpoczęcia A1 jest wymagana, jeśli podano datę zakończenia A1.",
+    "a1EndDateBeforeStart": "Data zakończenia A1 nie może być wcześniejsza niż data rozpoczęcia A1.",
+    "fixErrors": "Proszę poprawić błędy w formularzu."
+  },
+  "alertsSettings": {
+    "validation": {
+      "negativeValue": "Wartość musi być liczbą nieujemną",
+      "criticalLowerThanWarning": "Wartość krytyczna musi być mniejsza niż ostrzeżenie"
+    },
+    "success": "Ustawienia alertów zostały zmienione.",
+    "error": "Ustawienia nie zostały zmienione.",
+    "contractTitle": "Alerty umowy zatrudnienia",
+    "a1Title": "Alerty A1",
+    "warningDays": "Liczba dni do ostrzeżenia",
+    "criticalDays": "Liczba dni do ostrzeżenia krytycznego",
+    "loadError": "Błąd podczas ładowania ustawień."
+  },
+  "dialogs": {
+    "activateConfirm": "Czy na pewno chcesz aktywować pracownika?",
+    "archiveConfirm": "Czy na pewno chcesz archiwizować pracownika?",
+    "activateTitle": "Aktywowanie pracownika",
+    "archiveTitle": "Archiwizacja pracownika",
+    "yes": "Tak"
+  },
+  "notifications": {
+    "created": "Pracownik został utworzony.",
+    "createError": "Wystąpił błąd podczas tworzenia pracownika.",
+    "updated": "Dane pracownika zostały zaktualizowane.",
+    "updateError": "Wystąpił błąd podczas aktualizacji danych pracownika.",
+    "deleted": "Pracownik został usunięty.",
+    "deleteError": "Wystąpił błąd podczas usuwania pracownika.",
+    "noteUpdated": "Notatka została zaktualizowana.",
+    "noteUpdateError": "Wystąpił błąd podczas zapisywania notatki.",
+    "uploadSuccess": "Przesłano pomyślnie {{count}} plików",
+    "uploadAllFailed": "Wszystkie pliki napotkały błąd podczas wysyłania.",
+    "uploadPartialSuccess": "Przesłano {{success}} z {{total}} plików. Błędy: {{failed}}"
+  },
+  "attachments": {
+    "empty": "Brak załączników",
+    "deleteConfirmText": "Czy na pewno chcesz usunąć ten załącznik?",
+    "deleteTitle": "Usuwanie pliku",
+    "contractPermanent": "Umowa na czas nieokreślony",
+    "none": "Brak",
+    "idCard": "Dowód osobisty",
+    "contract": "Umowa zatrudnienia",
+    "a1": "A1"
+  },
+  "show": {
+    "yes": "Tak",
+    "no": "Nie",
+    "noVacations": "Brak urlopów",
+    "upcomingVacations": "Nadchodzące urlopy pracownika ({{count}}):"
+  },
+  "tabs": {
+    "info": "Informacje",
+    "files": "Pliki",
+    "editTooltip": "Edytuj pracownika"
+  },
+  "list": {
+    "filters": {
+      "title": "Filtry pracowników",
+      "status": "Status",
+      "hourRate": "Stawka",
+      "from": "Od",
+      "to": "Do",
+      "clear": "Wyczyść filtry",
+      "apply": "Zastosuj filtry",
+      "options": {
+        "all": "Wszyscy",
+        "active": "Aktywni",
+        "inactive": "Nieaktywni",
+        "yes": "Tak",
+        "no": "Nie"
+      }
+    },
+    "table": {
+      "tooltips": {
+        "filters": "Filtry",
+        "reset": "Resetuj stan tabeli"
+      },
+      "alerts": "Alerty: {{count}}"
+    },
+    "status": {
+      "active": "Aktywny",
+      "inactive": "Nieaktywny"
+    },
+    "columns": {
+      "status": "Status"
+    }
+  },
+  "alerts": {
+    "title": "Uwagi dotyczące pracowników",
+    "count_one": "{{count}} uwaga",
+    "count_few": "{{count}} uwagi",
+    "count_many": "{{count}} uwag",
+    "count_other": "{{count}} uwag",
+    "empty": "Brak uwag",
+    "settingsTitle": "Ustawienia alertów",
+    "contract": "Umowa",
+    "a1": "A1",
+    "expiredAgo_one": "{{type}} wygasła {{count}} dzień temu ({{date}})",
+    "expiredAgo_few": "{{type}} wygasła {{count}} dni temu ({{date}})",
+    "expiredAgo_many": "{{type}} wygasła {{count}} dni temu ({{date}})",
+    "expiredAgo_other": "{{type}} wygasła {{count}} dni temu ({{date}})",
+    "expiresToday": "{{type}} wygasa dzisiaj!",
+    "expiresIn_one": "{{type}} wygasa {{date}} (za {{count}} dzień)",
+    "expiresIn_few": "{{type}} wygasa {{date}} (za {{count}} dni)",
+    "expiresIn_many": "{{type}} wygasa {{date}} (za {{count}} dni)",
+    "expiresIn_other": "{{type}} wygasa {{date}} (za {{count}} dni)",
+    "titleContract": "Kończy się umowa - {{name}}",
+    "titleA1": "Kończy się A1 - {{name}}"
+  },
+  "edit": {
+    "archive": {
+      "title": "Archiwizuj pracownika",
+      "description": "Status pracownika zmienia się na \"Nieaktywny\".",
+      "button": "Archiwizuj"
+    },
+    "activate": {
+      "title": "Aktywuj pracownika",
+      "description": "Status pracownika zmienia się na \"Aktywny\".",
+      "button": "Aktywuj"
+    },
+    "delete": {
+      "title": "Usuń pracownika",
+      "description": "Trwale usuwa pracownika z bazy danych. Tej operacji nie można cofnąć.",
+      "button": "Usuń"
+    },
+    "dialog": {
+      "title": "Usuwanie pracownika",
+      "confirm": "Czy na pewno chcesz usunąć",
+      "info": "Pracownik zostanie usunięty z bazy danych łącznie ze wszystkimi jego plikami oraz powiązanymi informacjami.",
+      "warningTitle": "Uwaga!",
+      "warningText": "Tej operacji nie można cofnąć. Zamiast tego, proszę rozważyć archiwizację pracownika.",
+      "prompt": "Aby usunąć pracownika, wprowadź poniżej jego pełną nazwę:"
+    }
+  },
+  "pages": {
+    "breadcrumbs": {
+      "employees": "Pracownicy",
+      "new": "Nowy",
+      "edit": "Edytuj"
+    },
+    "create": {
+      "title": "Dodaj nowego pracownika",
+      "loading": "Trwa tworzenie nowego pracownika..."
+    },
+    "edit": {
+      "title": "Edycja {{name}}",
+      "fallbackName": "pracownika",
+      "loading": "Ładowanie danych pracownika...",
+      "loadError": "Wystąpił błąd podczas ładowania danych pracownika.",
+      "notFound": "Nie znaleziono danych pracownika."
+    },
+    "show": {
+      "title": "Pracownik {{name}}",
+      "fallbackName": "Szczegóły Pracownika",
+      "loading": "Ładowanie danych pracownika...",
+      "loadError": "Wystąpił błąd podczas ładowania danych pracownika.",
+      "notFound": "Nie znaleziono pracownika."
+    },
+    "list": {
+      "title": "Lista pracowników",
+      "loadError": "Nie udało się załadować listy pracowników.",
+      "retry": "Ponów próbę",
+      "new": "Nowy"
+    }
+  }
 }

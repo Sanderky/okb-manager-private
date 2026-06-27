@@ -4,15 +4,18 @@ import type { MRT_ColumnDef } from 'material-react-table';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import dayjs from 'dayjs';
+import { useTranslation } from 'react-i18next';
 import { sortByLastName, type Employee } from '@/entities/employee';
 import { dateBetweenFilterFn, hourRateFilterFn } from '../model/filter';
 
 export const useEmployeeColumns = (alertsMap: Map<string, any[]>) => {
+  const { t, i18n } = useTranslation('employees');
+
   return useMemo<MRT_ColumnDef<Employee>[]>(
     () => [
       {
         accessorKey: 'name',
-        header: 'Nazwa',
+        header: t('form.fields.name'),
         Cell: ({ renderedCellValue, row }) => {
           const employeeId = row.original.id;
           const hasAlert = (alertsMap.get(employeeId) || []).length > 0;
@@ -28,28 +31,28 @@ export const useEmployeeColumns = (alertsMap: Map<string, any[]>) => {
         },
         sortingFn: (a, b) => sortByLastName(a.original.name, b.original.name),
       },
-      { accessorKey: 'email', header: 'E-mail' },
-      { accessorKey: 'phone', header: 'Telefon' },
-      { accessorKey: 'address', header: 'Adres' },
-      { accessorKey: 'pesel', header: 'Pesel' },
+      { accessorKey: 'email', header: t('form.fields.email') },
+      { accessorKey: 'phone', header: t('form.fields.phone') },
+      { accessorKey: 'address', header: t('form.fields.address') },
+      { accessorKey: 'pesel', header: t('form.fields.pesel') },
       {
         accessorKey: 'hourRate',
-        header: 'Stawka',
+        header: t('list.filters.hourRate'),
         filterVariant: 'range',
         filterFn: hourRateFilterFn,
         Cell: ({ cell }) => {
           const value = cell.getValue<number>();
           if (value === null || value === undefined) return '-';
-          return value.toLocaleString('pl-PL', {
+          return value.toLocaleString(i18n.language, {
             style: 'currency',
             currency: 'EUR',
           });
         },
       },
-      { accessorKey: 'accountNumber', header: 'Numer konta' },
+      { accessorKey: 'accountNumber', header: t('form.fields.accountNumber') },
       {
         accessorKey: 'isContractor',
-        header: 'Kontraktor',
+        header: t('form.sections.contractor'),
         filterVariant: 'checkbox',
         Cell: ({ cell }) => (
           <Box className="w-full text-center">
@@ -61,10 +64,10 @@ export const useEmployeeColumns = (alertsMap: Map<string, any[]>) => {
           </Box>
         ),
       },
-      { accessorKey: 'birthPlace', header: 'Miejsce urodzenia' },
+      { accessorKey: 'birthPlace', header: t('form.fields.birthPlace') },
       {
         accessorKey: 'birthDate',
-        header: 'Data urodzenia',
+        header: t('form.fields.birthDate'),
         filterVariant: 'date-range',
         accessorFn: (originalRow) =>
           originalRow.birthDate && dayjs(originalRow.birthDate).isValid()
@@ -79,7 +82,7 @@ export const useEmployeeColumns = (alertsMap: Map<string, any[]>) => {
       },
       {
         accessorKey: 'contractStartDate',
-        header: 'Data rozpoczęcia umowy',
+        header: t('form.fields.contractStartDate'),
         filterVariant: 'date-range',
         size: 250,
         accessorFn: (originalRow) =>
@@ -96,7 +99,7 @@ export const useEmployeeColumns = (alertsMap: Map<string, any[]>) => {
       },
       {
         accessorKey: 'contractEndDate',
-        header: 'Data zakończenia umowy',
+        header: t('form.fields.contractEndDate'),
         size: 250,
         filterVariant: 'date-range',
         accessorFn: (originalRow) =>
@@ -113,7 +116,7 @@ export const useEmployeeColumns = (alertsMap: Map<string, any[]>) => {
       },
       {
         accessorKey: 'a1StartDate',
-        header: 'Data rozpoczęcia A1',
+        header: t('form.fields.a1StartDate'),
         filterVariant: 'date-range',
         accessorFn: (originalRow) =>
           originalRow.a1StartDate && dayjs(originalRow.a1StartDate).isValid()
@@ -128,7 +131,7 @@ export const useEmployeeColumns = (alertsMap: Map<string, any[]>) => {
       },
       {
         accessorKey: 'a1EndDate',
-        header: 'Data zakończenia A1',
+        header: t('form.fields.a1EndDate'),
         filterVariant: 'date-range',
         accessorFn: (originalRow) =>
           originalRow.a1EndDate && dayjs(originalRow.a1EndDate).isValid()
@@ -143,13 +146,13 @@ export const useEmployeeColumns = (alertsMap: Map<string, any[]>) => {
       },
       {
         id: 'status',
-        header: 'Status',
+        header: t('list.columns.status'),
         accessorFn: (row) => row.status,
         filterVariant: 'select',
         filterSelectOptions: [
-          { label: 'Aktywni', value: 'true' },
-          { label: 'Nieaktywni', value: 'false' },
-          { label: 'Wszyscy', value: '' },
+          { label: t('list.filters.options.active'), value: 'true' },
+          { label: t('list.filters.options.inactive'), value: 'false' },
+          { label: t('list.filters.options.all'), value: '' },
         ],
         filterFn: (row: any, _columnId: string, filterValue: string) => {
           if (!filterValue) return true;
@@ -168,11 +171,13 @@ export const useEmployeeColumns = (alertsMap: Map<string, any[]>) => {
                 : theme.palette.status.employee.inactive.text,
             })}
           >
-            {cell.getValue<boolean>() ? 'Aktywny' : 'Nieaktywny'}
+            {cell.getValue<boolean>()
+              ? t('list.status.active')
+              : t('list.status.inactive')}
           </Box>
         ),
       },
     ],
-    [alertsMap]
+    [alertsMap, t, i18n.language]
   );
 };

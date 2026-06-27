@@ -5,6 +5,7 @@ import Loading from '@/shared/ui/Loading';
 import { FileBrowser } from '@/features/file-browser';
 import { FOLDER_NAMES } from '@/shared/config/storage';
 import { FilePreview } from '@/shared/ui/FilePreviewDialog';
+import { useTranslation } from 'react-i18next';
 import {
   EmployeeShow,
   EmployeeShowProvider,
@@ -25,6 +26,8 @@ export function EmployeeShowPage() {
 }
 
 const EmployeeShowContent = () => {
+  const { t } = useTranslation(['employees', 'common']);
+
   const {
     employee,
     loading,
@@ -39,42 +42,44 @@ const EmployeeShowContent = () => {
     handleClosePreview,
   } = useEmployeeShowContext();
 
-  if (loading) return <Loading message="Ładowanie danych pracownika..." />;
+  if (loading) return <Loading message={t('pages.show.loading')} />;
   if (error)
     return (
       <Box sx={{ flexGrow: 1, width: '100%' }}>
-        <Alert severity="error">
-          Wystąpił błąd podczas ładowania danych pracownika.
-        </Alert>
+        <Alert severity="error">{t('pages.show.loadError')}</Alert>
       </Box>
     );
   if (notFound)
     return (
       <Box sx={{ width: '100%' }}>
-        <Alert severity="info">Nie znaleziono pracownika.</Alert>
+        <Alert severity="info">{t('pages.show.notFound')}</Alert>
         <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
           <Button color="inherit" variant="contained" onClick={handleBack}>
-            Wróć
+            {t('common:buttons.back')}
           </Button>
         </Stack>
       </Box>
     );
 
-  const pageTitle = employee?.name || 'Szczegóły Pracownika';
+  const pageTitle = employee?.name || t('pages.show.fallbackName');
 
   return (
     <PageContainer
       fixedHeight={loading || tab === 1}
-      title={`Pracownik ${pageTitle}`}
+      title={t('pages.show.title', { name: pageTitle })}
       breadcrumbs={[
-        { title: 'Pracownicy', path: '/employees' },
+        { title: t('pages.breadcrumbs.employees'), path: '/employees' },
         { title: pageTitle },
       ]}
       actions={
         <Stack direction="row" alignItems="center">
           {employee && (
             <Chip
-              label={employee.status ? 'Aktywny' : 'Nieaktywny'}
+              label={
+                employee.status
+                  ? t('list.status.active')
+                  : t('list.status.inactive')
+              }
               variant="filled"
               sx={(theme) => ({
                 borderRadius: 1,

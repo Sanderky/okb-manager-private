@@ -8,8 +8,10 @@ import { useEmployee, useUpdateEmployeeNote } from '@/entities/employee';
 import { useEmployeeUpcomingVacations } from '@/entities/vacations';
 import { useUpcomingEventsForEmployee } from '@/entities/events';
 import type { FileItem } from '@/shared/model/types';
+import { useTranslation } from 'react-i18next';
 
 export const useShowEmployee = (employeeId: string) => {
+  const { t } = useTranslation('employees');
   const navigate = useNavigate();
   const notifications = useNotifications();
   const { scrollToTop } = useScroll();
@@ -47,12 +49,12 @@ export const useShowEmployee = (employeeId: string) => {
       startActionLoading();
       try {
         await updateNoteMutation.mutateAsync({ employeeId, note });
-        notifications.show('Notatka została zaktualizowana.', {
+        notifications.show(t('notifications.noteUpdated'), {
           severity: 'success',
           autoHideDuration: 5000,
         });
       } catch {
-        notifications.show('Wystąpił błąd podczas zapisywania notatki.', {
+        notifications.show(t('notifications.noteUpdateError'), {
           severity: 'error',
           autoHideDuration: 5000,
         });
@@ -60,7 +62,14 @@ export const useShowEmployee = (employeeId: string) => {
         stopActionLoading();
       }
     },
-    [updateNoteMutation, startActionLoading, stopActionLoading]
+    [
+      updateNoteMutation,
+      startActionLoading,
+      stopActionLoading,
+      t,
+      notifications,
+      employeeId,
+    ]
   );
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) =>

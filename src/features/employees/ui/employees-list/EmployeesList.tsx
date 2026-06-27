@@ -13,18 +13,17 @@ import {
   MRT_ToggleGlobalFilterButton,
   useMaterialReactTable,
 } from 'material-react-table';
-import 'dayjs/locale/pl';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { MRT_Localization_PL } from 'material-react-table/locales/pl';
 import { Badge, Typography } from '@mui/material';
-import { plPL } from '@mui/x-date-pickers/locales';
-
+import { useTranslation } from 'react-i18next';
 import { TablePagination } from '@/shared/ui/TablePagination';
 import { useEmployeeListContext } from '../../model/providers/useEmployeesListContext';
 import { FiltersDialog } from './EmployeesListFilters';
+import { useMaterialTableLanguage } from '@/shared/lib/useMaterialTableLanguage';
 
 export function EmployeeList() {
+  const { t } = useTranslation('employees');
+  const tableLocalizationConfig = useMaterialTableLanguage();
+
   const {
     columns,
     tableData,
@@ -44,8 +43,8 @@ export function EmployeeList() {
   } = useEmployeeListContext();
 
   const localization = React.useMemo(
-    () => ({ ...MRT_Localization_PL, rowNumber: 'Lp.' }),
-    []
+    () => ({ ...tableLocalizationConfig, rowNumber: 'Lp.' }),
+    [tableLocalizationConfig]
   );
 
   const table = useMaterialReactTable({
@@ -84,7 +83,7 @@ export function EmployeeList() {
     renderToolbarInternalActions: ({ table }) => (
       <Stack direction="row" alignItems="center" spacing={1}>
         <MRT_ToggleGlobalFilterButton table={table} />
-        <Tooltip title="Filtry">
+        <Tooltip title={t('list.table.tooltips.filters')}>
           <Badge
             variant="dot"
             badgeContent={isFilterActive ? 1 : 0}
@@ -97,7 +96,7 @@ export function EmployeeList() {
         </Tooltip>
         <MRT_ShowHideColumnsButton table={table} />
         <MRT_ToggleDensePaddingButton table={table} />
-        <Tooltip title="Resetuj stan tabeli">
+        <Tooltip title={t('list.table.tooltips.reset')}>
           <IconButton onClick={tableState.resetState}>
             <RefreshIcon />
           </IconButton>
@@ -179,7 +178,7 @@ export function EmployeeList() {
               </Typography>
               {hasAlert && (
                 <Tooltip
-                  title={`Alerty: ${alerts.length}`}
+                  title={t('list.table.alerts', { count: alerts.length })}
                   sx={{
                     position: 'absolute',
                     right: 5,
@@ -199,13 +198,7 @@ export function EmployeeList() {
   });
 
   return (
-    <LocalizationProvider
-      localeText={
-        plPL.components.MuiLocalizationProvider.defaultProps.localeText
-      }
-      dateAdapter={AdapterDayjs}
-      adapterLocale="pl"
-    >
+    <>
       <MaterialReactTable table={table} />
       <Box sx={{ flexShrink: 0, minHeight: '45px' }}>
         <TablePagination table={table} />
@@ -218,6 +211,6 @@ export function EmployeeList() {
         handleCloseFilters={handleCloseFilters}
         handleCloseAndReset={handleCloseAndReset}
       />
-    </LocalizationProvider>
+    </>
   );
 }

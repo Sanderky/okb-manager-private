@@ -7,6 +7,7 @@ import {
   Alert,
   CircularProgress,
 } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import { useAlertsSettings } from '../../model/services/useAlertsSettings';
 
 interface EmployeeAlertsSettingsProps {
@@ -18,6 +19,8 @@ export const EmployeeAlertsSettingsBase = ({
   isOpen,
   onClose,
 }: EmployeeAlertsSettingsProps) => {
+  const { t } = useTranslation(['employees', 'common']);
+
   const {
     formData,
     formErrors,
@@ -38,16 +41,16 @@ export const EmployeeAlertsSettingsBase = ({
         </Box>
       ) : isError ? (
         <Alert severity="error" sx={{ mb: 2 }}>
-          Błąd podczas ładowania ustawień.
+          {t('alertsSettings.loadError')}
         </Alert>
       ) : (
         <>
           <Typography variant="subtitle2" sx={{ mb: 2 }}>
-            Alerty umowy zatrudnienia
+            {t('alertsSettings.contractTitle')}
           </Typography>
           <Stack direction={'column'} spacing={3}>
             <TextField
-              label="Liczba dni do ostrzeżenia"
+              label={t('alertsSettings.warningDays')}
               type="number"
               error={Boolean(formErrors.contractWarning)}
               helperText={formErrors.contractWarning}
@@ -63,7 +66,7 @@ export const EmployeeAlertsSettingsBase = ({
               }}
             />
             <TextField
-              label="Liczba dni do ostrzeżenia krytycznego"
+              label={t('alertsSettings.criticalDays')}
               size="small"
               type="number"
               error={Boolean(formErrors.contractCritical)}
@@ -81,11 +84,11 @@ export const EmployeeAlertsSettingsBase = ({
           </Stack>
 
           <Typography variant="subtitle2" sx={{ my: 2 }}>
-            Alerty A1
+            {t('alertsSettings.a1Title')}
           </Typography>
           <Stack direction={'column'} spacing={3} sx={{ mb: 3 }}>
             <TextField
-              label="Liczba dni do ostrzeżenia"
+              label={t('alertsSettings.warningDays')}
               type="number"
               size="small"
               helperText={formErrors.a1Warning}
@@ -99,7 +102,7 @@ export const EmployeeAlertsSettingsBase = ({
               }}
             />
             <TextField
-              label="Liczba dni do ostrzeżenia krytycznego"
+              label={t('alertsSettings.criticalDays')}
               type="number"
               error={Boolean(formErrors.a1Critical)}
               size="small"
@@ -121,7 +124,7 @@ export const EmployeeAlertsSettingsBase = ({
               loading={isSaving}
               color="inherit"
             >
-              Anuluj
+              {t('common:buttons.cancel')}
             </Button>
             <Button
               onClick={handleSave}
@@ -130,7 +133,7 @@ export const EmployeeAlertsSettingsBase = ({
               size="small"
               loading={isSaving}
             >
-              Zapisz
+              {t('common:buttons.save')}
             </Button>
           </Stack>
         </>

@@ -16,10 +16,12 @@ import { useNavigate } from 'react-router-dom';
 import { Done, Settings } from '@mui/icons-material';
 import ReportProblemIcon from '@mui/icons-material/ReportProblem';
 import { ExpandMore, ExpandLess } from '@mui/icons-material';
+import { useTranslation } from 'react-i18next';
 import { useEmployeeAlerts } from '@/entities/employee';
 import { EmployeeAlertsSettingsModal } from './EmployeeAlertsSettingsModal';
 
 export const EmployeeAlerts = () => {
+  const { t } = useTranslation('employees');
   const { alerts, isLoading: loading } = useEmployeeAlerts();
 
   const navigate = useNavigate();
@@ -52,18 +54,16 @@ export const EmployeeAlerts = () => {
             direction={'row'}
             alignItems={'center'}
             justifyContent={'space-between'}
-            sx={{
-              mb: 1,
-            }}
+            sx={{ mb: 1 }}
           >
             <Stack direction={'row'} alignItems={'center'} spacing={1}>
               <ReportProblemIcon color="warning" />
               <Typography variant="body1" className="font-medium">
-                Uwagi dotyczące pracowników
+                {t('alerts.title')}
               </Typography>
               {hasMoreItems && (
                 <Chip
-                  label={`${alerts.length} ${alerts.length === 4 || alerts.length === 3 ? 'uwagi' : 'uwag'}`}
+                  label={t('alerts.count', { count: alerts.length })}
                   size="small"
                   color="primary"
                   variant="outlined"
@@ -118,7 +118,9 @@ export const EmployeeAlerts = () => {
                   {alerts.length === 0 ? (
                     <Stack direction={'row'} spacing={1} className="mb-2">
                       <Done />
-                      <Typography color={'textSecondary'}>Brak uwag</Typography>
+                      <Typography color={'textSecondary'}>
+                        {t('alerts.empty')}
+                      </Typography>
                     </Stack>
                   ) : (
                     alerts.map((alert) => (
@@ -153,9 +155,16 @@ export const EmployeeAlerts = () => {
                         })}
                       >
                         <Typography variant="subtitle2">
-                          {alert.title}
+                          {t(alert.titleKey, { name: alert.employeeName })}
                         </Typography>
-                        <Typography variant="body2">{alert.message}</Typography>
+                        <Typography variant="body2">
+                          {t(alert.messageData.key, {
+                            ...alert.messageData.params,
+                            type: alert.messageData.params?.typeKey
+                              ? t(alert.messageData.params.typeKey as string)
+                              : '',
+                          })}
+                        </Typography>
                       </ListItem>
                     ))
                   )}

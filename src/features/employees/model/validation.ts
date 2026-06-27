@@ -8,18 +8,17 @@ export const validate = (
   const errors: EmployeeValidationErrors = {};
 
   if (!values.name) {
-    errors.name = 'Imię jest wymagane.';
+    errors.name = 'validation.nameRequired';
   } else if (values.name.length > 100) {
-    errors.name = 'Imię nie może być dłuższe niż 100 znaków.';
+    errors.name = 'validation.nameTooLong';
   }
 
   if (values.email && !/\S+@\S+\.\S+/.test(values.email)) {
-    errors.email = 'Nieprawidłowy format adresu e-mail.';
+    errors.email = 'validation.invalidEmail';
   }
 
   if (values.contractEndDate && !values.contractStartDate) {
-    errors.contractStartDate =
-      'Data rozpoczęcia jest wymagana, jeśli podano datę zakończenia.';
+    errors.contractStartDate = 'validation.contractStartDateRequired';
   }
 
   if (
@@ -27,21 +26,19 @@ export const validate = (
     values.contractEndDate &&
     dayjs(values.contractEndDate).isBefore(dayjs(values.contractStartDate))
   ) {
-    errors.contractEndDate =
-      'Data zakończenia nie może być wcześniejsza niż data rozpoczęcia.';
+    errors.contractEndDate = 'validation.contractEndDateBeforeStart';
   }
 
   if (values.a1EndDate && !values.a1StartDate) {
-    errors.a1StartDate =
-      'Data rozpoczęcia A1 jest wymagana, jeśli podano datę zakończenia A1.';
+    errors.a1StartDate = 'validation.a1StartDateRequired';
   }
+
   if (
     values.a1StartDate &&
     values.a1EndDate &&
     dayjs(values.a1EndDate).isBefore(dayjs(values.a1StartDate))
   ) {
-    errors.a1EndDate =
-      'Data zakończenia A1 nie może być wcześniejsza niż data rozpoczęcia A1.';
+    errors.a1EndDate = 'validation.a1EndDateBeforeStart';
   }
 
   return errors;

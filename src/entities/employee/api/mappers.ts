@@ -5,9 +5,10 @@ import type {
   EmployeeAlert,
   EmployeeAttachmentType,
 } from '../model/types';
-import { generateAlertMessage, generateAlertTitle } from '../lib/alerts';
 import { toSqlDate } from '@/shared/lib/date';
 import type { AlertSettingsDTO, EmployeeAlertDTO, EmployeeDTO } from './types';
+import dayjs from 'dayjs';
+import type { TranslationData } from '@/shared/model/types';
 
 export const mapSettingsDtoToDomain = (
   data: AlertSettingsDTO
@@ -30,13 +31,43 @@ export const mapSettingsToPayload = (
   updated_at: new Date().toISOString(),
 });
 
+const getAlertMessageData = (
+  type: 'contract' | 'a1',
+  days: number,
+  dateStr: string
+): TranslationData => {
+  const date = dayjs(dateStr).format('DD.MM.YYYY');
+  const typeKey = type === 'contract' ? 'alerts.contract' : 'alerts.a1';
+
+  if (days < 0) {
+    return {
+      key: 'alerts.expiredAgo',
+      params: { typeKey, count: Math.abs(days), date },
+    };
+  }
+  if (days === 0) {
+    return {
+      key: 'alerts.expiresToday',
+      params: { typeKey },
+    };
+  }
+  return {
+    key: 'alerts.expiresIn',
+    params: { typeKey, date, count: Math.abs(days) },
+  };
+};
+
+const getAlertTitleKey = (type: 'contract' | 'a1') => {
+  return type === 'contract' ? 'alerts.titleContract' : 'alerts.titleA1';
+};
+
 export const mapAlertRowToDomain = (row: EmployeeAlertDTO): EmployeeAlert => ({
   id: row.id,
   employeeId: row.employee_id,
   employeeName: row.employee_name,
   severity: row.severity,
-  title: generateAlertTitle(row.type, row.employee_name),
-  message: generateAlertMessage(
+  titleKey: getAlertTitleKey(row.type),
+  messageData: getAlertMessageData(
     row.type,
     row.days_remaining ?? 0,
     row.expiry_date ?? ''

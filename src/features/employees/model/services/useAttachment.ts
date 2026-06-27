@@ -8,8 +8,10 @@ import {
   useDeleteEmployeeAttachment,
 } from '@/entities/employee';
 import { useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 
 export const useEmployeeAttachments = (employeeId: string | undefined) => {
+  const { t } = useTranslation('employees');
   const queryClient = useQueryClient();
   const notifications = useNotifications();
 
@@ -57,7 +59,7 @@ export const useEmployeeAttachments = (employeeId: string | undefined) => {
           return file.name;
         } catch (error) {
           setUploadProgress((prev) => ({ ...prev, [file.name]: -1 }));
-          console.error('Krytyczny błąd uploadu:', error);
+          console.error('Upload critical error:', error);
 
           throw new Error(`Błąd pliku ${file.name}`);
         }
@@ -75,31 +77,33 @@ export const useEmployeeAttachments = (employeeId: string | undefined) => {
         }
 
         if (failed.length === 0) {
-          notifications.show(`Przesłano pomyślnie ${files.length} plików`, {
-            severity: 'success',
-          });
-        } else if (successful.length === 0) {
           notifications.show(
-            'Wszystkie pliki napotkały błąd podczas wysyłania.',
-            {
-              severity: 'error',
-            }
+            t('notifications.uploadSuccess', { count: files.length }),
+            { severity: 'success' }
           );
+        } else if (successful.length === 0) {
+          notifications.show(t('notifications.uploadAllFailed'), {
+            severity: 'error',
+          });
         } else {
           notifications.show(
-            `Przesłano ${successful.length} z ${files.length} plików. Błędy: ${failed.length}`,
+            t('notifications.uploadPartialSuccess', {
+              success: successful.length,
+              total: files.length,
+              failed: failed.length,
+            }),
             { severity: 'warning', autoHideDuration: 6000 }
           );
         }
       } catch (error) {
-        console.error('Krytyczny błąd uploadu:', error);
+        console.error('Upload critical error:', error);
       } finally {
         setTimeout(() => {
           setLoadingType(null);
         }, 500);
       }
     },
-    [employeeId, notifications, useQueryClient]
+    [employeeId, notifications, useQueryClient, t]
   );
 
   const deleteMutation = useDeleteEmployeeAttachment();

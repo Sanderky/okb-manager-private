@@ -15,13 +15,11 @@ import {
   Typography,
   Alert,
 } from '@mui/material';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { CheckCircleOutline } from '@mui/icons-material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import dayjs from 'dayjs';
-import { plPL } from '@mui/x-date-pickers/locales';
+import { useTranslation } from 'react-i18next';
 import { NoteBase } from '@/shared/ui/Note';
 import type { EmployeeFormState, FormFieldValue } from '../model/types';
 
@@ -29,33 +27,58 @@ type FieldType = 'text' | 'email' | 'date' | 'boolean' | 'string' | 'number';
 
 interface EmployeeField {
   key: keyof EmployeeFormState['values'];
-  label: string;
+  labelKey: string;
   type: FieldType;
   required: boolean;
 }
 
 const EMPLOYEE_FIELDS: EmployeeField[] = [
-  { key: 'name', label: 'Imię i nazwisko', type: 'text', required: true },
-  { key: 'pesel', label: 'Pesel', type: 'string', required: false },
-  { key: 'address', label: 'Adres', type: 'text', required: false },
-  { key: 'email', label: 'E-mail', type: 'email', required: false },
-  { key: 'phone', label: 'Telefon', type: 'text', required: false },
-  { key: 'birthDate', label: 'Data urodzenia', type: 'date', required: false },
+  { key: 'name', labelKey: 'form.fields.name', type: 'text', required: true },
+  {
+    key: 'pesel',
+    labelKey: 'form.fields.pesel',
+    type: 'string',
+    required: false,
+  },
+  {
+    key: 'address',
+    labelKey: 'form.fields.address',
+    type: 'text',
+    required: false,
+  },
+  {
+    key: 'email',
+    labelKey: 'form.fields.email',
+    type: 'email',
+    required: false,
+  },
+  {
+    key: 'phone',
+    labelKey: 'form.fields.phone',
+    type: 'text',
+    required: false,
+  },
+  {
+    key: 'birthDate',
+    labelKey: 'form.fields.birthDate',
+    type: 'date',
+    required: false,
+  },
   {
     key: 'birthPlace',
-    label: 'Miejsce urodzenia',
+    labelKey: 'form.fields.birthPlace',
     type: 'text',
     required: false,
   },
   {
     key: 'hourRate',
-    label: 'Stawka godzinowa',
+    labelKey: 'form.fields.hourRate',
     type: 'number',
     required: false,
   },
   {
     key: 'accountNumber',
-    label: 'Numer konta',
+    labelKey: 'form.fields.accountNumber',
     type: 'string',
     required: false,
   },
@@ -64,13 +87,13 @@ const EMPLOYEE_FIELDS: EmployeeField[] = [
 const CONTRACT_FIELDS: EmployeeField[] = [
   {
     key: 'contractStartDate',
-    label: 'Data rozpoczęcia umowy',
+    labelKey: 'form.fields.contractStartDate',
     type: 'date',
     required: false,
   },
   {
     key: 'contractEndDate',
-    label: 'Data wygaśnięcia umowy',
+    labelKey: 'form.fields.contractEndDate',
     type: 'date',
     required: false,
   },
@@ -79,13 +102,13 @@ const CONTRACT_FIELDS: EmployeeField[] = [
 const A1_FIELDS: EmployeeField[] = [
   {
     key: 'a1StartDate',
-    label: 'Data rozpoczęcia A1',
+    labelKey: 'form.fields.a1StartDate',
     type: 'date',
     required: false,
   },
   {
     key: 'a1EndDate',
-    label: 'Data wygaśnięcia A1',
+    labelKey: 'form.fields.a1EndDate',
     type: 'date',
     required: false,
   },
@@ -106,6 +129,7 @@ export interface EmployeeFormProps {
 }
 
 export function EmployeeForm(props: EmployeeFormProps) {
+  const { t } = useTranslation(['employees', 'common']);
   const {
     formId,
     formState,
@@ -141,7 +165,12 @@ export function EmployeeForm(props: EmployeeFormProps) {
     [onFieldChange]
   );
 
-  const renderField = ({ key, label, type, required }: EmployeeField) => {
+  const renderField = ({ key, labelKey, type, required }: EmployeeField) => {
+    const label = t(labelKey);
+    const errorText = formErrors[key]
+      ? t(formErrors[key] as string)
+      : undefined;
+
     if (type === 'boolean') {
       return (
         <Grid size={{ xs: 12 }} key={key}>
@@ -166,37 +195,29 @@ export function EmployeeForm(props: EmployeeFormProps) {
         formValues[key] instanceof Date ? dayjs(formValues[key] as Date) : null;
       return (
         <Grid size={{ xs: 12, md: 6 }} key={key}>
-          <LocalizationProvider
-            localeText={
-              plPL.components.MuiLocalizationProvider.defaultProps.localeText
+          <DatePicker
+            label={label}
+            value={val}
+            openTo="month"
+            views={['year', 'month', 'day']}
+            onChange={(newValue) => handleCustomFieldChange(key, newValue)}
+            disabled={
+              (formValues.contractIsPermanent && key === 'contractEndDate') ??
+              false
             }
-            dateAdapter={AdapterDayjs}
-            adapterLocale="pl"
-          >
-            <DatePicker
-              label={label}
-              value={val}
-              openTo="month"
-              views={['year', 'month', 'day']}
-              onChange={(newValue) => handleCustomFieldChange(key, newValue)}
-              disabled={
-                (formValues.contractIsPermanent && key === 'contractEndDate') ??
-                false
-              }
-              inputRef={(el) => registerFieldRef?.(key as string, el)}
-              slotProps={{
-                textField: {
-                  size: 'small',
-                  fullWidth: true,
-                  name: key as string,
-                  required,
-                  error: Boolean(formErrors[key]),
-                  helperText: formErrors[key],
-                },
-                field: { clearable: true, onClear: () => setCleared(true) },
-              }}
-            />
-          </LocalizationProvider>
+            inputRef={(el) => registerFieldRef?.(key as string, el)}
+            slotProps={{
+              textField: {
+                size: 'small',
+                fullWidth: true,
+                name: key as string,
+                required,
+                error: Boolean(formErrors[key]),
+                helperText: errorText,
+              },
+              field: { clearable: true, onClear: () => setCleared(true) },
+            }}
+          />
         </Grid>
       );
     }
@@ -206,14 +227,14 @@ export function EmployeeForm(props: EmployeeFormProps) {
         <Grid size={{ xs: 12, md: 6 }} key={key}>
           <TextField
             type="text"
-            label="Stawka godzinowa"
+            label={label}
             fullWidth
             size="small"
             required={required}
             value={formValues[key] ?? ''}
             name={key as string}
             error={Boolean(formErrors[key])}
-            helperText={formErrors[key]}
+            helperText={errorText}
             inputRef={(el) => registerFieldRef?.(key as string, el)}
             slotProps={{
               input: {
@@ -243,7 +264,7 @@ export function EmployeeForm(props: EmployeeFormProps) {
           value={formValues[key] ?? ''}
           name={key as string}
           error={Boolean(formErrors[key])}
-          helperText={formErrors[key]}
+          helperText={errorText}
           inputRef={(el) => registerFieldRef?.(key as string, el)}
           onChange={(e) => {
             let value: FormFieldValue = e.target.value;
@@ -269,10 +290,10 @@ export function EmployeeForm(props: EmployeeFormProps) {
         <Grid container columns={12} spacing={2.5} sx={{ maxWidth: '100%' }}>
           <Grid size={12}>
             <Alert severity="info" className="mb-3 px-3 py-0 font-medium">
-              Pola oznaczone * są obowiązkowe.
+              {t('form.sections.requiredInfo')}
             </Alert>
             <Typography variant="subtitle1" className="mb-3 font-medium">
-              Dane pracownika
+              {t('form.sections.employeeData')}
             </Typography>
             <Grid container columns={12} spacing={2}>
               {EMPLOYEE_FIELDS.map(renderField)}
@@ -289,7 +310,7 @@ export function EmployeeForm(props: EmployeeFormProps) {
                       }
                     />
                   }
-                  label="Kontraktor"
+                  label={t('form.sections.contractor')}
                 />
               </Grid>
             </Grid>
@@ -299,7 +320,7 @@ export function EmployeeForm(props: EmployeeFormProps) {
 
           <Grid size={12}>
             <Typography variant="subtitle1" className="mb-3 font-medium">
-              Umowa zatrudnienia
+              {t('form.sections.contract')}
             </Typography>
             <Grid container columns={12} spacing={2}>
               {CONTRACT_FIELDS.map(renderField)}
@@ -318,7 +339,7 @@ export function EmployeeForm(props: EmployeeFormProps) {
                       }}
                     />
                   }
-                  label="Na czas nieokreślony"
+                  label={t('form.sections.permanent')}
                 />
               </Grid>
             </Grid>
@@ -328,7 +349,7 @@ export function EmployeeForm(props: EmployeeFormProps) {
 
           <Grid size={12}>
             <Typography variant="subtitle1" className="mb-3 font-medium">
-              A1
+              {t('form.sections.a1')}
             </Typography>
             <Grid container columns={12} spacing={2}>
               {A1_FIELDS.map(renderField)}
@@ -340,7 +361,7 @@ export function EmployeeForm(props: EmployeeFormProps) {
               <Divider sx={{ width: '100%' }} />
               <Grid size={{ xs: 12 }}>
                 <Typography variant="subtitle1" className="mb-3 font-medium">
-                  Notatka
+                  {t('form.sections.note')}
                 </Typography>
                 <NoteBase
                   content={formValues.note ?? ''}
@@ -367,9 +388,9 @@ export function EmployeeForm(props: EmployeeFormProps) {
             type="submit"
             disabled={isSubmitting}
           >
-            Zapisz
+            {t('common:buttons.save')}
           </Button>
-          {isSubmitting && <Typography>Zapisywanie danych...</Typography>}
+          {isSubmitting && <Typography>{t('form.sections.saving')}</Typography>}
           <Button
             variant="outlined"
             onClick={onCancel}
@@ -378,7 +399,7 @@ export function EmployeeForm(props: EmployeeFormProps) {
             color="inherit"
             disabled={isSubmitting}
           >
-            Anuluj
+            {t('common:buttons.cancel')}
           </Button>
         </Stack>
       </FormGroup>
