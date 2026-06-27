@@ -1,4 +1,8 @@
 {
+  "languages": {
+    "pl-PL": "Polski",
+    "de-DE": "Niemiecki"
+  },
   "buttons": {
     "add": "Dodaj",
     "save": "Zapisz",

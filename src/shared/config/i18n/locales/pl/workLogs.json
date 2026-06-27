@@ -64,9 +64,9 @@
     "scheduleLoaded_other": "Załadowano {{count}} wpisu z harmonogramu",
     "scheduleError": "Błąd pobierania harmonogramu",
     "dataCopied": "Skopiowano dane",
-    "copyError": "Błąd kopiowania",
+    "copyError": "Błąd podczas kopiowania danych",
     "hoursSaved": "Zapisano godziny pracy",
-    "saveError": "Błąd zapisu"
+    "saveError": "Błąd zapisu godzin"
   },
   "dialogs": {
     "cancelEdit": {
@@ -76,26 +76,26 @@
     },
     "copyData": {
       "title": "Kopiowanie danych",
-      "description": "Kopiowanie nadpisze obecnie wprowadzone dane",
+      "description": "Obecne dane w tym tygodniu zostaną nadpisane. Kontynuować?",
       "copy": "Kopiuj",
-      "warning": "Kopiowianie nadpisuje wszystkie dane w obecnym tygodniu",
+      "warning": "Kopiowanie nadpisuje wszystkie dane w obecnym tygodniu",
       "copyDataFromSelectedWeek": "Kopiuj dane z wybranego tygodnia:"
     },
     "fillSchedule": {
-      "title": "Proponowane dane",
-      "description": "Uzupełnienie z harmonogramu nadpisze obecnie wprowadzone dane"
+      "title": "Wypełnij z harmonogramu",
+      "description": "Obecne dane zostaną nadpisane na podstawie harmonogramu. Kontynuować?"
     },
     "changeWeek": {
       "title": "Zmiana tygodnia",
-      "description": "Utracisz niezapisane zmiany"
+      "description": "Masz niezapisane zmiany. Czy na pewno chcesz zmienić tydzień bez zapisywania?"
     },
     "deleteEmployee": {
       "title": "Usuwanie pracownika",
-      "description": "Usunąć pracownika {{employeeName}} z budowy {{constructionName}}?"
+      "description": "Czy na pewno chcesz usunąć pracownika {{employeeName}} z budowy {{constructionName}}?"
     },
     "deleteConstruction": {
       "title": "Usuwanie budowy",
-      "description": "Usunąć budowę {{constructionName}} łącznie ze wszystkimi pracownikami?"
+      "description": "Czy na pewno chcesz usunąć budowę {{constructionName}} łącznie ze wszystkimi pracownikami?"
     },
     "addConstructionWithEmployee": {
       "title": "Dodaj nową budowę z pracownikami",
@@ -129,7 +129,7 @@
     }
   },
   "print": {
-    "documentTitlePrefix": "tabelka_godzin",
+    "documentTitlePrefix": "tabelka_godzin_",
     "multiTableFileName": "ewidencja_godzin_pracy",
     "report": {
       "title": "Raport godzin pracy",
@@ -155,4 +155,3 @@
     }
   }
 }
-

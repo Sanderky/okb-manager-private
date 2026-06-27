@@ -17,8 +17,9 @@ import employeesPl from './locales/pl/employees.json';
 import vacationsPl from './locales/pl/vacations.json';
 import calendarPl from './locales/pl/calendar.json';
 import todoPl from './locales/pl/todo.json';
-import schedulePl from './locales/pl/schedule.json'
-import lodgingsPl from './locales/pl/lodgings.json'
+import schedulePl from './locales/pl/schedule.json';
+import lodgingsPl from './locales/pl/lodgings.json';
+import { DEFAULT_LANG, getShortLang } from '../languages';
 
 const resources = {
   'pl-PL': {
@@ -33,7 +34,7 @@ const resources = {
     calendar: calendarPl,
     todo: todoPl,
     schedule: schedulePl,
-    lodgings: lodgingsPl
+    lodgings: lodgingsPl,
   },
 };
 
@@ -42,21 +43,17 @@ i18n
   .use(initReactI18next)
   .init({
     resources,
-    fallbackLng: 'pl-PL',
-    debug: false,
-
+    fallbackLng: DEFAULT_LANG,
     defaultNS: 'common',
-
     interpolation: {
       escapeValue: false,
     },
   });
 
 i18n.on('languageChanged', (lng) => {
-  const shortLng = lng.substring(0, 2).toLowerCase();
-  dayjs.locale(shortLng);
+  dayjs.locale(getShortLang(lng));
 });
 
-dayjs.locale(i18n.language.substring(0, 2).toLowerCase());
+dayjs.locale(getShortLang(i18n.language || DEFAULT_LANG));
 
 export default i18n;

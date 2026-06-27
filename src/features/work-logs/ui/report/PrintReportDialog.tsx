@@ -22,10 +22,9 @@ import BaseDialog from '@/shared/ui/BaseDialog';
 import { ExpandLess, ExpandMore, FilterList } from '@mui/icons-material';
 import EmployeesContructionsFilters from '../EmployeesConstructionsFilters';
 import { PrintReport } from './PrintReport';
-import type { LangCode } from '@/shared/model/types';
-import { Langs } from '@/shared/config/langCodes';
 import { usePrintReportDialog } from '../../model/services/usePrintReport';
 import { useTranslation } from 'react-i18next';
+import { DEFAULT_LANG, LANGUAGES_CONFIG } from '@/shared/config/languages';
 
 interface PrintReportDialogProps {
   open: boolean;
@@ -50,7 +49,7 @@ export const PrintReportDialog: React.FC<PrintReportDialogProps> = ({
     <BaseDialog
       open={open}
       onClose={state.handleClose}
-      title={t('dialogs.printReport.title')}
+      title={t('workLogs:dialogs.printReport.title')}
       showConfirm={false}
       actions={
         <Button
@@ -82,12 +81,12 @@ export const PrintReportDialog: React.FC<PrintReportDialogProps> = ({
       <Stack direction="column" alignItems="flex-start">
         {state.isError && (
           <Alert sx={{ width: '100%', mb: 2 }} severity="error">
-            {t('dialogs.printReport.startWeekAfterEndWeek')}
+            {t('workLogs:dialogs.printReport.startWeekAfterEndWeek')}
           </Alert>
         )}
 
         <Typography sx={{ mb: 0.5 }}>
-          {t('dialogs.printReport.startWeek')}
+          {t('workLogs:dialogs.printReport.startWeek')}
         </Typography>
         <WeekSelector
           value={state.startWeek}
@@ -97,10 +96,10 @@ export const PrintReportDialog: React.FC<PrintReportDialogProps> = ({
         <Typography
           variant="caption"
           mt={0.5}
-        >{`${t('dialogs.printReport.week')} ${getWeekNumber(state.startWeek)}`}</Typography>
+        >{`${t('workLogs:dialogs.printReport.week')} ${getWeekNumber(state.startWeek)}`}</Typography>
 
         <Typography sx={{ mt: 2, mb: 0.5 }}>
-          {t('dialogs.printReport.endWeek')}
+          {t('workLogs:dialogs.printReport.endWeek')}
         </Typography>
         <WeekSelector
           value={state.endWeek}
@@ -110,19 +109,19 @@ export const PrintReportDialog: React.FC<PrintReportDialogProps> = ({
         <Typography
           variant="caption"
           mt={0.5}
-        >{`${t('dialogs.printReport.week')} ${getWeekNumber(state.endWeek)}`}</Typography>
+        >{`${t('workLogs:dialogs.printReport.week')} ${getWeekNumber(state.endWeek)}`}</Typography>
 
         <Typography sx={{ mt: 2 }}>
-          {t('dialogs.printReport.selectedWeeks', {
+          {t('workLogs:dialogs.printReport.selectedWeeks', {
             weekCount: state.weeks.length,
           })}
         </Typography>
         <Divider sx={{ mt: 2 }} flexItem />
 
         <Typography sx={{ mt: 1, mb: 2 }}>
-          {t('dialogs.printReport.filterEmployeesAndConstructions')}
+          {t('workLogs:dialogs.printReport.filterEmployeesAndConstructions')}
         </Typography>
-        <Tooltip title={t('dialogs.printReport.filters')}>
+        <Tooltip title={t('workLogs:dialogs.printReport.filters')}>
           <Badge
             color="primary"
             variant="dot"
@@ -140,7 +139,7 @@ export const PrintReportDialog: React.FC<PrintReportDialogProps> = ({
               onClick={() => state.setIsFilterExpanded(!state.isFilterExpanded)}
               sx={{ ml: 1 }}
             >
-              {t('dialogs.printReport.filters')}{' '}
+              {t('workLogs:dialogs.printReport.filters')}{' '}
               {state.isFilterExpanded ? <ExpandLess /> : <ExpandMore />}
             </Button>
           </Badge>
@@ -185,7 +184,7 @@ export const PrintReportDialog: React.FC<PrintReportDialogProps> = ({
                 onChange={(e) => state.setPrintTile(e.target.checked)}
               />
             }
-            label={t('dialogs.printReport.printReportTitle')}
+            label={t('workLogs:dialogs.printReport.printReportTitle')}
           />
           <FormControlLabel
             control={
@@ -194,7 +193,7 @@ export const PrintReportDialog: React.FC<PrintReportDialogProps> = ({
                 onChange={(e) => state.setPrintTablesTitle(e.target.checked)}
               />
             }
-            label={t('dialogs.printReport.printTableTitles')}
+            label={t('workLogs:dialogs.printReport.printTableTitles')}
           />
           <FormControlLabel
             control={
@@ -203,7 +202,7 @@ export const PrintReportDialog: React.FC<PrintReportDialogProps> = ({
                 onChange={(e) => state.setShowVacation(e.target.checked)}
               />
             }
-            label={t('dialogs.printReport.showVacationInfo')}
+            label={t('workLogs:dialogs.printReport.showVacationInfo')}
           />
           <FormControlLabel
             control={
@@ -212,32 +211,27 @@ export const PrintReportDialog: React.FC<PrintReportDialogProps> = ({
                 onChange={(e) => state.setOmitEmpty(e.target.checked)}
               />
             }
-            label={t('dialogs.printReport.avoidEmptyWeeks')}
+            label={t('workLogs:dialogs.printReport.avoidEmptyWeeks')}
           />
 
           <FormControl sx={{ mt: 2 }}>
             <Autocomplete
               size="small"
-              options={Object.entries(Langs).map(([code, name]) => ({
-                code,
-                name,
-              }))}
-              getOptionLabel={(option) => option.name}
+              options={Object.values(LANGUAGES_CONFIG)}
+              getOptionLabel={(option) => t(`common:${option.translationKey}`)}
+              isOptionEqualToValue={(option, value) =>
+                option.code === value.code
+              }
               value={
-                Object.entries(Langs).find(([code]) => code === state.lang)
-                  ? {
-                      code: state.lang,
-                      name: Langs[state.lang as keyof typeof Langs],
-                    }
-                  : null
+                LANGUAGES_CONFIG[state.lang] || LANGUAGES_CONFIG[DEFAULT_LANG]
               }
               onChange={(_, newValue) =>
-                state.setLang((newValue?.code as LangCode) || 'pl-PL')
+                state.setLang(newValue ? newValue.code : DEFAULT_LANG)
               }
               renderInput={(params) => (
                 <TextField
                   {...params}
-                  label={t('dialogs.printReport.sourceLanguage')}
+                  label={t('workLogs:dialogs.printReport.sourceLanguage')}
                 />
               )}
             />

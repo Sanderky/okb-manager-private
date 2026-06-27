@@ -8,8 +8,8 @@ import {
 } from '@/shared/lib/date';
 import { useConstructions, type Construction } from '@/entities/construction';
 import { useEmployees, type Employee } from '@/entities/employee';
-import type { LangCode } from '@/shared/model/types';
 import { useTranslation } from 'react-i18next';
+import { DEFAULT_LANG, type LangCode } from '@/shared/config/languages';
 
 export const usePrintReportDialog = (
   defaultStartWeek?: Date,
@@ -32,7 +32,7 @@ export const usePrintReportDialog = (
   const [printTablesTitle, setPrintTablesTitle] = useState<boolean>(true);
   const [omitEmpty, setOmitEmpty] = useState<boolean>(false);
   const [showVacation, setShowVacation] = useState<boolean>(true);
-  const [lang, setLang] = useState<LangCode>('pl-PL');
+  const [lang, setLang] = useState<LangCode>(DEFAULT_LANG);
 
   const [selectedConstructionIds, setSelectedConstructionIds] = useState<
     string[]

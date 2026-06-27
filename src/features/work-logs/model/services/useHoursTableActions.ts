@@ -50,8 +50,7 @@ export const useHoursTableActions = ({
 }: UseHoursTableActionsProps) => {
   const dialogs = useDialogs();
   const notifications = useNotifications();
-  const { t } = useTranslation('workLogs');
-  const { t: tCommon } = useTranslation('common');
+  const { t } = useTranslation(['workLogs', 'common']);
 
   const fillScheduleMutation = useFillWithSchedule(
     currentWeek,
@@ -60,14 +59,14 @@ export const useHoursTableActions = ({
       setLocalWorkHours(res);
       setHasUnsavedChanges(true);
       notifications.show(
-        t('notifications.scheduleLoaded', { count: res.length }),
+        t('workLogs:notifications.scheduleLoaded', { count: res.length }),
         {
           severity: 'success',
         }
       );
     },
     () => {
-      notifications.show(t('notifications.scheduleError'), {
+      notifications.show(t('workLogs:notifications.scheduleError'), {
         severity: 'error',
       });
     }
@@ -79,33 +78,37 @@ export const useHoursTableActions = ({
     (res) => {
       setLocalWorkHours(res);
       setHasUnsavedChanges(true);
-      notifications.show(t('notifications.dataCopied'), {
+      notifications.show(t('workLogs:notifications.dataCopied'), {
         severity: 'success',
       });
     },
     () => {
-      notifications.show(t('notifications.copyError'), { severity: 'error' });
+      notifications.show(t('workLogs:notifications.copyError'), {
+        severity: 'error',
+      });
     }
   );
 
   const saveMutation = useSaveWorkLogs(
     () => {
       setHasUnsavedChanges(false);
-      notifications.show(t('notifications.hoursSaved'), {
+      notifications.show(t('workLogs:notifications.hoursSaved'), {
         severity: 'success',
       });
     },
     () =>
-      notifications.show(t('notifications.saveError'), { severity: 'error' })
+      notifications.show(t('workLogs:notifications.saveError'), {
+        severity: 'error',
+      })
   );
 
   const handleCancelEdit = useCallback(async () => {
     if (hasUnsavedChanges) {
       const isConfirmed = await dialogs.confirm(
-        t('dialogs.cancelEdit.description'),
+        t('workLogs:dialogs.cancelEdit.description'),
         {
-          cancelText: t('dialogs.cancelEdit.cancelBtn'),
-          title: t('dialogs.cancelEdit.title'),
+          cancelText: t('workLogs:dialogs.cancelEdit.cancelBtn'),
+          title: t('workLogs:dialogs.cancelEdit.title'),
         }
       );
       if (!isConfirmed) return;
@@ -155,10 +158,10 @@ export const useHoursTableActions = ({
     async (sourceDate: Date) => {
       if (localWorkHours.length > 0) {
         const isConfirmed = await dialogs.confirm(
-          t('dialogs.copyData.description'),
+          t('workLogs:dialogs.copyData.description'),
           {
-            cancelText: tCommon('buttons.cancel'),
-            title: t('dialogs.copyData.title'),
+            cancelText: t('common:buttons.cancel'),
+            title: t('workLogs:dialogs.copyData.title'),
           }
         );
         if (!isConfirmed) return;
@@ -166,23 +169,23 @@ export const useHoursTableActions = ({
       copyMutation.mutate(sourceDate);
       setEditMode(true);
     },
-    [copyMutation, localWorkHours, dialogs, setEditMode, t, tCommon]
+    [copyMutation, localWorkHours, dialogs, setEditMode, t]
   );
 
   const handleFillWithSchedule = useCallback(async () => {
     if (localWorkHours.length > 0) {
       const isConfirmed = await dialogs.confirm(
-        t('dialogs.fillSchedule.description'),
+        t('workLogs:dialogs.fillSchedule.description'),
         {
-          cancelText: tCommon('buttons.cancel'),
-          title: t('dialogs.fillSchedule.title'),
+          cancelText: t('common:buttons.cancel'),
+          title: t('workLogs:dialogs.fillSchedule.title'),
         }
       );
       if (!isConfirmed) return;
     }
     fillScheduleMutation.mutate();
     setEditMode(true);
-  }, [fillScheduleMutation, localWorkHours, dialogs, setEditMode, t, tCommon]);
+  }, [fillScheduleMutation, localWorkHours, dialogs, setEditMode, t]);
 
   const handleWeekChange = useCallback(
     async (target: 'prev' | 'current' | 'next' | Date) => {
@@ -194,10 +197,10 @@ export const useHoursTableActions = ({
 
       if (hasUnsavedChanges) {
         const isConfirmed = await dialogs.confirm(
-          t('dialogs.changeWeek.description'),
+          t('workLogs:dialogs.changeWeek.description'),
           {
-            cancelText: tCommon('buttons.cancel'),
-            title: t('dialogs.changeWeek.title'),
+            cancelText: t('common:buttons.cancel'),
+            title: t('workLogs:dialogs.changeWeek.title'),
           }
         );
         if (!isConfirmed) return;
@@ -205,15 +208,7 @@ export const useHoursTableActions = ({
       setCurrentWeek(newDate);
       setEditMode(false);
     },
-    [
-      currentWeek,
-      hasUnsavedChanges,
-      dialogs,
-      setCurrentWeek,
-      setEditMode,
-      t,
-      tCommon,
-    ]
+    [currentWeek, hasUnsavedChanges, dialogs, setCurrentWeek, setEditMode, t]
   );
 
   const handleHoursChange = useCallback(
@@ -261,15 +256,15 @@ export const useHoursTableActions = ({
   const handleDeleteEmployee = useCallback(
     async (id: string, employeeName: string, constructionName: string) => {
       const confirmed = await dialogs.confirm(
-        t('dialogs.deleteEmployee.description', {
+        t('workLogs:dialogs.deleteEmployee.description', {
           employeeName,
           constructionName,
         }),
         {
           severity: 'error',
-          okText: tCommon('buttons.delete'),
-          cancelText: tCommon('buttons.cancel'),
-          title: t('dialogs.deleteEmployee.title'),
+          okText: t('common:buttons.delete'),
+          cancelText: t('common:buttons.cancel'),
+          title: t('workLogs:dialogs.deleteEmployee.title'),
         }
       );
       if (confirmed) {
@@ -280,18 +275,20 @@ export const useHoursTableActions = ({
         });
       }
     },
-    [dialogs, setLocalWorkHours, setHasUnsavedChanges, t, tCommon]
+    [dialogs, setLocalWorkHours, setHasUnsavedChanges, t]
   );
 
   const handleDeleteConstruction = useCallback(
     async (constructionId: string, constructionName: string) => {
       const confirmed = await dialogs.confirm(
-        t('dialogs.deleteConstruction.description', { constructionName }),
+        t('workLogs:dialogs.deleteConstruction.description', {
+          constructionName,
+        }),
         {
           severity: 'error',
-          okText: tCommon('buttons.delete'),
-          cancelText: tCommon('buttons.cancel'),
-          title: t('dialogs.deleteConstruction.title'),
+          okText: t('common:buttons.delete'),
+          cancelText: t('common:buttons.cancel'),
+          title: t('workLogs:dialogs.deleteConstruction.title'),
         }
       );
       if (confirmed) {
@@ -304,7 +301,7 @@ export const useHoursTableActions = ({
         });
       }
     },
-    [dialogs, setLocalWorkHours, setHasUnsavedChanges, t, tCommon]
+    [dialogs, setLocalWorkHours, setHasUnsavedChanges, t]
   );
 
   return {

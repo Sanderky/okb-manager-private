@@ -22,8 +22,6 @@ export type FileBrowserItem = FileItem | FolderItem;
 
 export type IsoDateString = string;
 
-export type LangCode = 'pl-PL' | 'de-DE';
-
 export interface BaseCalendarEvent {
   id: string;
   startDate: Dayjs | Date | string;

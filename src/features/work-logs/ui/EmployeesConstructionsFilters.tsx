@@ -94,15 +94,15 @@ const EmployeesContructionsFilters = ({
       }}
     >
       <Typography sx={{ mb: 1 }} component={'div'} variant="subtitle2">
-        {t('constructionsTitle')}
+        {t('filters:constructionsTitle')}
       </Typography>
       <Typography sx={{ mb: 1 }} component={'div'} variant="overline">
         {selectedConstructions.length > 0
-          ? t('selectedCount', {
+          ? t('filters:selectedCount', {
               selected: selectedConstructions.length,
               total: filteredConstructions.length,
             })
-          : t('allConstructions')}
+          : t('filters:allConstructions')}
       </Typography>
 
       <FormControl sx={{ width: '100%', maxWidth: '100%' }}>
@@ -134,7 +134,7 @@ const EmployeesContructionsFilters = ({
             );
           }}
           renderInput={(params) => (
-            <TextField {...params} label={t('constructionsLabel')} />
+            <TextField {...params} label={t('filters:constructionsLabel')} />
           )}
         />
       </FormControl>
@@ -151,7 +151,7 @@ const EmployeesContructionsFilters = ({
         }
         label={
           <Typography variant="caption">
-            {t('includeCompletedConstructions')}
+            {t('filters:includeCompletedConstructions')}
           </Typography>
         }
       />
@@ -160,23 +160,25 @@ const EmployeesContructionsFilters = ({
           onClick={handleSelectAllConstructions}
           disabled={isAllConstructionsSelected}
         >
-          {t('selectAll')}
+          {t('filters:selectAll')}
         </Button>
-        <Button onClick={handleDeselectAllConstructions}>{t('clear')}</Button>
+        <Button onClick={handleDeselectAllConstructions}>
+          {t('filters:clear')}
+        </Button>
       </Stack>
 
       <Divider sx={{ mb: 2, mt: 2 }} />
 
       <Typography sx={{ mb: 1 }} component={'div'} variant="subtitle2">
-        {t('employeesTitle')}
+        {t('filters:employeesTitle')}
       </Typography>
       <Typography sx={{ mb: 1 }} component={'div'} variant="overline">
         {selectedEmployees.length > 0
-          ? t('selectedCount', {
+          ? t('filters:selectedCount', {
               selected: selectedEmployees.length,
               total: filteredEmployees.length,
             })
-          : t('allEmployees')}
+          : t('filters:allEmployees')}
       </Typography>
       <FormControl sx={{ width: '100%', maxWidth: '100%' }}>
         <Autocomplete
@@ -207,7 +209,7 @@ const EmployeesContructionsFilters = ({
             );
           }}
           renderInput={(params) => (
-            <TextField {...params} label={t('employeesLabel')} />
+            <TextField {...params} label={t('filters:employeesLabel')} />
           )}
         />
       </FormControl>
@@ -224,7 +226,7 @@ const EmployeesContructionsFilters = ({
         }
         label={
           <Typography variant="caption">
-            {t('includeInactiveEmployees')}
+            {t('filters:includeInactiveEmployees')}
           </Typography>
         }
       />
@@ -233,9 +235,11 @@ const EmployeesContructionsFilters = ({
           onClick={handleSelectAllEmployees}
           disabled={isAllEmployeesSelected}
         >
-          {t('selectAll')}
+          {t('filters:selectAll')}
         </Button>
-        <Button onClick={handleDeselectAllEmployees}>{t('clear')}</Button>
+        <Button onClick={handleDeselectAllEmployees}>
+          {t('filters:clear')}
+        </Button>
       </Stack>
     </Box>
   );
