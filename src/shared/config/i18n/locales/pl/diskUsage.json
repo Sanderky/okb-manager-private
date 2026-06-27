@@ -1,0 +1,7 @@
+{
+  "title": "Wykorzystanie dysku serwera",
+  "errors": {
+    "invalidRange": "Nieprawidłowy zakres. Zużycie jest większe niż limit",
+    "fetchError": "Wystąpił błąd podczas pobierania danych"
+  }
+}
