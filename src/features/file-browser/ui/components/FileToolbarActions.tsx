@@ -8,6 +8,7 @@ import {
   Delete,
 } from '@mui/icons-material';
 import type { FileBrowserItem } from '@/shared/model/types';
+import { useTranslation } from 'react-i18next';
 
 export interface FileToolbarActionsProps {
   selectedRows: FileBrowserItem[];
@@ -30,6 +31,8 @@ export const FileToolbarActions = ({
   onMove,
   onDelete,
 }: FileToolbarActionsProps) => {
+  const { t } = useTranslation('fileBrowser');
+
   const nonSystemCount = selectedRows.filter((r) => !r.isSystem).length;
   const hasAnySelection = selectedRows.length > 0;
   const canModify = nonSystemCount > 0;
@@ -49,11 +52,11 @@ export const FileToolbarActions = ({
           height: 'min-content',
         }}
       >
-        Prześlij pliki
+        {t('actions.upload')}
         <input type="file" hidden multiple onChange={onUpload} />
       </Button>
 
-      <Tooltip title="Prześlij pliki" key={'upload-phone'}>
+      <Tooltip title={t('actions.upload')} key={'upload-phone'}>
         <span>
           <IconButton
             disabled={loading}
@@ -66,7 +69,7 @@ export const FileToolbarActions = ({
         </span>
       </Tooltip>
 
-      <Tooltip title="Utwórz folder" key={'new-folder'}>
+      <Tooltip title={t('actions.createFolder')} key={'new-folder'}>
         <span>
           <IconButton disabled={loading} onClick={onCreateFolder}>
             <CreateNewFolder />
@@ -75,7 +78,10 @@ export const FileToolbarActions = ({
       </Tooltip>
 
       {hasAnySelection && [
-        <Tooltip title={`Pobierz (${selectedRows.length})`} key={'download'}>
+        <Tooltip
+          title={t('actions.downloadCount', { count: selectedRows.length })}
+          key={'download'}
+        >
           <span>
             <IconButton
               disabled={!canModify || loading}
@@ -85,7 +91,10 @@ export const FileToolbarActions = ({
             </IconButton>
           </span>
         </Tooltip>,
-        <Tooltip title={`Przenieś (${selectedRows.length})`} key={'move'}>
+        <Tooltip
+          title={t('actions.moveCount', { count: selectedRows.length })}
+          key={'move'}
+        >
           <span>
             <IconButton
               disabled={!canModify || loading}
@@ -95,7 +104,10 @@ export const FileToolbarActions = ({
             </IconButton>
           </span>
         </Tooltip>,
-        <Tooltip title={`Usuń (${selectedRows.length})`} key={'delete'}>
+        <Tooltip
+          title={t('actions.deleteCount', { count: selectedRows.length })}
+          key={'delete'}
+        >
           <span>
             <IconButton
               disabled={!canModify || loading}

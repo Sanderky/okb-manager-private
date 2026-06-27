@@ -15,10 +15,6 @@ import {
   OpenInNew,
   InfoOutline,
 } from '@mui/icons-material';
-import 'dayjs/locale/pl';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { MRT_Localization_PL } from 'material-react-table/locales/pl';
 import useFileBrowser, { EMPTY_MAP } from '../model/services/useFileBrowser';
 import { useFileDragAndDrop } from '../lib/useFileDragAndDrop';
 import type { FileBrowserItem, FileItem } from '@/shared/model/types';
@@ -29,8 +25,10 @@ import { openFileInNewTab } from '@/shared/lib/browser';
 import { FileDetailsDialog } from './components/FileDetailsDialog';
 import { FileToolbarActions } from './components/FileToolbarActions';
 import { FileToolbarNavigation } from './components/FileToolbarNavigation';
-import { useFileBrowserColumns } from '../lib/useFilebrowserColumns';
 import { MoveItemsDialog } from './components/MoveFilesDialog';
+import { useTranslation } from 'react-i18next';
+import { useFileBrowserColumns } from '../lib/useFileBrowserColumns';
+import { useMaterialTableLanguage } from '@/shared/lib/useMaterialTableLanguage';
 
 interface FileBrowserProps {
   baseDirectory: string;
@@ -43,6 +41,8 @@ const FileBrowser = ({
   employeesMap = EMPTY_MAP,
   constructionsMap = EMPTY_MAP,
 }: FileBrowserProps) => {
+  const { t } = useTranslation('fileBrowser');
+
   const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
   const [previewFile, setPreviewFile] = useState<FileItem | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState<boolean>(false);
@@ -106,8 +106,10 @@ const FileBrowser = ({
 
   const columns = useFileBrowserColumns();
 
+  const tableLocalization = useMaterialTableLanguage();
+
   const table = useMaterialReactTable({
-    localization: MRT_Localization_PL,
+    localization: tableLocalization,
     enablePagination: false,
     enableRowVirtualization: true,
     enableStickyHeader: true,
@@ -182,7 +184,7 @@ const FileBrowser = ({
       }),
     },
     muiSearchTextFieldProps: {
-      placeholder: 'Przeszukaj obecny katalog',
+      placeholder: t('searchPlaceholder'),
       variant: 'outlined',
       size: 'small',
     },
@@ -198,10 +200,10 @@ const FileBrowser = ({
         }}
       >
         <Typography variant="body2" color="text.secondary">
-          Brak plików
+          {t('empty.title')}
         </Typography>
         <Typography variant="body2" color="text.secondary">
-          Upuść pliki tutaj, aby je przesłać
+          {t('empty.description')}
         </Typography>
       </Box>
     ),
@@ -214,7 +216,7 @@ const FileBrowser = ({
                 <MRT_ActionMenuItem
                   icon={<Visibility />}
                   key="preview"
-                  label="Podgląd"
+                  label={t('actions.preview')}
                   onClick={() => {
                     handleOpenPreview(row.original as FileItem);
                     closeMenu();
@@ -225,7 +227,7 @@ const FileBrowser = ({
               <MRT_ActionMenuItem
                 icon={<OpenInNew />}
                 key="newTab"
-                label="Otwórz w nowej karcie"
+                label={t('actions.openNewTab')}
                 onClick={() => {
                   openFileInNewTab((row.original as FileItem).path);
                   closeMenu();
@@ -235,7 +237,7 @@ const FileBrowser = ({
               <MRT_ActionMenuItem
                 icon={<InfoOutline />}
                 key="details"
-                label="Szczegóły"
+                label={t('actions.details')}
                 onClick={() => {
                   setSelectedFile(row.original as FileItem);
                   setIsDetailsDialogOpen(true);
@@ -248,7 +250,7 @@ const FileBrowser = ({
         <MRT_ActionMenuItem
           icon={<Download />}
           key="download"
-          label="Pobierz"
+          label={t('actions.download')}
           onClick={() => {
             handleDownload([row.original]);
             closeMenu();
@@ -259,7 +261,7 @@ const FileBrowser = ({
           <MRT_ActionMenuItem
             icon={<Edit />}
             key="edit"
-            label="Zmień nazwę"
+            label={t('actions.rename')}
             onClick={() => {
               handleRename(row.original);
               closeMenu();
@@ -271,7 +273,7 @@ const FileBrowser = ({
           <MRT_ActionMenuItem
             icon={<Delete color="error" />}
             key="delete"
-            label="Usuń"
+            label={t('actions.delete')}
             onClick={() => {
               handleDelete([row.original]);
               closeMenu();
@@ -359,9 +361,9 @@ const FileBrowser = ({
 
   const elementsCount = table.getPrePaginationRowModel().rows.length;
   const getElementsText = () => {
-    if (elementsCount === 1) return 'element';
-    if (elementsCount > 1 && elementsCount < 5) return 'elementy';
-    return 'elementów';
+    if (elementsCount === 1) return t('itemsWord.one');
+    if (elementsCount > 1 && elementsCount < 5) return t('itemsWord.few');
+    return t('itemsWord.many');
   };
 
   return (
@@ -426,36 +428,36 @@ const FileBrowser = ({
                 sx={{ fontSize: 48, color: 'primary.main', mb: 2 }}
               />
               <Typography variant="h6" color="primary.main">
-                Upuść pliki tutaj, aby je przesłać
+                {t('dropzone.title')}
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                Pliki zostaną przesłane do:{' '}
-                {currentPath.replace(baseDirectory, 'Katalog główny')}
+                {t('dropzone.uploadTo')}{' '}
+                {currentPath.replace(baseDirectory, t('rootDirectory'))}
               </Typography>
             </Box>
           </Paper>
         )}
-        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pl">
-          <MaterialReactTable table={table} />
-          <Stack
-            direction={'row'}
-            sx={(theme) => ({
-              borderTop: `1px solid ${theme.palette.divider}`,
-              background: theme.palette.background.paper,
-              p: 1,
-              minHeight: '45px',
-              alignItems: 'center',
-            })}
-          >
-            <Typography
-              variant="overline"
-              className="font-medium"
-              color="textSecondary"
-              sx={{ lineHeight: 1 }}
-            >{`${elementsCount} ${getElementsText()}`}</Typography>
-          </Stack>
-        </LocalizationProvider>
+
+        <MaterialReactTable table={table} />
+        <Stack
+          direction={'row'}
+          sx={(theme) => ({
+            borderTop: `1px solid ${theme.palette.divider}`,
+            background: theme.palette.background.paper,
+            p: 1,
+            minHeight: '45px',
+            alignItems: 'center',
+          })}
+        >
+          <Typography
+            variant="overline"
+            className="font-medium"
+            color="textSecondary"
+            sx={{ lineHeight: 1 }}
+          >{`${elementsCount} ${getElementsText()}`}</Typography>
+        </Stack>
       </Box>
+
       <MoveItemsDialog
         open={moveDialogOpen}
         folders={destinationFolders}

@@ -1,0 +1,97 @@
+{
+  "rootDirectory": "Katalog główny",
+  "searchPlaceholder": "Przeszukaj obecny katalog",
+  "empty": {
+    "title": "Brak plików",
+    "description": "Upuść pliki tutaj, aby je przesłać"
+  },
+  "dropzone": {
+    "title": "Upuść pliki tutaj, aby je przesłać",
+    "uploadTo": "Pliki zostaną przesłane do:"
+  },
+  "itemsWord": {
+    "one": "element",
+    "few": "elementy",
+    "many": "elementów"
+  },
+  "actions": {
+    "preview": "Podgląd",
+    "openNewTab": "Otwórz w nowej karcie",
+    "details": "Szczegóły",
+    "download": "Pobierz",
+    "downloadCount": "Pobierz ({{count}})",
+    "rename": "Zmień nazwę",
+    "delete": "Usuń",
+    "deleteCount": "Usuń ({{count}})",
+    "upload": "Prześlij pliki",
+    "createFolder": "Utwórz folder",
+    "moveCount": "Przenieś ({{count}})"
+  },
+  "details": {
+    "title": "Szczegóły pliku",
+    "name": "Nazwa",
+    "added": "Data dodania",
+    "size": "Rozmiar",
+    "type": "Rodzaj",
+    "noData": "brak danych"
+  },
+  "navigation": {
+    "selected": "Wybrano: {{selected}} z {{total}}"
+  },
+  "move": {
+    "title": "Przenieś elementy",
+    "selectDestination": "Wybierz miejsce docelowe:",
+    "selectFolder": "Wybierz folder...",
+    "noFolders": "Brak dostępnych folderów w tej lokalizacji.",
+    "onlySubfolders": "Możesz przenieść pliki tylko do podfolderów lub katalogu wyżej.",
+    "moveAction": "Przenieś"
+  },
+  "folders": {
+    "employees": "Pracownicy",
+    "constructions": "Budowy",
+    "id_card": "Dowód osobisty",
+    "contract": "Umowa",
+    "a1": "Zaświadczenie A1",
+    "other": "Inne dokumenty"
+  },
+  "notifications": {
+    "fetchError": "Błąd podczas ładowania plików!",
+    "downloadError": "Błąd pobierania pliku.",
+    "noFilesToZip": "Nie znaleziono plików do spakowania.",
+    "zipError": "Błąd podczas tworzenia archiwum ZIP.",
+    "systemReserved": "Nazwy rozpoczynające się od \"system-\" są zastrzeżone dla systemu.",
+    "folderExists": "Taki folder już istnieje!",
+    "folderCreated": "Folder został utworzony.",
+    "folderCreateError": "Błąd podczas tworzenia folderu.",
+    "systemDeleteError": "Nie można usuwać plików systemowych.",
+    "deleted": "Pliki zostały usunięte.",
+    "deleteError": "Błąd podczas usuwania.",
+    "systemRenameError": "Nie można zmieniać nazwy plików systemowych.",
+    "nameExists": "Taka nazwa już istnieje.",
+    "renamed": "Nazwa została zmieniona.",
+    "renameError": "Błąd podczas zmiany nazwy.",
+    "uploadSuccess": "Przesłano pomyślnie {{count}} plików.",
+    "uploadAllFailed": "Wszystkie pliki napotkały błąd podczas wysyłania.",
+    "uploadPartialSuccess": "Przesłano {{success}} z {{total}} plików. Błędy: {{failed}}.",
+    "unexpectedError": "Wystąpił nieoczekiwany błąd.",
+    "systemMoveError": "Nie można przenosić plików systemowych.",
+    "skippedSystemFiles": "Pominięto {{count}} plików systemowych.",
+    "moveSuccess": "Pomyślnie przeniesiono pliki.",
+    "moveError": "Błąd podczas przenoszenia."
+  },
+  "dialogs": {
+    "newFolderTitle": "Nowy folder",
+    "newFolderPrompt": "Podaj nazwę nowego folderu:",
+    "deleteTitle": "Usuwanie plików",
+    "deleteConfirm": "Czy na pewno usunąć {{count}} element(ów)?",
+    "skippedSystem": " (Pominięto {{count}} plików systemowych)",
+    "renameFileTitle": "Zmień nazwę pliku",
+    "renameFolderTitle": "Zmień nazwę folderu",
+    "renamePrompt": "Podaj nową nazwę:",
+    "buttons": {
+      "create": "Utwórz",
+      "change": "Zmień"
+    }
+  },
+  "filePrefix": "pliki_okb_manager"
+}

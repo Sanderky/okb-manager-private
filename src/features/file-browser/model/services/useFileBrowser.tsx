@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useDialogs } from '@/shared/ui/dialogs/useDialogs';
 import useNotifications from '@/shared/ui/notifications/useNotifications';
 import JSZip from 'jszip';
@@ -23,6 +24,8 @@ const useFileBrowser = (
   employeesMap: Record<string, string> = EMPTY_MAP,
   constructionsMap: Record<string, string> = EMPTY_MAP
 ) => {
+  const { t } = useTranslation(['fileBrowser', 'common']);
+
   const [rawItems, setRawItems] = useState<FileBrowserItem[]>([]);
   const [currentPath, setCurrentPath] = useState<string>(baseDirectory);
   const [loading, setLoading] = useState<boolean>(false);
@@ -36,7 +39,6 @@ const useFileBrowser = (
       if (FOLDER_TRANSLATIONS[item.name]) {
         return {
           ...item,
-          name: FOLDER_TRANSLATIONS[item.name],
           isSystem: true,
         };
       }
@@ -69,14 +71,14 @@ const useFileBrowser = (
         setRawItems(items);
       } catch (error) {
         console.error('Fetch error:', error);
-        notifications.show('Błąd podczas ładowania plików!', {
+        notifications.show(t('notifications.fetchError'), {
           severity: 'error',
         });
       } finally {
         setLoading(false);
       }
     },
-    [onFetch, notifications]
+    [onFetch, notifications, t]
   );
 
   useEffect(() => {
@@ -90,8 +92,10 @@ const useFileBrowser = (
       if (items.length === 1 && items[0].type === 'file') {
         try {
           await FilesApi.downloadFile(items[0].path, items[0].name);
-        } catch (e) {
-          notifications.show('Błąd pobierania pliku', { severity: 'error' });
+        } catch {
+          notifications.show(t('notifications.downloadError'), {
+            severity: 'error',
+          });
         }
         return;
       }
@@ -127,48 +131,48 @@ const useFileBrowser = (
         }
 
         if (count === 0) {
-          notifications.show('Nie znaleziono plików do spakowania.', {
+          notifications.show(t('notifications.noFilesToZip'), {
             severity: 'warning',
           });
           return;
         }
 
         const content = await zip.generateAsync({ type: 'blob' });
+        const prefix = t('filePrefix');
         saveAs(
           content,
-          `pliki_okb_manager_${new Date().toISOString().slice(0, 10)}.zip`
+          `${prefix}_${new Date().toISOString().slice(0, 10)}.zip`
         );
       } catch (error) {
         console.error('ZIP Error:', error);
-        notifications.show('Błąd podczas tworzenia archiwum ZIP.', {
-          severity: 'error',
-        });
+        notifications.show(t('notifications.zipError'), { severity: 'error' });
       } finally {
         setLoading(false);
       }
     },
-    [notifications]
+    [notifications, t]
   );
 
   const handleCreateFolder = useCallback(async () => {
-    const folderName = await dialogs.prompt(`Podaj nazwę nowego folderu:`, {
-      title: `Nowy folder`,
-      okText: 'Utwórz',
-      cancelText: 'Anuluj',
+    const folderName = await dialogs.prompt(t('dialogs.newFolderPrompt'), {
+      title: t('dialogs.newFolderTitle'),
+      okText: t('dialogs.buttons.create'),
+      cancelText: t('common:buttons.cancel'),
     });
 
     if (!folderName) return;
 
     if (folderName.toLowerCase().startsWith(SYSTEM_FOLDER_PREFIX)) {
-      notifications.show(
-        'Nazwy rozpoczynające się od "system-" są zastrzeżone dla systemu',
-        { severity: 'warning' }
-      );
+      notifications.show(t('notifications.systemReserved'), {
+        severity: 'warning',
+      });
       return;
     }
 
     if (data.some((i) => i.name === folderName && i.type === 'folder')) {
-      notifications.show('Taki folder już istnieje!', { severity: 'error' });
+      notifications.show(t('notifications.folderExists'), {
+        severity: 'error',
+      });
       return;
     }
 
@@ -179,13 +183,15 @@ const useFileBrowser = (
         : cleanFolderName;
       await FilesApi.createFolder(path);
       await fetchData(currentPath);
-      notifications.show('Folder został utworzony', { severity: 'success' });
-    } catch (error) {
-      notifications.show('Błąd podczas tworzenia folderu', {
+      notifications.show(t('notifications.folderCreated'), {
+        severity: 'success',
+      });
+    } catch {
+      notifications.show(t('notifications.folderCreateError'), {
         severity: 'error',
       });
     }
-  }, [data, currentPath, dialogs, notifications, fetchData]);
+  }, [data, currentPath, dialogs, notifications, fetchData, t]);
 
   const handleDelete = useCallback(
     async (items: FileBrowserItem[]) => {
@@ -193,23 +199,27 @@ const useFileBrowser = (
       const systemFilesCount = items.length - itemsToDelete.length;
 
       if (itemsToDelete.length === 0) {
-        notifications.show('Nie można usuwać plików systemowych.', {
+        notifications.show(t('notifications.systemDeleteError'), {
           severity: 'warning',
         });
         return;
       }
 
-      let confirmMessage = `Czy na pewno usunąć ${itemsToDelete.length} element(ów)?`;
+      let confirmMessage = t('dialogs.deleteConfirm', {
+        count: itemsToDelete.length,
+      });
       if (systemFilesCount > 0) {
-        confirmMessage += ` (Pominięto ${systemFilesCount} plików systemowych)`;
+        confirmMessage += t('dialogs.skippedSystem', {
+          count: systemFilesCount,
+        });
       }
 
       if (
         !(await dialogs.confirm(confirmMessage, {
-          title: 'Usuwanie plików',
+          title: t('dialogs.deleteTitle'),
           severity: 'error',
-          okText: 'Usuń',
-          cancelText: 'Anuluj',
+          okText: t('common:buttons.delete'),
+          cancelText: t('common:buttons.cancel'),
         }))
       )
         return;
@@ -226,18 +236,20 @@ const useFileBrowser = (
         );
 
         await fetchData(currentPath);
-        notifications.show('Pliki zostały usunięte.', { severity: 'success' });
-      } catch (error) {
-        notifications.show('Błąd podczas usuwania.', { severity: 'error' });
+        notifications.show(t('notifications.deleted'), { severity: 'success' });
+      } catch {
+        notifications.show(t('notifications.deleteError'), {
+          severity: 'error',
+        });
       }
     },
-    [dialogs, fetchData, currentPath, notifications]
+    [dialogs, fetchData, currentPath, notifications, t]
   );
 
   const handleRename = useCallback(
     async (item: FileBrowserItem) => {
       if (item.isSystem) {
-        notifications.show('Nie można zmieniać nazwy plików systemowych.', {
+        notifications.show(t('notifications.systemRenameError'), {
           severity: 'warning',
         });
         return;
@@ -246,13 +258,16 @@ const useFileBrowser = (
       const defaultValue = isFile
         ? getFileNameWithoutExtension(item.name)
         : item.name;
-      const title = isFile ? 'Zmień nazwę pliku' : 'Zmień nazwę folderu';
+      const title = isFile
+        ? t('dialogs.renameFileTitle')
+        : t('dialogs.renameFolderTitle');
 
-      let newName = await dialogs.prompt('Podaj nową nazwę:', {
+      let newName = await dialogs.prompt(t('dialogs.renamePrompt'), {
         title,
         defaultValue,
-        okText: 'Zmień',
+        okText: t('dialogs.buttons.change'),
       });
+
       if (!newName || newName === defaultValue) return;
 
       if (isFile) {
@@ -261,7 +276,9 @@ const useFileBrowser = (
       }
 
       if (data.some((i) => i.name === newName)) {
-        notifications.show('Taka nazwa już istnieje.', { severity: 'error' });
+        notifications.show(t('notifications.nameExists'), {
+          severity: 'error',
+        });
         return;
       }
 
@@ -274,14 +291,16 @@ const useFileBrowser = (
           await FilesApi.moveFolderRecursive(item.path, newPath);
         }
         await fetchData(currentPath);
-        notifications.show('Nazwa została zmieniona.', { severity: 'success' });
-      } catch (error) {
-        notifications.show('Błąd podczas zmiany nazwy.', { severity: 'error' });
+        notifications.show(t('notifications.renamed'), { severity: 'success' });
+      } catch {
+        notifications.show(t('notifications.renameError'), {
+          severity: 'error',
+        });
       } finally {
         setLoading(false);
       }
     },
-    [data, currentPath, dialogs, notifications, fetchData]
+    [data, currentPath, dialogs, notifications, fetchData, t]
   );
 
   const handleFileUpload = useCallback(
@@ -311,9 +330,9 @@ const useFileBrowser = (
           });
 
           return file.name;
-        } catch (error) {
+        } catch {
           setUploadProgress((prev) => ({ ...prev, [file.name]: -1 }));
-          throw new Error(`Błąd pliku ${file.name}`);
+          throw new Error(`File ${file.name} error`);
         }
       });
 
@@ -328,39 +347,38 @@ const useFileBrowser = (
         }
 
         if (failed.length === 0) {
-          notifications.show(`Przesłano pomyślnie ${files.length} plików`, {
-            severity: 'success',
-          });
-        } else if (successful.length === 0) {
           notifications.show(
-            'Wszystkie pliki napotkały błąd podczas wysyłania.',
+            t('notifications.uploadSuccess', { count: files.length }),
             {
-              severity: 'error',
+              severity: 'success',
             }
           );
+        } else if (successful.length === 0) {
+          notifications.show(t('notifications.uploadAllFailed'), {
+            severity: 'error',
+          });
         } else {
           notifications.show(
-            `Przesłano ${successful.length} z ${files.length} plików. Błędy: ${failed.length}`,
+            t('notifications.uploadPartialSuccess', {
+              success: successful.length,
+              total: files.length,
+              failed: failed.length,
+            }),
             { severity: 'warning', autoHideDuration: 6000 }
           );
         }
       } catch (error) {
         console.error('Krytyczny błąd uploadu:', error);
-        notifications.show('Wystąpił nieoczekiwany błąd.', {
+        notifications.show(t('notifications.unexpectedError'), {
           severity: 'error',
         });
       } finally {
-        // setTimeout(() => {
-        //   setIsUploadDialogOpen(false);
-        //   setUploadProgress({});
-        // }, 500);
         setLoading(false);
         setUploading(false);
-
         event.target.value = '';
       }
     },
-    [currentPath, fetchData, notifications]
+    [currentPath, fetchData, notifications, t]
   );
 
   const openMoveDialog = useCallback(
@@ -368,7 +386,7 @@ const useFileBrowser = (
       const movableItems = items.filter((i) => !i.isSystem);
 
       if (movableItems.length === 0) {
-        notifications.show('Nie można przenosić plików systemowych.', {
+        notifications.show(t('notifications.systemMoveError'), {
           severity: 'warning',
         });
         return;
@@ -376,7 +394,9 @@ const useFileBrowser = (
 
       if (movableItems.length < items.length) {
         notifications.show(
-          `Pominięto ${items.length - movableItems.length} plików systemowych.`,
+          t('notifications.skippedSystemFiles', {
+            count: items.length - movableItems.length,
+          }),
           { severity: 'info' }
         );
       }
@@ -413,7 +433,7 @@ const useFileBrowser = (
       setDestinationFolders(options);
       setMoveDialogOpen(true);
     },
-    [currentPath, baseDirectory, data, notifications]
+    [currentPath, baseDirectory, data, notifications, t]
   );
 
   const handleMove = useCallback(
@@ -432,19 +452,19 @@ const useFileBrowser = (
         }
 
         await fetchData(currentPath);
-        notifications.show('Pomyślnie przeniesiono pliki.', {
+        notifications.show(t('notifications.moveSuccess'), {
           severity: 'success',
         });
       } catch (e) {
         console.error(e);
-        notifications.show('Błąd pdoczas przenoszenia.', { severity: 'error' });
+        notifications.show(t('notifications.moveError'), { severity: 'error' });
       } finally {
         setLoading(false);
         setMoveDialogOpen(false);
         setItemsToMove([]);
       }
     },
-    [itemsToMove, currentPath, fetchData, notifications]
+    [itemsToMove, currentPath, fetchData, notifications, t]
   );
 
   return {

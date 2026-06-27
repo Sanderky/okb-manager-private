@@ -8,6 +8,7 @@ import {
 } from '@mui/material';
 import { ArrowBack, Check } from '@mui/icons-material';
 import { FileBreadcrumbs } from './FileBreadcrumbs';
+import { useTranslation } from 'react-i18next';
 
 interface FileToolbarNavigationProps {
   isSelectionMode: boolean;
@@ -32,6 +33,8 @@ export const FileToolbarNavigation = ({
   employeesMap,
   constructionsMap,
 }: FileToolbarNavigationProps) => {
+  const { t } = useTranslation(['fileBrowser', 'common']);
+
   return (
     <Box
       sx={{
@@ -57,7 +60,10 @@ export const FileToolbarNavigation = ({
           <Stack direction="row" alignItems="center" spacing={1}>
             <Check color="primary" sx={{ fontSize: 20 }} />
             <Typography variant="body2" fontWeight={500} color="primary.main">
-              Wybrano: {selectedCount} z {totalElementsCount}
+              {t('navigation.selected', {
+                selected: selectedCount,
+                total: totalElementsCount,
+              })}
             </Typography>
           </Stack>
           <Button
@@ -65,12 +71,12 @@ export const FileToolbarNavigation = ({
             onClick={onCancelSelection}
             sx={{ textTransform: 'none' }}
           >
-            Anuluj
+            {t('common:buttons.cancel')}
           </Button>
         </Stack>
       ) : (
         <>
-          <Tooltip title="Wróć">
+          <Tooltip title={t('common:buttons.back')}>
             <span>
               <IconButton
                 size="small"

@@ -1,8 +1,8 @@
 import { Box, Typography } from '@mui/material';
-import 'dayjs/locale/pl';
 import { FOLDER_TRANSLATIONS } from '@/shared/config/storage';
 import { EMPTY_MAP } from '../../model/services/useFileBrowser';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const FileBreadcrumbs = ({
   path,
@@ -17,20 +17,23 @@ export const FileBreadcrumbs = ({
   employeesMap?: Record<string, string>;
   constructionsMap?: Record<string, string>;
 }) => {
+  const { t } = useTranslation('fileBrowser');
+
   const fullPathSegments = path.split('/').filter(Boolean);
   const baseSegments = baseDirectory.split('/').filter(Boolean);
 
   const getDisplayName = (segment: string) => {
-    if (FOLDER_TRANSLATIONS[segment]) return FOLDER_TRANSLATIONS[segment];
+    if (FOLDER_TRANSLATIONS[segment]) {
+      return t(FOLDER_TRANSLATIONS[segment]);
+    }
 
     if (employeesMap[segment]) return employeesMap[segment];
-
     if (constructionsMap[segment]) return constructionsMap[segment];
 
     return segment;
   };
 
-  let rootDisplayName = 'Katalog główny';
+  let rootDisplayName = t('rootDirectory');
 
   if (baseSegments.length > 0) {
     const lastBasePart = baseSegments[baseSegments.length - 1];
@@ -75,12 +78,11 @@ export const FileBreadcrumbs = ({
 
       {visibleSegments.map((part, i) => {
         const isLast = i === visibleSegments.length - 1;
-
         const href = [...baseSegments, ...visibleSegments.slice(0, i + 1)].join(
           '/'
         );
-
         const displayName = getDisplayName(part);
+
         return (
           <React.Fragment key={i}>
             {isLast ? (

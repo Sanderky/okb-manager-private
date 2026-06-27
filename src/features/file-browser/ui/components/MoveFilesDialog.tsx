@@ -10,6 +10,7 @@ import {
 } from '@mui/material';
 import BaseDialog from '@/shared/ui/BaseDialog';
 import { Folder, Reply } from '@mui/icons-material';
+import { useTranslation } from 'react-i18next';
 
 const NO_SELECTION_VALUE = '___NO_SELECTION___';
 
@@ -28,6 +29,7 @@ export const MoveItemsDialog = ({
   onClose,
   onMove,
 }: MoveItemsDialogProps) => {
+  const { t } = useTranslation(['fileBrowser', 'common']);
   const [destination, setDestination] = useState<string>(NO_SELECTION_VALUE);
 
   useEffect(() => {
@@ -54,19 +56,19 @@ export const MoveItemsDialog = ({
     <BaseDialog
       open={open}
       onClose={handleClose}
-      title="Przenieś elementy"
+      title={t('move.title')}
       showConfirm={false}
       actions={
         <Stack direction="row" spacing={1}>
           <Button onClick={handleClose} color="inherit" variant="outlined">
-            Anuluj
+            {t('common:buttons.cancel')}
           </Button>
           <Button
             variant="contained"
             onClick={handleMove}
             disabled={destination === NO_SELECTION_VALUE}
           >
-            Przenieś
+            {t('move.moveAction')}
           </Button>
         </Stack>
       }
@@ -74,7 +76,7 @@ export const MoveItemsDialog = ({
       {canMove ? (
         <Box sx={{ mt: 1, minWidth: 300 }}>
           <Typography variant="body2" gutterBottom>
-            Wybierz miejsce docelowe:
+            {t('move.selectDestination')}
           </Typography>
 
           <FormControl fullWidth>
@@ -88,7 +90,7 @@ export const MoveItemsDialog = ({
                 if (selected === NO_SELECTION_VALUE) {
                   return (
                     <Typography color="text.secondary">
-                      Wybierz folder...
+                      {t('move.selectFolder')}
                     </Typography>
                   );
                 }
@@ -122,11 +124,9 @@ export const MoveItemsDialog = ({
         </Box>
       ) : (
         <Box sx={{ mt: 2, textAlign: 'center' }}>
-          <Typography color="text.secondary">
-            Brak dostępnych folderów w tej lokalizacji.
-          </Typography>
+          <Typography color="text.secondary">{t('move.noFolders')}</Typography>
           <Typography color="text.secondary" mt={2} mb={2}>
-            Możesz przenieść pliki tylko do podfolderów lub katalogu wyżej.
+            {t('move.onlySubfolders')}
           </Typography>
         </Box>
       )}

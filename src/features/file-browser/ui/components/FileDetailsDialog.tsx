@@ -1,8 +1,9 @@
 import { Box, Typography, Stack } from '@mui/material';
-import 'dayjs/locale/pl';
 import BaseDialog from '@/shared/ui/BaseDialog';
 import type { FileItem } from '@/shared/model/types';
 import { formatBytes } from '@/shared/lib/fileUtils';
+import { useTranslation } from 'react-i18next';
+import dayjs from 'dayjs';
 
 interface FileDetailsDialogProps {
   open: boolean;
@@ -32,13 +33,15 @@ export const FileDetailsDialog: React.FC<FileDetailsDialogProps> = ({
   onClose,
   file,
 }) => {
+  const { t } = useTranslation('fileBrowser');
+
   if (!file) return null;
 
   return (
     <BaseDialog
       open={open}
       onClose={onClose}
-      title={`Szczegóły pliku`}
+      title={t('details.title')}
       showConfirm={false}
     >
       <Stack
@@ -46,23 +49,25 @@ export const FileDetailsDialog: React.FC<FileDetailsDialogProps> = ({
         alignItems={'flex-start'}
         spacing={{ xs: 2, sm: 1 }}
       >
-        <FileDetailsItem title="Nazwa" value={file.name} />
+        <FileDetailsItem title={t('details.name')} value={file.name} />
 
         <FileDetailsItem
-          title="Data dodania"
+          title={t('details.added')}
           value={
             file.createdAt
-              ? new Date(file.createdAt).toLocaleString()
-              : 'brak danych'
+              ? dayjs(file.createdAt).format('DD.MM.YYYY, HH:mm')
+              : t('details.noData')
           }
         />
         <FileDetailsItem
-          title="Rozmiar"
-          value={file.size ? formatBytes(file.size as number) : 'brak danych'}
+          title={t('details.size')}
+          value={
+            file.size ? formatBytes(file.size as number) : t('details.noData')
+          }
         />
         <FileDetailsItem
-          title="Rodzaj"
-          value={file.contentType ?? 'brak danych'}
+          title={t('details.type')}
+          value={file.contentType ?? t('details.noData')}
         />
       </Stack>
     </BaseDialog>

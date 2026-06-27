@@ -4,6 +4,10 @@ import {
   deDE as pickersDe,
 } from '@mui/x-date-pickers/locales';
 
+import { MRT_Localization_PL } from 'material-react-table/locales/pl';
+import { MRT_Localization_DE } from 'material-react-table/locales/de';
+import type { MRT_Localization } from 'material-react-table';
+
 export const LANGUAGES = ['pl-PL', 'de-DE'] as const;
 export type LangCode = (typeof LANGUAGES)[number];
 
@@ -33,4 +37,9 @@ export const LANGUAGES_CONFIG: Record<LangCode, LanguageMetadata> = {
 export const MUI_LOCALES: Record<LangCode, any[]> = {
   'pl-PL': [corePl, pickersPl],
   'de-DE': [coreDe, pickersDe],
+};
+
+export const MRT_LOCALES: Record<LangCode, MRT_Localization> = {
+  'pl-PL': MRT_Localization_PL,
+  'de-DE': MRT_Localization_DE,
 };

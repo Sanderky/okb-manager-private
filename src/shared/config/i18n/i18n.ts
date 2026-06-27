@@ -20,6 +20,7 @@ import todoPl from './locales/pl/todo.json';
 import schedulePl from './locales/pl/schedule.json';
 import lodgingsPl from './locales/pl/lodgings.json';
 import homePl from './locales/pl/home.json';
+import fileBrowserPl from './locales/pl/fileBrowser.json';
 
 const resources = {
   'pl-PL': {
@@ -35,7 +36,8 @@ const resources = {
     todo: todoPl,
     schedule: schedulePl,
     lodgings: lodgingsPl,
-    home: homePl
+    home: homePl,
+    fileBrowser: fileBrowserPl
   },
 };
 

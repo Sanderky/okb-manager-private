@@ -1,16 +1,20 @@
 import { useMemo } from 'react';
 import type { MRT_ColumnDef } from 'material-react-table';
 import { Stack, Tooltip, Typography, Chip } from '@mui/material';
+import { useTranslation } from 'react-i18next';
+import dayjs from 'dayjs';
 import type { FileBrowserItem } from '@/shared/model/types';
 import { formatBytes } from '@/shared/lib/fileUtils';
 import { RenderFileImage } from '../ui/components/RenderFileImage';
 
 export const useFileBrowserColumns = () => {
+  const { t } = useTranslation('fileBrowser');
+
   return useMemo<MRT_ColumnDef<FileBrowserItem>[]>(
     () => [
       {
         accessorKey: 'name',
-        header: 'Nazwa',
+        header: t('details.name'),
         muiTableBodyCellProps: { sx: { pl: 0 } },
         muiTableHeadCellProps: { sx: { pl: 0 } },
         Cell: ({ renderedCellValue, cell, row }) => (
@@ -35,7 +39,7 @@ export const useFileBrowserColumns = () => {
       },
       {
         accessorKey: 'createdAt',
-        header: 'Data dodania',
+        header: t('details.added'),
         size: 150,
         muiTableHeadCellProps: {
           sx: { display: { xs: 'none', md: 'table-cell' } },
@@ -45,20 +49,22 @@ export const useFileBrowserColumns = () => {
         },
         Cell: ({ cell, row }) => {
           if (row.original.type === 'folder') return '';
+
           const dateStr = cell.getValue() as string;
+
+          const fullDate = dayjs(dateStr).format('DD.MM.YYYY, HH:mm');
+          const shortDate = dayjs(dateStr).format('DD.MM.YYYY');
+
           return (
-            <Tooltip
-              enterDelay={500}
-              title={new Date(dateStr).toLocaleString('pl-PL')}
-            >
-              <span>{new Date(dateStr).toLocaleDateString('pl-PL')}</span>
+            <Tooltip enterDelay={500} title={fullDate}>
+              <span>{shortDate}</span>
             </Tooltip>
           );
         },
       },
       {
         accessorKey: 'size',
-        header: 'Rozmiar',
+        header: t('details.size'),
         size: 150,
         muiTableHeadCellProps: {
           sx: { display: { xs: 'none', md: 'table-cell' } },
@@ -78,6 +84,6 @@ export const useFileBrowserColumns = () => {
         },
       },
     ],
-    []
+    [t]
   );
 };
