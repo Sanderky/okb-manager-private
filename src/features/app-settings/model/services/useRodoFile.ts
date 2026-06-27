@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import * as FilesApi from '@/shared/api/storage';
 import type { FileItem } from '@/shared/model/types';
 
@@ -6,6 +7,7 @@ const SYSTEM_BUCKET = import.meta.env.VITE_PUBLIC_BUCKET_NAME ?? 'system';
 const RODO_FILENAME = 'rodo.pdf';
 
 export const useRodoFile = (isOpen: boolean) => {
+  const { t } = useTranslation('settings');
   const [rodoFile, setRodoFile] = useState<FileItem | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -19,7 +21,7 @@ export const useRodoFile = (isOpen: boolean) => {
       setRodoFile(rodo?.type === 'file' ? rodo : null);
     } catch (err) {
       console.error('Błąd pobierania RODO:', err);
-      setError('Nie udało się pobrać informacji o pliku RODO.');
+      setError(t('errors.fetchRodo'));
     } finally {
       setIsLoading(false);
     }
@@ -33,7 +35,7 @@ export const useRodoFile = (isOpen: boolean) => {
 
   const uploadRodoFile = async (file: File) => {
     if (file.type !== 'application/pdf') {
-      setError('Dozwolone są tylko pliki PDF.');
+      setError(t('errors.onlyPdf'));
       return;
     }
 
@@ -50,7 +52,7 @@ export const useRodoFile = (isOpen: boolean) => {
       await fetchRodoFile();
     } catch (err) {
       console.error(err);
-      setError('Wystąpił błąd podczas wysyłania pliku.');
+      setError(t('errors.upload'));
       setIsLoading(false);
     }
   };
@@ -64,7 +66,7 @@ export const useRodoFile = (isOpen: boolean) => {
       setRodoFile(null);
     } catch (err) {
       console.error(err);
-      setError('Nie udało się usunąć pliku.');
+      setError(t('errors.delete'));
     } finally {
       setIsLoading(false);
     }
@@ -74,8 +76,8 @@ export const useRodoFile = (isOpen: boolean) => {
     if (!rodoFile) return;
     try {
       await FilesApi.downloadFile(rodoFile.path, rodoFile.name, SYSTEM_BUCKET);
-    } catch (err) {
-      setError('Błąd podczas pobierania pliku.');
+    } catch {
+      setError(t('errors.download'));
     }
   };
 
@@ -84,8 +86,8 @@ export const useRodoFile = (isOpen: boolean) => {
     try {
       const url = await FilesApi.getSignedUrl(rodoFile.path, 60, SYSTEM_BUCKET);
       if (url) window.open(url, '_blank');
-    } catch (err) {
-      setError('Błąd podczas otwierania podglądu.');
+    } catch {
+      setError(t('errors.preview'));
     }
   };
 

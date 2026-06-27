@@ -23,6 +23,7 @@ import homePl from './locales/pl/home.json';
 import fileBrowserPl from './locales/pl/fileBrowser.json';
 import diskUsagePl from './locales/pl/diskUsage.json';
 import contractorsPl from './locales/pl/contractors.json';
+import settingsPl from './locales/pl/settings.json';
 
 const resources = {
   'pl-PL': {
@@ -41,7 +42,8 @@ const resources = {
     home: homePl,
     fileBrowser: fileBrowserPl,
     diskUsage: diskUsagePl,
-    contractors: contractorsPl
+    contractors: contractorsPl,
+    settings: settingsPl
   },
 };
 
