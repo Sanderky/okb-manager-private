@@ -1,8 +1,12 @@
 import React from 'react';
 import { Box, Typography } from '@mui/material';
 import dayjs, { Dayjs } from 'dayjs';
-import 'dayjs/locale/pl';
-import { CELL_WIDTH, HEADER_HEIGHT, CONSTRUCTION_COL_WIDTH } from './LodgingsTimeline';
+import { useTranslation } from 'react-i18next';
+import {
+  CELL_WIDTH,
+  HEADER_HEIGHT,
+  CONSTRUCTION_COL_WIDTH,
+} from './LodgingsTimeline';
 
 interface TimelineHeaderProps {
   daysArray: Dayjs[];
@@ -11,15 +15,17 @@ interface TimelineHeaderProps {
 export const TimelineHeader: React.FC<TimelineHeaderProps> = ({
   daysArray,
 }) => {
+  const { t } = useTranslation(['lodgings']);
+
   const months = React.useMemo(() => {
     const result: { name: string; daysCount: number }[] = [];
     if (daysArray.length === 0) return result;
 
-    let currentMonth = daysArray[0].locale('pl').format('MMMM YYYY');
+    let currentMonth = daysArray[0].format('MMMM YYYY');
     let daysCount = 0;
 
     daysArray.forEach((day) => {
-      const monthName = day.locale('pl').format('MMMM YYYY');
+      const monthName = day.format('MMMM YYYY');
       if (monthName === currentMonth) {
         daysCount++;
       } else {
@@ -61,7 +67,7 @@ export const TimelineHeader: React.FC<TimelineHeaderProps> = ({
         }}
       >
         <Typography variant="caption" fontWeight="bold" color="textSecondary">
-          BUDOWA
+          {t('lodgings:timeline.construction')}
         </Typography>
       </Box>
 
@@ -85,7 +91,6 @@ export const TimelineHeader: React.FC<TimelineHeaderProps> = ({
                 justifyContent: 'center',
                 borderRight: 1,
                 borderColor: 'test.primary',
-
                 backgroundColor: 'background.default',
               }}
             >
@@ -107,6 +112,7 @@ export const TimelineHeader: React.FC<TimelineHeaderProps> = ({
             const isLastOfMonth = day.date() === day.daysInMonth();
             return (
               <Box
+                key={day.format('YYYY-MM-DD')}
                 sx={(theme) => ({
                   width: CELL_WIDTH,
                   minWidth: CELL_WIDTH,

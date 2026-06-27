@@ -5,7 +5,7 @@ import {
   ToggleButtonGroup,
 } from '@mui/material';
 import { Add, GridView, ViewTimeline, DeleteSweep } from '@mui/icons-material';
-import 'dayjs/locale/pl';
+import { useTranslation } from 'react-i18next';
 import useNotifications from '@/shared/ui/notifications/useNotifications';
 import { useDialogs } from '@/shared/ui/dialogs/useDialogs';
 import type { ViewMode } from '../model/types';
@@ -16,6 +16,7 @@ import {
 import { useLodgingsContext } from '../model/providers/LodgingsContext';
 
 export const LodgingsActions = () => {
+  const { t } = useTranslation(['lodgings', 'common']);
   const { lodgings, openAdd, setViewMode, viewMode } = useLodgingsContext();
 
   const notifications = useNotifications();
@@ -25,27 +26,28 @@ export const LodgingsActions = () => {
   const handleCleanOutdated = async () => {
     const outdatedCount = getOutdatedCount(lodgings);
     if (outdatedCount <= 0) {
-      notifications.show('Brak przedawnionych noclegów do usunięcia', {
+      notifications.show(t('lodgings:notifications.cleanEmpty'), {
         severity: 'info',
       });
       return;
     }
 
     const confirmed = await dialogs.confirm(
-      `Znaleziono ${outdatedCount} zakończonych noclegów. Czy chcesz je trwale usunąć?`,
+      t('lodgings:dialogs.cleanOutdated.description', { count: outdatedCount }),
       {
-        okText: 'Usuń wszystko',
-        cancelText: 'Anuluj',
-        title: 'Czyszczenie zakończonych noclegów',
+        okText: t('lodgings:dialogs.cleanOutdated.ok'),
+        cancelText: t('common:buttons.cancel'),
+        title: t('lodgings:dialogs.cleanOutdated.title'),
         severity: 'error',
       }
     );
 
     if (confirmed) {
       await cleanOutdatedMutation.mutateAsync();
-      notifications.show(`Usunięto ${outdatedCount} przedawnionych noclegów`, {
-        severity: 'success',
-      });
+      notifications.show(
+        t('lodgings:notifications.cleanSuccess', { count: outdatedCount }),
+        { severity: 'success' }
+      );
     }
   };
 
@@ -65,7 +67,7 @@ export const LodgingsActions = () => {
       size="small"
       aria-label="widok"
     >
-      <Tooltip title="Widok siatki">
+      <Tooltip title={t('lodgings:actions.gridTooltip')}>
         <ToggleButton
           value="grid"
           aria-label="siatka"
@@ -75,7 +77,7 @@ export const LodgingsActions = () => {
           <GridView fontSize="small" />
         </ToggleButton>
       </Tooltip>
-      <Tooltip title="Widok osi czasu">
+      <Tooltip title={t('lodgings:actions.timelineTooltip')}>
         <ToggleButton value="timeline" aria-label="oś czasu" sx={{ p: 0.5 }}>
           <ViewTimeline fontSize="small" />
         </ToggleButton>
@@ -89,7 +91,7 @@ export const LodgingsActions = () => {
       size="small"
       key="new"
     >
-      Dodaj nocleg
+      {t('lodgings:actions.addLodging')}
     </Button>,
     <Button
       key="clean"
@@ -99,7 +101,7 @@ export const LodgingsActions = () => {
       onClick={handleCleanOutdated}
       size="small"
     >
-      Usuń stare
+      {t('lodgings:actions.cleanOld')}
     </Button>,
   ];
 };

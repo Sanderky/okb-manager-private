@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import dayjs from 'dayjs';
+import { useTranslation } from 'react-i18next';
 import type { Lodging, TimelineData, TimelineRow } from '../types';
 import type { Construction } from '@/entities/construction';
 import { calculateLanes } from '../utils/TimelineHelpers';
@@ -13,6 +14,8 @@ export const useTimelineData = (
   lodgings: Lodging[],
   constructions: Construction[]
 ): TimelineData => {
+  const { t } = useTranslation(['lodgings']);
+
   const { minDate, totalDays, maxDate } = useMemo(() => {
     if (lodgings.length === 0) {
       const start = dayjs().startOf('month');
@@ -51,28 +54,30 @@ export const useTimelineData = (
       return a.status ? -1 : 1;
     });
 
-    const constructionRows: TimelineRow[] = relevantConstructions.map((construction) => {
-      const constructionLodgings = lodgings.filter(
-        (l) => l.constructionSiteId === construction.id
-      );
-      const { items, maxLanes } = calculateLanes(constructionLodgings);
+    const constructionRows: TimelineRow[] = relevantConstructions.map(
+      (construction) => {
+        const constructionLodgings = lodgings.filter(
+          (l) => l.constructionSiteId === construction.id
+        );
+        const { items, maxLanes } = calculateLanes(constructionLodgings);
 
-      const linesCount = Math.max(1, maxLanes);
-      const rowHeight =
-        linesCount * (BAR_HEIGHT + BAR_GAP) + ROW_PADDING * 2 - BAR_GAP;
+        const linesCount = Math.max(1, maxLanes);
+        const rowHeight =
+          linesCount * (BAR_HEIGHT + BAR_GAP) + ROW_PADDING * 2 - BAR_GAP;
 
-      return {
-        construction: construction,
-        lodgings: items,
-        height: Math.max(MIN_ROW_HEIGHT, rowHeight),
-      };
-    });
+        return {
+          construction: construction,
+          lodgings: items,
+          height: Math.max(MIN_ROW_HEIGHT, rowHeight),
+        };
+      }
+    );
 
     const orphans = lodgings.filter((l) => !l.constructionSiteId);
     if (orphans.length > 0) {
       const orphanSite = {
         id: 'orphan',
-        name: 'Brak przypisania',
+        name: t('lodgings:timeline.orphan'),
         location: null,
         status: true,
       };
@@ -82,13 +87,13 @@ export const useTimelineData = (
         linesCount * (BAR_HEIGHT + BAR_GAP) + ROW_PADDING * 2 - BAR_GAP;
 
       constructionRows.push({
-        construction: orphanSite,
+        construction: orphanSite as Construction,
         lodgings: items,
         height: Math.max(MIN_ROW_HEIGHT, rowHeight),
       });
     }
     return constructionRows;
-  }, [constructions, lodgings]);
+  }, [constructions, lodgings, t]);
 
   return { minDate, maxDate, totalDays, daysArray, rows };
 };

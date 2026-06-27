@@ -1,24 +1,15 @@
 import { useDialogs } from '@/shared/ui/dialogs/useDialogs';
 import useNotifications from '@/shared/ui/notifications/useNotifications';
+import { useTranslation } from 'react-i18next';
 import LodgingFormView from './LodgingFormView';
 import { useCreateLodging } from '../model/services/useCreateLodging';
 import { useUpdateLodging } from '../model/services/useUpdateLodging';
 import { useDeleteLodging } from '../model/services/useDeleteLodgings';
 import type { Lodging } from '../model/types';
-import type { Construction } from '@/entities/construction';
-import type { Employee } from '@/entities/employee';
 import { useLodgingsContext } from '../model/providers/LodgingsContext';
 
-interface Props {
-  open: boolean;
-  onClose: () => void;
-  initialData?: Lodging;
-  employees: Employee[];
-  constructions: Construction[];
-  editingLodging?: Lodging;
-}
-
 export const ManageLodgingDialog = () => {
+  const { t } = useTranslation(['lodgings', 'common']);
   const { isOpen, close, employees, constructions, editingLodging } =
     useLodgingsContext();
 
@@ -37,26 +28,32 @@ export const ManageLodgingDialog = () => {
         await createMutation.mutateAsync(data);
       }
       close();
-      notifications.show('Zapisano pomyślnie!', { severity: 'success' });
+      notifications.show(t('lodgings:notifications.saved'), {
+        severity: 'success',
+      });
     } catch {
-      notifications.show('Błąd podczas zapisywania', { severity: 'error' });
+      notifications.show(t('lodgings:notifications.saveError'), {
+        severity: 'error',
+      });
     }
   };
 
   const handleDelete = async (id: string) => {
     const confirmed = await dialogs.confirm(
-      'Czy na pewno chcesz usunąć ten nocleg?',
+      t('lodgings:dialogs.delete.description'),
       {
-        okText: 'Usuń',
-        cancelText: 'Anuluj',
-        title: 'Usuwanie noclegu',
+        okText: t('common:buttons.delete'),
+        cancelText: t('common:buttons.cancel'),
+        title: t('lodgings:dialogs.delete.title'),
         severity: 'error',
       }
     );
     if (confirmed) {
       await deleteMutation.mutateAsync(id);
       close();
-      notifications.show('Usunięto nocleg', { severity: 'info' });
+      notifications.show(t('lodgings:notifications.deleted'), {
+        severity: 'info',
+      });
     }
   };
 

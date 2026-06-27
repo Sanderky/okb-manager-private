@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Tooltip, Typography, Stack, Link } from '@mui/material';
 import dayjs from 'dayjs';
-import 'dayjs/locale/pl';
+import { useTranslation } from 'react-i18next';
 import type { Lodging } from '../model/types';
 import type { Employee } from '@/entities/employee';
 import { CELL_WIDTH, BAR_HEIGHT } from './LodgingsTimeline';
@@ -26,9 +26,15 @@ export const TimelineBar: React.FC<TimelineBarProps> = ({
   employees,
   onEdit,
 }) => {
+  const { t } = useTranslation(['lodgings']);
+
   const getEmployeeNames = (ids: string[]) => {
     return ids
-      .map((id) => employees.find((e) => e.id === id)?.name || 'Nieznany')
+      .map(
+        (id) =>
+          employees.find((e) => e.id === id)?.name ||
+          t('lodgings:timeline.unknownEmployee')
+      )
       .join(', ');
   };
 
@@ -103,7 +109,9 @@ export const TimelineBar: React.FC<TimelineBarProps> = ({
             display="block"
             gutterBottom
           >
-            Zakwaterowani ({assignedEmployees.length}):
+            {t('lodgings:timeline.assignedEmployees', {
+              count: assignedEmployees.length,
+            })}
           </Typography>
           <Stack spacing={0.5}>
             {assignedEmployees.map((emp) => (

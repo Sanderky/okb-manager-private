@@ -1,11 +1,12 @@
 import { Box, Button, Typography, Stack } from '@mui/material';
 import { BookmarkOutlined } from '@mui/icons-material';
-import 'dayjs/locale/pl';
+import { useTranslation } from 'react-i18next';
 import { useLodgingsStats } from '../model/services/useLodgingsStats';
 import useNotifications from '@/shared/ui/notifications/useNotifications';
 import { useLodgingsContext } from '../model/providers/LodgingsContext';
 
 export const LodgingsBottomToolbar = () => {
+  const { t } = useTranslation(['lodgings']);
   const { onSetDefaultView, viewMode, defaultViewMode } = useLodgingsContext();
 
   const stats = useLodgingsStats();
@@ -13,7 +14,7 @@ export const LodgingsBottomToolbar = () => {
 
   const handleSetDefaultView = () => {
     onSetDefaultView();
-    notifications.show('Ustawiono bieżący widok jako domyślny', {
+    notifications.show(t('lodgings:notifications.defaultSetSuccess'), {
       severity: 'success',
     });
   };
@@ -59,7 +60,11 @@ export const LodgingsBottomToolbar = () => {
             color="textSecondary"
             sx={{ lineHeight: 1 }}
           >
-            {`Zakwaterowani dziś: ${stats.accommodatedToday}/${stats.accommodatedTotal} (${stats.totalEmployees})`}
+            {t('lodgings:toolbar.accommodatedToday', {
+              today: stats.accommodatedToday,
+              total: stats.accommodatedTotal,
+              employees: stats.totalEmployees,
+            })}
           </Typography>
           <Typography
             variant="overline"
@@ -67,7 +72,10 @@ export const LodgingsBottomToolbar = () => {
             className="font-medium"
             sx={{ lineHeight: 1 }}
           >
-            {`Noclegi: ${stats.activeLodgingsCount}/${stats.totalLodgings}`}
+            {t('lodgings:toolbar.activeLodgings', {
+              active: stats.activeLodgingsCount,
+              total: stats.totalLodgings,
+            })}
           </Typography>
         </Stack>
 
@@ -80,7 +88,7 @@ export const LodgingsBottomToolbar = () => {
             color="inherit"
             startIcon={<BookmarkOutlined fontSize="small" />}
           >
-            Ustaw jako domyślny
+            {t('lodgings:toolbar.setDefault')}
           </Button>
         )}
       </Stack>

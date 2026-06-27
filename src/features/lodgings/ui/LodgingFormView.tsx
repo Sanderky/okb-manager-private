@@ -14,9 +14,8 @@ import {
 } from '@mui/material';
 import { Close, PersonAdd } from '@mui/icons-material';
 import { Dayjs } from 'dayjs';
-import 'dayjs/locale/pl';
-import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { useTranslation } from 'react-i18next';
+import { DatePicker } from '@mui/x-date-pickers';
 import BaseDialog from '@/shared/ui/BaseDialog';
 import type { Construction } from '@/entities/construction';
 import type { Employee } from '@/entities/employee';
@@ -40,6 +39,8 @@ const AssignedEmployeesList = ({
   handleAssignmentDateChange,
   handleRemoveAssignment,
 }: AssignedEmployeesListProps) => {
+  const { t } = useTranslation(['lodgings', 'common']);
+
   return (
     <Box
       sx={{
@@ -53,7 +54,7 @@ const AssignedEmployeesList = ({
       {assignments.length === 0 ? (
         <Box p={3} textAlign="center">
           <Typography variant="body2" color="text.secondary">
-            Brak przypisanych pracowników
+            {t('lodgings:form.noAssigned')}
           </Typography>
         </Box>
       ) : (
@@ -91,7 +92,7 @@ const AssignedEmployeesList = ({
                   </Typography>
                   {!employee.status && (
                     <Chip
-                      label="Nieaktywny"
+                      label={t('common:status.inactive')}
                       size="small"
                       color="default"
                       sx={{ height: 16, fontSize: '0.6rem' }}
@@ -103,7 +104,7 @@ const AssignedEmployeesList = ({
                       ml: 'auto',
                     }}
                   >
-                    <Tooltip title="Usuń pracownika z noclegu">
+                    <Tooltip title={t('lodgings:form.removeEmployee')}>
                       <IconButton
                         size="small"
                         onClick={() =>
@@ -159,7 +160,7 @@ const AssignedEmployeesList = ({
                     display: { xs: 'none', sm: 'block' },
                   }}
                 >
-                  <Tooltip title="Usuń pracownika z noclegu">
+                  <Tooltip title={t('lodgings:form.removeEmployee')}>
                     <IconButton
                       size="small"
                       onClick={() => handleRemoveAssignment(assign.employeeId)}
@@ -201,9 +202,13 @@ const AssignedEmployees = ({
   employeeToAdd,
   setEmployeeToAdd,
 }: AssignedEmployeesProps) => {
+  const { t } = useTranslation(['lodgings', 'common']);
+
   return (
     <>
-      <Typography fontWeight={500}>Lista zakwaterowanych</Typography>
+      <Typography fontWeight={500}>
+        {t('lodgings:form.assignedList')}
+      </Typography>
 
       <Stack
         direction={{ xs: 'column', sm: 'row' }}
@@ -220,8 +225,8 @@ const AssignedEmployees = ({
             renderInput={(params) => (
               <TextField
                 {...params}
-                label="Pracownik"
-                placeholder="Wyszukaj..."
+                label={t('lodgings:form.employee')}
+                placeholder={t('lodgings:form.search')}
               />
             )}
           />
@@ -234,7 +239,7 @@ const AssignedEmployees = ({
           disabled={!employeeToAdd}
           sx={{ minWidth: 120, width: { xs: '100%', sm: 'auto' } }}
         >
-          Dodaj
+          {t('common:buttons.add')}
         </Button>
       </Stack>
 
@@ -247,6 +252,7 @@ const AssignedEmployees = ({
     </>
   );
 };
+
 interface LodgingFormProps {
   open: boolean;
   onClose: () => void;
@@ -268,6 +274,8 @@ const LodgingFormView: React.FC<LodgingFormProps> = ({
   onDelete,
   sites,
 }) => {
+  const { t } = useTranslation(['lodgings', 'common']);
+
   const {
     availableEmployees,
     handleAddEmployee,
@@ -310,7 +318,9 @@ const LodgingFormView: React.FC<LodgingFormProps> = ({
     <BaseDialog
       open={open}
       onClose={onClose}
-      title={initialData ? 'Edytuj nocleg' : 'Nowy nocleg'}
+      title={
+        initialData ? t('lodgings:form.editTitle') : t('lodgings:form.newTitle')
+      }
       maxWidth="md"
       actions={
         <Stack
@@ -320,19 +330,19 @@ const LodgingFormView: React.FC<LodgingFormProps> = ({
         >
           {initialData && (
             <Button onClick={handleDelete} color="error" variant="outlined">
-              Usuń
+              {t('common:buttons.delete')}
             </Button>
           )}
           <Stack direction={'row'} spacing={1}>
             <Button onClick={onClose} color="inherit" variant="outlined">
-              Anuluj
+              {t('common:buttons.cancel')}
             </Button>
             <Button
               onClick={handleSubmit}
               variant="contained"
               disabled={loading || !startDate || !endDate}
             >
-              Zapisz
+              {t('common:buttons.save')}
             </Button>
           </Stack>
         </Stack>
@@ -347,13 +357,17 @@ const LodgingFormView: React.FC<LodgingFormProps> = ({
               value={selectedConstruction}
               onChange={(_, newValue) => setSelectedConstruction(newValue)}
               renderInput={(params) => (
-                <TextField {...params} label="Budowa" size="small" />
+                <TextField
+                  {...params}
+                  label={t('lodgings:form.construction')}
+                  size="small"
+                />
               )}
             />
           </Box>
           <Box flex={1}>
             <TextField
-              label="Tytuł"
+              label={t('lodgings:form.title')}
               size="small"
               fullWidth
               value={name}
@@ -363,7 +377,7 @@ const LodgingFormView: React.FC<LodgingFormProps> = ({
         </Stack>
 
         <TextField
-          label="Adres"
+          label={t('lodgings:form.address')}
           size="small"
           fullWidth
           value={address}
@@ -371,7 +385,7 @@ const LodgingFormView: React.FC<LodgingFormProps> = ({
         />
 
         <TextField
-          label="Opis / Uwagi"
+          label={t('lodgings:form.description')}
           size="small"
           fullWidth
           multiline
@@ -380,23 +394,21 @@ const LodgingFormView: React.FC<LodgingFormProps> = ({
           onChange={(e) => setDescription(e.target.value)}
         />
 
-        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pl">
-          <Stack direction="row" spacing={2} alignItems="center">
-            <DatePicker
-              label="Od *"
-              value={startDate}
-              onChange={setStartDate}
-              slotProps={{ textField: { size: 'small', fullWidth: true } }}
-            />
-            <Typography>-</Typography>
-            <DatePicker
-              label="Do *"
-              value={endDate}
-              onChange={setEndDate}
-              slotProps={{ textField: { size: 'small', fullWidth: true } }}
-            />
-          </Stack>
-        </LocalizationProvider>
+        <Stack direction="row" spacing={2} alignItems="center">
+          <DatePicker
+            label={t('lodgings:form.from')}
+            value={startDate}
+            onChange={setStartDate}
+            slotProps={{ textField: { size: 'small', fullWidth: true } }}
+          />
+          <Typography>-</Typography>
+          <DatePicker
+            label={t('lodgings:form.to')}
+            value={endDate}
+            onChange={setEndDate}
+            slotProps={{ textField: { size: 'small', fullWidth: true } }}
+          />
+        </Stack>
 
         <Divider sx={{ pt: 2 }} />
 
