@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useDialogs } from '@/shared/ui/dialogs/useDialogs';
 import useNotifications from '@/shared/ui/notifications/useNotifications';
 import {
@@ -11,6 +12,7 @@ import {
 import { useConstructions } from '@/entities/construction';
 
 export const useContractorsService = () => {
+  const { t } = useTranslation(['contractors', 'common']);
   const dialogs = useDialogs();
   const notifications = useNotifications();
 
@@ -44,16 +46,21 @@ export const useContractorsService = () => {
           id: contractorId,
           data: { note: newNote },
         });
-        notifications.show('Notatka zapisana', { severity: 'success' });
-      } catch (error: any) {
-        notifications.show('Błąd zapisu: ' + error.message, {
-          severity: 'error',
+        notifications.show(t('notifications.noteSaved'), {
+          severity: 'success',
         });
+      } catch (error: any) {
+        notifications.show(
+          t('notifications.saveError', { message: error.message }),
+          {
+            severity: 'error',
+          }
+        );
       } finally {
         setOperatingId(null);
       }
     },
-    [updateMutation, notifications]
+    [updateMutation, notifications, t]
   );
 
   const handleEdit = useCallback(
@@ -70,7 +77,7 @@ export const useContractorsService = () => {
       );
 
       if (exists) {
-        notifications.show('Taki wykonawca już istnieje!', {
+        notifications.show(t('notifications.alreadyExists'), {
           severity: 'warning',
           autoHideDuration: 3000,
         });
@@ -83,12 +90,17 @@ export const useContractorsService = () => {
         { id: contractor.id, data: { name: trimmedName } },
         {
           onSuccess: () => {
-            notifications.show('Zapisano zmiany', { severity: 'success' });
+            notifications.show(t('notifications.changesSaved'), {
+              severity: 'success',
+            });
           },
           onError: (error: any) => {
-            notifications.show('Błąd zapisu: ' + error.message, {
-              severity: 'error',
-            });
+            notifications.show(
+              t('notifications.saveError', { message: error.message }),
+              {
+                severity: 'error',
+              }
+            );
           },
           onSettled: () => {
             setOperatingId(null);
@@ -96,37 +108,39 @@ export const useContractorsService = () => {
         }
       );
     },
-    [contractors, updateMutation, notifications]
+    [contractors, updateMutation, notifications, t]
   );
 
   const handleDelete = useCallback(
     async (contractor: Contractor) => {
       if (!contractor) return false;
       const confirmation = await dialogs.confirm(
-        `Czy na pewno chcesz usunąć wykonawcę ${contractor.name}?`,
+        t('dialogs.deleteConfirm', { name: contractor.name }),
         {
-          title: `Usuwanie wykonawcy`,
+          title: t('dialogs.deleteTitle'),
           severity: 'error',
-          okText: 'Usuń',
-          cancelText: 'Anuluj',
+          okText: t('common:buttons.delete'),
+          cancelText: t('common:buttons.cancel'),
         }
       );
 
       if (confirmation) {
         try {
           await deleteMutation.mutateAsync(contractor.id);
-          notifications.show('Wykonawca został usunięty', {
+          notifications.show(t('notifications.deleted'), {
             severity: 'success',
           });
           return true;
         } catch (error) {
-          notifications.show('Błąd podczas usuwania', { severity: 'error' });
+          notifications.show(t('notifications.deleteError'), {
+            severity: 'error',
+          });
           return false;
         }
       }
       return false;
     },
-    [dialogs, deleteMutation, notifications]
+    [dialogs, deleteMutation, notifications, t]
   );
 
   const handleAdd = useCallback(
@@ -141,7 +155,7 @@ export const useContractorsService = () => {
       );
 
       if (exists) {
-        notifications.show('Taki wykonawca już istnieje!', {
+        notifications.show(t('notifications.alreadyExists'), {
           severity: 'warning',
         });
         return;
@@ -149,7 +163,7 @@ export const useContractorsService = () => {
 
       addMutation.mutate(trimmedName, {
         onSuccess: (data) => {
-          notifications.show('Dodano wykonawcę', { severity: 'success' });
+          notifications.show(t('notifications.added'), { severity: 'success' });
           if (onSuccess) onSuccess(data);
         },
         onError: (error: any) => {
@@ -157,7 +171,7 @@ export const useContractorsService = () => {
         },
       });
     },
-    [addMutation, notifications, contractors]
+    [addMutation, notifications, contractors, t]
   );
 
   return {

@@ -22,6 +22,7 @@ import lodgingsPl from './locales/pl/lodgings.json';
 import homePl from './locales/pl/home.json';
 import fileBrowserPl from './locales/pl/fileBrowser.json';
 import diskUsagePl from './locales/pl/diskUsage.json';
+import contractorsPl from './locales/pl/contractors.json';
 
 const resources = {
   'pl-PL': {
@@ -39,7 +40,8 @@ const resources = {
     lodgings: lodgingsPl,
     home: homePl,
     fileBrowser: fileBrowserPl,
-    diskUsage: diskUsagePl
+    diskUsage: diskUsagePl,
+    contractors: contractorsPl
   },
 };
 

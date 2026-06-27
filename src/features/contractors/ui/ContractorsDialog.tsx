@@ -1,25 +1,23 @@
-import {
-  Box,
-  IconButton,
-  Stack,
-  Typography,
-} from '@mui/material';
+import { Box, IconButton, Stack, Typography } from '@mui/material';
 import BaseDialog from '@/shared/ui/BaseDialog';
 import { useMemo } from 'react';
 import { ArrowBack } from '@mui/icons-material';
 import { useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { type Contractor } from '@/entities/contractor';
 import { ContractorDetails } from './ContractorDetails';
 import { ContractorsList } from './ContractorsList';
 import { useContractorsService } from '../model/services/useContractorsService';
+
 interface ContractorsDialogProps {
   open: boolean;
   onClose: () => void;
 }
 export const ContractorsDialog = ({
   open,
-  onClose
+  onClose,
 }: ContractorsDialogProps) => {
+  const { t } = useTranslation('contractors');
   const [searchParams, setSearchParams] = useSearchParams();
   const activeNoteContractor = searchParams.get('contractorId');
 
@@ -36,7 +34,9 @@ export const ContractorsDialog = ({
 
   const contractorsController = useContractorsService();
   const activeContractor = useMemo(() => {
-    return contractorsController.contractors?.find((c) => c.id === activeNoteContractor);
+    return contractorsController.contractors?.find(
+      (c) => c.id === activeNoteContractor
+    );
   }, [activeNoteContractor, contractorsController.contractors]);
 
   const handleDelete = async (contractor: Contractor) => {
@@ -50,7 +50,7 @@ export const ContractorsDialog = ({
     <BaseDialog
       open={open}
       onClose={onClose}
-      title={'Wykonawcy'}
+      title={t('dialogTitle')}
       showCancel={false}
       maxWidth={'md'}
       contentSx={{
@@ -90,7 +90,7 @@ export const ContractorsDialog = ({
             <IconButton onClick={() => handleSetActiveContractor(null)}>
               <ArrowBack />
             </IconButton>
-            <Typography>Szczegóły:</Typography>
+            <Typography>{t('details')}</Typography>
             <Typography fontWeight="bold">{activeContractor.name}</Typography>
           </Stack>
 
@@ -109,15 +109,18 @@ export const ContractorsDialog = ({
               onEdit={contractorsController.handleEdit}
               onSaveNote={contractorsController.handleSaveNote}
               isLoading={contractorsController.isLoading}
-              constructions={contractorsController.getConstructionsForContractor(activeContractor.id)}
+              constructions={contractorsController.getConstructionsForContractor(
+                activeContractor.id
+              )}
             />
           </Box>
         </Box>
       )}
 
-      <ContractorsList setOpenNote={handleSetActiveContractor} {...contractorsController} />
+      <ContractorsList
+        setOpenNote={handleSetActiveContractor}
+        {...contractorsController}
+      />
     </BaseDialog>
   );
 };
-
-

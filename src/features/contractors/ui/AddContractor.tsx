@@ -1,6 +1,7 @@
 import { Button, TextField } from '@mui/material';
 import BaseDialog from '@/shared/ui/BaseDialog';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useContractorsService } from '../model/services/useContractorsService';
 
 export interface AddContractorDialogProps {
@@ -13,6 +14,7 @@ export const AddContractorDialog = ({
   onClose,
   onAddSuccess,
 }: AddContractorDialogProps) => {
+  const { t } = useTranslation(['contractors', 'common']);
   const [newName, setNewName] = useState('');
   const { handleAdd, isLoading } = useContractorsService();
 
@@ -29,7 +31,7 @@ export const AddContractorDialog = ({
     <BaseDialog
       open={open}
       onClose={onClose}
-      title="Dodaj wykonawcę"
+      title={t('addContractorTitle')}
       showCancel={false}
       actions={
         <Button
@@ -38,14 +40,14 @@ export const AddContractorDialog = ({
           disabled={!newName.trim()}
           loading={isLoading}
         >
-          Dodaj
+          {t('common:buttons.add')}
         </Button>
       }
     >
       <TextField
         size="small"
         fullWidth
-        label="Nowy wykonawca"
+        label={t('newContractorLabel')}
         value={newName}
         onChange={(e) => setNewName(e.target.value)}
         variant="outlined"

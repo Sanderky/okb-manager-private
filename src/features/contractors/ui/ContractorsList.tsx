@@ -14,6 +14,7 @@ import {
   TextField,
 } from '@mui/material';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { type Contractor } from '@/entities/contractor';
 
 interface ContractorsListProps {
@@ -33,6 +34,7 @@ export const ContractorsList = ({
   isLoading,
   contractors,
 }: ContractorsListProps) => {
+  const { t } = useTranslation(['contractors', 'common']);
   const [newName, setNewName] = useState('');
 
   const onAdd = () => {
@@ -47,7 +49,7 @@ export const ContractorsList = ({
       </Box>
     );
   if (isFetchingError)
-    return <Alert severity="error">Nie udało się pobrać danych.</Alert>;
+    return <Alert severity="error">{t('errors.fetchFailed')}</Alert>;
 
   return (
     <Box
@@ -81,9 +83,9 @@ export const ContractorsList = ({
         >
           <TableHead>
             <TableRow>
-              <TableCell width="5%">Lp.</TableCell>
-              <TableCell width="85%">Nazwa</TableCell>
-              <TableCell width="10%">Budowy</TableCell>
+              <TableCell width="5%">{t('table.index')}</TableCell>
+              <TableCell width="85%">{t('table.name')}</TableCell>
+              <TableCell width="10%">{t('table.constructions')}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -96,7 +98,7 @@ export const ContractorsList = ({
                     py: 3,
                   }}
                 >
-                  Brak danych
+                  {t('table.noData')}
                 </TableCell>
               </TableRow>
             ) : (
@@ -136,7 +138,7 @@ export const ContractorsList = ({
         <TextField
           size="small"
           fullWidth
-          label="Nowy wykonawca"
+          label={t('newContractorLabel')}
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
           variant="outlined"
@@ -151,7 +153,7 @@ export const ContractorsList = ({
           sx={{ whiteSpace: 'nowrap' }}
           loading={isLoading}
         >
-          Dodaj
+          {t('common:buttons.add')}
         </Button>
       </Stack>
     </Box>

@@ -12,6 +12,7 @@ import {
 import { useEffect, useMemo, useState } from 'react';
 import { Note } from '@/shared/ui/Note';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import type { Construction } from '@/entities/construction';
 import { type Contractor } from '@/entities/contractor';
 
@@ -34,6 +35,7 @@ export const ContractorDetails = ({
   onSaveNote,
   constructions,
 }: ContractorDetailsProps) => {
+  const { t } = useTranslation(['contractors', 'common']);
   const [isEditMode, setIsEditMode] = useState(false);
   const [localName, setLocalName] = useState(contractor.name);
   const [page, setPage] = useState(1);
@@ -68,7 +70,7 @@ export const ContractorDetails = ({
         size="small"
         value={isEditMode ? localName : contractor.name}
         fullWidth
-        label={'Nazwa'}
+        label={t('name')}
         disabled={isLoading || !isEditMode}
         onChange={(e) => setLocalName(e.target.value)}
       />
@@ -84,7 +86,7 @@ export const ContractorDetails = ({
                 size="small"
                 disabled={isLoading}
               >
-                Zapisz
+                {t('common:buttons.save')}
               </Button>,
               <Button
                 key="cancel"
@@ -94,7 +96,7 @@ export const ContractorDetails = ({
                 size="small"
                 disabled={isLoading}
               >
-                Anuluj
+                {t('common:buttons.cancel')}
               </Button>,
             ]
           ) : (
@@ -105,7 +107,7 @@ export const ContractorDetails = ({
               size="small"
               onClick={() => setIsEditMode(true)}
             >
-              Edytuj nazwę
+              {t('buttons.editName')}
             </Button>
           )}
         </Stack>
@@ -118,16 +120,16 @@ export const ContractorDetails = ({
           onClick={() => onDelete(contractor)}
           disabled={isLoading}
         >
-          Usuń wykonawcę
+          {t('buttons.deleteContractor')}
         </Button>
       </Stack>
       <Divider />
       <Box>
         <Typography variant="body1" className="font-medium">
-          Lista budów:
+          {t('constructionsList')}
         </Typography>
         {!constructions || constructions?.length === 0 ? (
-          <Typography variant="overline">Brak budów</Typography>
+          <Typography variant="overline">{t('noConstructions')}</Typography>
         ) : (
           <>
             <List dense>
