@@ -1,9 +1,6 @@
 import { Box, Button, Typography } from '@mui/material';
 import { Hotel } from '@mui/icons-material';
-import 'dayjs/locale/pl';
-import { LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { plPL } from '@mui/x-date-pickers/locales';
+import { useTranslation } from 'react-i18next';
 import PageContainer from '@/shared/ui/PageContainer';
 import Loading from '@/shared/ui/Loading';
 import {
@@ -25,11 +22,15 @@ export const LodgingsPage = () => {
 };
 
 const LodgingsView = () => {
+  const { t } = useTranslation(['lodgings']);
   const { isLoading, lodgings, viewMode, openAdd } = useLodgingsContext();
 
   if (isLoading) {
     return (
-      <PageContainer fixedHeight breadcrumbs={[{ title: 'Noclegi' }]}>
+      <PageContainer
+        fixedHeight
+        breadcrumbs={[{ title: t('lodgings:pageTitle') }]}
+      >
         <Box sx={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
           <Loading />
         </Box>
@@ -40,37 +41,29 @@ const LodgingsView = () => {
   return (
     <PageContainer
       fixedHeight
-      breadcrumbs={[{ title: 'Noclegi' }]}
+      breadcrumbs={[{ title: t('lodgings:pageTitle') }]}
       actions={<LodgingsActions />}
       renderBottomToolbar={<LodgingsBottomToolbar />}
     >
-      <LocalizationProvider
-        localeText={
-          plPL.components.MuiLocalizationProvider.defaultProps.localeText
-        }
-        dateAdapter={AdapterDayjs}
-        adapterLocale="pl"
-      >
-        <Box sx={{ height: '100%', overflowY: 'auto' }}>
-          {lodgings.length === 0 ? (
-            <Box textAlign="center" py={5}>
-              <Hotel sx={{ fontSize: 60, color: 'text.disabled', mb: 2 }} />
-              <Typography variant="h6" color="text.secondary">
-                Brak zaplanowanych noclegów
-              </Typography>
-              <Button sx={{ mt: 2 }} onClick={openAdd}>
-                Dodaj pierwszy nocleg
-              </Button>
-            </Box>
-          ) : viewMode === 'timeline' ? (
-            <LodgingsTimeline />
-          ) : (
-            <LodgingsCards />
-          )}
+      <Box sx={{ height: '100%', overflowY: 'auto' }}>
+        {lodgings.length === 0 ? (
+          <Box textAlign="center" py={5}>
+            <Hotel sx={{ fontSize: 60, color: 'text.disabled', mb: 2 }} />
+            <Typography variant="h6" color="text.secondary">
+              {t('lodgings:emptyState.title')}
+            </Typography>
+            <Button sx={{ mt: 2 }} onClick={openAdd}>
+              {t('lodgings:emptyState.addFirst')}
+            </Button>
+          </Box>
+        ) : viewMode === 'timeline' ? (
+          <LodgingsTimeline />
+        ) : (
+          <LodgingsCards />
+        )}
 
-          <ManageLodgingDialog />
-        </Box>
-      </LocalizationProvider>
+        <ManageLodgingDialog />
+      </Box>
     </PageContainer>
   );
 };

@@ -1,4 +1,9 @@
 {
+  "pageTitle": "Noclegi",
+  "emptyState": {
+    "title": "Brak zaplanowanych noclegów",
+    "addFirst": "Dodaj pierwszy nocleg"
+  },
   "notifications": {
     "saved": "Zapisano pomyślnie!",
     "saveError": "Błąd podczas zapisywania",
