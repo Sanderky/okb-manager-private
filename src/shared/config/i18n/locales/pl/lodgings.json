@@ -1,0 +1,68 @@
+{
+  "pageTitle": "Noclegi",
+  "emptyState": {
+    "title": "Brak zaplanowanych noclegów",
+    "addFirst": "Dodaj pierwszy nocleg"
+  },
+  "notifications": {
+    "saved": "Zapisano pomyślnie!",
+    "saveError": "Błąd podczas zapisywania",
+    "deleted": "Usunięto nocleg",
+    "defaultSetSuccess": "Ustawiono bieżący widok jako domyślny",
+    "cleanEmpty": "Brak przedawnionych noclegów do usunięcia",
+    "cleanSuccess_one": "Usunięto {{count}} przedawniony nocleg",
+    "cleanSuccess_few": "Usunięto {{count}} przedawnione noclegi",
+    "cleanSuccess_many": "Usunięto {{count}} przedawnionych noclegów"
+  },
+  "dialogs": {
+    "delete": {
+      "title": "Usuwanie noclegu",
+      "description": "Czy na pewno chcesz usunąć ten nocleg?"
+    },
+    "cleanOutdated": {
+      "title": "Czyszczenie zakończonych noclegów",
+      "description_one": "Znaleziono {{count}} zakończony nocleg. Czy chcesz go trwale usunąć?",
+      "description_few": "Znaleziono {{count}} zakończone noclegi. Czy chcesz je trwale usunąć?",
+      "description_many": "Znaleziono {{count}} zakończonych noclegów. Czy chcesz je trwale usunąć?",
+      "ok": "Usuń wszystko"
+    }
+  },
+  "timeline": {
+    "unknownEmployee": "Nieznany",
+    "assignedEmployees": "Zakwaterowani ({{count}}):",
+    "construction": "BUDOWA",
+    "orphan": "Brak przypisania"
+  },
+  "form": {
+    "editTitle": "Edytuj nocleg",
+    "newTitle": "Nowy nocleg",
+    "construction": "Budowa",
+    "title": "Tytuł",
+    "address": "Adres",
+    "description": "Opis / Uwagi",
+    "from": "Od *",
+    "to": "Do *",
+    "assignedList": "Lista zakwaterowanych",
+    "employee": "Pracownik",
+    "search": "Wyszukaj...",
+    "noAssigned": "Brak przypisanych pracowników",
+    "removeEmployee": "Usuń pracownika z noclegu"
+  },
+  "actions": {
+    "gridTooltip": "Widok siatki",
+    "timelineTooltip": "Widok osi czasu",
+    "addLodging": "Dodaj nocleg",
+    "cleanOld": "Usuń stare"
+  },
+  "toolbar": {
+    "accommodatedToday": "Zakwaterowani dziś: {{today}}/{{total}} ({{employees}})",
+    "activeLodgings": "Noclegi: {{active}}/{{total}}",
+    "setDefault": "Ustaw jako domyślny"
+  },
+  "card": {
+    "active": "Aktywny",
+    "openInMaps": "Otwórz w Google Maps",
+    "assigned": "ZAKWATEROWANI ({{count}}):",
+    "noAssigned": "Brak przypisanych pracowników"
+  }
+}

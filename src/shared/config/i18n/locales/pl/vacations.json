@@ -1,0 +1,115 @@
+{
+  "pageTitle": "Kalendarz urlopów",
+  "unknownEmployee": "Nieznany pracownik",
+  "upcoming": {
+    "title": "Nadchodzące urlopy",
+    "emptyState": "Brak nadchodzących urlopów",
+    "chipLabel_one": "{{count}} urlop",
+    "chipLabel_few": "{{count}} urlopy",
+    "chipLabel_many": "{{count}} urlopów"
+  },
+  "notifications": {
+    "vacationAdded": "Urlop został utworzony.",
+    "vacationUpdated": "Urlop został zaktualizowany.",
+    "vacationDeleted": "Urlop został usunięty."
+  },
+  "actions": {
+    "addVacation": "Dodaj urlop",
+    "vacationReport": "Wykaz urlopów"
+  },
+  "dialogs": {
+    "deleteVacation": {
+      "title": "Usuwanie urlopu",
+      "description": "Czy na pewno chcesz usunąć ten urlop?"
+    },
+    "addVacation": {
+      "title": "Dodaj urlop",
+      "confirmText": "Zapisz urlop"
+    },
+    "editVacation": {
+      "titleEdit": "Edytuj urlop",
+      "titleDetails": "Szczegóły urlopu",
+      "cancel": "Anuluj",
+      "saveChanges": "Zapisz zmiany",
+      "delete": "Usuń",
+      "edit": "Edytuj",
+      "details": {
+        "navigateToEmployee": "Przejdź do pracownika",
+        "description": "Opis",
+        "noDescription": "Brak opisu",
+        "colorLabel": "Kolor oznaczenia",
+        "inactive": "nieaktywny"
+      }
+    },
+    "eventList": {
+      "title": "Urlopy ({{count}})",
+      "add": "Dodaj",
+      "close": "Zamknij",
+      "columns": {
+        "employee": "Pracownik",
+        "period": "Okres urlopu",
+        "duration": "Długość",
+        "color": "Kolor"
+      },
+      "duration": "{{count}} {{count, plural, one(dzień) few(dni) many(dni) other(dnia)}}",
+      "emptyState": "Brak wpisów..."
+    },
+    "vacationForm": {
+      "employeeRequired": "Pracownik *",
+      "employee": "Pracownik",
+      "description": "Opis",
+      "startDate": "Data rozpoczęcia *",
+      "endDate": "Data zakończenia *",
+      "selectColor": "Wybierz kolor *",
+      "inactive": "Nieaktywny"
+    },
+    "report": {
+      "fileNamePrefix": "wykaz_urlopow",
+      "title": "Generuj wykaz urlopów",
+      "print": "Drukuj",
+      "emptyState": "Brak urlopów w wybranym zakresie dla wybranych pracowników",
+      "generatedTitle": "Wygenerowany wykaz urlopów ({{count}})",
+      "inactive": "Nieaktywny",
+      "filters": {
+        "employeesTitle": "Pracownicy",
+        "selectEmployeesPlaceholder": "Wybierz pracowników...",
+        "includeInactive": "Uwzględnij nieaktywnych"
+      },
+      "dateRange": {
+        "title": "Zakres dat",
+        "clearAll": "Wyczyść daty",
+        "fromLabel": "Data od (opcjonalnie)",
+        "toLabel": "Data do (opcjonalnie)",
+        "effectiveRange": "Efektywny zakres dat",
+        "error": "Data początkowa nie może być późniejsza niż data końcowa"
+      },
+      "columns": {
+        "employee": "Pracownik",
+        "startDate": "Data rozpoczęcia",
+        "endDate": "Data zakończenia",
+        "daysCount": "Liczba dni"
+      },
+      "printable": {
+        "title": "Wykaz urlopów",
+        "rangeLabel": "Zakres dat:",
+        "employeesCountLabel": "Liczba pracowników:",
+        "generatedAtLabel": "Wygenerowano:",
+        "columns": {
+          "employee": "Pracownik",
+          "startDate": "Data rozpoczęcia",
+          "endDate": "Data zakończenia",
+          "daysCount": "Liczba dni"
+        },
+        "inactive": "Nieaktywny",
+        "totalVacations": "Łączna liczba urlopów: {{count}}"
+      }
+    }
+  },
+  "validation": {
+    "employeeRequired": "Wybierz pracownika",
+    "colorRequired": "Wybierz kolor",
+    "dateRangeRequired": "Wybierz prawidłowy zakres dat",
+    "overlapError": "Pracownik ma już urlop w dniach",
+    "defaultError": "Błąd walidacji"
+  }
+}

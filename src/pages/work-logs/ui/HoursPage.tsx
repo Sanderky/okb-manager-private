@@ -5,9 +5,17 @@ import { useReactToPrint } from 'react-to-print';
 import usePrintShortcut from '@/shared/lib/usePrintShortcut';
 import PageContainer from '@/shared/ui/PageContainer';
 import useContainerBreakpoint from '@/shared/lib/useContainerWidth';
-import { HoursTable, MultiTablePrintReport, PrintReportDialog, type TableData } from '@/features/work-logs';
+import {
+  HoursTable,
+  MultiTablePrintReport,
+  PrintReportDialog,
+  type TableData,
+} from '@/features/work-logs';
+import { useTranslation } from 'react-i18next';
 
 export const WorkLogsPage: React.FC = () => {
+  const { t } = useTranslation(['workLogs', 'common']);
+
   const [containerRef, width] = useContainerBreakpoint();
 
   const [comparisionTables, setComparisionTables] = useState<number[]>([]);
@@ -53,7 +61,7 @@ export const WorkLogsPage: React.FC = () => {
 
   const reactToPrintFn = useReactToPrint({
     contentRef: printContentRef,
-    documentTitle: `Ewidencja_godzin_pracy`,
+    documentTitle: t('print.multiTableFileName'),
     pageStyle: `
     @page {
       margin: 10mm;
@@ -64,7 +72,7 @@ export const WorkLogsPage: React.FC = () => {
 
   return (
     <PageContainer
-      breadcrumbs={[{ title: 'Ewidencja godzin pracy' }]}
+      breadcrumbs={[{ title: t('pageTitle') }]}
       actions={[
         <Button
           variant="contained"
@@ -73,7 +81,7 @@ export const WorkLogsPage: React.FC = () => {
           startIcon={<Add />}
           onClick={handleAddComparisonTable}
         >
-          Dodaj tabelkę porównawczą
+          {t('actions.addComparison')}
         </Button>,
         <Button
           key="print"
@@ -83,7 +91,7 @@ export const WorkLogsPage: React.FC = () => {
           variant="contained"
           sx={{ flexGrow: 0 }}
         >
-          Drukuj
+          {t('common:buttons.print')}
         </Button>,
         <Button
           size="small"
@@ -93,7 +101,7 @@ export const WorkLogsPage: React.FC = () => {
           variant="contained"
           sx={{ flexGrow: 0, whiteSpace: 'nowrap' }}
         >
-          Generuj raport
+          {t('actions.generateReport')}
         </Button>,
       ]}
     >
@@ -129,7 +137,7 @@ export const WorkLogsPage: React.FC = () => {
                     fontSize: '1rem',
                   }}
                 >
-                  Tabela porównawcza {key}
+                  {t('table.comparisonTitle', { key })}
                 </Typography>
               </Box>
 

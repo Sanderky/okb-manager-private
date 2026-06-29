@@ -1,0 +1,35 @@
+{
+  "dialogTitle": "Wykonawcy",
+  "addContractorTitle": "Dodaj wykonawcę",
+  "newContractorLabel": "Nowy wykonawca",
+  "details": "Szczegóły:",
+  "name": "Nazwa",
+  "constructionsList": "Lista budów:",
+  "noConstructions": "Brak budów",
+  "table": {
+    "index": "Lp.",
+    "name": "Nazwa",
+    "constructions": "Budowy",
+    "noData": "Brak danych"
+  },
+  "buttons": {
+    "editName": "Edytuj nazwę",
+    "deleteContractor": "Usuń wykonawcę"
+  },
+  "notifications": {
+    "noteSaved": "Notatka zapisana",
+    "saveError": "Błąd zapisu: {{message}}",
+    "alreadyExists": "Taki wykonawca już istnieje!",
+    "changesSaved": "Zapisano zmiany",
+    "deleted": "Wykonawca został usunięty",
+    "deleteError": "Błąd podczas usuwania",
+    "added": "Dodano wykonawcę"
+  },
+  "dialogs": {
+    "deleteTitle": "Usuwanie wykonawcy",
+    "deleteConfirm": "Czy na pewno chcesz usunąć wykonawcę {{name}}?"
+  },
+  "errors": {
+    "fetchFailed": "Nie udało się pobrać danych."
+  }
+}

@@ -1,18 +1,16 @@
 import { supabase } from '@/shared/api/supabase';
-import type { Lodging, LodgingAssignment } from '../model/types';
+import type { Lodging } from '../model/types';
 import { toSqlDate } from '@/shared/lib/date';
 import {
   mapLodgingFromDB,
-  mapToLodgingCreatePayload,
-  mapToLodgingUpdatePayload,
+  mapToDbPayload,
   mapAssignmentsToRelations,
-  type LodgingWithAssignments,
 } from './mappers';
 
 const TABLE_NAME = 'lodgings';
 const JOIN_TABLE = 'lodging_employees';
 
-export const getLodgings = async (): Promise<LodgingWithAssignments[]> => {
+export const getLodgings = async (): Promise<Lodging[]> => {
   const { data, error } = await supabase
     .from(TABLE_NAME)
     .select(`*, lodging_employees ( employee_id, start_date, end_date )`)
@@ -23,9 +21,9 @@ export const getLodgings = async (): Promise<LodgingWithAssignments[]> => {
 };
 
 export const createLodging = async (
-  data: Partial<Lodging> & { assignments?: LodgingAssignment[] }
+  data: Partial<Lodging>
 ): Promise<string> => {
-  const payload = mapToLodgingCreatePayload(data);
+  const payload = mapToDbPayload(data);
 
   const { data: created, error } = await supabase
     .from(TABLE_NAME)
@@ -50,9 +48,9 @@ export const createLodging = async (
 
 export const updateLodging = async (
   id: string,
-  data: Partial<Lodging> & { assignments?: LodgingAssignment[] }
+  data: Partial<Lodging>
 ): Promise<void> => {
-  const payload = mapToLodgingUpdatePayload(data);
+  const payload = mapToDbPayload(data);
 
   if (Object.keys(payload).length > 0) {
     const { error } = await supabase

@@ -1,0 +1,16 @@
+{
+  "rodo": {
+    "description": "Oświadczenie o przetwarzaniu danych. Dokument jest wyświetlany na stronie logowania.",
+    "infoAdd": "Aby dodać nowy plik należy wcześniej usunąć stary.",
+    "addButton": "Dodaj plik RODO",
+    "pdfOnly": "Tylko pliki .pdf (nazwa zostanie automatycznie zmieniona na rodo.pdf)"
+  },
+  "errors": {
+    "fetchRodo": "Nie udało się pobrać informacji o pliku RODO.",
+    "onlyPdf": "Dozwolone są tylko pliki PDF.",
+    "upload": "Wystąpił błąd podczas wysyłania pliku.",
+    "delete": "Nie udało się usunąć pliku.",
+    "download": "Błąd podczas pobierania pliku.",
+    "preview": "Błąd podczas otwierania podglądu."
+  }
+}

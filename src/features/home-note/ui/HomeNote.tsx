@@ -1,42 +1,36 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import useNotifications from '@/shared/ui/notifications/useNotifications';
 import { Note } from '@/shared/ui/Note';
-import { getHomeNote, saveHomeNote } from '../api';
+import { useUpdateHomeNote } from '../model/services/useUpdateHomeNote';
+import { useHomeNote } from '../model/services/useHomeNote';
 
 export const HomeNote = () => {
+  const { t } = useTranslation('home');
+
   const notifications = useNotifications();
-  const queryClient = useQueryClient();
+  const updateNoteMutation = useUpdateHomeNote();
+  const { data: home, isLoading: noteLoading } = useHomeNote();
 
-  const { data: home, isLoading: noteLoading } = useQuery({
-    queryKey: ['home', 'note'],
-    queryFn: getHomeNote,
-  });
+  const handleSave = async (note: string) => {
+    try {
+      await updateNoteMutation.mutateAsync(note);
 
-  const updateNoteMutation = useMutation({
-    mutationFn: (newNote: string) => saveHomeNote(newNote),
-
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['home', 'note'],
-      });
-      notifications.show('Notatka została zaktualizowana.', {
+      notifications.show(t('notifications.success'), {
         severity: 'success',
         autoHideDuration: 5000,
       });
-    },
-    onError: (error: Error) => {
-      console.error('Update note error:', error);
-      notifications.show('Wystąpił błąd podczas zapisywania notatki.', {
+    } catch {
+      notifications.show(t('notifications.error'), {
         severity: 'error',
         autoHideDuration: 5000,
       });
-    },
-  });
+    }
+  };
 
   return (
     <Note
       content={home?.note ?? ''}
-      onSave={(note) => updateNoteMutation.mutate(note)}
+      onSave={handleSave}
       loading={updateNoteMutation.isPending || noteLoading}
       dashedBorder={false}
     />

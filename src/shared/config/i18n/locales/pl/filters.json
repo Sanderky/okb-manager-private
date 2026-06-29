@@ -1,0 +1,14 @@
+{
+  "constructionsTitle": "Filtr budów",
+  "employeesTitle": "Filtr pracowników",
+  "selectedCount": "Wybrano: {{selected}} z {{total}}",
+  "allConstructions": "Wszystkie budowy",
+  "allEmployees": "Wszyscy pracownicy",
+  "constructionsLabel": "Budowy",
+  "employeesLabel": "Pracownicy",
+  "includeCompletedConstructions": "Uwzględnij zakończone budowy w filtrze",
+  "includeInactiveEmployees": "Uwzględnij nieaktywnych pracowników w filtrze",
+  "inactiveEmployee": "Nieaktywny",
+  "selectAll": "Wszystko",
+  "clear": "Wyczyść"
+}

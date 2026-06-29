@@ -1,2 +1,2 @@
 export * from './ui/HomeNote';
-export * as HomeNoteApi from './api';
+export * from './model/services/useHomeNote';

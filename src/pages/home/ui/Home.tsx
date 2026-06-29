@@ -2,21 +2,26 @@ import { Card, Box, Grid, CardContent, Tabs, Tab } from '@mui/material';
 import PageContainer from '@/shared/ui/PageContainer';
 import { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { ConstructionsCard, EmployeesCard } from './InfoCards';
-import { EmployeeApi } from '@/entities/employee';
-import { ConstructionApi } from '@/entities/construction';
-import { EventsBox, getNearestUpcomingEvents } from '@/features/calendar';
+import { useEmployees, useEmployeeStats } from '@/entities/employee';
+import {
+  useConstructions,
+  useConstructionStats,
+} from '@/entities/construction';
 import { EmployeeAlerts } from '@/features/employees';
 import { DiskUsage } from '@/features/disk-usage';
-import { UpcomingVacation } from '@/features/vacations';
 import { TodoList } from '@/features/todo-list';
 import { HomeNote } from '@/features/home-note';
 import { FileBrowser } from '@/features/file-browser';
+import { useUpcomingEvents } from '@/entities/events';
+import { EventsBox } from '@/features/upcoming-events';
+import { UpcomingVacation } from '@/features/upcoming-vacations/ui/UpcomingVacations';
 
 const SHOW_DISK_USAGE = import.meta.env.VITE_SHOW_DISK_USAGE;
 
 export const Home = () => {
+  const { t } = useTranslation('home');
   const navigate = useNavigate();
 
   const [tab, setTab] = useState(0);
@@ -25,27 +30,14 @@ export const Home = () => {
     setTab(newValue);
   };
 
-  const { data: employeeStats, isLoading: employeesLoading } = useQuery({
-    queryKey: ['employees', 'stats'],
-    queryFn: EmployeeApi.getEmployeeStats,
-  });
-
-  const { data: constructionStats, isLoading: constructionsLoading } = useQuery(
-    {
-      queryKey: ['constructions', 'stats'],
-      queryFn: ConstructionApi.getConstructionStats,
-    }
-  );
-
-  const { data: employees = [] } = useQuery({
-    queryKey: ['employees'],
-    queryFn: () => EmployeeApi.getEmployeeList(),
-  });
-
-  const { data: constructions = [] } = useQuery({
-    queryKey: ['constructions'],
-    queryFn: () => ConstructionApi.getConstructionList(),
-  });
+  const { data: employeeStats, isLoading: employeesLoading } =
+    useEmployeeStats();
+  const { data: constructionStats, isLoading: constructionsLoading } =
+    useConstructionStats();
+  const { employees } = useEmployees();
+  const { constructions } = useConstructions();
+  const { data: upcomingEvents = [], isLoading: isUpcomingEventsLoading } =
+    useUpcomingEvents();
 
   const employeesMap = useMemo(() => {
     const map: Record<string, string> = {};
@@ -67,12 +59,6 @@ export const Home = () => {
     );
   }, [constructions]);
 
-  const { data: upcomingEvents = [], isLoading: isUpcomingEventsLoading } =
-    useQuery({
-      queryKey: ['calendarEvents', 'upcoming', 'all'],
-      queryFn: () => getNearestUpcomingEvents(),
-    });
-
   const handleEmployeesClick = useCallback(() => {
     navigate('/employees');
   }, [navigate]);
@@ -83,7 +69,7 @@ export const Home = () => {
 
   return (
     <PageContainer
-      breadcrumbs={[{ title: 'Strona główna' }]}
+      breadcrumbs={[{ title: t('breadcrumbs.home') }]}
       fixedHeight={tab === 1}
       renderTopToolbar={
         <Box
@@ -95,14 +81,14 @@ export const Home = () => {
         >
           <Tabs value={tab} onChange={handleTabChange}>
             <Tab
-              label="Informacje"
+              label={t('tabs.info')}
               sx={{
                 fontSize: { xs: '0.8rem', sm: '.85rem' },
                 minWidth: 0,
               }}
             />
             <Tab
-              label="Pliki"
+              label={t('tabs.files')}
               sx={{
                 fontSize: { xs: '0.8rem', sm: '.85rem' },
                 minWidth: { xs: 0, sm: 100 },

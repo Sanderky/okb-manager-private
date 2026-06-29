@@ -1,4 +1,2 @@
-import { VacationsCalendar } from './ui/Vacations';
-
-export * from './ui/UpcomingVacations';
-export {VacationsCalendar}
+export * from './model/providers/VacationsContext';
+export * from './ui/VacationsCalendar';

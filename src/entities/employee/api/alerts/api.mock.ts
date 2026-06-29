@@ -1,7 +1,7 @@
 import { mockDb } from '@/shared/api/mock/mockDb';
 
 import type { EmployeeAlert, AlertsSettings } from '../../model/types';
-import { DEFAULT_SETTINGS, SETTINGS_ID } from '../../config/alert-settings';
+import { DEFAULT_SETTINGS, SETTINGS_ID } from '../../model/constants';
 import {
   mapSettingsDtoToDomain,
   mapSettingsToPayload,

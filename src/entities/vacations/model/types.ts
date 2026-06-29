@@ -6,7 +6,6 @@ export interface Vacation {
   endDate: Date;
   color: string;
   description?: string;
-
   employeeName?: string;
   employeeActive?: boolean;
 }

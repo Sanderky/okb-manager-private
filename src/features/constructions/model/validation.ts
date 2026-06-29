@@ -1,12 +1,11 @@
-import dayjs from "dayjs";
-import type { ConstructionFormState } from "../ui/ConstructionForm";
-import type { Construction } from "@/entities/construction";
+import dayjs from 'dayjs';
+import type { Construction } from '@/entities/construction';
+import type { ValidationErrors } from './types';
 
 export const validate = (
   values: Partial<Omit<Construction, 'id'>>
-): Partial<Record<keyof ConstructionFormState['values'], string>> => {
-  const errors: Partial<Record<keyof ConstructionFormState['values'], string>> =
-    {};
+): ValidationErrors => {
+  const errors: ValidationErrors = {};
 
   if (!values.name || values.name.trim() === '') {
     errors.name = 'Nazwa jest wymagana.';

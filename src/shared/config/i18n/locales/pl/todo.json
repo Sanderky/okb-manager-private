@@ -1,0 +1,36 @@
+{
+  "title": "Lista zadań",
+  "tabs": {
+    "todo": "Do zrobienia ({{count}})",
+    "completed": "Wykonane ({{count}})"
+  },
+  "input": {
+    "placeholder": "Dodaj nowe zadanie..."
+  },
+  "emptyStates": {
+    "allDone": "Wszystko zrobione!",
+    "noCompleted": "Brak wykonanych zadań"
+  },
+  "actions": {
+    "markImportant": "Oznacz jako ważne",
+    "markUnimportant": "Oznacz jako nieważne",
+    "delete": "Usuń zadanie",
+    "deleteAllCompleted": "Usuń wszystkie wykonane"
+  },
+  "status": {
+    "completedAt": "Wykonano: {{date}}"
+  },
+  "errors": {
+    "loadError": "Błąd ładowania zadań"
+  },
+  "dialogs": {
+    "deleteAll": {
+      "title": "Usuwanie wykonanych zadań",
+      "description": "Czy na pewno chcesz usunąć wszystkie wykonane zadania?"
+    },
+    "deleteOne": {
+      "title": "Usuwanie zadania",
+      "description": "Czy na pewno chcesz usunąć to zadanie?"
+    }
+  }
+}

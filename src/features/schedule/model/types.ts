@@ -9,3 +9,21 @@ export interface ICell {
 }
 
 export type ScheduleMap = Map<string, Map<string, ScheduleEntry>>;
+
+export interface CellDisplayItem {
+  id: string;
+  text: string;
+  isVacation: boolean;
+  isActive: boolean;
+}
+
+export interface ScheduleEntryInput {
+  employeeId: string;
+  date: Date;
+  constructionId: string | null;
+}
+
+export interface BuildEntriesResult {
+  entriesToSave: ScheduleEntryInput[];
+  notSavedDays: string[];
+}

@@ -1,0 +1,12 @@
+{
+  "pageNotFound": {
+    "notExist": "Ups! Strona nie istnieje!",
+    "pageDeletedInfo": "Wygląda na to że strona której szukasz nie istnieje lub została usunięta.",
+    "mainPage": "Strona główna",
+    "goBack": "Wróć"
+  },
+  "errorPage": {
+    "unexpectedError": "Wystąpił niespodziewany błąd.",
+    "tryAgain": "Prosimy spróbować ponownie później."
+  }
+}

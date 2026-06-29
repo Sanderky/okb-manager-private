@@ -1,0 +1,83 @@
+{
+  "pageTitle": "Kalendarz",
+  "categories": {
+    "info": "Info",
+    "lodging": "Hotel",
+    "payroll": "Płace",
+    "accounting": "Księgowość",
+    "other": "Inne",
+    "none": "Brak kategorii"
+  },
+  "upcoming": {
+    "title": "Nadchodzące wydarzenia",
+    "titleConstruction": "Wydarzenia na budowie",
+    "titleEmployee": "Wydarzenia pracownika",
+    "emptyState": "Brak nadchodzących wydarzeń",
+    "chipLabel_one": "{{count}} wydarzenie",
+    "chipLabel_few": "{{count}} wydarzenia",
+    "chipLabel_many": "{{count}} wydarzeń"
+  },
+  "errors": {
+    "localStorageFilter": "Błąd odczytu filtrów z localStorage"
+  },
+  "actions": {
+    "addEvent": "Dodaj wydarzenie"
+  },
+  "notifications": {
+    "eventAdded": "Wydarzenie zostało dodane.",
+    "eventUpdated": "Wydarzenie zostało zaktualizowane.",
+    "eventDeleted": "Wydarzenie zostało usunięte."
+  },
+  "controls": {
+    "showTypes": "Pokaż typy wydarzeń:",
+    "filters": "Filtry",
+    "prevMonth": "Poprzedni miesiąc",
+    "currentMonth": "Obecny miesiąc",
+    "nextMonth": "Następny miesiąc"
+  },
+  "dialogs": {
+    "deleteEvent": {
+      "title": "Usuwanie wydarzenia",
+      "description": "Czy na pewno chcesz usunąć to wydarzenie?"
+    },
+    "addEvent": {
+      "title": "Nowe wydarzenie"
+    },
+    "editEvent": {
+      "titleEditing": "Edycja wydarzenia",
+      "titleViewing": "Szczegóły wydarzenia",
+      "noTitle": "Bez tytułu",
+      "noDescription": "Brak dodatkowego opisu",
+      "assignedEmployees": "Powiązani pracownicy:",
+      "assignedConstructions": "Powiązane budowy:"
+    },
+    "eventList": {
+      "title": "Wydarzenia ({{count}})",
+      "noEvents": "Brak wydarzeń",
+      "table": {
+        "titleDesc": "Tytuł / Opis",
+        "type": "Typ",
+        "date": "Data"
+      },
+      "peopleCount": "Osoby: {{count}}",
+      "constructionsCount": "Budowy: {{count}}"
+    }
+  },
+  "form": {
+    "category": "Kategoria *",
+    "color": "Wybierz kolor *",
+    "title": "Tytuł wydarzenia *",
+    "description": "Opis",
+    "dateFrom": "Od *",
+    "dateTo": "Do *",
+    "employees": "Powiązani pracownicy",
+    "constructions": "Powiązane budowy"
+  },
+  "validation": {
+    "titleRequired": "Tytuł wydarzenia jest wymagany",
+    "dateRangeRequired": "Wybierz zakres dat",
+    "severityRequired": "Wybierz typ wydarzenia (wagę)",
+    "endDateBeforeStartDate": "Data zakończenia nie może być wcześniejsza niż data rozpoczęcia",
+    "defaultError": "Błąd"
+  }
+}

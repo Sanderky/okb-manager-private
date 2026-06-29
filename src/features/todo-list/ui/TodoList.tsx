@@ -1,5 +1,4 @@
 import React, { useMemo, useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Box,
   Typography,
@@ -16,135 +15,43 @@ import {
   Divider,
   Stack,
   Tooltip,
-  TextField,
-  InputAdornment,
   Pagination,
 } from '@mui/material';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-import AddIcon from '@mui/icons-material/Add';
 
-import {
-  getTodos,
-  addTodo,
-  updateTodoStatus,
-  deleteTodo,
-  updateTodoTitle,
-  deleteCompletedTodos,
-  updateTodoImportance,
-} from '../api';
 import { useDialogs } from '@/shared/ui/dialogs/useDialogs';
 import { PriorityHigh, Report, ReportOff } from '@mui/icons-material';
 import dayjs from 'dayjs';
+import { useTranslation } from 'react-i18next'; 
+import { useTodo } from '../model/services/useTodo';
+import {
+  useAddTodo,
+  useClearCompletedTodos,
+  useDeleteTodo,
+  useEditTodo,
+  useToggleTodoImportance,
+  useToggleTodoStatus,
+} from '../model/services/useTodoMutations';
+import { filterAndSortCompletedTodos } from '../lib/todoUtils';
+import { AddTodoInput } from './TodoInput';
 
 const ITEMS_PER_PAGE = 20;
 
-const AddTodoInput = ({
-  onAdd,
-  disabled,
-}: {
-  onAdd: (text: string) => void;
-  disabled: boolean;
-}) => {
-  const [text, setText] = useState('');
-
-  const handleSubmit = () => {
-    if (text.trim()) {
-      onAdd(text);
-      setText('');
-    }
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      handleSubmit();
-    }
-  };
-
-  return (
-    <Box sx={{ p: 2, pb: 0 }}>
-      <TextField
-        multiline
-        placeholder="Dodaj nowe zadanie..."
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        onKeyDown={handleKeyPress}
-        disabled={disabled}
-        size="small"
-        fullWidth
-        slotProps={{
-          input: {
-            size: 'small',
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton
-                  color="primary"
-                  onClick={handleSubmit}
-                  disabled={!text.trim() || disabled}
-                  size="small"
-                >
-                  <AddIcon />
-                </IconButton>
-              </InputAdornment>
-            ),
-          },
-        }}
-      />
-    </Box>
-  );
-};
-
 export const TodoList = () => {
-  const queryClient = useQueryClient();
+  const { t } = useTranslation(['todo', 'common']); 
   const [tabValue, setTabValue] = useState(0);
   const [page, setPage] = useState(1);
   const dialogs = useDialogs();
 
-  const {
-    data: todos = [],
-    isLoading,
-    isError,
-  } = useQuery({
-    queryKey: ['todos'],
-    queryFn: getTodos,
-  });
-
-  const addMutation = useMutation({
-    mutationFn: addTodo,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['todos'] });
-    },
-  });
-
-  const toggleStatusMutation = useMutation({
-    mutationFn: ({ id, status }: { id: number; status: boolean }) =>
-      updateTodoStatus(id, status),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['todos'] }),
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: deleteTodo,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['todos'] }),
-  });
-
-  const editMutation = useMutation({
-    mutationFn: ({ id, title }: { id: number; title: string }) =>
-      updateTodoTitle(id, title),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['todos'] }),
-  });
-
-  const toggleImportanceMutation = useMutation({
-    mutationFn: ({ id, isImportant }: { id: number; isImportant: boolean }) =>
-      updateTodoImportance(id, isImportant),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['todos'] }),
-  });
-
-  const clearCompletedMutation = useMutation({
-    mutationFn: deleteCompletedTodos,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['todos'] }),
-  });
+  const { data: todos, isLoading, isError } = useTodo();
+  const addMutation = useAddTodo();
+  const toggleStatusMutation = useToggleTodoStatus();
+  const deleteMutation = useDeleteTodo();
+  const editMutation = useEditTodo();
+  const toggleImportanceMutation = useToggleTodoImportance();
+  const clearCompletedMutation = useClearCompletedTodos();
 
   const handleAddTodo = (text: string) => {
     addMutation.mutate(text);
@@ -153,26 +60,27 @@ export const TodoList = () => {
   const handleDeleteAllCompleted = async () => {
     if (
       await dialogs.confirm(
-        'Czy na pewno chcesz usunąć wszystkie wykonane zadania?',
+        t('todo:dialogs.deleteAll.description'),
         {
-          title: 'Usuwanie wykonanych zadań',
-          okText: 'Usuń',
+          title: t('todo:dialogs.deleteAll.title'),
+          okText: t('common:buttons.delete'),
           severity: 'error',
-          cancelText: 'Anuluj',
+          cancelText: t('common:buttons.cancel'),
         }
       )
     ) {
       clearCompletedMutation.mutate();
     }
   };
+
   const handleDelete = async (id: number) => {
     if (!id) return;
     if (
-      await dialogs.confirm('Czy na pewno chcesz usunąć to zadanie?', {
-        title: 'Usuwanie zadania',
-        okText: 'Usuń',
+      await dialogs.confirm(t('todo:dialogs.deleteOne.description'), {
+        title: t('todo:dialogs.deleteOne.title'),
+        okText: t('common:buttons.delete'),
         severity: 'error',
-        cancelText: 'Anuluj',
+        cancelText: t('common:buttons.cancel'),
       })
     ) {
       deleteMutation.mutate(id);
@@ -200,22 +108,7 @@ export const TodoList = () => {
   );
 
   const completedTodos = useMemo(
-    () =>
-      todos
-        .filter((t) => t.isCompleted)
-        .sort((a, b) => {
-          const timeA = a.completedAt ? new Date(a.completedAt).getTime() : 0;
-          const timeB = b.completedAt ? new Date(b.completedAt).getTime() : 0;
-
-          if (timeB !== timeA) {
-            return timeB - timeA;
-          }
-
-          const createdA = a.createdAt?.getTime() ?? 0;
-          const createdB = b.createdAt?.getTime() ?? 0;
-
-          return createdB - createdA;
-        }),
+    () => filterAndSortCompletedTodos(todos),
     [todos]
   );
 
@@ -248,7 +141,7 @@ export const TodoList = () => {
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Box sx={{ p: 2, pb: 1 }}>
           <Typography variant="body1" className="font-medium">
-            Lista zadań
+            {t('todo:title')}
           </Typography>
         </Box>
         <Tabs
@@ -258,14 +151,14 @@ export const TodoList = () => {
           indicatorColor="primary"
         >
           <Tab
-            label={`Do zrobienia (${activeTodos.length})`}
+            label={t('todo:tabs.todo', { count: activeTodos.length })}
             sx={{
               fontSize: { xs: '0.8rem', sm: '.85rem' },
               minWidth: 0,
             }}
           />
           <Tab
-            label={`Wykonane (${completedTodos.length})`}
+            label={t('todo:tabs.completed', { count: completedTodos.length })}
             sx={{
               fontSize: { xs: '0.8rem', sm: '.85rem' },
               minWidth: 0,
@@ -299,7 +192,7 @@ export const TodoList = () => {
 
         {isError && (
           <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-            <Typography color="error">Błąd ładowania zadań</Typography>
+            <Typography color="error">{t('todo:errors.loadError')}</Typography>
           </Box>
         )}
 
@@ -401,8 +294,8 @@ export const TodoList = () => {
                         <Tooltip
                           title={
                             todo.isImportant
-                              ? 'Oznacz jako nieważne'
-                              : 'Oznacz jako ważne'
+                              ? t('todo:actions.markUnimportant')
+                              : t('todo:actions.markImportant')
                           }
                         >
                           <IconButton
@@ -424,7 +317,7 @@ export const TodoList = () => {
                           </IconButton>
                         </Tooltip>
                       )}
-                      <Tooltip title="Usuń zadanie">
+                      <Tooltip title={t('todo:actions.delete')}>
                         <IconButton
                           edge="end"
                           aria-label="delete"
@@ -441,7 +334,11 @@ export const TodoList = () => {
                       ml={'28px'}
                       variant="caption"
                       color="textDisabled"
-                    >{`Wykonano: ${todo.completedAt ? dayjs(todo.completedAt).format('DD.MM.YYYY') : '-'}`}</Typography>
+                    >
+                      {t('todo:status.completedAt', { 
+                        date: todo.completedAt ? dayjs(todo.completedAt).format('DD.MM.YYYY') : '-' 
+                      })}
+                    </Typography>
                   )}
                 </Stack>
               </ListItem>
@@ -457,8 +354,8 @@ export const TodoList = () => {
                 }}
               >
                 {tabValue === 0
-                  ? 'Wszystko zrobione!'
-                  : 'Brak wykonanych zadań'}
+                  ? t('todo:emptyStates.allDone')
+                  : t('todo:emptyStates.noCompleted')}
               </Box>
             )}
           </List>
@@ -498,7 +395,7 @@ export const TodoList = () => {
             onClick={handleDeleteAllCompleted}
             startIcon={<DeleteOutlineIcon fontSize="small" />}
           >
-            Usuń wszystkie wykonane
+            {t('todo:actions.deleteAllCompleted')}
           </Button>
         </Box>
       )}

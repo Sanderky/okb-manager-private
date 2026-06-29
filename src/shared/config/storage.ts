@@ -14,12 +14,12 @@ export const FOLDER_NAMES: Record<string, string> = {
 
 export const FOLDER_TRANSLATIONS: Record<string, string> = {
   // Root folders
-  [`${SYSTEM_FOLDER_PREFIX}employees`]: 'Pracownicy',
-  [`${SYSTEM_FOLDER_PREFIX}constructions`]: 'Budowy',
+  [`${SYSTEM_FOLDER_PREFIX}employees`]: 'folders.employees',
+  [`${SYSTEM_FOLDER_PREFIX}constructions`]: 'folders.constructions',
 
   // Attachments
-  [`${SYSTEM_FOLDER_PREFIX}id_card`]: 'Dowód osobisty',
-  [`${SYSTEM_FOLDER_PREFIX}contract`]: 'Umowa',
-  [`${SYSTEM_FOLDER_PREFIX}a1`]: 'Zaświadczenie A1',
-  [`${SYSTEM_FOLDER_PREFIX}other`]: 'Inne dokumenty',
+  [`${SYSTEM_FOLDER_PREFIX}id_card`]: 'folders.id_card',
+  [`${SYSTEM_FOLDER_PREFIX}contract`]: 'folders.contract',
+  [`${SYSTEM_FOLDER_PREFIX}a1`]: 'folders.a1',
+  [`${SYSTEM_FOLDER_PREFIX}other`]: 'folders.other',
 };

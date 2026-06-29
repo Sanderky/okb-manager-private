@@ -6,8 +6,9 @@ import {
   Typography,
 } from '@mui/material';
 import { CloudUpload } from '@mui/icons-material';
+import { useTranslation } from 'react-i18next';
 import { AttachmentItem } from '@/shared/ui/AttachmentItem';
-import { useRodoFile } from '../model/useRodoFile';
+import { useRodoFile } from '../model/services/useRodoFile';
 
 interface SettingsProps {
   isOpen: boolean;
@@ -15,6 +16,7 @@ interface SettingsProps {
 }
 
 export const RodoSettings = ({ isOpen }: SettingsProps) => {
+  const { t } = useTranslation('settings');
   const {
     rodoFile,
     isLoading,
@@ -36,8 +38,7 @@ export const RodoSettings = ({ isOpen }: SettingsProps) => {
   return (
     <Box>
       <Typography variant="body2" sx={{ my: 2 }}>
-        Oświadczenie o przetwarzaniu danych. Dokument jest wyświetlany na
-        stronie logowania.
+        {t('rodo.description')}
       </Typography>
 
       {error && (
@@ -60,7 +61,7 @@ export const RodoSettings = ({ isOpen }: SettingsProps) => {
             onNameClick={previewRodoFile}
           />
           <Alert severity="info" sx={{ mt: 2 }}>
-            Aby dodać nowy plik należy wcześniej usunąć stary.
+            {t('rodo.infoAdd')}
           </Alert>
         </Box>
       ) : (
@@ -72,7 +73,7 @@ export const RodoSettings = ({ isOpen }: SettingsProps) => {
             size="small"
             disabled={isLoading}
           >
-            Dodaj plik RODO
+            {t('rodo.addButton')}
             <input
               type="file"
               hidden
@@ -81,8 +82,7 @@ export const RodoSettings = ({ isOpen }: SettingsProps) => {
             />
           </Button>
           <Typography variant="caption" display="block" sx={{ mt: 1 }}>
-            Tylko pliki .pdf (nazwa zostanie automatycznie zmieniona na
-            rodo.pdf)
+            {t('rodo.pdfOnly')}
           </Typography>
         </Box>
       )}

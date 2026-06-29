@@ -14,42 +14,28 @@ import {
   type Theme,
 } from '@mui/material';
 import { CalendarMonth, ChevronLeft, ChevronRight } from '@mui/icons-material';
-
+import { Stack } from '@mui/system';
+import { useTranslation } from 'react-i18next';
 import dayjs, { Dayjs } from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
+import isoWeek from 'dayjs/plugin/isoWeek';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
-
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { plPL } from '@mui/x-date-pickers/locales';
-import 'dayjs/locale/pl';
-import { Stack } from '@mui/system';
+
+dayjs.extend(isBetween);
+dayjs.extend(isoWeek);
 
 function getStartOfWeek(date: Date): Date {
-  const d = new Date(date);
-  const day = d.getDay();
-  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
-  const newDate = new Date(d);
-  newDate.setDate(diff);
-  newDate.setHours(0, 0, 0, 0);
-  return newDate;
+  return dayjs(date).startOf('isoWeek').toDate();
 }
 
 function getEndOfWeek(date: Date): Date {
-  const start = getStartOfWeek(date);
-  const end = new Date(start);
-  end.setDate(start.getDate() + 6);
-  return end;
+  return dayjs(date).endOf('isoWeek').toDate();
 }
 
 function formatDate(date: Date, short: boolean = false): string {
-  return date.toLocaleDateString('pl-PL', {
-    day: '2-digit',
-    month: '2-digit',
-    year: short ? '2-digit' : 'numeric',
-  });
+  return dayjs(date).format(short ? 'DD.MM.YY' : 'DD.MM.YYYY');
 }
-
-dayjs.extend(isBetween);
 
 interface WeekSelectorProps {
   value: Date;
@@ -67,6 +53,9 @@ const WeekSelector: React.FC<WeekSelectorProps> = ({
   comparisonDate,
   small = false,
 }) => {
+  const { t, i18n } = useTranslation('common');
+  const currentLang = i18n.language.substring(0, 2).toLowerCase();
+
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const [hoveredWeek, setHoveredWeek] = useState<Date | null>(null);
   const [selectedMonth, setSelectedMonth] = useState<Dayjs>(
@@ -86,6 +75,10 @@ const WeekSelector: React.FC<WeekSelectorProps> = ({
     onChange(weekStart);
     handleClose();
   };
+
+  const dayNames = useMemo(() => {
+    return [1, 2, 3, 4, 5, 6, 7].map((d) => dayjs().isoWeekday(d).format('dd'));
+  }, [i18n.language]);
 
   const calendarWeeks = useMemo(() => {
     const year = selectedMonth.year();
@@ -136,11 +129,9 @@ const WeekSelector: React.FC<WeekSelectorProps> = ({
   const isStart = dayjs(value).isBefore(comparisonDate);
   const isEnd = dayjs(value).isAfter(comparisonDate);
 
-  const dayNames = ['Pn', 'Wt', 'Śr', 'Cz', 'Pt', 'Sb', 'Nd'];
-
   return (
     <>
-      <Tooltip title="Wybierz tydzień">
+      <Tooltip title={t('weekSelector.selectWeek')}>
         <span>
           <Button
             variant="outlined"
@@ -162,19 +153,10 @@ const WeekSelector: React.FC<WeekSelectorProps> = ({
         open={open}
         anchorEl={anchorEl}
         onClose={handleClose}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'left',
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'left',
-        }}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+        transformOrigin={{ vertical: 'top', horizontal: 'left' }}
         sx={{
-          '& .MuiPopover-paper': {
-            borderRadius: '8px',
-            overflow: 'hidden',
-          },
+          '& .MuiPopover-paper': { borderRadius: '8px', overflow: 'hidden' },
         }}
       >
         <Box
@@ -194,12 +176,10 @@ const WeekSelector: React.FC<WeekSelectorProps> = ({
             >
               <ChevronLeft />
             </IconButton>
+
             <LocalizationProvider
               dateAdapter={AdapterDayjs}
-              adapterLocale="pl"
-              localeText={
-                plPL.components.MuiLocalizationProvider.defaultProps.localeText
-              }
+              adapterLocale={currentLang}
             >
               <DatePicker
                 openTo="month"
@@ -257,7 +237,7 @@ const WeekSelector: React.FC<WeekSelectorProps> = ({
                         fontWeight: 'bold',
                         fontSize: '0.7rem',
                         py: 1,
-                        background: 'transparent',
+                        textTransform: 'capitalize',
                       }}
                     >
                       {dayName}
@@ -270,7 +250,6 @@ const WeekSelector: React.FC<WeekSelectorProps> = ({
                 {calendarWeeks.map((week, weekIndex) => {
                   const weekStartTs = week.start.getTime();
                   const valueTs = value.getTime();
-
                   const isSelected = weekStartTs === valueTs;
 
                   const isComparison =
@@ -311,10 +290,8 @@ const WeekSelector: React.FC<WeekSelectorProps> = ({
 
                         const getTextColor = (theme: Theme) => {
                           if (isSelected) return 'primary.contrastText';
-
                           if (!isCurrentMonth)
                             return theme.palette.text.disabled;
-
                           return isToday ? 'primary.main' : 'text.primary';
                         };
 
@@ -323,7 +300,6 @@ const WeekSelector: React.FC<WeekSelectorProps> = ({
                             if (isHovered) return theme.palette.primary.dark;
                             return theme.palette.primary.main;
                           }
-
                           if (isInRange || isComparison) {
                             if (isHovered)
                               return theme.palette.mode === 'light'
@@ -331,9 +307,7 @@ const WeekSelector: React.FC<WeekSelectorProps> = ({
                                 : theme.palette.action.hover;
                             return theme.palette.action.selected;
                           }
-
                           if (isHovered) return theme.palette.tableHover;
-
                           return 'transparent';
                         };
 
@@ -344,7 +318,6 @@ const WeekSelector: React.FC<WeekSelectorProps> = ({
                               fontWeight: isToday ? 'bold' : 'normal',
                               color: getTextColor(theme),
                               py: 0.5,
-                              border: 'none',
                               backgroundColor: `${getBgColor(theme)} !important`,
                               textDecoration: isToday ? 'underline' : 'none',
 
@@ -388,7 +361,7 @@ const WeekSelector: React.FC<WeekSelectorProps> = ({
                 handleWeekSelect(getStartOfWeek(today));
               }}
             >
-              Bieżący tydzień
+              {t('weekSelector.currentWeek')}
             </Button>
           </Stack>
         </Box>

@@ -1,3 +1,5 @@
+import type { Dayjs } from 'dayjs';
+
 export interface FileItem {
   id: string;
   name: string;
@@ -20,4 +22,23 @@ export type FileBrowserItem = FileItem | FolderItem;
 
 export type IsoDateString = string;
 
-export type LangCode = 'pl-PL' | 'de-DE';
+export interface BaseCalendarEvent {
+  id: string;
+  startDate: Dayjs | Date | string;
+  endDate: Dayjs | Date | string;
+}
+
+export type GridEvent<T> = T & {
+  date: Dayjs;
+};
+
+export interface CalendarDay<T extends BaseCalendarEvent> {
+  date: Dayjs;
+  events: GridEvent<T>[];
+  slots: Record<string, number>;
+}
+
+export interface TranslationData {
+  key: string;
+  params?: Record<string, string | number>;
+}

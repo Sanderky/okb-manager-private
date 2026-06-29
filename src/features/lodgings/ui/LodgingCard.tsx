@@ -13,20 +13,19 @@ import {
 } from '@mui/material';
 import { Edit, LocationOn, DateRange, People } from '@mui/icons-material';
 import dayjs from 'dayjs';
-import 'dayjs/locale/pl';
-import type { ExtendedLodging } from '../model/types';
-import { getEmployeeLabel } from '../model/label';
+import { useTranslation } from 'react-i18next';
+import { getEmployeeLabel } from '../model/utils/label';
 import type { Employee } from '@/entities/employee';
 import { openGoogleMaps } from '@/shared/lib/browser';
-
+import type { Lodging } from '../model/types';
 
 interface LodgingCardProps {
-  lodging: ExtendedLodging;
+  lodging: Lodging;
   employees: Employee[];
-  onEdit: (l: ExtendedLodging) => void;
+  onEdit: (l: Lodging) => void;
   onEmployeeClick: (id: string) => void;
-  siteName?: string;
-  siteId?: string;
+  constructionName?: string;
+  constructionId?: string;
   handleClickOnConstruction: (id: string | undefined) => void;
 }
 
@@ -35,10 +34,11 @@ const LodgingCard: React.FC<LodgingCardProps> = ({
   employees,
   onEdit,
   onEmployeeClick,
-  siteName,
-  siteId,
+  constructionName,
+  constructionId,
   handleClickOnConstruction,
 }) => {
+  const { t } = useTranslation(['lodgings']);
   const assignedEmployees = useMemo(
     () => employees.filter((e) => lodging.employeeIds.includes(e.id)),
     [employees, lodging.employeeIds]
@@ -78,10 +78,10 @@ const LodgingCard: React.FC<LodgingCardProps> = ({
           <Box pr={2}>
             <Stack direction="column" spacing={1}>
               <Box>
-                {siteName && (
+                {constructionName && (
                   <Typography
                     fontWeight="bold"
-                    onClick={() => handleClickOnConstruction(siteId)}
+                    onClick={() => handleClickOnConstruction(constructionId)}
                     sx={{
                       ':hover': {
                         cursor: 'pointer',
@@ -89,7 +89,7 @@ const LodgingCard: React.FC<LodgingCardProps> = ({
                       },
                     }}
                   >
-                    {siteName}
+                    {constructionName}
                   </Typography>
                 )}
                 {lodging.name && (
@@ -114,7 +114,7 @@ const LodgingCard: React.FC<LodgingCardProps> = ({
                 </Typography>
                 {isActive && (
                   <Chip
-                    label="Aktywny"
+                    label={t('lodgings:card.active')}
                     color="success"
                     size="small"
                     variant="outlined"
@@ -123,7 +123,7 @@ const LodgingCard: React.FC<LodgingCardProps> = ({
                 )}
               </Stack>
               {lodging.address && (
-                <Tooltip title="Otwórz w Google Maps">
+                <Tooltip title={t('lodgings:card.openInMaps')}>
                   <Link
                     sx={{
                       cursor: 'pointer',
@@ -181,7 +181,7 @@ const LodgingCard: React.FC<LodgingCardProps> = ({
         <Stack direction="row" alignItems="center" spacing={1} mb={1}>
           <People fontSize="small" color="action" />
           <Typography variant="caption" fontWeight={600} color="text.secondary">
-            ZAKWATEROWANI ({assignedEmployees.length}):
+            {t('lodgings:card.assigned', { count: assignedEmployees.length })}
           </Typography>
         </Stack>
 
@@ -208,7 +208,7 @@ const LodgingCard: React.FC<LodgingCardProps> = ({
               color="text.disabled"
               fontStyle="italic"
             >
-              Brak przypisanych pracowników
+              {t('lodgings:card.noAssigned')}
             </Typography>
           )}
         </Box>

@@ -1,0 +1,157 @@
+{
+  "pageTitle": "Ewidencja godzin pracy",
+  "actions": {
+    "addComparison": "Dodaj tabelkę porównawczą",
+    "generateReport": "Generuj raport",
+    "addConstruction": "Dodaj budowę",
+    "addFirstConstruction": "Dodaj pierwszą budowę",
+    "addEmployees": "Dodaj pracowników",
+    "fillProposed": "Uzupełnij proponowane",
+    "copyFromOtherWeek": "Kopiuj dane z innego tygodnia"
+  },
+  "table": {
+    "comparisonTitle": "Tabela porównawcza {{key}}",
+    "errorLoadingData": "Wystąpił błąd podczas ładowania danych.",
+    "noData": "Brak danych dla tego tygodnia",
+    "headers": {
+      "construction": "Budowa",
+      "employee": "Pracownik",
+      "sum": "Suma"
+    },
+    "unsavedChangesMark": "Masz niezapisane zmiany*",
+    "constructionsCount": "Budowy: {{count}}",
+    "employeesCount": "Pracownicy: {{count}}",
+    "sum": "Suma:",
+    "vacationCell": "Urlop"
+  },
+  "filters": {
+    "constructionsTitle": "Filtr budów",
+    "employeesTitle": "Filtr pracowników",
+    "selectedCount": "Wybrano: {{selected}} z {{total}}",
+    "allConstructions": "Wszystkie budowy",
+    "allEmployees": "Wszyscy pracownicy",
+    "constructionsLabel": "Budowy",
+    "employeesLabel": "Pracownicy",
+    "includeCompletedConstructions": "Uwzględnij zakończone budowy w filtrze",
+    "includeInactiveEmployees": "Uwzględnij nieaktywnych pracowników w filtrze"
+  },
+  "controls": {
+    "prevWeek": "Poprzedni tydzień",
+    "currentWeek": "Obecny tydzień",
+    "nextWeek": "Następny tydzień",
+    "today": "Dziś",
+    "weekNumber": "Tydzień {{week}}",
+    "filters": "Filtry",
+    "printTable": "Drukuj tabelkę",
+    "expandTable": "Rozwiń tabelę",
+    "collapseTable": "Zwiń tabelę",
+    "expand": "Rozwiń",
+    "collapse": "Zwiń",
+    "deleteComparisonTable": "Usuń tabelę porównawczą",
+    "closeTable": "Zamknij tabelkę"
+  },
+  "emptyState": {
+    "noData": "Brak danych dla tego tygodnia"
+  },
+  "tooltips": {
+    "allConstructionsAdded": "Wszystkie budowy zostały już dodane",
+    "allEmployeesAdded": "Wszyscy pracownicy zostali już dodani"
+  },
+  "notifications": {
+    "scheduleLoaded_one": "Załadowano {{count}} wpis z harmonogramu",
+    "scheduleLoaded_few": "Załadowano {{count}} wpisy z harmonogramu",
+    "scheduleLoaded_many": "Załadowano {{count}} wpisów z harmonogramu",
+    "scheduleLoaded_other": "Załadowano {{count}} wpisu z harmonogramu",
+    "scheduleError": "Błąd pobierania harmonogramu",
+    "dataCopied": "Skopiowano dane",
+    "copyError": "Błąd podczas kopiowania danych",
+    "hoursSaved": "Zapisano godziny pracy",
+    "saveError": "Błąd zapisu godzin"
+  },
+  "dialogs": {
+    "cancelEdit": {
+      "title": "Anulowanie edycji",
+      "description": "Masz niezapisane zmiany. Anulować edycję?",
+      "cancelBtn": "Wróć"
+    },
+    "copyData": {
+      "title": "Kopiowanie danych",
+      "description": "Obecne dane w tym tygodniu zostaną nadpisane. Kontynuować?",
+      "copy": "Kopiuj",
+      "warning": "Kopiowanie nadpisuje wszystkie dane w obecnym tygodniu",
+      "copyDataFromSelectedWeek": "Kopiuj dane z wybranego tygodnia:"
+    },
+    "fillSchedule": {
+      "title": "Wypełnij z harmonogramu",
+      "description": "Obecne dane zostaną nadpisane na podstawie harmonogramu. Kontynuować?"
+    },
+    "changeWeek": {
+      "title": "Zmiana tygodnia",
+      "description": "Masz niezapisane zmiany. Czy na pewno chcesz zmienić tydzień bez zapisywania?"
+    },
+    "deleteEmployee": {
+      "title": "Usuwanie pracownika",
+      "description": "Czy na pewno chcesz usunąć pracownika {{employeeName}} z budowy {{constructionName}}?"
+    },
+    "deleteConstruction": {
+      "title": "Usuwanie budowy",
+      "description": "Czy na pewno chcesz usunąć budowę {{constructionName}} łącznie ze wszystkimi pracownikami?"
+    },
+    "addConstructionWithEmployee": {
+      "title": "Dodaj nową budowę z pracownikami",
+      "selectEmployees": "Wybierz pracowników",
+      "noEmployeesAvailable": "Brak dostępnych pracowników",
+      "selectConstruction": "Wybierz budowę",
+      "noConstructionsAvailable": "Wszystkie budowy są już dodane do tabeli",
+      "noOptionsAvailable": "Brak dostępnych opcji"
+    },
+    "addEmployee": {
+      "title": "Dodaj pracowników do budowy: {{constructionName}}",
+      "selectEmployees": "Wybierz pracowników",
+      "noEmployeesAvailable": "Wszyscy pracownicy są już dodani do tej budowy",
+      "selectConstruction": "Wybierz budowę",
+      "noOptionsAvailable": "Brak dostępnych opcji"
+    },
+    "printReport": {
+      "startWeekAfterEndWeek": "Tydzień początkowy nie może być później niż końcowy",
+      "startWeek": "Tydzień początkowy:",
+      "endWeek": "Tydzień końcowy:",
+      "selectedWeeks": "Wybrane tygodnie: {{weekCount}}",
+      "filterEmployeesAndConstructions": "Filtruj budowy i pracowników",
+      "filters": "Filtry",
+      "printReportTitle": "Drukuj tytuł raportu",
+      "printTableTitles": "Drukuj tytuły tabelek",
+      "showVacationInfo": "Pokaż informacje o urlopach",
+      "avoidEmptyWeeks": "Omijaj puste tygodnie",
+      "sourceLanguage": "Język docelowy",
+      "title": "Drukowanie raportu",
+      "week": "Tydzień"
+    }
+  },
+  "print": {
+    "documentTitlePrefix": "tabelka_godzin_",
+    "multiTableFileName": "ewidencja_godzin_pracy",
+    "report": {
+      "title": "Raport godzin pracy",
+      "subtitle": "Okres",
+      "week": "Tydzień",
+      "sum": "Suma",
+      "totalSum": "Suma całkowita",
+      "construction": "Budowa",
+      "employee": "Pracownik",
+      "vacation": "Urlop",
+      "noData": "Brak danych dla danego tygodnia",
+      "fileNamePrefix": "Raport_godzin_",
+      "constructions": "Budowy",
+      "employees": "Pracownicy",
+      "constructionsCount": "Budowy {{count}}",
+      "employeesCount": "Pracownicy {{count}}",
+      "loading": "Ładowanie raportu...",
+      "error": "Błąd:",
+      "weeksCount_one": "{{count}} tydzień",
+      "weeksCount_few": "{{count}} tygodnie",
+      "weeksCount_many": "{{count}} tygodni",
+      "weeksCount_other": "{{count}} tygodnia"
+    }
+  }
+}
