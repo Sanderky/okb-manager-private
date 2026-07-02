@@ -6,6 +6,7 @@ import { DEFAULT_LANG, getShortLang } from '../languages';
 import dayjs from 'dayjs';
 import 'dayjs/locale/pl';
 import 'dayjs/locale/de';
+import localizedFormat from 'dayjs/plugin/localizedFormat';
 
 import commonPl from './locales/pl/common.json';
 import authPl from './locales/pl/auth.json';
@@ -25,6 +26,8 @@ import diskUsagePl from './locales/pl/diskUsage.json';
 import contractorsPl from './locales/pl/contractors.json';
 import settingsPl from './locales/pl/settings.json';
 
+dayjs.extend(localizedFormat);
+
 const resources = {
   'pl-PL': {
     common: commonPl,
@@ -43,7 +46,7 @@ const resources = {
     fileBrowser: fileBrowserPl,
     diskUsage: diskUsagePl,
     contractors: contractorsPl,
-    settings: settingsPl
+    settings: settingsPl,
   },
 };
 

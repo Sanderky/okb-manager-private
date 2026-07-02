@@ -11,6 +11,7 @@ import MenuOpenIcon from '@mui/icons-material/MenuOpen';
 import Stack from '@mui/material/Stack';
 import { Link, useNavigate } from 'react-router';
 import { useAuth } from '@/entities/auth';
+import { useTranslation } from 'react-i18next';
 import {
   Avatar,
   Button,
@@ -57,6 +58,7 @@ export default function DashboardHeader({
   menuOpen,
   onToggleMenu,
 }: DashboardHeaderProps) {
+  const { t } = useTranslation('app');
   const theme = useTheme();
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -70,9 +72,7 @@ export default function DashboardHeader({
   };
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-
   const open = Boolean(anchorEl);
-
   const [openSettings, setOpenSettings] = React.useState(false);
 
   const { toggleColorMode, mode } = useColorMode();
@@ -97,18 +97,16 @@ export default function DashboardHeader({
 
   const getMenuIcon = React.useCallback(
     (isExpanded: boolean) => {
-      const expandMenuActionText = 'Rozszerz';
-      const collapseMenuActionText = 'Zwiń';
+      const menuActionText = isExpanded
+        ? t('header.collapseMenu')
+        : t('header.expandMenu');
 
       return (
-        <Tooltip
-          title={`${isExpanded ? collapseMenuActionText : expandMenuActionText} menu`}
-          enterDelay={1000}
-        >
+        <Tooltip title={menuActionText} enterDelay={1000}>
           <div>
             <IconButton
               size="small"
-              aria-label={`${isExpanded ? collapseMenuActionText : expandMenuActionText} menu`}
+              aria-label={menuActionText}
               onClick={handleMenuOpen}
             >
               {isExpanded ? <MenuOpenIcon /> : <MenuIcon />}
@@ -117,9 +115,8 @@ export default function DashboardHeader({
         </Tooltip>
       );
     },
-    [handleMenuOpen]
+    [handleMenuOpen, t]
   );
-  // const open = Boolean(anchorEl);
 
   return (
     <AppBar
@@ -128,10 +125,7 @@ export default function DashboardHeader({
       sx={{
         displayPrint: 'none',
         overflowX: 'hidden',
-        // backgroundColor: 'transparent',
       }}
-      // className="bg-stone-100"
-      // className="bg-darkYellow"
     >
       <Toolbar sx={{ backgroundColor: 'inherit', mx: { xs: -0.75, sm: -1 } }}>
         <Stack
@@ -201,7 +195,7 @@ export default function DashboardHeader({
                   >
                     {user?.user_metadata.display_name ??
                       user?.email ??
-                      'Użytkownik'}
+                      t('header.defaultUser')}
                   </Typography>
                 </Button>
               </Box>
@@ -254,7 +248,7 @@ export default function DashboardHeader({
                   >
                     {user?.user_metadata.display_name ??
                       user?.email ??
-                      'Użytkownik'}
+                      t('header.defaultUser')}
                   </Typography>
                 </Stack>
                 <Divider
@@ -273,7 +267,7 @@ export default function DashboardHeader({
                       <Brightness4 fontSize="small" />
                     )}
                   </ListItemIcon>
-                  Motyw
+                  {t('header.theme')}
                 </MenuItem>
                 <MenuItem
                   onClick={handleClickOpenSettings}
@@ -283,28 +277,16 @@ export default function DashboardHeader({
                   <ListItemIcon>
                     <Settings fontSize="small" />
                   </ListItemIcon>
-                  Ustawienia konta
+                  {t('header.accountSettings')}
                 </MenuItem>
-                {/* <Divider
-                  sx={{
-                    m: 0,
-                    display: { xs: 'none', sm: 'block' },
-                  }}
-                /> */}
                 <MenuItem onClick={handleLogout} sx={{ minHeight: 35 }}>
                   <ListItemIcon>
                     <Logout fontSize="small" />
                   </ListItemIcon>
-                  Wyloguj
+                  {t('header.logout')}
                 </MenuItem>
               </Menu>
             </React.Fragment>
-            {/* <Stack direction="row" alignItems="center">
-              <Chip
-                avatar={<Avatar>{auth.user?.email.charAt(0)}</Avatar>}
-                label={auth.user?.email}
-              />
-            </Stack> */}
           </Stack>
         </Stack>
       </Toolbar>

@@ -3,7 +3,6 @@ import {
   plPL as pickersPl,
   deDE as pickersDe,
 } from '@mui/x-date-pickers/locales';
-
 import { MRT_Localization_PL } from 'material-react-table/locales/pl';
 import { MRT_Localization_DE } from 'material-react-table/locales/de';
 import type { MRT_Localization } from 'material-react-table';

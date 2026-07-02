@@ -1,17 +1,13 @@
-import {
-  Box,
-  Button
-} from '@mui/material';
-import {
-  Brightness4,
-  Brightness7
-} from '@mui/icons-material';
+import { Box, Button } from '@mui/material';
+import { Brightness4, Brightness7 } from '@mui/icons-material';
 import { Outlet } from 'react-router-dom';
 import AppFooter from './Footer';
 import { useColorMode } from '@/shared/lib/theme';
+import { useTranslation } from 'react-i18next';
 
 export const PublicLayout = () => {
   const { mode, toggleColorMode } = useColorMode();
+  const { t } = useTranslation('app');
 
   return (
     <Box
@@ -53,7 +49,7 @@ export const PublicLayout = () => {
               color="inherit"
               size="small"
             >
-              Motyw
+              {t('header.theme')}
             </Button>
           </Box>
           <Outlet />

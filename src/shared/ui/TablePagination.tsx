@@ -7,15 +7,9 @@ import {
   Select,
   MenuItem,
 } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import { KeyboardArrowLeft, KeyboardArrowRight } from '@mui/icons-material';
 import { type MRT_TableInstance } from 'material-react-table';
-
-const getResultsText = (count: number) => {
-  if (!count && count !== 0) return '';
-  if (count === 1) return 'wynik';
-  if (count === 2 || count === 4) return 'wyniki';
-  return 'wyników';
-};
 
 const PaginationInput = ({ table }: { table: MRT_TableInstance<any> }) => {
   const { pageIndex } = table.getState().pagination;
@@ -81,6 +75,7 @@ interface TablePaginationProps {
 }
 
 export const TablePagination = ({ table }: TablePaginationProps) => {
+  const { t } = useTranslation('common');
   const { pageSize } = table.getState().pagination;
   const pageCount = table.getPageCount() === 0 ? 1 : table.getPageCount();
   const totalRows = table.getPrePaginationRowModel().rows.length;
@@ -121,7 +116,7 @@ export const TablePagination = ({ table }: TablePaginationProps) => {
             color="textSecondary"
             sx={{ lineHeight: 1, textTransform: 'none' }}
           >
-            z {pageCount}
+            {t('pagination.of', { count: pageCount })}
           </Typography>
         </Stack>
 
@@ -154,7 +149,7 @@ export const TablePagination = ({ table }: TablePaginationProps) => {
       >
         {[5, 10, 20, 50, 100].map((size) => (
           <MenuItem key={size} value={size} sx={{ fontSize: '13px' }}>
-            {size} wierszy
+            {t('pagination.rows', { count: size })}
           </MenuItem>
         ))}
       </Select>
@@ -165,7 +160,7 @@ export const TablePagination = ({ table }: TablePaginationProps) => {
         sx={{ lineHeight: 1, textAlign: 'center' }}
         color="textSecondary"
       >
-        {`${totalRows} ${getResultsText(totalRows)}`}
+        {t('pagination.results', { count: totalRows })}
       </Typography>
     </Box>
   );

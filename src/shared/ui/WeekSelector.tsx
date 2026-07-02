@@ -19,22 +19,21 @@ import { useTranslation } from 'react-i18next';
 import dayjs, { Dayjs } from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
 import isoWeek from 'dayjs/plugin/isoWeek';
-import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DatePicker } from '@mui/x-date-pickers';
 
 dayjs.extend(isBetween);
 dayjs.extend(isoWeek);
 
-function getStartOfWeek(date: Date): Date {
+function getStartOfWeek(date: Date | string): Date {
   return dayjs(date).startOf('isoWeek').toDate();
 }
 
-function getEndOfWeek(date: Date): Date {
+function getEndOfWeek(date: Date | string): Date {
   return dayjs(date).endOf('isoWeek').toDate();
 }
 
-function formatDate(date: Date, short: boolean = false): string {
-  return dayjs(date).format(short ? 'DD.MM.YY' : 'DD.MM.YYYY');
+function formatDate(date: Date | string, short: boolean = false): string {
+  return dayjs(date).format(short ? 'DD.MM.YY' : 'L');
 }
 
 interface WeekSelectorProps {
@@ -54,7 +53,6 @@ const WeekSelector: React.FC<WeekSelectorProps> = ({
   small = false,
 }) => {
   const { t, i18n } = useTranslation('common');
-  const currentLang = i18n.language.substring(0, 2).toLowerCase();
 
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const [hoveredWeek, setHoveredWeek] = useState<Date | null>(null);
@@ -177,24 +175,22 @@ const WeekSelector: React.FC<WeekSelectorProps> = ({
               <ChevronLeft />
             </IconButton>
 
-            <LocalizationProvider
-              dateAdapter={AdapterDayjs}
-              adapterLocale={currentLang}
-            >
-              <DatePicker
-                openTo="month"
-                views={['year', 'month']}
-                value={selectedMonth}
-                onChange={handleMonthChange}
-                sx={{
-                  width: '100%',
-                  '& .MuiPickersSectionList-root': {
-                    padding: '7px 0',
-                    width: 'auto',
-                  },
-                }}
-              />
-            </LocalizationProvider>
+            {/* Został usunięty lokalny LocalizationProvider. 
+                Komponent DatePicker dziedziczy teraz konfigurację 
+                z globalnego AppLocalizationProvider, którego masz zdefiniowanego w Theme. */}
+            <DatePicker
+              openTo="month"
+              views={['year', 'month']}
+              value={selectedMonth}
+              onChange={handleMonthChange}
+              sx={{
+                width: '100%',
+                '& .MuiPickersSectionList-root': {
+                  padding: '7px 0',
+                  width: 'auto',
+                },
+              }}
+            />
 
             <IconButton
               onClick={() =>

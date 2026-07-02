@@ -1,8 +1,11 @@
 import { Stack, Typography } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 
 const isMock = import.meta.env.VITE_USE_MOCK === 'true';
 
 const AppFooter = () => {
+  const { t } = useTranslation('app');
+
   return (
     <footer>
       <Stack
@@ -19,17 +22,18 @@ const AppFooter = () => {
         <Typography
           sx={{
             fontSize: 'inherit',
-            color: isMock ? 'red' : undefined
+            color: isMock ? 'red' : undefined,
           }}
         >
-          {isMock ? "Wersja demonstracyjna - niektóre funkcje mogą działać niepoprawnie." : "Panel administracyjny - dostęp tylko dla autoryzowanego personelu."}
+          {isMock ? t('footer.demoWarning') : t('footer.adminPanel')}
         </Typography>
         <Typography
           sx={{
             fontSize: 'inherit',
           }}
         >
-          &copy; {new Date().getFullYear()}, {isMock ? "Demo" : import.meta.env.VITE_COMPANY_NAME}
+          &copy; {new Date().getFullYear()},{' '}
+          {isMock ? t('footer.demo') : import.meta.env.VITE_COMPANY_NAME}
         </Typography>
       </Stack>
     </footer>

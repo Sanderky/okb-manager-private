@@ -13,6 +13,7 @@ import {
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Add,
   CropFree,
@@ -39,6 +40,7 @@ interface PreviewDialogProps {
 }
 
 export const FilePreview = ({ open, onClose, file }: PreviewDialogProps) => {
+  const { t } = useTranslation('common');
   const theme = useTheme();
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
@@ -95,13 +97,8 @@ export const FilePreview = ({ open, onClose, file }: PreviewDialogProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, file]);
 
-  const handleRotateLeft = () => {
-    setRotation((prev) => prev - 90);
-  };
-
-  const handleRotateRight = () => {
-    setRotation((prev) => prev + 90);
-  };
+  const handleRotateLeft = () => setRotation((prev) => prev - 90);
+  const handleRotateRight = () => setRotation((prev) => prev + 90);
 
   const handleReset = () => {
     setRotation(0);
@@ -138,9 +135,7 @@ export const FilePreview = ({ open, onClose, file }: PreviewDialogProps) => {
       return (
         <Stack direction={'column'} alignItems={'center'} spacing={1}>
           <Error color="error" fontSize="large" />
-          <Typography color="error">
-            Wystąpił błąd podczas wczytywania pliku
-          </Typography>
+          <Typography color="error">{t('filePreview.loadError')}</Typography>
         </Stack>
       );
     }
@@ -222,10 +217,10 @@ export const FilePreview = ({ open, onClose, file }: PreviewDialogProps) => {
           <Stack direction={'column'} alignItems={'center'} spacing={1}>
             <Error color="error" fontSize="large" />
             <Typography color="error">
-              Podgląd dla tego typu pliku nie jest obsługiwany.
+              {t('filePreview.unsupportedType')}
             </Typography>
             <Typography variant="caption">
-              Pobierz plik, aby go otworzyć.
+              {t('filePreview.downloadPrompt')}
             </Typography>
           </Stack>
         );
@@ -276,7 +271,7 @@ export const FilePreview = ({ open, onClose, file }: PreviewDialogProps) => {
                 spacing={0.5}
                 sx={{ mr: 1 }}
               >
-                <Tooltip title="Przybliż">
+                <Tooltip title={t('filePreview.zoomIn')}>
                   <IconButton
                     onClick={() => transformComponentRef.current?.zoomIn()}
                     size="small"
@@ -285,7 +280,7 @@ export const FilePreview = ({ open, onClose, file }: PreviewDialogProps) => {
                   </IconButton>
                 </Tooltip>
 
-                <Tooltip title="Oddal">
+                <Tooltip title={t('filePreview.zoomOut')}>
                   <IconButton
                     onClick={() => transformComponentRef.current?.zoomOut()}
                     size="small"
@@ -294,7 +289,7 @@ export const FilePreview = ({ open, onClose, file }: PreviewDialogProps) => {
                   </IconButton>
                 </Tooltip>
 
-                <Tooltip title="Resetuj widok">
+                <Tooltip title={t('filePreview.resetView')}>
                   <IconButton onClick={handleReset} size="small">
                     <CropFree />
                   </IconButton>
@@ -302,13 +297,13 @@ export const FilePreview = ({ open, onClose, file }: PreviewDialogProps) => {
 
                 <Divider orientation="vertical" flexItem sx={{ mx: 0.5 }} />
 
-                <Tooltip title="Obróć w lewo">
+                <Tooltip title={t('filePreview.rotateLeft')}>
                   <IconButton onClick={handleRotateLeft} size="small">
                     <RotateLeft />
                   </IconButton>
                 </Tooltip>
 
-                <Tooltip title="Obróć w prawo">
+                <Tooltip title={t('filePreview.rotateRight')}>
                   <IconButton onClick={handleRotateRight} size="small">
                     <RotateRight />
                   </IconButton>
@@ -318,7 +313,7 @@ export const FilePreview = ({ open, onClose, file }: PreviewDialogProps) => {
               </Stack>
             )}
 
-            <Tooltip title={'Otwórz w nowej karcie'}>
+            <Tooltip title={t('filePreview.openInNewTab')}>
               <IconButton
                 onClick={handleDownloadOrOpen}
                 size="small"
@@ -341,7 +336,6 @@ export const FilePreview = ({ open, onClose, file }: PreviewDialogProps) => {
           justifyContent: 'center',
           alignItems: 'center',
           padding: 0,
-          // backgroundColor: 'background.default',
           backgroundColor: '#0d0d0d',
           overflow: 'hidden',
           position: 'relative',
