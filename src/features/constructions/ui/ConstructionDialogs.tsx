@@ -1,13 +1,12 @@
 import { Alert, Typography } from '@mui/material';
 import { Stack } from '@mui/system';
-import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { plPL } from '@mui/x-date-pickers/locales';
+import { DatePicker } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
 import { useCallback, useEffect, useState } from 'react';
 import BaseDialog, { ConfirmationDialog } from '@/shared/ui/BaseDialog';
 import useNotifications from '@/shared/ui/notifications/useNotifications';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { type Construction } from '@/entities/construction';
 import { useChangeConstructionStatus } from '../model/services/useChangeConstructionStatus';
 
@@ -22,10 +21,11 @@ export const FinishConstruction = ({
   onClose,
   open,
 }: FinishConstructionProps) => {
+  const { t } = useTranslation('constructions');
   const navigate = useNavigate();
 
   const [endDateValue, setEndDateValue] = useState(dayjs());
-  const [endDateError, setEndDateError] = useState<string | null>(null);
+  const [endDateErrorKey, setEndDateErrorKey] = useState<string | null>(null);
 
   const notifications = useNotifications();
 
@@ -33,7 +33,7 @@ export const FinishConstruction = ({
 
   useEffect(() => {
     if (open) {
-      setEndDateError(null);
+      setEndDateErrorKey(null);
 
       let initialEndDate;
       if (construction?.endDate) {
@@ -59,12 +59,10 @@ export const FinishConstruction = ({
 
     if (start && chosen) {
       if (chosen.isBefore(start)) {
-        setEndDateError(
-          'Data zakończenia nie może być wcześniejsza niż data rozpoczęcia.'
-        );
+        setEndDateErrorKey('validation.endDateBeforeStart');
         return;
       } else if (chosen.isAfter(dayjs().startOf('day'))) {
-        setEndDateError('Data zakończenia nie może być z przyszłości.');
+        setEndDateErrorKey('validation.endDateInFuture');
         return;
       }
     }
@@ -76,13 +74,13 @@ export const FinishConstruction = ({
       chosen ? chosen.toDate() : new Date(),
       () => {
         navigate(`/constructions/${construction.id}`);
-        notifications.show('Budowa została oznaczona jako zakończona.', {
+        notifications.show(t('notifications.finished'), {
           severity: 'success',
           autoHideDuration: 5000,
         });
       },
       () => {
-        notifications.show('Wystąpił błąd podczas zmiany stanu budowy.', {
+        notifications.show(t('notifications.statusError'), {
           severity: 'error',
           autoHideDuration: 5000,
         });
@@ -95,6 +93,7 @@ export const FinishConstruction = ({
     onClose,
     navigate,
     changeConstructionStatus,
+    t,
   ]);
 
   return (
@@ -102,8 +101,8 @@ export const FinishConstruction = ({
       open={open}
       onClose={onClose}
       onConfirm={handleFinish}
-      title="Zakończ budowę"
-      confirmText="Zakończ budowę"
+      title={t('dialogs.finish.title')}
+      confirmText={t('dialogs.finish.confirmBtn')}
       confirmColor="warning"
       showCancel={false}
       loading={isPending}
@@ -111,52 +110,43 @@ export const FinishConstruction = ({
     >
       <Stack spacing={2}>
         <Typography variant="body1">
-          Wybierz datę zakończenia budowy <strong>{construction?.name}</strong>:
+          {t('dialogs.finish.prompt')} <strong>{construction?.name}</strong>:
         </Typography>
         {construction?.startDate && (
           <Typography variant="body1" className="mb-2">
-            Data rozpoczęcia:{' '}
+            {t('dialogs.finish.startDateLabel')}{' '}
             <strong>
               {dayjs(construction?.startDate).format('DD.MM.YYYY')}
             </strong>
           </Typography>
         )}
-        <LocalizationProvider
-          localeText={
-            plPL.components.MuiLocalizationProvider.defaultProps.localeText
-          }
-          dateAdapter={AdapterDayjs}
-          adapterLocale="pl"
-        >
-          <DatePicker
-            openTo="month"
-            views={['year', 'month', 'day']}
-            label={'Data zakończenia'}
-            disabled={cannotBeFinished}
-            value={endDateValue}
-            onChange={(v) => {
-              setEndDateError(null);
-              setEndDateValue(v ?? dayjs());
-            }}
-            minDate={dayjs(construction.startDate)}
-            maxDate={dayjs()}
-            slotProps={{
-              textField: {
-                size: 'small',
-                fullWidth: true,
-                error: !!endDateError,
-                helperText: endDateError ?? '',
-              },
-              field: {
-                clearable: false,
-              },
-            }}
-          />
-        </LocalizationProvider>
+
+        <DatePicker
+          openTo="month"
+          views={['year', 'month', 'day']}
+          label={t('dialogs.finish.endDateLabel')}
+          disabled={cannotBeFinished}
+          value={endDateValue}
+          onChange={(v) => {
+            setEndDateErrorKey(null);
+            setEndDateValue(v ?? dayjs());
+          }}
+          minDate={dayjs(construction.startDate)}
+          maxDate={dayjs()}
+          slotProps={{
+            textField: {
+              size: 'small',
+              fullWidth: true,
+              error: !!endDateErrorKey,
+              helperText: endDateErrorKey ? t(endDateErrorKey) : '',
+            },
+            field: { clearable: false },
+          }}
+        />
+
         {cannotBeFinished && (
           <Alert severity="warning">
-            Budowa nie może zostać zakończona, ponieważ jeszcze się nie
-            rozpoczęła.
+            {t('dialogs.finish.cannotFinishAlert')}
           </Alert>
         )}
       </Stack>
@@ -174,6 +164,7 @@ export const ResumeConstruction = ({
   onClose,
   construction,
 }: ResumeConstructionProps) => {
+  const { t } = useTranslation(['constructions', 'common']);
   const navigate = useNavigate();
 
   const notifications = useNotifications();
@@ -187,13 +178,13 @@ export const ResumeConstruction = ({
       undefined,
       () => {
         navigate(`/constructions/${construction.id}`);
-        notifications.show('Budowa została wznowiona.', {
+        notifications.show(t('notifications.resumed'), {
           severity: 'success',
           autoHideDuration: 5000,
         });
       },
       () => {
-        notifications.show('Wystąpił błąd podczas zmiany stanu budowy.', {
+        notifications.show(t('notifications.statusError'), {
           severity: 'error',
           autoHideDuration: 5000,
         });
@@ -205,6 +196,7 @@ export const ResumeConstruction = ({
     onClose,
     construction,
     navigate,
+    t,
   ]);
 
   return (
@@ -212,15 +204,14 @@ export const ResumeConstruction = ({
       open={open}
       onClose={onClose}
       onConfirm={handleResume}
-      title="Wznawianie budowy"
+      title={t('dialogs.resume.title')}
       message={
         <Typography variant="body1">
-          Czy na pewno chcesz wznowić budowę{' '}
-          <strong>{construction?.name}</strong>?
+          {t('dialogs.resume.prompt')} <strong>{construction?.name}</strong>?
         </Typography>
       }
-      confirmText="Wznów budowę"
-      cancelText="Anuluj"
+      confirmText={t('dialogs.resume.confirmBtn')}
+      cancelText={t('common:buttons.cancel')}
       confirmColor="success"
       showCancel={false}
       loading={isPending}

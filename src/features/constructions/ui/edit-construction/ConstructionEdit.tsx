@@ -15,8 +15,10 @@ import {
   useConstructionEditContext,
 } from '@/features/constructions';
 import { useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const ConstructionEdit = () => {
+  const { t } = useTranslation('constructions');
   const [endDialogOpen, setEndDialogOpen] = useState(false);
   const [resumeDialogOpen, setResumeDialogOpen] = useState(false);
 
@@ -98,9 +100,7 @@ export const ConstructionEdit = () => {
                 onSubmit={handleSubmit}
                 isSubmitting={actionLoading}
                 submitError={
-                  isUpdateError
-                    ? 'Wystąpił błąd podczas aktualizacji budowy.'
-                    : null
+                  isUpdateError ? t('notifications.updateError') : null
                 }
                 isEditForm={true}
                 registerFieldRef={registerFieldRef}
@@ -123,10 +123,10 @@ export const ConstructionEdit = () => {
               >
                 <div>
                   <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                    Zakończ budowę
+                    {t('edit.finishSection.title')}
                   </Typography>
                   <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                    Status budowy zmienia się na "Zakończona".
+                    {t('edit.finishSection.description')}
                   </Typography>
                 </div>
                 <Button
@@ -137,7 +137,7 @@ export const ConstructionEdit = () => {
                   loading={isFormLoading}
                   startIcon={<ArchiveIcon />}
                 >
-                  Zakończ
+                  {t('actions.finish')}
                 </Button>
               </Stack>
             ) : (
@@ -155,10 +155,10 @@ export const ConstructionEdit = () => {
               >
                 <div>
                   <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                    Aktywuj budowę
+                    {t('edit.activateSection.title')}
                   </Typography>
                   <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                    Status budowy zmienia się na "W trakcie".
+                    {t('edit.activateSection.description')}
                   </Typography>
                 </div>
                 <Button
@@ -169,7 +169,7 @@ export const ConstructionEdit = () => {
                   loading={isFormLoading}
                   startIcon={<UnarchiveIcon />}
                 >
-                  Aktywuj
+                  {t('actions.activate')}
                 </Button>
               </Stack>
             )}
@@ -187,11 +187,10 @@ export const ConstructionEdit = () => {
             >
               <div>
                 <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                  Usuń budowę
+                  {t('edit.deleteSection.title')}
                 </Typography>
                 <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                  Trwale usuwa budowę z bazy danych. Tej operacji nie można
-                  cofnąć.
+                  {t('edit.deleteSection.description')}
                 </Typography>
               </div>
               <Button
@@ -202,7 +201,7 @@ export const ConstructionEdit = () => {
                 loading={isDeleting || isLoading || actionLoading}
                 startIcon={<HighlightOffIcon />}
               >
-                Usuń
+                {t('actions.delete')}
               </Button>
             </Stack>
           </Grid>
@@ -225,7 +224,7 @@ export const ConstructionEdit = () => {
           title={
             <Stack direction="row" spacing={1} alignItems="center">
               <WarningAmberIcon className="text-red-600" />
-              <span>Usuwanie budowy</span>
+              <span>{t('dialogs.delete.title')}</span>
             </Stack>
           }
           actions={
@@ -236,7 +235,7 @@ export const ConstructionEdit = () => {
                 loading={isDeleting}
                 color="inherit"
               >
-                Anuluj
+                {t('actions.cancel')}
               </Button>
               <Button
                 onClick={handleDeleteConstruction}
@@ -248,28 +247,33 @@ export const ConstructionEdit = () => {
                   construction.name.trim().toLocaleLowerCase()
                 }
               >
-                Usuń
+                {t('actions.delete')}
               </Button>
             </Stack>
           }
           loading={isDeleting}
         >
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Typography
+              variant="body1"
+              className="text-gray-600"
+              dangerouslySetInnerHTML={{
+                __html: t('dialogs.delete.confirmQuestion').replace(
+                  '{{name}}',
+                  construction.name
+                ),
+              }}
+            />
             <Typography variant="body1" className="text-gray-600">
-              Czy na pewno chcesz usunąć <strong>{construction.name}</strong>?
-            </Typography>
-            <Typography variant="body1" className="text-gray-600">
-              Budowa zostanie usunięta z bazy danych łącznie ze wszytkimi
-              plikami oraz powiązanymi informacjami.
+              {t('dialogs.delete.warningText')}
             </Typography>
             <Alert severity="error">
-              <AlertTitle>Uwaga!</AlertTitle>
-              Tej operacji nie można cofnąć. Zamiast tego, proszę rozważyć
-              zakończenie budowy.
+              <AlertTitle>{t('dialogs.delete.alertTitle')}</AlertTitle>
+              {t('dialogs.delete.alertText')}
             </Alert>
             <Stack sx={{ mt: 2 }} direction={'column'} spacing={0.5}>
               <Typography variant="subtitle2">
-                Aby usunąć budowę, wprowadź poniżej jej pełną nazwę:
+                {t('dialogs.delete.promptName')}
               </Typography>
               <TextField
                 value={deleteConfirmation}

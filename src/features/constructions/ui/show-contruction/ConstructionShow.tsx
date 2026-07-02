@@ -1,4 +1,5 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Grid,
   Stack,
@@ -22,15 +23,20 @@ import type { Construction } from '@/entities/construction';
 import { useConstructionShowContext } from '../../model/providers/ShowConstructionContext';
 import { EventsListTable } from '@/features/upcoming-events';
 
-const personalFields = [
-  { key: 'name', label: 'Nazwa budowy' },
-  { key: 'location', label: 'Lokalizacja' },
-  { key: 'contractorName', label: 'Wykonawca' },
-  { key: 'startDate', label: 'Data rozpoczęcia' },
-  { key: 'endDate', label: 'Data zakończenia' },
-];
-
 export const ConstructionShow = () => {
+  const { t } = useTranslation('constructions');
+
+  const personalFields = useMemo(
+    () => [
+      { key: 'name', label: t('fields.name') },
+      { key: 'location', label: t('fields.location') },
+      { key: 'contractorName', label: t('fields.contractor') },
+      { key: 'startDate', label: t('fields.startDate') },
+      { key: 'endDate', label: t('fields.endDate') },
+    ],
+    [t]
+  );
+
   const {
     construction,
     handleNavigateToContractor,
@@ -60,7 +66,7 @@ export const ConstructionShow = () => {
       } else {
         if (key === 'location') {
           return (
-            <Tooltip title="Otwórz w Google Maps">
+            <Tooltip title={t('tooltips.openMaps')}>
               <Typography
                 variant="body1"
                 className="text-sm font-semibold sm:text-base"
@@ -81,7 +87,7 @@ export const ConstructionShow = () => {
 
         if (key === 'contractorName') {
           return (
-            <Tooltip title="Przejdź do wykonawcy">
+            <Tooltip title={t('tooltips.viewContractor')}>
               <Typography
                 variant="body1"
                 className="text-sm font-semibold sm:text-base"
@@ -110,7 +116,7 @@ export const ConstructionShow = () => {
               variant="body1"
               className="text-sm font-semibold sm:text-base"
             >
-              {dayjs(value).format('DD.MM.YYYY')}
+              {dayjs(value).format('L')}
             </Typography>
           );
         }
@@ -125,7 +131,7 @@ export const ConstructionShow = () => {
         );
       }
     },
-    [handleNavigateToContractor]
+    [handleNavigateToContractor, t]
   );
 
   if (!construction) return null;
@@ -241,8 +247,9 @@ export const ConstructionShow = () => {
                     <Stack direction={'row'} alignItems={'center'} spacing={1}>
                       <PeopleIcon sx={{ color: 'accent.superDark' }} />
                       <Typography variant="subtitle2" fontWeight="600">
-                        Pracownicy na budowie dziś (
-                        {activeScheduleEmployees?.length}):
+                        {t('show.activeEmployees', {
+                          count: activeScheduleEmployees?.length || 0,
+                        })}
                       </Typography>
                     </Stack>
                   </th>
@@ -290,7 +297,10 @@ export const ConstructionShow = () => {
                               {employee.name}
                             </Typography>
                             {employee.isContractor && (
-                              <Chip label={'Kontraktor'} size="small" />
+                              <Chip
+                                label={t('show.contractorChip')}
+                                size="small"
+                              />
                             )}
                           </Stack>
                         </td>
@@ -301,7 +311,7 @@ export const ConstructionShow = () => {
                   <tr>
                     <td className="px-4 py-3">
                       <Typography variant="body2" color="textSecondary">
-                        Brak pracowników na budowie
+                        {t('show.noEmployees')}
                       </Typography>
                     </td>
                   </tr>

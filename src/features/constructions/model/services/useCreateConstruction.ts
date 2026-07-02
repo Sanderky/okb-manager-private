@@ -5,16 +5,16 @@ import {
   useAddConstructionMutation,
   type Construction,
 } from '@/entities/construction';
-import {
-  validate,
-} from '@/features/constructions';
+import { validate } from '@/features/constructions';
 import useNotifications from '@/shared/ui/notifications/useNotifications';
 import { useNavigate } from 'react-router-dom';
 import type { ConstructionFormState, FormFieldValue } from '../types';
+import { useTranslation } from 'react-i18next';
 
 export const useConstructionCreateService = () => {
   const navigate = useNavigate();
   const notifications = useNotifications();
+  const { t } = useTranslation('constructions');
 
   const {
     loading: actionLoading,
@@ -53,7 +53,7 @@ export const useConstructionCreateService = () => {
       const validationErrors = validate(formState.values);
       if (Object.keys(validationErrors).length > 0) {
         setFormState((prev) => ({ ...prev, errors: validationErrors }));
-        notifications.show('Proszę poprawić błędy w formularzu.', {
+        notifications.show(t('validation.fixErrors'), {
           severity: 'error',
           autoHideDuration: 5000,
         });
@@ -79,13 +79,13 @@ export const useConstructionCreateService = () => {
       try {
         const newConstructionId =
           await createMutation.mutateAsync(changedValues);
-        notifications.show('Budowa została pomyślnie utworzona.', {
+        notifications.show(t('notifications.created'), {
           severity: 'success',
           autoHideDuration: 5000,
         });
         navigate(`/constructions/${newConstructionId}`);
       } catch {
-        notifications.show('Wystąpił błąd podczas tworzenia budowy.', {
+        notifications.show(t('notifications.createError'), {
           severity: 'error',
           autoHideDuration: 5000,
         });
@@ -99,6 +99,8 @@ export const useConstructionCreateService = () => {
       notifications,
       startActionLoading,
       stopActionLoading,
+      t,
+      navigate,
     ]
   );
 

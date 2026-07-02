@@ -12,15 +12,12 @@ import {
   MRT_ToggleGlobalFilterButton,
   useMaterialReactTable,
 } from 'material-react-table';
-import 'dayjs/locale/pl';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { MRT_Localization_PL } from 'material-react-table/locales/pl';
 import { Badge } from '@mui/material';
-import { plPL } from '@mui/x-date-pickers/locales';
 import { TablePagination } from '@/shared/ui/TablePagination';
 import { useConstructionsListContext } from '../../model/providers/ConstructionsListContext';
 import { FiltersDialog } from './ConstructionsListFilters';
+import { useTranslation } from 'react-i18next';
+import { useMaterialTableLanguage } from '@/shared/lib/useMaterialTableLanguage';
 
 export function ConstructionsList() {
   const {
@@ -40,9 +37,15 @@ export function ConstructionsList() {
     handleCloseAndReset,
   } = useConstructionsListContext();
 
+  const { t } = useTranslation('constructions');
+  const mrtLocale = useMaterialTableLanguage();
+
   const localization = React.useMemo(
-    () => ({ ...MRT_Localization_PL, rowNumber: 'Lp.' }),
-    []
+    () => ({
+      ...mrtLocale,
+      rowNumber: t('table.rowNumber', 'Lp.'),
+    }),
+    [mrtLocale, t]
   );
 
   const table = useMaterialReactTable({
@@ -156,13 +159,7 @@ export function ConstructionsList() {
   });
 
   return (
-    <LocalizationProvider
-      localeText={
-        plPL.components.MuiLocalizationProvider.defaultProps.localeText
-      }
-      dateAdapter={AdapterDayjs}
-      adapterLocale="pl"
-    >
+    <>
       <MaterialReactTable table={table} />
       <Box sx={{ flexShrink: 0, minHeight: '45px' }}>
         <TablePagination table={table} />
@@ -176,6 +173,6 @@ export function ConstructionsList() {
         handleCloseAndReset={handleCloseAndReset}
         contractorOptions={contractorOptions}
       />
-    </LocalizationProvider>
+    </>
   );
 }

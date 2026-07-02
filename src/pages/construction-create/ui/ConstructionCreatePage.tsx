@@ -1,6 +1,7 @@
 import PageContainer from '@/shared/ui/PageContainer';
 import { Box } from '@mui/material';
 import Loading from '@/shared/ui/Loading';
+import { useTranslation } from 'react-i18next';
 import {
   AddConstruction,
   AddConstructionProvider,
@@ -16,19 +17,20 @@ export function ConstructionCreatePage() {
 }
 
 const PageContent = () => {
+  const { t } = useTranslation(['constructions', 'common']);
   const { actionLoading } = useAddConstructionContext();
 
   if (actionLoading) {
-    return <Loading message="Trwa tworzenie nowej budowy..." />;
+    return <Loading message={t('create.loading')} />;
   }
 
   return (
     <AddConstructionProvider>
       <PageContainer
-        title={'Dodaj nową budowę'}
+        title={t('create.title')}
         breadcrumbs={[
-          { title: 'Budowy', path: '/constructions' },
-          { title: 'Nowa' },
+          { title: t('title', 'Budowy'), path: '/constructions' },
+          { title: t('create.breadcrumb', 'Nowa') },
         ]}
       >
         <Box
@@ -41,7 +43,6 @@ const PageContent = () => {
             sx={(theme) => ({
               width: '100%',
               maxWidth: { sm: '100%', md: '1790px' },
-              // boxShadow: 1,
               background: theme.palette.background.paper,
               border: `1px solid ${theme.palette.divider}`,
             })}

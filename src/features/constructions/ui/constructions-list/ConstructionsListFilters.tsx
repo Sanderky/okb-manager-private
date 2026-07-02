@@ -1,7 +1,7 @@
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
-import 'dayjs/locale/pl';
+import { useTranslation } from 'react-i18next';
 import {
   Dialog,
   DialogTitle,
@@ -42,6 +42,8 @@ export const FiltersDialog = ({
   handleCloseAndReset,
   contractorOptions,
 }: FiltersDialogProps) => {
+  const { t } = useTranslation('constructions');
+
   return (
     <Dialog
       open={filtersModalOpen}
@@ -64,7 +66,7 @@ export const FiltersDialog = ({
           alignItems={'center'}
           justifyContent={'space-between'}
         >
-          <Typography variant="h6">Filtry budów</Typography>
+          <Typography variant="h6">{t('table.filtersTitle')}</Typography>
           <IconButton onClick={handleCloseFilters}>
             <CloseIcon fontSize="inherit" />
           </IconButton>
@@ -73,7 +75,7 @@ export const FiltersDialog = ({
       <DialogContent dividers className="p-3 sm:p-5">
         <Grid container spacing={2}>
           <Grid size={{ xs: 12, sm: 6 }}>
-            <FormLabel className="mb-2 block">Nazwa</FormLabel>
+            <FormLabel className="mb-2 block">{t('fields.name')}</FormLabel>
             <TextField
               size="small"
               fullWidth
@@ -82,7 +84,9 @@ export const FiltersDialog = ({
             />
           </Grid>
           <Grid size={{ xs: 12, sm: 6 }}>
-            <FormLabel className="mb-2 block">Wykonawca</FormLabel>
+            <FormLabel className="mb-2 block">
+              {t('fields.contractor')}
+            </FormLabel>
             <Autocomplete
               options={contractorOptions}
               getOptionLabel={(option) => option.label || ''}
@@ -107,7 +111,7 @@ export const FiltersDialog = ({
             />
           </Grid>
           <Grid size={{ xs: 12, md: 6 }}>
-            <FormLabel className="mb-2 block">Adres</FormLabel>
+            <FormLabel className="mb-2 block">{t('fields.address')}</FormLabel>
             <TextField
               size="small"
               fullWidth
@@ -119,7 +123,9 @@ export const FiltersDialog = ({
           </Grid>
 
           <Grid size={{ xs: 12, md: 6 }}>
-            <FormLabel className="mb-2 block">Data rozpoczęcia</FormLabel>
+            <FormLabel className="mb-2 block">
+              {t('fields.startDate')}
+            </FormLabel>
             <Stack
               direction={{
                 xs: 'column',
@@ -129,7 +135,7 @@ export const FiltersDialog = ({
               spacing={1}
             >
               <DatePicker
-                label="Od"
+                label={t('fields.dateFrom')}
                 openTo="month"
                 views={['year', 'month', 'day']}
                 value={filters.startDateFrom ?? null}
@@ -162,7 +168,7 @@ export const FiltersDialog = ({
                 -
               </Typography>
               <DatePicker
-                label="Do"
+                label={t('fields.dateTo')}
                 openTo="month"
                 views={['year', 'month', 'day']}
                 value={filters.startDateTo ?? null}
@@ -189,7 +195,7 @@ export const FiltersDialog = ({
           </Grid>
 
           <Grid size={{ xs: 12, md: 6 }}>
-            <FormLabel className="mb-2 block">Data zakończenia</FormLabel>
+            <FormLabel className="mb-2 block">{t('fields.endDate')}</FormLabel>
             <Stack
               direction={{
                 xs: 'column',
@@ -199,7 +205,7 @@ export const FiltersDialog = ({
               spacing={1}
             >
               <DatePicker
-                label="Od"
+                label={t('fields.dateFrom')}
                 openTo="month"
                 views={['year', 'month', 'day']}
                 value={filters.endDateFrom ?? null}
@@ -232,7 +238,7 @@ export const FiltersDialog = ({
                 -
               </Typography>
               <DatePicker
-                label="Do"
+                label={t('fields.dateTo')}
                 openTo="month"
                 views={['year', 'month', 'day']}
                 value={filters.endDateTo ?? null}
@@ -259,7 +265,9 @@ export const FiltersDialog = ({
           </Grid>
 
           <Grid size={{ xs: 12, sm: 6 }}>
-            <FormLabel className="mb-2 block">Liczba pracowników</FormLabel>
+            <FormLabel className="mb-2 block">
+              {t('fields.employeeCount')}
+            </FormLabel>
             <Stack
               direction={{
                 xs: 'column',
@@ -284,7 +292,7 @@ export const FiltersDialog = ({
                     min: 0,
                   },
                 }}
-                label="Min."
+                label={t('fields.employeeCountMin')}
               />
               <TextField
                 size="small"
@@ -302,14 +310,14 @@ export const FiltersDialog = ({
                     min: 0,
                   },
                 }}
-                label="Max."
+                label={t('fields.employeeCountMax')}
               />
             </Stack>
           </Grid>
 
           <Grid size={{ xs: 12, sm: 6 }}>
             <FormControl fullWidth>
-              <FormLabel className="mb-2 block">Status</FormLabel>
+              <FormLabel className="mb-2 block">{t('fields.status')}</FormLabel>
               <Select
                 size="small"
                 value={filters.status ?? ''}
@@ -318,9 +326,13 @@ export const FiltersDialog = ({
                   setFilters({ ...filters, status: e.target.value })
                 }
               >
-                <MenuItem value="">Wszystkie</MenuItem>
-                <MenuItem value="true">W trakcie</MenuItem>
-                <MenuItem value="false">Zakończone</MenuItem>
+                <MenuItem value="">{t('statusOptions.all')}</MenuItem>
+                <MenuItem value="true">
+                  {t('statusOptions.inProgress')}
+                </MenuItem>
+                <MenuItem value="false">
+                  {t('statusOptions.completed')}
+                </MenuItem>
               </Select>
             </FormControl>
           </Grid>
@@ -347,10 +359,10 @@ export const FiltersDialog = ({
             variant="outlined"
             color="primary"
           >
-            Wyczyść filtry
+            {t('actions.clearFilters')}
           </Button>
           <Button onClick={handleApplyFilters} variant="contained">
-            Zastosuj filtry
+            {t('actions.applyFilters')}
           </Button>
         </Stack>
       </DialogActions>

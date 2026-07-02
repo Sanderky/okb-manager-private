@@ -16,10 +16,13 @@ import type {
   FormFieldValue,
   ValidationErrors,
 } from '../types';
+import { useTranslation } from 'react-i18next';
 
 export const useEditConstruction = (constructionId: string) => {
   const navigate = useNavigate();
   const notifications = useNotifications();
+  const { t } = useTranslation('constructions');
+
   const {
     loading: actionLoading,
     startLoading: startActionLoading,
@@ -63,7 +66,7 @@ export const useEditConstruction = (constructionId: string) => {
       const validationErrors = validate(formState.values);
       if (Object.keys(validationErrors).length > 0) {
         setFormState((prev) => ({ ...prev, errors: validationErrors }));
-        notifications.show('Proszę poprawić błędy w formularzu.', {
+        notifications.show(t('validation.fixErrors'), {
           severity: 'error',
           autoHideDuration: 3000,
         });
@@ -99,6 +102,9 @@ export const useEditConstruction = (constructionId: string) => {
       notifications,
       startActionLoading,
       stopActionLoading,
+      t,
+      navigate,
+      constructionId,
     ]
   );
 
@@ -110,7 +116,7 @@ export const useEditConstruction = (constructionId: string) => {
       try {
         await deleteMutation.mutateAsync(constructionId);
         await deleteFolderRecursive(`/constructions/${construction.id}`);
-        notifications.show('Budowa została pomyślnie usunięta.', {
+        notifications.show(t('notifications.deleted'), {
           severity: 'info',
           autoHideDuration: 5000,
         });
@@ -118,7 +124,7 @@ export const useEditConstruction = (constructionId: string) => {
         onSuccess?.();
       } catch (error) {
         console.error('Delete employee error:', error);
-        notifications.show('Wystąpił błąd podczas usuwania budowy.', {
+        notifications.show(t('notifications.deleteError'), {
           severity: 'error',
           autoHideDuration: 5000,
         });
@@ -127,12 +133,12 @@ export const useEditConstruction = (constructionId: string) => {
         setIsDeleting(false);
       }
     },
-    [deleteMutation, navigate, notifications, construction]
+    [deleteMutation, navigate, notifications, construction, t, constructionId]
   );
 
   const handleCancel = useCallback(() => {
     navigate(`/constructions/${constructionId}`);
-  }, [navigate]);
+  }, [navigate, constructionId]);
 
   const isFormLoading = actionLoading || isDeleting;
 

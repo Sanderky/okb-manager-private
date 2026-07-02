@@ -3,6 +3,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import EventAvailableIcon from '@mui/icons-material/EventAvailable';
 import EventRepeatIcon from '@mui/icons-material/EventRepeat';
 import { alpha, IconButton, Tab, Tabs, Tooltip } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 
 export interface ConstructionShowTopToolbarProps {
   handleTabChange: (
@@ -24,6 +25,8 @@ export const ConstructionShowTopToolbar = ({
   handleOpenResumeConstructionDialogOpen,
   handleOpenFinishConstructionDialogOpen,
 }: ConstructionShowTopToolbarProps) => {
+  const { t } = useTranslation('constructions');
+
   return (
     <Stack
       direction="row"
@@ -37,7 +40,7 @@ export const ConstructionShowTopToolbar = ({
     >
       <Tabs value={tab} onChange={handleTabChange}>
         <Tab
-          label="Informacje"
+          label={t('tabs.info')}
           sx={{
             fontSize: { xs: '0.8rem', sm: '.85rem' },
             padding: 2,
@@ -45,7 +48,7 @@ export const ConstructionShowTopToolbar = ({
           }}
         />
         <Tab
-          label="Pliki"
+          label={t('tabs.files')}
           sx={{
             fontSize: { xs: '0.8rem', sm: '.85rem' },
             padding: 2,
@@ -60,7 +63,7 @@ export const ConstructionShowTopToolbar = ({
         spacing={{ xs: 1.5, sm: 3 }}
         sx={{ pl: 1 }}
       >
-        <Tooltip title="Edytuj budowę">
+        <Tooltip title={t('tooltips.edit')}>
           <IconButton
             onClick={handleNavigateToConstructionEdit}
             color="primary"
@@ -71,7 +74,7 @@ export const ConstructionShowTopToolbar = ({
           </IconButton>
         </Tooltip>
         {isInProgress ? (
-          <Tooltip title="Zakończ budowę">
+          <Tooltip title={t('tooltips.finish')}>
             <IconButton
               onClick={handleOpenFinishConstructionDialogOpen}
               color="warning"
@@ -86,7 +89,7 @@ export const ConstructionShowTopToolbar = ({
             </IconButton>
           </Tooltip>
         ) : (
-          <Tooltip title="Wznów budowę">
+          <Tooltip title={t('tooltips.resume')}>
             <IconButton
               onClick={handleOpenResumeConstructionDialogOpen}
               color="success"
