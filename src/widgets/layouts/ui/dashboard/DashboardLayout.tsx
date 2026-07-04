@@ -19,6 +19,7 @@ import { ExpandMore } from '@mui/icons-material';
 import { UserSettingsBase } from '@/features/user-settings';
 import { RodoSettings } from '@/features/app-settings';
 import { EmployeeAlertsSettingsBase } from '@/features/employees';
+import { useTranslation } from 'react-i18next';
 
 interface SettingsProps {
   isOpen: boolean;
@@ -26,6 +27,7 @@ interface SettingsProps {
 }
 
 const Settings = ({ isOpen, onClose }: SettingsProps) => {
+  const {t} = useTranslation('app');
   return (
     <BaseDialog
       open={isOpen}
@@ -50,7 +52,7 @@ const Settings = ({ isOpen, onClose }: SettingsProps) => {
             sx={{ fontWeight: 500, fontSize: '1.1rem' }}
             variant="body1"
           >
-            Alerty pracowników
+            {t('settings.employeesAlerts')}
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
@@ -72,7 +74,7 @@ const Settings = ({ isOpen, onClose }: SettingsProps) => {
             sx={{ fontWeight: 500, fontSize: '1.1rem' }}
             variant="body1"
           >
-            Ustawienia konta
+            {t('settings.accountSettings')}
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
@@ -94,7 +96,7 @@ const Settings = ({ isOpen, onClose }: SettingsProps) => {
             sx={{ fontWeight: 500, fontSize: '1.1rem' }}
             variant="body1"
           >
-            RODO
+            {t('settings.rodo')}
           </Typography>
         </AccordionSummary>
         <AccordionDetails>

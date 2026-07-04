@@ -14,6 +14,7 @@
     "weeks_one": "{{count}} Week",
     "weeks_few": "{{count}} Weeks",
     "weeks_many": "{{count}} Weeks",
+    "weeks_other": "{{count}} Weeks",
     "range": "Range:"
   },
   "manager": {

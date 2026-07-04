@@ -33,5 +33,14 @@
     "schedule": "Schedule",
     "workHours": "Work hours",
     "settings": "Settings"
+  },
+  "loading": {
+    "authorization": "Authorization...",
+    "dataLoading": "Loading data..."
+  },
+  "settings": {
+    "employeesAlerts": "Employees alerts",
+    "rodo": "RODO",
+    "accountSettings": "Account settings"
   }
 }
