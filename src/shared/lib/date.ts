@@ -1,5 +1,4 @@
 import dayjs, { Dayjs } from 'dayjs';
-import type { LangCode } from '../model/types';
 
 export const toSqlDate = (
   date?: Date | string | Dayjs | null
@@ -12,7 +11,7 @@ export function formatDate(date: Date): string {
   return dayjs(date).format('DD.MM.YYYY');
 }
 
-export const getWeekNumber = (date: Date) => dayjs(date).isoWeek()
+export const getWeekNumber = (date: Date) => dayjs(date).isoWeek();
 
 export const getThreeMonthKeys = (week: Date): string[] => {
   const current = dayjs(week);
@@ -94,25 +93,4 @@ export const daysToRanges = (days: dayjs.Dayjs[]) => {
   }
   ranges.push(formatRange(start, end));
   return ranges;
-};
-
-export const formatWeeksString = (
-  weeksCount: number,
-  lang: LangCode = 'pl-PL'
-) => {
-  if (lang === 'de-DE') {
-    return weeksCount === 1 ? 'Woche' : 'Wochen';
-  }
-
-  if (lang === 'pl-PL') {
-    const lastDigit = weeksCount % 10;
-    const lastTwoDigits = weeksCount % 100;
-
-    if (weeksCount === 1) return 'tydzień';
-    if (lastTwoDigits >= 11 && lastTwoDigits <= 14) return 'tygodni';
-    if (lastDigit >= 2 && lastDigit <= 4) return 'tygodnie';
-    return 'tygodni';
-  }
-
-  return 'tygodni';
 };

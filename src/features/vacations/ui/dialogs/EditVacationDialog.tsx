@@ -47,7 +47,7 @@ const VacationDetails: React.FC<{
       >
         <CalendarMonth fontSize="small" />
         <Typography variant="body2" fontWeight={500}>
-          {getDateStr(event.startDate, event.endDate, true)}
+          {getDateStr(event.startDate, event.endDate, true, t)}
         </Typography>
       </Stack>
       {event.description && (

@@ -14,8 +14,8 @@ import dayjs from 'dayjs';
 import { useTranslation } from 'react-i18next';
 import type { Employee } from '@/entities/employee';
 import type { CellDisplayItem, ICell } from '../../model/types';
-import { WEEK_DAYS } from '@/shared/config/days';
 import { ScheduleCellContent } from './ScheduleCellContent';
+import { useWeekDays } from '@/shared/lib/useWeekDays';
 
 interface PrintableScheduleProps {
   activeTable: {
@@ -34,6 +34,7 @@ export const PrintableSchedule = ({
   getCellContentItems,
 }: PrintableScheduleProps) => {
   const { t } = useTranslation(['schedule']);
+  const weekDays = useWeekDays();
 
   return (
     <Box sx={{ p: 1 }}>
@@ -201,7 +202,7 @@ export const PrintableSchedule = ({
                         display="block"
                         sx={{ fontWeight: 'bold' }}
                       >
-                        {WEEK_DAYS[dayIndex]}
+                        {weekDays[dayIndex]}
                       </Typography>
                       <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
                         {day?.format('DD.MM.YYYY')}

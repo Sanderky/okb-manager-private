@@ -85,5 +85,11 @@
     "results_few": "{{count}} wyniki",
     "results_many": "{{count}} wyników",
     "results_other": "{{count}} wyników"
+  },
+  "date": {
+    "days_one": "{{count}} dzień",
+    "days_few": "{{count}} dni",
+    "days_many": "{{count}} dni",
+    "days_other": "{{count}} dni"
   }
 }

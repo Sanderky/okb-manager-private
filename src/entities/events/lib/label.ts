@@ -1,22 +1,20 @@
-import type { TFunction } from 'i18next';
 import type { EventCategory } from '../model/types';
 
-export const getCategoryLabel = (
-  category: EventCategory,
-  t: TFunction
+export const getCategoryLabelTranslationKey = (
+  category: EventCategory
 ): string => {
   switch (category) {
     case 'info':
-      return t('calendar:categories.info');
+      return 'categories.info';
     case 'lodging':
-      return t('calendar:categories.lodging');
+      return 'categories.lodging';
     case 'payroll':
-      return t('calendar:categories.payroll');
+      return 'categories.payroll';
     case 'accounting':
-      return t('calendar:categories.accounting');
+      return 'categories.accounting';
     case 'other':
-      return t('calendar:categories.other');
+      return 'categories.other';
     default:
-      return t('calendar:categories.none');
+      return 'categories.none';
   }
 };

@@ -12,7 +12,6 @@ import { Close as CloseIcon } from '@mui/icons-material';
 import dayjs from 'dayjs';
 import useContainerBreakpoint from '@/shared/lib/useContainerWidth';
 import { getInitials } from '@/shared/lib/string';
-import { WEEK_DAYS } from '@/shared/config/days';
 import { useVacationsContext } from '../model/providers/VacationsContext';
 import { BaseCalendarControls } from '@/shared/ui/calendar/BaseCalendarControls';
 import { BaseCalendarGrid } from '@/shared/ui/calendar/BaseCalendarGrid';
@@ -21,10 +20,12 @@ import { AddVacationDialog } from './dialogs/AddVacationDialog';
 import { EditVacationDialog } from './dialogs/EditVacationDialog';
 import { EventListDialog } from './dialogs/EventListDialog';
 import { VacationReportDialog } from './dialogs/VacationReportDialog';
+import { useWeekDays } from '@/shared/lib/useWeekDays';
 
 export const VacationsCalendar: React.FC = () => {
   const theme = useTheme();
   const [containerRef, width] = useContainerBreakpoint();
+  const weekDays = useWeekDays();
 
   const { state, actions } = useVacationsContext();
 
@@ -99,7 +100,7 @@ export const VacationsCalendar: React.FC = () => {
 
       <Box sx={(t) => ({ borderBottom: `1px solid ${t.palette.divider}` })}>
         <Grid container>
-          {WEEK_DAYS.map((day, index) => (
+          {weekDays.map((day, index) => (
             <Grid
               size={{ xs: 12 / 7 }}
               key={index}

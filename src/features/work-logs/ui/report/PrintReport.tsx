@@ -2,10 +2,10 @@ import { forwardRef, useEffect, useMemo } from 'react';
 import { Box, Typography, Alert } from '@mui/material';
 import dayjs from 'dayjs';
 import { getWeeksInRange } from '@/shared/lib/date';
-import type { LangCode } from '@/shared/model/types';
 import { PrintableTable } from './components/PrintableTable';
 import useWeekReport from '../../model/services/useWeekReport';
 import { useTranslation } from 'react-i18next';
+import type { LangCode } from '@/shared/config/languages';
 
 interface PrintReportProps {
   startWeek: Date;

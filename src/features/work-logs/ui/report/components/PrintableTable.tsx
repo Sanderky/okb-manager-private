@@ -12,12 +12,12 @@ import {
 import dayjs from 'dayjs';
 import type { ConstructionsWithWorkHours } from '../../../model/types';
 import { getWeekNumber } from '@/shared/lib/date';
-import type { LangCode } from '@/shared/model/types';
 import { sortConstructionsWithWorkHours } from '../../../model/utils/hoursTableUtils';
 import { printStyles } from './printStyles';
 import { PrintableTableRows } from './PrintableTableRows';
 import { useTranslation } from 'react-i18next';
 import { formatDecimal } from '@/shared/lib/format';
+import type { LangCode } from '@/shared/config/languages';
 
 interface PrintableTableProps {
   constructionsWithWorkHours: ConstructionsWithWorkHours[];

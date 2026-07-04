@@ -1,7 +1,7 @@
 import { TableHead, TableRow, TableCell, Typography } from '@mui/material';
-import type { LangCode } from '@/shared/model/types';
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
+import type { LangCode } from '@/shared/config/languages';
 
 interface PrintableTableHeaderProps {
   printTitle: boolean;

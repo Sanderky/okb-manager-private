@@ -158,7 +158,7 @@ export const EventListDialog: React.FC<EventListDialogProps> = ({
                           />
 
                           <Typography variant="body2">
-                            {getDateStr(event.startDate, event.endDate)}
+                            {getDateStr(event.startDate, event.endDate, false, t )}
                           </Typography>
 
                           <PlayArrowIcon

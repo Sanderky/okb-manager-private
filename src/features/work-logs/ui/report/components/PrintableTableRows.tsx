@@ -2,10 +2,10 @@ import React from 'react';
 import { TableCell, TableRow, Box, Typography } from '@mui/material';
 import { CancelPresentation } from '@mui/icons-material';
 import type { ConstructionsWithWorkHours } from '../../../model/types';
-import type { LangCode } from '@/shared/model/types';
 import { formatDecimal } from '@/shared/lib/format';
 import { printStyles } from './printStyles';
 import { useTranslation } from 'react-i18next';
+import type { LangCode } from '@/shared/config/languages';
 
 interface PrintableTableRowsProps {
   constructionsWithWorkHours: ConstructionsWithWorkHours[];

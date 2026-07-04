@@ -1,7 +1,7 @@
 import { TableRow, TableCell, Typography } from '@mui/material';
 import { formatDecimal } from '@/shared/lib/format';
-import type { LangCode } from '@/shared/model/types';
 import { useTranslation } from 'react-i18next';
+import type { LangCode } from '@/shared/config/languages';
 
 interface PrintableTableFooterProps {
   constructionsCount: number;

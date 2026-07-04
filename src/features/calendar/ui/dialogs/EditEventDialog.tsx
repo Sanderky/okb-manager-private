@@ -6,7 +6,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import ConstructionIcon from '@mui/icons-material/Construction';
 import BaseDialog from '@/shared/ui/BaseDialog';
 import { getDateStr } from '@/shared/lib/string';
-import { getCategoryLabel, useEventColor } from '@/entities/events';
+import { getCategoryLabelTranslationKey, useEventColor } from '@/entities/events';
 import type { Construction } from '@/entities/construction';
 import type { Employee } from '@/entities/employee';
 import type { UiCalendarEvent } from '../../model/types';
@@ -43,7 +43,7 @@ const EventDetails: React.FC<{
           gap={1}
         >
           <Chip
-            label={getCategoryLabel(event.category || 'info')}
+            label={t(`calendar:${getCategoryLabelTranslationKey(event.category || 'info')}`)}
             size="small"
             variant="outlined"
             sx={{ minWidth: '50px' }}
@@ -59,7 +59,8 @@ const EventDetails: React.FC<{
               {getDateStr(
                 event.startDate ? dayjs(event.startDate) : undefined,
                 event.endDate ? dayjs(event.endDate) : undefined,
-                true
+                true,
+                t
               )}
             </Typography>
           </Stack>

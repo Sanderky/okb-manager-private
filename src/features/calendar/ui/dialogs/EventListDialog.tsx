@@ -15,7 +15,7 @@ import {
 import { Add } from '@mui/icons-material';
 import type { Dayjs } from 'dayjs';
 import BaseDialog from '@/shared/ui/BaseDialog';
-import { getCategoryLabel, useEventColor } from '@/entities/events';
+import { getCategoryLabelTranslationKey, useEventColor } from '@/entities/events';
 import type { UiCalendarEvent } from '../../model/types';
 import type { CalendarDay } from '@/shared/model/types';
 import dayjs from 'dayjs';
@@ -130,7 +130,7 @@ export const EventListDialog: React.FC<EventListDialogProps> = ({
                 </TableCell>
                 <TableCell align="center">
                   <Chip
-                    label={getCategoryLabel(event.category)}
+                    label={t(`calendar:${getCategoryLabelTranslationKey(event.category)}`)}
                     size="small"
                     sx={{
                       minWidth: '50px',

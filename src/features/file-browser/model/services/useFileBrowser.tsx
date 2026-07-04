@@ -4,7 +4,7 @@ import { useDialogs } from '@/shared/ui/dialogs/useDialogs';
 import useNotifications from '@/shared/ui/notifications/useNotifications';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
-import { removePolishChars } from '@/shared/lib/string';
+import { normalizeToEnglishAlphabet } from '@/shared/lib/string';
 import type { FileBrowserItem } from '@/shared/model/types';
 import {
   FOLDER_TRANSLATIONS,
@@ -177,7 +177,7 @@ const useFileBrowser = (
     }
 
     try {
-      const cleanFolderName = removePolishChars(folderName);
+      const cleanFolderName = normalizeToEnglishAlphabet(folderName);
       const path = currentPath
         ? `${currentPath}/${cleanFolderName}`
         : cleanFolderName;

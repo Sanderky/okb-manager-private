@@ -20,7 +20,7 @@ import type { Employee } from '@/entities/employee';
 import {
   EVENT_CATEGORIES,
   EVENT_COLORS,
-  getCategoryLabel,
+  getCategoryLabelTranslationKey,
   useEventColor,
   type EventCategory,
 } from '@/entities/events';
@@ -74,7 +74,7 @@ export const EventForm: React.FC<EventFormProps> = ({
       >
         {EVENT_CATEGORIES.map((cat) => (
           <MenuItem key={cat} value={cat}>
-            {getCategoryLabel(cat)}
+            {t(`calendar:${getCategoryLabelTranslationKey(cat)}`)}
           </MenuItem>
         ))}
       </TextField>

@@ -231,7 +231,7 @@ export const EmployeeShow = () => {
                         >
                           <td className="px-4 py-3">
                             <Typography variant="body2" color="textSecondary">
-                              {getDateStr(empV.startDate, empV.endDate, true)}
+                              {getDateStr(empV.startDate, empV.endDate, true, t)}
                             </Typography>
                           </td>
                         </TableRow>
