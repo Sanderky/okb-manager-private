@@ -20,7 +20,8 @@
     "logout": "Wyloguj",
     "defaultUser": "Użytkownik",
     "expandMenu": "Rozszerz menu",
-    "collapseMenu": "Zwiń menu"
+    "collapseMenu": "Zwiń menu",
+    "language": "Język"
   },
   "sidebar": {
     "dashboard": "Dashboard",

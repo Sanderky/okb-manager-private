@@ -1,0 +1,204 @@
+{
+  "inactive": "Inactive",
+  "form": {
+    "fields": {
+      "name": "Full name",
+      "pesel": "PESEL",
+      "address": "Address",
+      "email": "E-mail",
+      "phone": "Phone",
+      "birthDate": "Birth date",
+      "birthPlace": "Place of birth",
+      "hourRate": "Hourly rate",
+      "accountNumber": "Account number",
+      "contractStartDate": "Contract start date",
+      "contractEndDate": "Contract end date",
+      "a1StartDate": "A1 start date",
+      "a1EndDate": "A1 end date"
+    },
+    "sections": {
+      "requiredInfo": "Fields marked with * are required.",
+      "employeeData": "Employee data",
+      "contractor": "Contractor",
+      "contract": "Employment contract",
+      "permanent": "Permanent",
+      "a1": "A1",
+      "note": "Note",
+      "saving": "Saving data..."
+    }
+  },
+  "validation": {
+    "nameRequired": "Name is required.",
+    "nameTooLong": "Name cannot be longer than 100 characters.",
+    "invalidEmail": "Invalid email address format.",
+    "contractStartDateRequired": "Start date is required if end date is provided.",
+    "contractEndDateBeforeStart": "End date cannot be earlier than the start date.",
+    "a1StartDateRequired": "A1 start date is required if A1 end date is provided.",
+    "a1EndDateBeforeStart": "A1 end date cannot be earlier than the A1 start date.",
+    "fixErrors": "Please fix the errors in the form."
+  },
+  "alertsSettings": {
+    "validation": {
+      "negativeValue": "Value must be a non-negative number.",
+      "criticalLowerThanWarning": "Critical value must be less than the warning value."
+    },
+    "success": "Alert settings have been changed.",
+    "error": "Settings were not changed.",
+    "contractTitle": "Employment contract alerts",
+    "a1Title": "A1 alerts",
+    "warningDays": "Days to warning",
+    "criticalDays": "Days to critical warning",
+    "loadError": "Error loading settings."
+  },
+  "dialogs": {
+    "activateConfirm": "Are you sure you want to activate the employee?",
+    "archiveConfirm": "Are you sure you want to archive the employee?",
+    "activateTitle": "Activate employee",
+    "archiveTitle": "Archive employee",
+    "yes": "Yes"
+  },
+  "notifications": {
+    "created": "Employee has been created.",
+    "createError": "An error occurred while creating the employee.",
+    "updated": "Employee data has been updated.",
+    "updateError": "An error occurred while updating employee data.",
+    "deleted": "Employee has been deleted.",
+    "deleteError": "An error occurred while deleting the employee.",
+    "noteUpdated": "Note has been updated.",
+    "noteUpdateError": "An error occurred while saving the note.",
+    "uploadSuccess": "Successfully uploaded {{count}} files.",
+    "uploadAllFailed": "All files encountered an error during upload.",
+    "uploadPartialSuccess": "Uploaded {{success}} out of {{total}} files. Errors: {{failed}}"
+  },
+  "attachments": {
+    "empty": "No attachments",
+    "deleteConfirmText": "Are you sure you want to delete this attachment?",
+    "deleteTitle": "Delete file",
+    "contractPermanent": "Permanent contract",
+    "none": "None",
+    "idCard": "ID card",
+    "contract": "Employment contract",
+    "a1": "A1"
+  },
+  "show": {
+    "yes": "Yes",
+    "no": "No",
+    "noVacations": "No vacations",
+    "upcomingVacations": "Upcoming employee vacations ({{count}}):"
+  },
+  "tabs": {
+    "info": "Information",
+    "files": "Files",
+    "editTooltip": "Edit employee"
+  },
+  "list": {
+    "filters": {
+      "title": "Employee filters",
+      "status": "Status",
+      "hourRate": "Rate",
+      "from": "From",
+      "to": "To",
+      "clear": "Clear filters",
+      "apply": "Apply filters",
+      "options": {
+        "all": "All",
+        "active": "Active",
+        "inactive": "Inactive",
+        "yes": "Yes",
+        "no": "No"
+      }
+    },
+    "table": {
+      "tooltips": {
+        "filters": "Filters",
+        "reset": "Reset table state"
+      },
+      "alerts": "Alerts: {{count}}"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "columns": {
+      "status": "Status"
+    }
+  },
+  "alerts": {
+    "title": "Employee notes",
+    "count_one": "{{count}} note",
+    "count_few": "{{count}} notes",
+    "count_many": "{{count}} notes",
+    "count_other": "{{count}} notes",
+    "empty": "No notes",
+    "settingsTitle": "Alert settings",
+    "contract": "Contract",
+    "a1": "A1",
+    "expiredAgo_one": "{{type}} expired {{count}} day ago ({{date}})",
+    "expiredAgo_few": "{{type}} expired {{count}} days ago ({{date}})",
+    "expiredAgo_many": "{{type}} expired {{count}} days ago ({{date}})",
+    "expiredAgo_other": "{{type}} expired {{count}} days ago ({{date}})",
+    "expiresToday": "{{type}} expires today!",
+    "expiresIn_one": "{{type}} expires on {{date}} (in {{count}} day)",
+    "expiresIn_few": "{{type}} expires on {{date}} (in {{count}} days)",
+    "expiresIn_many": "{{type}} expires on {{date}} (in {{count}} days)",
+    "expiresIn_other": "{{type}} expires on {{date}} (in {{count}} days)",
+    "titleContract": "Contract ending - {{name}}",
+    "titleA1": "A1 ending - {{name}}"
+  },
+  "edit": {
+    "archive": {
+      "title": "Archive employee",
+      "description": "Employee status changes to \"Inactive\".",
+      "button": "Archive"
+    },
+    "activate": {
+      "title": "Activate employee",
+      "description": "Employee status changes to \"Active\".",
+      "button": "Activate"
+    },
+    "delete": {
+      "title": "Delete employee",
+      "description": "Permanently deletes the employee from the database. This operation cannot be undone.",
+      "button": "Delete"
+    },
+    "dialog": {
+      "title": "Delete employee",
+      "confirm": "Are you sure you want to delete",
+      "info": "The employee will be deleted from the database along with all their files and related information.",
+      "warningTitle": "Warning!",
+      "warningText": "This operation cannot be undone. Consider archiving the employee instead.",
+      "prompt": "To delete the employee, enter their full name below:"
+    }
+  },
+  "pages": {
+    "breadcrumbs": {
+      "employees": "Employees",
+      "new": "New",
+      "edit": "Edit"
+    },
+    "create": {
+      "title": "Add new employee",
+      "loading": "Creating new employee..."
+    },
+    "edit": {
+      "title": "Edit {{name}}",
+      "fallbackName": "employee",
+      "loading": "Loading employee data...",
+      "loadError": "An error occurred while loading employee data.",
+      "notFound": "Employee data not found."
+    },
+    "show": {
+      "title": "Employee {{name}}",
+      "fallbackName": "Employee Details",
+      "loading": "Loading employee data...",
+      "loadError": "An error occurred while loading employee data.",
+      "notFound": "Employee not found."
+    },
+    "list": {
+      "title": "Employees list",
+      "loadError": "Failed to load the employees list.",
+      "retry": "Retry",
+      "new": "New"
+    }
+  }
+}

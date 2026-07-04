@@ -1,0 +1,36 @@
+{
+  "title": "Task list",
+  "tabs": {
+    "todo": "To do ({{count}})",
+    "completed": "Completed ({{count}})"
+  },
+  "input": {
+    "placeholder": "Add new task..."
+  },
+  "emptyStates": {
+    "allDone": "All done!",
+    "noCompleted": "No completed tasks"
+  },
+  "actions": {
+    "markImportant": "Mark as important",
+    "markUnimportant": "Mark as unimportant",
+    "delete": "Delete task",
+    "deleteAllCompleted": "Delete all completed"
+  },
+  "status": {
+    "completedAt": "Completed: {{date}}"
+  },
+  "errors": {
+    "loadError": "Error loading tasks"
+  },
+  "dialogs": {
+    "deleteAll": {
+      "title": "Delete completed tasks",
+      "description": "Are you sure you want to delete all completed tasks?"
+    },
+    "deleteOne": {
+      "title": "Delete task",
+      "description": "Are you sure you want to delete this task?"
+    }
+  }
+}

@@ -22,9 +22,15 @@ import {
 } from '@mui/material';
 import Logout from '@mui/icons-material/Logout';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import { Brightness4, Brightness7, Settings } from '@mui/icons-material';
+import {
+  Brightness4,
+  Brightness7,
+  Settings,
+  Language,
+} from '@mui/icons-material';
 import { useColorMode } from '@/shared/lib/theme';
 import { UserSettingsDialog } from '@/features/user-settings';
+import { LanguageSwitcherMenu } from '@/shared/ui/LanguageSwitcher';
 
 const AppBar = styled(MuiAppBar)(({ theme }) => ({
   borderWidth: 0,
@@ -73,13 +79,26 @@ export default function DashboardHeader({
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
+  const [anchorLanguageSwitcher, setAnchorLanguageSwitcher] =
+    React.useState<null | HTMLElement>(null);
+  const openLanguageSwitcher = Boolean(anchorLanguageSwitcher);
   const [openSettings, setOpenSettings] = React.useState(false);
 
   const { toggleColorMode, mode } = useColorMode();
 
+  const handleClickOpenLanguageSwitcher = (
+    event: React.MouseEvent<HTMLElement>
+  ) => {
+    setAnchorLanguageSwitcher(event.currentTarget);
+  };
+
+  const handleCloseLanguageSwitcher = () => {
+    setAnchorLanguageSwitcher(null);
+  };
+
   const handleClickOpenSettings = () => {
     setOpenSettings(true);
-    setAnchorEl(null);
+    handleBackdropClose();
   };
   const handleCloseSettingsDialog = () => {
     setOpenSettings(false);
@@ -256,10 +275,7 @@ export default function DashboardHeader({
                     display: { xs: 'block', sm: 'none' },
                   }}
                 />
-                <MenuItem
-                  onClick={toggleColorMode}
-                  sx={{ minHeight: 35, mb: 2 }}
-                >
+                <MenuItem onClick={toggleColorMode} sx={{ minHeight: 35 }}>
                   <ListItemIcon>
                     {mode === 'dark' ? (
                       <Brightness7 fontSize="small" />
@@ -269,6 +285,23 @@ export default function DashboardHeader({
                   </ListItemIcon>
                   {t('header.theme')}
                 </MenuItem>
+                <MenuItem
+                  onClick={handleClickOpenLanguageSwitcher}
+                  sx={{ minHeight: 35, mb: 2 }}
+                >
+                  <ListItemIcon>
+                    <Language fontSize="small" />
+                  </ListItemIcon>
+                  {t('header.language')}
+                </MenuItem>
+                <LanguageSwitcherMenu
+                  open={openLanguageSwitcher}
+                  anchorEl={anchorLanguageSwitcher}
+                  onClose={handleCloseLanguageSwitcher}
+                  onLanguageChange={() => handleBackdropClose()}
+                  anchorOrigin={{ horizontal: 'left', vertical: 'top' }}
+                  transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+                />
                 <MenuItem
                   onClick={handleClickOpenSettings}
                   sx={{ minHeight: 35, borderColor: 'divider' }}

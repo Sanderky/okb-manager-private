@@ -1,0 +1,58 @@
+{
+  "pageTitle": "Schedule",
+  "printTitle": "Schedule",
+  "notifications": {
+    "vacationSkip_one": "Did not save {{count}} day (vacation)",
+    "vacationSkip_few": "Did not save {{count}} days (vacation)",
+    "vacationSkip_many": "Did not save {{count}} days (vacation)"
+  },
+  "actions": {
+    "print": "Print"
+  },
+  "bottomToolbar": {
+    "employees": "Employees:",
+    "weeks_one": "{{count}} Week",
+    "weeks_few": "{{count}} Weeks",
+    "weeks_many": "{{count}} Weeks",
+    "range": "Range:"
+  },
+  "manager": {
+    "errorData": "Data error.",
+    "none": "— None —",
+    "constructionLabel": "Construction"
+  },
+  "table": {
+    "noEmployees": "No employees"
+  },
+  "print": {
+    "title": "Constructions schedule",
+    "view": "View:",
+    "viewMonthly": "Monthly",
+    "viewWeekly": "Weekly",
+    "employeeCount": "Number of employees:",
+    "generatedAt": "Generated:",
+    "employee": "Employee",
+    "inactive": "(Inactive)"
+  },
+  "controls": {
+    "from": "From:",
+    "to": "To:",
+    "dates": "Dates",
+    "hideDatesTooltip": "Hide detailed dates",
+    "filters": "Filters",
+    "weekClickTooltip": "Click on a week date in the table header to display a detailed view of that week."
+  },
+  "filters": {
+    "title": "Filtering",
+    "constructionsFilter": "Constructions filter",
+    "selectedCount": "Selected: {{selected}} of {{total}}",
+    "allConstructions": "All constructions",
+    "completed": "Completed",
+    "selectConstructions": "Select constructions...",
+    "includeCompletedConstructions": "Include completed constructions in filter",
+    "employeesFilter": "Employees filter",
+    "allEmployees": "All employees",
+    "selectEmployees": "Select employees...",
+    "includeInactiveEmployees": "Include inactive employees in filter"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "print": {
+    "documentTitlePrefix": "stundentabelle_",
+    "multiTableFileName": "arbeitszeitprotokoll",
+    "report": {
+      "title": "Arbeitszeitbericht",
+      "subtitle": "Zeitraum",
+      "week": "Woche",
+      "sum": "Summe",
+      "totalSum": "Gesamtsumme",
+      "construction": "Baustelle",
+      "employee": "Mitarbeiter",
+      "vacation": "Urlaub",
+      "noData": "Keine Daten für die angegebene Woche",
+      "fileNamePrefix": "Stundenbericht_",
+      "constructions": "Baustellen",
+      "employees": "Mitarbeiter",
+      "constructionsCount": "Baustellen {{count}}",
+      "employeesCount": "Mitarbeiter {{count}}",
+      "loading": "Bericht wird geladen...",
+      "error": "Fehler:",
+      "weeksCount_one": "{{count}} Woche",
+      "weeksCount_few": "{{count}} Wochen",
+      "weeksCount_many": "{{count}} Wochen",
+      "weeksCount_other": "{{count}} Wochen"
+    }
+  }
+}

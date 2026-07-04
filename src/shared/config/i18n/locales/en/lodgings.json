@@ -1,0 +1,68 @@
+{
+  "pageTitle": "Lodgings",
+  "emptyState": {
+    "title": "No scheduled lodgings",
+    "addFirst": "Add first lodging"
+  },
+  "notifications": {
+    "saved": "Saved successfully!",
+    "saveError": "Error while saving",
+    "deleted": "Lodging deleted",
+    "defaultSetSuccess": "Current view set as default",
+    "cleanEmpty": "No outdated lodgings to remove",
+    "cleanSuccess_one": "Deleted {{count}} outdated lodging",
+    "cleanSuccess_few": "Deleted {{count}} outdated lodgings",
+    "cleanSuccess_many": "Deleted {{count}} outdated lodgings"
+  },
+  "dialogs": {
+    "delete": {
+      "title": "Delete lodging",
+      "description": "Are you sure you want to delete this lodging?"
+    },
+    "cleanOutdated": {
+      "title": "Clean out completed lodgings",
+      "description_one": "Found {{count}} completed lodging. Do you want to permanently delete it?",
+      "description_few": "Found {{count}} completed lodgings. Do you want to permanently delete them?",
+      "description_many": "Found {{count}} completed lodgings. Do you want to permanently delete them?",
+      "ok": "Delete all"
+    }
+  },
+  "timeline": {
+    "unknownEmployee": "Unknown",
+    "assignedEmployees": "Accommodated ({{count}}):",
+    "construction": "CONSTRUCTION",
+    "orphan": "Unassigned"
+  },
+  "form": {
+    "editTitle": "Edit lodging",
+    "newTitle": "New lodging",
+    "construction": "Construction",
+    "title": "Title",
+    "address": "Address",
+    "description": "Description / Notes",
+    "from": "From *",
+    "to": "To *",
+    "assignedList": "Accommodated list",
+    "employee": "Employee",
+    "search": "Search...",
+    "noAssigned": "No assigned employees",
+    "removeEmployee": "Remove employee from lodging"
+  },
+  "actions": {
+    "gridTooltip": "Grid view",
+    "timelineTooltip": "Timeline view",
+    "addLodging": "Add lodging",
+    "cleanOld": "Remove old"
+  },
+  "toolbar": {
+    "accommodatedToday": "Accommodated today: {{today}}/{{total}} ({{employees}})",
+    "activeLodgings": "Lodgings: {{active}}/{{total}}",
+    "setDefault": "Set as default"
+  },
+  "card": {
+    "active": "Active",
+    "openInMaps": "Open in Google Maps",
+    "assigned": "ACCOMMODATED ({{count}}):",
+    "noAssigned": "No assigned employees"
+  }
+}

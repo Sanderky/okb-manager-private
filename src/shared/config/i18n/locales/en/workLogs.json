@@ -1,0 +1,157 @@
+{
+  "pageTitle": "Work hours log",
+  "actions": {
+    "addComparison": "Add comparison table",
+    "generateReport": "Generate report",
+    "addConstruction": "Add construction",
+    "addFirstConstruction": "Add first construction",
+    "addEmployees": "Add employees",
+    "fillProposed": "Fill proposed",
+    "copyFromOtherWeek": "Copy data from another week"
+  },
+  "table": {
+    "comparisonTitle": "Comparison table {{key}}",
+    "errorLoadingData": "An error occurred while loading data.",
+    "noData": "No data for this week",
+    "headers": {
+      "construction": "Construction",
+      "employee": "Employee",
+      "sum": "Sum"
+    },
+    "unsavedChangesMark": "You have unsaved changes*",
+    "constructionsCount": "Constructions: {{count}}",
+    "employeesCount": "Employees: {{count}}",
+    "sum": "Sum:",
+    "vacationCell": "Vacation"
+  },
+  "filters": {
+    "constructionsTitle": "Constructions filter",
+    "employeesTitle": "Employees filter",
+    "selectedCount": "Selected: {{selected}} of {{total}}",
+    "allConstructions": "All constructions",
+    "allEmployees": "All employees",
+    "constructionsLabel": "Constructions",
+    "employeesLabel": "Employees",
+    "includeCompletedConstructions": "Include completed constructions in filter",
+    "includeInactiveEmployees": "Include inactive employees in filter"
+  },
+  "controls": {
+    "prevWeek": "Previous week",
+    "currentWeek": "Current week",
+    "nextWeek": "Next week",
+    "today": "Today",
+    "weekNumber": "Week {{week}}",
+    "filters": "Filters",
+    "printTable": "Print table",
+    "expandTable": "Expand table",
+    "collapseTable": "Collapse table",
+    "expand": "Expand",
+    "collapse": "Collapse",
+    "deleteComparisonTable": "Delete comparison table",
+    "closeTable": "Close table"
+  },
+  "emptyState": {
+    "noData": "No data for this week"
+  },
+  "tooltips": {
+    "allConstructionsAdded": "All constructions have already been added",
+    "allEmployeesAdded": "All employees have already been added"
+  },
+  "notifications": {
+    "scheduleLoaded_one": "Loaded {{count}} schedule entry",
+    "scheduleLoaded_few": "Loaded {{count}} schedule entries",
+    "scheduleLoaded_many": "Loaded {{count}} schedule entries",
+    "scheduleLoaded_other": "Loaded {{count}} schedule entries",
+    "scheduleError": "Error fetching schedule",
+    "dataCopied": "Data copied",
+    "copyError": "Error while copying data",
+    "hoursSaved": "Work hours saved",
+    "saveError": "Error saving hours"
+  },
+  "dialogs": {
+    "cancelEdit": {
+      "title": "Cancel edition",
+      "description": "You have unsaved changes. Cancel edition?",
+      "cancelBtn": "Go back"
+    },
+    "copyData": {
+      "title": "Copy data",
+      "description": "Current data for this week will be overwritten. Continue?",
+      "copy": "Copy",
+      "warning": "Copying overwrites all data in the current week",
+      "copyDataFromSelectedWeek": "Copy data from selected week:"
+    },
+    "fillSchedule": {
+      "title": "Fill from schedule",
+      "description": "Current data will be overwritten based on the schedule. Continue?"
+    },
+    "changeWeek": {
+      "title": "Change week",
+      "description": "You have unsaved changes. Are you sure you want to change the week without saving?"
+    },
+    "deleteEmployee": {
+      "title": "Delete employee",
+      "description": "Are you sure you want to delete the employee {{employeeName}} from the construction {{constructionName}}?"
+    },
+    "deleteConstruction": {
+      "title": "Delete construction",
+      "description": "Are you sure you want to delete the construction {{constructionName}} along with all employees?"
+    },
+    "addConstructionWithEmployee": {
+      "title": "Add new construction with employees",
+      "selectEmployees": "Select employees",
+      "noEmployeesAvailable": "No available employees",
+      "selectConstruction": "Select construction",
+      "noConstructionsAvailable": "All constructions are already added to the table",
+      "noOptionsAvailable": "No available options"
+    },
+    "addEmployee": {
+      "title": "Add employees to construction: {{constructionName}}",
+      "selectEmployees": "Select employees",
+      "noEmployeesAvailable": "All employees are already added to this construction",
+      "selectConstruction": "Select construction",
+      "noOptionsAvailable": "No available options"
+    },
+    "printReport": {
+      "startWeekAfterEndWeek": "Start week cannot be later than end week",
+      "startWeek": "Start week:",
+      "endWeek": "End week:",
+      "selectedWeeks": "Selected weeks: {{weekCount}}",
+      "filterEmployeesAndConstructions": "Filter constructions and employees",
+      "filters": "Filters",
+      "printReportTitle": "Print report title",
+      "printTableTitles": "Print table titles",
+      "showVacationInfo": "Show vacation information",
+      "avoidEmptyWeeks": "Skip empty weeks",
+      "sourceLanguage": "Target language",
+      "title": "Printing report",
+      "week": "Week"
+    }
+  },
+  "print": {
+    "documentTitlePrefix": "hours_table_",
+    "multiTableFileName": "work_hours_log",
+    "report": {
+      "title": "Work hours report",
+      "subtitle": "Period",
+      "week": "Week",
+      "sum": "Sum",
+      "totalSum": "Total sum",
+      "construction": "Construction",
+      "employee": "Employee",
+      "vacation": "Vacation",
+      "noData": "No data for the given week",
+      "fileNamePrefix": "Hours_report_",
+      "constructions": "Constructions",
+      "employees": "Employees",
+      "constructionsCount": "Constructions {{count}}",
+      "employeesCount": "Employees {{count}}",
+      "loading": "Loading report...",
+      "error": "Error:",
+      "weeksCount_one": "{{count}} week",
+      "weeksCount_few": "{{count}} weeks",
+      "weeksCount_many": "{{count}} weeks",
+      "weeksCount_other": "{{count}} weeks"
+    }
+  }
+}

@@ -1,7 +1,8 @@
 {
   "languages": {
     "pl-PL": "Polski",
-    "de-DE": "Niemiecki"
+    "de-DE": "Niemiecki",
+    "en-US": "Angielski"
   },
   "buttons": {
     "add": "Dodaj",

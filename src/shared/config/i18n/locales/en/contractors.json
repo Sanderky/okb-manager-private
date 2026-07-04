@@ -1,0 +1,35 @@
+{
+  "dialogTitle": "Contractors",
+  "addContractorTitle": "Add contractor",
+  "newContractorLabel": "New contractor",
+  "details": "Details:",
+  "name": "Name",
+  "constructionsList": "Constructions list:",
+  "noConstructions": "No constructions",
+  "table": {
+    "index": "No.",
+    "name": "Name",
+    "constructions": "Constructions",
+    "noData": "No data"
+  },
+  "buttons": {
+    "editName": "Edit name",
+    "deleteContractor": "Delete contractor"
+  },
+  "notifications": {
+    "noteSaved": "Note saved",
+    "saveError": "Save error: {{message}}",
+    "alreadyExists": "Such contractor already exists!",
+    "changesSaved": "Changes saved",
+    "deleted": "Contractor has been deleted",
+    "deleteError": "Error during deletion",
+    "added": "Contractor added"
+  },
+  "dialogs": {
+    "deleteTitle": "Delete contractor",
+    "deleteConfirm": "Are you sure you want to delete the contractor {{name}}?"
+  },
+  "errors": {
+    "fetchFailed": "Failed to fetch data."
+  }
+}

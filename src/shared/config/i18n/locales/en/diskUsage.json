@@ -1,0 +1,7 @@
+{
+  "title": "Server disk usage",
+  "errors": {
+    "invalidRange": "Invalid range. Usage is greater than the limit.",
+    "fetchError": "An error occurred while fetching data."
+  }
+}

@@ -1,13 +1,28 @@
 import { Box, Button } from '@mui/material';
-import { Brightness4, Brightness7 } from '@mui/icons-material';
+import { Brightness4, Brightness7, Language } from '@mui/icons-material';
 import { Outlet } from 'react-router-dom';
 import AppFooter from './Footer';
 import { useColorMode } from '@/shared/lib/theme';
 import { useTranslation } from 'react-i18next';
+import { LanguageSwitcherMenu } from '@/shared/ui/LanguageSwitcher';
+import { useState } from 'react';
 
 export const PublicLayout = () => {
   const { mode, toggleColorMode } = useColorMode();
   const { t } = useTranslation('app');
+  const [anchorLanguageSwitcher, setAnchorLanguageSwitcher] =
+    useState<null | HTMLElement>(null);
+  const openLanguageSwitcher = Boolean(anchorLanguageSwitcher);
+
+  const handleClickOpenLanguageSwitcher = (
+    event: React.MouseEvent<HTMLElement>
+  ) => {
+    setAnchorLanguageSwitcher(event.currentTarget);
+  };
+
+  const handleCloseLanguageSwitcher = () => {
+    setAnchorLanguageSwitcher(null);
+  };
 
   return (
     <Box
@@ -34,8 +49,23 @@ export const PublicLayout = () => {
               display: 'flex',
               justifyContent: 'flex-end',
               p: 1,
+              gap: 1,
             }}
           >
+            <Button
+              startIcon={<Language fontSize="small" />}
+              onClick={handleClickOpenLanguageSwitcher}
+              variant="text"
+              color="inherit"
+              size="small"
+            >
+              {t('header.language')}
+            </Button>
+            <LanguageSwitcherMenu
+              open={openLanguageSwitcher}
+              anchorEl={anchorLanguageSwitcher}
+              onClose={handleCloseLanguageSwitcher}
+            />
             <Button
               startIcon={
                 mode === 'dark' ? (
