@@ -38,8 +38,7 @@ export function EmployeeList() {
     handleApplyFilters,
     handleCloseFilters,
     handleCloseAndReset,
-    alertsMap,
-    alerts,
+    alertsMap
   } = useEmployeeListContext();
 
   const localization = React.useMemo(
@@ -178,7 +177,7 @@ export function EmployeeList() {
               </Typography>
               {hasAlert && (
                 <Tooltip
-                  title={t('list.table.alerts', { count: alerts.length })}
+                  title={t('list.table.alerts', { count: employeeAlerts.length })}
                   sx={{
                     position: 'absolute',
                     right: 5,
