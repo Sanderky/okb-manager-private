@@ -9,6 +9,7 @@ const Loading = ({
     <Box
       sx={(theme) => ({
         display: 'flex',
+        height: '100%',
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
@@ -47,6 +48,7 @@ const Loading = ({
         alignItems: 'center',
         minHeight: fullScreen ? '100vh' : 'auto',
         width: '100%',
+        height: '100%',
       }}
     >
       {loadingContent}
