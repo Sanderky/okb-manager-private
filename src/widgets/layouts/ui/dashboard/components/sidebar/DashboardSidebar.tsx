@@ -23,6 +23,7 @@ import {
 import { Hotel, Schedule } from '@mui/icons-material';
 import DashboardSidebarPageItem from './DashboardSidebarPageItem';
 import DashboardSidebarDividerItem from './DashboardSidebarDividerItem';
+import { AppVersion } from '@/shared/ui/AppVersion';
 
 export interface DashboardSidebarProps {
   expanded?: boolean;
@@ -199,6 +200,7 @@ export default function DashboardSidebar({
               icon={<Settings />}
             />
           </List>
+          <AppVersion/>
         </Box>
       </React.Fragment>
     ),
