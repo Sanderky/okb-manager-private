@@ -29,7 +29,7 @@ export const LanguageSwitcherMenu = ({
     onLanguageChange?.();
   };
 
-  const currentLang = i18n.language;
+  const currentLang = i18n.resolvedLanguage || i18n.language;
 
   return (
     <>
