@@ -21,7 +21,6 @@ import WeekSelector from '@/shared/ui/WeekSelector';
 import BaseDialog from '@/shared/ui/BaseDialog';
 import { ExpandLess, ExpandMore, FilterList } from '@mui/icons-material';
 import EmployeesContructionsFilters from '../EmployeesConstructionsFilters';
-import { PrintReport } from './PrintReport';
 import { usePrintReportDialog } from '../../model/services/usePrintReport';
 import { useTranslation } from 'react-i18next';
 import {
@@ -67,22 +66,6 @@ export const PrintReportDialog: React.FC<PrintReportDialogProps> = ({
         </Button>
       }
     >
-      <Box sx={{ display: 'none' }}>
-        <PrintReport
-          showVacation={state.showVacation}
-          omitEmpty={state.omitEmpty}
-          printTitle={state.printTitle}
-          printTablesTitle={state.printTablesTitle}
-          startWeek={state.startWeek}
-          endWeek={state.endWeek}
-          ref={state.printContentRef}
-          onLoading={state.setReportLoading}
-          lang={state.lang}
-          selectedConstructions={state.selectedConstructionIds}
-          selectedEmployees={state.selectedEmployeeIds}
-        />
-      </Box>
-
       <Stack direction="column" alignItems="flex-start">
         {state.isError && (
           <Alert sx={{ width: '100%', mb: 2 }} severity="error">

@@ -129,8 +129,6 @@
     }
   },
   "print": {
-    "documentTitlePrefix": "hours_table_",
-    "multiTableFileName": "work_hours_log",
     "report": {
       "title": "Work hours report",
       "subtitle": "Period",
@@ -144,8 +142,8 @@
       "fileNamePrefix": "Hours_report_",
       "constructions": "Constructions",
       "employees": "Employees",
-      "constructionsCount": "Constructions {{count}}",
-      "employeesCount": "Employees {{count}}",
+      "constructionsCount": "Constructions: {{count}}",
+      "employeesCount": "Employees: {{count}}",
       "loading": "Loading report...",
       "error": "Error:",
       "weeksCount_one": "{{count}} week",

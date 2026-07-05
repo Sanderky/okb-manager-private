@@ -1,7 +1,7 @@
-
+import { WorkLogPdfDocument } from './ui/report/WorkLogPdfDocument';
 import { PrintReportDialog } from './ui/report/PrintReportDialog';
-import { MultiTablePrintReport } from './ui/report/MultiTablePrintReport';
+import { useGenerateWorkLogsPdf } from './model/services/useGenerateWorkLogsPdf';
 
 export * from './ui/hours-table/HoursTable';
 export * from './model/types';
-export { MultiTablePrintReport, PrintReportDialog };
+export { WorkLogPdfDocument, PrintReportDialog, useGenerateWorkLogsPdf };

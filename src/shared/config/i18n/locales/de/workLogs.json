@@ -1,7 +1,5 @@
 {
   "print": {
-    "documentTitlePrefix": "stundentabelle_",
-    "multiTableFileName": "arbeitszeitprotokoll",
     "report": {
       "title": "Arbeitszeitbericht",
       "subtitle": "Zeitraum",
@@ -15,8 +13,8 @@
       "fileNamePrefix": "Stundenbericht_",
       "constructions": "Baustellen",
       "employees": "Mitarbeiter",
-      "constructionsCount": "Baustellen {{count}}",
-      "employeesCount": "Mitarbeiter {{count}}",
+      "constructionsCount": "Baustellen: {{count}}",
+      "employeesCount": "Mitarbeiter: {{count}}",
       "loading": "Bericht wird geladen...",
       "error": "Fehler:",
       "weeksCount_one": "{{count}} Woche",

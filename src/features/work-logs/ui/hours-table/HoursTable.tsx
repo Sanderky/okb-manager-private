@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   Table,
   TableContainer,
@@ -18,13 +18,10 @@ import { WorkLogsTableContent } from './components/WorkLogsTableContent';
 import { WorkLogsTableFooter } from './components/WorkLogsTableFooter';
 import { WorkLogsTableHeader } from './components/WorkLogsTableHeader';
 import { sortConstructionsWithWorkHours } from '../../model/utils/hoursTableUtils';
-import { PrintableTable } from '../report/components/PrintableTable';
 import { AddConstructionWithEmployeeDialog } from './dialogs/AddConstructionWithEmployee';
 import { CopyTableDialog } from './dialogs/CopyTableDialog';
 import { AddEmployeeDialog } from './dialogs/AddEmployeeDialog';
 import { FiltersDialog } from './dialogs/FiltersDialogProps';
-import { useTranslation } from 'react-i18next';
-import type { LangCode } from '@/shared/config/languages';
 
 dayjs.extend(isoWeek);
 dayjs.extend(isBetween);
@@ -131,7 +128,6 @@ export const HoursTable = ({
     setAddConstructionDialogOpen(true);
   }, []);
 
-  const printContentRef = useRef<HTMLDivElement>(null);
   const isTableLoading = isCoping || isFilling || isLoading;
   const availableConstructions = getAvailableConstructions();
   const isEmpty = constructionsWithWorkHours.length == 0;
@@ -142,28 +138,8 @@ export const HoursTable = ({
     }, 0);
   }, [constructionsWithWorkHours]);
 
-  const { i18n } = useTranslation();
-
   return (
     <Box>
-      <Box sx={{ display: 'none' }}>
-        <Box
-          ref={printContentRef}
-          sx={{
-            display: 'flex',
-            flexDirection: 'row',
-            justifyContent: 'center',
-          }}
-        >
-          <PrintableTable
-            showVacation={true}
-            constructionsWithWorkHours={dataSorted}
-            weekDates={weekDates}
-            totalHoursData={totalHoursData}
-            lang={i18n.language as LangCode}
-          />
-        </Box>
-      </Box>
       <HoursTableControls
         isEmpty={isEmpty}
         hasUnsavedChanges={hasUnsavedChanges}
@@ -179,7 +155,7 @@ export const HoursTable = ({
         isExpanded={isExpanded}
         isCoping={isCoping}
         onTableDelete={onTableDelete}
-        contentRef={printContentRef}
+        tableDataPayload={tableDataPayload}
         handleCancelEdit={handleCancelEdit}
         handleFillWithSchedule={handleFillWithSchedule}
         showFilterBadge={
