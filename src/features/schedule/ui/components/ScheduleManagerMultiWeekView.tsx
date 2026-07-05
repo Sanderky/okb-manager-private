@@ -94,8 +94,8 @@ export const ScheduleManagerMultiWeekView: React.FC<
               className="px-3 py-2 text-center"
             ></TableCell>
             {weeks.map((w, index) => {
-              const isBefore = w.isBefore(dayjs(), 'week');
-              const isAfter = w.isAfter(dayjs(), 'week');
+              const isBefore = w.isBefore(dayjs(), 'isoWeek');
+              const isAfter = w.isAfter(dayjs(), 'isoWeek');
               return (
                 <TableCell
                   key={index}
