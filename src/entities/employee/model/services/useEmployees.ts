@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { getEmployeeList } from '../../api/employees/api';
+import { getEmployeeList } from '../../api/employees';
 
 export const useEmployees = (enabled = true) => {
   const {
