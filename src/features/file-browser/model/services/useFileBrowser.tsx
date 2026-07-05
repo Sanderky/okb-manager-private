@@ -40,6 +40,7 @@ const useFileBrowser = (
         return {
           ...item,
           isSystem: true,
+          name: t(`fileBrowser:${FOLDER_TRANSLATIONS[item.name]}`),
         };
       }
 
@@ -50,7 +51,7 @@ const useFileBrowser = (
 
       return item;
     });
-  }, [rawItems, employeesMap, constructionsMap]);
+  }, [rawItems, employeesMap, constructionsMap, t]);
 
   const dialogs = useDialogs();
   const notifications = useNotifications();
