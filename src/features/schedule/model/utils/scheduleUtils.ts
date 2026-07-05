@@ -216,7 +216,7 @@ export const buildScheduleEntriesToSave = (
   const notSavedDays: string[] = [];
 
   if (isWeek) {
-    const startOfWeek = date.startOf('week');
+    const startOfWeek = date.startOf('isoWeek');
 
     for (let i = 0; i < 7; i++) {
       const day = startOfWeek.add(i, 'day');

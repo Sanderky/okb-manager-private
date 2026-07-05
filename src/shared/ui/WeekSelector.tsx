@@ -17,12 +17,7 @@ import { CalendarMonth, ChevronLeft, ChevronRight } from '@mui/icons-material';
 import { Stack } from '@mui/system';
 import { useTranslation } from 'react-i18next';
 import dayjs, { Dayjs } from 'dayjs';
-import isBetween from 'dayjs/plugin/isBetween';
-import isoWeek from 'dayjs/plugin/isoWeek';
 import { DatePicker } from '@mui/x-date-pickers';
-
-dayjs.extend(isBetween);
-dayjs.extend(isoWeek);
 
 function getStartOfWeek(date: Date | string): Date {
   return dayjs(date).startOf('isoWeek').toDate();

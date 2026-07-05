@@ -7,6 +7,8 @@ import dayjs from 'dayjs';
 import 'dayjs/locale/pl';
 import 'dayjs/locale/de';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
+import isBetween from 'dayjs/plugin/isBetween';
+import isoWeek from 'dayjs/plugin/isoWeek';
 
 import commonPl from './locales/pl/common.json';
 import authPl from './locales/pl/auth.json';
@@ -47,6 +49,8 @@ import settingsEn from './locales/en/settings.json';
 import workLogsDe from './locales/de/workLogs.json';
 
 dayjs.extend(localizedFormat);
+dayjs.extend(isBetween);
+dayjs.extend(isoWeek);
 
 const resources = {
   'pl-PL': {

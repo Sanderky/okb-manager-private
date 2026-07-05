@@ -34,30 +34,30 @@ export const getMonthKeysFromWeek = (startOfWeek: Date): string[] => {
 };
 
 export const getWeekDates = (week: Date): Date[] => {
-  const start = dayjs(week).startOf('week');
+  const start = dayjs(week).startOf('isoWeek');
   return Array.from({ length: 7 }).map((_, i) => start.add(i, 'day').toDate());
 };
 
 export function getStartOfWeek(date: Date): Date {
-  return dayjs(date).startOf('week').toDate();
+  return dayjs(date).startOf('isoWeek').toDate();
 }
 
 export function getEndOfWeek(date: Date): Date {
-  return dayjs(date).endOf('week').toDate();
+  return dayjs(date).endOf('isoWeek').toDate();
 }
 
 export function getPreviousWeek(date: Date): Date {
-  return dayjs(date).subtract(1, 'week').startOf('week').toDate();
+  return dayjs(date).subtract(1, 'week').startOf('isoWeek').toDate();
 }
 
 export function getNextWeek(date: Date): Date {
-  return dayjs(date).add(1, 'week').startOf('week').toDate();
+  return dayjs(date).add(1, 'week').startOf('isoWeek').toDate();
 }
 
 export function getWeeksInRange(startDate: Date, endDate: Date): Date[] {
   const weeks: Date[] = [];
-  let current = dayjs(startDate).startOf('week');
-  const end = dayjs(endDate).startOf('week');
+  let current = dayjs(startDate).startOf('isoWeek');
+  const end = dayjs(endDate).startOf('isoWeek');
 
   while (current.isSameOrBefore(end)) {
     weeks.push(current.toDate());
