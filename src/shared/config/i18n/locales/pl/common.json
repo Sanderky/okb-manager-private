@@ -1,7 +1,8 @@
 {
   "languages": {
     "pl-PL": "Polski",
-    "de-DE": "Niemiecki"
+    "de-DE": "Niemiecki",
+    "en-US": "Angielski"
   },
   "buttons": {
     "add": "Dodaj",
@@ -35,5 +36,61 @@
   "weekSelector": {
     "selectWeek": "Wybierz tydzień",
     "currentWeek": "Bieżący tydzień"
+  },
+  "attachment": {
+    "noAttachment": "Brak załącznika",
+    "preview": "Podgląd",
+    "openInNewTab": "Otwórz w nowej karcie",
+    "download": "Pobierz",
+    "added": "Dodano: {{date}}"
+  },
+  "filePreview": {
+    "loadError": "Wystąpił błąd podczas wczytywania pliku",
+    "unsupportedType": "Podgląd dla tego typu pliku nie jest obsługiwany.",
+    "downloadPrompt": "Pobierz plik, aby go otworzyć.",
+    "zoomIn": "Przybliż",
+    "zoomOut": "Oddal",
+    "resetView": "Resetuj widok",
+    "rotateLeft": "Obróć w lewo",
+    "rotateRight": "Obróć w prawo",
+    "openInNewTab": "Otwórz w nowej karcie"
+  },
+  "note": {
+    "heading1": "Nagłówek 1",
+    "heading2": "Nagłówek 2",
+    "heading3": "Nagłówek 3",
+    "bold": "Pogrubienie",
+    "italic": "Kursywa",
+    "strike": "Przekreślenie",
+    "underline": "Podkreślenie",
+    "highlight": "Wyróżnienie",
+    "alignLeft": "Wyrównaj do lewej",
+    "alignCenter": "Wyśrodkuj",
+    "alignRight": "Wyrównaj do prawej",
+    "bulletList": "Lista punktowana",
+    "orderedList": "Lista numerowana",
+    "horizontalRule": "Linia pozioma",
+    "undo": "Cofnij",
+    "redo": "Ponów",
+    "label": "Notatka:",
+    "save": "Zapisz notatkę",
+    "edit": "Edytuj notatkę"
+  },
+  "pagination": {
+    "of": "z {{count}}",
+    "rows_one": "{{count}} wiersz",
+    "rows_few": "{{count}} wiersze",
+    "rows_many": "{{count}} wierszy",
+    "rows_other": "{{count}} wierszy",
+    "results_one": "{{count}} wynik",
+    "results_few": "{{count}} wyniki",
+    "results_many": "{{count}} wyników",
+    "results_other": "{{count}} wyników"
+  },
+  "date": {
+    "days_one": "{{count}} dzień",
+    "days_few": "{{count}} dni",
+    "days_many": "{{count}} dni",
+    "days_other": "{{count}} dni"
   }
 }

@@ -6,12 +6,12 @@ import Drawer from '@mui/material/Drawer';
 import List from '@mui/material/List';
 import Toolbar from '@mui/material/Toolbar';
 import type {} from '@mui/material/themeCssVarsAugmentation';
-// import PersonIcon from '@mui/icons-material/Person';
 import ConstructionIcon from '@mui/icons-material/Construction';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import { BeachAccess, Settings } from '@mui/icons-material';
 import HomeIcon from '@mui/icons-material/Home';
 import { matchPath, useLocation } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import DashboardSidebarContext from './DashboardSidebarContext';
 import { DRAWER_WIDTH, MINI_DRAWER_WIDTH } from '@/shared/config/drawer';
 import EventNoteIcon from '@mui/icons-material/EventNote';
@@ -23,6 +23,7 @@ import {
 import { Hotel, Schedule } from '@mui/icons-material';
 import DashboardSidebarPageItem from './DashboardSidebarPageItem';
 import DashboardSidebarDividerItem from './DashboardSidebarDividerItem';
+import { AppVersion } from '@/shared/ui/AppVersion';
 
 export interface DashboardSidebarProps {
   expanded?: boolean;
@@ -39,12 +40,11 @@ export default function DashboardSidebar({
   container,
   onSettingsDialogOpen,
 }: DashboardSidebarProps) {
+  const { t } = useTranslation('app');
   const theme = useTheme();
-
   const { pathname } = useLocation();
 
   const [expandedItemIds, setExpandedItemIds] = React.useState<string[]>([]);
-
   const isOverSmViewport = useMediaQuery(theme.breakpoints.up('sm'));
   const isOverMdViewport = useMediaQuery(theme.breakpoints.up('md'));
 
@@ -133,78 +133,78 @@ export default function DashboardSidebar({
             dense
             sx={{
               width: mini ? MINI_DRAWER_WIDTH : 'auto',
-              // px: mini ? 0 : 2,
               py: 0,
             }}
           >
             <DashboardSidebarPageItem
               id="home"
-              title="Dashboard"
+              title={t('sidebar.dashboard')}
               icon={<HomeIcon />}
               href="/home"
               selected={!!matchPath('/home/*', pathname)}
             />
             <DashboardSidebarPageItem
               id="constructions"
-              title="Budowy"
+              title={t('sidebar.constructions')}
               icon={<ConstructionIcon />}
               href="/constructions"
               selected={!!matchPath('/constructions/*', pathname)}
             />
             <DashboardSidebarPageItem
               id="employees"
-              title="Pracownicy"
+              title={t('sidebar.employees')}
               icon={<PeopleIcon />}
               href="/employees"
               selected={!!matchPath('/employees/*', pathname)}
             />
             <DashboardSidebarPageItem
               id="lodgings"
-              title="Zakwaterowania"
+              title={t('sidebar.lodgings')}
               icon={<Hotel />}
               href="/lodgings"
               selected={!!matchPath('/lodgings/*', pathname)}
             />
             <DashboardSidebarPageItem
               id="vacations"
-              title="Kalendarz"
+              title={t('sidebar.calendar')}
               icon={<CalendarMonthIcon />}
               href="/calendar"
               selected={!!matchPath('/calendar/*', pathname)}
             />
             <DashboardSidebarPageItem
-              id="vacations"
-              title="Urlopy"
+              id="vacations_list"
+              title={t('sidebar.vacations')}
               icon={<BeachAccess />}
               href="/vacations"
               selected={!!matchPath('/vacations/*', pathname)}
             />
             <DashboardSidebarPageItem
               id="schedule"
-              title="Harmonogram"
+              title={t('sidebar.schedule')}
               icon={<EventNoteIcon />}
               href="/schedule"
               selected={!!matchPath('/schedule/*', pathname)}
             />
             <DashboardSidebarPageItem
               id="hours"
-              title="Godziny pracy"
+              title={t('sidebar.workHours')}
               icon={<Schedule />}
               href="/hours"
               selected={!!matchPath('/hours/*', pathname)}
             />
-            <DashboardSidebarDividerItem/>
+            <DashboardSidebarDividerItem />
             <DashboardSidebarPageItem
               id="settings"
-              title="Ustawienia"
+              title={t('sidebar.settings')}
               onClick={onSettingsDialogOpen}
               icon={<Settings />}
             />
           </List>
+          <AppVersion/>
         </Box>
       </React.Fragment>
     ),
-    [mini, hasDrawerTransitions, isFullyExpanded, pathname]
+    [mini, hasDrawerTransitions, isFullyExpanded, pathname, t]
   );
 
   const getDrawerSharedSx = React.useCallback(

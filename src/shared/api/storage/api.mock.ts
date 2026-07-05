@@ -4,7 +4,7 @@ import {
   getFileExtension,
   getFileNameWithoutExtension,
 } from '../../lib/fileUtils';
-import { removePolishChars } from '../../lib/string';
+import { normalizeToEnglishAlphabet } from '../../lib/string';
 import type { FileBrowserItem } from '../../model/types';
 import { mapStorageItem } from './mappers';
 
@@ -135,7 +135,7 @@ export const uploadFile = async (
   const folder = lastSlashIndex !== -1 ? path.substring(0, lastSlashIndex) : '';
   const rawFileName =
     lastSlashIndex !== -1 ? path.substring(lastSlashIndex + 1) : path;
-  const safeFileName = removePolishChars(rawFileName);
+  const safeFileName = normalizeToEnglishAlphabet(rawFileName);
   const fullPath = folder ? `${folder}/${safeFileName}` : safeFileName;
 
   if (upsert) {
@@ -267,7 +267,7 @@ export const getUniqueDestPath = async (
     lastSlash !== -1 ? proposedPath.substring(0, lastSlash + 1) : '';
   const rawFileName =
     lastSlash !== -1 ? proposedPath.substring(lastSlash + 1) : proposedPath;
-  const safeFileName = removePolishChars(rawFileName);
+  const safeFileName = normalizeToEnglishAlphabet(rawFileName);
 
   let uniquePath = pathDirectory
     ? `${pathDirectory}${safeFileName}`

@@ -1,0 +1,115 @@
+{
+  "pageTitle": "Vacations calendar",
+  "unknownEmployee": "Unknown employee",
+  "upcoming": {
+    "title": "Upcoming vacations",
+    "emptyState": "No upcoming vacations",
+    "chipLabel_one": "{{count}} vacation",
+    "chipLabel_few": "{{count}} vacations",
+    "chipLabel_many": "{{count}} vacations"
+  },
+  "notifications": {
+    "vacationAdded": "Vacation has been created.",
+    "vacationUpdated": "Vacation has been updated.",
+    "vacationDeleted": "Vacation has been deleted."
+  },
+  "actions": {
+    "addVacation": "Add vacation",
+    "vacationReport": "Vacations report"
+  },
+  "dialogs": {
+    "deleteVacation": {
+      "title": "Delete vacation",
+      "description": "Are you sure you want to delete this vacation?"
+    },
+    "addVacation": {
+      "title": "Add vacation",
+      "confirmText": "Save vacation"
+    },
+    "editVacation": {
+      "titleEdit": "Edit vacation",
+      "titleDetails": "Vacation details",
+      "cancel": "Cancel",
+      "saveChanges": "Save changes",
+      "delete": "Delete",
+      "edit": "Edit",
+      "details": {
+        "navigateToEmployee": "Go to employee",
+        "description": "Description",
+        "noDescription": "No description",
+        "colorLabel": "Marker color",
+        "inactive": "inactive"
+      }
+    },
+    "eventList": {
+      "title": "Vacations ({{count}})",
+      "add": "Add",
+      "close": "Close",
+      "columns": {
+        "employee": "Employee",
+        "period": "Vacation period",
+        "duration": "Duration",
+        "color": "Color"
+      },
+      "duration": "{{count}} {{count, plural, one(day) few(days) many(days) other(days)}}",
+      "emptyState": "No entries..."
+    },
+    "vacationForm": {
+      "employeeRequired": "Employee *",
+      "employee": "Employee",
+      "description": "Description",
+      "startDate": "Start date *",
+      "endDate": "End date *",
+      "selectColor": "Select color *",
+      "inactive": "Inactive"
+    },
+    "report": {
+      "fileNamePrefix": "vacations_report",
+      "title": "Generate vacations report",
+      "print": "Print",
+      "emptyState": "No vacations in the selected range for selected employees",
+      "generatedTitle": "Generated vacations report ({{count}})",
+      "inactive": "Inactive",
+      "filters": {
+        "employeesTitle": "Employees",
+        "selectEmployeesPlaceholder": "Select employees...",
+        "includeInactive": "Include inactive"
+      },
+      "dateRange": {
+        "title": "Date range",
+        "clearAll": "Clear dates",
+        "fromLabel": "Date from (optional)",
+        "toLabel": "Date to (optional)",
+        "effectiveRange": "Effective date range",
+        "error": "Start date cannot be later than end date"
+      },
+      "columns": {
+        "employee": "Employee",
+        "startDate": "Start date",
+        "endDate": "End date",
+        "daysCount": "Number of days"
+      },
+      "printable": {
+        "title": "Vacations report",
+        "rangeLabel": "Date range:",
+        "employeesCountLabel": "Number of employees:",
+        "generatedAtLabel": "Generated:",
+        "columns": {
+          "employee": "Employee",
+          "startDate": "Start date",
+          "endDate": "End date",
+          "daysCount": "Number of days"
+        },
+        "inactive": "Inactive",
+        "totalVacations": "Total number of vacations: {{count}}"
+      }
+    }
+  },
+  "validation": {
+    "employeeRequired": "Select an employee",
+    "colorRequired": "Select a color",
+    "dateRangeRequired": "Select a valid date range",
+    "overlapError": "The employee already has a vacation on these dates",
+    "defaultError": "Validation error"
+  }
+}

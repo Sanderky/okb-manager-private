@@ -13,7 +13,6 @@ import { FilterDialog } from './components/ScheduleDialogs';
 import { PrintableSchedule } from './components/SchedulePrint';
 import { TableControls } from './components/ScheduleTableControls';
 import type { ICell } from '../model/types';
-import { useScheduleManager } from '../model/services/useScheduleManager';
 import dayjs from 'dayjs';
 import { type Construction } from '@/entities/construction';
 import { useNavigate } from 'react-router-dom';
@@ -22,6 +21,7 @@ import { ScheduleManagerMultiWeekView } from './components/ScheduleManagerMultiW
 import { ScheduleManagerWeekView } from './components/ScheduleManagerWeekView';
 import weekOfYear from 'dayjs/plugin/weekOfYear';
 import isBetween from 'dayjs/plugin/isBetween';
+import { useScheduleContext } from '../model/providers/useScheduleContext';
 
 dayjs.extend(weekOfYear);
 dayjs.extend(isBetween);
@@ -64,7 +64,7 @@ export const ScheduleManager = () => {
     employees,
     getCellContentItems,
     printRef,
-  } = useScheduleManager();
+  } = useScheduleContext();
 
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [cellAnchorEl, setCellAnchorEl] = useState<null | HTMLElement>(null);

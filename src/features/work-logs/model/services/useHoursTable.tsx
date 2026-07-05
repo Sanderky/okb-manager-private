@@ -136,7 +136,7 @@ export const useHoursTable = (startWeek?: Date) => {
 
   const availableConstructionsOptions = useMemo(() => {
     const usedIds = constructionsWithWorkHours.map((c) => c.id);
-    return constructions.filter((c) => !usedIds.includes(c.id));
+    return constructions.filter((c) => c.status && !usedIds.includes(c.id));
   }, [constructions, constructionsWithWorkHours]);
 
   const getAvailableConstructions = useCallback(

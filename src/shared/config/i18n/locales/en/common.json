@@ -1,0 +1,96 @@
+{
+  "languages": {
+    "pl-PL": "Polish",
+    "de-DE": "German",
+    "en-US": "English"
+  },
+  "buttons": {
+    "add": "Add",
+    "save": "Save",
+    "saveChanges": "Save changes",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "clear": "Clear",
+    "print": "Print",
+    "all": "All",
+    "allPeople": "Everyone",
+    "today": "Today",
+    "close": "Close",
+    "back": "Back"
+  },
+  "status": {
+    "inactive": "Inactive",
+    "inactiveBracket": "(Inactive)",
+    "completed": "Completed",
+    "noTitle": "(No title)"
+  },
+  "errors": {
+    "save": "Save error.",
+    "edit": "Edit error.",
+    "delete": "Delete error.",
+    "load": "An error occurred while loading data.",
+    "general": "An error occurred.",
+    "fetchError": "An error occurred while fetching data."
+  },
+  "weekSelector": {
+    "selectWeek": "Select week",
+    "currentWeek": "Current week"
+  },
+  "attachment": {
+    "noAttachment": "No attachment",
+    "preview": "Preview",
+    "openInNewTab": "Open in new tab",
+    "download": "Download",
+    "added": "Added: {{date}}"
+  },
+  "filePreview": {
+    "loadError": "An error occurred while loading the file.",
+    "unsupportedType": "Preview for this file type is not supported.",
+    "downloadPrompt": "Download the file to open it.",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "resetView": "Reset view",
+    "rotateLeft": "Rotate left",
+    "rotateRight": "Rotate right",
+    "openInNewTab": "Open in new tab"
+  },
+  "note": {
+    "heading1": "Heading 1",
+    "heading2": "Heading 2",
+    "heading3": "Heading 3",
+    "bold": "Bold",
+    "italic": "Italic",
+    "strike": "Strikethrough",
+    "underline": "Underline",
+    "highlight": "Highlight",
+    "alignLeft": "Align left",
+    "alignCenter": "Align center",
+    "alignRight": "Align right",
+    "bulletList": "Bullet list",
+    "orderedList": "Numbered list",
+    "horizontalRule": "Horizontal line",
+    "undo": "Undo",
+    "redo": "Redo",
+    "label": "Note:",
+    "save": "Save note",
+    "edit": "Edit note"
+  },
+  "pagination": {
+    "of": "of {{count}}",
+    "rows_one": "{{count}} row",
+    "rows_few": "{{count}} rows",
+    "rows_many": "{{count}} rows",
+    "rows_other": "{{count}} rows",
+    "results_one": "{{count}} result",
+    "results_few": "{{count}} results",
+    "results_many": "{{count}} results",
+    "results_other": "{{count}} results"
+  },
+  "date": {
+    "days_one": "{{count}} day",
+    "days_few": "{{count}} days",
+    "days_many": "{{count}} days",
+    "days_other": "{{count}} days"
+  }
+}

@@ -15,7 +15,7 @@ import { FilterList, Notifications } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import {
   EVENT_CATEGORIES,
-  getCategoryLabel,
+  getCategoryLabelTranslationKey,
   useEventColor,
   type InfoEvent,
 } from '@/entities/events';
@@ -100,7 +100,7 @@ export const EventsListTable = ({
                       }
                       label={
                         <Typography variant="body2">
-                          {getCategoryLabel(cat, t)}
+                          {t(`calendar:${getCategoryLabelTranslationKey(cat)}`)}
                         </Typography>
                       }
                     />
@@ -148,7 +148,7 @@ export const EventsListTable = ({
                       {event.title}
                     </Typography>
                     <Chip
-                      label={getCategoryLabel(event.category, t)}
+                      label={t(`calendar:${getCategoryLabelTranslationKey(event.category)}`)}
                       sx={{
                         color: getEventTextColor(event.color),
                         background: getEventColor(event.color),
@@ -158,7 +158,7 @@ export const EventsListTable = ({
                     />
                   </Stack>
                   <Typography variant="caption" color="text.secondary">
-                    {getDateStr(event.startDate, event.endDate, true)}
+                    {getDateStr(event.startDate, event.endDate, true, t)}
                   </Typography>
                 </Stack>
               </td>

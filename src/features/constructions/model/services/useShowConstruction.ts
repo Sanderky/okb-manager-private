@@ -7,15 +7,14 @@ import { useUpcomingEventsForConstruction } from '@/entities/events';
 import useLoading from '@/shared/lib/useLoading';
 import useNotifications from '@/shared/ui/notifications/useNotifications';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
 export const useShowConstruction = (constructionId: string) => {
   const navigate = useNavigate();
-  const {
-    // loading: actionLoading,
-    startLoading: startActionLoading,
-    stopLoading: stopActionLoading,
-  } = useLoading(false);
+  const { t } = useTranslation('constructions');
+  const { startLoading: startActionLoading, stopLoading: stopActionLoading } =
+    useLoading(false);
 
   const [notFound, setNotFound] = useState(false);
   const notifications = useNotifications();
@@ -50,12 +49,12 @@ export const useShowConstruction = (constructionId: string) => {
       startActionLoading();
       try {
         await updateNoteMutation.mutateAsync({ constructionId, note });
-        notifications.show('Notatka została zaktualizowana.', {
+        notifications.show(t('notifications.noteUpdated'), {
           severity: 'success',
           autoHideDuration: 5000,
         });
       } catch {
-        notifications.show('Wystąpił błąd podczas zapisywania notatki.', {
+        notifications.show(t('notifications.noteError'), {
           severity: 'error',
           autoHideDuration: 5000,
         });
@@ -63,7 +62,14 @@ export const useShowConstruction = (constructionId: string) => {
         stopActionLoading();
       }
     },
-    [updateNoteMutation, startActionLoading, stopActionLoading, notifications]
+    [
+      updateNoteMutation,
+      startActionLoading,
+      stopActionLoading,
+      notifications,
+      t,
+      constructionId,
+    ]
   );
 
   const handleNavigateToConstructionEdit = useCallback(() => {
@@ -81,7 +87,7 @@ export const useShowConstruction = (constructionId: string) => {
     },
     [navigate]
   );
-  
+
   const handleNavigateToEmployee = useCallback(
     (id: string) => {
       if (!id) return;

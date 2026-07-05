@@ -1,0 +1,25 @@
+{
+  "notifications": {
+    "success": "Note has been updated.",
+    "error": "An error occurred while saving the note."
+  },
+  "breadcrumbs": {
+    "home": "Home page"
+  },
+  "tabs": {
+    "info": "Information",
+    "files": "Files"
+  },
+  "cards": {
+    "employees": {
+      "title": "Employees",
+      "archived": "Archived:",
+      "all": "All:"
+    },
+    "constructions": {
+      "title": "Active constructions",
+      "completed": "Completed:",
+      "all": "All:"
+    }
+  }
+}

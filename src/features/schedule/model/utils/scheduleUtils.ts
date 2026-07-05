@@ -48,7 +48,7 @@ export const generateWeeks = (from: Date, to: Date): Dayjs[] => {
   const arr: Dayjs[] = [];
   let cur = start;
 
-  while (cur.isSame(end, 'week') || cur.isBefore(end, 'week')) {
+  while (cur.isSame(end, 'isoWeek') || cur.isBefore(end, 'isoWeek')) {
     arr.push(cur);
     cur = cur.add(1, 'week');
   }
@@ -216,7 +216,7 @@ export const buildScheduleEntriesToSave = (
   const notSavedDays: string[] = [];
 
   if (isWeek) {
-    const startOfWeek = date.startOf('week');
+    const startOfWeek = date.startOf('isoWeek');
 
     for (let i = 0; i < 7; i++) {
       const day = startOfWeek.add(i, 'day');

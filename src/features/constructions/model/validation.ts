@@ -8,13 +8,13 @@ export const validate = (
   const errors: ValidationErrors = {};
 
   if (!values.name || values.name.trim() === '') {
-    errors.name = 'Nazwa jest wymagana.';
+    errors.name = 'validation.nameRequired';
   } else if (values.name.length > 255) {
-    errors.name = 'Nazwa nie może być dłuższa niż 255 znaków.';
+    errors.name = 'validation.nameTooLong';
   }
 
   if (!values.startDate) {
-    errors.startDate = 'Data rozpoczęcia jest wymagana.';
+    errors.startDate = 'validation.startDateRequired';
   }
 
   if (values.startDate && values.endDate) {
@@ -23,19 +23,18 @@ export const validate = (
     const endDate = dayjs(values.endDate).startOf('day');
 
     if (endDate.isBefore(startDate)) {
-      errors.endDate =
-        'Data zakończenia nie może być wcześniejsza niż data rozpoczęcia.';
+      errors.endDate = 'validation.endDateBeforeStart';
     } else if (endDate.isAfter(today)) {
-      errors.endDate = 'Data zakończenia nie może być z przyszłości.';
+      errors.endDate = 'validation.endDateInFuture';
     }
   }
 
   if (values.location && values.location.length > 255) {
-    errors.location = 'Lokalizacja nie może być dłuższa niż 255 znaków.';
+    errors.location = 'validation.locationTooLong';
   }
 
   if (values.status === undefined) {
-    errors.status = 'Status jest wymagany.';
+    errors.status = 'validation.statusRequired';
   }
 
   return errors;

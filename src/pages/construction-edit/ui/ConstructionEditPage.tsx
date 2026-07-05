@@ -5,6 +5,7 @@ import PageContainer from '@/shared/ui/PageContainer';
 import { Chip, Stack } from '@mui/material';
 import { Grid } from '@mui/system';
 import Loading from '@/shared/ui/Loading';
+import { useTranslation } from 'react-i18next';
 import {
   ConstructionEdit,
   ConstructionEditProvider,
@@ -24,6 +25,7 @@ export const ConstructionEditPage = () => {
 };
 
 const ConstructionEditPageContent = () => {
+  const { t } = useTranslation(['constructions', 'common']);
   const {
     construction,
     constructionId,
@@ -35,7 +37,7 @@ const ConstructionEditPageContent = () => {
 
   const renderContent = () => {
     if (isLoading || actionLoading) {
-      return <Loading message="Ładowanie danych budowy..." />;
+      return <Loading message={t('loading.data')} />;
     }
 
     if (isError) {
@@ -47,9 +49,7 @@ const ConstructionEditPageContent = () => {
           className="w-full"
         >
           <Grid size={{ xs: 12 }} className="w-full">
-            <Alert severity="error">
-              Wystąpił błąd podczas ładowania danych budowy.
-            </Alert>
+            <Alert severity="error">{t('common:errors.fetchError')}</Alert>
           </Grid>
         </Grid>
       );
@@ -64,7 +64,7 @@ const ConstructionEditPageContent = () => {
           className="w-full"
         >
           <Grid size={{ xs: 12 }} className="w-full">
-            <Alert severity="warning">Nie znaleziono danych budowy.</Alert>
+            <Alert severity="warning">{t('errors.notFound')}</Alert>
           </Grid>
         </Grid>
       );
@@ -73,18 +73,18 @@ const ConstructionEditPageContent = () => {
     return <ConstructionEdit />;
   };
 
-  const pageTitle = construction?.name || 'budowy';
+  const pageTitle = construction?.name || t('title');
 
   return (
     <PageContainer
-      title={`Edycja ${pageTitle}`}
+      title={t('edit.pageTitle', 'Edycja {{name}}', { name: pageTitle })}
       breadcrumbs={[
-        { title: 'Budowy', path: '/constructions' },
+        { title: t('title'), path: '/constructions' },
         {
           title: construction?.name || '...',
           path: `/constructions/${constructionId}`,
         },
-        { title: 'Edytuj' },
+        { title: t('common:buttons.edit') },
       ]}
       actions={
         <Stack direction="row" alignItems="center">
@@ -94,9 +94,9 @@ const ConstructionEditPageContent = () => {
                 isLoading || isFormLoading ? (
                   <Loading size={20} message="" />
                 ) : construction?.status ? (
-                  'W trakcie'
+                  t('statusOptions.inProgress')
                 ) : (
-                  'Zakończona'
+                  t('common:status.completed')
                 )
               }
               className={

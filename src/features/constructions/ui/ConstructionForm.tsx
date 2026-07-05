@@ -5,17 +5,15 @@ import FormGroup from '@mui/material/FormGroup';
 import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import dayjs, { type Dayjs } from 'dayjs';
 import Alert from '@mui/material/Alert';
 import { Autocomplete, Divider, Paper, Typography } from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { useTranslation } from 'react-i18next';
 import { NoteBase } from '@/shared/ui/Note';
-import { plPL } from '@mui/x-date-pickers/locales';
 import { Add } from '@mui/icons-material';
 import { shouldBeInactive } from '@/entities/construction';
 import { useContractors } from '@/entities/contractor';
@@ -26,20 +24,40 @@ type FieldType = 'text' | 'email' | 'date' | 'boolean';
 
 interface ConstructionField {
   key: keyof ConstructionFormState['values'];
-  label: string;
+  labelKey: string;
   type: FieldType;
   required: boolean;
 }
 
 const CONSTRUCTION_FIELDS: ConstructionField[] = [
-  { key: 'name', label: 'Nazwa budowy', type: 'text', required: true },
-  { key: 'location', label: 'Lokalizacja', type: 'text', required: false },
-  { key: 'contractorId', label: 'Wykonawca', type: 'text', required: false },
+  { key: 'name', labelKey: 'form.fields.name', type: 'text', required: true },
+  {
+    key: 'location',
+    labelKey: 'form.fields.location',
+    type: 'text',
+    required: false,
+  },
+  {
+    key: 'contractorId',
+    labelKey: 'form.fields.contractor',
+    type: 'text',
+    required: false,
+  },
 ];
 
 const DATE_FIELDS: ConstructionField[] = [
-  { key: 'startDate', label: 'Data rozpoczęcia', type: 'date', required: true },
-  { key: 'endDate', label: 'Data zakończenia', type: 'date', required: false },
+  {
+    key: 'startDate',
+    labelKey: 'form.fields.startDate',
+    type: 'date',
+    required: true,
+  },
+  {
+    key: 'endDate',
+    labelKey: 'form.fields.endDate',
+    type: 'date',
+    required: false,
+  },
 ];
 
 export interface ConstructionFormProps {
@@ -59,6 +77,7 @@ export interface ConstructionFormProps {
 }
 
 export function ConstructionForm(props: ConstructionFormProps) {
+  const { t } = useTranslation(['constructions', 'common']);
   const {
     formId,
     formState,
@@ -135,7 +154,7 @@ export function ConstructionForm(props: ConstructionFormProps) {
       sx={{ width: '100%', overflowY: 'auto', position: 'relative' }}
     >
       <Alert severity="info" className="mb-3 px-3 py-0 font-medium">
-        Pola oznaczone * są obowiązkowe.
+        {t('form.sections.requiredInfo')}
       </Alert>
       {submitError && (
         <Alert
@@ -156,83 +175,90 @@ export function ConstructionForm(props: ConstructionFormProps) {
         >
           <Grid size={12}>
             <Typography variant="subtitle1" className="mb-3 font-medium">
-              Dane budowy
+              {t('form.sections.constructionData')}
             </Typography>
             <Grid container columns={12} spacing={2}>
-              {CONSTRUCTION_FIELDS.map(({ key, label, type, required }) => (
-                <Grid size={{ xs: 12, md: 6 }} key={key}>
-                  {key === 'contractorId' ? (
-                    <Autocomplete
-                      options={contractorsOptions}
-                      getOptionLabel={(option) => option.label}
-                      isOptionEqualToValue={(option, value) =>
-                        option.id === value.id
-                      }
-                      loading={contractorsIsLoading}
-                      value={
-                        contractorsOptions.find(
-                          (c) => c.id === formValues[key]
-                        ) || null
-                      }
-                      onChange={(_, newValue) =>
-                        handleCustomFieldChange(
-                          key,
-                          newValue ? (newValue.id as any) : null
-                        )
-                      }
-                      slots={{
-                        paper: ({ children, ...other }) => (
-                          <Paper {...other}>
-                            {children}
-                            <Divider />
-                            <Box
-                              onMouseDown={(e) => e.preventDefault()}
-                              sx={{ p: 1 }}
-                            >
-                              <Button
-                                fullWidth
-                                variant="text"
-                                size="small"
-                                startIcon={<Add />}
-                                onClick={() => setContractorsModalOpen(true)}
+              {CONSTRUCTION_FIELDS.map(({ key, labelKey, type, required }) => {
+                const label = t(labelKey);
+                const errorText = formErrors[key]
+                  ? t(formErrors[key] as string)
+                  : undefined;
+
+                return (
+                  <Grid size={{ xs: 12, md: 6 }} key={key}>
+                    {key === 'contractorId' ? (
+                      <Autocomplete
+                        options={contractorsOptions}
+                        getOptionLabel={(option) => option.label}
+                        isOptionEqualToValue={(option, value) =>
+                          option.id === value.id
+                        }
+                        loading={contractorsIsLoading}
+                        value={
+                          contractorsOptions.find(
+                            (c) => c.id === formValues[key]
+                          ) || null
+                        }
+                        onChange={(_, newValue) =>
+                          handleCustomFieldChange(
+                            key,
+                            newValue ? (newValue.id as any) : null
+                          )
+                        }
+                        slots={{
+                          paper: ({ children, ...other }) => (
+                            <Paper {...other}>
+                              {children}
+                              <Divider />
+                              <Box
+                                onMouseDown={(e) => e.preventDefault()}
+                                sx={{ p: 1 }}
                               >
-                                Dodaj wykonawcę
-                              </Button>
-                            </Box>
-                          </Paper>
-                        ),
-                      }}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          size="small"
-                          fullWidth
-                          label={label}
-                          name={key as string}
-                          error={Boolean(formErrors[key])}
-                          helperText={formErrors[key]}
-                        />
-                      )}
-                    />
-                  ) : (
-                    <TextField
-                      size="small"
-                      required={required}
-                      fullWidth
-                      label={label}
-                      type={type}
-                      value={formValues[key] ?? ''}
-                      name={key as string}
-                      error={Boolean(formErrors[key])}
-                      helperText={formErrors[key]}
-                      inputRef={(el) => registerFieldRef?.(key as string, el)}
-                      onChange={(e) =>
-                        handleCustomFieldChange(key, e.target.value)
-                      }
-                    />
-                  )}
-                </Grid>
-              ))}
+                                <Button
+                                  fullWidth
+                                  variant="text"
+                                  size="small"
+                                  startIcon={<Add />}
+                                  onClick={() => setContractorsModalOpen(true)}
+                                >
+                                  {t('form.addContractor')}
+                                </Button>
+                              </Box>
+                            </Paper>
+                          ),
+                        }}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            size="small"
+                            fullWidth
+                            label={label}
+                            name={key as string}
+                            error={Boolean(formErrors[key])}
+                            helperText={errorText}
+                          />
+                        )}
+                      />
+                    ) : (
+                      <TextField
+                        size="small"
+                        required={required}
+                        fullWidth
+                        label={label}
+                        type={type}
+                        value={formValues[key] ?? ''}
+                        name={key as string}
+                        error={Boolean(formErrors[key])}
+                        helperText={errorText}
+                        inputRef={(el) => registerFieldRef?.(key as string, el)}
+                        onChange={(e) =>
+                          handleCustomFieldChange(key, e.target.value)
+                        }
+                      />
+                    )}
+                  </Grid>
+                );
+              })}
             </Grid>
           </Grid>
 
@@ -240,19 +266,17 @@ export function ConstructionForm(props: ConstructionFormProps) {
 
           <Grid size={12}>
             <Typography variant="subtitle1" className="mb-3 font-medium">
-              Terminy
+              {t('form.sections.dates')}
             </Typography>
             <Grid container columns={12} spacing={2}>
-              {DATE_FIELDS.map(({ key, label, required }) => (
-                <Grid size={{ xs: 12, md: 6 }} key={key}>
-                  <LocalizationProvider
-                    localeText={
-                      plPL.components.MuiLocalizationProvider.defaultProps
-                        .localeText
-                    }
-                    dateAdapter={AdapterDayjs}
-                    adapterLocale="pl"
-                  >
+              {DATE_FIELDS.map(({ key, labelKey, required }) => {
+                const label = t(labelKey);
+                const errorText = formErrors[key]
+                  ? t(formErrors[key] as string)
+                  : undefined;
+
+                return (
+                  <Grid size={{ xs: 12, md: 6 }} key={key}>
                     <DatePicker
                       openTo="month"
                       views={['year', 'month', 'day']}
@@ -280,7 +304,7 @@ export function ConstructionForm(props: ConstructionFormProps) {
                           name: key as string,
                           required,
                           error: Boolean(formErrors[key]),
-                          helperText: formErrors[key],
+                          helperText: errorText,
                         },
                         field: {
                           clearable: true,
@@ -288,13 +312,13 @@ export function ConstructionForm(props: ConstructionFormProps) {
                         },
                       }}
                     />
-                  </LocalizationProvider>
-                </Grid>
-              ))}
+                  </Grid>
+                );
+              })}
             </Grid>
             {shouldBeInactive(formState.values.endDate) && (
               <Alert severity="warning" className="mt-3 px-3 py-0 font-medium">
-                Budowa zostanie oznaczona jako zakończona.
+                {t('form.finishedAlert')}
               </Alert>
             )}
           </Grid>
@@ -304,7 +328,7 @@ export function ConstructionForm(props: ConstructionFormProps) {
               <Divider sx={{ width: '100%' }} />
               <Grid size={{ xs: 12 }}>
                 <Typography variant="subtitle1" className="mb-3 font-medium">
-                  Notatka
+                  {t('form.sections.note')}
                 </Typography>
                 <Box sx={{ px: 0.2 }}>
                   <NoteBase
@@ -332,7 +356,9 @@ export function ConstructionForm(props: ConstructionFormProps) {
             type="submit"
             disabled={isSubmitting}
           >
-            {isSubmitting ? 'Zapisywanie...' : 'Zapisz'}
+            {isSubmitting
+              ? t('common:buttons.saving')
+              : t('common:buttons.save')}
           </Button>
           <Button
             variant="outlined"
@@ -342,7 +368,7 @@ export function ConstructionForm(props: ConstructionFormProps) {
             color="inherit"
             disabled={isSubmitting}
           >
-            Anuluj
+            {t('common:buttons.cancel')}
           </Button>
         </Stack>
       </FormGroup>

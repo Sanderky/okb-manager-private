@@ -13,8 +13,8 @@ import dayjs, { Dayjs } from 'dayjs';
 import type { CellDisplayItem, ICell } from '../../model/types';
 import type { Employee } from '@/entities/employee';
 import KeyboardReturnIcon from '@mui/icons-material/KeyboardReturn';
-import { WEEK_DAYS } from '@/shared/config/days';
 import { useTranslation } from 'react-i18next';
+import { useWeekDays } from '@/shared/lib/useWeekDays';
 
 export interface ScheduleManagerWeekViewProps {
   weeks: Dayjs[];
@@ -49,6 +49,7 @@ export const ScheduleManagerWeekView: React.FC<
   handleOnEmployeeClick,
 }) => {
   const { t } = useTranslation(['schedule']);
+  const weekDays = useWeekDays();
 
   return (
     <TableContainer
@@ -95,7 +96,7 @@ export const ScheduleManagerWeekView: React.FC<
                     className="block text-center font-semibold"
                     variant="caption"
                   >
-                    {WEEK_DAYS[i]}
+                    {weekDays[i]}
                   </Typography>
                   <Typography
                     className="text-center font-semibold"

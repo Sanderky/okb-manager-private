@@ -1,10 +1,10 @@
-import React from 'react';
 import { Box } from '@mui/material';
-import dayjs from 'dayjs';
-import { useReactToPrint } from 'react-to-print';
 import HoursTableControlsMobile from './table-controls/TableControlsMobile';
 import HoursTableControlsDesktop from './table-controls/TableControlsDesktop';
 import { useTranslation } from 'react-i18next';
+import type { LangCode } from '@/shared/config/languages';
+import type { TableData } from '../../../model/types';
+import { useGenerateWorkLogsPdf } from '@/features/work-logs/model/services/useGenerateWorkLogsPdf';
 
 export interface HoursTableControlsViewProps {
   isLoading: boolean;
@@ -24,7 +24,7 @@ export interface HoursTableControlsViewProps {
   setIsFilterOpen: (val: boolean) => void;
   hasUnsavedChanges: boolean;
   isEmpty: boolean;
-  onPrint: () => void;
+  onPrint: () => Promise<void>;
 }
 
 export interface HoursTableControlsProps extends Omit<
@@ -32,21 +32,26 @@ export interface HoursTableControlsProps extends Omit<
   'onPrint'
 > {
   containerWidth: number;
-  contentRef: React.RefObject<HTMLDivElement | null>;
+  tableDataPayload: TableData | null;
 }
 
 const HoursTableControls = (props: HoursTableControlsProps) => {
-  const { t } = useTranslation('workLogs');
+  const { i18n } = useTranslation();
+  const { generatePdf, isGenerating } = useGenerateWorkLogsPdf();
 
-  const reactToPrintFn = useReactToPrint({
-    contentRef: props.contentRef,
-    documentTitle: `${t('print.documentTitlePrefix')}_${dayjs(props.currentWeek).format('DD.MM.YYYY')}_${dayjs(props.currentWeek).add(6, 'days').format('DD.MM.YYYY')}`,
-    pageStyle: `@page { margin: 10mm; }`,
-  });
+  const handlePrint = async () => {
+    if (!props.tableDataPayload) return;
+    const lang = i18n.language as LangCode;
 
+    await generatePdf({
+      weeksData: [props.tableDataPayload],
+      lang
+    });
+  };
   const viewProps: HoursTableControlsViewProps = {
     ...props,
-    onPrint: reactToPrintFn,
+    isLoading: props.isLoading || isGenerating,
+    onPrint: handlePrint,
   };
 
   return (

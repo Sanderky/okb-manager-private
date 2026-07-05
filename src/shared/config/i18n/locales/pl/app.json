@@ -8,5 +8,40 @@
   "errorPage": {
     "unexpectedError": "Wystąpił niespodziewany błąd.",
     "tryAgain": "Prosimy spróbować ponownie później."
+  },
+  "footer": {
+    "demoWarning": "Wersja demonstracyjna - niektóre funkcje mogą działać niepoprawnie.",
+    "adminPanel": "Panel administracyjny - dostęp tylko dla autoryzowanego personelu.",
+    "demo": "Demo"
+  },
+  "header": {
+    "theme": "Motyw",
+    "accountSettings": "Ustawienia konta",
+    "logout": "Wyloguj",
+    "defaultUser": "Użytkownik",
+    "expandMenu": "Rozszerz menu",
+    "collapseMenu": "Zwiń menu",
+    "language": "Język"
+  },
+  "sidebar": {
+    "dashboard": "Dashboard",
+    "constructions": "Budowy",
+    "employees": "Pracownicy",
+    "lodgings": "Zakwaterowania",
+    "calendar": "Kalendarz",
+    "vacations": "Urlopy",
+    "schedule": "Harmonogram",
+    "workHours": "Godziny pracy",
+    "settings": "Ustawienia"
+  },
+  "loading": {
+    "authorization": "Autoryzacja...",
+    "dataLoading": "Ładowanie danych..."
+  },
+  "settings": {
+    "title": "Ustawienia aplikacji",
+    "employeesAlerts": "Alerty pracowników",
+    "rodo": "RODO",
+    "accountSettings": "Ustawienia konta"
   }
 }

@@ -220,11 +220,6 @@ export const getDesignTokens = (mode: PaletteMode) => ({
         },
       },
     },
-    MuiAutocomplete: {
-      defaultProps: {
-        noOptionsText: 'Brak danych',
-      },
-    },
     MuiPaper: {
       styleOverrides: {
         root: {

@@ -4,6 +4,7 @@ import { Box, Chip, Alert, Button } from '@mui/material';
 import PageContainer from '@/shared/ui/PageContainer';
 import Loading from '@/shared/ui/Loading';
 import { FileBrowser } from '@/features/file-browser';
+import { useTranslation } from 'react-i18next';
 import { FOLDER_NAMES } from '@/shared/config/storage';
 import {
   ConstructionShow,
@@ -27,6 +28,7 @@ export function ConstructionShowPage() {
 }
 
 export const ConstructionShowContent = () => {
+  const { t } = useTranslation(['constructions', 'common']);
   const [tab, setTab] = useState(0);
   const [endDialogOpen, setEndDialogOpen] = useState(false);
   const [resumeDialogOpen, setResumeDialogOpen] = useState(false);
@@ -44,21 +46,18 @@ export const ConstructionShowContent = () => {
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setTab(newValue);
   };
-  if (loading) return <Loading message="Ładowanie danych budowy..." />;
+
+  if (loading) return <Loading message={t('loading.data')} />;
+
   if (error)
-    return (
-      <Alert severity="error">
-        Wystąpił błąd podczas ładowania danych budowy.
-      </Alert>
-    );
+    return <Alert severity="error">{t('common:errors.fetchError')}</Alert>;
+
   if (notFound)
     return (
       <Box sx={{ width: '100%' }}>
-        <Alert severity="info">
-          Nie znaleziono budowy. Mogła zostać usunięta lub nie istnieje.
-        </Alert>
+        <Alert severity="info">{t('errors.notFoundMessage')}</Alert>
         <Button variant="contained" onClick={handleNavigateBack} sx={{ mt: 2 }}>
-          Wróć
+          {t('common:buttons.back')}
         </Button>
       </Box>
     );
@@ -68,14 +67,18 @@ export const ConstructionShowContent = () => {
   return (
     <PageContainer
       fixedHeight={loading || tab === 1}
-      title={`Budowa ${pageTitle}`}
+      title={t('show.title', { name: pageTitle })}
       breadcrumbs={[
-        { title: 'Budowy', path: '/constructions' },
+        { title: t('title'), path: '/constructions' },
         { title: pageTitle },
       ]}
       actions={
         <Chip
-          label={isInProgress ? 'W trakcie' : 'Zakończona'}
+          label={
+            isInProgress
+              ? t('statusOptions.inProgress')
+              : t('common:status.completed')
+          }
           sx={(theme) => ({
             borderRadius: 1,
             p: 0.5,

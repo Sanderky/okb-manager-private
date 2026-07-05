@@ -1,5 +1,4 @@
 import dayjs, { Dayjs } from 'dayjs';
-import type { LangCode } from '../model/types';
 
 export const toSqlDate = (
   date?: Date | string | Dayjs | null
@@ -12,7 +11,7 @@ export function formatDate(date: Date): string {
   return dayjs(date).format('DD.MM.YYYY');
 }
 
-export const getWeekNumber = (date: Date) => dayjs(date).isoWeek()
+export const getWeekNumber = (date: Date) => dayjs(date).isoWeek();
 
 export const getThreeMonthKeys = (week: Date): string[] => {
   const current = dayjs(week);
@@ -35,30 +34,30 @@ export const getMonthKeysFromWeek = (startOfWeek: Date): string[] => {
 };
 
 export const getWeekDates = (week: Date): Date[] => {
-  const start = dayjs(week).startOf('week');
+  const start = dayjs(week).startOf('isoWeek');
   return Array.from({ length: 7 }).map((_, i) => start.add(i, 'day').toDate());
 };
 
 export function getStartOfWeek(date: Date): Date {
-  return dayjs(date).startOf('week').toDate();
+  return dayjs(date).startOf('isoWeek').toDate();
 }
 
 export function getEndOfWeek(date: Date): Date {
-  return dayjs(date).endOf('week').toDate();
+  return dayjs(date).endOf('isoWeek').toDate();
 }
 
 export function getPreviousWeek(date: Date): Date {
-  return dayjs(date).subtract(1, 'week').startOf('week').toDate();
+  return dayjs(date).subtract(1, 'week').startOf('isoWeek').toDate();
 }
 
 export function getNextWeek(date: Date): Date {
-  return dayjs(date).add(1, 'week').startOf('week').toDate();
+  return dayjs(date).add(1, 'week').startOf('isoWeek').toDate();
 }
 
 export function getWeeksInRange(startDate: Date, endDate: Date): Date[] {
   const weeks: Date[] = [];
-  let current = dayjs(startDate).startOf('week');
-  const end = dayjs(endDate).startOf('week');
+  let current = dayjs(startDate).startOf('isoWeek');
+  const end = dayjs(endDate).startOf('isoWeek');
 
   while (current.isSameOrBefore(end)) {
     weeks.push(current.toDate());
@@ -94,25 +93,4 @@ export const daysToRanges = (days: dayjs.Dayjs[]) => {
   }
   ranges.push(formatRange(start, end));
   return ranges;
-};
-
-export const formatWeeksString = (
-  weeksCount: number,
-  lang: LangCode = 'pl-PL'
-) => {
-  if (lang === 'de-DE') {
-    return weeksCount === 1 ? 'Woche' : 'Wochen';
-  }
-
-  if (lang === 'pl-PL') {
-    const lastDigit = weeksCount % 10;
-    const lastTwoDigits = weeksCount % 100;
-
-    if (weeksCount === 1) return 'tydzień';
-    if (lastTwoDigits >= 11 && lastTwoDigits <= 14) return 'tygodni';
-    if (lastDigit >= 2 && lastDigit <= 4) return 'tygodnie';
-    return 'tygodni';
-  }
-
-  return 'tygodni';
 };

@@ -3,7 +3,7 @@ import {
   getFileExtension,
   getFileNameWithoutExtension,
 } from '../../lib/fileUtils';
-import { removePolishChars } from '../../lib/string';
+import { normalizeToEnglishAlphabet } from '../../lib/string';
 import type { FileBrowserItem } from '../../model/types';
 import { mapStorageItem } from './mappers';
 import { supabase } from '../supabase';
@@ -64,7 +64,7 @@ export const uploadFile = async (
   const rawFileName =
     lastSlashIndex !== -1 ? path.substring(lastSlashIndex + 1) : path;
 
-  const safeFileName = removePolishChars(rawFileName);
+  const safeFileName = normalizeToEnglishAlphabet(rawFileName);
 
   const fullPath = folder ? `${folder}/${safeFileName}` : safeFileName;
 
@@ -227,7 +227,7 @@ export const getUniqueDestPath = async (
   const rawFileName =
     lastSlash !== -1 ? proposedPath.substring(lastSlash + 1) : proposedPath;
 
-  const safeFileName = removePolishChars(rawFileName);
+  const safeFileName = normalizeToEnglishAlphabet(rawFileName);
 
   let uniquePath = pathDirectory
     ? `${pathDirectory}${safeFileName}`

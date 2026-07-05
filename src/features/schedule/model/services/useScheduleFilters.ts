@@ -6,14 +6,14 @@ const SCHEDULE_FILTERS_STORAGE_KEY = 'scheduleFilters';
 export const useScheduleFilters = () => {
   const [fromWeek, setFromWeek] = useState<Date>(() => {
     const saved = localStorage.getItem('scheduleFromWeek');
-    return saved ? new Date(saved) : dayjs().startOf('week').toDate();
+    return saved ? new Date(saved) : dayjs().startOf('isoWeek').toDate();
   });
 
   const [toWeek, setToWeek] = useState<Date>(() => {
     const saved = localStorage.getItem('scheduleToWeek');
     return saved
       ? new Date(saved)
-      : dayjs().add(2, 'week').startOf('week').toDate();
+      : dayjs().add(2, 'week').startOf('isoWeek').toDate();
   });
 
   const [selectedEmployees, setSelectedEmployees] = useState<string[]>(() => {

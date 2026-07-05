@@ -26,7 +26,7 @@ export const useScheduleManager = () => {
   const [activeTable, setActiveTable] = useState<{ type: number; week: Dayjs }>(
     {
       type: 0,
-      week: dayjs().startOf('week'),
+      week: dayjs().startOf('isoWeek'),
     }
   );
   const [showVacations, setShowVacations] = useState(true);
@@ -37,8 +37,8 @@ export const useScheduleManager = () => {
 
   const scheduleDateRange = useMemo(
     () => ({
-      start: dayjs(filters.fromWeek).startOf('week').toDate(),
-      end: dayjs(filters.toWeek).endOf('week').toDate(),
+      start: dayjs(filters.fromWeek).startOf('isoWeek').toDate(),
+      end: dayjs(filters.toWeek).endOf('isoWeek').toDate(),
     }),
     [filters.fromWeek, filters.toWeek]
   );

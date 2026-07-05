@@ -12,8 +12,8 @@ export function useCalendarGrid<T extends BaseCalendarEvent>(
 ) {
   const generateMonthGrid = useCallback(
     (month: Dayjs) => {
-      const start = month.startOf('month').startOf('week');
-      const end = month.endOf('month').endOf('week');
+      const start = month.startOf('month').startOf('isoWeek');
+      const end = month.endOf('month').endOf('isoWeek');
       const weeks: CalendarDay<T>[][] = [];
       let current = start.clone();
 

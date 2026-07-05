@@ -2,16 +2,11 @@ import { useMemo } from 'react';
 import { useConstructions } from '@/entities/construction';
 import { useEmployees } from '@/entities/employee';
 import { processSingleWeekData } from '../utils/weeksReportUtils';
-import type { ConstructionsWithWorkHours } from '../types';
+import type { TableData } from '../types';
 import { useReportData } from '../api/useReportData';
 
 interface UseWeekReportResult {
-  weeksData: Array<{
-    weekStart: Date;
-    constructionsWithWorkHours: ConstructionsWithWorkHours[];
-    weekDates: Date[];
-    totalHoursData: { dailyTotals: number[]; grandTotal: number };
-  }>;
+  weeksData: TableData[];
   isLoading: boolean;
   error: Error | null;
 }
@@ -42,7 +37,7 @@ export const useWeekReport = ({
   const error =
     (weekQueries.find((query) => query.error)?.error as Error) || null;
 
-  const weeksData = useMemo(() => {
+  const weeksData: TableData[] = useMemo(() => {
     if (isLoading || !allEmployees.length || !allConstructions.length)
       return [];
 

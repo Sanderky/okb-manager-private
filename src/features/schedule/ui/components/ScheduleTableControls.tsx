@@ -94,7 +94,7 @@ export const TableControls: React.FC<TableControlsProps> = ({
               onClick={() => {
                 const prevWeek = dayjs(fromWeek)
                   .subtract(1, 'week')
-                  .startOf('week')
+                  .startOf('isoWeek')
                   .toDate();
                 if (!toWeek || !dayjs(prevWeek).isAfter(dayjs(toWeek))) {
                   setFromWeek(prevWeek);
@@ -115,7 +115,7 @@ export const TableControls: React.FC<TableControlsProps> = ({
                 },
               })}
               onClick={() => {
-                const currentWeek = dayjs().startOf('week').toDate();
+                const currentWeek = dayjs().startOf('isoWeek').toDate();
                 setFromWeek(currentWeek);
                 if (dayjs(currentWeek).isAfter(dayjs(toWeek))) {
                   setToWeek(currentWeek);
@@ -137,7 +137,7 @@ export const TableControls: React.FC<TableControlsProps> = ({
               onClick={() => {
                 const nextWeek = dayjs(fromWeek)
                   .add(1, 'week')
-                  .startOf('week')
+                  .startOf('isoWeek')
                   .toDate();
                 if (dayjs(nextWeek).isAfter(dayjs(toWeek))) {
                   setToWeek(nextWeek);
@@ -176,7 +176,7 @@ export const TableControls: React.FC<TableControlsProps> = ({
               value={fromWeek}
               onChange={(val) => {
                 if (!val) return;
-                if (toWeek && dayjs(val).isAfter(toWeek, 'week')) return;
+                if (toWeek && dayjs(val).isAfter(toWeek, 'isoWeek')) return;
                 setFromWeek(val);
               }}
               comparisonDate={toWeek}
@@ -190,7 +190,7 @@ export const TableControls: React.FC<TableControlsProps> = ({
               value={toWeek}
               onChange={(val) => {
                 if (!val) return;
-                if (fromWeek && dayjs(val).isBefore(fromWeek, 'week')) return;
+                if (fromWeek && dayjs(val).isBefore(fromWeek, 'isoWeek')) return;
                 setToWeek(val);
               }}
               comparisonDate={fromWeek}
@@ -261,7 +261,7 @@ export const TableControls: React.FC<TableControlsProps> = ({
           value={fromWeek}
           onChange={(val) => {
             if (!val) return;
-            if (toWeek && dayjs(val).isAfter(toWeek, 'week')) return;
+            if (toWeek && dayjs(val).isAfter(toWeek, 'isoWeek')) return;
             setFromWeek(val);
           }}
           comparisonDate={toWeek}
@@ -271,7 +271,7 @@ export const TableControls: React.FC<TableControlsProps> = ({
           value={toWeek}
           onChange={(val) => {
             if (!val) return;
-            if (fromWeek && dayjs(val).isBefore(fromWeek, 'week')) return;
+            if (fromWeek && dayjs(val).isBefore(fromWeek, 'isoWeek')) return;
             setToWeek(val);
           }}
           comparisonDate={fromWeek}

@@ -129,8 +129,6 @@
     }
   },
   "print": {
-    "documentTitlePrefix": "tabelka_godzin_",
-    "multiTableFileName": "ewidencja_godzin_pracy",
     "report": {
       "title": "Raport godzin pracy",
       "subtitle": "Okres",
@@ -144,8 +142,8 @@
       "fileNamePrefix": "Raport_godzin_",
       "constructions": "Budowy",
       "employees": "Pracownicy",
-      "constructionsCount": "Budowy {{count}}",
-      "employeesCount": "Pracownicy {{count}}",
+      "constructionsCount": "Budowy: {{count}}",
+      "employeesCount": "Pracownicy: {{count}}",
       "loading": "Ładowanie raportu...",
       "error": "Błąd:",
       "weeksCount_one": "{{count}} tydzień",

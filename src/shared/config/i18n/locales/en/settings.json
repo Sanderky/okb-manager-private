@@ -1,0 +1,16 @@
+{
+  "rodo": {
+    "description": "Data processing statement. The document is displayed on the login page.",
+    "infoAdd": "To add a new file, you must first delete the old one.",
+    "addButton": "Add GDPR file",
+    "pdfOnly": "Only .pdf files (the name will automatically be changed to rodo.pdf)"
+  },
+  "errors": {
+    "fetchRodo": "Failed to fetch GDPR file information.",
+    "onlyPdf": "Only PDF files are allowed.",
+    "upload": "An error occurred while uploading the file.",
+    "delete": "Failed to delete the file.",
+    "download": "Error while downloading the file.",
+    "preview": "Error while opening preview."
+  }
+}

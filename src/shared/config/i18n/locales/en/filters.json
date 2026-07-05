@@ -1,0 +1,14 @@
+{
+  "constructionsTitle": "Constructions filter",
+  "employeesTitle": "Employees filter",
+  "selectedCount": "Selected: {{selected}} of {{total}}",
+  "allConstructions": "All constructions",
+  "allEmployees": "All employees",
+  "constructionsLabel": "Constructions",
+  "employeesLabel": "Employees",
+  "includeCompletedConstructions": "Include completed constructions in filter",
+  "includeInactiveEmployees": "Include inactive employees in filter",
+  "inactiveEmployee": "Inactive",
+  "selectAll": "Select all",
+  "clear": "Clear"
+}

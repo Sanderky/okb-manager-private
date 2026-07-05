@@ -1,0 +1,83 @@
+{
+  "pageTitle": "Calendar",
+  "categories": {
+    "info": "Info",
+    "lodging": "Hotel",
+    "payroll": "Payroll",
+    "accounting": "Accounting",
+    "other": "Other",
+    "none": "No category"
+  },
+  "upcoming": {
+    "title": "Upcoming events",
+    "titleConstruction": "Construction events",
+    "titleEmployee": "Employee events",
+    "emptyState": "No upcoming events",
+    "chipLabel_one": "{{count}} event",
+    "chipLabel_few": "{{count}} events",
+    "chipLabel_many": "{{count}} events"
+  },
+  "errors": {
+    "localStorageFilter": "Error reading filters from localStorage"
+  },
+  "actions": {
+    "addEvent": "Add event"
+  },
+  "notifications": {
+    "eventAdded": "Event has been added.",
+    "eventUpdated": "Event has been updated.",
+    "eventDeleted": "Event has been deleted."
+  },
+  "controls": {
+    "showTypes": "Show event types:",
+    "filters": "Filters",
+    "prevMonth": "Previous month",
+    "currentMonth": "Current month",
+    "nextMonth": "Next month"
+  },
+  "dialogs": {
+    "deleteEvent": {
+      "title": "Delete event",
+      "description": "Are you sure you want to delete this event?"
+    },
+    "addEvent": {
+      "title": "New event"
+    },
+    "editEvent": {
+      "titleEditing": "Edit event",
+      "titleViewing": "Event details",
+      "noTitle": "No title",
+      "noDescription": "No additional description",
+      "assignedEmployees": "Assigned employees:",
+      "assignedConstructions": "Assigned constructions:"
+    },
+    "eventList": {
+      "title": "Events ({{count}})",
+      "noEvents": "No events",
+      "table": {
+        "titleDesc": "Title / Description",
+        "type": "Type",
+        "date": "Date"
+      },
+      "peopleCount": "People: {{count}}",
+      "constructionsCount": "Constructions: {{count}}"
+    }
+  },
+  "form": {
+    "category": "Category *",
+    "color": "Select color *",
+    "title": "Event title *",
+    "description": "Description",
+    "dateFrom": "From *",
+    "dateTo": "To *",
+    "employees": "Assigned employees",
+    "constructions": "Assigned constructions"
+  },
+  "validation": {
+    "titleRequired": "Event title is required",
+    "dateRangeRequired": "Select a date range",
+    "severityRequired": "Select an event type (severity)",
+    "endDateBeforeStartDate": "End date cannot be earlier than start date",
+    "defaultError": "Error"
+  }
+}

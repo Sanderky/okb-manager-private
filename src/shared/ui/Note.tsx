@@ -7,6 +7,7 @@ import TextAlign from '@tiptap/extension-text-align';
 import type { Editor } from '@tiptap/react';
 import { EditorContent, useEditor, useEditorState } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
+import { useTranslation } from 'react-i18next';
 import {
   FormatAlignCenter,
   FormatAlignLeft,
@@ -35,6 +36,8 @@ import {
 import { useState, useEffect } from 'react';
 
 const MenuBar = ({ editor }: { editor: Editor }) => {
+  const { t } = useTranslation('common');
+
   const editorState = useEditorState({
     editor,
     selector: (ctx) => {
@@ -80,7 +83,7 @@ const MenuBar = ({ editor }: { editor: Editor }) => {
       }}
     >
       {/* Headers */}
-      <Tooltip placement="top" title="Nagłówek 1">
+      <Tooltip placement="top" title={t('note.heading1')}>
         <ToggleButton
           size="small"
           value="h1"
@@ -94,7 +97,7 @@ const MenuBar = ({ editor }: { editor: Editor }) => {
         </ToggleButton>
       </Tooltip>
 
-      <Tooltip placement="top" title="Nagłówek 2">
+      <Tooltip placement="top" title={t('note.heading2')}>
         <ToggleButton
           size="small"
           value="h2"
@@ -108,7 +111,7 @@ const MenuBar = ({ editor }: { editor: Editor }) => {
         </ToggleButton>
       </Tooltip>
 
-      <Tooltip placement="top" title="Nagłówek 3">
+      <Tooltip placement="top" title={t('note.heading3')}>
         <ToggleButton
           size="small"
           value="h3"
@@ -125,7 +128,7 @@ const MenuBar = ({ editor }: { editor: Editor }) => {
       <Divider flexItem orientation="vertical" sx={{ mx: 0.5 }} />
 
       {/* Text Formatting */}
-      <Tooltip placement="top" title="Pogrubienie">
+      <Tooltip placement="top" title={t('note.bold')}>
         <span>
           <ToggleButton
             size="small"
@@ -140,7 +143,7 @@ const MenuBar = ({ editor }: { editor: Editor }) => {
         </span>
       </Tooltip>
 
-      <Tooltip placement="top" title="Kursywa">
+      <Tooltip placement="top" title={t('note.italic')}>
         <span>
           <ToggleButton
             size="small"
@@ -155,7 +158,7 @@ const MenuBar = ({ editor }: { editor: Editor }) => {
         </span>
       </Tooltip>
 
-      <Tooltip placement="top" title="Przekreślenie">
+      <Tooltip placement="top" title={t('note.strike')}>
         <span>
           <ToggleButton
             size="small"
@@ -170,7 +173,7 @@ const MenuBar = ({ editor }: { editor: Editor }) => {
         </span>
       </Tooltip>
 
-      <Tooltip placement="top" title="Podkreślenie">
+      <Tooltip placement="top" title={t('note.underline')}>
         <span>
           <ToggleButton
             size="small"
@@ -185,7 +188,7 @@ const MenuBar = ({ editor }: { editor: Editor }) => {
         </span>
       </Tooltip>
 
-      <Tooltip placement="top" title="Wyróżnienie">
+      <Tooltip placement="top" title={t('note.highlight')}>
         <span>
           <ToggleButton
             size="small"
@@ -203,7 +206,7 @@ const MenuBar = ({ editor }: { editor: Editor }) => {
       <Divider flexItem orientation="vertical" sx={{ mx: 0.5 }} />
 
       {/* Text Alignment */}
-      <Tooltip placement="top" title="Wyrównaj do lewej">
+      <Tooltip placement="top" title={t('note.alignLeft')}>
         <ToggleButton
           size="small"
           value="alignLeft"
@@ -215,7 +218,7 @@ const MenuBar = ({ editor }: { editor: Editor }) => {
         </ToggleButton>
       </Tooltip>
 
-      <Tooltip placement="top" title="Wyśrodkuj">
+      <Tooltip placement="top" title={t('note.alignCenter')}>
         <ToggleButton
           size="small"
           value="alignCenter"
@@ -227,7 +230,7 @@ const MenuBar = ({ editor }: { editor: Editor }) => {
         </ToggleButton>
       </Tooltip>
 
-      <Tooltip placement="top" title="Wyrównaj do prawej">
+      <Tooltip placement="top" title={t('note.alignRight')}>
         <ToggleButton
           size="small"
           value="alignRight"
@@ -242,7 +245,7 @@ const MenuBar = ({ editor }: { editor: Editor }) => {
       <Divider flexItem orientation="vertical" sx={{ mx: 0.5 }} />
 
       {/* Lists */}
-      <Tooltip placement="top" title="Lista punktowana">
+      <Tooltip placement="top" title={t('note.bulletList')}>
         <ToggleButton
           size="small"
           value="bulletList"
@@ -254,7 +257,7 @@ const MenuBar = ({ editor }: { editor: Editor }) => {
         </ToggleButton>
       </Tooltip>
 
-      <Tooltip placement="top" title="Lista numerowana">
+      <Tooltip placement="top" title={t('note.orderedList')}>
         <ToggleButton
           size="small"
           value="orderedList"
@@ -266,7 +269,7 @@ const MenuBar = ({ editor }: { editor: Editor }) => {
         </ToggleButton>
       </Tooltip>
 
-      <Tooltip placement="top" title="Linia pozioma">
+      <Tooltip placement="top" title={t('note.horizontalRule')}>
         <ToggleButton
           size="small"
           value="line"
@@ -280,7 +283,7 @@ const MenuBar = ({ editor }: { editor: Editor }) => {
       <Divider flexItem orientation="vertical" sx={{ mx: 0.5 }} />
 
       {/* History */}
-      <Tooltip placement="top" title="Cofnij">
+      <Tooltip placement="top" title={t('note.undo')}>
         <span>
           <ToggleButton
             size="small"
@@ -294,7 +297,7 @@ const MenuBar = ({ editor }: { editor: Editor }) => {
         </span>
       </Tooltip>
 
-      <Tooltip placement="top" title="Ponów">
+      <Tooltip placement="top" title={t('note.redo')}>
         <span>
           <ToggleButton
             size="small"
@@ -316,7 +319,7 @@ interface NoteProps {
   onSave: (note: string) => void;
   loading?: boolean;
   showFrame?: boolean;
-  dashedBorder?: boolean
+  dashedBorder?: boolean;
 }
 
 export const Note = ({
@@ -324,8 +327,9 @@ export const Note = ({
   onSave,
   loading = false,
   showFrame = true,
-  dashedBorder = true
+  dashedBorder = true,
 }: NoteProps) => {
+  const { t } = useTranslation('common');
   const [editNote, setEditNote] = useState(false);
   const [note, setNote] = useState(content ?? '');
 
@@ -349,7 +353,11 @@ export const Note = ({
 
   return (
     <Box
-      className={showFrame ? `rounded-lg border ${dashedBorder ? 'border-dashed' : ''}` : ''}
+      className={
+        showFrame
+          ? `rounded-lg border ${dashedBorder ? 'border-dashed' : ''}`
+          : ''
+      }
       sx={(theme) => ({
         background: theme.palette.background.paper,
         borderColor: theme.palette.divider,
@@ -373,7 +381,7 @@ export const Note = ({
             alignSelf: 'flex-start',
           }}
         >
-          Notatka:
+          {t('note.label')}
         </Typography>
         <Stack
           direction="row"
@@ -383,7 +391,7 @@ export const Note = ({
           spacing={2}
         >
           {editNote && (
-            <Tooltip title="Zapisz notatkę">
+            <Tooltip title={t('note.save')}>
               <IconButton
                 onClick={handleSaveNote}
                 size="small"
@@ -398,7 +406,7 @@ export const Note = ({
               </IconButton>
             </Tooltip>
           )}
-          <Tooltip title={editNote ? 'Anuluj' : 'Edytuj notatkę'}>
+          <Tooltip title={editNote ? t('buttons.cancel') : t('note.edit')}>
             <IconButton
               size="small"
               onClick={editNote ? handleCancelEdit : () => setEditNote(true)}

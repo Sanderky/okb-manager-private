@@ -15,24 +15,25 @@ import dayjs from 'dayjs';
 import { useEventColor } from '@/entities/events';
 import {
   EVENT_CATEGORIES,
-  getCategoryLabel,
+  getCategoryLabelTranslationKey,
   type EventCategory,
 } from '@/entities/events';
 import useContainerBreakpoint from '@/shared/lib/useContainerWidth';
 import { useCalendarContext } from '../model/providers/CalendarContext';
 import { BaseCalendarControls } from '@/shared/ui/calendar/BaseCalendarControls';
 import { BaseCalendarGrid } from '@/shared/ui/calendar/BaseCalendarGrid';
-import { WEEK_DAYS } from '@/shared/config/days';
 import { AddEventDialog } from './dialogs/AddEventDialog';
 import { EditEventDialog } from './dialogs/EditEventDialog';
 import { EventListDialog } from './dialogs/EventListDialog';
 import { useTranslation } from 'react-i18next';
+import { useWeekDays } from '@/shared/lib/useWeekDays';
 
 export const EventsCalendar: React.FC = () => {
   const { t } = useTranslation(['calendar', 'common']);
   const [containerRef, width] = useContainerBreakpoint();
   const { state, actions } = useCalendarContext();
   const { getEventColor, getEventTextColor } = useEventColor();
+  const weekDays = useWeekDays();
 
   const activeDayData = state.activeDayDate
     ? state.monthGrid
@@ -141,7 +142,7 @@ export const EventsCalendar: React.FC = () => {
                   }
                   label={
                     <Typography variant="body2">
-                      {getCategoryLabel(sev)}
+                      {t(`calendar:${getCategoryLabelTranslationKey(sev)}`)}
                     </Typography>
                   }
                 />
@@ -153,7 +154,7 @@ export const EventsCalendar: React.FC = () => {
 
       <Box sx={(t) => ({ borderBottom: `1px solid ${t.palette.divider}` })}>
         <Grid container>
-          {WEEK_DAYS.map((day, i) => (
+          {weekDays.map((day, i) => (
             <Grid
               size={{ xs: 12 / 7 }}
               key={i}
@@ -183,7 +184,7 @@ export const EventsCalendar: React.FC = () => {
             actions.setters.setEventsDialogOpen(true);
           }}
           onEventClick={actions.handleEventClick}
-          isEventHidden={(ev, slot, maxSlots) => slot >= maxSlots}
+          isEventHidden={(_, slot, maxSlots) => slot >= maxSlots}
           renderEventChip={(
             ev,
             { isStart, isEnd, isWeekStart, showName, height }

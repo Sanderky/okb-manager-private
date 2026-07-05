@@ -4,6 +4,8 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { type FileItem } from '../model/types';
 import { IconButton, Menu, MenuItem } from '@mui/material';
+import { useTranslation } from 'react-i18next';
+import dayjs from 'dayjs';
 import {
   AttachFile,
   Delete,
@@ -33,6 +35,7 @@ export const AttachmentItem = ({
   onNewCard,
   onNameClick,
 }: AttachmentItemProps) => {
+  const { t } = useTranslation('common');
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
@@ -40,6 +43,7 @@ export const AttachmentItem = ({
     event.stopPropagation();
     setAnchorEl(event.currentTarget);
   };
+
   const handleClose = (event: React.MouseEvent) => {
     event.stopPropagation();
     setAnchorEl(null);
@@ -50,13 +54,15 @@ export const AttachmentItem = ({
       <Box marginBottom={2}>
         <Stack direction={'row'} alignItems={'center'} gap={1}>
           <HighlightOff className="text-gray-500" />
-          <Typography variant="body2">Brak załącznika</Typography>
+          <Typography variant="body2">
+            {t('attachment.noAttachment')}
+          </Typography>
         </Stack>
       </Box>
     );
   }
 
-  const dateCreated = file.createdAt ? new Date(file.createdAt) : null;
+  const dateCreated = file.createdAt ? dayjs(file.createdAt) : null;
   const canPreview = canOpenPreview({
     name: file.name,
     type: 'file',
@@ -94,7 +100,8 @@ export const AttachmentItem = ({
                   handleClose(e);
                 }}
               >
-                <Visibility sx={{ color: 'text.secondary', mr: 1 }} /> Podgląd
+                <Visibility sx={{ color: 'text.secondary', mr: 1 }} />{' '}
+                {t('attachment.preview')}
               </MenuItem>
             )}
             {onNewCard && (
@@ -104,8 +111,8 @@ export const AttachmentItem = ({
                   handleClose(e);
                 }}
               >
-                <OpenInNew sx={{ color: 'text.secondary', mr: 1 }} /> Otwórz w
-                nowej karcie
+                <OpenInNew sx={{ color: 'text.secondary', mr: 1 }} />{' '}
+                {t('attachment.openInNewTab')}
               </MenuItem>
             )}
             {onDownload && (
@@ -115,7 +122,8 @@ export const AttachmentItem = ({
                   handleClose(e);
                 }}
               >
-                <Download sx={{ color: 'text.secondary', mr: 1 }} /> Pobierz
+                <Download sx={{ color: 'text.secondary', mr: 1 }} />{' '}
+                {t('attachment.download')}
               </MenuItem>
             )}
             {onDelete && (
@@ -125,14 +133,14 @@ export const AttachmentItem = ({
                   handleClose(e);
                 }}
               >
-                <Delete color="error" sx={{ mr: 1 }} /> Usuń
+                <Delete color="error" sx={{ mr: 1 }} /> {t('buttons.delete')}
               </MenuItem>
             )}
           </Menu>
         </Stack>
-        {dateCreated && (
+        {dateCreated && dateCreated.isValid() && (
           <Typography variant="caption" color="text.secondary">
-            Dodano: {dateCreated.toLocaleString()}
+            {t('attachment.added', { date: dateCreated.format('L LT') })}
           </Typography>
         )}
       </Box>

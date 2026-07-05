@@ -1,5 +1,4 @@
-import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
-import { useReactToPrint } from 'react-to-print';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import dayjs from 'dayjs';
 import {
   getPreviousWeek,
@@ -10,14 +9,14 @@ import { useConstructions, type Construction } from '@/entities/construction';
 import { useEmployees, type Employee } from '@/entities/employee';
 import { useTranslation } from 'react-i18next';
 import { DEFAULT_LANG, type LangCode } from '@/shared/config/languages';
+import { useWeekReport } from './useWeekReportData';
+import { useGenerateWorkLogsPdf } from './useGenerateWorkLogsPdf';
 
 export const usePrintReportDialog = (
   defaultStartWeek?: Date,
   onClose?: () => void
 ) => {
   const { t } = useTranslation('workLogs');
-
-  const printContentRef = useRef<HTMLDivElement>(null);
 
   const [startWeek, setStartWeek] = useState<Date>(
     defaultStartWeek ?? getPreviousWeek(new Date())
@@ -27,7 +26,6 @@ export const usePrintReportDialog = (
   );
 
   const [isError, setIsError] = useState<boolean>(false);
-  const [reportLoading, setReportLoading] = useState<boolean>(true);
   const [printTitle, setPrintTile] = useState<boolean>(true);
   const [printTablesTitle, setPrintTablesTitle] = useState<boolean>(true);
   const [omitEmpty, setOmitEmpty] = useState<boolean>(false);
@@ -43,6 +41,7 @@ export const usePrintReportDialog = (
     useState(false);
   const [isFilterExpanded, setIsFilterExpanded] = useState(false);
 
+  const { generatePdf, isGenerating } = useGenerateWorkLogsPdf();
   const { employees: allEmployees = [] } = useEmployees();
   const { constructions: allConstructions = [] } = useConstructions();
 
@@ -57,7 +56,20 @@ export const usePrintReportDialog = (
     [allEmployees, selectedEmployeeIds]
   );
 
-  const weeks = getWeeksInRange(startWeek, endWeek);
+  const weeks = useMemo(
+    () => getWeeksInRange(startWeek, endWeek),
+    [startWeek, endWeek]
+  );
+
+  const {
+    weeksData,
+    isLoading: isDataLoading,
+    error: dataError,
+  } = useWeekReport({
+    weekStarts: weeks,
+    selectedConstructionIds,
+    selectedEmployeeIds,
+  });
 
   useEffect(() => {
     if (defaultStartWeek) {
@@ -78,7 +90,6 @@ export const usePrintReportDialog = (
     setOmitEmpty(false);
     setShowVacation(true);
     setIsError(false);
-    setReportLoading(false);
     setLang('pl-PL');
     setSelectedConstructionIds([]);
     setSelectedEmployeeIds([]);
@@ -92,18 +103,38 @@ export const usePrintReportDialog = (
     onClose?.();
   }, [reset, onClose]);
 
-  const reactToPrintFn = useReactToPrint({
-    contentRef: printContentRef,
-    documentTitle: `${t('print.report.fileNamePrefix', { lng: lang })}${dayjs(startWeek).format('DD.MM.YYYY')}_${dayjs(endWeek).add(6, 'days').format('DD.MM.YYYY')}`,
-    pageStyle: `@page { margin: 10mm; }`,
-  });
+  const handleSave = useCallback(async () => {
+    if (isDataLoading || dataError || isError) return;
 
-  const handleSave = useCallback(() => {
-    setTimeout(() => {
-      reactToPrintFn();
-      handleClose();
-    }, 1000);
-  }, [reactToPrintFn, handleClose]);
+    await generatePdf({
+      weeksData,
+      lang,
+      title: t('print.report.title', { lng: lang }),
+      subtitle: `${t('print.report.subtitle', { lng: lang })}: ${dayjs(startWeek).format('DD.MM.YYYY')} - ${dayjs(endWeek).add(6, 'days').format('DD.MM.YYYY')} (${t('print.report.weeksCount', { count: weeks.length, lng: lang })})`,
+      showVacation,
+      omitEmpty,
+      printTitle,
+      printTablesTitle,
+      onSuccess: handleClose,
+      onError: () => setIsError(true),
+    });
+  }, [
+    isDataLoading,
+    dataError,
+    isError,
+    weeksData,
+    lang,
+    showVacation,
+    omitEmpty,
+    printTitle,
+    printTablesTitle,
+    startWeek,
+    endWeek,
+    weeks.length,
+    t,
+    handleClose,
+    generatePdf,
+  ]);
 
   const handleSelectEmployees = useCallback((employees: Employee[]) => {
     setSelectedEmployeeIds(employees.map((e) => e.id));
@@ -117,14 +148,12 @@ export const usePrintReportDialog = (
   );
 
   return {
-    printContentRef,
     startWeek,
     setStartWeek,
     endWeek,
     setEndWeek,
     isError,
-    reportLoading,
-    setReportLoading,
+    reportLoading: isGenerating,
     printTitle,
     setPrintTile,
     printTablesTitle,
@@ -152,5 +181,6 @@ export const usePrintReportDialog = (
     handleSave,
     handleSelectEmployees,
     handleSelectConstructions,
+    isDataLoading,
   };
 };

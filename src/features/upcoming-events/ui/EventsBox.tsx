@@ -24,7 +24,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import {
   EVENT_CATEGORIES,
-  getCategoryLabel,
+  getCategoryLabelTranslationKey,
   useEventColor,
   type InfoEvent,
 } from '@/entities/events';
@@ -127,7 +127,7 @@ export const EventsBox = ({
                 }
                 label={
                   <Typography variant="body2">
-                    {getCategoryLabel(cat, t)}
+                    {t(`calendar:${getCategoryLabelTranslationKey(cat)}`)}
                   </Typography>
                 }
               />
@@ -199,7 +199,7 @@ export const EventsBox = ({
                     >
                       <Typography variant="subtitle2">{event.title}</Typography>
                       <Chip
-                        label={getCategoryLabel(event.category, t)}
+                        label={t(`calendar:${getCategoryLabelTranslationKey(event.category)}`)}
                         variant="filled"
                         sx={{
                           color: getEventTextColor(event.color),
@@ -210,7 +210,7 @@ export const EventsBox = ({
                       />
                     </Stack>
                     <Typography variant="body2">
-                      {getDateStr(event.startDate, event.endDate, true)}
+                      {getDateStr(event.startDate, event.endDate, true, t)}
                     </Typography>
                   </ListItem>
                 ))

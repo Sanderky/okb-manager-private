@@ -1,0 +1,138 @@
+{
+  "title": "Constructions",
+  "inactive": "Completed",
+  "validation": {
+    "nameRequired": "Name is required.",
+    "nameTooLong": "Name cannot be longer than 255 characters.",
+    "startDateRequired": "Start date is required.",
+    "endDateBeforeStart": "End date cannot be earlier than the start date.",
+    "endDateInFuture": "End date cannot be in the future.",
+    "locationTooLong": "Location cannot be longer than 255 characters.",
+    "statusRequired": "Status is required.",
+    "fixErrors": "Please fix the errors in the form."
+  },
+  "form": {
+    "sections": {
+      "requiredInfo": "Fields marked with * are required.",
+      "constructionData": "Construction data",
+      "dates": "Dates",
+      "note": "Note"
+    },
+    "fields": {
+      "name": "Construction name",
+      "location": "Location",
+      "contractor": "Contractor",
+      "startDate": "Start date",
+      "endDate": "End date"
+    },
+    "addContractor": "Add contractor",
+    "finishedAlert": "The construction will be marked as completed."
+  },
+  "dialogs": {
+    "finish": {
+      "title": "Finish construction",
+      "confirmBtn": "Finish construction",
+      "prompt": "Select the construction completion date",
+      "startDateLabel": "Start date:",
+      "endDateLabel": "End date",
+      "cannotFinishAlert": "The construction cannot be finished because it hasn't started yet."
+    },
+    "resume": {
+      "title": "Resume construction",
+      "confirmBtn": "Resume construction",
+      "prompt": "Are you sure you want to resume the construction?"
+    },
+    "delete": {
+      "title": "Delete construction",
+      "confirmQuestion": "Are you sure you want to delete <strong>{{name}}</strong>?",
+      "warningText": "The construction will be deleted from the database along with all files and related information.",
+      "alertTitle": "Warning!",
+      "alertText": "This operation cannot be undone. Consider finishing the construction instead.",
+      "promptName": "To delete the construction, enter its full name below:"
+    }
+  },
+  "fields": {
+    "name": "Construction name",
+    "location": "Location",
+    "contractor": "Contractor",
+    "startDate": "Start date",
+    "endDate": "End date",
+    "address": "Address",
+    "employeeCount": "Number of employees",
+    "employeeCountMin": "Min.",
+    "employeeCountMax": "Max.",
+    "status": "Status",
+    "dateFrom": "From",
+    "dateTo": "To"
+  },
+  "statusOptions": {
+    "all": "All",
+    "inProgress": "In progress",
+    "completed": "Completed"
+  },
+  "tooltips": {
+    "openMaps": "Open in Google Maps",
+    "viewContractor": "Go to contractor",
+    "edit": "Edit construction",
+    "finish": "Finish construction",
+    "resume": "Resume construction"
+  },
+  "actions": {
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "save": "Save",
+    "finish": "Finish",
+    "activate": "Activate",
+    "clearFilters": "Clear filters",
+    "applyFilters": "Apply filters"
+  },
+  "show": {
+    "title": "Construction {{name}}",
+    "activeEmployees": "Employees on site today ({{count}}):",
+    "noEmployees": "No employees on site",
+    "contractorChip": "Contractor"
+  },
+  "edit": {
+    "pageTitle": "Edit {{name}}",
+    "finishSection": {
+      "title": "Finish construction",
+      "description": "Construction status changes to \"Completed\"."
+    },
+    "activateSection": {
+      "title": "Activate construction",
+      "description": "Construction status changes to \"In progress\"."
+    },
+    "deleteSection": {
+      "title": "Delete construction",
+      "description": "Permanently deletes the construction from the database. This operation cannot be undone."
+    }
+  },
+  "create": {
+    "title": "Add new construction",
+    "loading": "Creating new construction...",
+    "breadcrumb": "New"
+  },
+  "list": {
+    "title": "Constructions list",
+    "contractors": "Contractors"
+  },
+  "loading": {
+    "data": "Loading construction data..."
+  },
+  "errors": {
+    "notFound": "Construction data not found.",
+    "notFoundMessage": "Construction not found. It may have been deleted or does not exist."
+  },
+  "tabs": {
+    "info": "Information",
+    "files": "Files"
+  },
+  "notifications": {
+    "createError": "An error occurred while creating the construction.",
+    "updateError": "An error occurred while updating the construction."
+  },
+  "table": {
+    "rowNumber": "No.",
+    "filtersTitle": "Construction filters"
+  }
+}

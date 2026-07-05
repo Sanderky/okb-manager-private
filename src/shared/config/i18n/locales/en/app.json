@@ -1,0 +1,47 @@
+{
+  "pageNotFound": {
+    "notExist": "Oops! Page does not exist!",
+    "pageDeletedInfo": "It seems that the page you are looking for does not exist or has been deleted.",
+    "mainPage": "Main page",
+    "goBack": "Go back"
+  },
+  "errorPage": {
+    "unexpectedError": "An unexpected error has occurred.",
+    "tryAgain": "Please try again later."
+  },
+  "footer": {
+    "demoWarning": "Demo version - some features may not work properly.",
+    "adminPanel": "Admin panel - access restricted to authorized personnel only.",
+    "demo": "Demo"
+  },
+  "header": {
+    "theme": "Theme",
+    "accountSettings": "Account settings",
+    "logout": "Logout",
+    "defaultUser": "User",
+    "expandMenu": "Expand menu",
+    "collapseMenu": "Collapse menu",
+    "language": "Language"
+  },
+  "sidebar": {
+    "dashboard": "Dashboard",
+    "constructions": "Constructions",
+    "employees": "Employees",
+    "lodgings": "Lodgings",
+    "calendar": "Calendar",
+    "vacations": "Vacations",
+    "schedule": "Schedule",
+    "workHours": "Work hours",
+    "settings": "Settings"
+  },
+  "loading": {
+    "authorization": "Authorization...",
+    "dataLoading": "Loading data..."
+  },
+  "settings": {
+    "title": "App settings",
+    "employeesAlerts": "Employees alerts",
+    "rodo": "RODO",
+    "accountSettings": "Account settings"
+  }
+}

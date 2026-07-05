@@ -131,7 +131,7 @@ export const UpcomingVacation = () => {
                       {vacation.employeeName}
                     </Typography>
                     <Typography variant="body2">
-                      {getDateStr(vacation.startDate, vacation.endDate, true)}
+                      {getDateStr(vacation.startDate, vacation.endDate, true, t)}
                     </Typography>
                   </ListItem>
                 ))

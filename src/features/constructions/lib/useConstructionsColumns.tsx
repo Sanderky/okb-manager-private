@@ -2,25 +2,32 @@ import { useMemo } from 'react';
 import { Box } from '@mui/material';
 import type { MRT_ColumnDef } from 'material-react-table';
 import dayjs from 'dayjs';
+import { useTranslation } from 'react-i18next';
 import type { Construction } from '@/entities/construction';
 import { dateBetweenFilterFn, employeeCountFilterFn } from '../model/filter';
 
 export const useConstructionsColumns = (
   employeesData: Record<string, number> | undefined
 ) => {
+  const { t } = useTranslation(['constructions', 'common']);
+
   return useMemo<MRT_ColumnDef<Construction & { employeeCount?: number }>[]>(
     () => [
-      { id: 'name', accessorKey: 'name', header: 'Nazwa' },
+      { id: 'name', accessorKey: 'name', header: t('fields.name') },
       {
         id: 'contractorName',
         accessorKey: 'contractorName',
-        header: 'Wykonawca',
+        header: t('fields.contractor'),
         filterFn: 'equals',
       },
-      { id: 'location', accessorKey: 'location', header: 'Adres' },
+      {
+        id: 'location',
+        accessorKey: 'location',
+        header: t('fields.address'),
+      },
       {
         id: 'startDate',
-        header: 'Data rozpoczęcia',
+        header: t('fields.startDate'),
         filterVariant: 'date-range',
         accessorFn: (originalRow) =>
           originalRow.startDate
@@ -29,14 +36,14 @@ export const useConstructionsColumns = (
         Cell: ({ cell }) => {
           const value = cell.getValue();
           if (!value || !dayjs.isDayjs(value) || !value.isValid()) return '-';
-          return dayjs(value).format('DD.MM.YYYY');
+          return dayjs(value).format('L');
         },
         filterFn: dateBetweenFilterFn,
         maxSize: 140,
       },
       {
         id: 'endDate',
-        header: 'Data zakończenia',
+        header: t('fields.endDate'),
         filterVariant: 'date-range',
         accessorFn: (originalRow) =>
           originalRow.endDate && dayjs(originalRow.endDate).isValid()
@@ -45,14 +52,14 @@ export const useConstructionsColumns = (
         Cell: ({ cell }) => {
           const value = cell.getValue();
           if (!value || !dayjs.isDayjs(value) || !value.isValid()) return '-';
-          return dayjs(value).format('DD.MM.YYYY');
+          return dayjs(value).format('L');
         },
         filterFn: dateBetweenFilterFn,
         maxSize: 140,
       },
       {
         id: 'employeeCount',
-        header: 'Pracownicy dziś',
+        header: t('fields.employeeCount'),
         accessorFn: (row) => employeesData?.[row.id] || 0,
         filterVariant: 'range',
         filterFn: employeeCountFilterFn,
@@ -80,13 +87,13 @@ export const useConstructionsColumns = (
       },
       {
         id: 'status',
-        header: 'Status',
+        header: t('fields.status'),
         accessorFn: (row) => row.status,
         filterVariant: 'select',
         filterSelectOptions: [
-          { label: 'W trakcie', value: 'true' },
-          { label: 'Zakończone', value: 'false' },
-          { label: 'Wszystkie', value: '' },
+          { label: t('statusOptions.inProgress'), value: 'true' },
+          { label: t('common:status.completed'), value: 'false' },
+          { label: t('statusOptions.all'), value: '' },
         ],
         filterFn: (row: any, _columnId: string, filterValue: string) => {
           if (!filterValue) return true;
@@ -105,11 +112,13 @@ export const useConstructionsColumns = (
                 : theme.palette.status.construction.inactive.text,
             })}
           >
-            {cell.getValue<boolean>() ? 'W trakcie' : 'Zakończona'}
+            {cell.getValue<boolean>()
+              ? t('statusOptions.inProgress')
+              : t('common:status.completed')}
           </Box>
         ),
       },
     ],
-    [employeesData]
+    [employeesData, t]
   );
 };

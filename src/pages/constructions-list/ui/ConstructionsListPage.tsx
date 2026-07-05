@@ -4,7 +4,7 @@ import Button from '@mui/material/Button';
 import AddIcon from '@mui/icons-material/Add';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import PageContainer from '@/shared/ui/PageContainer';
-import 'dayjs/locale/pl';
+import { useTranslation } from 'react-i18next';
 import { Alert } from '@mui/material';
 import { Engineering } from '@mui/icons-material';
 import Loading from '@/shared/ui/Loading';
@@ -16,6 +16,7 @@ import {
 } from '@/features/constructions';
 
 export function ConstructionsListPage() {
+  const { t } = useTranslation(['constructions', 'common']);
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -48,18 +49,18 @@ export function ConstructionsListPage() {
   if (isError) {
     return (
       <PageContainer
-        breadcrumbs={[{ title: 'Lista budów' }]}
+        breadcrumbs={[{ title: t('list.title') }]}
         fixedHeight={true}
       >
         <Alert
           severity="error"
           action={
             <Button color="inherit" size="small" onClick={() => refetch()}>
-              Ponów próbę
+              {t('common:buttons.retry')}
             </Button>
           }
         >
-          Wystąpił błąd podczas ładowania listy budów.
+          {t('common:errors.fetchError')}
         </Alert>
       </PageContainer>
     );
@@ -69,7 +70,7 @@ export function ConstructionsListPage() {
     return (
       <PageContainer
         fixedHeight={true}
-        breadcrumbs={[{ title: 'Lista budów' }]}
+        breadcrumbs={[{ title: t('list.title') }]}
       >
         <Box
           sx={{
@@ -88,7 +89,7 @@ export function ConstructionsListPage() {
   return (
     <PageContainer
       fixedHeight={true}
-      breadcrumbs={[{ title: 'Lista budów' }]}
+      breadcrumbs={[{ title: t('list.title') }]}
       actions={[
         <Button
           key="contractors"
@@ -97,7 +98,7 @@ export function ConstructionsListPage() {
           startIcon={<Engineering />}
           size="small"
         >
-          Wykonawcy
+          {t('list.contractors')}
         </Button>,
         <Button
           key="new"
@@ -106,7 +107,7 @@ export function ConstructionsListPage() {
           startIcon={<AddIcon />}
           size="small"
         >
-          Nowa
+          {t('common:buttons.add')}
         </Button>,
       ]}
     >

@@ -52,7 +52,7 @@ export const getEmployeeAlerts = async (): Promise<EmployeeAlert[]> => {
 
       if (daysLeft <= settings.contract_critical) {
         alerts.push({
-          id: `alert-contract-${emp.id}`,
+          id: `${emp.id}_contract`,
           employee_id: emp.id,
           employee_name: emp.name,
           type: 'contract',
@@ -62,7 +62,7 @@ export const getEmployeeAlerts = async (): Promise<EmployeeAlert[]> => {
         });
       } else if (daysLeft <= settings.contract_warning) {
         alerts.push({
-          id: `alert-contract-${emp.id}`,
+          id: `${emp.id}_contract`,
           employee_id: emp.id,
           employee_name: emp.name,
           type: 'contract',
@@ -78,7 +78,7 @@ export const getEmployeeAlerts = async (): Promise<EmployeeAlert[]> => {
 
       if (daysLeft <= settings.a1_critical) {
         alerts.push({
-          id: `alert-a1-${emp.id}`,
+          id: `${emp.id}_a1`,
           employee_id: emp.id,
           employee_name: emp.name,
           type: 'a1',
@@ -88,7 +88,7 @@ export const getEmployeeAlerts = async (): Promise<EmployeeAlert[]> => {
         });
       } else if (daysLeft <= settings.a1_warning) {
         alerts.push({
-          id: `alert-a1-${emp.id}`,
+          id: `${emp.id}_a1`,
           employee_id: emp.id,
           employee_name: emp.name,
           type: 'a1',

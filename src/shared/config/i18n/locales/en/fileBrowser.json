@@ -1,0 +1,97 @@
+{
+  "rootDirectory": "Root directory",
+  "searchPlaceholder": "Search current directory",
+  "empty": {
+    "title": "No files",
+    "description": "Drop files here to upload"
+  },
+  "dropzone": {
+    "title": "Drop files here to upload",
+    "uploadTo": "Files will be uploaded to:"
+  },
+  "itemsWord": {
+    "one": "item",
+    "few": "items",
+    "many": "items"
+  },
+  "actions": {
+    "preview": "Preview",
+    "openNewTab": "Open in new tab",
+    "details": "Details",
+    "download": "Download",
+    "downloadCount": "Download ({{count}})",
+    "rename": "Rename",
+    "delete": "Delete",
+    "deleteCount": "Delete ({{count}})",
+    "upload": "Upload files",
+    "createFolder": "Create folder",
+    "moveCount": "Move ({{count}})"
+  },
+  "details": {
+    "title": "File details",
+    "name": "Name",
+    "added": "Date added",
+    "size": "Size",
+    "type": "Type",
+    "noData": "no data"
+  },
+  "navigation": {
+    "selected": "Selected: {{selected}} of {{total}}"
+  },
+  "move": {
+    "title": "Move items",
+    "selectDestination": "Select destination:",
+    "selectFolder": "Select folder...",
+    "noFolders": "No folders available in this location.",
+    "onlySubfolders": "You can only move files to subfolders or a parent directory.",
+    "moveAction": "Move"
+  },
+  "folders": {
+    "employees": "Employees",
+    "constructions": "Constructions",
+    "id_card": "ID card",
+    "contract": "Contract",
+    "a1": "A1 Certificate",
+    "other": "Other documents"
+  },
+  "notifications": {
+    "fetchError": "Error loading files!",
+    "downloadError": "Error downloading file.",
+    "noFilesToZip": "No files found to archive.",
+    "zipError": "Error creating ZIP archive.",
+    "systemReserved": "Names starting with \"system-\" are reserved for the system.",
+    "folderExists": "Such a folder already exists!",
+    "folderCreated": "Folder has been created.",
+    "folderCreateError": "Error creating folder.",
+    "systemDeleteError": "System files cannot be deleted.",
+    "deleted": "Files have been deleted.",
+    "deleteError": "Error during deletion.",
+    "systemRenameError": "System files cannot be renamed.",
+    "nameExists": "Such name already exists.",
+    "renamed": "Name has been changed.",
+    "renameError": "Error during renaming.",
+    "uploadSuccess": "Successfully uploaded {{count}} files.",
+    "uploadAllFailed": "All files encountered an error during upload.",
+    "uploadPartialSuccess": "Uploaded {{success}} out of {{total}} files. Errors: {{failed}}.",
+    "unexpectedError": "An unexpected error occurred.",
+    "systemMoveError": "System files cannot be moved.",
+    "skippedSystemFiles": "Skipped {{count}} system files.",
+    "moveSuccess": "Files moved successfully.",
+    "moveError": "Error while moving."
+  },
+  "dialogs": {
+    "newFolderTitle": "New folder",
+    "newFolderPrompt": "Enter the name of the new folder:",
+    "deleteTitle": "Delete files",
+    "deleteConfirm": "Are you sure you want to delete {{count}} item(s)?",
+    "skippedSystem": " (Skipped {{count}} system files)",
+    "renameFileTitle": "Rename file",
+    "renameFolderTitle": "Rename folder",
+    "renamePrompt": "Enter new name:",
+    "buttons": {
+      "create": "Create",
+      "change": "Change"
+    }
+  },
+  "filePrefix": "okb_manager_files"
+}

@@ -1,29 +1,26 @@
-import React, { useRef, useState, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Button, Box, Typography, Stack } from '@mui/material';
 import { Add, Print, Summarize } from '@mui/icons-material';
-import { useReactToPrint } from 'react-to-print';
-import usePrintShortcut from '@/shared/lib/usePrintShortcut';
 import PageContainer from '@/shared/ui/PageContainer';
 import useContainerBreakpoint from '@/shared/lib/useContainerWidth';
 import {
   HoursTable,
-  MultiTablePrintReport,
   PrintReportDialog,
+  useGenerateWorkLogsPdf,
   type TableData,
 } from '@/features/work-logs';
 import { useTranslation } from 'react-i18next';
+import type { LangCode } from '@/shared/config/languages';
+import usePrintShortcut from '@/shared/lib/usePrintShortcut';
 
 export const WorkLogsPage: React.FC = () => {
-  const { t } = useTranslation(['workLogs', 'common']);
-
+  const { t, i18n } = useTranslation(['workLogs', 'common']);
   const [containerRef, width] = useContainerBreakpoint();
-
   const [comparisionTables, setComparisionTables] = useState<number[]>([]);
   const [tablesData, setTablesData] = useState<{ [key: string]: TableData }>(
     {}
   );
-
-  const printContentRef = useRef<HTMLDivElement>(null);
+  const [printReportDialogOpen, setPrintReportDialogOpen] = useState(false);
 
   const handleDeleteTable = (keyToDelete: number) => {
     setComparisionTables((prev) => prev.filter((key) => key !== keyToDelete));
@@ -34,8 +31,6 @@ export const WorkLogsPage: React.FC = () => {
     });
   };
 
-  const [printReportDialogOpen, setPrintReportDialogOpen] = useState(false);
-
   const handleTableDataUpdate = useCallback(
     (tableId: string, newData: TableData) => {
       setTablesData((prev) => {
@@ -43,7 +38,6 @@ export const WorkLogsPage: React.FC = () => {
         if (prevData && JSON.stringify(prevData) === JSON.stringify(newData)) {
           return prev;
         }
-
         return {
           ...prev,
           [tableId]: newData,
@@ -59,16 +53,19 @@ export const WorkLogsPage: React.FC = () => {
     setComparisionTables((prev) => [...prev, newKey]);
   };
 
-  const reactToPrintFn = useReactToPrint({
-    contentRef: printContentRef,
-    documentTitle: t('print.multiTableFileName'),
-    pageStyle: `
-    @page {
-      margin: 10mm;
-    }`,
-  });
+  const { generatePdf, isGenerating } = useGenerateWorkLogsPdf();
 
-  usePrintShortcut(reactToPrintFn);
+  const handlePrintAllVisibleTables = async () => {
+    const lang = i18n.language as LangCode;
+    const weeksDataArray = Object.values(tablesData).filter(Boolean);
+
+    await generatePdf({
+      weeksData: weeksDataArray,
+      lang,
+      printTablesTitle: true,
+    });
+  };
+  usePrintShortcut(handlePrintAllVisibleTables);
 
   return (
     <PageContainer
@@ -86,7 +83,8 @@ export const WorkLogsPage: React.FC = () => {
         <Button
           key="print"
           size="small"
-          onClick={() => reactToPrintFn()}
+          onClick={handlePrintAllVisibleTables}
+          disabled={isGenerating}
           startIcon={<Print />}
           variant="contained"
           sx={{ flexGrow: 0 }}
@@ -105,13 +103,7 @@ export const WorkLogsPage: React.FC = () => {
         </Button>,
       ]}
     >
-      <Box
-        ref={containerRef}
-        sx={{
-          direction: 'flex',
-          flex: 1,
-        }}
-      >
+      <Box ref={containerRef} sx={{ direction: 'flex', flex: 1 }}>
         <Stack direction="column">
           <HoursTable
             containerWidth={width}
@@ -133,9 +125,7 @@ export const WorkLogsPage: React.FC = () => {
                   variant="h5"
                   component={'div'}
                   mb={1}
-                  sx={{
-                    fontSize: '1rem',
-                  }}
+                  sx={{ fontSize: '1rem' }}
                 >
                   {t('table.comparisonTitle', { key })}
                 </Typography>
@@ -158,13 +148,6 @@ export const WorkLogsPage: React.FC = () => {
           onClose={() => setPrintReportDialogOpen(false)}
           defaultStartWeek={tablesData['main']?.weekStart}
         />
-
-        <Box sx={{ display: 'none' }}>
-          <MultiTablePrintReport
-            tablesData={tablesData}
-            ref={printContentRef}
-          />
-        </Box>
       </Box>
     </PageContainer>
   );

@@ -4,60 +4,60 @@ export const DEMO_EMAIL = 'demo@demo.com';
 export const DEMO_PASSWORD = '12345678';
 
 const contractors = [
-  { id: 'c1', name: 'Bud-Max Sp. z o.o.' },
-  { id: 'c2', name: 'XYZ Usługi Remontowe' },
+  { id: 'c1', name: 'Bud-Max LLC' },
+  { id: 'c2', name: 'XYZ Renovation Services' },
 ];
 
 const constructions = [
   {
     id: 'b1',
-    name: 'Osiedle Słoneczne - Etap I',
+    name: 'Sunny Estate - Stage I',
     status: true,
     location: 'ul. Wiosenna 12, Poznań',
     contractor_id: 'c1',
     start_date: '2024-01-15',
     end_date: null,
-    note: 'Główny wykop zakończony, trwają prace fundamentowe.',
+    note: 'Main excavation completed, foundation works in progress.',
   },
   {
     id: 'b2',
-    name: 'Biurowiec "Sky Tower"',
+    name: '"Sky Tower" Office Building',
     status: false,
     location: 'Centrum, Warszawa',
     contractor_id: 'c2',
     start_date: '2022-05-10',
     end_date: '2023-11-20',
-    note: 'Inwestycja oddana do użytku.',
+    note: 'Project completed and handed over.',
   },
   {
     id: 'b3',
-    name: 'Hala Magazynowa "Logis"',
+    name: '"Logis" Warehouse',
     status: true,
     location: 'ul. Przemysłowa 8, Luboń',
     contractor_id: 'c1',
     start_date: '2025-11-01',
     end_date: null,
-    note: 'Rozpoczęto montaż konstrukcji stalowej dachu.',
+    note: 'Installation of the steel roof structure has begun.',
   },
   {
     id: 'b4',
-    name: 'Remont Szkoły Podstawowej nr 5',
+    name: 'Renovation of Primary School No. 5',
     status: true,
     location: 'ul. Szkolna 1, Kraków',
     contractor_id: 'c2',
     start_date: '2026-01-10',
     end_date: null,
-    note: 'Trwają prace wykończeniowe na parterze.',
+    note: 'Finishing works are underway on the ground floor.',
   },
   {
     id: 'b5',
-    name: 'Modernizacja Dworca Głównego',
+    name: 'Modernization of the Main Railway Station',
     status: false,
     location: 'ul. Dworcowa, Wrocław',
     contractor_id: 'c1',
     start_date: '2023-05-10',
     end_date: '2025-08-30',
-    note: 'Zakończono i odebrano bez uwag.',
+    note: 'Completed and accepted without remarks.',
   },
 ];
 
@@ -80,7 +80,7 @@ export const employees = [
     contract_is_permanent: true,
     a1_start_date: null,
     a1_end_date: null,
-    note: 'Brygadzista, świetny fachowiec',
+    note: 'Foreman, excellent specialist',
   },
   {
     id: 'e0000002-0000-0000-0000-000000000000',
@@ -100,7 +100,7 @@ export const employees = [
     contract_is_permanent: false,
     a1_start_date: '2025-01-01',
     a1_end_date: '2025-12-31',
-    note: 'Operator koparki',
+    note: 'Excavator operator',
   },
   {
     id: 'e0000003-0000-0000-0000-000000000000',
@@ -120,7 +120,7 @@ export const employees = [
     contract_is_permanent: true,
     a1_start_date: null,
     a1_end_date: null,
-    note: 'Podwykonawca - elektryka',
+    note: 'Subcontractor - electrical',
   },
   {
     id: 'e0000004-0000-0000-0000-000000000000',
@@ -140,7 +140,7 @@ export const employees = [
     contract_is_permanent: false,
     a1_start_date: null,
     a1_end_date: null,
-    note: 'Obecnie na długim zwolnieniu lekarskim',
+    note: 'Currently on long-term sick leave',
   },
   {
     id: 'e0000005-0000-0000-0000-000000000000',
@@ -160,7 +160,7 @@ export const employees = [
     contract_is_permanent: true,
     a1_start_date: '2026-01-01',
     a1_end_date: '2026-06-30',
-    note: 'Zbrojarz',
+    note: 'Steel fixer',
   },
   {
     id: 'e0000006-0000-0000-0000-000000000000',
@@ -180,7 +180,7 @@ export const employees = [
     contract_is_permanent: false,
     a1_start_date: null,
     a1_end_date: null,
-    note: 'Malarz',
+    note: 'Painter',
   },
   {
     id: 'e0000007-0000-0000-0000-000000000000',
@@ -200,7 +200,7 @@ export const employees = [
     contract_is_permanent: true,
     a1_start_date: null,
     a1_end_date: null,
-    note: 'Podwykonawca - hydraulika',
+    note: 'Subcontractor - plumbing',
   },
   {
     id: 'e0000008-0000-0000-0000-000000000000',
@@ -220,7 +220,7 @@ export const employees = [
     contract_is_permanent: true,
     a1_start_date: null,
     a1_end_date: null,
-    note: 'Cieśla',
+    note: 'Carpenter',
   },
   {
     id: 'e0000009-0000-0000-0000-000000000000',
@@ -240,7 +240,7 @@ export const employees = [
     contract_is_permanent: false,
     a1_start_date: null,
     a1_end_date: null,
-    note: 'Zwolniony (koniec umowy)',
+    note: 'Terminated (end of contract)',
   },
   {
     id: 'e0000010-0000-0000-0000-000000000000',
@@ -260,7 +260,7 @@ export const employees = [
     contract_is_permanent: true,
     a1_start_date: '2026-03-01',
     a1_end_date: '2026-11-30',
-    note: 'Kierownik budowy',
+    note: 'Site manager',
   },
   {
     id: 'e0000011-0000-0000-0000-000000000000',
@@ -280,7 +280,7 @@ export const employees = [
     contract_is_permanent: false,
     a1_start_date: null,
     a1_end_date: null,
-    note: 'Monter',
+    note: 'Fitter',
   },
   {
     id: 'e0000012-0000-0000-0000-000000000000',
@@ -300,7 +300,7 @@ export const employees = [
     contract_is_permanent: true,
     a1_start_date: null,
     a1_end_date: null,
-    note: 'Podwykonawca - wykończeniówka',
+    note: 'Subcontractor - interior finishing',
   },
   {
     id: 'e0000013-0000-0000-0000-000000000000',
@@ -320,7 +320,7 @@ export const employees = [
     contract_is_permanent: false,
     a1_start_date: null,
     a1_end_date: null,
-    note: 'Pomocnik budowlany',
+    note: 'Construction helper',
   },
   {
     id: 'e0000014-0000-0000-0000-000000000000',
@@ -340,7 +340,7 @@ export const employees = [
     contract_is_permanent: true,
     a1_start_date: '2025-06-01',
     a1_end_date: '2026-05-31',
-    note: 'Dekarz',
+    note: 'Roofer',
   },
   {
     id: 'e0000015-0000-0000-0000-000000000000',
@@ -360,7 +360,7 @@ export const employees = [
     contract_is_permanent: true,
     a1_start_date: null,
     a1_end_date: null,
-    note: 'Operator dźwigu',
+    note: 'Crane operator',
   },
   {
     id: 'e0000016-0000-0000-0000-000000000000',
@@ -380,7 +380,7 @@ export const employees = [
     contract_is_permanent: false,
     a1_start_date: null,
     a1_end_date: null,
-    note: 'Zakończona współpraca B2B',
+    note: 'B2B cooperation ended',
   },
   {
     id: 'e0000017-0000-0000-0000-000000000000',
@@ -400,7 +400,7 @@ export const employees = [
     contract_is_permanent: false,
     a1_start_date: null,
     a1_end_date: null,
-    note: 'Glazurnik',
+    note: 'Tiler',
   },
   {
     id: 'e0000018-0000-0000-0000-000000000000',
@@ -420,7 +420,7 @@ export const employees = [
     contract_is_permanent: true,
     a1_start_date: '2026-01-15',
     a1_end_date: '2026-07-15',
-    note: 'Kierowca ciężarówki',
+    note: 'Truck driver',
   },
   {
     id: 'e0000019-0000-0000-0000-000000000000',
@@ -430,7 +430,7 @@ export const employees = [
     pesel: '98080888990',
     birth_date: '1998-08-08',
     birth_place: 'Gorzów Wielkopolski',
-    address: 'ul. Sikorskiego 22, Gorzów',
+    address: 'ul. Sikorskiego 22, Gorzów Wielkopolski',
     email: 't.piotrowski@example.com',
     phone: '512909010',
     hour_rate: 11,
@@ -440,7 +440,7 @@ export const employees = [
     contract_is_permanent: false,
     a1_start_date: null,
     a1_end_date: null,
-    note: 'Okres próbny',
+    note: 'Probationary period',
   },
   {
     id: 'e0000020-0000-0000-0000-000000000000',
@@ -460,7 +460,7 @@ export const employees = [
     contract_is_permanent: true,
     a1_start_date: null,
     a1_end_date: null,
-    note: 'Podwykonawca - klimatyzacja',
+    note: 'Subcontractor - HVAC',
   },
 ];
 
@@ -496,7 +496,7 @@ const vacations = [
     start_date: '2026-04-01',
     end_date: '2026-04-14',
     color: '#81C784',
-    description: 'Urlop wypoczynkowy',
+    description: 'Annual leave',
     group_id: null,
   },
 ];
@@ -529,7 +529,7 @@ const metrics = {
 const home_notes = [
   {
     id: 'home',
-    note: 'Witaj w wersji demonstracyjnej aplikacji! Możesz edytować tą notatkę.',
+    note: 'Welcome to the demo version of the application! You can edit this note.',
     updated_at: new Date().toISOString(),
   },
 ];
@@ -537,11 +537,11 @@ const home_notes = [
 const lodgings = [
   {
     id: 'l1111111-1111-4111-a111-111111111111',
-    name: 'Hotel Pracowniczy "U Janka"',
+    name: '"U Janka" Workers Hostel',
     address: 'ul. Budowlana 15, Warszawa',
     start_date: '2026-03-30',
     end_date: '2026-06-30',
-    description: 'Główna kwatera dla ekipy fundamentowej.',
+    description: 'Main accommodation for the foundation crew.',
     construction_site_id: 'b1',
   },
 ];
@@ -558,7 +558,7 @@ const lodging_employees = [
 const todos = [
   {
     id: 1,
-    title: 'Sprawdzić wszystkie funkcje',
+    title: 'Check all features',
     is_completed: false,
     is_important: false,
     created_at: new Date().toISOString(),
@@ -566,7 +566,7 @@ const todos = [
   },
   {
     id: 2,
-    title: 'Dodać nowe zadanie',
+    title: 'Add a new task',
     is_completed: false,
     is_important: false,
     created_at: new Date().toISOString(),
@@ -588,7 +588,7 @@ const storage = [
   {
     id: crypto.randomUUID(),
     name: '.placeholder',
-    path: 'Testowy folder/.placeholder',
+    path: 'Test folder/.placeholder',
     size: 0,
     contentType: 'text/plain',
     type: 'file',

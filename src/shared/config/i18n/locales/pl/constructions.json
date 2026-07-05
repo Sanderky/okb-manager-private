@@ -1,4 +1,138 @@
 {
-    "inactive": "Zakończona"
-
+  "title": "Budowy",
+  "inactive": "Zakończona",
+  "validation": {
+    "nameRequired": "Nazwa jest wymagana.",
+    "nameTooLong": "Nazwa nie może być dłuższa niż 255 znaków.",
+    "startDateRequired": "Data rozpoczęcia jest wymagana.",
+    "endDateBeforeStart": "Data zakończenia nie może być wcześniejsza niż data rozpoczęcia.",
+    "endDateInFuture": "Data zakończenia nie może być z przyszłości.",
+    "locationTooLong": "Lokalizacja nie może być dłuższa niż 255 znaków.",
+    "statusRequired": "Status jest wymagany.",
+    "fixErrors": "Proszę poprawić błędy w formularzu."
+  },
+  "form": {
+    "sections": {
+      "requiredInfo": "Pola oznaczone * są obowiązkowe.",
+      "constructionData": "Dane budowy",
+      "dates": "Terminy",
+      "note": "Notatka"
+    },
+    "fields": {
+      "name": "Nazwa budowy",
+      "location": "Lokalizacja",
+      "contractor": "Wykonawca",
+      "startDate": "Data rozpoczęcia",
+      "endDate": "Data zakończenia"
+    },
+    "addContractor": "Dodaj wykonawcę",
+    "finishedAlert": "Budowa zostanie oznaczona jako zakończona."
+  },
+  "dialogs": {
+    "finish": {
+      "title": "Zakończ budowę",
+      "confirmBtn": "Zakończ budowę",
+      "prompt": "Wybierz datę zakończenia budowy",
+      "startDateLabel": "Data rozpoczęcia:",
+      "endDateLabel": "Data zakończenia",
+      "cannotFinishAlert": "Budowa nie może zostać zakończona, ponieważ jeszcze się nie rozpoczęła."
+    },
+    "resume": {
+      "title": "Wznawianie budowy",
+      "confirmBtn": "Wznów budowę",
+      "prompt": "Czy na pewno chcesz wznowić budowę"
+    },
+    "delete": {
+      "title": "Usuwanie budowy",
+      "confirmQuestion": "Czy na pewno chcesz usunąć <strong>{{name}}</strong>?",
+      "warningText": "Budowa zostanie usunięta z bazy danych łącznie ze wszytkimi plikami oraz powiązanymi informacjami.",
+      "alertTitle": "Uwaga!",
+      "alertText": "Tej operacji nie można cofnąć. Zamiast tego, proszę rozważyć zakończenie budowy.",
+      "promptName": "Aby usunąć budowę, wprowadź poniżej jej pełną nazwę:"
+    }
+  },
+  "fields": {
+    "name": "Nazwa budowy",
+    "location": "Lokalizacja",
+    "contractor": "Wykonawca",
+    "startDate": "Data rozpoczęcia",
+    "endDate": "Data zakończenia",
+    "address": "Adres",
+    "employeeCount": "Liczba pracowników",
+    "employeeCountMin": "Min.",
+    "employeeCountMax": "Max.",
+    "status": "Status",
+    "dateFrom": "Od",
+    "dateTo": "Do"
+  },
+  "statusOptions": {
+    "all": "Wszystkie",
+    "inProgress": "W trakcie",
+    "completed": "Zakończone"
+  },
+  "tooltips": {
+    "openMaps": "Otwórz w Google Maps",
+    "viewContractor": "Przejdź do wykonawcy",
+    "edit": "Edytuj budowę",
+    "finish": "Zakończ budowę",
+    "resume": "Wznów budowę"
+  },
+  "actions": {
+    "cancel": "Anuluj",
+    "delete": "Usuń",
+    "save": "Zapisz",
+    "finish": "Zakończ",
+    "activate": "Aktywuj",
+    "clearFilters": "Wyczyść filtry",
+    "applyFilters": "Zastosuj filtry"
+  },
+  "show": {
+    "title": "Budowa {{name}}",
+    "activeEmployees": "Pracownicy na budowie dziś ({{count}}):",
+    "noEmployees": "Brak pracowników na budowie",
+    "contractorChip": "Kontraktor"
+  },
+  "edit": {
+    "pageTitle": "Edycja {{name}}",
+    "finishSection": {
+      "title": "Zakończ budowę",
+      "description": "Status budowy zmienia się na \"Zakończona\"."
+    },
+    "activateSection": {
+      "title": "Aktywuj budowę",
+      "description": "Status budowy zmienia się na \"W trakcie\"."
+    },
+    "deleteSection": {
+      "title": "Usuń budowę",
+      "description": "Trwale usuwa budowę z bazy danych. Tej operacji nie można cofnąć."
+    }
+  },
+  "create": {
+    "title": "Dodaj nową budowę",
+    "loading": "Trwa tworzenie nowej budowy...",
+    "breadcrumb": "Nowa"
+  },
+  "list": {
+    "title": "Lista budów",
+    "contractors": "Wykonawcy"
+  },
+  "loading": {
+    "data": "Ładowanie danych budowy..."
+  },
+  "errors": {
+    "notFound": "Nie znaleziono danych budowy.",
+    "notFoundMessage": "Nie znaleziono budowy. Mogła zostać usunięta lub nie istnieje."
+  },
+  "tabs": {
+    "info": "Informacje",
+    "files": "Pliki"
+  },
+  "notifications": {
+    "createError": "Wystąpił błąd podczas tworzenia budowy.",
+    "updateError": "Wystąpił błąd podczas aktualizacji budowy."
+  },
+  "table": {
+    "rowNumber": "Lp.",
+    "filtersTitle": "Filtry budów"
+  }
 }
