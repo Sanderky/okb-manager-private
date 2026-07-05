@@ -39,6 +39,7 @@
     "dataLoading": "Loading data..."
   },
   "settings": {
+    "title": "App settings",
     "employeesAlerts": "Employees alerts",
     "rodo": "RODO",
     "accountSettings": "Account settings"

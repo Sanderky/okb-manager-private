@@ -32,7 +32,7 @@ const Settings = ({ isOpen, onClose }: SettingsProps) => {
     <BaseDialog
       open={isOpen}
       onClose={onClose}
-      title="Ustawienia aplikacji"
+      title={t('settings.title')}
       showConfirm={false}
       maxWidth="sm"
       fullWidth

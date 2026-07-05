@@ -39,6 +39,7 @@
     "dataLoading": "Ładowanie danych..."
   },
   "settings": {
+    "title": "Ustawienia aplikacji",
     "employeesAlerts": "Alerty pracowników",
     "rodo": "RODO",
     "accountSettings": "Ustawienia konta"
