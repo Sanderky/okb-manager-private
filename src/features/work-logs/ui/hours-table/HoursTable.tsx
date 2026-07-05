@@ -23,6 +23,8 @@ import { AddConstructionWithEmployeeDialog } from './dialogs/AddConstructionWith
 import { CopyTableDialog } from './dialogs/CopyTableDialog';
 import { AddEmployeeDialog } from './dialogs/AddEmployeeDialog';
 import { FiltersDialog } from './dialogs/FiltersDialogProps';
+import { useTranslation } from 'react-i18next';
+import type { LangCode } from '@/shared/config/languages';
 
 dayjs.extend(isoWeek);
 dayjs.extend(isBetween);
@@ -140,6 +142,8 @@ export const HoursTable = ({
     }, 0);
   }, [constructionsWithWorkHours]);
 
+  const { i18n } = useTranslation();
+
   return (
     <Box>
       <Box sx={{ display: 'none' }}>
@@ -156,6 +160,7 @@ export const HoursTable = ({
             constructionsWithWorkHours={dataSorted}
             weekDates={weekDates}
             totalHoursData={totalHoursData}
+            lang={i18n.language as LangCode}
           />
         </Box>
       </Box>
