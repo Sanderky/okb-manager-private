@@ -9,8 +9,7 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
-import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DatePicker } from '@mui/x-date-pickers';
 import { useTranslation } from 'react-i18next';
 import type { Employee } from '@/entities/employee';
 import { employeeColors } from '@/entities/vacations';
@@ -34,10 +33,8 @@ export const VacationForm: React.FC<VacationFormProps> = ({
   loading,
   isNew,
 }) => {
-  const { t, i18n } = useTranslation('vacations');
+  const { t } = useTranslation('vacations');
   const theme = useTheme();
-
-  const currentLang = i18n.language.substring(0, 2).toLowerCase();
 
   const generatedColor = currentEvent.employeeId
     ? stringToColor(currentEvent.employeeId)
@@ -111,11 +108,6 @@ export const VacationForm: React.FC<VacationFormProps> = ({
         onChange={(e) => setEvent({ description: e.target.value })}
         disabled={loading}
       />
-
-      <LocalizationProvider
-        dateAdapter={AdapterDayjs}
-        adapterLocale={currentLang}
-      >
         <Stack direction="row" spacing={{ xs: 1, sm: 2 }}>
           <DatePicker
             label={t('dialogs.vacationForm.startDate')}
@@ -137,8 +129,6 @@ export const VacationForm: React.FC<VacationFormProps> = ({
             disabled={loading}
           />
         </Stack>
-      </LocalizationProvider>
-
       <Box>
         <FormLabel>{t('dialogs.vacationForm.selectColor')}</FormLabel>
         {!currentEvent.color && validationError && (

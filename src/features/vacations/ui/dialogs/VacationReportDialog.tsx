@@ -25,8 +25,6 @@ import {
   FormControlLabel,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { Close as CloseIcon, Print as PrintIcon } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import dayjs, { Dayjs } from 'dayjs';
@@ -153,11 +151,9 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
   showInactive,
   setShowInactive,
 }) => {
-  const { t, i18n } = useTranslation(['vacations', 'filters', 'common', 'employees']);
+  const { t } = useTranslation(['vacations', 'filters', 'common', 'employees']);
   const navigate = useNavigate();
   
-  const currentLang = i18n.language.substring(0, 2).toLowerCase();
-
   const [selectedEmployees, setSelectedEmployees] = useState<Employee[]>([]);
   const [dateRange, setDateRange] = useState<{
     start: Dayjs | null;
@@ -298,10 +294,6 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
       </DialogTitle>
 
       <DialogContent dividers className="px-3 sm:px-5">
-        <LocalizationProvider
-          dateAdapter={AdapterDayjs}
-          adapterLocale={currentLang}
-        >
           <Stack spacing={3}>
             <Box>
               <Typography variant="subtitle2" sx={{ mb: 1 }}>
@@ -533,7 +525,6 @@ export const VacationReportDialog: React.FC<VacationReportDialogProps> = ({
               </Alert>
             )}
           </Stack>
-        </LocalizationProvider>
       </DialogContent>
 
       <DialogActions>
