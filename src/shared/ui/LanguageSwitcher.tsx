@@ -5,7 +5,7 @@ import {
   LANGUAGES_CONFIG,
   UI_LANGUAGES,
   type LangCode,
-} from '../config/languages';
+} from '../config/i18n/languages';
 
 interface LanguageSwitcherMenuProps extends MenuProps {
   anchorEl: HTMLElement | null;

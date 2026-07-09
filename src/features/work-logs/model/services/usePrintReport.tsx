@@ -8,7 +8,7 @@ import {
 import { useConstructions, type Construction } from '@/entities/construction';
 import { useEmployees, type Employee } from '@/entities/employee';
 import { useTranslation } from 'react-i18next';
-import { DEFAULT_LANG, type LangCode } from '@/shared/config/languages';
+import { DEFAULT_LANG, type LangCode } from '@/shared/config/i18n/languages';
 import { useWeekReport } from './useWeekReportData';
 import { useGenerateWorkLogsPdf } from './useGenerateWorkLogsPdf';
 

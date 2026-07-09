@@ -2,7 +2,7 @@ import { Box } from '@mui/material';
 import HoursTableControlsMobile from './table-controls/TableControlsMobile';
 import HoursTableControlsDesktop from './table-controls/TableControlsDesktop';
 import { useTranslation } from 'react-i18next';
-import type { LangCode } from '@/shared/config/languages';
+import type { LangCode } from '@/shared/config/i18n/languages';
 import type { TableData } from '../../../model/types';
 import { useGenerateWorkLogsPdf } from '@/features/work-logs/model/services/useGenerateWorkLogsPdf';
 

@@ -10,11 +10,11 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { useTranslation } from 'react-i18next';
 import { getDesignTokens } from '../../config/theme';
 import {
-  MUI_LOCALES,
   DEFAULT_LANG,
   getShortLang,
   type LangCode,
-} from '../../config/languages';
+} from '../../config/i18n/languages';
+import { MUI_LOCALES } from '@/shared/config/i18n/resources';
 
 interface ThemeContextType {
   toggleColorMode: () => void;

@@ -10,7 +10,7 @@ import {
   type TableData,
 } from '@/features/work-logs';
 import { useTranslation } from 'react-i18next';
-import type { LangCode } from '@/shared/config/languages';
+import type { LangCode } from '@/shared/config/i18n/languages';
 import usePrintShortcut from '@/shared/lib/usePrintShortcut';
 
 export const WorkLogsPage: React.FC = () => {

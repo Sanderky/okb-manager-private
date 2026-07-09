@@ -10,7 +10,7 @@ import {
 import dayjs from 'dayjs';
 import { formatDecimal } from '@/shared/lib/format';
 import type { ConstructionsWithWorkHours, TableData } from '../../model/types';
-import type { LangCode } from '@/shared/config/languages';
+import type { LangCode } from '@/shared/config/i18n/languages';
 
 Font.register({
   family: 'Roboto',
