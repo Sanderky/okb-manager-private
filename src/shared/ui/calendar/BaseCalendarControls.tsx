@@ -40,7 +40,7 @@ export const BaseCalendarControls: React.FC<BaseCalendarControlsProps> = ({
   popoverId,
   onOpenFilters,
 }) => {
-  const { t } = useTranslation(['calendar', 'common']);
+  const { t, i18n } = useTranslation(['calendar', 'common']);
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const openMobileMenu = Boolean(anchorEl);
@@ -75,7 +75,7 @@ export const BaseCalendarControls: React.FC<BaseCalendarControlsProps> = ({
             borderColor: 'text.primary',
           }}
         >
-          {currentMonth.format('MMMM YYYY')}
+          {currentMonth.locale(i18n.language).format('MMMM YYYY')}
         </Typography>
 
         <Stack direction="row">
@@ -138,31 +138,31 @@ export const BaseCalendarControls: React.FC<BaseCalendarControlsProps> = ({
         }}
       >
         <MenuItem disableRipple key="datePicker">
-            <DatePicker
-              openTo="month"
-              views={['year', 'month']}
-              slotProps={{ textField: { size: 'small' } }}
-              sx={(theme) => ({
-                minWidth: 200,
-                '& .MuiPickersSectionList-root': {
-                  padding: '7px 0',
-                  width: 'auto',
-                },
-                '&:hover .MuiPickersOutlinedInput-notchedOutline': {
-                  borderColor: `${theme.palette.primary.main} !important`,
-                },
-                '& .MuiPickersOutlinedInput-notchedOutline': {
-                  borderColor: theme.palette.primary.light,
-                },
-                '& .MuiPickersInputBase-root': {
-                  color: theme.palette.primary.main,
-                  borderRadius: '8px',
-                },
-                '& .MuiButtonBase-root': { color: theme.palette.primary.main },
-              })}
-              value={currentMonth}
-              onChange={handleDatePickerChange}
-            />
+          <DatePicker
+            openTo="month"
+            views={['year', 'month']}
+            slotProps={{ textField: { size: 'small' } }}
+            sx={(theme) => ({
+              minWidth: 200,
+              '& .MuiPickersSectionList-root': {
+                padding: '7px 0',
+                width: 'auto',
+              },
+              '&:hover .MuiPickersOutlinedInput-notchedOutline': {
+                borderColor: `${theme.palette.primary.main} !important`,
+              },
+              '& .MuiPickersOutlinedInput-notchedOutline': {
+                borderColor: theme.palette.primary.light,
+              },
+              '& .MuiPickersInputBase-root': {
+                color: theme.palette.primary.main,
+                borderRadius: '8px',
+              },
+              '& .MuiButtonBase-root': { color: theme.palette.primary.main },
+            })}
+            value={currentMonth}
+            onChange={handleDatePickerChange}
+          />
         </MenuItem>
 
         <MenuItem>
@@ -249,29 +249,29 @@ export const BaseCalendarControls: React.FC<BaseCalendarControlsProps> = ({
           </IconButton>
         </Tooltip>
       </Stack>
-        <DatePicker
-          openTo="month"
-          views={['year', 'month']}
-          slotProps={{ textField: { size: 'small' } }}
-          sx={(theme) => ({
-            minWidth: 200,
-            '& .MuiIconButton-root': { p: 1 },
-            '& .MuiPickersSectionList-root': { padding: '0', width: 'auto' },
-            '&:hover .MuiPickersOutlinedInput-notchedOutline': {
-              borderColor: `${theme.palette.primary.main} !important`,
-            },
-            '& .MuiPickersOutlinedInput-notchedOutline': {
-              borderColor: theme.palette.primary.light,
-            },
-            '& .MuiPickersInputBase-root': {
-              borderRadius: '8px',
-              color: theme.palette.primary.main,
-            },
-            '& .MuiButtonBase-root': { color: theme.palette.primary.main },
-          })}
-          value={currentMonth}
-          onChange={handleDatePickerChange}
-        />
+      <DatePicker
+        openTo="month"
+        views={['year', 'month']}
+        slotProps={{ textField: { size: 'small' } }}
+        sx={(theme) => ({
+          minWidth: 200,
+          '& .MuiIconButton-root': { p: 1 },
+          '& .MuiPickersSectionList-root': { padding: '0', width: 'auto' },
+          '&:hover .MuiPickersOutlinedInput-notchedOutline': {
+            borderColor: `${theme.palette.primary.main} !important`,
+          },
+          '& .MuiPickersOutlinedInput-notchedOutline': {
+            borderColor: theme.palette.primary.light,
+          },
+          '& .MuiPickersInputBase-root': {
+            borderRadius: '8px',
+            color: theme.palette.primary.main,
+          },
+          '& .MuiButtonBase-root': { color: theme.palette.primary.main },
+        })}
+        value={currentMonth}
+        onChange={handleDatePickerChange}
+      />
 
       <Tooltip title={t('calendar:controls.filters')}>
         <Badge badgeContent={isFiltered ? 1 : 0} variant="dot" color="primary">
@@ -305,7 +305,7 @@ export const BaseCalendarControls: React.FC<BaseCalendarControlsProps> = ({
           className="rounded-full border px-3 py-1 font-semibold"
           sx={{ borderColor: 'text.primary' }}
         >
-          {currentMonth.format('MMMM YYYY')}
+          {currentMonth.locale(i18n.language).format('MMMM YYYY')}
         </Typography>
       </Stack>
     </Stack>
