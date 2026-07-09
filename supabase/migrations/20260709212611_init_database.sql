@@ -258,7 +258,7 @@ CREATE OR REPLACE FUNCTION prevent_schedule_on_vacation() RETURNS TRIGGER AS $$ 
     WHERE employee_id = NEW.employee_id
       AND NEW.date >= start_date
       AND NEW.date <= end_date
-  ) THEN RAISE EXCEPTION 'Nie można dodać grafiku: Pracownik ma urlop w dniu %',
+  ) THEN RAISE EXCEPTION 'Cannot add schedule: Employee is on leave on %',
   NEW.date;
 END IF;
 RETURN NEW;
