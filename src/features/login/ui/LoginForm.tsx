@@ -10,8 +10,7 @@ import {
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { useLoginFacade } from '../model/service/useLoginFacade';
-
-const RODO_URL = import.meta.env.VITE_RODO_URL ?? '';
+import { RODO_URL } from '@/shared/api/supabase';
 
 interface LoginProps {
   onForgotPassword: () => void;

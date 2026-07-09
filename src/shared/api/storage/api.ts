@@ -6,9 +6,9 @@ import {
 import { normalizeToEnglishAlphabet } from '../../lib/string';
 import type { FileBrowserItem } from '../../model/types';
 import { mapStorageItem } from './mappers';
-import { supabase } from '../supabase';
+import { STORAGE_BUCKET, supabase } from '../supabase';
 
-export const BUCKET_NAME = import.meta.env.VITE_FILES_BUCKET_NAME ?? 'files';
+export const BUCKET_NAME = STORAGE_BUCKET;
 
 export const listFiles = async (
   path: string,

@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as FilesApi from '@/shared/api/storage';
 import type { FileItem } from '@/shared/model/types';
+import { PUBLIC_STORAGE_BUCKET, RODO_FILENAME } from '@/shared/api/supabase';
 
-const SYSTEM_BUCKET = import.meta.env.VITE_PUBLIC_BUCKET_NAME ?? 'system';
-const RODO_FILENAME = 'rodo.pdf';
+const SYSTEM_BUCKET = PUBLIC_STORAGE_BUCKET
 
 export const useRodoFile = (isOpen: boolean) => {
   const { t } = useTranslation('settings');

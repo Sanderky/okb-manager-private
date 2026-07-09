@@ -7,8 +7,9 @@ import {
 import { normalizeToEnglishAlphabet } from '../../lib/string';
 import type { FileBrowserItem } from '../../model/types';
 import { mapStorageItem } from './mappers';
+import { STORAGE_BUCKET } from '../supabase';
 
-export const BUCKET_NAME = import.meta.env.VITE_FILES_BUCKET_NAME ?? 'files';
+export const BUCKET_NAME = STORAGE_BUCKET;
 
 const getItemsInPath = (searchPath: string) => {
   const prefix = searchPath ? `${searchPath}/` : '';
