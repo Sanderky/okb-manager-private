@@ -14,8 +14,6 @@ const SUPABASE_KEY =
 export const STORAGE_BUCKET = PRIVATE_BUCKET_NAME ?? DEFAULT_PRIVATE_BUCKET_NAME;
 export const PUBLIC_STORAGE_BUCKET= PUBLIC_BUCKET_NAME ?? DEFAULT_PUBLIC_BUCKET_NAME;
 export const RODO_FILENAME = 'rodo.pdf'
-export const DEFAULT_RODO_FILE_URL = `${SUPABASE_URL}/storage/v1/object/public/${PUBLIC_STORAGE_BUCKET}/${RODO_FILENAME}`;
-export const RODO_URL = import.meta.env.VITE_RODO_URL ?? DEFAULT_RODO_FILE_URL;
 
 if (!IS_MOCK && (!SUPABASE_URL || !SUPABASE_KEY)) {
   throw new Error('Error initializing Supabase! URL or key is missing.');

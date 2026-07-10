@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getRules, validateField, useLogin } from '@/entities/auth';
 import { DEMO_EMAIL, DEMO_PASSWORD } from '@/shared/api/mock/mockDb';
+import * as FilesApi from '@/shared/api/storage';
 
 const isMock = import.meta.env.VITE_USE_MOCK === 'true';
 
@@ -76,6 +77,8 @@ export const useLoginFacade = () => {
     }
   };
 
+  const getRodoFilePublicUrl = FilesApi.getRodoFilePublicUrl;
+
   return {
     values,
     errors,
@@ -85,5 +88,6 @@ export const useLoginFacade = () => {
     handleChange,
     handleSubmit,
     isLoading: loginMutation.isPending,
+    getRodoFilePublicUrl
   };
 };

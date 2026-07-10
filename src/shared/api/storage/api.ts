@@ -6,13 +6,23 @@ import {
 import { normalizeToEnglishAlphabet } from '../../lib/string';
 import type { FileBrowserItem } from '../../model/types';
 import { mapStorageItem } from './mappers';
-import { STORAGE_BUCKET, supabase } from '../supabase';
+import {
+  STORAGE_BUCKET,
+  PUBLIC_STORAGE_BUCKET,
+  supabase,
+  RODO_FILENAME,
+} from '../supabase';
 
-export const BUCKET_NAME = STORAGE_BUCKET;
+export const getRodoFilePublicUrl = () => {
+  const { data } = supabase.storage
+    .from(PUBLIC_STORAGE_BUCKET)
+    .getPublicUrl(RODO_FILENAME);
+  return data.publicUrl;
+};
 
 export const listFiles = async (
   path: string,
-  bucketName: string = BUCKET_NAME
+  bucketName: string = STORAGE_BUCKET
 ): Promise<FileBrowserItem[]> => {
   const { data, error } = await supabase.storage
     .from(bucketName)
@@ -30,7 +40,7 @@ export const listFiles = async (
 export const getSignedUrl = async (
   fullPath: string,
   expiresIn = 60,
-  bucketName: string = BUCKET_NAME
+  bucketName: string = STORAGE_BUCKET
 ): Promise<string> => {
   const { data, error } = await supabase.storage
     .from(bucketName)
@@ -41,7 +51,7 @@ export const getSignedUrl = async (
 
 export const downloadFileAsBlob = async (
   fullPath: string,
-  bucketName: string = BUCKET_NAME
+  bucketName: string = STORAGE_BUCKET
 ): Promise<Blob> => {
   const { data, error } = await supabase.storage
     .from(bucketName)
@@ -54,7 +64,7 @@ export const uploadFile = async (
   path: string,
   file: File,
   onProgress?: (progress: number) => void,
-  bucketName: string = BUCKET_NAME,
+  bucketName: string = STORAGE_BUCKET,
   upsert: boolean = false
 ): Promise<void> => {
   if (onProgress) onProgress(10);
@@ -63,9 +73,7 @@ export const uploadFile = async (
   const folder = lastSlashIndex !== -1 ? path.substring(0, lastSlashIndex) : '';
   const rawFileName =
     lastSlashIndex !== -1 ? path.substring(lastSlashIndex + 1) : path;
-
   const safeFileName = normalizeToEnglishAlphabet(rawFileName);
-
   const fullPath = folder ? `${folder}/${safeFileName}` : safeFileName;
 
   const { error } = await supabase.storage
@@ -79,7 +87,7 @@ export const uploadFile = async (
 
 export const createFolder = async (
   path: string,
-  bucketName: string = BUCKET_NAME
+  bucketName: string = STORAGE_BUCKET
 ): Promise<void> => {
   const { error } = await supabase.storage
     .from(bucketName)
@@ -91,7 +99,7 @@ export const createFolder = async (
 export const downloadFile = async (
   fullPath: string,
   fileName: string,
-  bucketName: string = BUCKET_NAME
+  bucketName: string = STORAGE_BUCKET
 ): Promise<void> => {
   const { data, error } = await supabase.storage
     .from(bucketName)
@@ -112,7 +120,7 @@ export const downloadFile = async (
 export const moveFile = async (
   sourcePath: string,
   destPath: string,
-  bucketName: string = BUCKET_NAME
+  bucketName: string = STORAGE_BUCKET
 ): Promise<void> => {
   const { error } = await supabase.storage
     .from(bucketName)
@@ -123,7 +131,7 @@ export const moveFile = async (
 
 export const deleteFiles = async (
   paths: string[],
-  bucketName: string = BUCKET_NAME
+  bucketName: string = STORAGE_BUCKET
 ): Promise<void> => {
   if (paths.length === 0) return;
 
@@ -140,7 +148,7 @@ export const deleteFiles = async (
 
 export const deleteFolderRecursive = async (
   path: string,
-  bucketName: string = BUCKET_NAME
+  bucketName: string = STORAGE_BUCKET
 ): Promise<void> => {
   let keepFetching = true;
 
@@ -180,7 +188,7 @@ export const deleteFolderRecursive = async (
 export const moveFolderRecursive = async (
   sourcePath: string,
   destPath: string,
-  bucketName: string = BUCKET_NAME
+  bucketName: string = STORAGE_BUCKET
 ): Promise<void> => {
   const { data, error } = await supabase.storage
     .from(bucketName)

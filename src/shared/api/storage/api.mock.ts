@@ -39,6 +39,8 @@ const getItemsInPath = (searchPath: string) => {
   return Array.from(results.values());
 };
 
+export const getRodoFilePublicUrl = () => '';
+
 export const listFiles = async (
   path: string,
   _bucketName: string = BUCKET_NAME
