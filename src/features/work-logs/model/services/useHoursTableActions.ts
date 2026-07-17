@@ -56,14 +56,20 @@ export const useHoursTableActions = ({
     currentWeek,
     isEmployeeOnVacation,
     (res) => {
-      setLocalWorkHours(res);
-      setHasUnsavedChanges(true);
-      notifications.show(
-        t('workLogs:notifications.scheduleLoaded', { count: res.length }),
-        {
-          severity: 'success',
-        }
-      );
+      if (res.length === 0) {
+        notifications.show(t('workLogs:notifications.scheduleEmpty'), {
+          severity: 'info',
+        });
+      } else {
+        setLocalWorkHours(res);
+        setHasUnsavedChanges(true);
+        notifications.show(
+          t('workLogs:notifications.scheduleLoaded', { count: res.length }),
+          {
+            severity: 'success',
+          }
+        );
+      }
     },
     () => {
       notifications.show(t('workLogs:notifications.scheduleError'), {
@@ -76,11 +82,17 @@ export const useHoursTableActions = ({
     currentWeek,
     isEmployeeOnVacation,
     (res) => {
-      setLocalWorkHours(res);
-      setHasUnsavedChanges(true);
-      notifications.show(t('workLogs:notifications.dataCopied'), {
-        severity: 'success',
-      });
+      if (res.length === 0) {
+        notifications.show(t('workLogs:notifications.sourceWeekForCopyEmpty'), {
+          severity: 'info',
+        });
+      } else {
+        setLocalWorkHours(res);
+        setHasUnsavedChanges(true);
+        notifications.show(t('workLogs:notifications.dataCopied'), {
+          severity: 'success',
+        });
+      }
     },
     () => {
       notifications.show(t('workLogs:notifications.copyError'), {

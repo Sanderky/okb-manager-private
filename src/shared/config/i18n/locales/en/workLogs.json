@@ -62,8 +62,10 @@
     "scheduleLoaded_few": "Loaded {{count}} schedule entries",
     "scheduleLoaded_many": "Loaded {{count}} schedule entries",
     "scheduleLoaded_other": "Loaded {{count}} schedule entries",
+    "scheduleEmpty": "The schedule for current week is empty",
     "scheduleError": "Error fetching schedule",
     "dataCopied": "Data copied",
+    "sourceWeekForCopyEmpty": "Data not copied. Source week is empty",
     "copyError": "Error while copying data",
     "hoursSaved": "Work hours saved",
     "saveError": "Error saving hours"

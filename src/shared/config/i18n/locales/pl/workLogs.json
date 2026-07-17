@@ -62,8 +62,10 @@
     "scheduleLoaded_few": "Załadowano {{count}} wpisy z harmonogramu",
     "scheduleLoaded_many": "Załadowano {{count}} wpisów z harmonogramu",
     "scheduleLoaded_other": "Załadowano {{count}} wpisu z harmonogramu",
+    "scheduleEmpty": "Harmonogram dla wybranego tygodnia jest pusty",
     "scheduleError": "Błąd pobierania harmonogramu",
     "dataCopied": "Skopiowano dane",
+    "sourceWeekForCopyEmpty": "Nie skopiowano danych. Źródłowy tydzień jest pusty",
     "copyError": "Błąd podczas kopiowania danych",
     "hoursSaved": "Zapisano godziny pracy",
     "saveError": "Błąd zapisu godzin"
