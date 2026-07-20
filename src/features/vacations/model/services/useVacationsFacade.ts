@@ -315,6 +315,19 @@ export const useVacationsFacade = () => {
     [currentEvent]
   );
 
+  useEffect(() => {
+    const vacationId = searchParams.get('vacationId');
+
+    if (vacationId && visibleVacations.length > 0 && !isLoadingVacations) {
+      const foundVacation = visibleVacations.find((v) => v.id === vacationId);
+
+      if (foundVacation) {
+        setCurrentEvent(foundVacation as CalendarEvent);
+        setEditDialogOpen(true);
+      }
+    }
+  }, [searchParams, visibleVacations, isLoadingVacations]);
+
   return {
     state: {
       currentMonth,

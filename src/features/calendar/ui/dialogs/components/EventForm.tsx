@@ -12,8 +12,6 @@ import {
   Checkbox,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { useTranslation } from 'react-i18next';
 import type { Construction } from '@/entities/construction';
 import type { Employee } from '@/entities/employee';
@@ -44,8 +42,7 @@ export const EventForm: React.FC<EventFormProps> = ({
   validationError,
   loading,
 }) => {
-  const { t, i18n } = useTranslation(['calendar', 'common']);
-  const currentLang = i18n.language.substring(0, 2).toLowerCase();
+  const { t } = useTranslation(['calendar', 'common']);
 
   const selectedEmployeeIds = currentEvent.employeeIds || [];
   const selectedConstructionIds = currentEvent.constructionIds || [];
@@ -126,10 +123,6 @@ export const EventForm: React.FC<EventFormProps> = ({
         slotProps={{ input: { spellCheck: 'false' } }}
       />
 
-      <LocalizationProvider
-        dateAdapter={AdapterDayjs}
-        adapterLocale={currentLang}
-      >
         <Stack direction="row" spacing={2}>
           <DatePicker
             label={t('calendar:form.dateFrom')}
@@ -151,8 +144,6 @@ export const EventForm: React.FC<EventFormProps> = ({
             disabled={loading}
           />
         </Stack>
-      </LocalizationProvider>
-
       <FormControl sx={{ width: '100%', maxWidth: '100%' }}>
         <Autocomplete
           size="small"

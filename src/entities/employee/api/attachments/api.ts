@@ -1,4 +1,4 @@
-import { supabase } from '@/shared/api/supabase';
+import { STORAGE_BUCKET, supabase } from '@/shared/api/supabase';
 import { FOLDER_NAMES, SYSTEM_FOLDER_PREFIX } from '@/shared/config/storage';
 import type { Attachment, EmployeeAttachmentType } from '../../model/types';
 import {
@@ -8,8 +8,6 @@ import {
   listFiles,
 } from '@/shared/api/storage/api';
 import { mapStorageItemToAttachment } from '../mappers';
-
-const STORAGE_BUCKET = import.meta.env.VITE_FILES_BUCKET_NAME ?? 'files';
 
 const getTypeFromFolder = (folderName: string) => {
   return folderName.replace(SYSTEM_FOLDER_PREFIX, '');

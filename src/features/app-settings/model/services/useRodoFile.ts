@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as FilesApi from '@/shared/api/storage';
 import type { FileItem } from '@/shared/model/types';
+import { PUBLIC_STORAGE_BUCKET, RODO_FILENAME } from '@/shared/api/supabase';
 
-const SYSTEM_BUCKET = import.meta.env.VITE_PUBLIC_BUCKET_NAME ?? 'system';
-const RODO_FILENAME = 'rodo.pdf';
+const SYSTEM_BUCKET = PUBLIC_STORAGE_BUCKET;
 
 export const useRodoFile = (isOpen: boolean) => {
   const { t } = useTranslation('settings');
@@ -19,8 +19,7 @@ export const useRodoFile = (isOpen: boolean) => {
       const files = await FilesApi.listFiles('', SYSTEM_BUCKET);
       const rodo = files.find((f) => f.name === RODO_FILENAME);
       setRodoFile(rodo?.type === 'file' ? rodo : null);
-    } catch (err) {
-      console.error('Błąd pobierania RODO:', err);
+    } catch {
       setError(t('errors.fetchRodo'));
     } finally {
       setIsLoading(false);

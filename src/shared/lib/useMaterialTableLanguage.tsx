@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import { DEFAULT_LANG, MRT_LOCALES, type LangCode } from '../config/languages';
+import { DEFAULT_LANG, type LangCode } from '../config/i18n/languages';
+import { MRT_LOCALES } from '../config/i18n/resources';
 
 export const useMaterialTableLanguage = () => {
   const { i18n } = useTranslation();

@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { pdf } from '@react-pdf/renderer';
 import { useTranslation } from 'react-i18next';
-import type { LangCode } from '@/shared/config/languages';
+import type { LangCode } from '@/shared/config/i18n/languages';
 import { WorkLogPdfDocument } from '../../ui/report/WorkLogPdfDocument';
 import type { TableData } from '../types';
 

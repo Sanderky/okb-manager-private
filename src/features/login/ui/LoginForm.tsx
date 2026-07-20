@@ -11,8 +11,6 @@ import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { useLoginFacade } from '../model/service/useLoginFacade';
 
-const RODO_URL = import.meta.env.VITE_RODO_URL ?? '';
-
 interface LoginProps {
   onForgotPassword: () => void;
 }
@@ -28,6 +26,7 @@ export const LoginForm = ({ onForgotPassword }: LoginProps) => {
     handleChange,
     handleSubmit,
     isLoading,
+    getRodoFilePublicUrl
   } = useLoginFacade();
 
   return (
@@ -100,7 +99,7 @@ export const LoginForm = ({ onForgotPassword }: LoginProps) => {
 
       <Typography variant="caption">
         {t('auth:login.rodoPre')}
-        <Link href={RODO_URL} target="_blank" rel="noopener noreferrer">
+        <Link href={getRodoFilePublicUrl()} target="_blank" rel="noopener noreferrer">
           {t('auth:login.rodoLink')}
         </Link>
         .

@@ -15,17 +15,18 @@ interface TimelineHeaderProps {
 export const TimelineHeader: React.FC<TimelineHeaderProps> = ({
   daysArray,
 }) => {
-  const { t } = useTranslation(['lodgings']);
+  const { t, i18n } = useTranslation(['lodgings']);
 
   const months = React.useMemo(() => {
     const result: { name: string; daysCount: number }[] = [];
     if (daysArray.length === 0) return result;
 
-    let currentMonth = daysArray[0].format('MMMM YYYY');
+    let currentMonth = daysArray[0].locale(i18n.language).format('MMMM YYYY');
     let daysCount = 0;
 
     daysArray.forEach((day) => {
-      const monthName = day.format('MMMM YYYY');
+      const monthName = day.locale(i18n.language).format('MMMM YYYY');
+
       if (monthName === currentMonth) {
         daysCount++;
       } else {
@@ -34,9 +35,10 @@ export const TimelineHeader: React.FC<TimelineHeaderProps> = ({
         daysCount = 1;
       }
     });
+
     result.push({ name: currentMonth, daysCount });
     return result;
-  }, [daysArray]);
+  }, [daysArray, i18n.language]);
 
   return (
     <Box

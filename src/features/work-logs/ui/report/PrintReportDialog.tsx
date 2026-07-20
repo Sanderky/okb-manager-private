@@ -28,7 +28,7 @@ import {
   LANGUAGES_CONFIG,
   REPORT_LANGUAGES,
   type LangCode,
-} from '@/shared/config/languages';
+} from '@/shared/config/i18n/languages';
 
 interface PrintReportDialogProps {
   open: boolean;

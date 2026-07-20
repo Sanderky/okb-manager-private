@@ -7,8 +7,9 @@ import {
 import { normalizeToEnglishAlphabet } from '../../lib/string';
 import type { FileBrowserItem } from '../../model/types';
 import { mapStorageItem } from './mappers';
+import { STORAGE_BUCKET } from '../supabase';
 
-export const BUCKET_NAME = import.meta.env.VITE_FILES_BUCKET_NAME ?? 'files';
+export const BUCKET_NAME = STORAGE_BUCKET;
 
 const getItemsInPath = (searchPath: string) => {
   const prefix = searchPath ? `${searchPath}/` : '';
@@ -37,6 +38,8 @@ const getItemsInPath = (searchPath: string) => {
 
   return Array.from(results.values());
 };
+
+export const getRodoFilePublicUrl = () => '';
 
 export const listFiles = async (
   path: string,
@@ -77,31 +80,24 @@ export const getSignedUrl = async (
       <svg xmlns="http://www.w3.org/2000/svg" width="600" height="400">
         <rect width="100%" height="100%" fill="#000000"/>
         <text x="50%" y="45%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="24" fill="#ffffff" font-weight="bold">
-          Wersja demo
+          Demo
         </text>
         <text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="16" fill="#ffffff">
           ${fileName}
         </text>
         <text x="50%" y="65%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="14" fill="#ffffff">
-          Podgląd plików jest niemożliwy.
+          File preview is inpossible.
         </text>
       </svg>
     `.trim();
     return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgContent)}`;
   }
 
-  // const blob = new Blob(
-  //   [
-  //     `Wersja demo\n\n\n${fileName}\n\nPodgląd plików jest niemożliwy`,
-  //   ],
-  //   { type: 'text/plain' }
-  // );
-
   const htmlContent = `
   <div style="font-family: sans-serif; text-align: center; padding: 40px; background-color: #ffffff">
-    <h2 style="color: #000;">Wersja demo</h2>
+    <h2 style="color: #000;">Demo</h2>
     <p style="font-size: 18px; font-weight: bold; color: #000;">${fileName}</p>
-    <p style="color: #000; margin-top: 20px;">Podgląd plików jest niemożliwy.</p>
+    <p style="color: #000; margin-top: 20px;">File preview is inpossible.</p>
   </div>
 `;
 

@@ -169,10 +169,6 @@ const WeekSelector: React.FC<WeekSelectorProps> = ({
             >
               <ChevronLeft />
             </IconButton>
-
-            {/* Został usunięty lokalny LocalizationProvider. 
-                Komponent DatePicker dziedziczy teraz konfigurację 
-                z globalnego AppLocalizationProvider, którego masz zdefiniowanego w Theme. */}
             <DatePicker
               openTo="month"
               views={['year', 'month']}

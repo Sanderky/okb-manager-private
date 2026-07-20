@@ -4,7 +4,6 @@ import * as mockApi from './api.mock';
 const isMock = import.meta.env.VITE_USE_MOCK === 'true';
 
 export const {
-  BUCKET_NAME,
   listFiles,
   getSignedUrl,
   downloadFileAsBlob,
@@ -17,4 +16,5 @@ export const {
   moveFolderRecursive,
   listAllFoldersRecursive,
   getUniqueDestPath,
+  getRodoFilePublicUrl
 } = isMock ? mockApi : supabaseApi;
