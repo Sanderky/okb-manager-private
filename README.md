@@ -59,18 +59,23 @@ You should assign these exact names (`files` and `system`) to `VITE_FILES_BUCKET
 
 ## 3. Running the Project for the First Time
 
-1. **Install dependencies:**
+1. **Go to frontend catalog:**
+   ```
+   cd frontend
+   ```
+
+2. **Install dependencies:**
    ```bash
    npm install
    ```
 
-2. **Start the development server:**
+3. **Start the development server:**
    ```bash
    npm start
    ```
    *(This uses `vite --host` to expose the app on your local network).*
 
-3. **Connect to the app in your browser:**
+4. **Connect to the app in your browser:**
     ```
     http://localhost:5173/home
     ```
@@ -94,15 +99,15 @@ You can run the backend either locally via Docker or connect it to a remote Supa
 ### Running Supabase Locally (Recommended for Development)
 
 1. Ensure **Docker Desktop** is running on your machine.
-2. Start the local Supabase containers using the custom script from `package.json`:
+2. Start the local Supabase containers using:
    ```bash
-   npm run supabase:start
+   npx supabase start
    ```
 3. Once initialized, the terminal will print your local `API URL` and `anon key`. Copy these into your `.env` file as `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`.
 4. The local setup automatically applies all database migrations to your Docker containers.
 5. To stop the containers when you're done, run:
    ```bash
-   npm run supabase:stop
+   npx supabase stop
    ```
 
 ### Deploying Migrations to an Existing Remote Supabase
